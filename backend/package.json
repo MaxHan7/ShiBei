@@ -1,0 +1,17 @@
+{
+  "name": "shibei-generation-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node src/server.js",
+    "check": "node --check src/server.js && node --check src/generation/index.js && node --check src/generation/tests/runQualitySet.js && node --check src/sources/extractSourceContent.js",
+    "quality:test": "node src/generation/tests/runQualitySet.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "playwright": "^1.60.0"
+  }
+}
