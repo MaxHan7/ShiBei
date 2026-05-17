@@ -309,8 +309,7 @@ final class AppStore: ObservableObject {
             dataMode = mode
             dataSourceMessage = "已从\(mode.apiLabel)读取 \(chapters.count) 个章节、\(notifications.count) 条通知"
         } catch {
-            dataMode = .mock
-            dataSourceMessage = "\(mode.apiLabel)连接失败，仍显示当前 mock 数据"
+            dataSourceMessage = "\(mode.apiLabel)读取失败：\(error.localizedDescription)"
         }
         isLoadingLocalAPI = false
     }

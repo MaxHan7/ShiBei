@@ -94,7 +94,7 @@ struct APIClient {
         guard (200..<300).contains(httpResponse.statusCode) else {
             throw APIClientError.httpStatus(httpResponse.statusCode)
         }
-        return try decoder.decode(Response.self, from: data)
+        return try decode(Response.self, from: data, path: path)
     }
 
     private func send<Request: Encodable, Response: Decodable>(
@@ -120,12 +120,50 @@ struct APIClient {
         }
         print("[ShiBei] API \(method) status=\(httpResponse.statusCode) path=\(path)")
         if (200..<300).contains(httpResponse.statusCode) || (acceptsFailureBody && httpResponse.statusCode == 422) {
-            return try decoder.decode(Response.self, from: data)
+            return try decode(Response.self, from: data, path: path)
         }
         if let serverError = try? decoder.decode(APIErrorResponse.self, from: data) {
             throw APIClientError.serverMessage(serverError.message)
         }
         throw APIClientError.httpStatus(httpResponse.statusCode)
+    }
+
+    private func decode<Response: Decodable>(_ type: Response.Type, from data: Data, path: String) throws -> Response {
+        do {
+            return try decoder.decode(type, from: data)
+        } catch let error as DecodingError {
+            let message = Self.describeDecodingError(error)
+            print("[ShiBei] API decode failed path=\(path): \(message)")
+            throw APIClientError.decoding(message)
+        } catch {
+            print("[ShiBei] API decode failed path=\(path): \(error.localizedDescription)")
+            throw error
+        }
+    }
+
+    private static func describeDecodingError(_ error: DecodingError) -> String {
+        switch error {
+        case .typeMismatch(let type, let context):
+            "字段 \(codingPathDescription(context.codingPath)) 类型不匹配，期望 \(type)。"
+        case .valueNotFound(let type, let context):
+            "字段 \(codingPathDescription(context.codingPath)) 缺少值，期望 \(type)。"
+        case .keyNotFound(let key, let context):
+            "字段 \(codingPathDescription(context.codingPath + [key])) 缺失。"
+        case .dataCorrupted(let context):
+            "字段 \(codingPathDescription(context.codingPath)) 数据损坏：\(context.debugDescription)"
+        @unknown default:
+            "API 返回数据无法解析。"
+        }
+    }
+
+    private static func codingPathDescription(_ path: [CodingKey]) -> String {
+        guard !path.isEmpty else { return "<root>" }
+        return path.map { key in
+            if let intValue = key.intValue {
+                return "[\(intValue)]"
+            }
+            return key.stringValue
+        }.joined(separator: ".")
     }
 }
 
@@ -133,6 +171,7 @@ enum APIClientError: LocalizedError {
     case invalidResponse
     case httpStatus(Int)
     case serverMessage(String)
+    case decoding(String)
 
     var errorDescription: String? {
         switch self {
@@ -142,6 +181,8 @@ enum APIClientError: LocalizedError {
             "API 请求失败：HTTP \(statusCode)。"
         case .serverMessage(let message):
             message
+        case .decoding(let message):
+            "API 返回格式不兼容：\(message)"
         }
     }
 }

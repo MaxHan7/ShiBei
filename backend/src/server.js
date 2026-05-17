@@ -83,7 +83,7 @@ async function handleCreateChapter(req, res) {
   const submittedChapter = await upsertMemoryChapter(deviceId, createSubmittedChapter(body));
   sendJson(res, 202, {
     status: submittedChapter.status,
-    chapter: submittedChapter,
+    chapter: serializeChapterForClient(submittedChapter),
     notification: null,
     message: "已提交，正在生成。"
   });
@@ -213,7 +213,7 @@ async function handleRegenerateChapter(req, res, chapterId) {
   const submittedChapter = await upsertMemoryChapter(deviceId, createRegeneratingChapter(existing));
   sendJson(res, 202, {
     status: submittedChapter.status,
-    chapter: submittedChapter,
+    chapter: serializeChapterForClient(submittedChapter),
     notification: null,
     message: "已提交，正在重新生成。"
   });
@@ -449,15 +449,16 @@ async function getStoredNotification(deviceId, notificationId) {
 }
 
 async function upsertStoredNotification(deviceId, notification) {
-  if (hasDatabase) return upsertDatabaseNotification(deviceId, notification);
+  const record = normalizeNotification(notification);
+  if (hasDatabase) return upsertDatabaseNotification(deviceId, record);
   const memory = getMemory(deviceId);
-  const existingIndex = memory.notifications.findIndex((item) => item.id === notification.id);
+  const existingIndex = memory.notifications.findIndex((item) => item.id === record.id);
   if (existingIndex >= 0) {
-    memory.notifications.splice(existingIndex, 1, notification);
+    memory.notifications.splice(existingIndex, 1, record);
   } else {
-    memory.notifications.unshift(notification);
+    memory.notifications.unshift(record);
   }
-  return memory.notifications.find((item) => item.id === notification.id);
+  return memory.notifications.find((item) => item.id === record.id);
 }
 
 async function deleteStoredNotificationsForChapter(deviceId, chapterId, type = "") {
@@ -508,14 +509,14 @@ async function updateMemoryChapterStage(deviceId, chapterId, status, runId) {
 
 function normalizeChapterSource(chapter, chapterId) {
   const source = chapter.source || {};
-  const type = source.type || chapter.sourceType || "text";
-  const rawInput = source.rawInput || source.rawText || chapter.rawInput || chapter.sourceText || "";
-  const extractedText = source.extractedText || source.cleanedText || chapter.extractedText || rawInput;
-  const accountOrDomain = source.accountOrDomain || source.account || chapter.sourceAccount || chapter.source_account_or_platform || "";
+  const type = normalizeSourceType(source.type || chapter.sourceType);
+  const rawInput = toStringValue(source.rawInput || source.rawText || chapter.rawInput || chapter.sourceText || "");
+  const extractedText = toStringValue(source.extractedText || source.cleanedText || chapter.extractedText || rawInput);
+  const accountOrDomain = toStringValue(source.accountOrDomain || source.account || chapter.sourceAccount || chapter.source_account_or_platform || "");
   return {
     type,
-    title: source.title || chapter.sourceTitle || chapter.title || (type === "text" ? "粘贴文字" : "未命名来源"),
-    url: source.url || chapter.sourceUrl || "",
+    title: toStringValue(source.title || chapter.sourceTitle || chapter.title || (type === "text" ? "粘贴文字" : "未命名来源")),
+    url: toStringValue(source.url || chapter.sourceUrl || ""),
     accountOrDomain,
     rawInput,
     extractedText,
@@ -526,27 +527,57 @@ function normalizeChapterSource(chapter, chapterId) {
   };
 }
 
+function normalizeSourceType(type) {
+  return ["text", "article_link", "wechat_article", "video_link"].includes(type) ? type : "text";
+}
+
+function normalizeKnowledgeType(type) {
+  return ["concept", "judgment", "method", "scenario", "counterexample", "comparison", "step"].includes(type) ? type : "concept";
+}
+
+function normalizeQuestionType(type) {
+  return ["multiple_choice", "true_false", "scenario_judgment"].includes(type) ? type : "multiple_choice";
+}
+
+function normalizeChapterStatus(status) {
+  return Object.prototype.hasOwnProperty.call(STATUS_TEXT, status) ? status : "failed_questions";
+}
+
+function toStringValue(value, fallback = "") {
+  if (value === undefined || value === null) return fallback;
+  return String(value);
+}
+
+function toNumberValue(value, fallback = 0) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function toIntegerValue(value, fallback = 0) {
+  return Math.round(toNumberValue(value, fallback));
+}
+
 function normalizeKnowledgePoints(points, chapterId) {
   const now = new Date().toISOString();
   return points.map((point, index) => {
-    const id = point.id || `kp-${index + 1}`;
-    const sourceSnippet = point.sourceSnippet || point.source_snippet || point.sourceQuote || "";
+    const id = toStringValue(point.id || `kp-${index + 1}`);
+    const sourceSnippet = toStringValue(point.sourceSnippet || point.source_snippet || point.sourceQuote || "");
     return {
       id,
-      chapterId: point.chapterId || point.chapter_id || chapterId,
-      title: point.title || `知识点 ${index + 1}`,
-      summary: point.summary || point.keyClaim || "",
-      keyClaim: point.keyClaim || point.summary || "",
-      knowledgeType: point.knowledgeType || point.knowledge_type || "concept",
+      chapterId: toStringValue(point.chapterId || point.chapter_id || chapterId),
+      title: toStringValue(point.title || `知识点 ${index + 1}`),
+      summary: toStringValue(point.summary || point.keyClaim || ""),
+      keyClaim: toStringValue(point.keyClaim || point.summary || ""),
+      knowledgeType: normalizeKnowledgeType(point.knowledgeType || point.knowledge_type),
       sourceSnippet,
-      sourceQuote: point.sourceQuote || sourceSnippet,
-      testabilityScore: Number.isFinite(point.testabilityScore) ? point.testabilityScore : (point.testability_score || 3),
-      masteryScore: Number.isFinite(point.masteryScore) ? point.masteryScore : INITIAL_MASTERY_SCORE,
-      answeredCount: Number.isFinite(point.answeredCount) ? point.answeredCount : 0,
-      lastReviewedAt: point.lastReviewedAt || null,
-      lastDecayAppliedAt: point.lastDecayAppliedAt || null,
-      createdAt: point.createdAt || now,
-      updatedAt: point.updatedAt || now
+      sourceQuote: toStringValue(point.sourceQuote || sourceSnippet),
+      testabilityScore: toIntegerValue(point.testabilityScore ?? point.testability_score, 3),
+      masteryScore: toIntegerValue(point.masteryScore ?? point.mastery_score, INITIAL_MASTERY_SCORE),
+      answeredCount: toIntegerValue(point.answeredCount ?? point.answered_count, 0),
+      lastReviewedAt: point.lastReviewedAt ? toStringValue(point.lastReviewedAt) : null,
+      lastDecayAppliedAt: point.lastDecayAppliedAt ? toStringValue(point.lastDecayAppliedAt) : null,
+      createdAt: toStringValue(point.createdAt || now),
+      updatedAt: toStringValue(point.updatedAt || now)
     };
   });
 }
@@ -554,34 +585,63 @@ function normalizeKnowledgePoints(points, chapterId) {
 function normalizeQuestions(questions, chapterId, knowledgePoints = []) {
   const now = new Date().toISOString();
   return questions.map((question, index) => {
-    const knowledgePointId = question.knowledgePointId || question.pointId || question.knowledge_point_id || "";
+    const knowledgePointId = toStringValue(question.knowledgePointId || question.pointId || question.knowledge_point_id || "");
     const point = knowledgePoints.find((item) => item.id === knowledgePointId);
-    const sourceSnippet = question.sourceSnippet || question.source_snippet || question.sourceQuote || "";
+    const sourceSnippet = toStringValue(question.sourceSnippet || question.source_snippet || question.sourceQuote || "");
     return {
-      id: question.id || `q-${index + 1}`,
-      chapterId: question.chapterId || question.chapter_id || chapterId,
+      id: toStringValue(question.id || `q-${index + 1}`),
+      chapterId: toStringValue(question.chapterId || question.chapter_id || chapterId),
       knowledgePointId,
       pointId: knowledgePointId,
-      pointTitle: question.pointTitle || point?.title || "",
-      type: question.type || question.questionType || question.question_type || "multiple_choice",
-      stem: question.stem || "",
-      options: Array.isArray(question.options) ? question.options : [],
-      correctOptionId: question.correctOptionId || question.correct_answer || question.correctAnswer || "",
-      correctUnderstanding: question.correctUnderstanding || question.correct_understanding || question.fullExplanation || "",
-      commonMisconception: question.commonMisconception || question.common_misconception || "",
+      pointTitle: toStringValue(question.pointTitle || point?.title || ""),
+      type: normalizeQuestionType(question.type || question.questionType || question.question_type),
+      stem: toStringValue(question.stem || ""),
+      options: normalizeQuestionOptions(question.options),
+      correctOptionId: toStringValue(question.correctOptionId || question.correct_answer || question.correctAnswer || ""),
+      correctUnderstanding: toStringValue(question.correctUnderstanding || question.correct_understanding || question.fullExplanation || ""),
+      commonMisconception: toStringValue(question.commonMisconception || question.common_misconception || ""),
       sourceSnippet,
-      sourceQuote: question.sourceQuote || sourceSnippet,
-      difficulty: question.difficulty || "medium",
-      qualityScore: question.qualityScore || null,
-      qualityIssues: question.qualityIssues || [],
-      shortExplanation: question.shortExplanation || question.explanation || "",
-      fullExplanation: question.fullExplanation || question.correctUnderstanding || question.correct_understanding || "",
-      pitfalls: Array.isArray(question.pitfalls) ? question.pitfalls : [],
+      sourceQuote: toStringValue(question.sourceQuote || sourceSnippet),
+      difficulty: toStringValue(question.difficulty || "medium"),
+      qualityScore: normalizeQualityScore(question.qualityScore),
+      qualityIssues: Array.isArray(question.qualityIssues) ? question.qualityIssues.map((issue) => toStringValue(issue)).filter(Boolean) : [],
+      shortExplanation: toStringValue(question.shortExplanation || question.explanation || ""),
+      fullExplanation: toStringValue(question.fullExplanation || question.correctUnderstanding || question.correct_understanding || ""),
+      pitfalls: Array.isArray(question.pitfalls) ? question.pitfalls.map((pitfall) => toStringValue(pitfall)).filter(Boolean) : [],
       isNew: Boolean(question.isNew),
-      createdAt: question.createdAt || now,
-      updatedAt: question.updatedAt || now
+      createdAt: toStringValue(question.createdAt || now),
+      updatedAt: toStringValue(question.updatedAt || now)
     };
   });
+}
+
+function normalizeQuestionOptions(options) {
+  if (!Array.isArray(options)) return [];
+  return options.map((option, index) => ({
+    id: toStringValue(option?.id || `option-${index + 1}`),
+    text: toStringValue(option?.text || option?.label || option?.content || "")
+  }));
+}
+
+function normalizeQualityScore(qualityScore) {
+  if (!qualityScore || typeof qualityScore !== "object" || Array.isArray(qualityScore)) return null;
+  return Object.fromEntries(
+    Object.entries(qualityScore)
+      .filter(([, value]) => Number.isFinite(Number(value)))
+      .map(([key, value]) => [key, Number(value)])
+  );
+}
+
+function normalizeQualitySummary(qualitySummary) {
+  if (!qualitySummary || typeof qualitySummary !== "object" || Array.isArray(qualitySummary)) return null;
+  return {
+    averageQualityScore: Number.isFinite(Number(qualitySummary.averageQualityScore))
+      ? Number(qualitySummary.averageQualityScore)
+      : (Number.isFinite(Number(qualitySummary.averageScore)) ? Number(qualitySummary.averageScore) : null),
+    questionCoverageRate: Number.isFinite(Number(qualitySummary.questionCoverageRate))
+      ? Number(qualitySummary.questionCoverageRate)
+      : (Number.isFinite(Number(qualitySummary.coverageRate)) ? Number(qualitySummary.coverageRate) : null)
+  };
 }
 
 function ensureChapterRecord(chapter) {
@@ -589,31 +649,91 @@ function ensureChapterRecord(chapter) {
   const id = chapter.id || createId("chapter");
   const source = normalizeChapterSource(chapter, id);
   const knowledgePoints = normalizeKnowledgePoints(chapter.knowledgePoints || [], id);
+  const filteredKnowledgePoints = normalizeKnowledgePoints(chapter.filteredKnowledgePoints || [], id);
   const questions = normalizeQuestions(chapter.questions || [], id, knowledgePoints);
+  const status = normalizeChapterStatus(chapter.status || "completed");
   const baseChapter = { ...chapter, id, source, knowledgePoints, questions };
   return {
     id,
-    title: chapter.title || chapter.chapterTitle || source.title || "未命名章节",
-    status: chapter.status || "completed",
-    displayStatusText: chapter.displayStatusText || STATUS_TEXT[chapter.status] || "",
-    failureReason: chapter.failureReason || "",
+    title: toStringValue(chapter.title || chapter.chapterTitle || source.title || "未命名章节"),
+    status,
+    displayStatusText: toStringValue(chapter.displayStatusText || STATUS_TEXT[status] || ""),
+    failureReason: toStringValue(chapter.failureReason || ""),
     source,
     sourceType: source.type,
     sourceText: source.rawInput || source.extractedText || "",
     knowledgePoints,
-    filteredKnowledgePoints: chapter.filteredKnowledgePoints || [],
+    filteredKnowledgePoints,
     questions,
-    qualitySummary: chapter.qualitySummary || null,
-    generationMeta: chapter.generationMeta || null,
+    qualitySummary: normalizeQualitySummary(chapter.qualitySummary),
+    generationMeta: normalizeGenerationMeta(chapter.generationMeta),
     reviewSession: chapter.reviewSession ? normalizeReviewSession(chapter.reviewSession, baseChapter) : null,
-    masteredPoints: chapter.masteredPoints || 0,
-    removedQuestionIds: chapter.removedQuestionIds || [],
-    downgradedQuestionIds: chapter.downgradedQuestionIds || [],
-    feedbackRecords: chapter.feedbackRecords || [],
+    masteredPoints: toIntegerValue(chapter.masteredPoints, 0),
+    removedQuestionIds: Array.isArray(chapter.removedQuestionIds) ? chapter.removedQuestionIds.map((id) => toStringValue(id)).filter(Boolean) : [],
+    downgradedQuestionIds: Array.isArray(chapter.downgradedQuestionIds) ? chapter.downgradedQuestionIds.map((id) => toStringValue(id)).filter(Boolean) : [],
+    feedbackRecords: normalizeFeedbackRecords(chapter.feedbackRecords),
     dismissedFromNotifications: Boolean(chapter.dismissedFromNotifications),
-    createdAt: chapter.createdAt || now,
-    updatedAt: now
+    createdAt: toStringValue(chapter.createdAt || now),
+    updatedAt: toStringValue(chapter.updatedAt || now)
   };
+}
+
+function serializeChapterForClient(chapter) {
+  return ensureChapterRecord(chapter);
+}
+
+function serializeChaptersForClient(chapters = []) {
+  return chapters.map(serializeChapterForClient);
+}
+
+function normalizeGenerationMeta(generationMeta) {
+  if (!generationMeta || typeof generationMeta !== "object" || Array.isArray(generationMeta)) return null;
+  return {
+    ...generationMeta,
+    currentStage: generationMeta.currentStage ? toStringValue(generationMeta.currentStage) : null,
+    qualifiedQuestionCount: generationMeta.qualifiedQuestionCount === undefined || generationMeta.qualifiedQuestionCount === null
+      ? null
+      : toIntegerValue(generationMeta.qualifiedQuestionCount, 0),
+    failedStage: generationMeta.failedStage ? toStringValue(generationMeta.failedStage) : null,
+    failureReason: generationMeta.failureReason ? toStringValue(generationMeta.failureReason) : null
+  };
+}
+
+function normalizeNotification(notification = {}) {
+  return {
+    id: toStringValue(notification.id || createId("notification")),
+    chapterId: toStringValue(notification.chapterId || notification.chapter_id || ""),
+    type: notification.type === "generation_failed" ? "generation_failed" : "generation_completed",
+    title: toStringValue(notification.title || ""),
+    body: toStringValue(notification.body || ""),
+    read: Boolean(notification.read),
+    dismissed: Boolean(notification.dismissed),
+    createdAt: toStringValue(notification.createdAt || notification.created_at || new Date().toISOString())
+  };
+}
+
+function serializeNotificationForClient(notification) {
+  return normalizeNotification(notification);
+}
+
+function serializeNotificationsForClient(notifications = []) {
+  return notifications.map(serializeNotificationForClient);
+}
+
+function normalizeFeedbackRecords(feedbackRecords) {
+  if (!Array.isArray(feedbackRecords)) return [];
+  return feedbackRecords.map((feedback, index) => ({
+    id: toStringValue(feedback.id || `feedback-${index + 1}`),
+    questionId: toStringValue(feedback.questionId || feedback.question_id || ""),
+    knowledgePointId: toStringValue(feedback.knowledgePointId || feedback.knowledge_point_id || ""),
+    chapterId: toStringValue(feedback.chapterId || feedback.chapter_id || ""),
+    reviewSessionId: toStringValue(feedback.reviewSessionId || feedback.review_session_id || ""),
+    feedbackType: normalizeFeedbackType(feedback.feedbackType || feedback.feedback_type || feedback.type),
+    severity: toStringValue(feedback.severity || "light"),
+    actionTaken: toStringValue(feedback.actionTaken || feedback.action_taken || ""),
+    invalidatedAttemptId: toStringValue(feedback.invalidatedAttemptId || feedback.invalidated_attempt_id || ""),
+    createdAt: toStringValue(feedback.createdAt || feedback.created_at || new Date().toISOString())
+  }));
 }
 
 async function upsertMemoryChapter(deviceId, chapter) {
@@ -644,20 +764,20 @@ async function createMemoryNotification(deviceId, chapter) {
 function normalizeReviewSession(session = {}, chapter = {}) {
   const now = new Date().toISOString();
   const normalized = {
-    id: session.id || createId("session"),
-    chapterId: session.chapterId || chapter.id || "",
-    status: session.status || "active",
-    queue: Array.isArray(session.queue) ? session.queue : [],
-    reinforcementQueue: Array.isArray(session.reinforcementQueue) ? session.reinforcementQueue : [],
-    currentQueueIndex: Number.isFinite(session.currentQueueIndex) ? session.currentQueueIndex : 0,
+    id: toStringValue(session.id || createId("session")),
+    chapterId: toStringValue(session.chapterId || chapter.id || ""),
+    status: normalizeReviewSessionStatus(session.status),
+    queue: normalizeReviewQueue(session.queue),
+    reinforcementQueue: Array.isArray(session.reinforcementQueue) ? session.reinforcementQueue.map((id) => toStringValue(id)).filter(Boolean) : [],
+    currentQueueIndex: toIntegerValue(session.currentQueueIndex, 0),
     attempts: Array.isArray(session.attempts) ? session.attempts.map(normalizeReviewAttempt) : [],
-    masteryByPointId: session.masteryByPointId || {},
-    answeredPointIds: Array.isArray(session.answeredPointIds) ? session.answeredPointIds : [],
-    masteredThisRoundPointIds: Array.isArray(session.masteredThisRoundPointIds) ? session.masteredThisRoundPointIds : [],
-    skippedPointIds: Array.isArray(session.skippedPointIds) ? session.skippedPointIds : [],
-    createdAt: session.createdAt || now,
-    updatedAt: session.updatedAt || now,
-    completedAt: session.completedAt || null
+    masteryByPointId: normalizeMasteryByPointId(session.masteryByPointId),
+    answeredPointIds: Array.isArray(session.answeredPointIds) ? session.answeredPointIds.map((id) => toStringValue(id)).filter(Boolean) : [],
+    masteredThisRoundPointIds: Array.isArray(session.masteredThisRoundPointIds) ? session.masteredThisRoundPointIds.map((id) => toStringValue(id)).filter(Boolean) : [],
+    skippedPointIds: Array.isArray(session.skippedPointIds) ? session.skippedPointIds.map((id) => toStringValue(id)).filter(Boolean) : [],
+    createdAt: toStringValue(session.createdAt || now),
+    updatedAt: toStringValue(session.updatedAt || now),
+    completedAt: session.completedAt ? toStringValue(session.completedAt) : null
   };
   for (const point of chapter.knowledgePoints || []) {
     if (!Number.isFinite(normalized.masteryByPointId[point.id])) {
@@ -667,21 +787,43 @@ function normalizeReviewSession(session = {}, chapter = {}) {
   return normalized;
 }
 
+function normalizeReviewSessionStatus(status) {
+  return ["active", "completed", "abandoned"].includes(status) ? status : "active";
+}
+
+function normalizeReviewQueue(queue) {
+  if (!Array.isArray(queue)) return [];
+  return queue.map((item, index) => ({
+    id: toStringValue(item?.id || `queue-${index + 1}`),
+    pointId: toStringValue(item?.pointId || item?.point_id || ""),
+    questionId: toStringValue(item?.questionId || item?.question_id || ""),
+    isReinforcement: Boolean(item?.isReinforcement || item?.is_reinforcement)
+  }));
+}
+
+function normalizeMasteryByPointId(masteryByPointId) {
+  if (!masteryByPointId || typeof masteryByPointId !== "object" || Array.isArray(masteryByPointId)) return {};
+  return Object.fromEntries(
+    Object.entries(masteryByPointId)
+      .map(([key, value]) => [key, toIntegerValue(value, INITIAL_MASTERY_SCORE)])
+  );
+}
+
 function normalizeReviewAttempt(attempt = {}) {
   return {
-    id: attempt.id || createId("attempt"),
-    reviewSessionId: attempt.reviewSessionId || attempt.review_session_id || "",
-    chapterId: attempt.chapterId || attempt.chapter_id || "",
-    knowledgePointId: attempt.knowledgePointId || attempt.knowledge_point_id || "",
-    questionId: attempt.questionId || attempt.question_id || "",
-    answer: attempt.answer || "",
+    id: toStringValue(attempt.id || createId("attempt")),
+    reviewSessionId: toStringValue(attempt.reviewSessionId || attempt.review_session_id || ""),
+    chapterId: toStringValue(attempt.chapterId || attempt.chapter_id || ""),
+    knowledgePointId: toStringValue(attempt.knowledgePointId || attempt.knowledge_point_id || ""),
+    questionId: toStringValue(attempt.questionId || attempt.question_id || ""),
+    answer: toStringValue(attempt.answer || ""),
     result: attempt.result || "unknown",
     isReinforcement: Boolean(attempt.isReinforcement || attempt.is_reinforcement),
-    masteryScoreBefore: attempt.masteryScoreBefore ?? attempt.mastery_score_before ?? INITIAL_MASTERY_SCORE,
-    masteryScoreAfter: attempt.masteryScoreAfter ?? attempt.mastery_score_after ?? INITIAL_MASTERY_SCORE,
+    masteryScoreBefore: toIntegerValue(attempt.masteryScoreBefore ?? attempt.mastery_score_before, INITIAL_MASTERY_SCORE),
+    masteryScoreAfter: toIntegerValue(attempt.masteryScoreAfter ?? attempt.mastery_score_after, INITIAL_MASTERY_SCORE),
     invalidatedByFeedback: Boolean(attempt.invalidatedByFeedback || attempt.invalidated_by_feedback),
     skippedDueToQuestionFeedback: Boolean(attempt.skippedDueToQuestionFeedback || attempt.skipped_due_to_question_feedback),
-    answeredAt: attempt.answeredAt || attempt.answered_at || new Date().toISOString()
+    answeredAt: toStringValue(attempt.answeredAt || attempt.answered_at || new Date().toISOString())
   };
 }
 
@@ -1043,7 +1185,7 @@ const server = createServer(async (req, res) => {
 
   if (req.method === "GET" && req.url === "/api/chapters") {
     const chapters = await listStoredChapters(deviceId);
-    sendJson(res, 200, { chapters: sortByCreatedAtDesc(chapters) });
+    sendJson(res, 200, { chapters: sortByCreatedAtDesc(serializeChaptersForClient(chapters)) });
     return;
   }
 
@@ -1051,7 +1193,7 @@ const server = createServer(async (req, res) => {
   if (chapterMatch && req.method === "GET") {
     const chapter = await getStoredChapter(deviceId, decodeURIComponent(chapterMatch[1]));
     if (!chapter) sendJson(res, 404, { errorCode: "chapter_not_found", message: "章节不存在。" });
-    else sendJson(res, 200, { chapter });
+    else sendJson(res, 200, { chapter: serializeChapterForClient(chapter) });
     return;
   }
 
@@ -1077,7 +1219,7 @@ const server = createServer(async (req, res) => {
       return;
     }
     if (String(chapter.status || "") !== "completed") {
-      sendJson(res, 422, { errorCode: "chapter_not_reviewable", message: "这个章节暂时不能开始复习。", chapter });
+      sendJson(res, 422, { errorCode: "chapter_not_reviewable", message: "这个章节暂时不能开始复习。", chapter: serializeChapterForClient(chapter) });
       return;
     }
     const reviewSession = req.method === "POST"
@@ -1085,10 +1227,11 @@ const server = createServer(async (req, res) => {
       : chapter.reviewSession ? normalizeReviewSession(chapter.reviewSession, chapter) : null;
     if (reviewSession) chapter.reviewSession = reviewSession;
     await upsertStoredChapter(deviceId, chapter);
+    const responseChapter = serializeChapterForClient(chapter);
     sendJson(res, 200, {
-      chapter,
+      chapter: responseChapter,
       reviewSession,
-      currentQuestion: reviewSession && reviewSession.status !== "completed" ? currentQuestionForSession(chapter, reviewSession) : null
+      currentQuestion: reviewSession && reviewSession.status !== "completed" ? currentQuestionForSession(responseChapter, reviewSession) : null
     });
     return;
   }
@@ -1106,11 +1249,12 @@ const server = createServer(async (req, res) => {
       const body = await readBody(req);
       const result = recordSessionAttempt(chapter, body);
       await upsertStoredChapter(deviceId, chapter);
+      const responseChapter = serializeChapterForClient(chapter);
       sendJson(res, 200, {
-        chapter,
+        chapter: responseChapter,
         reviewSession: result.session,
         attempt: result.attempt,
-        currentQuestion: result.session.status === "completed" ? null : result.question
+        currentQuestion: result.session.status === "completed" ? null : currentQuestionForSession(responseChapter, result.session)
       });
     } catch (error) {
       sendJson(res, error.statusCode || 422, { errorCode: "attempt_not_recorded", message: error.message || "答题记录保存失败。" });
@@ -1126,13 +1270,18 @@ const server = createServer(async (req, res) => {
       sendJson(res, 404, { errorCode: "question_not_found", message: "题目不存在。" });
       return;
     }
-    sendJson(res, 200, result);
+    const responseChapter = serializeChapterForClient(result.chapter);
+    sendJson(res, 200, {
+      ...result,
+      chapter: responseChapter,
+      reviewSession: responseChapter.reviewSession
+    });
     return;
   }
 
   if (req.method === "GET" && req.url === "/api/notifications") {
     const notifications = await listStoredNotifications(deviceId);
-    sendJson(res, 200, { notifications: sortByCreatedAtDesc(notifications) });
+    sendJson(res, 200, { notifications: sortByCreatedAtDesc(serializeNotificationsForClient(notifications)) });
     return;
   }
 
@@ -1149,7 +1298,7 @@ const server = createServer(async (req, res) => {
       notification.dismissed = true;
     }
     const saved = await upsertStoredNotification(deviceId, notification);
-    sendJson(res, 200, { notification: saved });
+    sendJson(res, 200, { notification: serializeNotificationForClient(saved) });
     return;
   }
 
