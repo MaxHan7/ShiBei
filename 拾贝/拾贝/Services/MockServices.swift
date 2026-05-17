@@ -131,6 +131,7 @@ final class AppStore: ObservableObject {
         let parsedInput = ChapterInput.parse(input)
         let targetMode = submissionModeForCreate()
         let shouldReplaceMockState = dataMode == .mock && targetMode == .cloudAPI
+        print("[ShiBei] AppStore.createChapter start target=\(targetMode.rawValue), sourceType=\(parsedInput.sourceType.rawValue), canSubmit=\(parsedInput.canSubmit), device=\(anonymousDeviceId.suffix(6))")
         isWritingChapter = true
         defer { isWritingChapter = false }
 
@@ -143,12 +144,14 @@ final class AppStore: ObservableObject {
             case .localAPI, .cloudAPI:
                 guard let client = apiClient(for: targetMode) else {
                     dataSourceMessage = "请先填写有效的 Railway 云端 API 地址"
+                    print("[ShiBei] AppStore.createChapter missing valid API client for target=\(targetMode.rawValue), cloudURL=\(cloudAPIBaseURLString)")
                     return false
                 }
                 dataSourceMessage = "正在提交到\(targetMode.apiLabel)..."
                 let chapterService = LocalAPIChapterService(apiClient: client)
                 created = try await chapterService.createChapter(from: parsedInput)
                 dataSourceMessage = "\(targetMode.apiLabel)已接收，正在生成章节..."
+                print("[ShiBei] AppStore.createChapter accepted chapter=\(created.chapter.id), status=\(created.chapter.status.rawValue)")
             }
             if shouldReplaceMockState {
                 clearCurrentStateForCloudSubmission()
@@ -161,6 +164,7 @@ final class AppStore: ObservableObject {
             return true
         } catch {
             dataSourceMessage = "\(targetMode.apiLabel)提交失败：\(error.localizedDescription)"
+            print("[ShiBei] AppStore.createChapter failed target=\(targetMode.rawValue), error=\(error.localizedDescription)")
             return false
         }
     }

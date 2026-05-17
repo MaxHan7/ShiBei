@@ -84,11 +84,13 @@ struct APIClient {
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "accept")
         request.setValue(deviceId, forHTTPHeaderField: "X-Device-Id")
+        print("[ShiBei] API GET \(url.absoluteString) device=\(deviceId.suffix(6))")
 
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIClientError.invalidResponse
         }
+        print("[ShiBei] API GET status=\(httpResponse.statusCode) path=\(path)")
         guard (200..<300).contains(httpResponse.statusCode) else {
             throw APIClientError.httpStatus(httpResponse.statusCode)
         }
@@ -106,6 +108,7 @@ struct APIClient {
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "accept")
         request.setValue(deviceId, forHTTPHeaderField: "X-Device-Id")
+        print("[ShiBei] API \(method) \(url.absoluteString) device=\(deviceId.suffix(6))")
         if method != "DELETE" {
             request.setValue("application/json", forHTTPHeaderField: "content-type")
             request.httpBody = try JSONEncoder().encode(body)
@@ -115,6 +118,7 @@ struct APIClient {
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIClientError.invalidResponse
         }
+        print("[ShiBei] API \(method) status=\(httpResponse.statusCode) path=\(path)")
         if (200..<300).contains(httpResponse.statusCode) || (acceptsFailureBody && httpResponse.statusCode == 422) {
             return try decoder.decode(Response.self, from: data)
         }

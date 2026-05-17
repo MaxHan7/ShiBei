@@ -171,12 +171,20 @@ struct AddKnowledgeView: View {
                         disabled: !chapterInput.canSubmit || store.isWritingChapter
                     ) {
                         let submittedInput = input
+                        print("[ShiBei] AddKnowledgeView tapped generate. inputCount=\(submittedInput.count), canSubmit=\(chapterInput.canSubmit), target=\(store.submissionTargetTitle)")
                         dismissInput()
                         Task {
                             if await store.createChapter(from: submittedInput) {
                                 input = ""
                             }
                         }
+                    }
+
+                    if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !chapterInput.canSubmit {
+                        Text("正文至少需要 24 个字；链接需要以 http:// 或 https:// 开头。")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(ShiBeiTheme.error)
+                            .frame(maxWidth: .infinity, alignment: .center)
                     }
 
                     HStack(spacing: 6) {
@@ -186,6 +194,12 @@ struct AddKnowledgeView: View {
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(ShiBeiTheme.textSoft)
                     .frame(maxWidth: .infinity)
+
+                    Text(store.dataSourceMessage)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(store.dataSourceMessage.contains("失败") || store.dataSourceMessage.contains("请先") ? ShiBeiTheme.error : ShiBeiTheme.muted)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
 
                     HStack(spacing: 6) {
                         Image(systemName: "lock.square")

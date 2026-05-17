@@ -417,9 +417,9 @@ async function getStoredChapter(deviceId, chapterId) {
 }
 
 async function upsertStoredChapter(deviceId, chapter) {
-  if (hasDatabase) return upsertDatabaseChapter(deviceId, chapter);
-  const memory = getMemory(deviceId);
   const record = ensureChapterRecord(chapter);
+  if (hasDatabase) return upsertDatabaseChapter(deviceId, record);
+  const memory = getMemory(deviceId);
   const existingIndex = memory.chapters.findIndex((item) => item.id === record.id);
   if (existingIndex >= 0) {
     memory.chapters.splice(existingIndex, 1, { ...memory.chapters[existingIndex], ...record });
