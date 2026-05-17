@@ -61,6 +61,28 @@ private struct DataSourceCard: View {
                 Spacer()
             }
 
+            HStack(spacing: 12) {
+                Image(systemName: "iphone.gen3")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(ShiBeiTheme.textSoft)
+                    .frame(width: 34, height: 34)
+                    .background(ShiBeiTheme.yellowPale)
+                    .clipShape(Circle())
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("匿名设备")
+                        .font(.system(size: 15, weight: .semibold))
+                    Text("ID 尾号 \(store.anonymousDeviceId.suffix(6))")
+                        .font(.system(size: 12))
+                        .foregroundStyle(ShiBeiTheme.muted)
+                }
+                Spacer()
+                Button("重置") {
+                    store.resetAnonymousDeviceIdentity()
+                }
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(ShiBeiTheme.textSoft)
+            }
+
             HStack(spacing: 10) {
                 SecondaryButton(title: "读取本地 API", systemImage: "arrow.down.circle") {
                     Task {

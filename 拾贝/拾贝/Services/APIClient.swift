@@ -6,15 +6,18 @@ struct APIClient {
     var baseURL: URL
     var session: URLSession
     var decoder: JSONDecoder
+    var deviceId: String
 
     init(
         baseURL: URL = APIClient.localBaseURL,
         session: URLSession = .shared,
-        decoder: JSONDecoder = JSONDecoder()
+        decoder: JSONDecoder = JSONDecoder(),
+        deviceId: String = DeviceIdentityStore.shared.currentDeviceId()
     ) {
         self.baseURL = baseURL
         self.session = session
         self.decoder = decoder
+        self.deviceId = deviceId
     }
 
     func fetchChapters() async throws -> [Chapter] {
@@ -80,6 +83,7 @@ struct APIClient {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "accept")
+        request.setValue(deviceId, forHTTPHeaderField: "X-Device-Id")
 
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -101,6 +105,7 @@ struct APIClient {
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "accept")
+        request.setValue(deviceId, forHTTPHeaderField: "X-Device-Id")
         if method != "DELETE" {
             request.setValue("application/json", forHTTPHeaderField: "content-type")
             request.httpBody = try JSONEncoder().encode(body)

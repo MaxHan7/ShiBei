@@ -5,6 +5,23 @@ import { fileURLToPath } from "node:url";
 import { generateReviewChapter } from "./generation/index.js";
 import { extractSourceContent } from "./sources/extractSourceContent.js";
 import { STATUS_TEXT } from "./generation/types.js";
+import {
+  chapterCount,
+  checkDatabase,
+  deleteChapter as deleteDatabaseChapter,
+  deleteNotificationsForChapter,
+  ensureDevice,
+  getChapter as getDatabaseChapter,
+  getNotification as getDatabaseNotification,
+  hasDatabase,
+  initDatabase,
+  listChapters as listDatabaseChapters,
+  listNotifications as listDatabaseNotifications,
+  startGenerationJob,
+  updateGenerationJob,
+  upsertChapter as upsertDatabaseChapter,
+  upsertNotification as upsertDatabaseNotification
+} from "./db.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const projectRoot = resolve(__dirname, "..", "..");
@@ -12,10 +29,8 @@ const demoRoot = resolve(projectRoot, "demo");
 const host = process.env.HOST || "0.0.0.0";
 const port = Number(process.env.PORT || 5173);
 const startedAt = new Date().toISOString();
-const memory = {
-  chapters: [],
-  notifications: []
-};
+const DEFAULT_DEVICE_ID = "demo-device";
+const memoryByDeviceId = new Map();
 const generationRuns = new Map();
 const INITIAL_MASTERY_SCORE = 50;
 const REINFORCEMENT_GAP = 3;
@@ -34,7 +49,7 @@ function sendJson(res, statusCode, body) {
     "content-type": "application/json; charset=utf-8",
     "access-control-allow-origin": "*",
     "access-control-allow-methods": "GET,POST,DELETE,OPTIONS",
-    "access-control-allow-headers": "content-type"
+    "access-control-allow-headers": "content-type,x-device-id"
   });
   res.end(JSON.stringify(body));
 }
@@ -64,30 +79,41 @@ async function handleGenerate(req, res) {
 
 async function handleCreateChapter(req, res) {
   const body = await readBody(req);
-  const submittedChapter = upsertMemoryChapter(createSubmittedChapter(body));
+  const deviceId = getDeviceId(req);
+  const submittedChapter = await upsertMemoryChapter(deviceId, createSubmittedChapter(body));
   sendJson(res, 202, {
     status: submittedChapter.status,
     chapter: submittedChapter,
     notification: null,
     message: "已提交，正在生成。"
   });
-  void runChapterGeneration(submittedChapter.id, body);
+  void runChapterGeneration(deviceId, submittedChapter.id, body);
 }
 
-async function runChapterGeneration(chapterId, body) {
+async function runChapterGeneration(deviceId, chapterId, body) {
   const runId = createId("generation");
-  generationRuns.set(chapterId, runId);
-  const updateStage = (status) => updateMemoryChapterStage(chapterId, status, runId);
+  generationRuns.set(generationRunKey(deviceId, chapterId), runId);
+  if (hasDatabase) {
+    await startGenerationJob(deviceId, {
+      id: runId,
+      chapterId,
+      status: "submitted",
+      currentStage: "submitted"
+    });
+  }
+  const updateStage = (status) => updateMemoryChapterStage(deviceId, chapterId, status, runId).catch((error) => {
+    console.error("Failed to update generation stage", error);
+  });
   try {
-    updateStage("extracting_content");
+    await updateStage("extracting_content");
     const result = await withTimeout(
       generateFromInput(body, { onStage: updateStage }),
       GENERATION_JOB_TIMEOUT_MS,
       () => generationTimeoutError()
     );
-    if (!isCurrentGenerationRun(chapterId, runId)) return;
-    const existing = memory.chapters.find((chapter) => chapter.id === chapterId);
-    const chapter = upsertMemoryChapter({
+    if (!isCurrentGenerationRun(deviceId, chapterId, runId)) return;
+    const existing = await getStoredChapter(deviceId, chapterId);
+    const chapter = await upsertMemoryChapter(deviceId, {
       ...(result.chapter || failedSourceResult({
       status: result.status,
       message: result.message || "生成失败",
@@ -96,22 +122,37 @@ async function runChapterGeneration(chapterId, body) {
       id: chapterId,
       createdAt: existing?.createdAt
     });
-    createMemoryNotification(chapter);
+    await createMemoryNotification(deviceId, chapter);
+    if (hasDatabase) {
+      await updateGenerationJob(deviceId, runId, {
+        status: chapter.status,
+        currentStage: chapter.status,
+        finished: true
+      });
+    }
   } catch (error) {
-    if (!isCurrentGenerationRun(chapterId, runId)) return;
+    if (!isCurrentGenerationRun(deviceId, chapterId, runId)) return;
     const status = error?.code || error?.status || "failed_questions";
     const message = error instanceof Error ? error.message : "生成失败，请稍后重试。";
     const failed = failedSourceResult({ status, message, body });
-    const existing = memory.chapters.find((chapter) => chapter.id === chapterId);
-    const chapter = upsertMemoryChapter({
+    const existing = await getStoredChapter(deviceId, chapterId);
+    const chapter = await upsertMemoryChapter(deviceId, {
       ...failed.chapter,
       id: chapterId,
       createdAt: existing?.createdAt
     });
-    createMemoryNotification(chapter);
+    await createMemoryNotification(deviceId, chapter);
+    if (hasDatabase) {
+      await updateGenerationJob(deviceId, runId, {
+        status,
+        currentStage: status,
+        errorMessage: message,
+        finished: true
+      });
+    }
   } finally {
-    if (isCurrentGenerationRun(chapterId, runId)) {
-      generationRuns.delete(chapterId);
+    if (isCurrentGenerationRun(deviceId, chapterId, runId)) {
+      generationRuns.delete(generationRunKey(deviceId, chapterId));
     }
   }
 }
@@ -163,53 +204,79 @@ function createSubmittedChapter(body = {}) {
 }
 
 async function handleRegenerateChapter(req, res, chapterId) {
-  const existing = memory.chapters.find((chapter) => chapter.id === chapterId);
+  const deviceId = getDeviceId(req);
+  const existing = await getStoredChapter(deviceId, chapterId);
   if (!existing) {
     sendJson(res, 404, { errorCode: "chapter_not_found", message: "章节不存在。" });
     return;
   }
-  const submittedChapter = upsertMemoryChapter(createRegeneratingChapter(existing));
+  const submittedChapter = await upsertMemoryChapter(deviceId, createRegeneratingChapter(existing));
   sendJson(res, 202, {
     status: submittedChapter.status,
     chapter: submittedChapter,
     notification: null,
     message: "已提交，正在重新生成。"
   });
-  void runChapterRegeneration(existing);
+  void runChapterRegeneration(deviceId, existing);
 }
 
-async function runChapterRegeneration(existing) {
+async function runChapterRegeneration(deviceId, existing) {
   const runId = createId("generation");
-  generationRuns.set(existing.id, runId);
-  const updateStage = (status) => updateMemoryChapterStage(existing.id, status, runId);
+  generationRuns.set(generationRunKey(deviceId, existing.id), runId);
+  if (hasDatabase) {
+    await startGenerationJob(deviceId, {
+      id: runId,
+      chapterId: existing.id,
+      status: "submitted",
+      currentStage: "submitted"
+    });
+  }
+  const updateStage = (status) => updateMemoryChapterStage(deviceId, existing.id, status, runId).catch((error) => {
+    console.error("Failed to update regeneration stage", error);
+  });
   try {
-    updateStage("generating_points");
+    await updateStage("generating_points");
     const result = await withTimeout(
       regenerateFromChapter(existing, { onStage: updateStage }),
       GENERATION_JOB_TIMEOUT_MS,
       () => generationTimeoutError()
     );
-    if (!isCurrentGenerationRun(existing.id, runId)) return;
-    const chapter = upsertMemoryChapter({
+    if (!isCurrentGenerationRun(deviceId, existing.id, runId)) return;
+    const chapter = await upsertMemoryChapter(deviceId, {
       ...(result.chapter || {}),
       id: existing.id,
       createdAt: existing.createdAt
     });
-    createMemoryNotification(chapter);
+    await createMemoryNotification(deviceId, chapter);
+    if (hasDatabase) {
+      await updateGenerationJob(deviceId, runId, {
+        status: chapter.status,
+        currentStage: chapter.status,
+        finished: true
+      });
+    }
   } catch (error) {
-    if (!isCurrentGenerationRun(existing.id, runId)) return;
+    if (!isCurrentGenerationRun(deviceId, existing.id, runId)) return;
     const status = error?.code || error?.status || "failed_questions";
     const message = error instanceof Error ? error.message : "重新生成失败，请稍后重试。";
     const failed = failedSourceResult({ status, message, body: existing });
-    const chapter = upsertMemoryChapter({
+    const chapter = await upsertMemoryChapter(deviceId, {
       ...failed.chapter,
       id: existing.id,
       createdAt: existing.createdAt
     });
-    createMemoryNotification(chapter);
+    await createMemoryNotification(deviceId, chapter);
+    if (hasDatabase) {
+      await updateGenerationJob(deviceId, runId, {
+        status,
+        currentStage: status,
+        errorMessage: message,
+        finished: true
+      });
+    }
   } finally {
-    if (isCurrentGenerationRun(existing.id, runId)) {
-      generationRuns.delete(existing.id);
+    if (isCurrentGenerationRun(deviceId, existing.id, runId)) {
+      generationRuns.delete(generationRunKey(deviceId, existing.id));
     }
   }
 }
@@ -321,13 +388,97 @@ function withTimeout(promise, timeoutMs, makeError) {
   });
 }
 
-function isCurrentGenerationRun(chapterId, runId) {
-  return generationRuns.get(chapterId) === runId;
+function generationRunKey(deviceId, chapterId) {
+  return `${deviceId}:${chapterId}`;
 }
 
-function updateMemoryChapterStage(chapterId, status, runId) {
-  if (!isCurrentGenerationRun(chapterId, runId)) return;
-  const chapter = memory.chapters.find((item) => item.id === chapterId);
+function getDeviceId(req) {
+  const raw = req.headers["x-device-id"];
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  const trimmed = typeof value === "string" ? value.trim() : "";
+  return trimmed || DEFAULT_DEVICE_ID;
+}
+
+function getMemory(deviceId) {
+  if (!memoryByDeviceId.has(deviceId)) {
+    memoryByDeviceId.set(deviceId, { chapters: [], notifications: [] });
+  }
+  return memoryByDeviceId.get(deviceId);
+}
+
+async function listStoredChapters(deviceId) {
+  if (hasDatabase) return listDatabaseChapters(deviceId);
+  return getMemory(deviceId).chapters;
+}
+
+async function getStoredChapter(deviceId, chapterId) {
+  if (hasDatabase) return getDatabaseChapter(deviceId, chapterId);
+  return getMemory(deviceId).chapters.find((item) => item.id === chapterId) || null;
+}
+
+async function upsertStoredChapter(deviceId, chapter) {
+  if (hasDatabase) return upsertDatabaseChapter(deviceId, chapter);
+  const memory = getMemory(deviceId);
+  const record = ensureChapterRecord(chapter);
+  const existingIndex = memory.chapters.findIndex((item) => item.id === record.id);
+  if (existingIndex >= 0) {
+    memory.chapters.splice(existingIndex, 1, { ...memory.chapters[existingIndex], ...record });
+  } else {
+    memory.chapters.unshift(record);
+  }
+  return memory.chapters.find((item) => item.id === record.id);
+}
+
+async function deleteStoredChapter(deviceId, chapterId) {
+  if (hasDatabase) return deleteDatabaseChapter(deviceId, chapterId);
+  const memory = getMemory(deviceId);
+  const before = memory.chapters.length;
+  memory.chapters = memory.chapters.filter((chapter) => chapter.id !== chapterId);
+  memory.notifications = memory.notifications.filter((notification) => notification.chapterId !== chapterId);
+  return memory.chapters.length !== before;
+}
+
+async function listStoredNotifications(deviceId) {
+  if (hasDatabase) return listDatabaseNotifications(deviceId);
+  return getMemory(deviceId).notifications;
+}
+
+async function getStoredNotification(deviceId, notificationId) {
+  if (hasDatabase) return getDatabaseNotification(deviceId, notificationId);
+  return getMemory(deviceId).notifications.find((item) => item.id === notificationId) || null;
+}
+
+async function upsertStoredNotification(deviceId, notification) {
+  if (hasDatabase) return upsertDatabaseNotification(deviceId, notification);
+  const memory = getMemory(deviceId);
+  const existingIndex = memory.notifications.findIndex((item) => item.id === notification.id);
+  if (existingIndex >= 0) {
+    memory.notifications.splice(existingIndex, 1, notification);
+  } else {
+    memory.notifications.unshift(notification);
+  }
+  return memory.notifications.find((item) => item.id === notification.id);
+}
+
+async function deleteStoredNotificationsForChapter(deviceId, chapterId, type = "") {
+  if (hasDatabase) {
+    await deleteNotificationsForChapter(deviceId, chapterId, type);
+    return;
+  }
+  const memory = getMemory(deviceId);
+  memory.notifications = memory.notifications.filter((item) => {
+    if (item.chapterId !== chapterId) return true;
+    return type ? item.type !== type : false;
+  });
+}
+
+function isCurrentGenerationRun(deviceId, chapterId, runId) {
+  return generationRuns.get(generationRunKey(deviceId, chapterId)) === runId;
+}
+
+async function updateMemoryChapterStage(deviceId, chapterId, status, runId) {
+  if (!isCurrentGenerationRun(deviceId, chapterId, runId)) return;
+  const chapter = await getStoredChapter(deviceId, chapterId);
   if (!chapter) return;
 
   const now = new Date().toISOString();
@@ -346,6 +497,13 @@ function updateMemoryChapterStage(chapterId, status, runId) {
       : stages
   };
   chapter.updatedAt = now;
+  await upsertStoredChapter(deviceId, chapter);
+  if (hasDatabase) {
+    await updateGenerationJob(deviceId, runId, {
+      status,
+      currentStage: status
+    });
+  }
 }
 
 function normalizeChapterSource(chapter, chapterId) {
@@ -458,25 +616,18 @@ function ensureChapterRecord(chapter) {
   };
 }
 
-function upsertMemoryChapter(chapter) {
-  const record = ensureChapterRecord(chapter);
-  const existingIndex = memory.chapters.findIndex((item) => item.id === record.id);
-  if (existingIndex >= 0) {
-    memory.chapters.splice(existingIndex, 1, { ...memory.chapters[existingIndex], ...record });
-  } else {
-    memory.chapters.unshift(record);
-  }
-  return memory.chapters.find((item) => item.id === record.id);
+async function upsertMemoryChapter(deviceId, chapter) {
+  return upsertStoredChapter(deviceId, chapter);
 }
 
-function createMemoryNotification(chapter) {
+async function createMemoryNotification(deviceId, chapter) {
   if (!chapter?.id || chapter.dismissedFromNotifications) return null;
   const failed = String(chapter.status || "").startsWith("failed_");
   if (!failed) {
-    memory.notifications = memory.notifications.filter((item) => !(item.chapterId === chapter.id && item.type === "generation_failed"));
+    await deleteStoredNotificationsForChapter(deviceId, chapter.id, "generation_failed");
   }
   const type = failed ? "generation_failed" : "generation_completed";
-  memory.notifications = memory.notifications.filter((item) => !(item.chapterId === chapter.id && item.type === type));
+  await deleteStoredNotificationsForChapter(deviceId, chapter.id, type);
   const notification = {
     id: createId("notification"),
     chapterId: chapter.id,
@@ -487,8 +638,7 @@ function createMemoryNotification(chapter) {
     dismissed: false,
     createdAt: new Date().toISOString()
   };
-  memory.notifications.unshift(notification);
-  return notification;
+  return upsertStoredNotification(deviceId, notification);
 }
 
 function normalizeReviewSession(session = {}, chapter = {}) {
@@ -740,8 +890,9 @@ function currentMasteredCount(chapter, session) {
   return requiredPointIdsForSession(chapter, session).filter((pointId) => session.masteredThisRoundPointIds.includes(pointId)).length;
 }
 
-function handleQuestionFeedback(questionId, body = {}) {
-  const chapter = memory.chapters.find((item) => item.questions?.some((question) => question.id === questionId));
+async function handleQuestionFeedback(deviceId, questionId, body = {}) {
+  const chapters = await listStoredChapters(deviceId);
+  const chapter = chapters.find((item) => item.questions?.some((question) => question.id === questionId));
   if (!chapter) return null;
   const question = questionById(chapter, questionId);
   const session = chapter.reviewSession ? normalizeReviewSession(chapter.reviewSession, chapter) : null;
@@ -792,6 +943,7 @@ function handleQuestionFeedback(questionId, body = {}) {
   chapter.feedbackRecords.push(feedback);
   chapter.masteredPoints = session ? currentMasteredCount(chapter, session) : chapter.masteredPoints;
   chapter.updatedAt = new Date().toISOString();
+  await upsertStoredChapter(deviceId, chapter);
   return { chapter, feedback, reviewSession: chapter.reviewSession };
 }
 
@@ -852,22 +1004,29 @@ async function serveStatic(req, res) {
 }
 
 const server = createServer(async (req, res) => {
+  const deviceId = getDeviceId(req);
+
   if (req.method === "OPTIONS") {
     res.writeHead(204, {
       "access-control-allow-origin": "*",
       "access-control-allow-methods": "GET,POST,DELETE,OPTIONS",
-      "access-control-allow-headers": "content-type"
+      "access-control-allow-headers": "content-type,x-device-id"
     });
     res.end();
     return;
   }
 
   if (req.method === "GET" && req.url === "/api/health") {
+    const database = await checkDatabase();
+    const count = hasDatabase ? await chapterCount() : Array.from(memoryByDeviceId.values()).reduce((sum, item) => sum + item.chapters.length, 0);
     sendJson(res, 200, {
       ok: true,
       service: "shibei-api",
       startedAt,
-      memoryChapterCount: memory.chapters.length
+      storage: hasDatabase ? "postgres" : "memory",
+      database,
+      chapterCount: count,
+      memoryChapterCount: count
     });
     return;
   }
@@ -883,13 +1042,14 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && req.url === "/api/chapters") {
-    sendJson(res, 200, { chapters: sortByCreatedAtDesc(memory.chapters) });
+    const chapters = await listStoredChapters(deviceId);
+    sendJson(res, 200, { chapters: sortByCreatedAtDesc(chapters) });
     return;
   }
 
   const chapterMatch = req.url?.match(/^\/api\/chapters\/([^/]+)$/);
   if (chapterMatch && req.method === "GET") {
-    const chapter = memory.chapters.find((item) => item.id === decodeURIComponent(chapterMatch[1]));
+    const chapter = await getStoredChapter(deviceId, decodeURIComponent(chapterMatch[1]));
     if (!chapter) sendJson(res, 404, { errorCode: "chapter_not_found", message: "章节不存在。" });
     else sendJson(res, 200, { chapter });
     return;
@@ -897,10 +1057,8 @@ const server = createServer(async (req, res) => {
 
   if (chapterMatch && req.method === "DELETE") {
     const chapterId = decodeURIComponent(chapterMatch[1]);
-    const before = memory.chapters.length;
-    memory.chapters = memory.chapters.filter((chapter) => chapter.id !== chapterId);
-    memory.notifications = memory.notifications.filter((notification) => notification.chapterId !== chapterId);
-    if (memory.chapters.length === before) sendJson(res, 404, { errorCode: "chapter_not_found", message: "章节不存在。" });
+    const deleted = await deleteStoredChapter(deviceId, chapterId);
+    if (!deleted) sendJson(res, 404, { errorCode: "chapter_not_found", message: "章节不存在。" });
     else sendJson(res, 200, { deleted: true, chapterId });
     return;
   }
@@ -913,7 +1071,7 @@ const server = createServer(async (req, res) => {
 
   const reviewSessionMatch = req.url?.match(/^\/api\/chapters\/([^/]+)\/review-session$/);
   if (reviewSessionMatch && (req.method === "GET" || req.method === "POST")) {
-    const chapter = memory.chapters.find((item) => item.id === decodeURIComponent(reviewSessionMatch[1]));
+    const chapter = await getStoredChapter(deviceId, decodeURIComponent(reviewSessionMatch[1]));
     if (!chapter) {
       sendJson(res, 404, { errorCode: "chapter_not_found", message: "章节不存在。" });
       return;
@@ -926,6 +1084,7 @@ const server = createServer(async (req, res) => {
       ? startOrResumeReviewSession(chapter)
       : chapter.reviewSession ? normalizeReviewSession(chapter.reviewSession, chapter) : null;
     if (reviewSession) chapter.reviewSession = reviewSession;
+    await upsertStoredChapter(deviceId, chapter);
     sendJson(res, 200, {
       chapter,
       reviewSession,
@@ -937,7 +1096,8 @@ const server = createServer(async (req, res) => {
   const attemptMatch = req.url?.match(/^\/api\/review-sessions\/([^/]+)\/attempts$/);
   if (attemptMatch && req.method === "POST") {
     const sessionId = decodeURIComponent(attemptMatch[1]);
-    const chapter = memory.chapters.find((item) => item.reviewSession?.id === sessionId);
+    const chapters = await listStoredChapters(deviceId);
+    const chapter = chapters.find((item) => item.reviewSession?.id === sessionId);
     if (!chapter) {
       sendJson(res, 404, { errorCode: "review_session_not_found", message: "复习会话不存在。" });
       return;
@@ -945,6 +1105,7 @@ const server = createServer(async (req, res) => {
     try {
       const body = await readBody(req);
       const result = recordSessionAttempt(chapter, body);
+      await upsertStoredChapter(deviceId, chapter);
       sendJson(res, 200, {
         chapter,
         reviewSession: result.session,
@@ -960,7 +1121,7 @@ const server = createServer(async (req, res) => {
   const feedbackMatch = req.url?.match(/^\/api\/questions\/([^/]+)\/feedback$/);
   if (feedbackMatch && req.method === "POST") {
     const body = await readBody(req);
-    const result = handleQuestionFeedback(decodeURIComponent(feedbackMatch[1]), body);
+    const result = await handleQuestionFeedback(deviceId, decodeURIComponent(feedbackMatch[1]), body);
     if (!result) {
       sendJson(res, 404, { errorCode: "question_not_found", message: "题目不存在。" });
       return;
@@ -970,13 +1131,14 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && req.url === "/api/notifications") {
-    sendJson(res, 200, { notifications: sortByCreatedAtDesc(memory.notifications) });
+    const notifications = await listStoredNotifications(deviceId);
+    sendJson(res, 200, { notifications: sortByCreatedAtDesc(notifications) });
     return;
   }
 
   const notificationActionMatch = req.url?.match(/^\/api\/notifications\/([^/]+)\/(read|dismiss)$/);
   if (notificationActionMatch && req.method === "POST") {
-    const notification = memory.notifications.find((item) => item.id === decodeURIComponent(notificationActionMatch[1]));
+    const notification = await getStoredNotification(deviceId, decodeURIComponent(notificationActionMatch[1]));
     if (!notification) {
       sendJson(res, 404, { errorCode: "notification_not_found", message: "通知不存在。" });
       return;
@@ -986,7 +1148,8 @@ const server = createServer(async (req, res) => {
       notification.read = true;
       notification.dismissed = true;
     }
-    sendJson(res, 200, { notification });
+    const saved = await upsertStoredNotification(deviceId, notification);
+    sendJson(res, 200, { notification: saved });
     return;
   }
 
@@ -998,6 +1161,13 @@ const server = createServer(async (req, res) => {
   sendJson(res, 405, { errorCode: "method_not_allowed", message: "不支持的请求方法。" });
 });
 
-server.listen(port, host, () => {
-  console.log(`拾贝 Demo 已启动：http://${host}:${port}`);
-});
+initDatabase()
+  .then((result) => {
+    server.listen(port, host, () => {
+      console.log(`拾贝 Demo 已启动：http://${host}:${port} (${result.storage})`);
+    });
+  })
+  .catch((error) => {
+    console.error("数据库初始化失败", error);
+    process.exit(1);
+  });

@@ -4,10 +4,11 @@
 
 ## 当前状态
 
-当前仓库还没有真实 Xcode 工程。现在已有：
+当前仓库已有 SwiftUI 工程、HTML Demo 和 Railway 云端原型。现在已有：
 
 - HTML Demo：验证首页、添加、章节、通知、题卡、解释页、总结页等完整产品流。
 - Node 后端原型：提供本地 API、文章链接输入层和核心出题系统。
+- Railway 云端后端：可用 PostgreSQL 按匿名设备 ID 持久化章节、通知、生成任务和复习状态。
 - 核心出题系统：完成内容清洗、知识点提取、题目生成、质量检查、单题重写和测试集入口。
 - 质量测试集：保存真实样本、人工样本和关键 baseline 结果。
 - iOS 迁移文档：收口了 SwiftUI 第一轮开发建议和 API / 数据模型契约。
@@ -68,19 +69,19 @@ npm.cmd --prefix backend run quality:test
 
 ## 下一步建议
 
-迁移到 MacBook 后，先不要直接做账号、数据库、APNs 或生产后端。建议第一轮：
+当前阶段建议：
 
-1. 在 `ios/ShiBei/` 创建 SwiftUI 工程。
-2. 按 `docs/ios-api-data-contract-zh.md` 定义 Swift `Codable` 模型。
-3. 用 `docs/fixtures/ios/` 的 mock JSON 实现完整页面流。
-4. 跑通首页、添加、章节、通知、题卡、解释页、总结页和来源页。
-5. 再接本地 Node API。
+1. 继续用 SwiftUI mock 验收产品流。
+2. 真机真实生成走 Railway 云端 API。
+3. Railway 后端配置 PostgreSQL 和模型 Key。
+4. iOS 通过匿名 `deviceId` 访问云端，账号系统后置。
+5. 生成质量、复习体验稳定后，再补登录、APNs、生产监控和数据迁移。
 
 HTML Demo 是行为参考，不是 iOS 架构参考。iOS 端应使用 SwiftUI 重新实现。
 
 ## 注意
 
 - 不要把 API Key 写入文档、代码或提交记录。
-- 当前本地 API 不接数据库，重启后内存数据会丢失。
+- Railway 云端 API 接 PostgreSQL；本地未配置 `DATABASE_URL` 时仍使用内存模式。
 - 公众号抓取受平台限制，失败时应允许用户改为粘贴正文。
 - 视频链接目前只识别并友好失败，不提取视频正文。

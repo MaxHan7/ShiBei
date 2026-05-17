@@ -5,8 +5,8 @@
 ## 当前边界
 
 - 这是开发/真机验证用云端原型，不是正式 App Store 生产后端。
-- 后端仍使用内存存储，Railway 服务重启、重新部署或实例切换后，章节、通知和复习会话可能丢失。
-- 第一版不做账号、鉴权、PostgreSQL、APNs 或异步任务队列。
+- 后端在 Railway 上使用 PostgreSQL 持久化章节、通知、生成任务和复习会话；本地没有 `DATABASE_URL` 时仍使用内存模式。
+- 第一版不做账号、鉴权、APNs 或正式异步任务队列，数据先按匿名设备 ID 隔离。
 - iOS 不保存模型 API Key，也不直接调用大模型；生成逻辑只在服务端运行。
 
 ## Railway 项目设置
@@ -20,9 +20,11 @@
 npm start
 ```
 
-5. 环境变量至少配置一个模型 Key：
+5. 在 Railway 项目里添加 PostgreSQL 服务，并确认后端服务能读取到 `DATABASE_URL`。
+6. 环境变量至少配置一个模型 Key：
 
 ```bash
+DATABASE_URL=Railway 自动注入或引用的 PostgreSQL 连接串
 DEEPSEEK_API_KEY=你的 DeepSeek Key
 # 或
 OPENAI_API_KEY=你的 OpenAI Key
@@ -55,7 +57,13 @@ curl https://你的域名.up.railway.app/api/health
 预期返回：
 
 ```json
-{ "ok": true, "service": "shibei-api" }
+{
+  "ok": true,
+  "service": "shibei-api",
+  "storage": "postgres",
+  "database": { "ok": true },
+  "chapterCount": 0
+}
 ```
 
 再用一段足够长的文本验证真实生成。创建接口会先返回 `submitted`，后台继续生成：
@@ -63,6 +71,7 @@ curl https://你的域名.up.railway.app/api/health
 ```bash
 curl -X POST https://你的域名.up.railway.app/api/chapters \
   -H 'content-type: application/json' \
+  -H 'X-Device-Id: test-device-1' \
   -d '{"sourceType":"text","rawText":"这里放一段至少数百字、适合提炼知识点的真实中文文章或笔记。"}'
 ```
 
@@ -72,6 +81,8 @@ curl -X POST https://你的域名.up.railway.app/api/chapters \
 - 轮询 `GET /api/chapters/:id` 时，`generationMeta.currentStage` 会从 `submitted` 前进到 `generating_points`、`generating_questions`、`quality_checking` 等阶段。
 - 最终返回 `status: "completed"`，且 `chapter.knowledgePoints.length > 1`、`chapter.questions.length > 1`。
 - 如果生成超时、文章提取失败或模型返回不可用，最终会进入明确失败态并写入 `failureReason`，不会永久停在 `submitted`。
+- 重新部署 Railway 后，用同一个 `X-Device-Id` 再请求 `GET /api/chapters`，之前的章节仍应存在。
+- 换另一个 `X-Device-Id` 请求 `GET /api/chapters`，不应看到第一个设备的章节。
 
 如果缺少模型 Key，接口应返回可理解错误；不要把 Key 写进代码、文档或提交记录。
 
@@ -90,3 +101,5 @@ https://你的域名.up.railway.app
 6. 回到“添加”页，粘贴长文本并开始生成。
 
 如果数据源显示“Railway 云端”，添加内容会走云端真实生成；如果仍显示“Mock 数据”，生成会是本地 mock，通常会瞬间完成且只有示例知识点和题目。
+
+DEBUG 版本会在“我的”页显示匿名设备 ID 后 6 位。这个 ID 保存在 Keychain 中，卸载重装或点“重置”后可能变化；设备 ID 变化后，云端会把它当成一个新的匿名用户。

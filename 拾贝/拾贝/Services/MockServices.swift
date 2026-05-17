@@ -19,6 +19,7 @@ final class AppStore: ObservableObject {
     @Published var dataMode: AppDataMode = .mock
     @Published var dataSourceMessage = "Mock 数据已就绪"
     @Published var cloudAPIBaseURLString: String
+    @Published var anonymousDeviceId: String
     @Published var isLoadingLocalAPI = false
     @Published var isWritingChapter = false
     @Published var isSubmittingReview = false
@@ -31,25 +32,30 @@ final class AppStore: ObservableObject {
     private let localAPIReviewService: LocalAPIReviewService
     private let localAPINotificationService: LocalAPINotificationService
     private let cloudAPIBaseURLKey = "cloudAPIBaseURLString"
+    private let deviceIdentityStore: DeviceIdentityStore
     private var generationPollTasks: [String: Task<Void, Never>] = [:]
 
     init(
         chapterService: any ChapterServicing = MockChapterService(),
         reviewService: any ReviewServicing = MockReviewService(),
         notificationService: any NotificationServicing = MockNotificationService(),
-        apiClient: APIClient = APIClient()
+        apiClient: APIClient = APIClient(),
+        deviceIdentityStore: DeviceIdentityStore = .shared
     ) {
         let state = Self.makeDefaultState()
+        let deviceId = deviceIdentityStore.currentDeviceId()
         chapters = state.chapters
         notifications = state.notifications
         selectedChapterId = state.selectedChapterId
         self.chapterService = chapterService
         self.reviewService = reviewService
         self.notificationService = notificationService
-        self.apiClient = apiClient
-        localAPIChapterService = LocalAPIChapterService(apiClient: apiClient)
-        localAPIReviewService = LocalAPIReviewService(apiClient: apiClient)
-        localAPINotificationService = LocalAPINotificationService(apiClient: apiClient)
+        self.deviceIdentityStore = deviceIdentityStore
+        self.apiClient = APIClient(baseURL: apiClient.baseURL, session: apiClient.session, decoder: apiClient.decoder, deviceId: deviceId)
+        localAPIChapterService = LocalAPIChapterService(apiClient: self.apiClient)
+        localAPIReviewService = LocalAPIReviewService(apiClient: self.apiClient)
+        localAPINotificationService = LocalAPINotificationService(apiClient: self.apiClient)
+        anonymousDeviceId = deviceId
         cloudAPIBaseURLString = UserDefaults.standard.string(forKey: cloudAPIBaseURLKey) ?? ""
     }
 
@@ -268,6 +274,17 @@ final class AppStore: ObservableObject {
         cloudAPIBaseURLString = normalized
         UserDefaults.standard.set(normalized, forKey: cloudAPIBaseURLKey)
         dataSourceMessage = normalized.isEmpty ? "请填写 Railway 云端 API 地址" : "Railway 云端地址已保存"
+    }
+
+    func resetAnonymousDeviceIdentity() {
+        anonymousDeviceId = deviceIdentityStore.resetDeviceId()
+        dataSourceMessage = "已重置匿名设备身份，请重新读取云端 API。"
+        if dataMode != .mock {
+            chapters = []
+            notifications = []
+            selectedChapterId = nil
+            route = .home
+        }
     }
 
     private func loadAPIReadOnly(mode: AppDataMode) async {
@@ -733,14 +750,19 @@ final class AppStore: ObservableObject {
         case .mock:
             return nil
         case .localAPI:
-            return apiClient
+            return APIClient(
+                baseURL: apiClient.baseURL,
+                session: apiClient.session,
+                decoder: apiClient.decoder,
+                deviceId: anonymousDeviceId
+            )
         case .cloudAPI:
             guard let url = URL(string: cloudAPIBaseURLString),
                   url.scheme == "https",
                   url.host?.isEmpty == false else {
                 return nil
             }
-            return APIClient(baseURL: url)
+            return APIClient(baseURL: url, deviceId: anonymousDeviceId)
         }
     }
 
