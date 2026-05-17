@@ -31,6 +31,7 @@ final class AppStore: ObservableObject {
     private let localAPIReviewService: LocalAPIReviewService
     private let localAPINotificationService: LocalAPINotificationService
     private let cloudAPIBaseURLKey = "cloudAPIBaseURLString"
+    private var generationPollTasks: [String: Task<Void, Never>] = [:]
 
     init(
         chapterService: any ChapterServicing = MockChapterService(),
@@ -125,20 +126,23 @@ final class AppStore: ObservableObject {
                 }
                 dataSourceMessage = "正在提交到\(dataMode.apiLabel)..."
                 created = try await chapterService.createChapter(from: parsedInput)
-                dataSourceMessage = "\(dataMode.apiLabel) 已创建章节：\(created.chapter.visibleStatusText)"
+                dataSourceMessage = "\(dataMode.apiLabel)已接收，正在生成章节..."
             }
             applyCreatedChapter(created)
+            if dataMode != .mock, created.chapter.status.isProcessing {
+                startGenerationPolling(for: created.chapter.id, mode: dataMode)
+            }
             return true
         } catch {
-            dataSourceMessage = "本地 API 提交失败：\(error.localizedDescription)"
+            dataSourceMessage = "\(dataMode.apiLabel)提交失败：\(error.localizedDescription)"
             return false
         }
     }
 
     private func applyCreatedChapter(_ created: ChapterCreationResult) {
-        chapters.insert(created.chapter, at: 0)
+        upsertChapter(created.chapter)
         if let notification = created.notification {
-            notifications.insert(notification, at: 0)
+            upsertNotification(notification)
         }
         selectedChapterId = created.chapter.id
         selectedTab = .home
@@ -206,6 +210,7 @@ final class AppStore: ObservableObject {
         dataSourceMessage = "已切换到 \(scenario.title)"
         isWritingChapter = false
         isSubmittingReview = false
+        cancelGenerationPolling()
     }
 
     func resetToMockData() {
@@ -227,6 +232,7 @@ final class AppStore: ObservableObject {
         reviewedCount = 35
         isWritingChapter = false
         isSubmittingReview = false
+        cancelGenerationPolling()
     }
 
     func loadLocalAPIReadOnly() async {
@@ -259,6 +265,8 @@ final class AppStore: ObservableObject {
             let (chapters, notifications) = try await (fetchedChapters, fetchedNotifications)
             self.chapters = chapters
             self.notifications = notifications
+            cancelGenerationPolling()
+            chapters.filter { $0.status.isProcessing }.forEach { startGenerationPolling(for: $0.id, mode: mode) }
             selectedChapterId = activeHomeChapter?.id ?? chapters.first?.id
             selectedTab = .home
             route = .home
@@ -291,6 +299,9 @@ final class AppStore: ObservableObject {
                 dataSourceMessage = "\(dataMode.apiLabel)已重新生成：\(result.chapter.visibleStatusText)"
             }
             upsertChapter(result.chapter)
+            if dataMode != .mock, result.chapter.status.isProcessing {
+                startGenerationPolling(for: result.chapter.id, mode: dataMode)
+            }
             notifications.removeAll { $0.chapterId == chapter.id && $0.type == .generationFailed }
             if let notification = result.notification {
                 notifications.insert(notification, at: 0)
@@ -321,6 +332,8 @@ final class AppStore: ObservableObject {
                 _ = try await chapterService.deleteChapter(selectedChapterId)
                 chapters.removeAll { $0.id == selectedChapterId }
                 notifications.removeAll { $0.chapterId == selectedChapterId }
+                generationPollTasks[selectedChapterId]?.cancel()
+                generationPollTasks[selectedChapterId] = nil
                 dataSourceMessage = "\(dataMode.apiLabel)已删除章节"
             }
             self.selectedChapterId = activeHomeChapter?.id ?? chapters.first?.id
@@ -506,6 +519,52 @@ final class AppStore: ObservableObject {
         } else {
             notifications.insert(notification, at: 0)
         }
+    }
+
+    private func startGenerationPolling(for chapterId: String, mode: AppDataMode) {
+        guard let client = apiClient(for: mode) else { return }
+        generationPollTasks[chapterId]?.cancel()
+        let modeLabel = mode.apiLabel
+        generationPollTasks[chapterId] = Task { [weak self, client, modeLabel] in
+            for _ in 0..<60 {
+                do {
+                    try await Task.sleep(nanoseconds: 2_000_000_000)
+                } catch {
+                    return
+                }
+                if Task.isCancelled { return }
+                do {
+                    let chapter = try await client.fetchChapter(id: chapterId)
+                    let latestNotifications = try? await client.fetchNotifications()
+                    await MainActor.run {
+                        guard let self else { return }
+                        self.upsertChapter(chapter)
+                        if let latestNotifications {
+                            self.notifications = latestNotifications
+                        }
+                        if chapter.status.isProcessing {
+                            self.dataSourceMessage = "\(modeLabel)正在生成：\(chapter.visibleStatusText)"
+                        } else {
+                            self.dataSourceMessage = "\(modeLabel)生成结束：\(chapter.visibleStatusText)"
+                            self.generationPollTasks[chapterId] = nil
+                        }
+                    }
+                    if !chapter.status.isProcessing { return }
+                } catch {
+                    await MainActor.run {
+                        self?.dataSourceMessage = "刷新生成状态失败：\(error.localizedDescription)"
+                    }
+                }
+            }
+            await MainActor.run {
+                self?.generationPollTasks[chapterId] = nil
+            }
+        }
+    }
+
+    private func cancelGenerationPolling() {
+        generationPollTasks.values.forEach { $0.cancel() }
+        generationPollTasks.removeAll()
     }
 
     private func updateChapter(_ id: String, mutate: (inout Chapter) -> Void) {

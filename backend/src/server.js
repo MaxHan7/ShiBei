@@ -61,28 +61,88 @@ async function handleGenerate(req, res) {
 
 async function handleCreateChapter(req, res) {
   const body = await readBody(req);
+  const submittedChapter = upsertMemoryChapter(createSubmittedChapter(body));
+  sendJson(res, 202, {
+    status: submittedChapter.status,
+    chapter: submittedChapter,
+    notification: null,
+    message: "已提交，正在生成。"
+  });
+  void runChapterGeneration(submittedChapter.id, body);
+}
+
+async function runChapterGeneration(chapterId, body) {
   try {
     const result = await generateFromInput(body);
-    const chapter = upsertMemoryChapter(result.chapter || failedSourceResult({
+    const existing = memory.chapters.find((chapter) => chapter.id === chapterId);
+    const chapter = upsertMemoryChapter({
+      ...(result.chapter || failedSourceResult({
       status: result.status,
       message: result.message || "生成失败",
       body
-    }).chapter);
-    const notification = createMemoryNotification(chapter);
-    sendJson(res, result.status === "completed" ? 201 : 422, {
-      status: result.status,
-      chapter,
-      notification,
-      message: result.message || chapter.failureReason || ""
+    }).chapter),
+      id: chapterId,
+      createdAt: existing?.createdAt
     });
+    createMemoryNotification(chapter);
   } catch (error) {
     const status = error?.code || error?.status || "failed_questions";
     const message = error instanceof Error ? error.message : "生成失败，请稍后重试。";
     const failed = failedSourceResult({ status, message, body });
-    const chapter = upsertMemoryChapter(failed.chapter);
-    const notification = createMemoryNotification(chapter);
-    sendJson(res, 422, { ...failed, chapter, notification });
+    const existing = memory.chapters.find((chapter) => chapter.id === chapterId);
+    const chapter = upsertMemoryChapter({
+      ...failed.chapter,
+      id: chapterId,
+      createdAt: existing?.createdAt
+    });
+    createMemoryNotification(chapter);
   }
+}
+
+function createSubmittedChapter(body = {}) {
+  const now = new Date().toISOString();
+  const sourceType = body.sourceType || "text";
+  const title = body.sourceTitle
+    || body.sourceUrl
+    || body.rawText?.slice?.(0, 24)
+    || "未命名章节";
+  const rawInput = body.rawText || body.sourceUrl || "";
+  return {
+    id: createId("chapter"),
+    title,
+    status: "submitted",
+    displayStatusText: STATUS_TEXT.submitted,
+    failureReason: "",
+    source: {
+      type: sourceType,
+      title,
+      url: body.sourceUrl || "",
+      account: body.sourceAccount || "",
+      accountOrDomain: body.sourceAccount || "",
+      rawInput,
+      rawText: rawInput,
+      extractedText: "",
+      cleanedText: ""
+    },
+    sourceType,
+    sourceText: rawInput,
+    knowledgePoints: [],
+    filteredKnowledgePoints: [],
+    questions: [],
+    qualitySummary: null,
+    generationMeta: {
+      currentStage: "submitted",
+      stages: [{ status: "submitted", displayStatusText: STATUS_TEXT.submitted, at: now }]
+    },
+    reviewSession: null,
+    masteredPoints: 0,
+    removedQuestionIds: [],
+    downgradedQuestionIds: [],
+    feedbackRecords: [],
+    dismissedFromNotifications: false,
+    createdAt: now,
+    updatedAt: now
+  };
 }
 
 async function handleRegenerateChapter(req, res, chapterId) {
