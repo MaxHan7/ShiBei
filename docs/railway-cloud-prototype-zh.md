@@ -34,6 +34,10 @@ OPENAI_API_KEY=你的 OpenAI Key
 AI_PROVIDER=deepseek
 DEEPSEEK_MODEL=deepseek-v4-flash
 OPENAI_MODEL=gpt-4.1-mini
+MODEL_REQUEST_TIMEOUT_MS=90000
+GENERATION_JOB_TIMEOUT_MS=360000
+ARTICLE_FETCH_TIMEOUT_MS=30000
+WECHAT_EXTRACT_TIMEOUT_MS=60000
 ```
 
 Railway 会自动注入 `PORT`，后端会监听 `0.0.0.0:$PORT`。本地开发仍可继续使用 `npm --prefix backend run dev`。
@@ -54,7 +58,7 @@ curl https://你的域名.up.railway.app/api/health
 { "ok": true, "service": "shibei-api" }
 ```
 
-再用一段足够长的文本验证真实生成：
+再用一段足够长的文本验证真实生成。创建接口会先返回 `submitted`，后台继续生成：
 
 ```bash
 curl -X POST https://你的域名.up.railway.app/api/chapters \
@@ -64,9 +68,10 @@ curl -X POST https://你的域名.up.railway.app/api/chapters \
 
 成功标准：
 
-- 返回 `status: "completed"`。
-- `chapter.knowledgePoints.length > 1`。
-- `chapter.questions.length > 1`。
+- 创建接口立即返回 `status: "submitted"` 和 `chapter.id`。
+- 轮询 `GET /api/chapters/:id` 时，`generationMeta.currentStage` 会从 `submitted` 前进到 `generating_points`、`generating_questions`、`quality_checking` 等阶段。
+- 最终返回 `status: "completed"`，且 `chapter.knowledgePoints.length > 1`、`chapter.questions.length > 1`。
+- 如果生成超时、文章提取失败或模型返回不可用，最终会进入明确失败态并写入 `failureReason`，不会永久停在 `submitted`。
 
 如果缺少模型 Key，接口应返回可理解错误；不要把 Key 写进代码、文档或提交记录。
 

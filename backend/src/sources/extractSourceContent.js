@@ -1,4 +1,6 @@
 const MIN_ARTICLE_TEXT_LENGTH = 200;
+const ARTICLE_FETCH_TIMEOUT_MS = readPositiveInt(process.env.ARTICLE_FETCH_TIMEOUT_MS, 30_000);
+const WECHAT_EXTRACT_TIMEOUT_MS = readPositiveInt(process.env.WECHAT_EXTRACT_TIMEOUT_MS, 60_000);
 
 export async function extractSourceContent(input) {
   const sourceType = input?.sourceType;
@@ -72,6 +74,8 @@ function isWechatArticleUrl(value) {
 
 async function extractWebArticle(sourceUrl) {
   let response;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), ARTICLE_FETCH_TIMEOUT_MS);
   try {
     response = await fetch(sourceUrl, {
       headers: {
@@ -79,10 +83,16 @@ async function extractWebArticle(sourceUrl) {
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
         accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
       },
-      redirect: "follow"
+      redirect: "follow",
+      signal: controller.signal
     });
   } catch (error) {
+    if (error?.name === "AbortError") {
+      throw sourceFailure("failed_extract_article", "文章链接访问超时，请稍后重试或直接粘贴正文。");
+    }
     throw sourceFailure("failed_extract_article", `文章链接无法访问：${error.message}`);
+  } finally {
+    clearTimeout(timeout);
   }
 
   if (!response.ok) {
@@ -110,54 +120,56 @@ async function extractWechatArticle(sourceUrl) {
 
   let browser;
   try {
-    browser = await chromium.launch({
-      headless: true,
-      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined
-    });
-    const page = await browser.newPage({
-      userAgent:
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-      viewport: { width: 1280, height: 1600 }
-    });
+    return await withTimeout((async () => {
+      browser = await chromium.launch({
+        headless: true,
+        executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined
+      });
+      const page = await browser.newPage({
+        userAgent:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        viewport: { width: 1280, height: 1600 }
+      });
 
-    await page.goto(sourceUrl, { waitUntil: "domcontentloaded", timeout: 45000 });
-    await page.waitForTimeout(1500);
+      await page.goto(sourceUrl, { waitUntil: "domcontentloaded", timeout: Math.min(45_000, WECHAT_EXTRACT_TIMEOUT_MS) });
+      await page.waitForTimeout(1500);
 
-    const data = await page.evaluate(() => {
-      const title =
-        document.querySelector("#activity-name")?.textContent?.trim() ||
-        document.querySelector("h1")?.textContent?.trim() ||
-        document.title?.trim() ||
-        "";
-      const account =
-        document.querySelector("#js_name")?.textContent?.trim() ||
-        document.querySelector(".rich_media_meta_text")?.textContent?.trim() ||
-        "";
-      const contentNode =
-        document.querySelector("#js_content") ||
-        document.querySelector(".rich_media_content") ||
-        document.body;
+      const data = await page.evaluate(() => {
+        const title =
+          document.querySelector("#activity-name")?.textContent?.trim() ||
+          document.querySelector("h1")?.textContent?.trim() ||
+          document.title?.trim() ||
+          "";
+        const account =
+          document.querySelector("#js_name")?.textContent?.trim() ||
+          document.querySelector(".rich_media_meta_text")?.textContent?.trim() ||
+          "";
+        const contentNode =
+          document.querySelector("#js_content") ||
+          document.querySelector(".rich_media_content") ||
+          document.body;
+        return {
+          title,
+          account,
+          rawText: contentNode?.innerText || ""
+        };
+      });
+
+      const rawText = cleanExtractedText(data.rawText);
+      ensureArticleText(rawText);
       return {
-        title,
-        account,
-        rawText: contentNode?.innerText || ""
+        sourceType: "article_link",
+        sourceTitle: cleanExtractedText(data.title) || "公众号文章",
+        sourceUrl,
+        sourceAccount: cleanExtractedText(data.account) || "mp.weixin.qq.com",
+        rawText
       };
-    });
-
-    const rawText = cleanExtractedText(data.rawText);
-    ensureArticleText(rawText);
-    return {
-      sourceType: "article_link",
-      sourceTitle: cleanExtractedText(data.title) || "公众号文章",
-      sourceUrl,
-      sourceAccount: cleanExtractedText(data.account) || "mp.weixin.qq.com",
-      rawText
-    };
+    })(), WECHAT_EXTRACT_TIMEOUT_MS, "公众号文章正文提取超时，请稍后重试或直接粘贴正文。");
   } catch (error) {
     if (error?.code) throw error;
     throw sourceFailure("failed_extract_article", `公众号文章正文提取失败：${error.message}`);
   } finally {
-    if (browser) await browser.close().catch(() => {});
+    if (browser) await withTimeout(browser.close(), 5_000, "关闭浏览器超时。").catch(() => {});
   }
 }
 
@@ -238,4 +250,17 @@ function sourceFailure(status, message) {
   error.code = status;
   error.status = status;
   return error;
+}
+
+function withTimeout(promise, timeoutMs, message) {
+  let timeout;
+  return new Promise((resolve, reject) => {
+    timeout = setTimeout(() => reject(sourceFailure("failed_extract_article", message)), timeoutMs);
+    Promise.resolve(promise).then(resolve, reject).finally(() => clearTimeout(timeout));
+  });
+}
+
+function readPositiveInt(value, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : fallback;
 }

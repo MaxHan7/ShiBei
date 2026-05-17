@@ -15,8 +15,10 @@ const memory = {
   chapters: [],
   notifications: []
 };
+const generationRuns = new Map();
 const INITIAL_MASTERY_SCORE = 50;
 const REINFORCEMENT_GAP = 3;
+const GENERATION_JOB_TIMEOUT_MS = readPositiveInt(process.env.GENERATION_JOB_TIMEOUT_MS, 360_000);
 
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
@@ -72,8 +74,17 @@ async function handleCreateChapter(req, res) {
 }
 
 async function runChapterGeneration(chapterId, body) {
+  const runId = createId("generation");
+  generationRuns.set(chapterId, runId);
+  const updateStage = (status) => updateMemoryChapterStage(chapterId, status, runId);
   try {
-    const result = await generateFromInput(body);
+    updateStage("extracting_content");
+    const result = await withTimeout(
+      generateFromInput(body, { onStage: updateStage }),
+      GENERATION_JOB_TIMEOUT_MS,
+      () => generationTimeoutError()
+    );
+    if (!isCurrentGenerationRun(chapterId, runId)) return;
     const existing = memory.chapters.find((chapter) => chapter.id === chapterId);
     const chapter = upsertMemoryChapter({
       ...(result.chapter || failedSourceResult({
@@ -86,6 +97,7 @@ async function runChapterGeneration(chapterId, body) {
     });
     createMemoryNotification(chapter);
   } catch (error) {
+    if (!isCurrentGenerationRun(chapterId, runId)) return;
     const status = error?.code || error?.status || "failed_questions";
     const message = error instanceof Error ? error.message : "生成失败，请稍后重试。";
     const failed = failedSourceResult({ status, message, body });
@@ -96,6 +108,10 @@ async function runChapterGeneration(chapterId, body) {
       createdAt: existing?.createdAt
     });
     createMemoryNotification(chapter);
+  } finally {
+    if (isCurrentGenerationRun(chapterId, runId)) {
+      generationRuns.delete(chapterId);
+    }
   }
 }
 
@@ -162,8 +178,17 @@ async function handleRegenerateChapter(req, res, chapterId) {
 }
 
 async function runChapterRegeneration(existing) {
+  const runId = createId("generation");
+  generationRuns.set(existing.id, runId);
+  const updateStage = (status) => updateMemoryChapterStage(existing.id, status, runId);
   try {
-    const result = await regenerateFromChapter(existing);
+    updateStage("generating_points");
+    const result = await withTimeout(
+      regenerateFromChapter(existing, { onStage: updateStage }),
+      GENERATION_JOB_TIMEOUT_MS,
+      () => generationTimeoutError()
+    );
+    if (!isCurrentGenerationRun(existing.id, runId)) return;
     const chapter = upsertMemoryChapter({
       ...(result.chapter || {}),
       id: existing.id,
@@ -171,6 +196,7 @@ async function runChapterRegeneration(existing) {
     });
     createMemoryNotification(chapter);
   } catch (error) {
+    if (!isCurrentGenerationRun(existing.id, runId)) return;
     const status = error?.code || error?.status || "failed_questions";
     const message = error instanceof Error ? error.message : "重新生成失败，请稍后重试。";
     const failed = failedSourceResult({ status, message, body: existing });
@@ -180,6 +206,10 @@ async function runChapterRegeneration(existing) {
       createdAt: existing.createdAt
     });
     createMemoryNotification(chapter);
+  } finally {
+    if (isCurrentGenerationRun(existing.id, runId)) {
+      generationRuns.delete(existing.id);
+    }
   }
 }
 
@@ -202,7 +232,7 @@ function createRegeneratingChapter(existing) {
   };
 }
 
-async function generateFromInput(body) {
+async function generateFromInput(body, options = {}) {
   const source = await extractSourceContent({
     sourceType: body.sourceType,
     rawText: body.rawText,
@@ -210,6 +240,7 @@ async function generateFromInput(body) {
     sourceUrl: body.sourceUrl,
     sourceAccount: body.sourceAccount
   });
+  options.onStage?.("generating_points");
   return generateReviewChapter({
     sourceType: "text",
     rawText: source.rawText,
@@ -217,10 +248,10 @@ async function generateFromInput(body) {
     sourceUrl: source.sourceUrl,
     sourceAccount: source.sourceAccount,
     originalSourceType: source.sourceType
-  });
+  }, options);
 }
 
-async function regenerateFromChapter(chapter) {
+async function regenerateFromChapter(chapter, options = {}) {
   return generateReviewChapter({
     sourceType: "text",
     rawText: chapter.source?.cleanedText || chapter.source?.rawText || chapter.sourceText || "",
@@ -229,7 +260,7 @@ async function regenerateFromChapter(chapter) {
     sourceAccount: chapter.source?.account || "",
     originalSourceType: chapter.source?.type || chapter.sourceType || "text",
     knowledgePoints: chapter.knowledgePoints || []
-  });
+  }, options);
 }
 
 function failedSourceResult({ status, message, body }) {
@@ -267,6 +298,53 @@ function failedSourceResult({ status, message, body }) {
 
 function createId(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function readPositiveInt(value, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : fallback;
+}
+
+function generationTimeoutError() {
+  const error = new Error("生成超时，请稍后重试。");
+  error.code = "failed_questions";
+  error.status = "failed_questions";
+  return error;
+}
+
+function withTimeout(promise, timeoutMs, makeError) {
+  let timeout;
+  return new Promise((resolve, reject) => {
+    timeout = setTimeout(() => reject(makeError()), timeoutMs);
+    Promise.resolve(promise).then(resolve, reject).finally(() => clearTimeout(timeout));
+  });
+}
+
+function isCurrentGenerationRun(chapterId, runId) {
+  return generationRuns.get(chapterId) === runId;
+}
+
+function updateMemoryChapterStage(chapterId, status, runId) {
+  if (!isCurrentGenerationRun(chapterId, runId)) return;
+  const chapter = memory.chapters.find((item) => item.id === chapterId);
+  if (!chapter) return;
+
+  const now = new Date().toISOString();
+  const displayStatusText = STATUS_TEXT[status] || status;
+  const meta = chapter.generationMeta || { stages: [] };
+  const stages = Array.isArray(meta.stages) ? meta.stages : [];
+  const shouldAppend = meta.currentStage !== status || stages.length === 0;
+
+  chapter.status = status;
+  chapter.displayStatusText = displayStatusText;
+  chapter.generationMeta = {
+    ...meta,
+    currentStage: status,
+    stages: shouldAppend
+      ? [...stages, { status, displayStatusText, at: now }]
+      : stages
+  };
+  chapter.updatedAt = now;
 }
 
 function normalizeChapterSource(chapter, chapterId) {

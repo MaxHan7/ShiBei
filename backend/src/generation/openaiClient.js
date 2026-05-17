@@ -1,5 +1,6 @@
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const DEEPSEEK_CHAT_URL = "https://api.deepseek.com/chat/completions";
+const MODEL_REQUEST_TIMEOUT_MS = readPositiveInt(process.env.MODEL_REQUEST_TIMEOUT_MS, 90_000);
 
 export async function callOpenAIJson({ system, user, schemaName, schema }) {
   if (process.env.DEEPSEEK_API_KEY || process.env.AI_PROVIDER === "deepseek") {
@@ -12,7 +13,7 @@ export async function callOpenAIJson({ system, user, schemaName, schema }) {
   }
 
   const model = process.env.OPENAI_MODEL || "gpt-4.1-mini";
-  const response = await fetch(OPENAI_RESPONSES_URL, {
+  const response = await fetchWithTimeout(OPENAI_RESPONSES_URL, {
     method: "POST",
     headers: {
       authorization: `Bearer ${apiKey}`,
@@ -33,7 +34,7 @@ export async function callOpenAIJson({ system, user, schemaName, schema }) {
         }
       }
     })
-  });
+  }, "OpenAI");
 
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
@@ -56,7 +57,7 @@ async function callDeepSeekJson({ system, user, schemaName, schema }) {
   }
 
   const model = process.env.DEEPSEEK_MODEL || "deepseek-v4-flash";
-  const response = await fetch(DEEPSEEK_CHAT_URL, {
+  const response = await fetchWithTimeout(DEEPSEEK_CHAT_URL, {
     method: "POST",
     headers: {
       authorization: `Bearer ${apiKey}`,
@@ -75,7 +76,7 @@ async function callDeepSeekJson({ system, user, schemaName, schema }) {
       stream: false,
       temperature: 0.2
     })
-  });
+  }, "DeepSeek");
 
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
@@ -104,6 +105,26 @@ function extractResponseText(payload) {
     }
   }
   throw new Error("模型没有返回结构化文本。");
+}
+
+async function fetchWithTimeout(url, options, label) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), MODEL_REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new Error(`${label} 请求超时，请稍后重试。`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function readPositiveInt(value, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : fallback;
 }
 
 function stripCodeFence(text) {

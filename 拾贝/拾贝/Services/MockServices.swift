@@ -94,6 +94,9 @@ final class AppStore: ObservableObject {
         selectedChapterId = chapter.id
         selectedTab = .chapters
         route = .chapterDetail
+        Task {
+            await refreshSelectedChapterFromAPI()
+        }
     }
 
     func openNotification(_ notification: NotificationItem) async {
@@ -106,6 +109,7 @@ final class AppStore: ObservableObject {
         selectedChapterId = notification.chapterId
         selectedTab = .chapters
         route = .chapterDetail
+        await refreshSelectedChapterFromAPI()
 
         guard let notificationService = activeNotificationService else { return }
         do {
@@ -521,6 +525,25 @@ final class AppStore: ObservableObject {
         return reviewService.currentQuestion(in: chapter)
     }
 
+    func refreshSelectedChapterFromAPI() async {
+        guard dataMode != .mock,
+              let selectedChapterId,
+              let client = activeAPIClient else { return }
+        do {
+            let chapter = try await client.fetchChapter(id: selectedChapterId)
+            upsertChapter(chapter)
+            if chapter.status.isProcessing {
+                startGenerationPolling(for: chapter.id, mode: dataMode)
+            }
+            if let latestNotifications = try? await client.fetchNotifications() {
+                notifications = latestNotifications
+            }
+            dataSourceMessage = "\(dataMode.apiLabel)已刷新章节：\(chapter.visibleStatusText)"
+        } catch {
+            dataSourceMessage = "刷新章节失败：\(error.localizedDescription)"
+        }
+    }
+
     private func upsertChapter(_ chapter: Chapter) {
         if let index = chapters.firstIndex(where: { $0.id == chapter.id }) {
             chapters[index] = chapter
@@ -557,7 +580,7 @@ final class AppStore: ObservableObject {
         generationPollTasks[chapterId]?.cancel()
         let modeLabel = mode.apiLabel
         generationPollTasks[chapterId] = Task { [weak self, client, modeLabel] in
-            for _ in 0..<60 {
+            for _ in 0..<240 {
                 do {
                     try await Task.sleep(nanoseconds: 2_000_000_000)
                 } catch {

@@ -174,6 +174,9 @@ struct ChapterDetailView: View {
                 }
             }
         }
+        .task(id: store.selectedChapterId) {
+            await store.refreshSelectedChapterFromAPI()
+        }
     }
 
     @ViewBuilder

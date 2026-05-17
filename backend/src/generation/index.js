@@ -7,7 +7,8 @@ import { evaluateQuestions } from "./evaluateQuestions.js";
 import { judgeQuestionQuality } from "./judgeQuestionQuality.js";
 import { STATUS_TEXT } from "./types.js";
 
-export async function generateReviewChapter(input) {
+export async function generateReviewChapter(input, options = {}) {
+  const onStage = typeof options.onStage === "function" ? options.onStage : null;
   const meta = createGenerationMeta();
   const rawText = String(input.rawText || "").trim();
 
@@ -32,7 +33,7 @@ export async function generateReviewChapter(input) {
   }
 
   try {
-    markStage(meta, "generating_points");
+    markStage(meta, "generating_points", onStage);
     const cleaned = cleanContent(rawText);
     if (cleaned.cleanedText.length < 80 && !input.knowledgePoints?.length) {
       return failure({
@@ -80,11 +81,12 @@ export async function generateReviewChapter(input) {
       });
     }
 
-    markStage(meta, "generating_questions");
+    markStage(meta, "generating_questions", onStage);
     const questionBuild = await createQualifiedQuestions({
       knowledgePoints,
       cleanedText: cleaned.cleanedText,
-      meta
+      meta,
+      onStage
     });
     const qualifiedQuestions = questionBuild.qualifiedQuestions;
     const uncoveredPoints = questionBuild.pointDiagnostics.filter((point) => point.status !== "covered");
@@ -157,9 +159,9 @@ export async function generateReviewChapter(input) {
   }
 }
 
-async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta }) {
+async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta, onStage }) {
   const generatedQuestions = withStableIds(await generateQuestions({ knowledgePoints }), "q");
-  markStage(meta, "quality_checking");
+  markStage(meta, "quality_checking", onStage);
   const firstEvaluation = await evaluateWithJudge({ questions: generatedQuestions, knowledgePoints, cleanedText });
 
   const rewriteCandidates = firstEvaluation.evaluatedQuestions.filter((question) => question.qualityAction === "rewrite");
@@ -167,7 +169,7 @@ async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta }) 
   const supplementEvaluations = [];
   const generationErrors = [];
 
-  if (rewriteCandidates.length) markStage(meta, "auto_regenerating_questions");
+  if (rewriteCandidates.length) markStage(meta, "auto_regenerating_questions", onStage);
   for (let index = 0; index < rewriteCandidates.length; index += 1) {
     const question = rewriteCandidates[index];
     const point = knowledgePoints.find((item) => item.id === question.knowledgePointId);
@@ -432,7 +434,7 @@ function failure({
       input,
       rawText,
       cleaned,
-      title: input.sourceTitle || extracted?.chapterTitle || "未生成章节",
+      title: input.sourceTitle || extracted?.chapterTitle || rawText.slice(0, 28).replace(/[。！？!?；;，,]$/, "") || "未生成章节",
       knowledgePoints,
       filteredKnowledgePoints,
       questions,
@@ -506,11 +508,12 @@ function createGenerationMeta() {
   };
 }
 
-function markStage(meta, status) {
+function markStage(meta, status, onStage = null) {
   if (!meta) return;
   if (meta.currentStage === status) return;
   meta.currentStage = status;
   meta.stages.push({ status, displayStatusText: STATUS_TEXT[status] || status, at: new Date().toISOString() });
+  if (onStage) onStage(status, meta);
 }
 
 function finishMeta(meta, extra = {}) {
