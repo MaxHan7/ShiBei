@@ -151,6 +151,17 @@ async function handleRegenerateChapter(req, res, chapterId) {
     sendJson(res, 404, { errorCode: "chapter_not_found", message: "章节不存在。" });
     return;
   }
+  const submittedChapter = upsertMemoryChapter(createRegeneratingChapter(existing));
+  sendJson(res, 202, {
+    status: submittedChapter.status,
+    chapter: submittedChapter,
+    notification: null,
+    message: "已提交，正在重新生成。"
+  });
+  void runChapterRegeneration(existing);
+}
+
+async function runChapterRegeneration(existing) {
   try {
     const result = await regenerateFromChapter(existing);
     const chapter = upsertMemoryChapter({
@@ -158,13 +169,7 @@ async function handleRegenerateChapter(req, res, chapterId) {
       id: existing.id,
       createdAt: existing.createdAt
     });
-    const notification = createMemoryNotification(chapter);
-    sendJson(res, result.status === "completed" ? 200 : 422, {
-      status: result.status,
-      chapter,
-      notification,
-      message: result.message || chapter.failureReason || ""
-    });
+    createMemoryNotification(chapter);
   } catch (error) {
     const status = error?.code || error?.status || "failed_questions";
     const message = error instanceof Error ? error.message : "重新生成失败，请稍后重试。";
@@ -174,9 +179,27 @@ async function handleRegenerateChapter(req, res, chapterId) {
       id: existing.id,
       createdAt: existing.createdAt
     });
-    const notification = createMemoryNotification(chapter);
-    sendJson(res, 422, { ...failed, chapter, notification });
+    createMemoryNotification(chapter);
   }
+}
+
+function createRegeneratingChapter(existing) {
+  return {
+    ...existing,
+    status: "submitted",
+    displayStatusText: STATUS_TEXT.submitted,
+    failureReason: "",
+    reviewSession: null,
+    generationMeta: {
+      ...(existing.generationMeta || {}),
+      currentStage: "submitted",
+      stages: [
+        ...((existing.generationMeta?.stages || []).slice(-8)),
+        { status: "submitted", displayStatusText: STATUS_TEXT.submitted, at: new Date().toISOString() }
+      ]
+    },
+    updatedAt: new Date().toISOString()
+  };
 }
 
 async function generateFromInput(body) {
