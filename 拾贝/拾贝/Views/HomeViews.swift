@@ -100,6 +100,7 @@ private struct HomeChapterContent: View {
 struct AddKnowledgeView: View {
     @ObservedObject var store: AppStore
     @State private var input = ""
+    @FocusState private var isInputFocused: Bool
 
     private var chapterInput: ChapterInput {
         ChapterInput.parse(input)
@@ -123,6 +124,7 @@ struct AddKnowledgeView: View {
                                 .font(.system(size: 17, weight: .semibold))
                         }
                         TextEditor(text: $input)
+                            .focused($isInputFocused)
                             .frame(minHeight: 210)
                             .scrollContentBackground(.hidden)
                             .overlay(alignment: .topLeading) {
@@ -157,6 +159,7 @@ struct AddKnowledgeView: View {
                         disabled: !chapterInput.canSubmit || store.isWritingChapter
                     ) {
                         let submittedInput = input
+                        isInputFocused = false
                         Task {
                             if await store.createChapter(from: submittedInput) {
                                 input = ""
@@ -185,6 +188,7 @@ struct AddKnowledgeView: View {
                     .frame(maxWidth: .infinity)
 
                     Button("填入示例内容") {
+                        isInputFocused = false
                         input = "真正的进步不是问 AI 更多问题，而是把任务、边界、资料范围和交付格式说清楚，让 AI 在可控范围内进入真实工作流。"
                     }
                     .font(.system(size: 14))
@@ -193,6 +197,17 @@ struct AddKnowledgeView: View {
                 }
                 .padding(24)
                 .padding(.bottom, 120)
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("完成") {
+                        isInputFocused = false
+                    }
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(ShiBeiTheme.primary)
+                }
             }
         }
     }
