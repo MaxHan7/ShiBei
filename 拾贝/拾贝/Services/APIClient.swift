@@ -1,0 +1,216 @@
+import Foundation
+
+struct APIClient {
+    static let localBaseURL = URL(string: "http://127.0.0.1:5173")!
+
+    var baseURL: URL
+    var session: URLSession
+    var decoder: JSONDecoder
+
+    init(
+        baseURL: URL = APIClient.localBaseURL,
+        session: URLSession = .shared,
+        decoder: JSONDecoder = JSONDecoder()
+    ) {
+        self.baseURL = baseURL
+        self.session = session
+        self.decoder = decoder
+    }
+
+    func fetchChapters() async throws -> [Chapter] {
+        let response: ChaptersResponse = try await get("/api/chapters")
+        return response.chapters
+    }
+
+    func fetchChapter(id: String) async throws -> Chapter {
+        let response: ChapterResponse = try await get("/api/chapters/\(id)")
+        return response.chapter
+    }
+
+    func fetchNotifications() async throws -> [NotificationItem] {
+        let response: NotificationsResponse = try await get("/api/notifications")
+        return response.notifications
+    }
+
+    func markNotificationRead(id: String) async throws -> NotificationItem {
+        let response: NotificationMutationResponse = try await send("/api/notifications/\(id)/read", method: "POST", body: EmptyRequest(), acceptsFailureBody: false)
+        return response.notification
+    }
+
+    func dismissNotification(id: String) async throws -> NotificationItem {
+        let response: NotificationMutationResponse = try await send("/api/notifications/\(id)/dismiss", method: "POST", body: EmptyRequest(), acceptsFailureBody: false)
+        return response.notification
+    }
+
+    func createChapter(input: ChapterInput) async throws -> ChapterCreationResult {
+        let request = ChapterCreateRequest(input: input)
+        let response: ChapterMutationResponse = try await send("/api/chapters", method: "POST", body: request, acceptsFailureBody: true)
+        return ChapterCreationResult(chapter: response.chapter, notification: response.notification)
+    }
+
+    func regenerateChapter(id: String) async throws -> ChapterCreationResult {
+        let response: ChapterMutationResponse = try await send("/api/chapters/\(id)/regenerate", method: "POST", body: EmptyRequest(), acceptsFailureBody: true)
+        return ChapterCreationResult(chapter: response.chapter, notification: response.notification)
+    }
+
+    func deleteChapter(id: String) async throws -> ChapterDeletionResponse {
+        try await send("/api/chapters/\(id)", method: "DELETE", body: EmptyRequest(), acceptsFailureBody: false)
+    }
+
+    func startOrResumeReviewSession(chapterId: String) async throws -> ReviewSessionResponse {
+        try await send("/api/chapters/\(chapterId)/review-session", method: "POST", body: EmptyRequest(), acceptsFailureBody: false)
+    }
+
+    func fetchReviewSession(chapterId: String) async throws -> ReviewSessionResponse {
+        try await get("/api/chapters/\(chapterId)/review-session")
+    }
+
+    func submitAttempt(sessionId: String, questionId: String, answer: String?, result: AttemptResult) async throws -> AttemptResponse {
+        let request = AttemptRequest(questionId: questionId, answer: answer ?? "", result: result)
+        return try await send("/api/review-sessions/\(sessionId)/attempts", method: "POST", body: request, acceptsFailureBody: false)
+    }
+
+    func submitFeedback(questionId: String, feedbackType: FeedbackType) async throws -> FeedbackResponse {
+        let request = FeedbackRequest(feedbackType: feedbackType)
+        return try await send("/api/questions/\(questionId)/feedback", method: "POST", body: request, acceptsFailureBody: false)
+    }
+
+    private func get<Response: Decodable>(_ path: String) async throws -> Response {
+        let url = baseURL.appending(path: path)
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "accept")
+
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIClientError.invalidResponse
+        }
+        guard (200..<300).contains(httpResponse.statusCode) else {
+            throw APIClientError.httpStatus(httpResponse.statusCode)
+        }
+        return try decoder.decode(Response.self, from: data)
+    }
+
+    private func send<Request: Encodable, Response: Decodable>(
+        _ path: String,
+        method: String,
+        body: Request,
+        acceptsFailureBody: Bool
+    ) async throws -> Response {
+        let url = baseURL.appending(path: path)
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.setValue("application/json", forHTTPHeaderField: "accept")
+        if method != "DELETE" {
+            request.setValue("application/json", forHTTPHeaderField: "content-type")
+            request.httpBody = try JSONEncoder().encode(body)
+        }
+
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIClientError.invalidResponse
+        }
+        if (200..<300).contains(httpResponse.statusCode) || (acceptsFailureBody && httpResponse.statusCode == 422) {
+            return try decoder.decode(Response.self, from: data)
+        }
+        if let serverError = try? decoder.decode(APIErrorResponse.self, from: data) {
+            throw APIClientError.serverMessage(serverError.message)
+        }
+        throw APIClientError.httpStatus(httpResponse.statusCode)
+    }
+}
+
+enum APIClientError: LocalizedError {
+    case invalidResponse
+    case httpStatus(Int)
+    case serverMessage(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidResponse:
+            "API 返回格式不正确。"
+        case .httpStatus(let statusCode):
+            "API 请求失败：HTTP \(statusCode)。"
+        case .serverMessage(let message):
+            message
+        }
+    }
+}
+
+struct EmptyRequest: Codable {}
+
+struct ChapterCreateRequest: Codable {
+    var sourceType: String
+    var rawText: String?
+    var sourceUrl: String?
+    var sourceTitle: String?
+
+    init(input: ChapterInput) {
+        sourceType = input.sourceType.rawValue
+        rawText = input.rawText
+        sourceUrl = input.sourceUrl
+        sourceTitle = input.sourceTitle
+    }
+}
+
+struct AttemptRequest: Codable {
+    var questionId: String
+    var answer: String
+    var result: AttemptResult
+}
+
+struct FeedbackRequest: Codable {
+    var feedbackType: FeedbackType
+}
+
+struct ChaptersResponse: Codable {
+    var chapters: [Chapter]
+}
+
+struct ChapterResponse: Codable {
+    var chapter: Chapter
+}
+
+struct NotificationsResponse: Codable {
+    var notifications: [NotificationItem]
+}
+
+struct NotificationMutationResponse: Codable {
+    var notification: NotificationItem
+}
+
+struct ChapterMutationResponse: Codable {
+    var status: ChapterStatus?
+    var chapter: Chapter
+    var notification: NotificationItem?
+    var message: String?
+}
+
+struct ChapterDeletionResponse: Codable {
+    var deleted: Bool
+    var chapterId: String
+}
+
+struct APIErrorResponse: Codable {
+    var errorCode: String?
+    var message: String
+}
+
+struct ReviewSessionResponse: Codable {
+    var chapter: Chapter
+    var reviewSession: ReviewSession?
+    var currentQuestion: ReviewQuestion?
+}
+
+struct AttemptResponse: Codable {
+    var chapter: Chapter
+    var reviewSession: ReviewSession
+    var attempt: ReviewAttempt
+    var currentQuestion: ReviewQuestion?
+}
+
+struct FeedbackResponse: Codable {
+    var chapter: Chapter
+    var feedback: QuestionFeedback
+    var reviewSession: ReviewSession?
+}

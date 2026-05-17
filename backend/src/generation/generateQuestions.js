@@ -9,6 +9,8 @@ export async function generateQuestions({ knowledgePoints, rewrite = false, rewr
     knowledgeType: point.knowledgeType,
     keyClaim: point.keyClaim,
     sourceQuote: point.sourceQuote,
+    testabilityReason: point.testabilityReason || "",
+    questionAngles: Array.isArray(point.questionAngles) ? point.questionAngles : [],
     testabilityScore: point.testabilityScore,
     preferredQuestionType: expectedQuestionType(point),
     targetQuestionCount: rewrite ? 1 : targetQuestionCount(point)
@@ -40,22 +42,51 @@ function buildUserPrompt({ points, rewrite, rewriteContext }) {
   const rewriteInstruction = rewrite
     ? `上一题没有通过质量检查。请只为给定知识点重写 1 道题。
 需要修复的问题：${rewriteContext || "质量检查未通过"}
+${rewriteGuidance(rewriteContext)}
 避免原文填空、凑数干扰项、多个正确答案、题型不匹配、来源片段不匹配。`
     : "";
 
   return `${rewriteInstruction}
-请为每个知识点生成 targetQuestionCount 道题。题型必须严格等于 preferredQuestionType。
+请为每个知识点生成 targetQuestionCount 道候选题。targetQuestionCount 是根据该知识点价值动态给出的候选数量，不代表最终入池数量。
+题型必须严格等于 preferredQuestionType。
 如果 preferredQuestionType 是 true_false，只能使用两个选项：A 成立，B 不成立。
+如果 preferredQuestionType 是 multiple_choice，必须使用 A/B/C/D 四个选项。
+如果 preferredQuestionType 是 scenario_judgment，必须使用 A/B/C/D 四个选项；题干描述具体使用场景，四个选项分别是四种行动方案、判断方式或处理策略，禁止使用“成立 / 不成立”。
 sourceSnippet 必须逐字来自该知识点 sourceQuote，不要改写来源片段。
 题目必须考理解、边界、场景、误区或迁移应用，不要问“原文提到了什么”。
+每道题的 3 个错误选项必须来自不同常见误解：错因要接近真实用户会犯的理解偏差，而不是随便编无关选项。
+如果 sourceQuote 很短，优先生成直接理解题或边界判断题；不要编造 sourceQuote 没有支撑的复杂业务细节。
+优先参考 questionAngles 设计不同考察角度；如果没有 questionAngles，就根据 keyClaim 和 sourceQuote 自行选择最值得复习的角度。
 ${JSON.stringify(points, null, 2)}`;
 }
 
 function targetQuestionCount(point) {
   const highValueType = ["method", "scenario", "step", "comparison", "counterexample"].includes(point.knowledgeType);
-  if (point.testabilityScore >= 5 && highValueType) return 3;
-  if (point.testabilityScore >= 4 || highValueType) return 2;
+  const angleCount = Array.isArray(point.questionAngles) ? point.questionAngles.length : 0;
+  if (point.testabilityScore >= 5 && (highValueType || angleCount >= 2)) return 3;
+  if (point.testabilityScore >= 4 || highValueType || angleCount >= 2) return 2;
   return 1;
+}
+
+function rewriteGuidance(context = "") {
+  const issues = String(context);
+  const guidance = [];
+  if (/distractorQuality|干扰/.test(issues)) {
+    guidance.push("干扰项修复：3 个错误选项都要贴近同一主题，看起来可能被误选，但必须被 sourceQuote 或正确理解明确排除。不要使用无关、极端、玩笑或明显错误选项。");
+  }
+  if (/answerUniqueness|答案|唯一/.test(issues)) {
+    guidance.push("答案唯一性修复：只有一个选项能同时被 sourceQuote 和正确理解支撑，其他选项必须各自错在清晰可解释的点上。");
+  }
+  if (/understandingDepth|理解|source_repetition|原文/.test(issues)) {
+    guidance.push("理解深度修复：把题干改成应用场景、边界判断、误区辨析或行动选择，不要问原文复述。");
+  }
+  if (/source|来源/.test(issues)) {
+    guidance.push("来源修复：sourceSnippet 必须逐字截取自当前知识点 sourceQuote，不要拼接、改写或概括。");
+  }
+  if (/question_type|题型/.test(issues)) {
+    guidance.push("题型修复：题型必须严格等于 preferredQuestionType。");
+  }
+  return guidance.join("\n");
 }
 
 function normalizeOptions(question) {

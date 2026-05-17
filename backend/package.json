@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "node src/server.js",
+    "start": "node src/server.js",
     "check": "node --check src/server.js && node --check src/generation/index.js && node --check src/generation/tests/runQualitySet.js && node --check src/sources/extractSourceContent.js",
-    "quality:test": "node src/generation/tests/runQualitySet.js"
+    "quality:test": "cd .. && node backend/src/generation/tests/runQualitySet.js"
   },
   "engines": {
     "node": ">=20"

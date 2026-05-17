@@ -14,8 +14,8 @@ export function evaluateQuestions({ questions, knowledgePoints, cleanedText = ""
     const ruleIssues = collectIssues(question, scores, point, typeValidation, sourceValidation);
     const ruleAction = decideAction(scores, averageScore, ruleIssues);
     const judge = judgeMap.get(question.id) || null;
-    const action = mergeActions(ruleAction, judge?.qualityAction);
     const qualityIssues = mergeIssues(ruleIssues, judge?.seriousIssues);
+    const action = mergeActions(ruleAction, judge?.qualityAction, qualityIssues);
     seenStems.add(normalize(question.stem));
 
     return {
@@ -47,7 +47,13 @@ export function validateQuestionType(question, point) {
 
 export function expectedQuestionType(point) {
   const type = point?.knowledgeType;
-  if (type === "judgment") return "true_false";
+  if (type === "judgment") {
+    const angles = Array.isArray(point?.questionAngles) ? point.questionAngles.join("") : "";
+    if ((Number(point?.testabilityScore) || 0) >= 4 && /为什么|如何|怎么|场景|适合|路径|策略|行动/.test(angles)) {
+      return "scenario_judgment";
+    }
+    return "true_false";
+  }
   if (type === "method" || type === "scenario" || type === "step") return "scenario_judgment";
   return "multiple_choice";
 }
@@ -98,6 +104,8 @@ function scoreSourceSupport(sourceValidation) {
 
 function scoreAnswerUniqueness(question) {
   if (!question.correctOptionId) return 1;
+  if (question.type !== "true_false" && question.options.length !== 4) return 1;
+  if (question.type === "true_false" && question.options.length !== 2) return 1;
   const ids = new Set(question.options.map((option) => option.id));
   if (!ids.has(question.correctOptionId)) return 1;
   const optionTexts = question.options.map((option) => normalize(option.text));
@@ -121,6 +129,7 @@ function scoreClarity(question) {
   if (!question.stem || question.stem.length < 10) return 1;
   if (!question.explanation || !question.correctUnderstanding || !question.commonMisconception) return 2;
   if (question.options.some((option) => !option.text || option.text.length < 2)) return 2;
+  if (question.type === "scenario_judgment" && isBinaryJudgmentOptions(question)) return 2;
   if (/以上都|无法判断|都正确|都不正确/.test(question.options.map((option) => option.text).join(""))) return 3;
   return 5;
 }
@@ -128,6 +137,7 @@ function scoreClarity(question) {
 function scoreDistractorQuality(question) {
   if (question.type === "true_false") return question.options.length === 2 ? 4 : 2;
   if (question.options.length < 4) return 2;
+  if (question.type === "scenario_judgment" && isBinaryJudgmentOptions(question)) return 1;
   const correct = question.options.find((option) => option.id === question.correctOptionId)?.text || "";
   const wrongOptions = question.options.filter((option) => option.id !== question.correctOptionId);
   if (wrongOptions.some((option) => option.text.length < 6)) return 2;
@@ -155,6 +165,11 @@ function collectIssues(question, scores, point, typeValidation, sourceValidation
   if (!question.sourceSnippet) issues.push("missing_source_snippet");
   if (sourceValidation && !sourceValidation.valid) issues.push(`source_snippet_${sourceValidation.support}`);
   if (!question.options.length) issues.push("missing_options");
+  if (question.type !== "true_false" && question.options.length !== 4) issues.push("non_binary_question_requires_four_options");
+  if (question.type === "true_false" && question.options.length !== 2) issues.push("true_false_requires_two_options");
+  if (question.type === "scenario_judgment" && isBinaryJudgmentOptions(question)) {
+    issues.push("scenario_judgment_binary_options");
+  }
   if (isSourceRepeatingStem(question)) issues.push("source_repetition_stem");
   return [...new Set(issues)];
 }
@@ -162,15 +177,22 @@ function collectIssues(question, scores, point, typeValidation, sourceValidation
 function decideAction(scores, averageScore, issues) {
   if (issues.includes("missing_knowledge_point") || issues.includes("missing_source_snippet")) return "discard";
   if (issues.includes("source_snippet_not_found") || issues.includes("source_snippet_missing_source")) return "discard";
+  if (issues.includes("scenario_judgment_binary_options")) return "rewrite";
+  if (issues.includes("non_binary_question_requires_four_options") || issues.includes("true_false_requires_two_options")) return "rewrite";
   if (issues.includes("question_type_mismatch")) return "rewrite";
-  if (scores.sourceSupport < 4 || scores.answerUniqueness < 4 || scores.clarity < 4) return "rewrite";
+  if (scores.sourceSupport < 4 || scores.answerUniqueness < 4 || scores.clarity < 4 || scores.distractorQuality < 4) {
+    return "rewrite";
+  }
   if (scores.reviewValue < 3 || scores.understandingDepth < 3) return "discard";
-  if (averageScore < 4) return "rewrite";
+  if (averageScore < 4 && scores.sourceSupport < 5) return "rewrite";
   return "pass";
 }
 
-function mergeActions(ruleAction, judgeAction) {
+function mergeActions(ruleAction, judgeAction, qualityIssues = []) {
   const rank = { pass: 0, rewrite: 1, discard: 2 };
+  if (qualityIssues.some((issue) => /来源.*不.*支撑|来源.*未.*支持|来源.*不足|source.*support/i.test(issue))) {
+    return "rewrite";
+  }
   const normalizedJudgeAction = rank[judgeAction] === undefined ? "pass" : judgeAction;
   return rank[ruleAction] >= rank[normalizedJudgeAction] ? ruleAction : normalizedJudgeAction;
 }
@@ -199,6 +221,12 @@ function overlapRatio(a, b) {
 
 function normalize(value) {
   return String(value || "").replace(/\s+/g, "");
+}
+
+function isBinaryJudgmentOptions(question) {
+  const optionTexts = question.options.map((option) => normalize(option.text));
+  if (optionTexts.length !== 2) return false;
+  return optionTexts.includes("成立") && optionTexts.includes("不成立");
 }
 
 function average(values) {

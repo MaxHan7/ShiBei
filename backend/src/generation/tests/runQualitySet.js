@@ -10,9 +10,18 @@ const samplesDir = path.join(repoRoot, "quality-test-set", "samples");
 const resultsDir = path.join(repoRoot, "quality-test-set", "results");
 
 async function main() {
+  const sampleFilter = process.env.QUALITY_SAMPLE?.trim().toLowerCase();
   const sampleFiles = (await readdir(samplesDir))
     .filter((file) => file.endsWith(".md") || file.endsWith(".txt"))
+    .filter((file) => file.toLowerCase() !== "readme.md")
+    .filter((file) => !sampleFilter || file.toLowerCase().includes(sampleFilter))
     .sort();
+
+  if (!sampleFiles.length) {
+    throw new Error(sampleFilter
+      ? `没有找到匹配 QUALITY_SAMPLE=${process.env.QUALITY_SAMPLE} 的测试样本。`
+      : "没有找到可运行的测试样本。");
+  }
 
   const results = [];
   for (const file of sampleFiles) {
@@ -25,6 +34,7 @@ async function main() {
         startedAt,
         status: output.status,
         chapter: output.chapter || null,
+        generationDebug: output.generationDebug || null,
         message: output.message || ""
       });
     } catch (error) {
@@ -53,7 +63,8 @@ async function main() {
 
 function summarize(results) {
   const completed = results.filter((result) => result.status === "completed");
-  const allQuestions = completed.flatMap((result) => result.chapter?.questions || []);
+  const chapters = results.filter((result) => result.chapter);
+  const allQuestions = chapters.flatMap((result) => result.chapter?.questions || []);
   const qualityScores = allQuestions
     .map((question) => question.qualityScore?.average)
     .filter((score) => Number.isFinite(score));
@@ -66,8 +77,17 @@ function summarize(results) {
     sampleCount: results.length,
     successCount: completed.length,
     failureCount: results.length - completed.length,
-    knowledgePointCount: completed.reduce((sum, result) => sum + (result.chapter?.knowledgePoints?.length || 0), 0),
+    knowledgePointCount: chapters.reduce((sum, result) => sum + (result.chapter?.knowledgePoints?.length || 0), 0),
     qualifiedQuestionCount: allQuestions.length,
+    coveredKnowledgePointCount: chapters.reduce((sum, result) => {
+      const diagnostics = result.generationDebug?.pointDiagnostics || [];
+      return sum + diagnostics.filter((point) => point.status === "covered").length;
+    }, 0),
+    uncoveredKnowledgePointCount: chapters.reduce((sum, result) => {
+      const diagnostics = result.generationDebug?.pointDiagnostics || [];
+      return sum + diagnostics.filter((point) => point.status !== "covered").length;
+    }, 0),
+    questionCoverageRate: calculateCoverageRate(chapters),
     averageQualityScore: qualityScores.length
       ? Math.round((qualityScores.reduce((sum, score) => sum + score, 0) / qualityScores.length) * 10) / 10
       : 0,
@@ -75,10 +95,30 @@ function summarize(results) {
   };
 }
 
+function calculateCoverageRate(completed) {
+  const diagnostics = completed.flatMap((result) => result.generationDebug?.pointDiagnostics || []);
+  if (!diagnostics.length) return 0;
+  const covered = diagnostics.filter((point) => point.status === "covered").length;
+  return Math.round((covered / diagnostics.length) * 1000) / 10;
+}
+
 function buildReviewRows(results) {
   return results.flatMap((result) => {
     const chapter = result.chapter;
-    if (!chapter?.questions?.length) {
+    const acceptedRows = (chapter?.questions || []).map((question) => questionToReviewRow({
+      result,
+      question,
+      status: result.status
+    }));
+    const rejectedQuestions = (result.generationDebug?.evaluatedQuestions || [])
+      .filter((question) => question.qualityAction !== "pass");
+    const rejectedRows = rejectedQuestions.map((question) => questionToReviewRow({
+      result,
+      question,
+      status: `${result.status}:rejected`
+    }));
+
+    if (!acceptedRows.length && !rejectedRows.length) {
       return [{
         sample: result.file,
         status: result.status,
@@ -101,27 +141,31 @@ function buildReviewRows(results) {
       }];
     }
 
-    return chapter.questions.map((question) => ({
-      sample: result.file,
-      status: result.status,
-      questionId: question.id,
-      knowledgePoint: question.pointTitle || question.knowledgePointId || "",
-      questionType: question.type,
-      stem: question.stem,
-      sourceSnippet: question.sourceSnippet || question.source_snippet || "",
-      machineAverageScore: question.qualityScore?.average ?? "",
-      machineIssues: (question.qualityIssues || []).join(";"),
-      humanSourceSupport: "",
-      humanAnswerUniqueness: "",
-      humanUnderstandingDepth: "",
-      humanClarity: "",
-      humanDistractorQuality: "",
-      humanReviewValue: "",
-      humanUsable: "",
-      humanSeriousIssue: "",
-      humanNotes: ""
-    }));
+    return [...acceptedRows, ...rejectedRows];
   });
+}
+
+function questionToReviewRow({ result, question, status }) {
+  return {
+    sample: result.file,
+    status,
+    questionId: question.id,
+    knowledgePoint: question.pointTitle || question.knowledgePointId || "",
+    questionType: question.type,
+    stem: question.stem,
+    sourceSnippet: question.sourceSnippet || question.source_snippet || "",
+    machineAverageScore: question.qualityScore?.average ?? "",
+    machineIssues: (question.qualityIssues || []).join(";"),
+    humanSourceSupport: "",
+    humanAnswerUniqueness: "",
+    humanUnderstandingDepth: "",
+    humanClarity: "",
+    humanDistractorQuality: "",
+    humanReviewValue: "",
+    humanUsable: "",
+    humanSeriousIssue: "",
+    humanNotes: ""
+  };
 }
 
 function timestamp() {

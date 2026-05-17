@@ -2,35 +2,69 @@
 
 这个目录用于验证“内容 -> 知识点 -> 题目 -> 解释 -> 复习”的核心生成质量。MVP 不只看接口是否跑通，还要看题目是否真的适合用户复习。
 
-## 使用流程
+## 目录约定
 
-1. 把代表性输入内容放入 `samples/`。
-2. 在 `backend/` 中运行：
-
-```powershell
-npm.cmd run quality:test
+```text
+samples/            真实样本，只放用户真实可能添加的内容
+synthetic-samples/  人工构造样本，用于回归、边界场景和 smoke test
+results/            质量测试结果，显眼位置只保留最新关键 baseline
+results/archive/    旧的中间调试结果
 ```
 
-3. 到 `results/` 找到最新的 JSON 结果。
-4. 使用 `manual-scoring-template.md` 或 `results/manual-review-template.csv` 人工评分。
-5. 记录可用题比例、严重问题比例和主要失败原因。
+`quality:test` 默认只读取 `samples/`，不会读取 `synthetic-samples/`。
 
-## MVP 上线建议门槛
+## 运行方式
 
-- 可用题比例 >= 70%。
-- 严重问题比例 <= 10%。
-- 来源支撑、答案唯一、表达清晰的人工平均分 >= 4。
-- 每类样本至少有 1 条能稳定生成 3 道以上可复习题。
+在项目根目录运行：
 
-## 样本覆盖
+```powershell
+npm.cmd --prefix backend run quality:test
+```
 
-第一版样本优先覆盖：
+只跑单篇样本：
 
-- AI / 大模型方法论。
-- 产品理论和 MVP 决策。
-- 用户研究与增长。
-- 长文章摘录。
-- 视频转写风格内容。
-- 内容质量较差或信息密度低的输入。
+```powershell
+$env:QUALITY_SAMPLE="wechat-OLsU21MsXlUtZlubVj5tkg"
+npm.cmd --prefix backend run quality:test
+```
 
-暂不把真实公众号全文直接提交到仓库；可以在本地手动加入临时样本测试。
+## 当前关键 baseline
+
+最新可用 baseline：
+
+```text
+quality-test-set/results/2026-05-16-032253.json
+```
+
+这次结果用于记录第一性原理出题 prompt 优化后的阶段性状态：单篇公众号样本成功生成，知识点覆盖率达到 100%，每个保留知识点至少 1 道题、最多 3 道题。
+
+旧的中间调试 JSON 已归档到：
+
+```text
+quality-test-set/results/archive/
+```
+
+## 人工评分
+
+人工评分模板：
+
+```text
+quality-test-set/manual-scoring-template.md
+quality-test-set/results/manual-review-template.csv
+```
+
+优先检查：
+
+1. 正确答案是否能被来源片段支撑。
+2. 是否只有一个最合理答案。
+3. 题目是否考理解，而不是原文填空。
+4. 干扰项是否合理但明确错误。
+5. 解释是否会误导用户。
+
+如果出现严重问题，请在评分表里标记 `severe_issue = yes`，并记录原因。
+
+## PRD 验收口径
+
+单篇样本只有在 `questionCoverageRate = 100%` 时才算通过：每个最终保留知识点都必须至少有 1 道可入池题，每个知识点最多保留 3 道题。
+
+总题数达标但存在无题知识点，仍视为未达到 PRD 标准。

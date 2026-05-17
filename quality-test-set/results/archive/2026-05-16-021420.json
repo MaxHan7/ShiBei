@@ -1,0 +1,3961 @@
+{
+  "generatedAt": "2026-05-16T01:14:20.715Z",
+  "summary": {
+    "sampleCount": 1,
+    "successCount": 1,
+    "failureCount": 0,
+    "knowledgePointCount": 10,
+    "qualifiedQuestionCount": 8,
+    "averageQualityScore": 4.5,
+    "seriousIssueCount": 28
+  },
+  "reviewRows": [
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed",
+      "questionId": "q-1",
+      "knowledgePoint": "小团队通过AI可以实现更高效率",
+      "questionType": "multiple_choice",
+      "stem": "一个团队从160人缩减到40人，业绩反而提高，这最可能因为？",
+      "sourceSnippet": "他们从 160 人变成 40 人，业绩反而提高了。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed",
+      "questionId": "q-2",
+      "knowledgePoint": "小团队通过AI可以实现更高效率",
+      "questionType": "multiple_choice",
+      "stem": "小团队利用AI提升业绩时，以下哪项最不可能？",
+      "sourceSnippet": "他们从 160 人变成 40 人，业绩反而提高了。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed",
+      "questionId": "q-12",
+      "knowledgePoint": "AI Native广告代理以更低成本生成更多素材",
+      "questionType": "multiple_choice",
+      "stem": "相比传统广告代理，AI原生广告代理的核心优势是？",
+      "sourceSnippet": "从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed",
+      "questionId": "q-13",
+      "knowledgePoint": "AI Native广告代理以更低成本生成更多素材",
+      "questionType": "multiple_choice",
+      "stem": "AI原生广告代理的爆发表明广告行业正经历什么变革？",
+      "sourceSnippet": "从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed",
+      "questionId": "q-17",
+      "knowledgePoint": "垂直AI产品的价值在于数据、提示词和UX",
+      "questionType": "multiple_choice",
+      "stem": "以下哪项最不可能成为垂直AI产品的壁垒？",
+      "sourceSnippet": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed",
+      "questionId": "q-18",
+      "knowledgePoint": "垂直AI产品的价值在于数据、提示词和UX",
+      "questionType": "multiple_choice",
+      "stem": "为什么垂直AI产品需要结合数据、提示词和UX？",
+      "sourceSnippet": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+      "machineAverageScore": 4.8,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed",
+      "questionId": "supplement-kp-5-3-1",
+      "knowledgePoint": "语音AI前台解决小企业漏接电话问题",
+      "questionType": "scenario_judgment",
+      "stem": "小明是一家牙科诊所的老板，他认为诊所漏接大量预约电话，想使用语音AI前台来接听电话、直接预约。但他在部署前需要确认是否值得投入。以下哪个做法最能帮助他有效验证语音AI前台的商业价值？",
+      "sourceSnippet": "很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。",
+      "machineAverageScore": 4.8,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed",
+      "questionId": "supplement-kp-9-5-1",
+      "knowledgePoint": "从服务到产品的创业路径",
+      "questionType": "scenario_judgment",
+      "stem": "以下哪个创业者的做法最符合“从服务到产品”的演进路径？",
+      "sourceSnippet": "先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。",
+      "machineAverageScore": 4.8,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-3",
+      "knowledgePoint": "企业需要AI但缺乏信任和部署能力",
+      "questionType": "true_false",
+      "stem": "企业知道需要AI，但主要障碍是缺乏技术本身。",
+      "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-4",
+      "knowledgePoint": "企业需要AI但缺乏信任和部署能力",
+      "questionType": "true_false",
+      "stem": "企业AI部署的最大障碍是缺乏IT基础设施。",
+      "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-5",
+      "knowledgePoint": "行业AI顾问的收费点是诊断和落地而非工具",
+      "questionType": "scenario_judgment",
+      "stem": "某AI顾问向客户推销时说：“我掌握10个AI工具，可以帮你省8小时每周。”客户当即决定购买。",
+      "sourceSnippet": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-6",
+      "knowledgePoint": "行业AI顾问的收费点是诊断和落地而非工具",
+      "questionType": "scenario_judgment",
+      "stem": "一家公司请AI顾问优化销售流程，顾问承诺每月多带来5个销售线索，公司同意按效果付费。",
+      "sourceSnippet": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-7",
+      "knowledgePoint": "行业AI顾问的收费点是诊断和落地而非工具",
+      "questionType": "scenario_judgment",
+      "stem": "一位AI顾问提供免费诊断，然后根据每周节省的时间收费。",
+      "sourceSnippet": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-8",
+      "knowledgePoint": "GEO（生成引擎优化）让本地商家出现在AI答案中",
+      "questionType": "scenario_judgment",
+      "stem": "本地商家通过购买百度广告，确保被AI回答推荐。",
+      "sourceSnippet": "AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-9",
+      "knowledgePoint": "GEO（生成引擎优化）让本地商家出现在AI答案中",
+      "questionType": "scenario_judgment",
+      "stem": "一家餐馆被当地美食博主在文章中提及，结果在AI咨询推荐中出现了。",
+      "sourceSnippet": "AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-10",
+      "knowledgePoint": "语音AI前台解决小企业漏接电话问题",
+      "questionType": "scenario_judgment",
+      "stem": "某修车厂安装了语音AI前台，发现电话预约量翻倍，这验证了该场景的价值。",
+      "sourceSnippet": "很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-11",
+      "knowledgePoint": "语音AI前台解决小企业漏接电话问题",
+      "questionType": "scenario_judgment",
+      "stem": "某牙医诊所引入语音AI前台后，完全取消了人工前台，所有电话均由AI处理，包括紧急情况。",
+      "sourceSnippet": "很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-14",
+      "knowledgePoint": "电商内容生成：先用AI批量测试脚本，再找真人创作",
+      "questionType": "scenario_judgment",
+      "stem": "一家电商公司先用AI生成1000个视频脚本，进行A/B测试找出最佳脚本，再找真人拍摄高质量视频。",
+      "sourceSnippet": "用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-15",
+      "knowledgePoint": "电商内容生成：先用AI批量测试脚本，再找真人创作",
+      "questionType": "scenario_judgment",
+      "stem": "一家公司直接用AI生成的视频作为最终广告投放，不再制作真人视频。",
+      "sourceSnippet": "用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-16",
+      "knowledgePoint": "垂直AI产品的价值在于数据、提示词和UX",
+      "questionType": "multiple_choice",
+      "stem": "一个垂直AI产品与简单的GPT wrapper相比，核心差异在于？",
+      "sourceSnippet": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-19",
+      "knowledgePoint": "从服务到产品的创业路径",
+      "questionType": "scenario_judgment",
+      "stem": "某创业者直接开发一个AI产品，几个月后才发现市场需求低。",
+      "sourceSnippet": "先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-20",
+      "knowledgePoint": "从服务到产品的创业路径",
+      "questionType": "scenario_judgment",
+      "stem": "创业者先为几家客户提供手工服务，收集反馈，然后才开发产品。",
+      "sourceSnippet": "先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-21",
+      "knowledgePoint": "AI创业机会从模型能力转向流程落地",
+      "questionType": "true_false",
+      "stem": "AI创业机会的关键在于掌握最先进的大模型。",
+      "sourceSnippet": "AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-22",
+      "knowledgePoint": "AI创业机会从模型能力转向流程落地",
+      "questionType": "true_false",
+      "stem": "将AI嵌入牙医电话预约这样的具体流程比开发通用AI模型更容易获得早期收入。",
+      "sourceSnippet": "AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-3-rewrite-1-1",
+      "knowledgePoint": "企业需要AI但缺乏信任和部署能力",
+      "questionType": "true_false",
+      "stem": "企业AI部署当前面临的主要障碍是技术本身不够成熟。",
+      "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-4-rewrite-2-1",
+      "knowledgePoint": "企业需要AI但缺乏信任和部署能力",
+      "questionType": "true_false",
+      "stem": "一家企业已经拥有了先进的AI技术，因此它一定能顺利部署AI。",
+      "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-5-rewrite-3-1",
+      "knowledgePoint": "行业AI顾问的收费点是诊断和落地而非工具",
+      "questionType": "scenario_judgment",
+      "stem": "一位AI顾问在向潜在客户推销服务时，首先展示了自己精通10多种主流AI工具，并强调能快速上手任何新工具。客户认为这很有价值，准备为此支付咨询服务费。该客户的付费意愿是否符合行业AI顾问的正确收费逻辑？",
+      "sourceSnippet": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-6-rewrite-4-1",
+      "knowledgePoint": "行业AI顾问的收费点是诊断和落地而非工具",
+      "questionType": "scenario_judgment",
+      "stem": "一位AI顾问向客户提议按课时收费，教客户团队使用各类AI工具，客户表示同意。该顾问的收费点符合行业AI顾问的收费原则吗？",
+      "sourceSnippet": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-7-rewrite-5-1",
+      "knowledgePoint": "行业AI顾问的收费点是诊断和落地而非工具",
+      "questionType": "scenario_judgment",
+      "stem": "AI顾问李明向一家中小企业展示自己能熟练使用ChatGPT、Midjourney等10种AI工具，并以此作为服务核心，要求客户为“工具技能掌握”付费。客户回应：我们只需要结果，比如每周节省8小时或多拿到5个销售线索。李明坚持认为掌握工具是产生结果的前提，所以客户应当为工具掌握本身付费。请问李明的定价逻辑是否合理？",
+      "sourceSnippet": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-8-rewrite-6-1",
+      "knowledgePoint": "GEO（生成引擎优化）让本地商家出现在AI答案中",
+      "questionType": "scenario_judgment",
+      "stem": "一家本地餐厅没有出现在任何公开文章或榜单中，但购买了搜索引擎广告。这家餐厅是否可能被AI生成答案推荐给用户？",
+      "sourceSnippet": "AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-9-rewrite-7-1",
+      "knowledgePoint": "GEO（生成引擎优化）让本地商家出现在AI答案中",
+      "questionType": "scenario_judgment",
+      "stem": "某本地商家为让AI推荐自己的店铺，购买了付费广告位，认为这能提高在AI答案中的出现概率。这种做法合理吗？",
+      "sourceSnippet": "AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-10-rewrite-8-1",
+      "knowledgePoint": "语音AI前台解决小企业漏接电话问题",
+      "questionType": "scenario_judgment",
+      "stem": "一位开发者建议一家修车厂老板安装语音AI代理来接听预约电话，认为技术实现非常简单。但老板认为语音AI太复杂，小企业用不起。开发者关于语音AI代理技术简单的判断是否成立？",
+      "sourceSnippet": "很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-11-rewrite-9-1",
+      "knowledgePoint": "语音AI前台解决小企业漏接电话问题",
+      "questionType": "scenario_judgment",
+      "stem": "你打算为本地牙医诊所开发语音AI前台，以减少漏接预约电话。你先去几家牙医诊所实地观察电话接听情况，并询问他们每月有多少未接预约电话。这种做法能否有效验证需求？",
+      "sourceSnippet": "很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-14-rewrite-10-1",
+      "knowledgePoint": "电商内容生成：先用AI批量测试脚本，再找真人创作",
+      "questionType": "scenario_judgment",
+      "stem": "某电商团队先用AI生成100个不同脚本进行A/B测试，选出效果最好的脚本后，再找真人根据该脚本进行高质量视频拍摄。这种做法是否合理？",
+      "sourceSnippet": "用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-15-rewrite-11-1",
+      "knowledgePoint": "电商内容生成：先用AI批量测试脚本，再找真人创作",
+      "questionType": "scenario_judgment",
+      "stem": "某电商公司要制作一批广告视频，他们直接邀请了10位真人博主，每人拍摄10个不同脚本的视频，然后投放测试。这种做法是否符合“先用AI批量测试脚本，再找真人创作”的流程？",
+      "sourceSnippet": "用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-16-rewrite-12-1",
+      "knowledgePoint": "垂直AI产品的价值在于数据、提示词和UX",
+      "questionType": "multiple_choice",
+      "stem": "某团队正在构建一个垂直AI产品，希望形成长期竞争壁垒。以下哪项策略最符合原文的建议？",
+      "sourceSnippet": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+      "machineAverageScore": 4.3,
+      "machineIssues": "understandingDepth_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-19-rewrite-13-1",
+      "knowledgePoint": "从服务到产品的创业路径",
+      "questionType": "scenario_judgment",
+      "stem": "一位创业者计划开发一款企业考勤SaaS产品，他立即组建技术团队开发完整功能版本，计划一年后上线销售。他的做法是否符合“从服务到产品”的创业路径？",
+      "sourceSnippet": "先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-20-rewrite-14-1",
+      "knowledgePoint": "从服务到产品的创业路径",
+      "questionType": "scenario_judgment",
+      "stem": "某创业者想开发一款企业报销软件，他先花3个月开发了完整功能并上线推广，结果发现企业用户并不买账，因为报销流程复杂多变。一位顾问建议他：应该先找几家目标企业，人工帮他们处理报销，收集反馈后再开发软件。请问，该创业者最初的做法是否遵循了“从服务到产品”的创业路径？",
+      "sourceSnippet": "先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-21-rewrite-15-1",
+      "knowledgePoint": "AI创业机会从模型能力转向流程落地",
+      "questionType": "true_false",
+      "stem": "根据知识点，AI创业的第一笔资金更可能来自详细的商业计划书而非流程现场。",
+      "sourceSnippet": "AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-22-rewrite-16-1",
+      "knowledgePoint": "AI创业机会从模型能力转向流程落地",
+      "questionType": "true_false",
+      "stem": "AI创业的第一笔钱来自流程现场，而非宏大商业计划。",
+      "sourceSnippet": "AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "supplement-kp-3-1-1",
+      "knowledgePoint": "行业AI顾问的收费点是诊断和落地而非工具",
+      "questionType": "scenario_judgment",
+      "stem": "一位AI顾问向客户报价：按每小时500元收费，内容为教授如何使用ChatGPT、Midjourney等10种AI工具。客户可以学习多种工具的操作技巧。这种收费方式是否符合“客户为可量化的效益付费，而非为工具掌握付费”的原则？",
+      "sourceSnippet": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "supplement-kp-4-2-1",
+      "knowledgePoint": "GEO（生成引擎优化）让本地商家出现在AI答案中",
+      "questionType": "scenario_judgment",
+      "stem": "一家本地餐厅刚上线了付费搜索广告，但没有任何公开文章或榜单提及它的名字。根据GEO原理，AI在回答用户推荐时是否可能将该餐厅列为推荐选项？",
+      "sourceSnippet": "AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。",
+      "machineAverageScore": 3.8,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "supplement-kp-7-4-1",
+      "knowledgePoint": "电商内容生成：先用AI批量测试脚本，再找真人创作",
+      "questionType": "scenario_judgment",
+      "stem": "一家电商公司计划制作短视频广告。他们先用AI生成上千个不同脚本并投放A/B测试，根据数据选出最有效的脚本，然后委托真人创作者基于该脚本进行高质量拍摄和剪辑。这种做法是否符合“AI批量测试脚本，再找真人创作”的方法？",
+      "sourceSnippet": "用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low;source_repetition_stem",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    }
+  ],
+  "results": [
+    {
+      "file": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "startedAt": "2026-05-16T01:08:22.679Z",
+      "status": "completed",
+      "chapter": {
+        "title": "2026年最适合启动的6个AI创业点子",
+        "sourceType": "text",
+        "status": "completed",
+        "displayStatusText": "已生成",
+        "failureReason": "",
+        "source": {
+          "type": "text",
+          "title": "2026年最适合启动的6个AI创业点子",
+          "url": "",
+          "account": "",
+          "rawText": "# 2026年最适合启动的6个AI创业点子丨Silicon Valley Girl\n\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/OLsU21MsXlUtZlubVj5tkg\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n\n---\n\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 3900 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\n\"他们从 160 人变成 40 人，业绩反而提高了。\"\n\n\"公司知道自己需要 AI，只是不知道该信任谁。\"\n\n\"大语言模型就是新的电力。\"\n\n本期节目标题看起来很像清单，但它真正有用的地方，不在“点子”本身，而在每个点子背后都有一个已经发生的市场变化。主持人把过去 6 个月采访过的 Reid Hoffman、Google Search 产品负责人 Robbie Stein、ElevenLabs 创始人 Mati Staniszewski、Higgsfield 创始人 Alex Mashrabov、Daniel Priestley、Vise CEO Samir Vasavada 的判断放在一起，试图回答一个更具体的问题：如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。\n\n小团队已经先跑起来了\n\nMarina 开场先讲了一个很硬的变化。她问 Vise CEO Samir Vasavada，公司过去 3 年发生了什么。Samir 的回答是，公司曾经有 150 到 160 人，现在接近 40 人，但从指标看，比 160 人时好 10 倍。这已经发生在真实公司里：人力结构和工具结构被重新排过一遍。2011 年做一个基础落地页还要找程序员，如今一个人身边可以同时有法律、财务、网页设计、营销和内容助理。\n\n\"我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。\"\n\n所以她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。这里最值得抓住的信号是：公司愿意为“把 AI 放进具体业务流程”付钱，而且他们往往缺少把模型带到现场的人。模型 API 已经摆在那里，客户更关心谁能改掉一个漏钱流程，谁能带来一个新客户，谁能把一天的杂活压成 5 分钟。\n\n第一笔钱来自行业 AI 顾问\n\n第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。\n\n\"今年我们会开始看到更多应用：我怎样把生意跑得更好？怎样做供应链分析、财务分析、风险分析、营销和销售？\"\n\nReid Hoffman 给出的动作很朴素：熟悉一个领域里的工具，然后去帮别人，并且把结果展示出来。Marina 的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR 或语言学习，连续 30 天在 LinkedIn 发带截图和数字的案例。不要追求爆款，先让未来客户看到“原流程哪里坏了、你怎样用 AI 修好、成本和时间前后差多少”。\n\n这类顾问工作容易被误解成卖工具包。实际收费点在诊断和落地：帮客户找出哪个流程最浪费时间，哪类线索最容易流失，哪份报告每周都要重复做，再把 AI 放进去做出可量化的前后对比。客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。\n\n本地商家要被 AI 搜到\n\n第二个机会是 GEO，也就是让本地商家出现在 ChatGPT、Gemini、Perplexity 的答案里。美国有 3300 万小企业依赖 Google 带来客户，但用户现在会直接问 AI：Austin 最好的牙医是谁，Denver 最好的修车厂是哪家。答案里出现的商家，未必是买了 Google Ads 的商家，更可能是被文章、目录、博客、Reddit、LinkedIn、YouTube 提到过的商家。\n\n\"AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。\"\n\nRobbie Stein 在访谈里说，很多传统 SEO 最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。Marina 自己也在做类似实验。她发现通过 ChatGPT 推荐订阅邮件通讯的人，打开率达到 80%，高于平时 40% 到 50% 的平均水平。她给的销售动作也很直接：找 3 家本地商家，在 ChatGPT、Gemini、Perplexity 里问“本城最好的某类服务”，如果对方没出现，那就是你的 pitch。\n\n这门生意的好处是验证成本低。你不需要先搭系统，只要能证明“AI 答案里没有你”就足够开启一次对话。牙医、修车厂、律师事务所、健身房、播客、地方服务商，都可以用同一套方式检查。客户听不懂 GEO 没关系，他能听懂“用户问 AI 时，推荐名单里没有你”。\n\n语音 AI 前台先救漏接电话\n\n第三个机会是语音 AI 前台，复杂度中等，但场景非常具体。ElevenLabs 创始人 Mati Staniszewski 被问到如果从零开始、想尽快做到每月 1 万美元收入，会选什么。他会选语音 Agent。原因很简单：基础设施正在成熟，平台越来越自助化，但大多数小企业并不知道可以把语音 Agent 部署到预约、接线和客户沟通里。\n\n\"很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。\"\n\nMarina 的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在 Google Maps 上找 20 家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。然后带着数字去谈：“我刚才数过，你午休漏了这么多电话，我每月 500 美元帮你修掉。”先做几家换推荐语，再开始收费。\n\n这里的门槛不是写出一个语音模型。Mati 说得很清楚，平台已经能让普通人以相对自助的方式部署语音 Agent，机会在“轻微改造到某个领域”。牙医问诊、修车预约、律师初筛、诊所改约，每个场景都有自己的话术和边界。谁愿意打电话、问流程、做配置，谁就先拿到服务费。\n\n本地广告代理开始 AI Native\n\n第四个机会是 AI native 广告代理，服务本地房地产经纪、医美、牙医、独立健身房。复杂度比顾问和 GEO 高，因为它要求创意、文案、媒介投放能力一起上。客户痛点也清楚：本地代理公司每月收几千美元，却只能交付少量广告素材；AI native 代理可以用更低成本生成上百个版本，快速测试哪一个能跑出结果。\n\n\"从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。\"\n\nHiggsfield 创始人 Alex Mashrabov 说，去年 3 月他们交付了相机控制，4 月交付视觉效果库，到了 6 月，行业已经变了。很多代理开始绕过 Adobe 等传统工具，端到端用 AI 交付广告。AI 当时能力还有局限，但毛利结构明显改善，客户也能看到“几天内做出广告”的速度。\n\n本地服务商真正关心的是下个月能不能多约到客户，“AI 广告”只是交付手段。过去代理公司往往用少量素材慢慢投，AI native 代理可以把同一个卖点拆成多个镜头、多个开头、多个优惠表达，再把差的版本迅速淘汰。技术降低了出片成本，创意判断和投放经验反而变成收费理由。\n\n电商品牌要更快测试内容\n\n第五个机会是电商内容生成，比广告代理更难，因为创意标准更高。目标客户包括护肤品、补剂、宠物产品、厨房小工具、健身装备。它们都在烧钱维持 TikTok Shop 和 Instagram 广告，每月需要 30、50、100 条手持手机风格的 UGC 视频。真人创作者每条通常收 150 到 500 美元，测试速度受拍摄和修改周期限制。\n\n\"用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。\"\n\nMarina 并没有说品牌应该停止和真人 UGC 创作者合作。她自己的做法是先用 AI 批量测试脚本，找到跑得动的方向，再找真人创作者拍。Alex 也提到，有段生成视频成本不到 500 美元，却足以让客户惊讶。行动路径很具体：选一个品类，用产品图做 5 条样片，私信创始人，“我免费给你做了 5 条，如果喜欢，我可以持续交付，比如 100 条 3000 美元。”\n\n垂直 AI 产品要靠数据和 UX\n\n第六个机会是垂直 AI 产品，也就是很多人嘴里的 GPT wrapper。去年 VC 很爱投，后来热度降了，因为任何人都能做一个 wrapper。但 Daniel Priestley 给了一个更清楚的模型：有价值的垂直产品，来自三件事，拿到客户数据、写出更好的提示词、设计比聊天框更合适的 UX。把三件事放在一起，它就会变成专用工具。\n\n\"我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。\"\n\n他用了电力类比：电被发明以后，人们把电导向烤面包机、水壶、灯泡。没人会因为水壶“只是电力 wrapper”就否认它是一门生意。Marina 举的轻量例子是上传简历后自动填写 LinkedIn 资料的产品。它的价值不在模型多先进，而在团队里有人懂 LinkedIn 资料怎样写才会被注意到，并把这套知识放进 Lovable 做出的流程里。\n\nDaniel Priestley 甚至给了一个收入想象：很多小型 AI SaaS 可能做到一年四五百万美元收入，利润率达到 50%。这种公司不一定是 VC 最爱的超级独角兽，但对创业者本人足够有吸引力。它们的共同点是很窄：AI mortgage lender、医疗运营、医疗呼叫中心、LinkedIn 资料填写，先守住一个工作流，再慢慢扩。\n\n先卖服务，再沉淀产品\n\n6 个机会从易到难排下来，会出现一条共同路径：先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。Marina 最后给垂直产品的验证标准很小：找 10 个真实用户，如果 3 个愿意付钱，就有业务雏形。\n\n\"挑一个你了解的行业，写下这个行业里人们每周都会做、又让他们抓狂的三个重复任务。\"\n\n原视频的清单感很强，但真正该带走的并非“哪 6 个行业最赚钱”。更稳的读法是：AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。第一笔钱通常来自流程现场，不来自一个宏大商业计划书。\n\n普通人做 AI 生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。平台需要流量、研发、客服、合规和持续迭代，任何一项都会拖慢第一笔收入。服务的优势在于反馈很短：客户愿不愿意接电话，愿不愿意发资料，愿不愿意为样片付钱，几天内就能看出来。先从笨办法里拿到真实需求，后面的产品才不会悬空。公司内部做 AI 转型的人也可以照这个顺序走：先找流程缺口，再谈工具采购，最后把成功案例复制到相邻团队。\n\n写在最后\n\n如果你还没想清楚该做什么，先别急着追大词。挑一个熟悉行业，找一个漏钱、漏客户或浪费时间的小流程，用 AI 做出可展示的前后对比。先让一个真实客户愿意付钱，再谈产品化。AI 时代的入口，有时就是一通没人接的电话。\n\n内容来源：\"6 Profitable AI business ideas for 2026\"丨Silicon Valley Girl\n\n原视频：https://www.youtube.com/watch?v=gwsaC3WiCqs&t=63s\n\n如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣",
+          "cleanedText": "# 2026年最适合启动的6个AI创业点子丨Silicon Valley Girl\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/OLsU21MsXlUtZlubVj5tkg\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n---\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 3900 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\"他们从 160 人变成 40 人，业绩反而提高了。\"\n\"公司知道自己需要 AI，只是不知道该信任谁。\"\n\"大语言模型就是新的电力。\"\n本期节目标题看起来很像清单，但它真正有用的地方，不在“点子”本身，而在每个点子背后都有一个已经发生的市场变化。主持人把过去 6 个月采访过的 Reid Hoffman、Google Search 产品负责人 Robbie Stein、ElevenLabs 创始人 Mati Staniszewski、Higgsfield 创始人 Alex Mashrabov、Daniel Priestley、Vise CEO Samir Vasavada 的判断放在一起，试图回答一个更具体的问题：如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。\n小团队已经先跑起来了\nMarina 开场先讲了一个很硬的变化。她问 Vise CEO Samir Vasavada，公司过去 3 年发生了什么。Samir 的回答是，公司曾经有 150 到 160 人，现在接近 40 人，但从指标看，比 160 人时好 10 倍。这已经发生在真实公司里：人力结构和工具结构被重新排过一遍。2011 年做一个基础落地页还要找程序员，如今一个人身边可以同时有法律、财务、网页设计、营销和内容助理。\n\"我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。\"\n所以她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。这里最值得抓住的信号是：公司愿意为“把 AI 放进具体业务流程”付钱，而且他们往往缺少把模型带到现场的人。模型 API 已经摆在那里，客户更关心谁能改掉一个漏钱流程，谁能带来一个新客户，谁能把一天的杂活压成 5 分钟。\n第一笔钱来自行业 AI 顾问\n第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。\n\"今年我们会开始看到更多应用：我怎样把生意跑得更好？怎样做供应链分析、财务分析、风险分析、营销和销售？\"\nReid Hoffman 给出的动作很朴素：熟悉一个领域里的工具，然后去帮别人，并且把结果展示出来。Marina 的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR 或语言学习，连续 30 天在 LinkedIn 发带截图和数字的案例。不要追求爆款，先让未来客户看到“原流程哪里坏了、你怎样用 AI 修好、成本和时间前后差多少”。\n这类顾问工作容易被误解成卖工具包。实际收费点在诊断和落地：帮客户找出哪个流程最浪费时间，哪类线索最容易流失，哪份报告每周都要重复做，再把 AI 放进去做出可量化的前后对比。客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。\n本地商家要被 AI 搜到\n第二个机会是 GEO，也就是让本地商家出现在 ChatGPT、Gemini、Perplexity 的答案里。美国有 3300 万小企业依赖 Google 带来客户，但用户现在会直接问 AI：Austin 最好的牙医是谁，Denver 最好的修车厂是哪家。答案里出现的商家，未必是买了 Google Ads 的商家，更可能是被文章、目录、博客、Reddit、LinkedIn、YouTube 提到过的商家。\n\"AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。\"\nRobbie Stein 在访谈里说，很多传统 SEO 最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。Marina 自己也在做类似实验。她发现通过 ChatGPT 推荐订阅邮件通讯的人，打开率达到 80%，高于平时 40% 到 50% 的平均水平。她给的销售动作也很直接：找 3 家本地商家，在 ChatGPT、Gemini、Perplexity 里问“本城最好的某类服务”，如果对方没出现，那就是你的 pitch。\n这门生意的好处是验证成本低。你不需要先搭系统，只要能证明“AI 答案里没有你”就足够开启一次对话。牙医、修车厂、律师事务所、健身房、播客、地方服务商，都可以用同一套方式检查。客户听不懂 GEO 没关系，他能听懂“用户问 AI 时，推荐名单里没有你”。\n语音 AI 前台先救漏接电话\n第三个机会是语音 AI 前台，复杂度中等，但场景非常具体。ElevenLabs 创始人 Mati Staniszewski 被问到如果从零开始、想尽快做到每月 1 万美元收入，会选什么。他会选语音 Agent。原因很简单：基础设施正在成熟，平台越来越自助化，但大多数小企业并不知道可以把语音 Agent 部署到预约、接线和客户沟通里。\n\"很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。\"\nMarina 的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在 Google Maps 上找 20 家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。然后带着数字去谈：“我刚才数过，你午休漏了这么多电话，我每月 500 美元帮你修掉。”先做几家换推荐语，再开始收费。\n这里的门槛不是写出一个语音模型。Mati 说得很清楚，平台已经能让普通人以相对自助的方式部署语音 Agent，机会在“轻微改造到某个领域”。牙医问诊、修车预约、律师初筛、诊所改约，每个场景都有自己的话术和边界。谁愿意打电话、问流程、做配置，谁就先拿到服务费。\n本地广告代理开始 AI Native\n第四个机会是 AI native 广告代理，服务本地房地产经纪、医美、牙医、独立健身房。复杂度比顾问和 GEO 高，因为它要求创意、文案、媒介投放能力一起上。客户痛点也清楚：本地代理公司每月收几千美元，却只能交付少量广告素材；AI native 代理可以用更低成本生成上百个版本，快速测试哪一个能跑出结果。\n\"从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。\"\nHiggsfield 创始人 Alex Mashrabov 说，去年 3 月他们交付了相机控制，4 月交付视觉效果库，到了 6 月，行业已经变了。很多代理开始绕过 Adobe 等传统工具，端到端用 AI 交付广告。AI 当时能力还有局限，但毛利结构明显改善，客户也能看到“几天内做出广告”的速度。\n本地服务商真正关心的是下个月能不能多约到客户，“AI 广告”只是交付手段。过去代理公司往往用少量素材慢慢投，AI native 代理可以把同一个卖点拆成多个镜头、多个开头、多个优惠表达，再把差的版本迅速淘汰。技术降低了出片成本，创意判断和投放经验反而变成收费理由。\n电商品牌要更快测试内容\n第五个机会是电商内容生成，比广告代理更难，因为创意标准更高。目标客户包括护肤品、补剂、宠物产品、厨房小工具、健身装备。它们都在烧钱维持 TikTok Shop 和 Instagram 广告，每月需要 30、50、100 条手持手机风格的 UGC 视频。真人创作者每条通常收 150 到 500 美元，测试速度受拍摄和修改周期限制。\n\"用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。\"\nMarina 并没有说品牌应该停止和真人 UGC 创作者合作。她自己的做法是先用 AI 批量测试脚本，找到跑得动的方向，再找真人创作者拍。Alex 也提到，有段生成视频成本不到 500 美元，却足以让客户惊讶。行动路径很具体：选一个品类，用产品图做 5 条样片，私信创始人，“我免费给你做了 5 条，如果喜欢，我可以持续交付，比如 100 条 3000 美元。”\n垂直 AI 产品要靠数据和 UX\n第六个机会是垂直 AI 产品，也就是很多人嘴里的 GPT wrapper。去年 VC 很爱投，后来热度降了，因为任何人都能做一个 wrapper。但 Daniel Priestley 给了一个更清楚的模型：有价值的垂直产品，来自三件事，拿到客户数据、写出更好的提示词、设计比聊天框更合适的 UX。把三件事放在一起，它就会变成专用工具。\n\"我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。\"\n他用了电力类比：电被发明以后，人们把电导向烤面包机、水壶、灯泡。没人会因为水壶“只是电力 wrapper”就否认它是一门生意。Marina 举的轻量例子是上传简历后自动填写 LinkedIn 资料的产品。它的价值不在模型多先进，而在团队里有人懂 LinkedIn 资料怎样写才会被注意到，并把这套知识放进 Lovable 做出的流程里。\nDaniel Priestley 甚至给了一个收入想象：很多小型 AI SaaS 可能做到一年四五百万美元收入，利润率达到 50%。这种公司不一定是 VC 最爱的超级独角兽，但对创业者本人足够有吸引力。它们的共同点是很窄：AI mortgage lender、医疗运营、医疗呼叫中心、LinkedIn 资料填写，先守住一个工作流，再慢慢扩。\n先卖服务，再沉淀产品\n6 个机会从易到难排下来，会出现一条共同路径：先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。Marina 最后给垂直产品的验证标准很小：找 10 个真实用户，如果 3 个愿意付钱，就有业务雏形。\n\"挑一个你了解的行业，写下这个行业里人们每周都会做、又让他们抓狂的三个重复任务。\"\n原视频的清单感很强，但真正该带走的并非“哪 6 个行业最赚钱”。更稳的读法是：AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。第一笔钱通常来自流程现场，不来自一个宏大商业计划书。\n普通人做 AI 生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。平台需要流量、研发、客服、合规和持续迭代，任何一项都会拖慢第一笔收入。服务的优势在于反馈很短：客户愿不愿意接电话，愿不愿意发资料，愿不愿意为样片付钱，几天内就能看出来。先从笨办法里拿到真实需求，后面的产品才不会悬空。公司内部做 AI 转型的人也可以照这个顺序走：先找流程缺口，再谈工具采购，最后把成功案例复制到相邻团队。\n写在最后\n如果你还没想清楚该做什么，先别急着追大词。挑一个熟悉行业，找一个漏钱、漏客户或浪费时间的小流程，用 AI 做出可展示的前后对比。先让一个真实客户愿意付钱，再谈产品化。AI 时代的入口，有时就是一通没人接的电话。\n内容来源：\"6 Profitable AI business ideas for 2026\"丨Silicon Valley Girl\n原视频：https://www.youtube.com/watch?v=gwsaC3WiCqs&t=63s\n如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣"
+        },
+        "knowledgePoints": [
+          {
+            "id": "kp-1",
+            "title": "小团队通过AI可以实现更高效率",
+            "knowledgeType": "concept",
+            "summary": "公司通过缩减团队规模（从160人到40人）并利用AI工具，业绩反而提升10倍，表明AI能显著提高人效。",
+            "keyClaim": "AI使得更小的团队能产生更大的业务成果。",
+            "sourceQuote": "他们从 160 人变成 40 人，业绩反而提高了。",
+            "testabilityReason": "这是一个可验证的商业案例，可用于讨论AI对团队效率的影响。",
+            "questionAngles": [
+              "AI如何帮助小团队提升业绩？",
+              "缩减团队规模的同时如何保持或提高产出？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-2",
+            "title": "企业需要AI但缺乏信任和部署能力",
+            "knowledgeType": "judgment",
+            "summary": "公司知道需要AI，但不知道该信任谁，这为懂行业务的AI顾问创造了机会。",
+            "keyClaim": "企业AI部署的主要障碍是信任和专业知识，而非技术本身。",
+            "sourceQuote": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "testabilityReason": "这是市场需求的直接表述，可用于分析AI创业切入点。",
+            "questionAngles": [
+              "为什么企业会不信任AI？",
+              "AI顾问如何建立信任？"
+            ],
+            "testabilityScore": 3
+          },
+          {
+            "id": "kp-3",
+            "title": "行业AI顾问的收费点是诊断和落地而非工具",
+            "knowledgeType": "method",
+            "summary": "AI顾问的收费点在于帮客户找出低效流程并用量化结果证明节省时间或增加收入，而不是展示工具数量。",
+            "keyClaim": "客户为可量化的效益付费，而非为工具掌握付费。",
+            "sourceQuote": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+            "testabilityReason": "这是服务定价的关键原则，适合用于商业模型分析。",
+            "questionAngles": [
+              "AI顾问如何定价？",
+              "如何量化AI带来的价值？"
+            ],
+            "testabilityScore": 5
+          },
+          {
+            "id": "kp-4",
+            "title": "GEO（生成引擎优化）让本地商家出现在AI答案中",
+            "knowledgeType": "method",
+            "summary": "通过创建被AI搜索引用的公开内容（文章、目录等），使本地商家出现在ChatGPT等AI的推荐中，替代传统SEO。",
+            "keyClaim": "AI答案中的商家推荐取决于公开提及的内容，而非付费广告。",
+            "sourceQuote": "AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。",
+            "testabilityReason": "这是一个新营销渠道的实操方法，可测试效果。",
+            "questionAngles": [
+              "如何让本地商家被AI搜索到？",
+              "GEO与SEO的主要区别是什么？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-5",
+            "title": "语音AI前台解决小企业漏接电话问题",
+            "knowledgeType": "method",
+            "summary": "用语音AI代理处理预约和接线，帮助牙医、律师等小企业减少因无人接听而丢失的预约，验证方法简单（数漏接电话）。",
+            "keyClaim": "语音AI代理能直接带来预约收入，技术门槛低，场景垂直。",
+            "sourceQuote": "很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。",
+            "testabilityReason": "这是一个具体可执行的商业机会，可通过实地测试验证。",
+            "questionAngles": [
+              "如何验证语音AI前台的需求？",
+              "语音AI代理的部署难点在哪？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-6",
+            "title": "AI Native广告代理以更低成本生成更多素材",
+            "knowledgeType": "comparison",
+            "summary": "AI native广告代理能生成上百个广告版本进行快速测试，而传统代理只能交付少量素材，且成本更低。",
+            "keyClaim": "AI降低了广告素材生成成本，提高了测试速度，使毛利结构更好。",
+            "sourceQuote": "从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。",
+            "testabilityReason": "这是行业趋势对比，可用于分析广告业变革。",
+            "questionAngles": [
+              "AI广告代理与传统代理的优势对比？",
+              "AI如何改变广告测试流程？"
+            ],
+            "testabilityScore": 3
+          },
+          {
+            "id": "kp-7",
+            "title": "电商内容生成：先用AI批量测试脚本，再找真人创作",
+            "knowledgeType": "method",
+            "summary": "用AI生成上千个不同视频进行A/B测试，找到有效方向后再由真人UGC创作者拍摄，降低测试成本。",
+            "keyClaim": "AI用于快速测试创意方向，真人用于高质量执行。",
+            "sourceQuote": "用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。",
+            "testabilityReason": "这是一个可复用的内容生产流程，适用于电商营销。",
+            "questionAngles": [
+              "如何结合AI和真人UGC制作广告？",
+              "AI视频制作的成本优势体现在哪里？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-8",
+            "title": "垂直AI产品的价值在于数据、提示词和UX",
+            "knowledgeType": "concept",
+            "summary": "垂直AI产品不是简单的GPT wrapper，其护城河在于收集客户数据、优化提示词、设计专用UX。",
+            "keyClaim": "结合数据、提示词和UX才能做出有竞争力的垂直AI工具。",
+            "sourceQuote": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+            "testabilityReason": "这是对AI产品化关键要素的总结，可用于产品设计评估。",
+            "questionAngles": [
+              "垂直AI产品如何建立壁垒？",
+              "GPT wrapper与垂直产品的区别？"
+            ],
+            "testabilityScore": 5
+          },
+          {
+            "id": "kp-9",
+            "title": "从服务到产品的创业路径",
+            "knowledgeType": "step",
+            "summary": "先以服务形式交付AI解决方案获取客户反馈，再将重复流程产品化，最终形成垂直SaaS。",
+            "keyClaim": "服务先行能快速验证需求，产品化是后期步骤。",
+            "sourceQuote": "先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。",
+            "testabilityReason": "这是创业方法论，适合用于分析业务演进。",
+            "questionAngles": [
+              "为什么先做服务后做产品？",
+              "如何判断服务可以产品化？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-10",
+            "title": "AI创业机会从模型能力转向流程落地",
+            "knowledgeType": "judgment",
+            "summary": "当前AI创业机会在于将模型嵌入具体业务流程（如牙医电话、地方搜索等），而非追求模型本身能力。",
+            "keyClaim": "第一笔钱来自流程现场，而非宏大商业计划。",
+            "sourceQuote": "AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。",
+            "testabilityReason": "这是对趋势的判断，可用于创业方向选择。",
+            "questionAngles": [
+              "为什么流程落地比模型能力更重要？",
+              "举例说明典型的AI落地场景。"
+            ],
+            "testabilityScore": 3
+          }
+        ],
+        "filteredKnowledgePoints": [],
+        "questions": [
+          {
+            "id": "q-1",
+            "knowledgePointId": "kp-1",
+            "pointId": "kp-1",
+            "pointTitle": "小团队通过AI可以实现更高效率",
+            "type": "multiple_choice",
+            "stem": "一个团队从160人缩减到40人，业绩反而提高，这最可能因为？",
+            "options": [
+              {
+                "id": "A",
+                "text": "团队加班更多，工作强度增加"
+              },
+              {
+                "id": "B",
+                "text": "AI自动化了大量重复性工作，让团队专注高价值任务"
+              },
+              {
+                "id": "C",
+                "text": "团队更年轻化，效率天然更高"
+              },
+              {
+                "id": "D",
+                "text": "管理层更扁平，减少了沟通成本"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "AI使得更小的团队能产生更大的业务成果，通过自动化重复任务提升效率。",
+            "shortExplanation": "AI使得更小的团队能产生更大的业务成果，通过自动化重复任务提升效率。",
+            "fullExplanation": "AI提升了每个成员的效率，使小团队能完成更多工作。",
+            "correct_understanding": "AI提升了每个成员的效率，使小团队能完成更多工作。",
+            "correctUnderstanding": "AI提升了每个成员的效率，使小团队能完成更多工作。",
+            "common_misconception": "误以为只是通过裁员或压榨员工实现，忽视了AI的赋能作用。",
+            "commonMisconception": "误以为只是通过裁员或压榨员工实现，忽视了AI的赋能作用。",
+            "pitfalls": [
+              "误以为只是通过裁员或压榨员工实现，忽视了AI的赋能作用。"
+            ],
+            "source_snippet": "他们从 160 人变成 40 人，业绩反而提高了。",
+            "sourceSnippet": "他们从 160 人变成 40 人，业绩反而提高了。",
+            "sourceQuote": "他们从 160 人变成 40 人，业绩反而提高了。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-2",
+            "knowledgePointId": "kp-1",
+            "pointId": "kp-1",
+            "pointTitle": "小团队通过AI可以实现更高效率",
+            "type": "multiple_choice",
+            "stem": "小团队利用AI提升业绩时，以下哪项最不可能？",
+            "options": [
+              {
+                "id": "A",
+                "text": "用AI生成营销文案，快速测试多个版本"
+              },
+              {
+                "id": "B",
+                "text": "用AI编写代码，加速软件开发"
+              },
+              {
+                "id": "C",
+                "text": "用AI完全替代所有客户沟通，无需人工介入"
+              },
+              {
+                "id": "D",
+                "text": "用AI分析销售数据，辅助决策"
+              }
+            ],
+            "correctOptionId": "C",
+            "correct_answer": "C",
+            "explanation": "AI擅长辅助而非完全替代，尤其在客户沟通中仍需人工处理复杂情况。",
+            "shortExplanation": "AI擅长辅助而非完全替代，尤其在客户沟通中仍需人工处理复杂情况。",
+            "fullExplanation": "AI作为工具提升效率，但关键领域需人机协作。",
+            "correct_understanding": "AI作为工具提升效率，但关键领域需人机协作。",
+            "correctUnderstanding": "AI作为工具提升效率，但关键领域需人机协作。",
+            "common_misconception": "认为AI可以完全取代人类，忽略其局限性。",
+            "commonMisconception": "认为AI可以完全取代人类，忽略其局限性。",
+            "pitfalls": [
+              "认为AI可以完全取代人类，忽略其局限性。"
+            ],
+            "source_snippet": "他们从 160 人变成 40 人，业绩反而提高了。",
+            "sourceSnippet": "他们从 160 人变成 40 人，业绩反而提高了。",
+            "sourceQuote": "他们从 160 人变成 40 人，业绩反而提高了。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-12",
+            "knowledgePointId": "kp-6",
+            "pointId": "kp-6",
+            "pointTitle": "AI Native广告代理以更低成本生成更多素材",
+            "type": "multiple_choice",
+            "stem": "相比传统广告代理，AI原生广告代理的核心优势是？",
+            "options": [
+              {
+                "id": "A",
+                "text": "更少的创意人员"
+              },
+              {
+                "id": "B",
+                "text": "更快生成更多素材进行测试"
+              },
+              {
+                "id": "C",
+                "text": "更好的投放算法"
+              },
+              {
+                "id": "D",
+                "text": "更低的媒体成本"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "AI降低了广告素材生成成本，提高了测试速度。",
+            "shortExplanation": "AI降低了广告素材生成成本，提高了测试速度。",
+            "fullExplanation": "AI使广告代理能以低成本快速迭代大量创意。",
+            "correct_understanding": "AI使广告代理能以低成本快速迭代大量创意。",
+            "correctUnderstanding": "AI使广告代理能以低成本快速迭代大量创意。",
+            "common_misconception": "误以为优势主要在于算法或媒体成本。",
+            "commonMisconception": "误以为优势主要在于算法或媒体成本。",
+            "pitfalls": [
+              "误以为优势主要在于算法或媒体成本。"
+            ],
+            "source_snippet": "从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。",
+            "sourceSnippet": "从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。",
+            "sourceQuote": "从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 3,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 4,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-13",
+            "knowledgePointId": "kp-6",
+            "pointId": "kp-6",
+            "pointTitle": "AI Native广告代理以更低成本生成更多素材",
+            "type": "multiple_choice",
+            "stem": "AI原生广告代理的爆发表明广告行业正经历什么变革？",
+            "options": [
+              {
+                "id": "A",
+                "text": "传统广告代理即将消失"
+              },
+              {
+                "id": "B",
+                "text": "AI能够完全替代广告策划"
+              },
+              {
+                "id": "C",
+                "text": "低成本、高迭代的广告测试成为可能"
+              },
+              {
+                "id": "D",
+                "text": "广告投放不再需要人类参与"
+              }
+            ],
+            "correctOptionId": "C",
+            "correct_answer": "C",
+            "explanation": "AI降低了素材生成成本，加速了A/B测试，使得快速迭代成为现实。",
+            "shortExplanation": "AI降低了素材生成成本，加速了A/B测试，使得快速迭代成为现实。",
+            "fullExplanation": "AI提升了广告生产的效率和测试速度。",
+            "correct_understanding": "AI提升了广告生产的效率和测试速度。",
+            "correctUnderstanding": "AI提升了广告生产的效率和测试速度。",
+            "common_misconception": "认为AI将完全取代人类，忽略人机协作。",
+            "commonMisconception": "认为AI将完全取代人类，忽略人机协作。",
+            "pitfalls": [
+              "认为AI将完全取代人类，忽略人机协作。"
+            ],
+            "source_snippet": "从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。",
+            "sourceSnippet": "从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。",
+            "sourceQuote": "从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 3,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 4,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-17",
+            "knowledgePointId": "kp-8",
+            "pointId": "kp-8",
+            "pointTitle": "垂直AI产品的价值在于数据、提示词和UX",
+            "type": "multiple_choice",
+            "stem": "以下哪项最不可能成为垂直AI产品的壁垒？",
+            "options": [
+              {
+                "id": "A",
+                "text": "用户数据积累"
+              },
+              {
+                "id": "B",
+                "text": "提示词工程优化"
+              },
+              {
+                "id": "C",
+                "text": "独特用户界面"
+              },
+              {
+                "id": "D",
+                "text": "使用开源大模型"
+              }
+            ],
+            "correctOptionId": "D",
+            "correct_answer": "D",
+            "explanation": "使用开源大模型容易被复制，不是持续壁垒。数据、提示词和UX才是。",
+            "shortExplanation": "使用开源大模型容易被复制，不是持续壁垒。数据、提示词和UX才是。",
+            "fullExplanation": "垂直产品的护城河来自数据、提示词和UX的结合。",
+            "correct_understanding": "垂直产品的护城河来自数据、提示词和UX的结合。",
+            "correctUnderstanding": "垂直产品的护城河来自数据、提示词和UX的结合。",
+            "common_misconception": "认为使用独特模型就是壁垒。",
+            "commonMisconception": "认为使用独特模型就是壁垒。",
+            "pitfalls": [
+              "认为使用独特模型就是壁垒。"
+            ],
+            "source_snippet": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+            "sourceSnippet": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+            "sourceQuote": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+            "difficulty": "hard",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 5,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 5
+              },
+              "judgeAverage": 5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-18",
+            "knowledgePointId": "kp-8",
+            "pointId": "kp-8",
+            "pointTitle": "垂直AI产品的价值在于数据、提示词和UX",
+            "type": "multiple_choice",
+            "stem": "为什么垂直AI产品需要结合数据、提示词和UX？",
+            "options": [
+              {
+                "id": "A",
+                "text": "因为基础模型本身无法直接满足特定场景需求"
+              },
+              {
+                "id": "B",
+                "text": "因为用户更喜欢复杂界面"
+              },
+              {
+                "id": "C",
+                "text": "因为开源模型性能不足"
+              },
+              {
+                "id": "D",
+                "text": "因为数据越多提示词越好"
+              }
+            ],
+            "correctOptionId": "A",
+            "correct_answer": "A",
+            "explanation": "原文指出通过UX、提示词和数据捕捉，才能更好地利用大模型满足垂直场景。",
+            "shortExplanation": "原文指出通过UX、提示词和数据捕捉，才能更好地利用大模型满足垂直场景。",
+            "fullExplanation": "通用大模型需针对行业定制才能发挥价值。",
+            "correct_understanding": "通用大模型需针对行业定制才能发挥价值。",
+            "correctUnderstanding": "通用大模型需针对行业定制才能发挥价值。",
+            "common_misconception": "认为基础模型可以直接开箱即用。",
+            "commonMisconception": "认为基础模型可以直接开箱即用。",
+            "pitfalls": [
+              "认为基础模型可以直接开箱即用。"
+            ],
+            "source_snippet": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+            "sourceSnippet": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+            "sourceQuote": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "supplement-kp-5-3-1",
+            "knowledgePointId": "kp-5",
+            "pointId": "kp-5",
+            "pointTitle": "语音AI前台解决小企业漏接电话问题",
+            "type": "scenario_judgment",
+            "stem": "小明是一家牙科诊所的老板，他认为诊所漏接大量预约电话，想使用语音AI前台来接听电话、直接预约。但他在部署前需要确认是否值得投入。以下哪个做法最能帮助他有效验证语音AI前台的商业价值？",
+            "options": [
+              {
+                "id": "A",
+                "text": "直接购买市面上最流行的语音AI客服产品，安装后看预约量变化。"
+              },
+              {
+                "id": "B",
+                "text": "先统计当前一周内因无人接听而错过的预约数，并估算潜在收入，再找一家修车厂合作测试 AI 代理。"
+              },
+              {
+                "id": "C",
+                "text": "先咨询几家大医院的电话客服中心，了解他们使用AI的经验。"
+              },
+              {
+                "id": "D",
+                "text": "先自己录一段话，看语音识别效果好不好。"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "B正确，因为验证语音AI前台的商业价值关键在于量化因漏接电话损失的收入，并直接在垂直场景（如修车厂）测试效果。sourceQuote指出很多预约因电话没人接而丢失，且强调在牙医诊所、修车厂等场景应用。",
+            "shortExplanation": "B正确，因为验证语音AI前台的商业价值关键在于量化因漏接电话损失的收入，并直接在垂直场景（如修车厂）测试效果。sourceQuote指出很多预约因电话没人接而丢失，且强调在牙医诊所、修车厂等场景应用。",
+            "fullExplanation": "语音AI前台的商业价值主要来自减少漏接电话带来的预约损失，且需通过小范围垂直场景测试来验证。",
+            "correct_understanding": "语音AI前台的商业价值主要来自减少漏接电话带来的预约损失，且需通过小范围垂直场景测试来验证。",
+            "correctUnderstanding": "语音AI前台的商业价值主要来自减少漏接电话带来的预约损失，且需通过小范围垂直场景测试来验证。",
+            "common_misconception": "误以为直接购买通用产品就能见效，或认为咨询大医院经验能适用小诊所场景，或认为语音识别技术测试就能代表商业价值。",
+            "commonMisconception": "误以为直接购买通用产品就能见效，或认为咨询大医院经验能适用小诊所场景，或认为语音识别技术测试就能代表商业价值。",
+            "pitfalls": [
+              "误以为直接购买通用产品就能见效，或认为咨询大医院经验能适用小诊所场景，或认为语音识别技术测试就能代表商业价值。"
+            ],
+            "source_snippet": "很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。",
+            "sourceSnippet": "很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。",
+            "sourceQuote": "很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.8
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "supplement-kp-9-5-1",
+            "knowledgePointId": "kp-9",
+            "pointId": "kp-9",
+            "pointTitle": "从服务到产品的创业路径",
+            "type": "scenario_judgment",
+            "stem": "以下哪个创业者的做法最符合“从服务到产品”的演进路径？",
+            "options": [
+              {
+                "id": "A",
+                "text": "小张发现企业客户需要数据清洗服务，他先手动帮助客户清洗数据，获得反馈后开发自动化工具。"
+              },
+              {
+                "id": "B",
+                "text": "小李分析市场后，直接投入开发一款项目管理软件，然后寻找客户试用。"
+              },
+              {
+                "id": "C",
+                "text": "小王报名参加创业培训，学习开发技术，然后构思一个创意产品，再找用户验证。"
+              },
+              {
+                "id": "D",
+                "text": "小赵认为做服务太累，于是直接开发了一个通用平台，希望通过补贴吸引用户。"
+              }
+            ],
+            "correctOptionId": "A",
+            "correct_answer": "A",
+            "explanation": "小张先手动服务获取客户反馈，再开发自动化工具，完全符合“先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里”的路径。其他选项都跳过了服务验证环节，直接进入产品开发，容易走弯路。",
+            "shortExplanation": "小张先手动服务获取客户反馈，再开发自动化工具，完全符合“先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里”的路径。其他选项都跳过了服务验证环节，直接进入产品开发，容易走弯路。",
+            "fullExplanation": "服务先行是低成本验证需求、获取真实反馈的有效方式，之后将重复动作产品化是更稳妥的创业路径。",
+            "correct_understanding": "服务先行是低成本验证需求、获取真实反馈的有效方式，之后将重复动作产品化是更稳妥的创业路径。",
+            "correctUnderstanding": "服务先行是低成本验证需求、获取真实反馈的有效方式，之后将重复动作产品化是更稳妥的创业路径。",
+            "common_misconception": "误以为直接开发产品更高效，或者认为服务只是过渡、不值得认真对待。实际上，服务阶段是产品化的必要前提。",
+            "commonMisconception": "误以为直接开发产品更高效，或者认为服务只是过渡、不值得认真对待。实际上，服务阶段是产品化的必要前提。",
+            "pitfalls": [
+              "误以为直接开发产品更高效，或者认为服务只是过渡、不值得认真对待。实际上，服务阶段是产品化的必要前提。"
+            ],
+            "source_snippet": "先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。",
+            "sourceSnippet": "先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。",
+            "sourceQuote": "先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.8
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          }
+        ],
+        "qualitySummary": {
+          "totalGenerated": 43,
+          "passed": 8,
+          "rewrite": 34,
+          "discarded": 1,
+          "averageScore": 4.5,
+          "seriousIssueCount": 28,
+          "judgeUnavailable": false
+        },
+        "generationMeta": {
+          "startedAt": "2026-05-16T01:08:22.680Z",
+          "currentStage": "completed",
+          "stages": [
+            {
+              "status": "submitted",
+              "at": "2026-05-16T01:08:22.680Z"
+            },
+            {
+              "status": "generating_points",
+              "displayStatusText": "正在生成知识点",
+              "at": "2026-05-16T01:08:22.680Z"
+            },
+            {
+              "status": "generating_questions",
+              "displayStatusText": "正在生成题目",
+              "at": "2026-05-16T01:08:38.329Z"
+            },
+            {
+              "status": "quality_checking",
+              "displayStatusText": "正在检查题目质量",
+              "at": "2026-05-16T01:09:25.495Z"
+            },
+            {
+              "status": "auto_regenerating_questions",
+              "displayStatusText": "正在重新生成题目",
+              "at": "2026-05-16T01:09:50.712Z"
+            },
+            {
+              "status": "completed",
+              "displayStatusText": "已生成",
+              "at": "2026-05-16T01:14:20.715Z"
+            }
+          ],
+          "finishedAt": "2026-05-16T01:14:20.715Z",
+          "chunkCount": 56,
+          "candidateCount": 10,
+          "keptKnowledgePointCount": 10,
+          "filteredKnowledgePointCount": 0,
+          "totalGenerated": 43,
+          "rewrittenCount": 21,
+          "supplementCount": 5,
+          "generationErrorCount": 0,
+          "discardedCount": 35,
+          "qualifiedQuestionCount": 8
+        }
+      },
+      "generationDebug": {
+        "knowledgePoints": [
+          {
+            "id": "kp-1",
+            "title": "小团队通过AI可以实现更高效率",
+            "knowledgeType": "concept",
+            "summary": "公司通过缩减团队规模（从160人到40人）并利用AI工具，业绩反而提升10倍，表明AI能显著提高人效。",
+            "keyClaim": "AI使得更小的团队能产生更大的业务成果。",
+            "sourceQuote": "他们从 160 人变成 40 人，业绩反而提高了。",
+            "testabilityReason": "这是一个可验证的商业案例，可用于讨论AI对团队效率的影响。",
+            "questionAngles": [
+              "AI如何帮助小团队提升业绩？",
+              "缩减团队规模的同时如何保持或提高产出？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-2",
+            "title": "企业需要AI但缺乏信任和部署能力",
+            "knowledgeType": "judgment",
+            "summary": "公司知道需要AI，但不知道该信任谁，这为懂行业务的AI顾问创造了机会。",
+            "keyClaim": "企业AI部署的主要障碍是信任和专业知识，而非技术本身。",
+            "sourceQuote": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "testabilityReason": "这是市场需求的直接表述，可用于分析AI创业切入点。",
+            "questionAngles": [
+              "为什么企业会不信任AI？",
+              "AI顾问如何建立信任？"
+            ],
+            "testabilityScore": 3
+          },
+          {
+            "id": "kp-3",
+            "title": "行业AI顾问的收费点是诊断和落地而非工具",
+            "knowledgeType": "method",
+            "summary": "AI顾问的收费点在于帮客户找出低效流程并用量化结果证明节省时间或增加收入，而不是展示工具数量。",
+            "keyClaim": "客户为可量化的效益付费，而非为工具掌握付费。",
+            "sourceQuote": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+            "testabilityReason": "这是服务定价的关键原则，适合用于商业模型分析。",
+            "questionAngles": [
+              "AI顾问如何定价？",
+              "如何量化AI带来的价值？"
+            ],
+            "testabilityScore": 5
+          },
+          {
+            "id": "kp-4",
+            "title": "GEO（生成引擎优化）让本地商家出现在AI答案中",
+            "knowledgeType": "method",
+            "summary": "通过创建被AI搜索引用的公开内容（文章、目录等），使本地商家出现在ChatGPT等AI的推荐中，替代传统SEO。",
+            "keyClaim": "AI答案中的商家推荐取决于公开提及的内容，而非付费广告。",
+            "sourceQuote": "AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。",
+            "testabilityReason": "这是一个新营销渠道的实操方法，可测试效果。",
+            "questionAngles": [
+              "如何让本地商家被AI搜索到？",
+              "GEO与SEO的主要区别是什么？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-5",
+            "title": "语音AI前台解决小企业漏接电话问题",
+            "knowledgeType": "method",
+            "summary": "用语音AI代理处理预约和接线，帮助牙医、律师等小企业减少因无人接听而丢失的预约，验证方法简单（数漏接电话）。",
+            "keyClaim": "语音AI代理能直接带来预约收入，技术门槛低，场景垂直。",
+            "sourceQuote": "很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。",
+            "testabilityReason": "这是一个具体可执行的商业机会，可通过实地测试验证。",
+            "questionAngles": [
+              "如何验证语音AI前台的需求？",
+              "语音AI代理的部署难点在哪？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-6",
+            "title": "AI Native广告代理以更低成本生成更多素材",
+            "knowledgeType": "comparison",
+            "summary": "AI native广告代理能生成上百个广告版本进行快速测试，而传统代理只能交付少量素材，且成本更低。",
+            "keyClaim": "AI降低了广告素材生成成本，提高了测试速度，使毛利结构更好。",
+            "sourceQuote": "从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。",
+            "testabilityReason": "这是行业趋势对比，可用于分析广告业变革。",
+            "questionAngles": [
+              "AI广告代理与传统代理的优势对比？",
+              "AI如何改变广告测试流程？"
+            ],
+            "testabilityScore": 3
+          },
+          {
+            "id": "kp-7",
+            "title": "电商内容生成：先用AI批量测试脚本，再找真人创作",
+            "knowledgeType": "method",
+            "summary": "用AI生成上千个不同视频进行A/B测试，找到有效方向后再由真人UGC创作者拍摄，降低测试成本。",
+            "keyClaim": "AI用于快速测试创意方向，真人用于高质量执行。",
+            "sourceQuote": "用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。",
+            "testabilityReason": "这是一个可复用的内容生产流程，适用于电商营销。",
+            "questionAngles": [
+              "如何结合AI和真人UGC制作广告？",
+              "AI视频制作的成本优势体现在哪里？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-8",
+            "title": "垂直AI产品的价值在于数据、提示词和UX",
+            "knowledgeType": "concept",
+            "summary": "垂直AI产品不是简单的GPT wrapper，其护城河在于收集客户数据、优化提示词、设计专用UX。",
+            "keyClaim": "结合数据、提示词和UX才能做出有竞争力的垂直AI工具。",
+            "sourceQuote": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+            "testabilityReason": "这是对AI产品化关键要素的总结，可用于产品设计评估。",
+            "questionAngles": [
+              "垂直AI产品如何建立壁垒？",
+              "GPT wrapper与垂直产品的区别？"
+            ],
+            "testabilityScore": 5
+          },
+          {
+            "id": "kp-9",
+            "title": "从服务到产品的创业路径",
+            "knowledgeType": "step",
+            "summary": "先以服务形式交付AI解决方案获取客户反馈，再将重复流程产品化，最终形成垂直SaaS。",
+            "keyClaim": "服务先行能快速验证需求，产品化是后期步骤。",
+            "sourceQuote": "先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。",
+            "testabilityReason": "这是创业方法论，适合用于分析业务演进。",
+            "questionAngles": [
+              "为什么先做服务后做产品？",
+              "如何判断服务可以产品化？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-10",
+            "title": "AI创业机会从模型能力转向流程落地",
+            "knowledgeType": "judgment",
+            "summary": "当前AI创业机会在于将模型嵌入具体业务流程（如牙医电话、地方搜索等），而非追求模型本身能力。",
+            "keyClaim": "第一笔钱来自流程现场，而非宏大商业计划。",
+            "sourceQuote": "AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。",
+            "testabilityReason": "这是对趋势的判断，可用于创业方向选择。",
+            "questionAngles": [
+              "为什么流程落地比模型能力更重要？",
+              "举例说明典型的AI落地场景。"
+            ],
+            "testabilityScore": 3
+          }
+        ],
+        "filteredKnowledgePoints": [],
+        "evaluatedQuestions": [
+          {
+            "id": "q-1",
+            "knowledgePointId": "kp-1",
+            "type": "multiple_choice",
+            "stem": "一个团队从160人缩减到40人，业绩反而提高，这最可能因为？",
+            "options": [
+              {
+                "id": "A",
+                "text": "团队加班更多，工作强度增加"
+              },
+              {
+                "id": "B",
+                "text": "AI自动化了大量重复性工作，让团队专注高价值任务"
+              },
+              {
+                "id": "C",
+                "text": "团队更年轻化，效率天然更高"
+              },
+              {
+                "id": "D",
+                "text": "管理层更扁平，减少了沟通成本"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "AI使得更小的团队能产生更大的业务成果，通过自动化重复任务提升效率。",
+            "correctUnderstanding": "AI提升了每个成员的效率，使小团队能完成更多工作。",
+            "commonMisconception": "误以为只是通过裁员或压榨员工实现，忽视了AI的赋能作用。",
+            "sourceSnippet": "他们从 160 人变成 40 人，业绩反而提高了。",
+            "difficulty": "medium",
+            "pointTitle": "小团队通过AI可以实现更高效率",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目设计良好，来源支持充分，选项合理，无严重问题。"
+          },
+          {
+            "id": "q-2",
+            "knowledgePointId": "kp-1",
+            "type": "multiple_choice",
+            "stem": "小团队利用AI提升业绩时，以下哪项最不可能？",
+            "options": [
+              {
+                "id": "A",
+                "text": "用AI生成营销文案，快速测试多个版本"
+              },
+              {
+                "id": "B",
+                "text": "用AI编写代码，加速软件开发"
+              },
+              {
+                "id": "C",
+                "text": "用AI完全替代所有客户沟通，无需人工介入"
+              },
+              {
+                "id": "D",
+                "text": "用AI分析销售数据，辅助决策"
+              }
+            ],
+            "correctOptionId": "C",
+            "explanation": "AI擅长辅助而非完全替代，尤其在客户沟通中仍需人工处理复杂情况。",
+            "correctUnderstanding": "AI作为工具提升效率，但关键领域需人机协作。",
+            "commonMisconception": "认为AI可以完全取代人类，忽略其局限性。",
+            "sourceSnippet": "他们从 160 人变成 40 人，业绩反而提高了。",
+            "difficulty": "medium",
+            "pointTitle": "小团队通过AI可以实现更高效率",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目考察边界理解，选项合理，来源支持间接但可接受。"
+          },
+          {
+            "id": "q-3",
+            "knowledgePointId": "kp-2",
+            "type": "true_false",
+            "stem": "企业知道需要AI，但主要障碍是缺乏技术本身。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文强调企业不知道该信任谁，而非缺乏技术。",
+            "correctUnderstanding": "企业AI部署的主要障碍是信任和专业知识，而非技术。",
+            "commonMisconception": "误以为技术成熟度是主要瓶颈。",
+            "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "difficulty": "medium",
+            "pointTitle": "企业需要AI但缺乏信任和部署能力",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 3,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "直接考察来源信息，简单但有效。"
+          },
+          {
+            "id": "q-4",
+            "knowledgePointId": "kp-2",
+            "type": "true_false",
+            "stem": "企业AI部署的最大障碍是缺乏IT基础设施。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文指出主要障碍是信任问题，而非基础设施。",
+            "correctUnderstanding": "企业需要可信赖的合作伙伴和专业知识。",
+            "commonMisconception": "认为技术或基础设施是主要瓶颈。",
+            "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "difficulty": "easy",
+            "pointTitle": "企业需要AI但缺乏信任和部署能力",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 3,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 2,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 2
+              },
+              "judgeAverage": 3.7
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目过于简单，但无问题，可入池。"
+          },
+          {
+            "id": "q-5",
+            "knowledgePointId": "kp-3",
+            "type": "scenario_judgment",
+            "stem": "某AI顾问向客户推销时说：“我掌握10个AI工具，可以帮你省8小时每周。”客户当即决定购买。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文指出客户不会为工具本身付费，而是为可量化的效益付费。",
+            "correctUnderstanding": "客户为具体节省的时间或增加的收入付费。",
+            "commonMisconception": "认为展示工具掌握度就能说服客户。",
+            "sourceSnippet": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+            "difficulty": "medium",
+            "pointTitle": "行业AI顾问的收费点是诊断和落地而非工具",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "场景题设计好，考察核心概念。"
+          },
+          {
+            "id": "q-6",
+            "knowledgePointId": "kp-3",
+            "type": "scenario_judgment",
+            "stem": "一家公司请AI顾问优化销售流程，顾问承诺每月多带来5个销售线索，公司同意按效果付费。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "顾问提供了可量化的效益，符合原文中客户愿意为具体结果付费的原则。",
+            "correctUnderstanding": "AI顾问应聚焦可衡量的业务成果。",
+            "commonMisconception": "认为提供工具或知识本身就能收费。",
+            "sourceSnippet": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+            "difficulty": "easy",
+            "pointTitle": "行业AI顾问的收费点是诊断和落地而非工具",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 2
+              },
+              "judgeAverage": 3.8
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "正确场景对应，简单但有效。"
+          },
+          {
+            "id": "q-7",
+            "knowledgePointId": "kp-3",
+            "type": "scenario_judgment",
+            "stem": "一位AI顾问提供免费诊断，然后根据每周节省的时间收费。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "收费基于可量化的时间节省，符合原文客户为具体效益付费的原则。",
+            "correctUnderstanding": "AI顾问的定价应基于客户获得的实际收益。",
+            "commonMisconception": "认为诊断本身应收费，或忽略量化指标。",
+            "sourceSnippet": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+            "difficulty": "medium",
+            "pointTitle": "行业AI顾问的收费点是诊断和落地而非工具",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 3,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 4,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目合理，但免费诊断未在原文中明确，靠推理，不过仍可接受。"
+          },
+          {
+            "id": "q-8",
+            "knowledgePointId": "kp-4",
+            "type": "scenario_judgment",
+            "stem": "本地商家通过购买百度广告，确保被AI回答推荐。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "AI推荐基于公开提及内容，而非付费广告。",
+            "correctUnderstanding": "商家需通过公开文章或榜单增加被AI提及的机会。",
+            "commonMisconception": "误以为AI推荐与搜索结果一样可被广告购买。",
+            "sourceSnippet": "AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。",
+            "difficulty": "medium",
+            "pointTitle": "GEO（生成引擎优化）让本地商家出现在AI答案中",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "明确区分AI推荐与广告，好题。"
+          },
+          {
+            "id": "q-9",
+            "knowledgePointId": "kp-4",
+            "type": "scenario_judgment",
+            "stem": "一家餐馆被当地美食博主在文章中提及，结果在AI咨询推荐中出现了。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "公开提及是AI发现商家的关键方式，符合原文。",
+            "correctUnderstanding": "商家应重视在公开内容中的曝光。",
+            "commonMisconception": "认为只有付费广告才能获得推荐。",
+            "sourceSnippet": "AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。",
+            "difficulty": "easy",
+            "pointTitle": "GEO（生成引擎优化）让本地商家出现在AI答案中",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 2,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 2
+              },
+              "judgeAverage": 3.7
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "简单正向场景，可入池。"
+          },
+          {
+            "id": "q-10",
+            "knowledgePointId": "kp-5",
+            "type": "scenario_judgment",
+            "stem": "某修车厂安装了语音AI前台，发现电话预约量翻倍，这验证了该场景的价值。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "原文指出很多预约因无人接听而流失，AI解决此问题可直接带来收入。",
+            "correctUnderstanding": "语音AI前台能有效捕捉漏接的预约电话。",
+            "commonMisconception": "认为语音AI只能处理简单问题，忽略其对接预约的直接价值。",
+            "sourceSnippet": "很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。",
+            "difficulty": "easy",
+            "pointTitle": "语音AI前台解决小企业漏接电话问题",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 2,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 2
+              },
+              "judgeAverage": 3.7
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "直接验证价值，简单。"
+          },
+          {
+            "id": "q-11",
+            "knowledgePointId": "kp-5",
+            "type": "scenario_judgment",
+            "stem": "某牙医诊所引入语音AI前台后，完全取消了人工前台，所有电话均由AI处理，包括紧急情况。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文强调AI辅助接预约，未提及完全替代人工，且紧急情况仍需人工。",
+            "correctUnderstanding": "语音AI可处理预约，但复杂或紧急情况仍需人工介入。",
+            "commonMisconception": "认为AI可以完全替代人工，忽略其局限性。",
+            "sourceSnippet": "很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。",
+            "difficulty": "medium",
+            "pointTitle": "语音AI前台解决小企业漏接电话问题",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 3,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "考察AI局限性，好题，来源支持稍弱但合理。"
+          },
+          {
+            "id": "q-12",
+            "knowledgePointId": "kp-6",
+            "type": "multiple_choice",
+            "stem": "相比传统广告代理，AI原生广告代理的核心优势是？",
+            "options": [
+              {
+                "id": "A",
+                "text": "更少的创意人员"
+              },
+              {
+                "id": "B",
+                "text": "更快生成更多素材进行测试"
+              },
+              {
+                "id": "C",
+                "text": "更好的投放算法"
+              },
+              {
+                "id": "D",
+                "text": "更低的媒体成本"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "AI降低了广告素材生成成本，提高了测试速度。",
+            "correctUnderstanding": "AI使广告代理能以低成本快速迭代大量创意。",
+            "commonMisconception": "误以为优势主要在于算法或媒体成本。",
+            "sourceSnippet": "从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。",
+            "difficulty": "medium",
+            "pointTitle": "AI Native广告代理以更低成本生成更多素材",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 3,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 4,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "考察核心优势，选项合理。"
+          },
+          {
+            "id": "q-13",
+            "knowledgePointId": "kp-6",
+            "type": "multiple_choice",
+            "stem": "AI原生广告代理的爆发表明广告行业正经历什么变革？",
+            "options": [
+              {
+                "id": "A",
+                "text": "传统广告代理即将消失"
+              },
+              {
+                "id": "B",
+                "text": "AI能够完全替代广告策划"
+              },
+              {
+                "id": "C",
+                "text": "低成本、高迭代的广告测试成为可能"
+              },
+              {
+                "id": "D",
+                "text": "广告投放不再需要人类参与"
+              }
+            ],
+            "correctOptionId": "C",
+            "explanation": "AI降低了素材生成成本，加速了A/B测试，使得快速迭代成为现实。",
+            "correctUnderstanding": "AI提升了广告生产的效率和测试速度。",
+            "commonMisconception": "认为AI将完全取代人类，忽略人机协作。",
+            "sourceSnippet": "从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。",
+            "difficulty": "medium",
+            "pointTitle": "AI Native广告代理以更低成本生成更多素材",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 3,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 4,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "好题，理解行业变革。"
+          },
+          {
+            "id": "q-14",
+            "knowledgePointId": "kp-7",
+            "type": "scenario_judgment",
+            "stem": "一家电商公司先用AI生成1000个视频脚本，进行A/B测试找出最佳脚本，再找真人拍摄高质量视频。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "这与原文描述的先用AI测试创意方向，再真人执行完全一致。",
+            "correctUnderstanding": "AI用于快速测试，真人用于高质量执行。",
+            "commonMisconception": "认为AI可完全替代真人创作。",
+            "sourceSnippet": "用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。",
+            "difficulty": "easy",
+            "pointTitle": "电商内容生成：先用AI批量测试脚本，再找真人创作",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "直接对应原文流程。"
+          },
+          {
+            "id": "q-15",
+            "knowledgePointId": "kp-7",
+            "type": "scenario_judgment",
+            "stem": "一家公司直接用AI生成的视频作为最终广告投放，不再制作真人视频。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文强调先AI测试再真人执行，直接用AI视频作为最终素材不符合流程。",
+            "correctUnderstanding": "真人创作提供高质量执行，AI用于前期测试。",
+            "commonMisconception": "认为AI生成即可直接用于最终投放，忽略质量差异。",
+            "sourceSnippet": "用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。",
+            "difficulty": "medium",
+            "pointTitle": "电商内容生成：先用AI批量测试脚本，再找真人创作",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "考流程理解，好题。"
+          },
+          {
+            "id": "q-16",
+            "knowledgePointId": "kp-8",
+            "type": "multiple_choice",
+            "stem": "一个垂直AI产品与简单的GPT wrapper相比，核心差异在于？",
+            "options": [
+              {
+                "id": "A",
+                "text": "使用了更小的模型"
+              },
+              {
+                "id": "B",
+                "text": "拥有行业特定数据、优化的提示词和UX"
+              },
+              {
+                "id": "C",
+                "text": "价格更低"
+              },
+              {
+                "id": "D",
+                "text": "部署更简单"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文提出数据、提示词和UX是垂直产品竞争力的关键。",
+            "correctUnderstanding": "垂直产品的壁垒来自于对行业数据、提示词优化和用户体验的深度整合。",
+            "commonMisconception": "误以为使用更小模型或低价是优势。",
+            "sourceSnippet": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+            "difficulty": "medium",
+            "pointTitle": "垂直AI产品的价值在于数据、提示词和UX",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "直接考察垂直产品的核心差异。"
+          },
+          {
+            "id": "q-17",
+            "knowledgePointId": "kp-8",
+            "type": "multiple_choice",
+            "stem": "以下哪项最不可能成为垂直AI产品的壁垒？",
+            "options": [
+              {
+                "id": "A",
+                "text": "用户数据积累"
+              },
+              {
+                "id": "B",
+                "text": "提示词工程优化"
+              },
+              {
+                "id": "C",
+                "text": "独特用户界面"
+              },
+              {
+                "id": "D",
+                "text": "使用开源大模型"
+              }
+            ],
+            "correctOptionId": "D",
+            "explanation": "使用开源大模型容易被复制，不是持续壁垒。数据、提示词和UX才是。",
+            "correctUnderstanding": "垂直产品的护城河来自数据、提示词和UX的结合。",
+            "commonMisconception": "认为使用独特模型就是壁垒。",
+            "sourceSnippet": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+            "difficulty": "hard",
+            "pointTitle": "垂直AI产品的价值在于数据、提示词和UX",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 5,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 5
+              },
+              "judgeAverage": 5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "优秀题目，考壁垒和误区。"
+          },
+          {
+            "id": "q-18",
+            "knowledgePointId": "kp-8",
+            "type": "multiple_choice",
+            "stem": "为什么垂直AI产品需要结合数据、提示词和UX？",
+            "options": [
+              {
+                "id": "A",
+                "text": "因为基础模型本身无法直接满足特定场景需求"
+              },
+              {
+                "id": "B",
+                "text": "因为用户更喜欢复杂界面"
+              },
+              {
+                "id": "C",
+                "text": "因为开源模型性能不足"
+              },
+              {
+                "id": "D",
+                "text": "因为数据越多提示词越好"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "原文指出通过UX、提示词和数据捕捉，才能更好地利用大模型满足垂直场景。",
+            "correctUnderstanding": "通用大模型需针对行业定制才能发挥价值。",
+            "commonMisconception": "认为基础模型可以直接开箱即用。",
+            "sourceSnippet": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+            "difficulty": "medium",
+            "pointTitle": "垂直AI产品的价值在于数据、提示词和UX",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "理解为何需要定制化。"
+          },
+          {
+            "id": "q-19",
+            "knowledgePointId": "kp-9",
+            "type": "scenario_judgment",
+            "stem": "某创业者直接开发一个AI产品，几个月后才发现市场需求低。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文建议先通过服务验证需求，再产品化，直接开发产品风险高。",
+            "correctUnderstanding": "先服务后产品能更快验证需求，降低风险。",
+            "commonMisconception": "认为直接开发产品更高效。",
+            "sourceSnippet": "先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。",
+            "difficulty": "medium",
+            "pointTitle": "从服务到产品的创业路径",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "考服务先行的创业路径。"
+          },
+          {
+            "id": "q-20",
+            "knowledgePointId": "kp-9",
+            "type": "scenario_judgment",
+            "stem": "创业者先为几家客户提供手工服务，收集反馈，然后才开发产品。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "这与原文的服务先行的路径完全一致。",
+            "correctUnderstanding": "服务先行能快速获取客户反馈，为产品化奠定基础。",
+            "commonMisconception": "认为应先做产品再找客户。",
+            "sourceSnippet": "先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。",
+            "difficulty": "easy",
+            "pointTitle": "从服务到产品的创业路径",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "正确流程对应。"
+          },
+          {
+            "id": "q-21",
+            "knowledgePointId": "kp-10",
+            "type": "true_false",
+            "stem": "AI创业机会的关键在于掌握最先进的大模型。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文指出机会在于将模型嵌入具体流程，而非模型本身。",
+            "correctUnderstanding": "流程落地比模型能力更重要。",
+            "commonMisconception": "认为拥有领先模型就是取胜关键。",
+            "sourceSnippet": "AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。",
+            "difficulty": "medium",
+            "pointTitle": "AI创业机会从模型能力转向流程落地",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 3,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "直接考察趋势判断。"
+          },
+          {
+            "id": "q-22",
+            "knowledgePointId": "kp-10",
+            "type": "true_false",
+            "stem": "将AI嵌入牙医电话预约这样的具体流程比开发通用AI模型更容易获得早期收入。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "原文强调第一笔钱来自流程现场，而非宏大计划。",
+            "correctUnderstanding": "具体场景的落地能更快产生商业价值。",
+            "commonMisconception": "认为通用模型更有市场。",
+            "sourceSnippet": "AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。",
+            "difficulty": "easy",
+            "pointTitle": "AI创业机会从模型能力转向流程落地",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 3,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "简单正例。"
+          },
+          {
+            "id": "q-3-rewrite-1-1",
+            "knowledgePointId": "kp-2",
+            "type": "true_false",
+            "stem": "企业AI部署当前面临的主要障碍是技术本身不够成熟。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "根据知识点，企业AI部署的主要障碍是信任和专业知识，而非技术本身。因此说技术不成熟是主要障碍是错误的。",
+            "correctUnderstanding": "企业AI部署的主要障碍是信任和专业知识，而非技术本身。",
+            "commonMisconception": "很多人认为AI技术不成熟是企业不采用的主要原因，但实际上企业因为缺乏信任和专业知识而犹豫。",
+            "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "difficulty": "medium",
+            "pointTitle": "企业需要AI但缺乏信任和部署能力",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 3,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目有明确来源支持，答案唯一，考察常见误解而非简单记忆，题干和解释清晰，干扰项合理，值得复习。"
+          },
+          {
+            "id": "q-4-rewrite-2-1",
+            "knowledgePointId": "kp-2",
+            "type": "true_false",
+            "stem": "一家企业已经拥有了先进的AI技术，因此它一定能顺利部署AI。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "根据知识点，企业AI部署的主要障碍是信任和专业知识，而非技术本身。即使技术先进，缺乏信任和专业知识仍可能导致部署失败。",
+            "correctUnderstanding": "企业AI部署的关键障碍在于信任和专业知识，技术只是前提条件。",
+            "commonMisconception": "认为只要技术足够成熟，AI部署就能自然成功。",
+            "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "difficulty": "medium",
+            "pointTitle": "企业需要AI但缺乏信任和部署能力",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 3,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目有清晰来源支持，唯一正确答案，考察对AI部署障碍的理解，表述清楚，错误选项合理，具有复习价值。"
+          },
+          {
+            "id": "q-5-rewrite-3-1",
+            "knowledgePointId": "kp-3",
+            "type": "scenario_judgment",
+            "stem": "一位AI顾问在向潜在客户推销服务时，首先展示了自己精通10多种主流AI工具，并强调能快速上手任何新工具。客户认为这很有价值，准备为此支付咨询服务费。该客户的付费意愿是否符合行业AI顾问的正确收费逻辑？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "客户为可量化的效益付费，而非为工具掌握付费。工具掌握本身不直接带来业务价值，只有诊断问题并落地带来可衡量的效果（如节省时间、增加线索）才是收费点。",
+            "correctUnderstanding": "客户为可量化的效益付费，而非为工具掌握付费。",
+            "commonMisconception": "认为客户会为顾问的工具熟练度或工具数量付费。",
+            "sourceSnippet": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+            "difficulty": "medium",
+            "pointTitle": "行业AI顾问的收费点是诊断和落地而非工具",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.7
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目场景与来源高度一致，答案唯一，考查深层理解，表述清晰，干扰项合理，有复习价值。"
+          },
+          {
+            "id": "q-6-rewrite-4-1",
+            "knowledgePointId": "kp-3",
+            "type": "scenario_judgment",
+            "stem": "一位AI顾问向客户提议按课时收费，教客户团队使用各类AI工具，客户表示同意。该顾问的收费点符合行业AI顾问的收费原则吗？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "行业AI顾问的收费点应是诊断问题并带来可量化的效益（如节省时间、增加线索），而非仅教会工具使用。客户不会为“我会用十个 AI 工具”付钱，而会为可量化的结果付钱。",
+            "correctUnderstanding": "AI顾问的价值在于通过诊断和落地带来可量化效益，客户为此付费，而非为工具掌握付费。",
+            "commonMisconception": "认为教会客户使用工具本身就是有价值的服务，可以按课时收费。",
+            "sourceSnippet": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+            "difficulty": "medium",
+            "pointTitle": "行业AI顾问的收费点是诊断和落地而非工具",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "问题有明确来源支持，答案唯一，考察对AI顾问收费原则的理解，干扰项合理但简单，值得复习。"
+          },
+          {
+            "id": "q-7-rewrite-5-1",
+            "knowledgePointId": "kp-3",
+            "type": "scenario_judgment",
+            "stem": "AI顾问李明向一家中小企业展示自己能熟练使用ChatGPT、Midjourney等10种AI工具，并以此作为服务核心，要求客户为“工具技能掌握”付费。客户回应：我们只需要结果，比如每周节省8小时或多拿到5个销售线索。李明坚持认为掌握工具是产生结果的前提，所以客户应当为工具掌握本身付费。请问李明的定价逻辑是否合理？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "客户愿意为可量化的效益付费，如节省时间或增加线索，而不是为工具掌握本身付费。李明混淆了前提与价值，正确的定价应基于客户获得的实际结果。",
+            "correctUnderstanding": "客户只为可量化的实际效益付费，如每周省8小时或多拿5个销售线索，而不是为掌握工具的数量付费。",
+            "commonMisconception": "误以为掌握工具是服务价值所在，因此客户应该为工具培训或技能展示付费。",
+            "sourceSnippet": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+            "difficulty": "medium",
+            "pointTitle": "行业AI顾问的收费点是诊断和落地而非工具",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.7
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目逻辑清晰，来源支持充分，唯一答案，有理解深度，值得复习。"
+          },
+          {
+            "id": "q-8-rewrite-6-1",
+            "knowledgePointId": "kp-4",
+            "type": "scenario_judgment",
+            "stem": "一家本地餐厅没有出现在任何公开文章或榜单中，但购买了搜索引擎广告。这家餐厅是否可能被AI生成答案推荐给用户？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "AI生成答案依赖公开提及的内容（如文章、榜单）来识别商家，付费广告不会影响AI的推荐结果。",
+            "correctUnderstanding": "要让商家被AI答案推荐，需要确保其被公开文章或榜单提及，而非依赖付费广告。",
+            "commonMisconception": "认为付费广告可以像影响搜索引擎结果一样影响AI答案的推荐。",
+            "sourceSnippet": "AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。",
+            "difficulty": "medium",
+            "pointTitle": "GEO（生成引擎优化）让本地商家出现在AI答案中",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 5,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 5
+              },
+              "judgeAverage": 5
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目符合所有维度的高标准，来源支撑充分，答案唯一，考察理解深度，清晰无歧义，干扰项合理，复习价值高。"
+          },
+          {
+            "id": "q-9-rewrite-7-1",
+            "knowledgePointId": "kp-4",
+            "type": "scenario_judgment",
+            "stem": "某本地商家为让AI推荐自己的店铺，购买了付费广告位，认为这能提高在AI答案中的出现概率。这种做法合理吗？",
+            "options": [
+              {
+                "id": "A",
+                "text": "合理"
+              },
+              {
+                "id": "B",
+                "text": "不合理"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "商家推荐依赖于公开提及的第三方文章或榜单，而非付费广告。AI根据内容相关性而非广告来推荐商家。",
+            "correctUnderstanding": "GEO优化应通过增加正面的公开提及（如文章、榜单）来提升被AI推荐的可能性。",
+            "commonMisconception": "认为付费广告可以像影响搜索引擎结果一样影响AI答案。",
+            "sourceSnippet": "AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。",
+            "difficulty": "medium",
+            "pointTitle": "GEO（生成引擎优化）让本地商家出现在AI答案中",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目清晰，唯一答案，错误选项合理，考察对GEO原理的理解而非记忆，来源虽未直接提及付费广告但逻辑一致，值得复习。"
+          },
+          {
+            "id": "q-10-rewrite-8-1",
+            "knowledgePointId": "kp-5",
+            "type": "scenario_judgment",
+            "stem": "一位开发者建议一家修车厂老板安装语音AI代理来接听预约电话，认为技术实现非常简单。但老板认为语音AI太复杂，小企业用不起。开发者关于语音AI代理技术简单的判断是否成立？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "知识点强调语音AI代理的技术门槛低，适合小企业解决漏接电话问题。因此开发者的判断成立。",
+            "correctUnderstanding": "语音AI代理技术门槛低，小企业可以轻松部署以增加预约收入。",
+            "commonMisconception": "常见误区是认为语音AI需要复杂技术和高昂成本，不适合小企业。",
+            "sourceSnippet": "很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。",
+            "difficulty": "medium",
+            "pointTitle": "语音AI前台解决小企业漏接电话问题",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 3,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 3
+              },
+              "judgeAverage": 3.7
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "答案被知识点支持，但来源未直接说明技术简单，通过逻辑推断可支持，整体合格。"
+          },
+          {
+            "id": "q-11-rewrite-9-1",
+            "knowledgePointId": "kp-5",
+            "type": "scenario_judgment",
+            "stem": "你打算为本地牙医诊所开发语音AI前台，以减少漏接预约电话。你先去几家牙医诊所实地观察电话接听情况，并询问他们每月有多少未接预约电话。这种做法能否有效验证需求？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "通过实地观察和询问，可以直接验证“很多预约没有被订上，只是因为电话那头没人接”这一痛点是否存在。如果诊所确实存在大量漏接情况，则需求成立；否则可能需要调整方向。",
+            "correctUnderstanding": "验证需求应首先确认目标场景中漏接电话是否普遍，实地调研是合理的第一步。",
+            "commonMisconception": "有人认为应先开发产品再找客户，但未经验证的需求可能导致资源浪费。",
+            "sourceSnippet": "很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。",
+            "difficulty": "medium",
+            "pointTitle": "语音AI前台解决小企业漏接电话问题",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目来源支持好，答案唯一，清晰，干扰项合理，但深度和复习价值中等。整体可入池。"
+          },
+          {
+            "id": "q-14-rewrite-10-1",
+            "knowledgePointId": "kp-7",
+            "type": "scenario_judgment",
+            "stem": "某电商团队先用AI生成100个不同脚本进行A/B测试，选出效果最好的脚本后，再找真人根据该脚本进行高质量视频拍摄。这种做法是否合理？",
+            "options": [
+              {
+                "id": "A",
+                "text": "合理"
+              },
+              {
+                "id": "B",
+                "text": "不合理"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "该做法合理，符合先用AI批量测试脚本方向，再找真人高质量执行的流程。AI可快速生成大量脚本测试创意，真人则负责最终的高质量执行。",
+            "correctUnderstanding": "AI用于快速测试创意方向，真人用于高质量执行。先通过AI进行A/B测试筛选出有效脚本，再交由真人创作，能兼顾效率与质量。",
+            "commonMisconception": "可能认为AI生成的视频可直接使用，无需真人再创作，但AI脚本测试只是筛选方向，最终高质量视频仍需真人拍摄。",
+            "sourceSnippet": "用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。",
+            "difficulty": "medium",
+            "pointTitle": "电商内容生成：先用AI批量测试脚本，再找真人创作",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目合理，符合知识点，无严重问题。"
+          },
+          {
+            "id": "q-15-rewrite-11-1",
+            "knowledgePointId": "kp-7",
+            "type": "scenario_judgment",
+            "stem": "某电商公司要制作一批广告视频，他们直接邀请了10位真人博主，每人拍摄10个不同脚本的视频，然后投放测试。这种做法是否符合“先用AI批量测试脚本，再找真人创作”的流程？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "该做法直接让真人博主拍摄大量脚本，没有先用AI进行批量测试和筛选。正确的流程应该是先用AI生成上千个脚本进行A/B测试，找出有效的方向，再交由真人高质量执行。直接让真人拍摄大量脚本浪费了人力和时间，且效率低下。",
+            "correctUnderstanding": "AI用于快速测试创意方向，真人用于高质量执行，两者应分阶段进行。",
+            "commonMisconception": "认为真人创意一定比AI好，所以直接让真人拍摄大量脚本进行测试更可靠。",
+            "sourceSnippet": "用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。",
+            "difficulty": "easy",
+            "pointTitle": "电商内容生成：先用AI批量测试脚本，再找真人创作",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目设计合理，选项明确，解释清晰，来源片段能支撑核心判断，值得保留。"
+          },
+          {
+            "id": "q-16-rewrite-12-1",
+            "knowledgePointId": "kp-8",
+            "type": "multiple_choice",
+            "stem": "某团队正在构建一个垂直AI产品，希望形成长期竞争壁垒。以下哪项策略最符合原文的建议？",
+            "options": [
+              {
+                "id": "A",
+                "text": "专注于优化提示词（prompt engineering），确保输出质量最高"
+              },
+              {
+                "id": "B",
+                "text": "收集大量用户数据，但不在意UX设计和提示词优化"
+              },
+              {
+                "id": "C",
+                "text": "依赖底层大模型的持续升级，产品层不做额外投入"
+              },
+              {
+                "id": "D",
+                "text": "同时改进UX、提示词和用户数据捕捉方式，三者协同"
+              }
+            ],
+            "correctOptionId": "D",
+            "explanation": "原文指出通过UX、更好的提示词和更好的用户数据捕捉方式才能把大语言模型用好，三者缺一不可。",
+            "correctUnderstanding": "垂直AI产品的壁垒来自UX、提示词和数据三者的结合，而非单一因素。",
+            "commonMisconception": "有些人认为只要提示词优化足够好就能形成壁垒，或者认为数据收集是唯一关键，忽略了UX和提示词的协同作用。",
+            "sourceSnippet": "我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。",
+            "difficulty": "medium",
+            "pointTitle": "垂直AI产品的价值在于数据、提示词和UX",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 2,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.3,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.7
+            },
+            "qualityIssues": [
+              "understandingDepth_low"
+            ],
+            "qualityAction": "discard",
+            "ruleQualityAction": "discard",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目设计良好，选项准确对应原文，理解深度适中，具有复习价值。"
+          },
+          {
+            "id": "q-19-rewrite-13-1",
+            "knowledgePointId": "kp-9",
+            "type": "scenario_judgment",
+            "stem": "一位创业者计划开发一款企业考勤SaaS产品，他立即组建技术团队开发完整功能版本，计划一年后上线销售。他的做法是否符合“从服务到产品”的创业路径？",
+            "options": [
+              {
+                "id": "A",
+                "text": "符合"
+              },
+              {
+                "id": "B",
+                "text": "不符合"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "该路径要求先以服务方式交付，快速验证需求，再产品化。直接开发完整产品跳过了服务验证阶段，容易导致产品与市场需求脱节。",
+            "correctUnderstanding": "服务先行是快速验证需求的关键步骤，产品化应在获得客户反馈后逐步进行。",
+            "commonMisconception": "误以为产品开发可以直接跳过服务阶段，尤其是功能明确的软件产品。",
+            "sourceSnippet": "先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。",
+            "difficulty": "medium",
+            "pointTitle": "从服务到产品的创业路径",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "All scores are adequate with no critical issues."
+          },
+          {
+            "id": "q-20-rewrite-14-1",
+            "knowledgePointId": "kp-9",
+            "type": "scenario_judgment",
+            "stem": "某创业者想开发一款企业报销软件，他先花3个月开发了完整功能并上线推广，结果发现企业用户并不买账，因为报销流程复杂多变。一位顾问建议他：应该先找几家目标企业，人工帮他们处理报销，收集反馈后再开发软件。请问，该创业者最初的做法是否遵循了“从服务到产品”的创业路径？",
+            "options": [
+              {
+                "id": "A",
+                "text": "遵循"
+              },
+              {
+                "id": "B",
+                "text": "不遵循"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "创业者直接开发完整产品，没有先通过服务方式验证需求和获取客户反馈，违背了“先服务后产品”的原则。正确做法是先以服务方式交付，拿到第一批客户反馈后再把重复动作产品化。",
+            "correctUnderstanding": "“从服务到产品”的路径强调先用服务快速验证需求、获取反馈，再逐步产品化，降低盲目开发的风险。",
+            "commonMisconception": "有人可能认为直接开发产品效率更高，但实际上跳过服务验证会导致产品脱离真实需求，浪费资源。",
+            "sourceSnippet": "先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。",
+            "difficulty": "medium",
+            "pointTitle": "从服务到产品的创业路径",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.7
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目有明确来源支持，答案唯一，考察理解迁移，表述清晰，错误选项合理，值得复习。"
+          },
+          {
+            "id": "q-21-rewrite-15-1",
+            "knowledgePointId": "kp-10",
+            "type": "true_false",
+            "stem": "根据知识点，AI创业的第一笔资金更可能来自详细的商业计划书而非流程现场。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "知识点强调AI创业机会已经从模型能力转向流程落地，第一笔钱应来自将模型嵌入具体流程（如牙医电话、地方搜索等），而非依赖宏大的商业计划。因此，题干说法不成立。",
+            "correctUnderstanding": "AI创业的第一笔收入来源于将模型实际落地到具体业务流程中，而非依靠商业计划书。",
+            "commonMisconception": "误以为AI创业仍然需要先从宏大商业计划或模型能力本身获得资金，忽略了流程落地的现实价值。",
+            "sourceSnippet": "AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。",
+            "difficulty": "easy",
+            "pointTitle": "AI创业机会从模型能力转向流程落地",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 3,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.8
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目完全符合知识点，理解深度较好，无歧义，值得复习。"
+          },
+          {
+            "id": "q-22-rewrite-16-1",
+            "knowledgePointId": "kp-10",
+            "type": "true_false",
+            "stem": "AI创业的第一笔钱来自流程现场，而非宏大商业计划。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "根据原文，AI创业机会正在从模型能力转向流程落地，第一笔钱应来自具体流程而非宏大商业计划。",
+            "correctUnderstanding": "AI创业初期应聚焦于将模型嵌入具体流程（如牙医、地方搜索等），而非追求宏大商业计划。",
+            "commonMisconception": "误认为AI创业仍依赖模型能力领先或宏大商业计划吸引投资。",
+            "sourceSnippet": "AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。",
+            "difficulty": "medium",
+            "pointTitle": "AI创业机会从模型能力转向流程落地",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 3,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题干准确反映来源观点，虽略有转述但无歧义，适合直接入池。"
+          },
+          {
+            "id": "supplement-kp-3-1-1",
+            "knowledgePointId": "kp-3",
+            "type": "scenario_judgment",
+            "stem": "一位AI顾问向客户报价：按每小时500元收费，内容为教授如何使用ChatGPT、Midjourney等10种AI工具。客户可以学习多种工具的操作技巧。这种收费方式是否符合“客户为可量化的效益付费，而非为工具掌握付费”的原则？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "该收费方式是根据教授工具使用的时间来收费，客户付钱换取的是对工具的掌握，而非可量化的效益（如节省时间或增加线索）。根据sourceQuote，客户不会为“我会用十个AI工具”付钱，但会为“你帮我每周省下8小时，或者多拿到5个销售线索”付钱。因此，这种按小时教工具的方式不成立。",
+            "correctUnderstanding": "客户愿意为可量化的结果（如节省时间、增加销售线索）付费，而不是为掌握多个工具本身付费。AI顾问的收费应基于诊断和落地带来的效益，而非工具教学。",
+            "commonMisconception": "可能认为教授工具也是提供价值，尤其若客户确实需要学习工具，但原则强调收费点必须是可量化的效益，而非工具掌握。",
+            "sourceSnippet": "客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。",
+            "difficulty": "medium",
+            "pointTitle": "行业AI顾问的收费点是诊断和落地而非工具",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目场景清晰，答案唯一，解释引用来源，考查对原则的理解，无严重问题。"
+          },
+          {
+            "id": "supplement-kp-4-2-1",
+            "knowledgePointId": "kp-4",
+            "type": "scenario_judgment",
+            "stem": "一家本地餐厅刚上线了付费搜索广告，但没有任何公开文章或榜单提及它的名字。根据GEO原理，AI在回答用户推荐时是否可能将该餐厅列为推荐选项？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "AI推荐商家取决于公开提及内容，而非付费广告。该餐厅虽付费但未被公开提及，因此AI不会推荐它。",
+            "correctUnderstanding": "AI推荐商家依赖公开提及的信息，付费广告不影响AI答案中的推荐。",
+            "commonMisconception": "误以为付费广告能直接让AI推荐，但GEO强调公开提及才是关键。",
+            "sourceSnippet": "AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。",
+            "difficulty": "medium",
+            "pointTitle": "GEO（生成引擎优化）让本地商家出现在AI答案中",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 3.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目设计合理，清晰考察GEO原理的理解，答案唯一且有来源支撑，具有复习价值。"
+          },
+          {
+            "id": "supplement-kp-5-3-1",
+            "knowledgePointId": "kp-5",
+            "type": "scenario_judgment",
+            "stem": "小明是一家牙科诊所的老板，他认为诊所漏接大量预约电话，想使用语音AI前台来接听电话、直接预约。但他在部署前需要确认是否值得投入。以下哪个做法最能帮助他有效验证语音AI前台的商业价值？",
+            "options": [
+              {
+                "id": "A",
+                "text": "直接购买市面上最流行的语音AI客服产品，安装后看预约量变化。"
+              },
+              {
+                "id": "B",
+                "text": "先统计当前一周内因无人接听而错过的预约数，并估算潜在收入，再找一家修车厂合作测试 AI 代理。"
+              },
+              {
+                "id": "C",
+                "text": "先咨询几家大医院的电话客服中心，了解他们使用AI的经验。"
+              },
+              {
+                "id": "D",
+                "text": "先自己录一段话，看语音识别效果好不好。"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "B正确，因为验证语音AI前台的商业价值关键在于量化因漏接电话损失的收入，并直接在垂直场景（如修车厂）测试效果。sourceQuote指出很多预约因电话没人接而丢失，且强调在牙医诊所、修车厂等场景应用。",
+            "correctUnderstanding": "语音AI前台的商业价值主要来自减少漏接电话带来的预约损失，且需通过小范围垂直场景测试来验证。",
+            "commonMisconception": "误以为直接购买通用产品就能见效，或认为咨询大医院经验能适用小诊所场景，或认为语音识别技术测试就能代表商业价值。",
+            "sourceSnippet": "很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。",
+            "difficulty": "medium",
+            "pointTitle": "语音AI前台解决小企业漏接电话问题",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.8
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "所有维度得分高，来源支撑充分，选项设计合理，解释清晰，无严重问题。"
+          },
+          {
+            "id": "supplement-kp-7-4-1",
+            "knowledgePointId": "kp-7",
+            "type": "scenario_judgment",
+            "stem": "一家电商公司计划制作短视频广告。他们先用AI生成上千个不同脚本并投放A/B测试，根据数据选出最有效的脚本，然后委托真人创作者基于该脚本进行高质量拍摄和剪辑。这种做法是否符合“AI批量测试脚本，再找真人创作”的方法？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "该方法的核心是先利用AI进行大量创意测试以筛选有效方向，再由真人负责最终高质量执行。场景中先用AI生成脚本并测试，再找真人创作，完全符合这一流程。",
+            "correctUnderstanding": "AI用于快速测试和筛选有效脚本，真人用于高质量执行，二者结合才能发挥各自优势。",
+            "commonMisconception": "误以为AI可以直接生成最终成品视频，不需要真人参与；或认为真人创作应该完全独立于AI测试。",
+            "sourceSnippet": "用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。",
+            "difficulty": "medium",
+            "pointTitle": "电商内容生成：先用AI批量测试脚本，再找真人创作",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 3,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [
+              "distractorQuality_low",
+              "source_repetition_stem"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目场景与知识点高度吻合，解释清晰，但提供的来源片段未直接提及后续真人创作步骤，支撑稍弱。其他维度表现良好，建议通过。"
+          },
+          {
+            "id": "supplement-kp-9-5-1",
+            "knowledgePointId": "kp-9",
+            "type": "scenario_judgment",
+            "stem": "以下哪个创业者的做法最符合“从服务到产品”的演进路径？",
+            "options": [
+              {
+                "id": "A",
+                "text": "小张发现企业客户需要数据清洗服务，他先手动帮助客户清洗数据，获得反馈后开发自动化工具。"
+              },
+              {
+                "id": "B",
+                "text": "小李分析市场后，直接投入开发一款项目管理软件，然后寻找客户试用。"
+              },
+              {
+                "id": "C",
+                "text": "小王报名参加创业培训，学习开发技术，然后构思一个创意产品，再找用户验证。"
+              },
+              {
+                "id": "D",
+                "text": "小赵认为做服务太累，于是直接开发了一个通用平台，希望通过补贴吸引用户。"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "小张先手动服务获取客户反馈，再开发自动化工具，完全符合“先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里”的路径。其他选项都跳过了服务验证环节，直接进入产品开发，容易走弯路。",
+            "correctUnderstanding": "服务先行是低成本验证需求、获取真实反馈的有效方式，之后将重复动作产品化是更稳妥的创业路径。",
+            "commonMisconception": "误以为直接开发产品更高效，或者认为服务只是过渡、不值得认真对待。实际上，服务阶段是产品化的必要前提。",
+            "sourceSnippet": "先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。",
+            "difficulty": "medium",
+            "pointTitle": "从服务到产品的创业路径",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.8
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目设计合理，来源支撑充分，选项清晰，唯一正确答案明确，解释到位。"
+          }
+        ],
+        "pointDiagnostics": [
+          {
+            "pointId": "kp-1",
+            "title": "小团队通过AI可以实现更高效率",
+            "testabilityScore": 4,
+            "candidateQuestionCount": 2,
+            "qualifiedQuestionCount": 2,
+            "status": "covered",
+            "failureReasons": []
+          },
+          {
+            "pointId": "kp-2",
+            "title": "企业需要AI但缺乏信任和部署能力",
+            "testabilityScore": 3,
+            "candidateQuestionCount": 4,
+            "qualifiedQuestionCount": 0,
+            "status": "no_qualified_question",
+            "failureReasons": []
+          },
+          {
+            "pointId": "kp-3",
+            "title": "行业AI顾问的收费点是诊断和落地而非工具",
+            "testabilityScore": 5,
+            "candidateQuestionCount": 7,
+            "qualifiedQuestionCount": 0,
+            "status": "no_qualified_question",
+            "failureReasons": [
+              "distractorQuality_low"
+            ]
+          },
+          {
+            "pointId": "kp-4",
+            "title": "GEO（生成引擎优化）让本地商家出现在AI答案中",
+            "testabilityScore": 4,
+            "candidateQuestionCount": 5,
+            "qualifiedQuestionCount": 0,
+            "status": "no_qualified_question",
+            "failureReasons": [
+              "distractorQuality_low"
+            ]
+          },
+          {
+            "pointId": "kp-5",
+            "title": "语音AI前台解决小企业漏接电话问题",
+            "testabilityScore": 4,
+            "candidateQuestionCount": 5,
+            "qualifiedQuestionCount": 1,
+            "status": "covered",
+            "failureReasons": []
+          },
+          {
+            "pointId": "kp-6",
+            "title": "AI Native广告代理以更低成本生成更多素材",
+            "testabilityScore": 3,
+            "candidateQuestionCount": 2,
+            "qualifiedQuestionCount": 2,
+            "status": "covered",
+            "failureReasons": []
+          },
+          {
+            "pointId": "kp-7",
+            "title": "电商内容生成：先用AI批量测试脚本，再找真人创作",
+            "testabilityScore": 4,
+            "candidateQuestionCount": 5,
+            "qualifiedQuestionCount": 0,
+            "status": "no_qualified_question",
+            "failureReasons": [
+              "distractorQuality_low",
+              "source_repetition_stem"
+            ]
+          },
+          {
+            "pointId": "kp-8",
+            "title": "垂直AI产品的价值在于数据、提示词和UX",
+            "testabilityScore": 5,
+            "candidateQuestionCount": 4,
+            "qualifiedQuestionCount": 2,
+            "status": "covered",
+            "failureReasons": []
+          },
+          {
+            "pointId": "kp-9",
+            "title": "从服务到产品的创业路径",
+            "testabilityScore": 4,
+            "candidateQuestionCount": 5,
+            "qualifiedQuestionCount": 1,
+            "status": "covered",
+            "failureReasons": []
+          },
+          {
+            "pointId": "kp-10",
+            "title": "AI创业机会从模型能力转向流程落地",
+            "testabilityScore": 3,
+            "candidateQuestionCount": 4,
+            "qualifiedQuestionCount": 0,
+            "status": "no_qualified_question",
+            "failureReasons": []
+          }
+        ],
+        "generationErrors": []
+      },
+      "message": ""
+    }
+  ]
+}

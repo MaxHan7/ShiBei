@@ -26,7 +26,7 @@ export function chunkContent(cleanedText) {
     if (buffer) chunks.push(toChunk(buffer));
   }
 
-  return chunks.slice(0, 18).map((chunk, index) => ({
+  return chunks.map((chunk, index) => ({
     id: `chunk-${index + 1}`,
     ...chunk
   }));

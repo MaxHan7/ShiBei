@@ -15,6 +15,9 @@ const state = {
   modal: null,
   isGenerating: false,
   reviewedCount: 35,
+  chapters: [],
+  currentChapterId: "",
+  notifications: [],
   chapter: null,
   reviewSession: null,
   currentQuestionIndex: 0,
@@ -39,14 +42,18 @@ const state = {
 function loadState() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (saved && saved.chapter) {
-      Object.assign(state, saved, { modal: null, isGenerating: false, feedbackSheet: false });
-      if (!Array.isArray(state.answeredKnowledgePointIds)) state.answeredKnowledgePointIds = [];
-      if (!Array.isArray(state.reinforcementQueue)) state.reinforcementQueue = [];
-      if (!Array.isArray(state.removedQuestionIds)) state.removedQuestionIds = [];
-      if (!Array.isArray(state.downgradedQuestionIds)) state.downgradedQuestionIds = [];
-      if (!Array.isArray(state.feedbackRecords)) state.feedbackRecords = [];
-      if (state.reviewSession) normalizeReviewSession(state.reviewSession);
+    if (saved) {
+      state.reviewedCount = Number.isFinite(saved.reviewedCount) ? saved.reviewedCount : state.reviewedCount;
+      const savedChapters = Array.isArray(saved.chapters) ? saved.chapters : (saved.chapter ? [saved.chapter] : []);
+      state.chapters = savedChapters.map((chapter) => ensureChapterShape(chapter));
+      state.notifications = Array.isArray(saved.notifications) ? saved.notifications.map(ensureNotificationShape) : [];
+      state.currentChapterId = saved.currentChapterId || state.chapters[0]?.id || "";
+      if (!currentChapter() && state.chapters.length) state.currentChapterId = state.chapters[0].id;
+      syncCurrentChapterRuntime();
+      if (saved.reviewSession && state.chapter && !state.chapter.reviewSession) {
+        state.chapter.reviewSession = saved.reviewSession;
+      }
+      loadChapterRuntimeState(state.chapter);
     }
   } catch (_) {
     localStorage.removeItem(STORAGE_KEY);
@@ -54,18 +61,172 @@ function loadState() {
 }
 
 function saveState() {
+  persistCurrentChapterRuntimeState();
   const snapshot = {
     reviewedCount: state.reviewedCount,
-    chapter: state.chapter,
-    reviewSession: state.reviewSession,
-    currentQuestionIndex: state.currentQuestionIndex,
-    answeredKnowledgePointIds: state.answeredKnowledgePointIds,
-    reinforcementQueue: state.reinforcementQueue,
-    removedQuestionIds: state.removedQuestionIds,
-    downgradedQuestionIds: state.downgradedQuestionIds,
-    feedbackRecords: state.feedbackRecords
+    chapters: state.chapters,
+    currentChapterId: state.currentChapterId,
+    notifications: state.notifications
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+}
+
+function createId(prefix) {
+  if (window.crypto?.randomUUID) return `${prefix}-${window.crypto.randomUUID()}`;
+  return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function ensureChapterShape(chapter = {}) {
+  const shaped = normalizeGeneratedChapter(chapter, chapter.sourceText || chapter.source?.rawText || "");
+  shaped.id = chapter.id || shaped.id || createId("chapter");
+  shaped.createdAt = chapter.createdAt || Date.now();
+  shaped.updatedAt = chapter.updatedAt || shaped.createdAt;
+  shaped.dismissedFromNotifications = Boolean(chapter.dismissedFromNotifications);
+  shaped.reviewSession = chapter.reviewSession || null;
+  shaped.removedQuestionIds = Array.isArray(chapter.removedQuestionIds) ? chapter.removedQuestionIds : [];
+  shaped.downgradedQuestionIds = Array.isArray(chapter.downgradedQuestionIds) ? chapter.downgradedQuestionIds : [];
+  shaped.feedbackRecords = Array.isArray(chapter.feedbackRecords) ? chapter.feedbackRecords : [];
+  return shaped;
+}
+
+function ensureNotificationShape(notification = {}) {
+  return {
+    id: notification.id || createId("notification"),
+    chapterId: notification.chapterId || "",
+    type: notification.type || "generation_completed",
+    title: notification.title || "生成完成",
+    body: notification.body || "",
+    read: Boolean(notification.read),
+    dismissed: Boolean(notification.dismissed),
+    createdAt: notification.createdAt || Date.now()
+  };
+}
+
+function currentChapter() {
+  return state.chapters.find((chapter) => chapter.id === state.currentChapterId) || null;
+}
+
+function syncCurrentChapterRuntime() {
+  state.chapter = currentChapter();
+  return state.chapter;
+}
+
+function setCurrentChapter(chapterId) {
+  persistCurrentChapterRuntimeState();
+  state.currentChapterId = chapterId || "";
+  syncCurrentChapterRuntime();
+  loadChapterRuntimeState(state.chapter);
+}
+
+function upsertChapter(chapter) {
+  const shaped = ensureChapterShape(chapter);
+  shaped.updatedAt = Date.now();
+  const existingIndex = state.chapters.findIndex((item) => item.id === shaped.id);
+  if (existingIndex >= 0) {
+    state.chapters.splice(existingIndex, 1, { ...state.chapters[existingIndex], ...shaped });
+  } else {
+    state.chapters.unshift(shaped);
+  }
+  state.currentChapterId = shaped.id;
+  syncCurrentChapterRuntime();
+  loadChapterRuntimeState(state.chapter);
+  return state.chapter;
+}
+
+function loadChapterRuntimeState(chapter) {
+  state.reviewSession = chapter?.reviewSession || null;
+  if (state.reviewSession) normalizeReviewSession(state.reviewSession);
+  state.currentQuestionIndex = state.reviewSession?.currentQueueIndex || 0;
+  state.answeredKnowledgePointIds = state.reviewSession?.answeredPointIds ? [...state.reviewSession.answeredPointIds] : [];
+  state.reinforcementQueue = state.reviewSession?.reinforcementQueue ? [...state.reviewSession.reinforcementQueue] : [];
+  state.removedQuestionIds = Array.isArray(chapter?.removedQuestionIds) ? [...chapter.removedQuestionIds] : [];
+  state.downgradedQuestionIds = Array.isArray(chapter?.downgradedQuestionIds) ? [...chapter.downgradedQuestionIds] : [];
+  state.feedbackRecords = Array.isArray(chapter?.feedbackRecords) ? [...chapter.feedbackRecords] : [];
+}
+
+function persistCurrentChapterRuntimeState() {
+  const chapter = currentChapter();
+  if (!chapter) return;
+  chapter.reviewSession = state.reviewSession || null;
+  chapter.masteredPoints = currentMasteredCount();
+  chapter.removedQuestionIds = [...state.removedQuestionIds];
+  chapter.downgradedQuestionIds = [...state.downgradedQuestionIds];
+  chapter.feedbackRecords = [...state.feedbackRecords];
+  chapter.updatedAt = Date.now();
+}
+
+function chaptersByRecent() {
+  return [...state.chapters].sort((a, b) => timestampValue(b.createdAt) - timestampValue(a.createdAt));
+}
+
+function timestampValue(time) {
+  if (!time) return 0;
+  if (typeof time === "number") return time;
+  const value = new Date(time).getTime();
+  return Number.isFinite(value) ? value : 0;
+}
+
+function activeHomeChapter() {
+  return chaptersByRecent().find((chapter) => chapter.reviewSession?.status === "active")
+    || chaptersByRecent().find((chapter) => chapter.status === "completed" && !chapter.reviewSession?.completedAt)
+    || null;
+}
+
+function nextReviewableChapter(currentId) {
+  return chaptersByRecent().find((chapter) => {
+    return chapter.id !== currentId
+      && chapter.status === "completed"
+      && chapter.questions?.length
+      && !chapter.reviewSession?.completedAt;
+  });
+}
+
+function createGenerationNotification(chapter) {
+  if (!chapter?.id || chapter.dismissedFromNotifications) return;
+  const failed = isFailedChapter(chapter);
+  if (!failed) {
+    state.notifications = state.notifications.filter((item) => !(item.chapterId === chapter.id && item.type === "generation_failed"));
+  }
+  const type = failed ? "generation_failed" : "generation_completed";
+  state.notifications = state.notifications.filter((item) => !(item.chapterId === chapter.id && item.type === type));
+  state.notifications.unshift(ensureNotificationShape({
+    id: createId("notification"),
+    chapterId: chapter.id,
+    type,
+    title: failed ? "生成失败" : "生成完成",
+    body: failed ? `${chapter.title} 暂时不能复习，点击查看原因` : `${chapter.title} 已生成，可以开始复习`,
+    createdAt: Date.now()
+  }));
+}
+
+function dismissFailureNotification(chapterId) {
+  const chapter = state.chapters.find((item) => item.id === chapterId);
+  if (chapter) {
+    chapter.dismissedFromNotifications = true;
+    chapter.updatedAt = Date.now();
+  }
+  state.notifications = state.notifications.map((notification) => {
+    if (notification.chapterId === chapterId && notification.type === "generation_failed") {
+      return { ...notification, dismissed: true, read: true };
+    }
+    return notification;
+  });
+}
+
+function visibleNotifications() {
+  return [...state.notifications]
+    .filter((notification) => !notification.dismissed)
+    .sort((a, b) => timestampValue(b.createdAt) - timestampValue(a.createdAt));
+}
+
+function deleteChapter(chapterId) {
+  state.chapters = state.chapters.filter((chapter) => chapter.id !== chapterId);
+  state.notifications = state.notifications.filter((notification) => notification.chapterId !== chapterId);
+  if (state.currentChapterId === chapterId) {
+    state.currentChapterId = activeHomeChapter()?.id || chaptersByRecent()[0]?.id || "";
+  }
+  syncCurrentChapterRuntime();
+  loadChapterRuntimeState(state.chapter);
 }
 
 function navigate(view, tab = state.tab) {
@@ -110,7 +271,7 @@ function shell(title, content, options = {}) {
     ${topbar}
     ${content}
     ${options.nav === false ? "" : bottomNav()}
-    ${state.modal ? submittedModal() : ""}
+    ${modalContent()}
     ${state.feedbackSheet ? feedbackSheet() : ""}
   </main>`;
 }
@@ -150,15 +311,34 @@ function submittedModal() {
   </div>`;
 }
 
+function deleteChapterModal() {
+  return `<div class="modal-scrim">
+    <div class="modal">
+      <div class="modal-icon">${icon("warn")}</div>
+      <h2>删除这个章节？</h2>
+      <p>删除后，本章节的复习进度、反馈记录和通知都会一起移除。</p>
+      <button class="primary-button danger-button" data-action="delete-chapter">删除章节</button>
+      <button class="ghost-button" data-action="cancel-delete">取消</button>
+    </div>
+  </div>`;
+}
+
+function modalContent() {
+  if (state.modal === "submitted") return submittedModal();
+  if (state.modal === "delete-chapter") return deleteChapterModal();
+  return "";
+}
+
 function renderHome() {
-  if (!state.chapter) {
+  const chapter = activeHomeChapter();
+  if (!chapter) {
     return shell("首页", `<section class="center-stage">
       <h2 class="hint-title">每天捡起一枚知识贝壳</h2>
       <p class="hint-copy">点击底部 + 添加复习内容<br>支持文章/视频链接或粘贴文字</p>
     </section>`, { nav: true });
   }
 
-  const chapter = state.chapter;
+  if (state.currentChapterId !== chapter.id) setCurrentChapter(chapter.id);
   const failed = isFailedChapter(chapter);
   const processing = isProcessingChapter(chapter);
   const progress = currentMasteredCount();
@@ -227,34 +407,37 @@ function renderGenerationError() {
 }
 
 function renderChapters() {
-  if (!state.chapter) {
+  const chapters = chaptersByRecent();
+  if (!chapters.length) {
     return shell("全部章节", `<section class="center-stage">
       <h2 class="hint-title">还没有章节</h2>
       <p class="hint-copy">点击底部 + 添加复习内容<br>支持文章/视频链接或粘贴文字</p>
     </section>`);
   }
-  const c = state.chapter;
   return shell("全部章节", `<section class="content">
-    <article class="card chapter-card" data-action="chapter">
-      <div class="row"><span class="pill ${isFailedChapter(c) ? "danger" : ""}">${statusText(c)}</span><span class="muted">刚刚</span></div>
+    ${chapters.map((c) => `<article class="card chapter-card" data-action="open-chapter" data-chapter-id="${escapeHtml(c.id)}">
+      <div class="row"><span class="pill ${isFailedChapter(c) ? "danger" : ""}">${statusText(c)}</span><span class="muted">${relativeTime(c.createdAt)}</span></div>
       <h3 class="chapter-title">${escapeHtml(c.title)}</h3>
-      <div class="row muted"><span>${c.knowledgePoints.length} 个知识点</span><span>${c.questions.length} 道题</span></div>
-      ${isFailedChapter(c) ? `<p class="error-text">${escapeHtml(c.failureReason || statusText(c))}</p>` : ""}
-    </article>
+      <div class="row muted"><span>${escapeHtml(sourceTypeLabel(c))}</span><span>${c.knowledgePoints.length} 个知识点 · ${c.questions.length} 道题</span></div>
+    </article>`).join("")}
   </section>`);
 }
 
 function renderNotifications() {
-  if (!state.chapter) {
+  const notifications = visibleNotifications();
+  if (!notifications.length) {
     return shell("通知", `<section class="center-stage"><h2 class="hint-title">暂时没有通知</h2></section>`);
   }
-  const failed = isFailedChapter(state.chapter);
   return shell("通知", `<section class="content">
-    <article class="card chapter-card" data-action="chapter">
-      <span class="pill ${failed ? "danger" : ""}">${statusText(state.chapter)}</span>
-      <h3 class="chapter-title">${escapeHtml(state.chapter.title)}</h3>
-      <p class="muted">${failed ? "点击查看失败原因" : "点击开始复习"}</p>
-    </article>
+    ${notifications.map((notification) => {
+      const chapter = state.chapters.find((item) => item.id === notification.chapterId);
+      const failed = notification.type === "generation_failed";
+      return `<article class="card chapter-card" data-action="open-notification" data-notification-id="${escapeHtml(notification.id)}">
+        <span class="pill ${failed ? "danger" : ""}">${escapeHtml(notification.title)}</span>
+        <h3 class="chapter-title">${escapeHtml(chapter?.title || notification.body)}</h3>
+        <p class="muted">${escapeHtml(notification.body)}</p>
+      </article>`;
+    }).join("")}
   </section>`);
 }
 
@@ -292,7 +475,7 @@ function renderChapterDetail() {
       ${c.knowledgePoints.slice(0, 6).map((p, index) => knowledgeItem(p.title, index)).join("")}
       ${c.knowledgePoints.length > 6 ? `<button class="ghost-button small-link" data-action="knowledge">查看全部 ${c.knowledgePoints.length} 个</button>` : ""}
     </section>
-  </section>`, { back: "chapters" });
+  </section>`, { back: "chapters", right: `<button class="icon-button" data-action="confirm-delete">删除</button>` });
 }
 
 function failedChapterPanel(chapter) {
@@ -322,7 +505,7 @@ function renderSource() {
       <span class="pill">${escapeHtml(sourceTypeLabel(state.chapter))}</span>
       <h3 class="chapter-title">${escapeHtml(source.title || state.chapter?.title || "")}</h3>
       ${source.account ? `<p class="muted">来源：${escapeHtml(source.account)}</p>` : ""}
-      ${source.url ? `<p class="muted source-url">${escapeHtml(source.url)}</p>` : ""}
+      ${source.url ? `<p class="muted source-url">${escapeHtml(source.url)}</p><a class="primary-button" href="${escapeHtml(source.url)}" target="_blank" rel="noopener">打开原文链接</a>` : ""}
     </article>
     <article class="card chapter-card source-page">${escapeHtml(state.chapter?.sourceText || "")}</article>
   </section>`, { back: "source-back" });
@@ -381,6 +564,7 @@ function renderExplanation() {
 
 function renderSummary() {
   const c = state.chapter;
+  const nextChapter = nextReviewableChapter(c?.id);
   return shell("章节总结", `<section class="summary-hero">
     <div class="modal-icon">${icon("check")}</div>
     <p>本章复习完成</p>
@@ -400,7 +584,8 @@ function renderSummary() {
     ${c.knowledgePoints.slice(0, 4).map((p, index) => knowledgeItem(p.title, index)).join("")}
   </section>
   <div class="summary-actions">
-    <button class="primary-button" data-action="chapters">回到章节</button>
+    ${nextChapter ? `<button class="primary-button" data-action="continue-next-chapter" data-chapter-id="${escapeHtml(nextChapter.id)}">继续下一章 ${icon("arrow")}</button>` : ""}
+    <button class="${nextChapter ? "ghost-button" : "primary-button"}" data-action="chapters">回到章节</button>
   </div>`, { nav: false });
 }
 
@@ -427,6 +612,20 @@ function feedbackOptions() {
 
 function knowledgeItem(title, index) {
   return `<div class="knowledge-item"><span class="num">${index + 1}</span><strong>${escapeHtml(title)}</strong></div>`;
+}
+
+function relativeTime(time) {
+  if (!time) return "";
+  const timestamp = typeof time === "number" ? time : new Date(time).getTime();
+  if (!Number.isFinite(timestamp)) return "";
+  const diff = Date.now() - timestamp;
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+  if (diff < minute) return "刚刚";
+  if (diff < hour) return `${Math.floor(diff / minute)} 分钟前`;
+  if (diff < day) return `${Math.floor(diff / hour)} 小时前`;
+  return `${Math.floor(diff / day)} 天前`;
 }
 
 function sourceTypeLabel(chapter) {
@@ -534,9 +733,12 @@ function generateChapter(text) {
   const points = createKnowledgePoints(sentences);
   const questions = points.map((point, index) => createQuestion(point, points, index));
   return {
+    id: createId("chapter"),
     title,
+    status: "completed",
     sourceType: "text",
     sourceText: text,
+    source: { type: "text", title, rawText: text, cleanedText: text },
     knowledgePoints: points,
     questions,
     masteredPoints: 0,
@@ -695,6 +897,18 @@ function bindEvents() {
     if (action === "notifications") return navigate("notifications", "notifications");
     if (action === "profile") return navigate("profile", "profile");
     if (action === "chapter") return navigate("chapter", "chapters");
+    if (action === "open-chapter") {
+      setCurrentChapter(target.dataset.chapterId);
+      return navigate("chapter", "chapters");
+    }
+    if (action === "open-notification") {
+      const notification = state.notifications.find((item) => item.id === target.dataset.notificationId);
+      if (!notification) return;
+      notification.read = true;
+      setCurrentChapter(notification.chapterId);
+      saveState();
+      return navigate("chapter", "chapters");
+    }
     if (action === "knowledge") return navigate("knowledge", "chapters");
     if (action === "source") {
       state.sourceReturnView = state.view;
@@ -705,15 +919,33 @@ function bindEvents() {
       state.modal = null;
       return render();
     }
+    if (action === "confirm-delete") {
+      state.modal = "delete-chapter";
+      return render();
+    }
+    if (action === "cancel-delete") {
+      state.modal = null;
+      return render();
+    }
+    if (action === "delete-chapter") {
+      const chapterId = state.currentChapterId;
+      state.modal = null;
+      deleteChapter(chapterId);
+      saveState();
+      return navigate("chapters", "chapters");
+    }
     if (action === "sample") {
       state.input = sampleText;
       return render();
     }
     if (action === "generate") return startGenerate();
     if (action === "start-review") {
+      const homeChapter = state.view === "home" ? activeHomeChapter() : state.chapter;
+      if (homeChapter && state.currentChapterId !== homeChapter.id) setCurrentChapter(homeChapter.id);
       if (isFailedChapter(state.chapter) || isProcessingChapter(state.chapter)) return navigate("chapter", "chapters");
       if (!state.reviewSession || state.reviewSession.status !== "active") {
         state.reviewSession = createReviewSession(state.chapter);
+        state.chapter.reviewSession = state.reviewSession;
       }
       normalizeReviewSession(state.reviewSession);
       state.currentQuestionIndex = state.reviewSession.currentQueueIndex || 0;
@@ -725,8 +957,19 @@ function bindEvents() {
     }
     if (action === "regenerate") return startRegenerate();
     if (action === "dismiss-failure") {
+      dismissFailureNotification(state.currentChapterId);
+      saveState();
       state.tab = "chapters";
       return navigate("chapters", "chapters");
+    }
+    if (action === "continue-next-chapter") {
+      setCurrentChapter(target.dataset.chapterId);
+      if (!state.reviewSession || state.reviewSession.status !== "active") {
+        state.reviewSession = createReviewSession(state.chapter);
+        state.chapter.reviewSession = state.reviewSession;
+      }
+      saveState();
+      return navigate("review", "chapters");
     }
     if (action === "answer") return answer(target.dataset.option);
     if (action === "dont-know") {
@@ -1126,7 +1369,7 @@ function startGenerate() {
   render();
   requestGeneration(text)
     .then((chapter) => {
-      state.chapter = chapter;
+      const savedChapter = upsertChapter(chapter);
       state.reviewSession = null;
       state.currentQuestionIndex = 0;
       state.answeredKnowledgePointIds = [];
@@ -1134,6 +1377,7 @@ function startGenerate() {
       state.removedQuestionIds = [];
       state.downgradedQuestionIds = [];
       state.feedbackRecords = [];
+      createGenerationNotification(savedChapter);
       state.modal = "submitted";
       state.view = "home";
       state.tab = "home";
@@ -1142,8 +1386,9 @@ function startGenerate() {
     })
     .catch((error) => {
       if (error.chapter) {
-        state.chapter = error.chapter;
+        const savedChapter = upsertChapter(error.chapter);
         state.reviewSession = null;
+        createGenerationNotification(savedChapter);
         state.modal = "submitted";
         state.view = "home";
         state.tab = "home";
@@ -1161,12 +1406,14 @@ function startGenerate() {
 function startRegenerate() {
   if (!state.chapter) return;
   const previous = state.chapter;
-  state.chapter = {
+  const processingChapter = {
     ...previous,
+    dismissedFromNotifications: false,
     status: previous.knowledgePoints?.length ? "auto_regenerating_questions" : "submitted",
     displayStatusText: previous.knowledgePoints?.length ? "正在重新生成题目" : "已提交，等待处理",
     failureReason: ""
   };
+  upsertChapter(processingChapter);
   state.reviewSession = null;
   state.modal = "submitted";
   state.view = "home";
@@ -1176,16 +1423,20 @@ function startRegenerate() {
 
   requestRegeneration(previous)
     .then((chapter) => {
-      state.chapter = chapter;
+      const savedChapter = upsertChapter({ ...chapter, id: previous.id, createdAt: previous.createdAt, dismissedFromNotifications: false });
       state.reviewSession = null;
       state.currentQuestionIndex = 0;
       state.removedQuestionIds = [];
       state.downgradedQuestionIds = [];
+      createGenerationNotification(savedChapter);
       saveState();
       render();
     })
     .catch((error) => {
-      if (error.chapter) state.chapter = error.chapter;
+      if (error.chapter) {
+        const savedChapter = upsertChapter({ ...error.chapter, id: previous.id, createdAt: previous.createdAt, dismissedFromNotifications: false });
+        createGenerationNotification(savedChapter);
+      }
       saveState();
       render();
     });
@@ -1315,6 +1566,7 @@ function normalizeGeneratedChapter(chapter, fallbackText) {
   }));
 
   return {
+    id: chapter.id || createId("chapter"),
     title: chapter.title || chapter.chapterTitle || "新添加的知识",
     status: chapter.status || "completed",
     displayStatusText: chapter.displayStatusText || "",
@@ -1327,9 +1579,15 @@ function normalizeGeneratedChapter(chapter, fallbackText) {
     questions,
     qualitySummary: chapter.qualitySummary,
     generationMeta: chapter.generationMeta,
-    masteredPoints: 0,
+    reviewSession: chapter.reviewSession || null,
+    removedQuestionIds: chapter.removedQuestionIds || [],
+    downgradedQuestionIds: chapter.downgradedQuestionIds || [],
+    feedbackRecords: chapter.feedbackRecords || [],
+    dismissedFromNotifications: Boolean(chapter.dismissedFromNotifications),
+    masteredPoints: chapter.masteredPoints || 0,
     completed: (chapter.status || "completed") === "completed",
-    createdAt: Date.now()
+    createdAt: chapter.createdAt || Date.now(),
+    updatedAt: chapter.updatedAt || Date.now()
   };
 }
 
@@ -1340,9 +1598,10 @@ function startGenerateFallback() {
   state.tab = "add";
   render();
   setTimeout(() => {
-    state.chapter = generateChapter(text);
+    upsertChapter(generateChapter(text));
     state.reviewSession = null;
     state.currentQuestionIndex = 0;
+    createGenerationNotification(state.chapter);
     state.modal = "submitted";
     state.view = "home";
     state.tab = "home";

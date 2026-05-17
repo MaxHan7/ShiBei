@@ -22,6 +22,10 @@ export async function extractKnowledgeCandidates({ cleanedText, chunks }) {
       summary: candidate.summary?.trim() || candidate.keyClaim?.trim() || "",
       keyClaim: candidate.keyClaim?.trim() || candidate.summary?.trim() || "",
       sourceQuote: candidate.sourceQuote?.trim() || "",
+      testabilityReason: candidate.testabilityReason?.trim() || "",
+      questionAngles: Array.isArray(candidate.questionAngles)
+        ? candidate.questionAngles.map((angle) => String(angle || "").trim()).filter(Boolean)
+        : [],
       testabilityScore: clampScore(candidate.testabilityScore)
     }))
   };

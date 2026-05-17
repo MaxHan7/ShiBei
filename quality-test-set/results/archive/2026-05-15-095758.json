@@ -1,0 +1,1528 @@
+{
+  "generatedAt": "2026-05-15T08:57:58.685Z",
+  "summary": {
+    "sampleCount": 5,
+    "successCount": 3,
+    "failureCount": 2,
+    "knowledgePointCount": 14,
+    "qualifiedQuestionCount": 10,
+    "averageQualityScore": 4.4,
+    "seriousIssueCount": 32
+  },
+  "reviewRows": [
+    {
+      "sample": "wechat-L6t8rmU_8exk2rPV--cUIA.md",
+      "status": "completed",
+      "questionId": "q-1",
+      "knowledgePoint": "旧版PM定义失效",
+      "questionType": "multiple_choice",
+      "stem": "一位PM每天的主要工作是向上级汇报进度、向下级传达指令、并反复修改PPT以适应不同领导的口味。根据材料，下列哪项判断最为准确？",
+      "sourceSnippet": "岗位没有少，少的是旧版岗位定义。过去很多PM的一天，核心是在团队、老板和老板的老板之间传递信息，帮不同层级改写同一份材料，让“责任没有权力”的组织继续运转。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-L6t8rmU_8exk2rPV--cUIA.md",
+      "status": "completed",
+      "questionId": "q-2",
+      "knowledgePoint": "旧版PM定义失效",
+      "questionType": "multiple_choice",
+      "stem": "某公司CEO认为PM岗位冗余，计划裁减一半PM。根据材料，CEO的观点存在什么误区？",
+      "sourceSnippet": "岗位没有少，少的是旧版岗位定义。过去很多PM的一天，核心是在团队、老板和老板的老板之间传递信息，帮不同层级改写同一份材料，让“责任没有权力”的组织继续运转。",
+      "machineAverageScore": 4.8,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-L6t8rmU_8exk2rPV--cUIA.md",
+      "status": "completed",
+      "questionId": "q-3",
+      "knowledgePoint": "判断力成为PM核心薪酬依据",
+      "questionType": "multiple_choice",
+      "stem": "根据材料，产品领导者的薪酬主要取决于什么能力？",
+      "sourceSnippet": "“产品领导者会越来越因为判断力而被付薪。”",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "failed_no_qualified_questions",
+      "questionId": "",
+      "knowledgePoint": "",
+      "questionType": "",
+      "stem": "",
+      "sourceSnippet": "",
+      "machineAverageScore": "",
+      "machineIssues": "生成失败。系统已经提取到知识点，但暂时没有生成适合复习的题目。你可以手动重新生成一次。",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-XQq0K05bonCBDxh4zp6YSQ.md",
+      "status": "completed",
+      "questionId": "q-1",
+      "knowledgePoint": "GPT-5.5的Senior Engineer Benchmark得分",
+      "questionType": "multiple_choice",
+      "stem": "关于GPT-5.5在高级工程师基准上的得分，以下哪项理解正确？",
+      "sourceSnippet": "在高级工程师基准上，GPT-5.5 得了 62.5 分。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-XQq0K05bonCBDxh4zp6YSQ.md",
+      "status": "completed",
+      "questionId": "q-2",
+      "knowledgePoint": "GPT-5.5的Senior Engineer Benchmark得分",
+      "questionType": "multiple_choice",
+      "stem": "与其他模型相比，GPT-5.5在高级工程师基准上的得分表现如何？",
+      "sourceSnippet": "在高级工程师基准上，GPT-5.5 得了 62.5 分。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-XQq0K05bonCBDxh4zp6YSQ.md",
+      "status": "completed",
+      "questionId": "q-5",
+      "knowledgePoint": "GPT-5.5的胆量表现",
+      "questionType": "multiple_choice",
+      "stem": "GPT-5.5在操作中表现出怎样的胆量？",
+      "sourceSnippet": "它有足够的胆量，真的会删掉一堆文件。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-XQq0K05bonCBDxh4zp6YSQ.md",
+      "status": "completed",
+      "questionId": "q-6",
+      "knowledgePoint": "GPT-5.5的胆量表现",
+      "questionType": "multiple_choice",
+      "stem": "以下行为中，最可能由GPT-5.5做出的是？",
+      "sourceSnippet": "它有足够的胆量，真的会删掉一堆文件。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-claude-code-second-brain-every.md",
+      "status": "failed_no_qualified_questions",
+      "questionId": "",
+      "knowledgePoint": "",
+      "questionType": "",
+      "stem": "",
+      "sourceSnippet": "",
+      "machineAverageScore": "",
+      "machineIssues": "生成失败。系统已经提取到知识点，但暂时没有生成适合复习的题目。你可以手动重新生成一次。",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-ojH_AFbwlHJSv-Jg-yafWg.md",
+      "status": "completed",
+      "questionId": "q-1",
+      "knowledgePoint": "AGI的缺失组件",
+      "questionType": "multiple_choice",
+      "stem": "根据当前AI研究，以下哪项被认为是AGI至今仍缺失的关键能力？",
+      "sourceSnippet": "持续学习、长期推理和一部分记忆能力，仍然没有解决。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-ojH_AFbwlHJSv-Jg-yafWg.md",
+      "status": "completed",
+      "questionId": "q-5",
+      "knowledgePoint": "Agent产品卡点的长期性问题",
+      "questionType": "multiple_choice",
+      "stem": "一个Agent在演示中表现出色，但在实际长期项目中频繁失败，最可能的原因是？",
+      "sourceSnippet": "很多 Agent 产品卡住的地方，恰好不在 demo，而在这些长期性能力。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-ojH_AFbwlHJSv-Jg-yafWg.md",
+      "status": "completed",
+      "questionId": "q-2-rewrite-1-1",
+      "knowledgePoint": "AGI的缺失组件",
+      "questionType": "multiple_choice",
+      "stem": "根据当前对AGI缺失组件的讨论，以下哪项能力仍然被认为是尚未解决的核心挑战之一？",
+      "sourceSnippet": "持续学习、长期推理和一部分记忆能力，仍然没有解决。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    }
+  ],
+  "results": [
+    {
+      "file": "wechat-L6t8rmU_8exk2rPV--cUIA.md",
+      "startedAt": "2026-05-15T08:45:58.954Z",
+      "status": "completed",
+      "chapter": {
+        "title": "Meta产品高管：旧版产品经理已死，取而代之的是AI-first建造者",
+        "sourceType": "text",
+        "status": "completed",
+        "displayStatusText": "已生成",
+        "failureReason": "",
+        "source": {
+          "type": "text",
+          "title": "Meta产品高管：旧版产品经理已死，取而代之的是AI-first建造者",
+          "url": "",
+          "account": "",
+          "rawText": "# Meta产品高管：旧版产品经理已死，取而代之的是AI-first建造者 | Lenny's Podcast\n\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/L6t8rmU_8exk2rPV--cUIA\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n\n---\n\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 4000 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\n\"你不是不努力，你只是还在用上一代 PM 的方法工作。\"\n\n\"大厂经历还重要，但不如你现在有多 AI-first。\"\n\n\"AI 先替代的不是你，而是你那些低价值流程。\"\n\n嘉宾 Nikhyl Singhal 曾在 Meta、Google、Credit Karma 做产品高管，也是 The Skip 社群的创始人，长期和一线产品负责人、创业者一起工作。对中文互联网里的产品经理、工程师和设计师来说，这期最值得读的地方，不是再问一遍“AI 会不会替代 PM”，而是把岗位变化拆得很具体：哪些工作已经开始被吃掉，哪些能力正在被重新定价，为什么很多人明明很焦虑，却还没真正开始转向。他不是在卖希望，也不是在吓人，而是在解释为什么今天同一个岗位内部，快乐和疲惫会同时变强。 读完你会更容易判断，自己现在的焦虑，到底来自外部环境，还是来自旧工作方式已经失效。\n\n为什么岗位没有消失，消失的是旧版 PM\n\n这期对话最刺耳的地方，是它没有顺着“PM 要不要消失”这种流量问题聊，而是先指出一个反直觉现象：一边是大量人感到不安，另一边是全球 PM 职位数反而来到三年新高。Nikhyl 的解释是，岗位没有少，少的是旧版岗位定义。过去很多 PM 的一天，核心是在团队、老板和老板的老板之间传递信息，帮不同层级改写同一份材料，让“责任没有权力”的组织继续运转。这类工作在旧时代也许还能成立，但在 AI 把信息整理、状态同步、材料压缩做得越来越便宜之后，它最先失去稀缺性。 这也是他为什么说，如果只看招聘数量，你会得出“PM 还很好”的结论；如果看工作内容，你会发现同一个岗位的底盘已经换了。所以今天真正发生的，不是 PM 整体被取代，而是这个岗位内部开始分叉：一类人会因为更靠近判断和建造而升值，另一类人会因为仍停留在信息搬运而迅速失速。\n\n“信息搬运者，本质上会变成恐龙。”\n\nAI 吃掉的不是判断，而是那些机械动作\n\nNikhyl 反复强调，AI 不是把产品工作整体拿走，而是在把 PM 过去最不喜欢的机械部分吃掉：写状态更新、搬运背景信息、拉齐零碎上下文、推进低价值流程。剩下来的核心，是判断。所谓判断，不只是“这个点子好不好”，而是能不能在海量更便宜的实验面前，决定什么该做、什么不该做、什么值得上线、什么会破坏系统的一致性。当试错成本下降 10 倍、100 倍，组织不会因此自动更聪明，反而更需要有人守住产品的边界、品牌和长期可维护性。 他把这件事讲得很像系统设计：不是为了多做 feature，而是为了在更多变化涌入组织时，依然维持一个可持续、可区分的产品系统。他甚至做了一个很大胆的预测：两年后我们会见到更少的烂软件。原因不是所有公司突然都有了更强的工程团队，而是任何人都能用 Claude、Codex 之类的工具，把那些多年没人碰的糟糕体验一点点修好。\n\n“产品领导者会越来越因为判断力而被付薪。”\n\n真正被高价抢走的，是会动手的建造者\n\n这也是他为什么把未来产品岗位分成“建造者”和“信息搬运者”。在他观察里，真正被市场高价争抢的人，往往不是最会讲框架、最会排会议的人，而是愿意亲手把东西做出来的人。这里的“做”不一定等于成为全职工程师，它更像是一种工作姿态：你能不能把想法快速落到原型、工作流、Agent 或内部工具上，直接验证它有没有用。一旦产品、设计、工程、增长都能借助 AI 直接动手，组织最需要的就不再是把信息从 A 搬到 B 的人，而是能把判断变成结果的人。 在他的社群里，不少最强的产品人已经把下一份工作想成 founder、CEO，甚至跨到别的职能，因为“会建造”开始变成一种跨岗位的通用货币。这也是为什么他会说 builders are going to have the time of their lives。对喜欢做东西的人来说，今天终于可以少等设计档期、少等工程排期、少等别人点头，重新获得那种“看到问题，马上把它改掉”的满足感。\n\n“如果你不爱做东西，你就有麻烦了。”\n\n接下来 12 到 24 个月，组织会先瘦身再重组\n\nNikhyl 最重的判断，是未来 12 到 24 个月会是产品管理历史上最混乱的一段时间。很多公司会先大幅裁减旧编制，再以更少的人重建 AI-first 团队。他举的极端例子是：裁掉 3 万人，再招回 8000 人，而这 8000 人全部是 AI first。对个体来说，这轮变化之所以残酷，是因为它正好打在职业的 power years：你懂业务、能扛结果，但也同时被家庭、孩子、父母、健康和现金流切分注意力。所以行业里最真实的状态，不是单纯的乐观或悲观，而是他那句很传神的“smiling exhaustion”。 最顶尖的人未必更轻松，只是他们的压力来源变了：过去是担心观点过不了层层决策，现在是担心自己没有更多时间去喂 LLM、跟上最新玩法。大家都知道新机会在那里，也知道不跟就会掉队，但真正能稳定抽出时间跟上的人并不多。更少被讨论的是，这种高压节奏还可能让地域和多元背景一起倒退，因为公司会更倾向于招离核心圈层更近、切换成本更低的人。\n\n“你会看到公司裁掉 3 万人，再招回 8000 人，而这 8000 人都会是 AI first。”\n\n大厂光环为什么突然没那么值钱了\n\n如果说上一轮职业建议强调的是“去更好的公司、攒更亮的 logo”，那这一轮的标准正在反过来。Nikhyl 说得很直接：今天面试里被追问的，越来越不是你五年前在什么大厂上线过什么功能，而是你现在用什么工具、你的判断从哪里来、你怎么把模糊问题快速变成结果。决定你市场价值的，不再是你背过多少品牌，而是你现在有多现代。 旧世界奖励的是“我见过大场面”；新世界更在意“你今天能不能在陌生问题前快速做出像样的第一版”。这是很多中高阶 PM 最不适应的一点。因为旧世界里，复杂组织里的增量优化是很高价值的成就；但到了 AI 时代，这类成就很容易在“你有没有 living in the future”这个问题面前失焦。大厂经历当然仍有分量，只是它不再天然等于先进。甚至在某些语境里，过长的旧体系经验还会被怀疑成包袱。\n\n“你的品牌，不再像你的现代性那样重要。”\n\nPM 要不要写代码？重点不是“像工程师一样卷”\n\n聊到“PM 到底要不要写代码”时，他给了一个很有分寸的答案：不要把自己训练成那支 50 人工程团队里的第 51 个工程师。那样做，往往只是一个廉价版工程师。真正高杠杆的做法，是把 AI 用在那些过去最拖慢产品组织的环节上：状态同步、站会、产品评审、需求背景整理、优先级材料、信息回流。PM 不是为了证明自己会写代码而去写，而是为了把组织运行里那些低快乐值、低复利的动作软件化。 比如把站会记录自动整理成行动项，把产品评审的争议自动归纳成待决策问题，把需求上下文直接喂给 agent 形成初稿，让团队把时间花在真正有判断含量的地方。这一点他还顺着 Lenny 提到的 Anthropic 增长负责人 Amol Avasare 的观点继续往下讲：工程变快之后，PM 当然会被更多信息挤压，但解法不是回到纯协调，而是给自己做一套能放大判断力的操作系统。会动手的人，不是去抢工程师的工作，而是先让自己不再被琐事困住。\n\n“如果你想成为那 50 个人里的第 51 个，那只是一个廉价版工程师。”\n\n真正难的不是学习工具，而是跨过那道心理门槛\n\n可真正难的，往往还不是下载工具、跑通一个 demo，而是跨过那道心理门槛。Nikhyl 花了很多时间解释，为什么越成功的人，反而越难 reinvent。因为你已经按旧规则做对了很多事：好学历、好公司、好收入、管理经验、组织信用。现在突然有人告诉你，旧地图正在失效，你需要抽出晚上的时间、周末的注意力，重新学一套还在变化中的新玩法，这本身就像是在否定过去的努力。他有个很黑色的说法：人在所谓 power years 里，日常目标往往只是“平均让所有人失望”。 你要同时对工作、家庭、孩子、父母、健康和自己负责，时间早已超额透支。在这种状态下，再额外留出空间去重塑自己，几乎违背人性。更残酷的是，这个目标还会移动：你今天好不容易补上的新技能，三个月后可能又过时了，所以很多人宁可继续维持旧习惯，也不愿持续处在半生不熟的状态里。但他也因此强调，今天最关键的一步不是一次学会所有工具，而是先跨过 threshold，承认世界已经变了，承认自己必须把“保持现代”排到更高优先级。\n\n“你人生最强的那些年，目标往往只是让所有人都平均失望。”\n\n未来还需要 PM 吗？需要，但更像组织里的变革代理人\n\n那未来还需要 PM 吗？Nikhyl 的答案是需要，但这个角色会更像组织里的“变革代理人”。产品人之所以仍然重要，是因为他们天生处在业务、用户、技术和协作的交叉点，既能讲清问题，也能用技术视角推进改造。未来他们未必只留在产品团队里，也可能进入 marketing、sales、HR，甚至传统行业，去推动 AI-first 的工作方式。对齐也不会消失，只是它不会再有那么多表演性。 以前大量 alignment，本质上是把 ground truth 从组织深处挖出来，再一层层加上各自的修辞；以后更多事实都能被 agent 直接读出，真正留下来的，是围绕取舍、方向和标准的冲突与判断。他甚至提到，未来很多公司会更需要“成年人”式的人物：既能 hands-on，又有经验和分量，能和 founder 同频对话，也能把组织带过混乱期。成年人、会沟通的人、能广泛理解系统的人仍然有价值，但前提是你不能只会说，你还得真的能把变化带进组织。\n\n“对齐不会消失，只是它不会再有那么多表演性。”\n\n写在最后\n\n这期对话最残酷也最有用的地方，是它逼你把问题从“AI 会不会替代 PM”改成“我是不是还停留在旧版 PM”。别想着一步到位。先找一个你每天都在重复、却并不享受的动作，把它交给 AI；先找到一次真正的 joy，再决定下一步。很多转向，就是从这一小步开始的。现在就做。\n\n内容来源：\"Why half of product managers are in trouble | Nikhyl Singhal (Meta, Google)\"丨Lenny's Podcast（嘉宾：Nikhyl Singhal）\n\n原视频：https://www.youtube.com/watch?v=yUohoaC8_Hs&t=0s\n\n如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣",
+          "cleanedText": "# Meta产品高管：旧版产品经理已死，取而代之的是AI-first建造者 | Lenny's Podcast\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/L6t8rmU_8exk2rPV--cUIA\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n---\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 4000 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\"你不是不努力，你只是还在用上一代 PM 的方法工作。\"\n\"大厂经历还重要，但不如你现在有多 AI-first。\"\n\"AI 先替代的不是你，而是你那些低价值流程。\"\n嘉宾 Nikhyl Singhal 曾在 Meta、Google、Credit Karma 做产品高管，也是 The Skip 社群的创始人，长期和一线产品负责人、创业者一起工作。对中文互联网里的产品经理、工程师和设计师来说，这期最值得读的地方，不是再问一遍“AI 会不会替代 PM”，而是把岗位变化拆得很具体：哪些工作已经开始被吃掉，哪些能力正在被重新定价，为什么很多人明明很焦虑，却还没真正开始转向。他不是在卖希望，也不是在吓人，而是在解释为什么今天同一个岗位内部，快乐和疲惫会同时变强。 读完你会更容易判断，自己现在的焦虑，到底来自外部环境，还是来自旧工作方式已经失效。\n为什么岗位没有消失，消失的是旧版 PM\n这期对话最刺耳的地方，是它没有顺着“PM 要不要消失”这种流量问题聊，而是先指出一个反直觉现象：一边是大量人感到不安，另一边是全球 PM 职位数反而来到三年新高。Nikhyl 的解释是，岗位没有少，少的是旧版岗位定义。过去很多 PM 的一天，核心是在团队、老板和老板的老板之间传递信息，帮不同层级改写同一份材料，让“责任没有权力”的组织继续运转。这类工作在旧时代也许还能成立，但在 AI 把信息整理、状态同步、材料压缩做得越来越便宜之后，它最先失去稀缺性。 这也是他为什么说，如果只看招聘数量，你会得出“PM 还很好”的结论；如果看工作内容，你会发现同一个岗位的底盘已经换了。所以今天真正发生的，不是 PM 整体被取代，而是这个岗位内部开始分叉：一类人会因为更靠近判断和建造而升值，另一类人会因为仍停留在信息搬运而迅速失速。\n“信息搬运者，本质上会变成恐龙。”\nAI 吃掉的不是判断，而是那些机械动作\nNikhyl 反复强调，AI 不是把产品工作整体拿走，而是在把 PM 过去最不喜欢的机械部分吃掉：写状态更新、搬运背景信息、拉齐零碎上下文、推进低价值流程。剩下来的核心，是判断。所谓判断，不只是“这个点子好不好”，而是能不能在海量更便宜的实验面前，决定什么该做、什么不该做、什么值得上线、什么会破坏系统的一致性。当试错成本下降 10 倍、100 倍，组织不会因此自动更聪明，反而更需要有人守住产品的边界、品牌和长期可维护性。 他把这件事讲得很像系统设计：不是为了多做 feature，而是为了在更多变化涌入组织时，依然维持一个可持续、可区分的产品系统。他甚至做了一个很大胆的预测：两年后我们会见到更少的烂软件。原因不是所有公司突然都有了更强的工程团队，而是任何人都能用 Claude、Codex 之类的工具，把那些多年没人碰的糟糕体验一点点修好。\n“产品领导者会越来越因为判断力而被付薪。”\n真正被高价抢走的，是会动手的建造者\n这也是他为什么把未来产品岗位分成“建造者”和“信息搬运者”。在他观察里，真正被市场高价争抢的人，往往不是最会讲框架、最会排会议的人，而是愿意亲手把东西做出来的人。这里的“做”不一定等于成为全职工程师，它更像是一种工作姿态：你能不能把想法快速落到原型、工作流、Agent 或内部工具上，直接验证它有没有用。一旦产品、设计、工程、增长都能借助 AI 直接动手，组织最需要的就不再是把信息从 A 搬到 B 的人，而是能把判断变成结果的人。 在他的社群里，不少最强的产品人已经把下一份工作想成 founder、CEO，甚至跨到别的职能，因为“会建造”开始变成一种跨岗位的通用货币。这也是为什么他会说 builders are going to have the time of their lives。对喜欢做东西的人来说，今天终于可以少等设计档期、少等工程排期、少等别人点头，重新获得那种“看到问题，马上把它改掉”的满足感。\n“如果你不爱做东西，你就有麻烦了。”\n接下来 12 到 24 个月，组织会先瘦身再重组\nNikhyl 最重的判断，是未来 12 到 24 个月会是产品管理历史上最混乱的一段时间。很多公司会先大幅裁减旧编制，再以更少的人重建 AI-first 团队。他举的极端例子是：裁掉 3 万人，再招回 8000 人，而这 8000 人全部是 AI first。对个体来说，这轮变化之所以残酷，是因为它正好打在职业的 power years：你懂业务、能扛结果，但也同时被家庭、孩子、父母、健康和现金流切分注意力。所以行业里最真实的状态，不是单纯的乐观或悲观，而是他那句很传神的“smiling exhaustion”。 最顶尖的人未必更轻松，只是他们的压力来源变了：过去是担心观点过不了层层决策，现在是担心自己没有更多时间去喂 LLM、跟上最新玩法。大家都知道新机会在那里，也知道不跟就会掉队，但真正能稳定抽出时间跟上的人并不多。更少被讨论的是，这种高压节奏还可能让地域和多元背景一起倒退，因为公司会更倾向于招离核心圈层更近、切换成本更低的人。\n“你会看到公司裁掉 3 万人，再招回 8000 人，而这 8000 人都会是 AI first。”\n大厂光环为什么突然没那么值钱了\n如果说上一轮职业建议强调的是“去更好的公司、攒更亮的 logo”，那这一轮的标准正在反过来。Nikhyl 说得很直接：今天面试里被追问的，越来越不是你五年前在什么大厂上线过什么功能，而是你现在用什么工具、你的判断从哪里来、你怎么把模糊问题快速变成结果。决定你市场价值的，不再是你背过多少品牌，而是你现在有多现代。 旧世界奖励的是“我见过大场面”；新世界更在意“你今天能不能在陌生问题前快速做出像样的第一版”。这是很多中高阶 PM 最不适应的一点。因为旧世界里，复杂组织里的增量优化是很高价值的成就；但到了 AI 时代，这类成就很容易在“你有没有 living in the future”这个问题面前失焦。大厂经历当然仍有分量，只是它不再天然等于先进。甚至在某些语境里，过长的旧体系经验还会被怀疑成包袱。\n“你的品牌，不再像你的现代性那样重要。”\nPM 要不要写代码？重点不是“像工程师一样卷”\n聊到“PM 到底要不要写代码”时，他给了一个很有分寸的答案：不要把自己训练成那支 50 人工程团队里的第 51 个工程师。那样做，往往只是一个廉价版工程师。真正高杠杆的做法，是把 AI 用在那些过去最拖慢产品组织的环节上：状态同步、站会、产品评审、需求背景整理、优先级材料、信息回流。PM 不是为了证明自己会写代码而去写，而是为了把组织运行里那些低快乐值、低复利的动作软件化。 比如把站会记录自动整理成行动项，把产品评审的争议自动归纳成待决策问题，把需求上下文直接喂给 agent 形成初稿，让团队把时间花在真正有判断含量的地方。这一点他还顺着 Lenny 提到的 Anthropic 增长负责人 Amol Avasare 的观点继续往下讲：工程变快之后，PM 当然会被更多信息挤压，但解法不是回到纯协调，而是给自己做一套能放大判断力的操作系统。会动手的人，不是去抢工程师的工作，而是先让自己不再被琐事困住。\n“如果你想成为那 50 个人里的第 51 个，那只是一个廉价版工程师。”\n真正难的不是学习工具，而是跨过那道心理门槛\n可真正难的，往往还不是下载工具、跑通一个 demo，而是跨过那道心理门槛。Nikhyl 花了很多时间解释，为什么越成功的人，反而越难 reinvent。因为你已经按旧规则做对了很多事：好学历、好公司、好收入、管理经验、组织信用。现在突然有人告诉你，旧地图正在失效，你需要抽出晚上的时间、周末的注意力，重新学一套还在变化中的新玩法，这本身就像是在否定过去的努力。他有个很黑色的说法：人在所谓 power years 里，日常目标往往只是“平均让所有人失望”。 你要同时对工作、家庭、孩子、父母、健康和自己负责，时间早已超额透支。在这种状态下，再额外留出空间去重塑自己，几乎违背人性。更残酷的是，这个目标还会移动：你今天好不容易补上的新技能，三个月后可能又过时了，所以很多人宁可继续维持旧习惯，也不愿持续处在半生不熟的状态里。但他也因此强调，今天最关键的一步不是一次学会所有工具，而是先跨过 threshold，承认世界已经变了，承认自己必须把“保持现代”排到更高优先级。\n“你人生最强的那些年，目标往往只是让所有人都平均失望。”\n未来还需要 PM 吗？需要，但更像组织里的变革代理人\n那未来还需要 PM 吗？Nikhyl 的答案是需要，但这个角色会更像组织里的“变革代理人”。产品人之所以仍然重要，是因为他们天生处在业务、用户、技术和协作的交叉点，既能讲清问题，也能用技术视角推进改造。未来他们未必只留在产品团队里，也可能进入 marketing、sales、HR，甚至传统行业，去推动 AI-first 的工作方式。对齐也不会消失，只是它不会再有那么多表演性。 以前大量 alignment，本质上是把 ground truth 从组织深处挖出来，再一层层加上各自的修辞；以后更多事实都能被 agent 直接读出，真正留下来的，是围绕取舍、方向和标准的冲突与判断。他甚至提到，未来很多公司会更需要“成年人”式的人物：既能 hands-on，又有经验和分量，能和 founder 同频对话，也能把组织带过混乱期。成年人、会沟通的人、能广泛理解系统的人仍然有价值，但前提是你不能只会说，你还得真的能把变化带进组织。\n“对齐不会消失，只是它不会再有那么多表演性。”\n写在最后\n这期对话最残酷也最有用的地方，是它逼你把问题从“AI 会不会替代 PM”改成“我是不是还停留在旧版 PM”。别想着一步到位。先找一个你每天都在重复、却并不享受的动作，把它交给 AI；先找到一次真正的 joy，再决定下一步。很多转向，就是从这一小步开始的。现在就做。\n内容来源：\"Why half of product managers are in trouble | Nikhyl Singhal (Meta, Google)\"丨Lenny's Podcast（嘉宾：Nikhyl Singhal）\n原视频：https://www.youtube.com/watch?v=yUohoaC8_Hs&t=0s\n如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣"
+        },
+        "knowledgePoints": [
+          {
+            "id": "kp-1",
+            "title": "旧版PM定义失效",
+            "knowledgeType": "concept",
+            "summary": "过去PM主要做信息传递和组织协调，这类工作在AI时代失去稀缺性，岗位定义已改变。",
+            "keyClaim": "岗位没有少，少的是旧版岗位定义。",
+            "sourceQuote": "岗位没有少，少的是旧版岗位定义。过去很多PM的一天，核心是在团队、老板和老板的老板之间传递信息，帮不同层级改写同一份材料，让“责任没有权力”的组织继续运转。",
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-3",
+            "title": "判断力成为PM核心薪酬依据",
+            "knowledgeType": "concept",
+            "summary": "当AI能便宜地做实验，判断力成为产品领导者的核心价值。",
+            "keyClaim": "产品领导者会越来越因为判断力而被付薪。",
+            "sourceQuote": "“产品领导者会越来越因为判断力而被付薪。”",
+            "testabilityScore": 3
+          },
+          {
+            "id": "kp-5",
+            "title": "烂软件减少的预测",
+            "knowledgeType": "scenario",
+            "summary": "嘉宾预测两年后会有更少烂软件，因为任何人能用AI工具修复糟糕体验。",
+            "keyClaim": "两年后我们会见到更少的烂软件。",
+            "sourceQuote": "他甚至做了一个很大胆的预测：两年后我们会见到更少的烂软件。原因不是所有公司突然都有了更强的工程团队，而是任何人都能用Claude、Codex之类的工具，把那些多年没人碰的糟糕体验一点点修好。",
+            "testabilityScore": 3
+          }
+        ],
+        "filteredKnowledgePoints": [
+          {
+            "id": "kp-2",
+            "title": "AI吃掉机械动作，保留判断力",
+            "knowledgeType": "concept",
+            "summary": "AI替代PM的低价值流程，如状态更新、信息搬运，但判断力成为核心价值。",
+            "keyClaim": "AI不是把产品工作整体拿走，而是在把PM过去最不喜欢的机械部分吃掉。",
+            "sourceQuote": "Nikhyl反复强调，AI不是把产品工作整体拿走，而是在把PM过去最不喜欢的机械部分吃掉：写状态更新、搬运背景信息、拉齐零碎上下文、推进低价值流程。",
+            "testabilityScore": 5,
+            "filterReasons": [
+              "emotional_expression"
+            ]
+          },
+          {
+            "id": "kp-4",
+            "title": "AI-first比大厂经历更重要",
+            "knowledgeType": "comparison",
+            "summary": "嘉宾指出，大厂经历还重要，但不如你现在有多AI-first。",
+            "keyClaim": "大厂经历还重要，但不如你现在有多AI-first。",
+            "sourceQuote": "\"大厂经历还重要，但不如你现在有多AI-first。\"",
+            "testabilityScore": 2,
+            "filterReasons": [
+              "low_testability"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "id": "q-1",
+            "knowledgePointId": "kp-1",
+            "pointId": "kp-1",
+            "pointTitle": "旧版PM定义失效",
+            "type": "multiple_choice",
+            "stem": "一位PM每天的主要工作是向上级汇报进度、向下级传达指令、并反复修改PPT以适应不同领导的口味。根据材料，下列哪项判断最为准确？",
+            "options": [
+              {
+                "id": "A",
+                "text": "这位PM的岗位是旧版PM定义的核心内容，但该定义已失效"
+              },
+              {
+                "id": "B",
+                "text": "这位PM的岗位已经过时，不再需要"
+              },
+              {
+                "id": "C",
+                "text": "这位PM的工作内容与旧版PM定义无关"
+              },
+              {
+                "id": "D",
+                "text": "这位PM是产品领导者，因为判断力而获得薪酬"
+              }
+            ],
+            "correctOptionId": "A",
+            "correct_answer": "A",
+            "explanation": "材料指出旧版PM的核心是在团队和老板之间传递信息、改写材料，但旧版定义已失效，岗位本身并未减少。选项A准确匹配了这层含义。",
+            "shortExplanation": "材料指出旧版PM的核心是在团队和老板之间传递信息、改写材料，但旧版定义已失效，岗位本身并未减少。选项A准确匹配了这层含义。",
+            "fullExplanation": "旧版PM的定义专注于信息传递和材料改写，但该定义已经失效，而PM岗位本身并未减少。",
+            "correct_understanding": "旧版PM的定义专注于信息传递和材料改写，但该定义已经失效，而PM岗位本身并未减少。",
+            "correctUnderstanding": "旧版PM的定义专注于信息传递和材料改写，但该定义已经失效，而PM岗位本身并未减少。",
+            "common_misconception": "容易误认为PM岗位总数在减少，或者认为旧版定义仍然有效。",
+            "commonMisconception": "容易误认为PM岗位总数在减少，或者认为旧版定义仍然有效。",
+            "pitfalls": [
+              "容易误认为PM岗位总数在减少，或者认为旧版定义仍然有效。"
+            ],
+            "source_snippet": "岗位没有少，少的是旧版岗位定义。过去很多PM的一天，核心是在团队、老板和老板的老板之间传递信息，帮不同层级改写同一份材料，让“责任没有权力”的组织继续运转。",
+            "sourceSnippet": "岗位没有少，少的是旧版岗位定义。过去很多PM的一天，核心是在团队、老板和老板的老板之间传递信息，帮不同层级改写同一份材料，让“责任没有权力”的组织继续运转。",
+            "sourceQuote": "岗位没有少，少的是旧版岗位定义。过去很多PM的一天，核心是在团队、老板和老板的老板之间传递信息，帮不同层级改写同一份材料，让“责任没有权力”的组织继续运转。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-2",
+            "knowledgePointId": "kp-1",
+            "pointId": "kp-1",
+            "pointTitle": "旧版PM定义失效",
+            "type": "multiple_choice",
+            "stem": "某公司CEO认为PM岗位冗余，计划裁减一半PM。根据材料，CEO的观点存在什么误区？",
+            "options": [
+              {
+                "id": "A",
+                "text": "CEO误判了PM的数量，实际上PM并不冗余"
+              },
+              {
+                "id": "B",
+                "text": "CEO混淆了旧版PM定义与PM岗位本身，岗位并未减少，但旧定义已失效"
+              },
+              {
+                "id": "C",
+                "text": "CEO忽略了PM在工程团队中的核心作用"
+              },
+              {
+                "id": "D",
+                "text": "CEO应该先培训PM转型，而不是直接裁员"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "材料明确指出“岗位没有少，少的是旧版岗位定义”，因此CEO的误区在于把旧版定义为标准，忽视了岗位本身依然存在，只是定义需要更新。",
+            "shortExplanation": "材料明确指出“岗位没有少，少的是旧版岗位定义”，因此CEO的误区在于把旧版定义为标准，忽视了岗位本身依然存在，只是定义需要更新。",
+            "fullExplanation": "岗位数量并未减少，减少的是对旧版岗位定义的依赖；PM角色仍然重要，只是不再以传统方式工作。",
+            "correct_understanding": "岗位数量并未减少，减少的是对旧版岗位定义的依赖；PM角色仍然重要，只是不再以传统方式工作。",
+            "correctUnderstanding": "岗位数量并未减少，减少的是对旧版岗位定义的依赖；PM角色仍然重要，只是不再以传统方式工作。",
+            "common_misconception": "容易直接认为PM岗位过时，而忽略旧版定义与岗位本身的区别。",
+            "commonMisconception": "容易直接认为PM岗位过时，而忽略旧版定义与岗位本身的区别。",
+            "pitfalls": [
+              "容易直接认为PM岗位过时，而忽略旧版定义与岗位本身的区别。"
+            ],
+            "source_snippet": "岗位没有少，少的是旧版岗位定义。过去很多PM的一天，核心是在团队、老板和老板的老板之间传递信息，帮不同层级改写同一份材料，让“责任没有权力”的组织继续运转。",
+            "sourceSnippet": "岗位没有少，少的是旧版岗位定义。过去很多PM的一天，核心是在团队、老板和老板的老板之间传递信息，帮不同层级改写同一份材料，让“责任没有权力”的组织继续运转。",
+            "sourceQuote": "岗位没有少，少的是旧版岗位定义。过去很多PM的一天，核心是在团队、老板和老板的老板之间传递信息，帮不同层级改写同一份材料，让“责任没有权力”的组织继续运转。",
+            "difficulty": "hard",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 5,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.8
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-3",
+            "knowledgePointId": "kp-3",
+            "pointId": "kp-3",
+            "pointTitle": "判断力成为PM核心薪酬依据",
+            "type": "multiple_choice",
+            "stem": "根据材料，产品领导者的薪酬主要取决于什么能力？",
+            "options": [
+              {
+                "id": "A",
+                "text": "判断力"
+              },
+              {
+                "id": "B",
+                "text": "沟通协调能力"
+              },
+              {
+                "id": "C",
+                "text": "技术开发能力"
+              },
+              {
+                "id": "D",
+                "text": "项目管理熟练度"
+              }
+            ],
+            "correctOptionId": "A",
+            "correct_answer": "A",
+            "explanation": "材料明确说“产品领导者会越来越因为判断力而被付薪”，因此判断力是核心依据。",
+            "shortExplanation": "材料明确说“产品领导者会越来越因为判断力而被付薪”，因此判断力是核心依据。",
+            "fullExplanation": "薪酬的核心驱动因素是判断力，而非其他常规能力。",
+            "correct_understanding": "薪酬的核心驱动因素是判断力，而非其他常规能力。",
+            "correctUnderstanding": "薪酬的核心驱动因素是判断力，而非其他常规能力。",
+            "common_misconception": "可能误认为产品领导者的薪酬依然基于传统的项目管理或沟通能力。",
+            "commonMisconception": "可能误认为产品领导者的薪酬依然基于传统的项目管理或沟通能力。",
+            "pitfalls": [
+              "可能误认为产品领导者的薪酬依然基于传统的项目管理或沟通能力。"
+            ],
+            "source_snippet": "“产品领导者会越来越因为判断力而被付薪。”",
+            "sourceSnippet": "“产品领导者会越来越因为判断力而被付薪。”",
+            "sourceQuote": "“产品领导者会越来越因为判断力而被付薪。”",
+            "difficulty": "easy",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 3,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 2,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 2
+              },
+              "judgeAverage": 3.7
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          }
+        ],
+        "qualitySummary": {
+          "totalGenerated": 7,
+          "passed": 3,
+          "rewrite": 4,
+          "discarded": 0,
+          "averageScore": 4.6,
+          "seriousIssueCount": 7,
+          "judgeUnavailable": false
+        },
+        "generationMeta": {
+          "startedAt": "2026-05-15T08:45:58.954Z",
+          "currentStage": "completed",
+          "stages": [
+            {
+              "status": "submitted",
+              "at": "2026-05-15T08:45:58.954Z"
+            },
+            {
+              "status": "generating_points",
+              "displayStatusText": "正在生成知识点",
+              "at": "2026-05-15T08:45:58.954Z"
+            },
+            {
+              "status": "generating_questions",
+              "displayStatusText": "正在生成题目",
+              "at": "2026-05-15T08:46:13.842Z"
+            },
+            {
+              "status": "quality_checking",
+              "displayStatusText": "正在检查题目质量",
+              "at": "2026-05-15T08:46:41.920Z"
+            },
+            {
+              "status": "auto_regenerating_questions",
+              "displayStatusText": "正在重新生成题目",
+              "at": "2026-05-15T08:46:57.965Z"
+            },
+            {
+              "status": "completed",
+              "displayStatusText": "已生成",
+              "at": "2026-05-15T08:47:35.558Z"
+            }
+          ],
+          "finishedAt": "2026-05-15T08:47:35.558Z",
+          "chunkCount": 18,
+          "candidateCount": 5,
+          "keptKnowledgePointCount": 3,
+          "filteredKnowledgePointCount": 2,
+          "totalGenerated": 7,
+          "rewrittenCount": 2,
+          "discardedCount": 2,
+          "qualifiedQuestionCount": 3
+        }
+      },
+      "message": ""
+    },
+    {
+      "file": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "startedAt": "2026-05-15T08:47:35.559Z",
+      "status": "failed_no_qualified_questions",
+      "chapter": {
+        "title": "2026年最适合启动的6个AI创业点子",
+        "sourceType": "text",
+        "status": "failed_no_qualified_questions",
+        "displayStatusText": "题目生成失败",
+        "failureReason": "生成失败。系统已经提取到知识点，但暂时没有生成适合复习的题目。你可以手动重新生成一次。",
+        "source": {
+          "type": "text",
+          "title": "2026年最适合启动的6个AI创业点子",
+          "url": "",
+          "account": "",
+          "rawText": "# 2026年最适合启动的6个AI创业点子丨Silicon Valley Girl\n\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/OLsU21MsXlUtZlubVj5tkg\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n\n---\n\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 3900 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\n\"他们从 160 人变成 40 人，业绩反而提高了。\"\n\n\"公司知道自己需要 AI，只是不知道该信任谁。\"\n\n\"大语言模型就是新的电力。\"\n\n本期节目标题看起来很像清单，但它真正有用的地方，不在“点子”本身，而在每个点子背后都有一个已经发生的市场变化。主持人把过去 6 个月采访过的 Reid Hoffman、Google Search 产品负责人 Robbie Stein、ElevenLabs 创始人 Mati Staniszewski、Higgsfield 创始人 Alex Mashrabov、Daniel Priestley、Vise CEO Samir Vasavada 的判断放在一起，试图回答一个更具体的问题：如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。\n\n小团队已经先跑起来了\n\nMarina 开场先讲了一个很硬的变化。她问 Vise CEO Samir Vasavada，公司过去 3 年发生了什么。Samir 的回答是，公司曾经有 150 到 160 人，现在接近 40 人，但从指标看，比 160 人时好 10 倍。这已经发生在真实公司里：人力结构和工具结构被重新排过一遍。2011 年做一个基础落地页还要找程序员，如今一个人身边可以同时有法律、财务、网页设计、营销和内容助理。\n\n\"我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。\"\n\n所以她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。这里最值得抓住的信号是：公司愿意为“把 AI 放进具体业务流程”付钱，而且他们往往缺少把模型带到现场的人。模型 API 已经摆在那里，客户更关心谁能改掉一个漏钱流程，谁能带来一个新客户，谁能把一天的杂活压成 5 分钟。\n\n第一笔钱来自行业 AI 顾问\n\n第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。\n\n\"今年我们会开始看到更多应用：我怎样把生意跑得更好？怎样做供应链分析、财务分析、风险分析、营销和销售？\"\n\nReid Hoffman 给出的动作很朴素：熟悉一个领域里的工具，然后去帮别人，并且把结果展示出来。Marina 的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR 或语言学习，连续 30 天在 LinkedIn 发带截图和数字的案例。不要追求爆款，先让未来客户看到“原流程哪里坏了、你怎样用 AI 修好、成本和时间前后差多少”。\n\n这类顾问工作容易被误解成卖工具包。实际收费点在诊断和落地：帮客户找出哪个流程最浪费时间，哪类线索最容易流失，哪份报告每周都要重复做，再把 AI 放进去做出可量化的前后对比。客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。\n\n本地商家要被 AI 搜到\n\n第二个机会是 GEO，也就是让本地商家出现在 ChatGPT、Gemini、Perplexity 的答案里。美国有 3300 万小企业依赖 Google 带来客户，但用户现在会直接问 AI：Austin 最好的牙医是谁，Denver 最好的修车厂是哪家。答案里出现的商家，未必是买了 Google Ads 的商家，更可能是被文章、目录、博客、Reddit、LinkedIn、YouTube 提到过的商家。\n\n\"AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。\"\n\nRobbie Stein 在访谈里说，很多传统 SEO 最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。Marina 自己也在做类似实验。她发现通过 ChatGPT 推荐订阅邮件通讯的人，打开率达到 80%，高于平时 40% 到 50% 的平均水平。她给的销售动作也很直接：找 3 家本地商家，在 ChatGPT、Gemini、Perplexity 里问“本城最好的某类服务”，如果对方没出现，那就是你的 pitch。\n\n这门生意的好处是验证成本低。你不需要先搭系统，只要能证明“AI 答案里没有你”就足够开启一次对话。牙医、修车厂、律师事务所、健身房、播客、地方服务商，都可以用同一套方式检查。客户听不懂 GEO 没关系，他能听懂“用户问 AI 时，推荐名单里没有你”。\n\n语音 AI 前台先救漏接电话\n\n第三个机会是语音 AI 前台，复杂度中等，但场景非常具体。ElevenLabs 创始人 Mati Staniszewski 被问到如果从零开始、想尽快做到每月 1 万美元收入，会选什么。他会选语音 Agent。原因很简单：基础设施正在成熟，平台越来越自助化，但大多数小企业并不知道可以把语音 Agent 部署到预约、接线和客户沟通里。\n\n\"很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。\"\n\nMarina 的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在 Google Maps 上找 20 家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。然后带着数字去谈：“我刚才数过，你午休漏了这么多电话，我每月 500 美元帮你修掉。”先做几家换推荐语，再开始收费。\n\n这里的门槛不是写出一个语音模型。Mati 说得很清楚，平台已经能让普通人以相对自助的方式部署语音 Agent，机会在“轻微改造到某个领域”。牙医问诊、修车预约、律师初筛、诊所改约，每个场景都有自己的话术和边界。谁愿意打电话、问流程、做配置，谁就先拿到服务费。\n\n本地广告代理开始 AI Native\n\n第四个机会是 AI native 广告代理，服务本地房地产经纪、医美、牙医、独立健身房。复杂度比顾问和 GEO 高，因为它要求创意、文案、媒介投放能力一起上。客户痛点也清楚：本地代理公司每月收几千美元，却只能交付少量广告素材；AI native 代理可以用更低成本生成上百个版本，快速测试哪一个能跑出结果。\n\n\"从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。\"\n\nHiggsfield 创始人 Alex Mashrabov 说，去年 3 月他们交付了相机控制，4 月交付视觉效果库，到了 6 月，行业已经变了。很多代理开始绕过 Adobe 等传统工具，端到端用 AI 交付广告。AI 当时能力还有局限，但毛利结构明显改善，客户也能看到“几天内做出广告”的速度。\n\n本地服务商真正关心的是下个月能不能多约到客户，“AI 广告”只是交付手段。过去代理公司往往用少量素材慢慢投，AI native 代理可以把同一个卖点拆成多个镜头、多个开头、多个优惠表达，再把差的版本迅速淘汰。技术降低了出片成本，创意判断和投放经验反而变成收费理由。\n\n电商品牌要更快测试内容\n\n第五个机会是电商内容生成，比广告代理更难，因为创意标准更高。目标客户包括护肤品、补剂、宠物产品、厨房小工具、健身装备。它们都在烧钱维持 TikTok Shop 和 Instagram 广告，每月需要 30、50、100 条手持手机风格的 UGC 视频。真人创作者每条通常收 150 到 500 美元，测试速度受拍摄和修改周期限制。\n\n\"用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。\"\n\nMarina 并没有说品牌应该停止和真人 UGC 创作者合作。她自己的做法是先用 AI 批量测试脚本，找到跑得动的方向，再找真人创作者拍。Alex 也提到，有段生成视频成本不到 500 美元，却足以让客户惊讶。行动路径很具体：选一个品类，用产品图做 5 条样片，私信创始人，“我免费给你做了 5 条，如果喜欢，我可以持续交付，比如 100 条 3000 美元。”\n\n垂直 AI 产品要靠数据和 UX\n\n第六个机会是垂直 AI 产品，也就是很多人嘴里的 GPT wrapper。去年 VC 很爱投，后来热度降了，因为任何人都能做一个 wrapper。但 Daniel Priestley 给了一个更清楚的模型：有价值的垂直产品，来自三件事，拿到客户数据、写出更好的提示词、设计比聊天框更合适的 UX。把三件事放在一起，它就会变成专用工具。\n\n\"我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。\"\n\n他用了电力类比：电被发明以后，人们把电导向烤面包机、水壶、灯泡。没人会因为水壶“只是电力 wrapper”就否认它是一门生意。Marina 举的轻量例子是上传简历后自动填写 LinkedIn 资料的产品。它的价值不在模型多先进，而在团队里有人懂 LinkedIn 资料怎样写才会被注意到，并把这套知识放进 Lovable 做出的流程里。\n\nDaniel Priestley 甚至给了一个收入想象：很多小型 AI SaaS 可能做到一年四五百万美元收入，利润率达到 50%。这种公司不一定是 VC 最爱的超级独角兽，但对创业者本人足够有吸引力。它们的共同点是很窄：AI mortgage lender、医疗运营、医疗呼叫中心、LinkedIn 资料填写，先守住一个工作流，再慢慢扩。\n\n先卖服务，再沉淀产品\n\n6 个机会从易到难排下来，会出现一条共同路径：先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。Marina 最后给垂直产品的验证标准很小：找 10 个真实用户，如果 3 个愿意付钱，就有业务雏形。\n\n\"挑一个你了解的行业，写下这个行业里人们每周都会做、又让他们抓狂的三个重复任务。\"\n\n原视频的清单感很强，但真正该带走的并非“哪 6 个行业最赚钱”。更稳的读法是：AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。第一笔钱通常来自流程现场，不来自一个宏大商业计划书。\n\n普通人做 AI 生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。平台需要流量、研发、客服、合规和持续迭代，任何一项都会拖慢第一笔收入。服务的优势在于反馈很短：客户愿不愿意接电话，愿不愿意发资料，愿不愿意为样片付钱，几天内就能看出来。先从笨办法里拿到真实需求，后面的产品才不会悬空。公司内部做 AI 转型的人也可以照这个顺序走：先找流程缺口，再谈工具采购，最后把成功案例复制到相邻团队。\n\n写在最后\n\n如果你还没想清楚该做什么，先别急着追大词。挑一个熟悉行业，找一个漏钱、漏客户或浪费时间的小流程，用 AI 做出可展示的前后对比。先让一个真实客户愿意付钱，再谈产品化。AI 时代的入口，有时就是一通没人接的电话。\n\n内容来源：\"6 Profitable AI business ideas for 2026\"丨Silicon Valley Girl\n\n原视频：https://www.youtube.com/watch?v=gwsaC3WiCqs&t=63s\n\n如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣",
+          "cleanedText": "# 2026年最适合启动的6个AI创业点子丨Silicon Valley Girl\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/OLsU21MsXlUtZlubVj5tkg\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n---\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 3900 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\"他们从 160 人变成 40 人，业绩反而提高了。\"\n\"公司知道自己需要 AI，只是不知道该信任谁。\"\n\"大语言模型就是新的电力。\"\n本期节目标题看起来很像清单，但它真正有用的地方，不在“点子”本身，而在每个点子背后都有一个已经发生的市场变化。主持人把过去 6 个月采访过的 Reid Hoffman、Google Search 产品负责人 Robbie Stein、ElevenLabs 创始人 Mati Staniszewski、Higgsfield 创始人 Alex Mashrabov、Daniel Priestley、Vise CEO Samir Vasavada 的判断放在一起，试图回答一个更具体的问题：如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。\n小团队已经先跑起来了\nMarina 开场先讲了一个很硬的变化。她问 Vise CEO Samir Vasavada，公司过去 3 年发生了什么。Samir 的回答是，公司曾经有 150 到 160 人，现在接近 40 人，但从指标看，比 160 人时好 10 倍。这已经发生在真实公司里：人力结构和工具结构被重新排过一遍。2011 年做一个基础落地页还要找程序员，如今一个人身边可以同时有法律、财务、网页设计、营销和内容助理。\n\"我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。\"\n所以她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。这里最值得抓住的信号是：公司愿意为“把 AI 放进具体业务流程”付钱，而且他们往往缺少把模型带到现场的人。模型 API 已经摆在那里，客户更关心谁能改掉一个漏钱流程，谁能带来一个新客户，谁能把一天的杂活压成 5 分钟。\n第一笔钱来自行业 AI 顾问\n第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。\n\"今年我们会开始看到更多应用：我怎样把生意跑得更好？怎样做供应链分析、财务分析、风险分析、营销和销售？\"\nReid Hoffman 给出的动作很朴素：熟悉一个领域里的工具，然后去帮别人，并且把结果展示出来。Marina 的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR 或语言学习，连续 30 天在 LinkedIn 发带截图和数字的案例。不要追求爆款，先让未来客户看到“原流程哪里坏了、你怎样用 AI 修好、成本和时间前后差多少”。\n这类顾问工作容易被误解成卖工具包。实际收费点在诊断和落地：帮客户找出哪个流程最浪费时间，哪类线索最容易流失，哪份报告每周都要重复做，再把 AI 放进去做出可量化的前后对比。客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。\n本地商家要被 AI 搜到\n第二个机会是 GEO，也就是让本地商家出现在 ChatGPT、Gemini、Perplexity 的答案里。美国有 3300 万小企业依赖 Google 带来客户，但用户现在会直接问 AI：Austin 最好的牙医是谁，Denver 最好的修车厂是哪家。答案里出现的商家，未必是买了 Google Ads 的商家，更可能是被文章、目录、博客、Reddit、LinkedIn、YouTube 提到过的商家。\n\"AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。\"\nRobbie Stein 在访谈里说，很多传统 SEO 最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。Marina 自己也在做类似实验。她发现通过 ChatGPT 推荐订阅邮件通讯的人，打开率达到 80%，高于平时 40% 到 50% 的平均水平。她给的销售动作也很直接：找 3 家本地商家，在 ChatGPT、Gemini、Perplexity 里问“本城最好的某类服务”，如果对方没出现，那就是你的 pitch。\n这门生意的好处是验证成本低。你不需要先搭系统，只要能证明“AI 答案里没有你”就足够开启一次对话。牙医、修车厂、律师事务所、健身房、播客、地方服务商，都可以用同一套方式检查。客户听不懂 GEO 没关系，他能听懂“用户问 AI 时，推荐名单里没有你”。\n语音 AI 前台先救漏接电话\n第三个机会是语音 AI 前台，复杂度中等，但场景非常具体。ElevenLabs 创始人 Mati Staniszewski 被问到如果从零开始、想尽快做到每月 1 万美元收入，会选什么。他会选语音 Agent。原因很简单：基础设施正在成熟，平台越来越自助化，但大多数小企业并不知道可以把语音 Agent 部署到预约、接线和客户沟通里。\n\"很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。\"\nMarina 的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在 Google Maps 上找 20 家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。然后带着数字去谈：“我刚才数过，你午休漏了这么多电话，我每月 500 美元帮你修掉。”先做几家换推荐语，再开始收费。\n这里的门槛不是写出一个语音模型。Mati 说得很清楚，平台已经能让普通人以相对自助的方式部署语音 Agent，机会在“轻微改造到某个领域”。牙医问诊、修车预约、律师初筛、诊所改约，每个场景都有自己的话术和边界。谁愿意打电话、问流程、做配置，谁就先拿到服务费。\n本地广告代理开始 AI Native\n第四个机会是 AI native 广告代理，服务本地房地产经纪、医美、牙医、独立健身房。复杂度比顾问和 GEO 高，因为它要求创意、文案、媒介投放能力一起上。客户痛点也清楚：本地代理公司每月收几千美元，却只能交付少量广告素材；AI native 代理可以用更低成本生成上百个版本，快速测试哪一个能跑出结果。\n\"从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。\"\nHiggsfield 创始人 Alex Mashrabov 说，去年 3 月他们交付了相机控制，4 月交付视觉效果库，到了 6 月，行业已经变了。很多代理开始绕过 Adobe 等传统工具，端到端用 AI 交付广告。AI 当时能力还有局限，但毛利结构明显改善，客户也能看到“几天内做出广告”的速度。\n本地服务商真正关心的是下个月能不能多约到客户，“AI 广告”只是交付手段。过去代理公司往往用少量素材慢慢投，AI native 代理可以把同一个卖点拆成多个镜头、多个开头、多个优惠表达，再把差的版本迅速淘汰。技术降低了出片成本，创意判断和投放经验反而变成收费理由。\n电商品牌要更快测试内容\n第五个机会是电商内容生成，比广告代理更难，因为创意标准更高。目标客户包括护肤品、补剂、宠物产品、厨房小工具、健身装备。它们都在烧钱维持 TikTok Shop 和 Instagram 广告，每月需要 30、50、100 条手持手机风格的 UGC 视频。真人创作者每条通常收 150 到 500 美元，测试速度受拍摄和修改周期限制。\n\"用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。\"\nMarina 并没有说品牌应该停止和真人 UGC 创作者合作。她自己的做法是先用 AI 批量测试脚本，找到跑得动的方向，再找真人创作者拍。Alex 也提到，有段生成视频成本不到 500 美元，却足以让客户惊讶。行动路径很具体：选一个品类，用产品图做 5 条样片，私信创始人，“我免费给你做了 5 条，如果喜欢，我可以持续交付，比如 100 条 3000 美元。”\n垂直 AI 产品要靠数据和 UX\n第六个机会是垂直 AI 产品，也就是很多人嘴里的 GPT wrapper。去年 VC 很爱投，后来热度降了，因为任何人都能做一个 wrapper。但 Daniel Priestley 给了一个更清楚的模型：有价值的垂直产品，来自三件事，拿到客户数据、写出更好的提示词、设计比聊天框更合适的 UX。把三件事放在一起，它就会变成专用工具。\n\"我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。\"\n他用了电力类比：电被发明以后，人们把电导向烤面包机、水壶、灯泡。没人会因为水壶“只是电力 wrapper”就否认它是一门生意。Marina 举的轻量例子是上传简历后自动填写 LinkedIn 资料的产品。它的价值不在模型多先进，而在团队里有人懂 LinkedIn 资料怎样写才会被注意到，并把这套知识放进 Lovable 做出的流程里。\nDaniel Priestley 甚至给了一个收入想象：很多小型 AI SaaS 可能做到一年四五百万美元收入，利润率达到 50%。这种公司不一定是 VC 最爱的超级独角兽，但对创业者本人足够有吸引力。它们的共同点是很窄：AI mortgage lender、医疗运营、医疗呼叫中心、LinkedIn 资料填写，先守住一个工作流，再慢慢扩。\n先卖服务，再沉淀产品\n6 个机会从易到难排下来，会出现一条共同路径：先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。Marina 最后给垂直产品的验证标准很小：找 10 个真实用户，如果 3 个愿意付钱，就有业务雏形。\n\"挑一个你了解的行业，写下这个行业里人们每周都会做、又让他们抓狂的三个重复任务。\"\n原视频的清单感很强，但真正该带走的并非“哪 6 个行业最赚钱”。更稳的读法是：AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。第一笔钱通常来自流程现场，不来自一个宏大商业计划书。\n普通人做 AI 生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。平台需要流量、研发、客服、合规和持续迭代，任何一项都会拖慢第一笔收入。服务的优势在于反馈很短：客户愿不愿意接电话，愿不愿意发资料，愿不愿意为样片付钱，几天内就能看出来。先从笨办法里拿到真实需求，后面的产品才不会悬空。公司内部做 AI 转型的人也可以照这个顺序走：先找流程缺口，再谈工具采购，最后把成功案例复制到相邻团队。\n写在最后\n如果你还没想清楚该做什么，先别急着追大词。挑一个熟悉行业，找一个漏钱、漏客户或浪费时间的小流程，用 AI 做出可展示的前后对比。先让一个真实客户愿意付钱，再谈产品化。AI 时代的入口，有时就是一通没人接的电话。\n内容来源：\"6 Profitable AI business ideas for 2026\"丨Silicon Valley Girl\n原视频：https://www.youtube.com/watch?v=gwsaC3WiCqs&t=63s\n如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣"
+        },
+        "knowledgePoints": [
+          {
+            "id": "kp-2",
+            "title": "企业AI信任鸿沟",
+            "knowledgeType": "judgment",
+            "summary": "公司知道需要AI，但不知道该信任谁。",
+            "keyClaim": "企业缺乏可信赖的AI集成伙伴。",
+            "sourceQuote": "公司知道自己需要AI，只是不知道该信任谁。",
+            "testabilityScore": 3
+          },
+          {
+            "id": "kp-4",
+            "title": "创业机会源于市场变化",
+            "knowledgeType": "scenario",
+            "summary": "文章强调每个点子背后有已发生的市场变化，而非点子本身。",
+            "keyClaim": "创业机会在于市场变化，而不是流行概念。",
+            "sourceQuote": "本期节目标题看起来很像清单，但它真正有用的地方，不在“点子”本身，而在每个点子背后都有一个已经发生的市场变化。",
+            "testabilityScore": 3
+          },
+          {
+            "id": "kp-5",
+            "title": "第一桶金：行业AI顾问",
+            "knowledgeType": "step",
+            "summary": "第一个生意的起点是成为某个行业的AI顾问。",
+            "keyClaim": "新人可从行业AI顾问起步赚钱。",
+            "sourceQuote": "第一个生意最轻：做某个行业的AI顾问。",
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-6",
+            "title": "企业愿为AI落地付费",
+            "knowledgeType": "judgment",
+            "summary": "公司愿意为将AI融入具体业务流程支付费用。",
+            "keyClaim": "企业付费意愿强，但缺乏能将AI部署到现场的人。",
+            "sourceQuote": "公司愿意为“把AI放进具体业务流程”付钱，而且他们往往缺少把模型带到现场的人。",
+            "testabilityScore": 3
+          }
+        ],
+        "filteredKnowledgePoints": [
+          {
+            "id": "kp-1",
+            "title": "公司精简后业绩反升",
+            "knowledgeType": "comparison",
+            "summary": "一家公司从160人减至40人，业绩却提升了10倍。",
+            "keyClaim": "减少人力并利用AI可以大幅提升业绩。",
+            "sourceQuote": "公司曾经有150到160人，现在接近40人，从指标看，40人时比160人时好10倍。",
+            "testabilityScore": 4,
+            "filterReasons": [
+              "source_not_supported"
+            ]
+          },
+          {
+            "id": "kp-3",
+            "title": "大语言模型是新的电力",
+            "knowledgeType": "concept",
+            "summary": "大语言模型被比作新的电力，是一项基础性技术。",
+            "keyClaim": "大语言模型具有像电力一样的普适性和变革性。",
+            "sourceQuote": "大语言模型就是新的电力。",
+            "testabilityScore": 2,
+            "filterReasons": [
+              "low_testability"
+            ]
+          }
+        ],
+        "questions": [],
+        "qualitySummary": {
+          "totalGenerated": 12,
+          "passed": 0,
+          "rewrite": 12,
+          "discarded": 0,
+          "averageScore": 0,
+          "seriousIssueCount": 12,
+          "judgeUnavailable": false
+        },
+        "generationMeta": {
+          "startedAt": "2026-05-15T08:47:35.559Z",
+          "currentStage": "failed_no_qualified_questions",
+          "stages": [
+            {
+              "status": "submitted",
+              "at": "2026-05-15T08:47:35.559Z"
+            },
+            {
+              "status": "generating_points",
+              "displayStatusText": "正在生成知识点",
+              "at": "2026-05-15T08:47:35.559Z"
+            },
+            {
+              "status": "generating_questions",
+              "displayStatusText": "正在生成题目",
+              "at": "2026-05-15T08:47:52.252Z"
+            },
+            {
+              "status": "quality_checking",
+              "displayStatusText": "正在检查题目质量",
+              "at": "2026-05-15T08:48:28.900Z"
+            },
+            {
+              "status": "auto_regenerating_questions",
+              "displayStatusText": "正在重新生成题目",
+              "at": "2026-05-15T08:48:54.382Z"
+            },
+            {
+              "status": "failed_no_qualified_questions",
+              "displayStatusText": "题目生成失败",
+              "at": "2026-05-15T08:50:33.208Z"
+            }
+          ],
+          "finishedAt": "2026-05-15T08:50:33.208Z",
+          "failedStage": "quality_checking",
+          "failureReason": "生成失败。系统已经提取到知识点，但暂时没有生成适合复习的题目。你可以手动重新生成一次。",
+          "candidateCount": 6,
+          "keptKnowledgePointCount": 4,
+          "filteredKnowledgePointCount": 2,
+          "totalGenerated": 12,
+          "rewrittenCount": 12,
+          "discardedCount": 12,
+          "qualifiedQuestionCount": 0
+        }
+      },
+      "message": "生成失败。系统已经提取到知识点，但暂时没有生成适合复习的题目。你可以手动重新生成一次。"
+    },
+    {
+      "file": "wechat-XQq0K05bonCBDxh4zp6YSQ.md",
+      "startedAt": "2026-05-15T08:50:33.208Z",
+      "status": "completed",
+      "chapter": {
+        "title": "GPT-5.5 测试",
+        "sourceType": "text",
+        "status": "completed",
+        "displayStatusText": "已生成",
+        "failureReason": "",
+        "source": {
+          "type": "text",
+          "title": "GPT-5.5 测试",
+          "url": "",
+          "account": "",
+          "rawText": "# Every CEO：我们对GPT-5.5进行了为期 3 周的测试，它简直太强大丨Every\n\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/XQq0K05bonCBDxh4zp6YSQ\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n\n---\n\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 4000 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\n\"在高级工程师基准上，GPT-5.5 得了 62.5 分。\"\n\n\"用 Opus 4.7 写计划，GPT-5.5 就会变成一头猛兽。\"\n\n\"它有足够的胆量，真的会删掉一堆文件。\"\n\nEvery 在 GPT-5.5 发布前做了三周内部测试，测试范围覆盖编码、写作、知识工作和 OpenClaw。主讲人把这期称为一次 “vibe check”：不只看跑分，也看它在真实团队里能不能完成 Dayline、Monologue、Cora 这类产品任务。最扎眼的结论来自编码：GPT-5.5 已经能明显拉开和 Opus 4.7 的差距，但它最好用的方式并非单独上阵，而是先拿到一份足够具体的计划。\n\nEvery 的测试场景很接近真实团队：他们自己用 Codex 和 Claude Code 做 Cora、Sparkle、Monologue 等内部应用，也给公司管理层做 AI 培训。换成中文互联网语境，这期不只是模型发布评测，更像一份工程团队怎么分配模型岗位的实战笔记。它把模型能力放回了排期、交付、重构和写作这些具体工作里，也放回每天开工时的工具选择现场中。\n\n62.5 分把模型推进高级工程现场\n\nEvery 做了一个 Senior Engineer Benchmark，简称 SE Bench。它把一个真实应用 Proof 的 “vibe-coded slop” 代码库交给模型，要求模型从第一性原理重写。评分标准来自两名真实高级工程师的改写结果。人类高级工程师通常能拿到 80 到 90 分，GPT-5.5 最高跑到 62.5 分，Opus 4.7 则稳定在 30 分出头。\n\n\"人类高级工程师在这个基准上通常能得 80 或 90 分。我们见过的最好成绩是 GPT-5.5，它得了 62.5 分。\"\n\n这个分数还没到人类高级工程师区间，但主讲人强调，SE Bench 还没有被刷爆，前沿仍然有很大空间。GPT-5.5 单独写计划时大概能到低到中 40 分；多做提示后能接近低到中 50 分。真正的跃升发生在另一种组合里：让 Opus 4.7 先写计划，再让 GPT-5.5 执行。\n\n主讲人特意说明，这不是一个刷 LeetCode 或修小 bug 的测试。Proof 是他自己做过的应用，代码里带着 AI 快速生成后的混乱痕迹。模型要交付一套能和人类工程师改写结果比较的完整实现。62.5 分的意义在于，它第一次让模型接近了“能重写系统”的位置。\n\n先让 Opus 写计划，再让 5.5 动手\n\n主讲人提到一个搭配：Opus 4.7 负责规划，GPT-5.5 负责执行。原因很直接，Opus 4.7 写出的计划更像工程合同，会说明哪些概念必须成立、哪些文件要删、重写完成后某个大文件大约应该剩多少行。GPT-5.5 拿到这样的计划后，不会只补几个洞，而会沿着计划把改造做完。\n\n\"用 Opus 4.7 写计划，GPT-5.5 就会变成一头猛兽。\"\n\nOpus 4.7 自己执行这份计划时，反而会退回到小修小补。主讲人说，它会觉得任务太费力，然后只挑一小块处理。GPT-5.4 也有类似倾向，只是做得比 Opus 稍好。GPT-5.5 的不同在于，它在 extra high reasoning 下更敢动手，能把数小时级别的任务从头推进到尾。\n\n这种分工给工程经理一个很具体的操作方式：需求进入 AI 流程后，先用擅长结构化规划的模型写改造合同，再把合同交给更愿意长时间执行的模型。原来团队会争论“Claude 强还是 GPT 强”，Every 这次测试更像把争论拆开：谁写计划，谁动手，谁最后验收。\n\nSE Bench 看的是重写烂代码的胆量\n\nSE Bench 的重点不在补 bug，而在判断模型有没有高级工程师的结构感。模型拿到的是一个真实但混乱的应用代码库，任务是判断底层不变量、重新划分边界、让代码回到概念清晰的状态。很多模型会被现有文件牵着走，在局部打补丁；GPT-5.5 更愿意从核心原则出发，改掉结构。\n\n\"它有那种果断、胆量和自主性，真的会删掉一堆文件，然后从头开始。\"\n\n这对工程团队的实际意义很明确：当代码库已经被 AI 写坏，继续让模型局部修补只会堆出更多噪声。GPT-5.5 的优势在于重构胆量。它仍然离高级工程师有大约 30 分差距，但第一次让 Every 团队觉得，模型在接近“理解结构再重写”的工作方式。\n\n主讲人用了一个很工程化的词：invariants，不变量。好的重写会先找出代码库里必须保持成立的规则，再围绕规则重建结构；旧目录和报错信息只能作为线索，不能变成施工图。GPT-5.5 让他满意的地方，正是它不会被旧代码牵着走太远。\n\n好计划要写到文件数量和删除范围\n\nGPT-5.5 自己写的计划更适合人读，概念基本都有，但篇幅偏长，缺少程序员式的契约细节。Opus 4.7 的计划则更短、更硬，像一份清单：做成后某个文件不该超过 100 行，哪些旧文件该删除，什么状态才算“足够好”。主讲人认为，这种精确度正好能激发 GPT-5.5 的执行力。\n\n\"Opus 的计划会告诉模型：如果重写足够好，这个大文件只会剩 100 行。\"\n\n所以，5.5 的使用姿势也随之变化。把它当成聊天模型，收获可能只是一个不错的回答；把它放进有约束的工程流程，输出会更像能交付的工作。计划越具体，GPT-5.5 越敢执行；计划越像“请你发挥”，它越容易浪费在不必要的探索上。\n\n有意思的是，GPT-5.5 的计划更像写给人看的文档，概念齐全、语言顺滑，却少了“完成定义”。Opus 4.7 的计划更干、更像机器人，但这种机器味在工程执行里反而有用。模型协作的经验变成了：别只追求提示词优雅，要把验收条件写到足够硬。\n\nDayline 和 Monologue 跑出了真实项目速度\n\nEvery 的 Naveen 用 GPT-5.5 做了两个实测。一个是 Dayline，一款原生 iOS 和 Mac 待办应用。他的反馈是，5.5 能按计划持续推进，把一串功能做到完成，而且做出来的应用漂亮、能用。另一个是 Monologue 的新功能发布，他在预发布测试里用掉大约 9 亿 tokens。\n\n\"他用了大约 9 亿 tokens 测 GPT-5.5，并说这是他做任何事情时最喜欢的模型。\"\n\nNaveen 的评价很重：他认为自己能按时把 Monologue 新功能发出来，靠的就是这个模型。Every 团队把这类反馈看得很高，因为它来自真实产品线，不只是 benchmark。当任务已经拆成明确计划，GPT-5.5 的角色更像一名能长时间跑任务的执行工程师。\n\nDayline 的场景尤其典型：原生 iOS 和 Mac 应用对细节、状态、平台差异都有要求，不能只靠一个 demo 截图糊弄过去。Naveen 的反馈重点落在执行完整度上：它能按计划把功能一路做完。对赶发布节点的团队，这比一次漂亮回答更有价值。\n\n这里也能看到 token 消耗的变化。9 亿 tokens 听起来夸张，但对持续跑任务的产品团队来说，模型已经从“问答成本”变成“工程产能成本”。如果它能帮一个 GM 在期限前交付功能，团队就会自然开始计算：哪些开发任务适合交给模型长跑，哪些任务仍需要人类架构师把关。\n\n设计感、Ruby 和模糊需求仍交给 Opus\n\nGPT-5.5 并没有全面赢。Cora 的负责人 Kieran Classen 用 LFT bench 测了更产品化的工程任务：做功能、处理前端、照顾设计和产品判断。结果是 5.5 表现不错，但设计导向任务里，Opus 4.7 的审美更稳。Mike Keller 也有类似观察：从一个欠明确的提示出发 vibe code 复杂应用，Opus 4.7 更容易一路做完。\n\n\"如果你在 vibe coding，或者想做高级工程师类型的工作，更明确的计划会让这个模型发挥得最好。\"\n\n语言栈上也有差异。Kieran 是 Ruby 重度用户，他认为 5.5 写出来的 Ruby 质量不够好；TypeScript 和 Swift 则更让团队满意。工程团队可以据此分工：结构化重构、TypeScript、Swift、清晰计划交给 5.5；审美判断、模糊产品探索、Rails 代码质量检查，仍保留 Opus 4.7 的位置。\n\nLFT bench 更接近产品团队日常：需求并不总是写清楚，前端体验和交互取舍会不断冒出来。5.5 在这种场景下不差，但原稿给出的判断很克制：如果任务需要审美、产品 taste、从模糊目标里自己找路，Opus 4.7 依旧更可靠。\n\n商务写作开始摆脱 GPT 味\n\n写作部分的结论更克制。GPT-5.5 的人格感不如老版 Opus，尤其不如 Opus 4.6，但它很适合商务写作。主讲人用它写投资人更新，几乎一次生成就接近可发送状态。Every 的 staff writer Katie Parrot 长期主要用 Claude 写作，这次也开始在一些写作任务上转向 GPT 模型。\n\n\"它在模仿一种风格时不错，而且不会过度表演。\"\n\nKatie 和 Mike 都提到，5.5 的声音复制做得好，能模仿风格，又不会把风格演到夸张。这种“收着写”的能力，让它更适合投资人更新、团队备忘录、产品说明和对外邮件。如果要的是强人格、强观点的文章，Opus 仍有优势；如果要的是稳、准、少废话，5.5 更像企业内部每天会用的写作工具。\n\n主讲人的投资人更新测试很有代表性。企业写作最怕两种结果：一种是空泛热情，另一种是模仿口吻过猛。GPT-5.5 的优势来自克制，能把已有材料整理成接近可发送的版本。创始人、PM、部门负责人更可能先在周报、更新、邮件和决策备忘录里用上它。\n\nKatie 的反馈也值得放在这个背景里看。她过去一两年几乎只用 Claude 做写作任务，这次开始把部分工作转给 GPT 模型，说明 5.5 的变化不只是“会写”，而是能进入专业写作者的日常工具箱。它不靠强烈个性取胜，靠的是少犯风格错误、少制造尴尬句子。\n\n桌面知识工作成了它的主场\n\n知识工作是 OpenAI 过去几个月追得最快的地方。主讲人提到，搭配 Codex Desktop 使用时，GPT-5.5 已经成了很强的桌面 agent 体验。它能使用电脑上的应用，能浏览网页，能写 dashboard，也能做复杂数据分析。另一个强感知是速度：和 Opus 4.7 相比，5.5 明显更快，OpenAI 的算力优势在日常使用里能直接感受到。\n\n\"它很快、很强，能使用你电脑上的任何应用，也擅长浏览网页。\"\n\n但主讲人也扣了一分：为了让模型输出更好消化，5.5 在细节洞察上有时不如 Opus。做需要锐利判断的评估任务，比如给模型轨迹打分，他更信任 Opus 4.7。日常使用上，他几乎把 5.5 当成桌面主力；需要审阅、洞察和判断时，Opus 仍然值得保留。\n\n这一段也解释了为什么用户体感会变化。慢模型再聪明，放进桌面 agent 工作流里也会让人中断；快模型哪怕少一点锐度，只要能稳定用浏览器、表格、代码和本地应用，就会成为默认入口。Every 的判断是，5.5 已经足够像一个日常主力，但还没有取代 Opus 的审稿和裁判位置。\n\n主讲人最后的个人用法也很直白：移动端还会用 Claude，电脑上的 agentic 工作基本转向 GPT-5.5。原因很务实：它稳定、便宜、速度快，并且在连续几周里更少忘事、更少做蠢事。这个判断来自每天工作的摩擦感，也来自一次次等待、重试、修补失败后的选择。\n\n写在最后\n\n这期最可操作的结论很简单：不要只问哪个模型最强，先拆清楚谁规划、谁执行、谁审阅。把任务写成具体合同，让 GPT-5.5 长时间动手；把审美、洞察和模糊探索交给 Opus。工程团队的 AI 工作流，正在从“选一个模型”变成“编排一组模型”。\n\n内容来源：\"We Tested GPT-5.5 for 3 Weeks. It's a Beast.\"丨Every\n\n原视频：https://www.youtube.com/watch?v=GROt1Nd4asY&t=623s\n\n如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣",
+          "cleanedText": "# Every CEO：我们对GPT-5.5进行了为期 3 周的测试，它简直太强大丨Every\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/XQq0K05bonCBDxh4zp6YSQ\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n---\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 4000 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\"在高级工程师基准上，GPT-5.5 得了 62.5 分。\"\n\"用 Opus 4.7 写计划，GPT-5.5 就会变成一头猛兽。\"\n\"它有足够的胆量，真的会删掉一堆文件。\"\nEvery 在 GPT-5.5 发布前做了三周内部测试，测试范围覆盖编码、写作、知识工作和 OpenClaw。主讲人把这期称为一次 “vibe check”：不只看跑分，也看它在真实团队里能不能完成 Dayline、Monologue、Cora 这类产品任务。最扎眼的结论来自编码：GPT-5.5 已经能明显拉开和 Opus 4.7 的差距，但它最好用的方式并非单独上阵，而是先拿到一份足够具体的计划。\nEvery 的测试场景很接近真实团队：他们自己用 Codex 和 Claude Code 做 Cora、Sparkle、Monologue 等内部应用，也给公司管理层做 AI 培训。换成中文互联网语境，这期不只是模型发布评测，更像一份工程团队怎么分配模型岗位的实战笔记。它把模型能力放回了排期、交付、重构和写作这些具体工作里，也放回每天开工时的工具选择现场中。\n62.5 分把模型推进高级工程现场\nEvery 做了一个 Senior Engineer Benchmark，简称 SE Bench。它把一个真实应用 Proof 的 “vibe-coded slop” 代码库交给模型，要求模型从第一性原理重写。评分标准来自两名真实高级工程师的改写结果。人类高级工程师通常能拿到 80 到 90 分，GPT-5.5 最高跑到 62.5 分，Opus 4.7 则稳定在 30 分出头。\n\"人类高级工程师在这个基准上通常能得 80 或 90 分。我们见过的最好成绩是 GPT-5.5，它得了 62.5 分。\"\n这个分数还没到人类高级工程师区间，但主讲人强调，SE Bench 还没有被刷爆，前沿仍然有很大空间。GPT-5.5 单独写计划时大概能到低到中 40 分；多做提示后能接近低到中 50 分。真正的跃升发生在另一种组合里：让 Opus 4.7 先写计划，再让 GPT-5.5 执行。\n主讲人特意说明，这不是一个刷 LeetCode 或修小 bug 的测试。Proof 是他自己做过的应用，代码里带着 AI 快速生成后的混乱痕迹。模型要交付一套能和人类工程师改写结果比较的完整实现。62.5 分的意义在于，它第一次让模型接近了“能重写系统”的位置。\n先让 Opus 写计划，再让 5.5 动手\n主讲人提到一个搭配：Opus 4.7 负责规划，GPT-5.5 负责执行。原因很直接，Opus 4.7 写出的计划更像工程合同，会说明哪些概念必须成立、哪些文件要删、重写完成后某个大文件大约应该剩多少行。GPT-5.5 拿到这样的计划后，不会只补几个洞，而会沿着计划把改造做完。\nOpus 4.7 自己执行这份计划时，反而会退回到小修小补。主讲人说，它会觉得任务太费力，然后只挑一小块处理。GPT-5.4 也有类似倾向，只是做得比 Opus 稍好。GPT-5.5 的不同在于，它在 extra high reasoning 下更敢动手，能把数小时级别的任务从头推进到尾。\n这种分工给工程经理一个很具体的操作方式：需求进入 AI 流程后，先用擅长结构化规划的模型写改造合同，再把合同交给更愿意长时间执行的模型。原来团队会争论“Claude 强还是 GPT 强”，Every 这次测试更像把争论拆开：谁写计划，谁动手，谁最后验收。\nSE Bench 看的是重写烂代码的胆量\nSE Bench 的重点不在补 bug，而在判断模型有没有高级工程师的结构感。模型拿到的是一个真实但混乱的应用代码库，任务是判断底层不变量、重新划分边界、让代码回到概念清晰的状态。很多模型会被现有文件牵着走，在局部打补丁；GPT-5.5 更愿意从核心原则出发，改掉结构。\n\"它有那种果断、胆量和自主性，真的会删掉一堆文件，然后从头开始。\"\n这对工程团队的实际意义很明确：当代码库已经被 AI 写坏，继续让模型局部修补只会堆出更多噪声。GPT-5.5 的优势在于重构胆量。它仍然离高级工程师有大约 30 分差距，但第一次让 Every 团队觉得，模型在接近“理解结构再重写”的工作方式。\n主讲人用了一个很工程化的词：invariants，不变量。好的重写会先找出代码库里必须保持成立的规则，再围绕规则重建结构；旧目录和报错信息只能作为线索，不能变成施工图。GPT-5.5 让他满意的地方，正是它不会被旧代码牵着走太远。\n好计划要写到文件数量和删除范围\nGPT-5.5 自己写的计划更适合人读，概念基本都有，但篇幅偏长，缺少程序员式的契约细节。Opus 4.7 的计划则更短、更硬，像一份清单：做成后某个文件不该超过 100 行，哪些旧文件该删除，什么状态才算“足够好”。主讲人认为，这种精确度正好能激发 GPT-5.5 的执行力。\n\"Opus 的计划会告诉模型：如果重写足够好，这个大文件只会剩 100 行。\"\n所以，5.5 的使用姿势也随之变化。把它当成聊天模型，收获可能只是一个不错的回答；把它放进有约束的工程流程，输出会更像能交付的工作。计划越具体，GPT-5.5 越敢执行；计划越像“请你发挥”，它越容易浪费在不必要的探索上。\n有意思的是，GPT-5.5 的计划更像写给人看的文档，概念齐全、语言顺滑，却少了“完成定义”。Opus 4.7 的计划更干、更像机器人，但这种机器味在工程执行里反而有用。模型协作的经验变成了：别只追求提示词优雅，要把验收条件写到足够硬。\nDayline 和 Monologue 跑出了真实项目速度\nEvery 的 Naveen 用 GPT-5.5 做了两个实测。一个是 Dayline，一款原生 iOS 和 Mac 待办应用。他的反馈是，5.5 能按计划持续推进，把一串功能做到完成，而且做出来的应用漂亮、能用。另一个是 Monologue 的新功能发布，他在预发布测试里用掉大约 9 亿 tokens。\n\"他用了大约 9 亿 tokens 测 GPT-5.5，并说这是他做任何事情时最喜欢的模型。\"\nNaveen 的评价很重：他认为自己能按时把 Monologue 新功能发出来，靠的就是这个模型。Every 团队把这类反馈看得很高，因为它来自真实产品线，不只是 benchmark。当任务已经拆成明确计划，GPT-5.5 的角色更像一名能长时间跑任务的执行工程师。\nDayline 的场景尤其典型：原生 iOS 和 Mac 应用对细节、状态、平台差异都有要求，不能只靠一个 demo 截图糊弄过去。Naveen 的反馈重点落在执行完整度上：它能按计划把功能一路做完。对赶发布节点的团队，这比一次漂亮回答更有价值。\n这里也能看到 token 消耗的变化。9 亿 tokens 听起来夸张，但对持续跑任务的产品团队来说，模型已经从“问答成本”变成“工程产能成本”。如果它能帮一个 GM 在期限前交付功能，团队就会自然开始计算：哪些开发任务适合交给模型长跑，哪些任务仍需要人类架构师把关。\n设计感、Ruby 和模糊需求仍交给 Opus\nGPT-5.5 并没有全面赢。Cora 的负责人 Kieran Classen 用 LFT bench 测了更产品化的工程任务：做功能、处理前端、照顾设计和产品判断。结果是 5.5 表现不错，但设计导向任务里，Opus 4.7 的审美更稳。Mike Keller 也有类似观察：从一个欠明确的提示出发 vibe code 复杂应用，Opus 4.7 更容易一路做完。\n\"如果你在 vibe coding，或者想做高级工程师类型的工作，更明确的计划会让这个模型发挥得最好。\"\n语言栈上也有差异。Kieran 是 Ruby 重度用户，他认为 5.5 写出来的 Ruby 质量不够好；TypeScript 和 Swift 则更让团队满意。工程团队可以据此分工：结构化重构、TypeScript、Swift、清晰计划交给 5.5；审美判断、模糊产品探索、Rails 代码质量检查，仍保留 Opus 4.7 的位置。\nLFT bench 更接近产品团队日常：需求并不总是写清楚，前端体验和交互取舍会不断冒出来。5.5 在这种场景下不差，但原稿给出的判断很克制：如果任务需要审美、产品 taste、从模糊目标里自己找路，Opus 4.7 依旧更可靠。\n商务写作开始摆脱 GPT 味\n写作部分的结论更克制。GPT-5.5 的人格感不如老版 Opus，尤其不如 Opus 4.6，但它很适合商务写作。主讲人用它写投资人更新，几乎一次生成就接近可发送状态。Every 的 staff writer Katie Parrot 长期主要用 Claude 写作，这次也开始在一些写作任务上转向 GPT 模型。\n\"它在模仿一种风格时不错，而且不会过度表演。\"\nKatie 和 Mike 都提到，5.5 的声音复制做得好，能模仿风格，又不会把风格演到夸张。这种“收着写”的能力，让它更适合投资人更新、团队备忘录、产品说明和对外邮件。如果要的是强人格、强观点的文章，Opus 仍有优势；如果要的是稳、准、少废话，5.5 更像企业内部每天会用的写作工具。\n主讲人的投资人更新测试很有代表性。企业写作最怕两种结果：一种是空泛热情，另一种是模仿口吻过猛。GPT-5.5 的优势来自克制，能把已有材料整理成接近可发送的版本。创始人、PM、部门负责人更可能先在周报、更新、邮件和决策备忘录里用上它。\nKatie 的反馈也值得放在这个背景里看。她过去一两年几乎只用 Claude 做写作任务，这次开始把部分工作转给 GPT 模型，说明 5.5 的变化不只是“会写”，而是能进入专业写作者的日常工具箱。它不靠强烈个性取胜，靠的是少犯风格错误、少制造尴尬句子。\n桌面知识工作成了它的主场\n知识工作是 OpenAI 过去几个月追得最快的地方。主讲人提到，搭配 Codex Desktop 使用时，GPT-5.5 已经成了很强的桌面 agent 体验。它能使用电脑上的应用，能浏览网页，能写 dashboard，也能做复杂数据分析。另一个强感知是速度：和 Opus 4.7 相比，5.5 明显更快，OpenAI 的算力优势在日常使用里能直接感受到。\n\"它很快、很强，能使用你电脑上的任何应用，也擅长浏览网页。\"\n但主讲人也扣了一分：为了让模型输出更好消化，5.5 在细节洞察上有时不如 Opus。做需要锐利判断的评估任务，比如给模型轨迹打分，他更信任 Opus 4.7。日常使用上，他几乎把 5.5 当成桌面主力；需要审阅、洞察和判断时，Opus 仍然值得保留。\n这一段也解释了为什么用户体感会变化。慢模型再聪明，放进桌面 agent 工作流里也会让人中断；快模型哪怕少一点锐度，只要能稳定用浏览器、表格、代码和本地应用，就会成为默认入口。Every 的判断是，5.5 已经足够像一个日常主力，但还没有取代 Opus 的审稿和裁判位置。\n主讲人最后的个人用法也很直白：移动端还会用 Claude，电脑上的 agentic 工作基本转向 GPT-5.5。原因很务实：它稳定、便宜、速度快，并且在连续几周里更少忘事、更少做蠢事。这个判断来自每天工作的摩擦感，也来自一次次等待、重试、修补失败后的选择。\n写在最后\n这期最可操作的结论很简单：不要只问哪个模型最强，先拆清楚谁规划、谁执行、谁审阅。把任务写成具体合同，让 GPT-5.5 长时间动手；把审美、洞察和模糊探索交给 Opus。工程团队的 AI 工作流，正在从“选一个模型”变成“编排一组模型”。\n内容来源：\"We Tested GPT-5.5 for 3 Weeks. It's a Beast.\"丨Every\n原视频：https://www.youtube.com/watch?v=GROt1Nd4asY&t=623s\n如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣"
+        },
+        "knowledgePoints": [
+          {
+            "id": "kp-1",
+            "title": "GPT-5.5的Senior Engineer Benchmark得分",
+            "knowledgeType": "concept",
+            "summary": "GPT-5.5在SE Bench上得分62.5，人类高级工程师通常80-90分，Opus 4.7约30分。",
+            "keyClaim": "GPT-5.5在高级工程师基准上的得分是62.5分，尚未达到人类水平但显著领先其他模型。",
+            "sourceQuote": "在高级工程师基准上，GPT-5.5 得了 62.5 分。",
+            "testabilityScore": 5
+          },
+          {
+            "id": "kp-2",
+            "title": "GPT-5.5的最佳使用方式是与Opus 4.7组合",
+            "knowledgeType": "method",
+            "summary": "GPT-5.5单独执行任务得分40-50分，但让Opus 4.7先写计划再由GPT-5.5执行能显著提升至62.5分。",
+            "keyClaim": "使用Opus 4.7写计划然后让GPT-5.5执行是更优的组合方式。",
+            "sourceQuote": "用 Opus 4.7 写计划，GPT-5.5 就会变成一头猛兽。",
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-3",
+            "title": "GPT-5.5的胆量表现",
+            "knowledgeType": "counterexample",
+            "summary": "GPT-5.5敢于执行有风险的操作，如删除大量文件。",
+            "keyClaim": "GPT-5.5在操作中表现出足够的胆量，会删掉一堆文件。",
+            "sourceQuote": "它有足够的胆量，真的会删掉一堆文件。",
+            "testabilityScore": 3
+          },
+          {
+            "id": "kp-4",
+            "title": "SE Bench的测试性质",
+            "knowledgeType": "scenario",
+            "summary": "SE Bench不是一个刷LeetCode或修小bug的测试，而是要求模型重写一个真实应用的混乱代码库，与人类工程师的改写结果比较。",
+            "keyClaim": "SE Bench测试的是模型重写真实系统代码的能力，反映工程水平。",
+            "sourceQuote": "这不是一个刷 LeetCode 或修小 bug 的测试。Proof 是他自己做过的应用，代码里带着 AI 快速生成后的混乱痕迹。模型要交付一套能和人类工程师改写结果比较的完整实现。",
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-5",
+            "title": "GPT-5.5的得分意义",
+            "knowledgeType": "judgment",
+            "summary": "62.5分标志着模型第一次接近能重写系统的位置，虽然未达到人类水平，但前沿空间仍然很大。",
+            "keyClaim": "62.5分表明GPT-5.5已接近能重写系统的能力边界。",
+            "sourceQuote": "62.5 分的意义在于，它第一次让模型接近了“能重写系统”的位置。",
+            "testabilityScore": 5
+          }
+        ],
+        "filteredKnowledgePoints": [],
+        "questions": [
+          {
+            "id": "q-1",
+            "knowledgePointId": "kp-1",
+            "pointId": "kp-1",
+            "pointTitle": "GPT-5.5的Senior Engineer Benchmark得分",
+            "type": "multiple_choice",
+            "stem": "关于GPT-5.5在高级工程师基准上的得分，以下哪项理解正确？",
+            "options": [
+              {
+                "id": "A",
+                "text": "得分62.5，已达到人类高级工程师水平"
+              },
+              {
+                "id": "B",
+                "text": "得分62.5，尚未达到人类水平但显著领先其他模型"
+              },
+              {
+                "id": "C",
+                "text": "得分62.5，远低于其他模型"
+              },
+              {
+                "id": "D",
+                "text": "得分62.5，仅能完成基础编码任务"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "原文明确指出GPT-5.5得了62.5分，且结合上下文表明其尚未达到人类水平但显著领先其他模型。",
+            "shortExplanation": "原文明确指出GPT-5.5得了62.5分，且结合上下文表明其尚未达到人类水平但显著领先其他模型。",
+            "fullExplanation": "GPT-5.5的62.5分代表它已接近人类高级工程师水平，但尚未超越。",
+            "correct_understanding": "GPT-5.5的62.5分代表它已接近人类高级工程师水平，但尚未超越。",
+            "correctUnderstanding": "GPT-5.5的62.5分代表它已接近人类高级工程师水平，但尚未超越。",
+            "common_misconception": "误认为62.5分意味着已达到甚至超越人类高级工程师水平。",
+            "commonMisconception": "误认为62.5分意味着已达到甚至超越人类高级工程师水平。",
+            "pitfalls": [
+              "误认为62.5分意味着已达到甚至超越人类高级工程师水平。"
+            ],
+            "source_snippet": "在高级工程师基准上，GPT-5.5 得了 62.5 分。",
+            "sourceSnippet": "在高级工程师基准上，GPT-5.5 得了 62.5 分。",
+            "sourceQuote": "在高级工程师基准上，GPT-5.5 得了 62.5 分。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-2",
+            "knowledgePointId": "kp-1",
+            "pointId": "kp-1",
+            "pointTitle": "GPT-5.5的Senior Engineer Benchmark得分",
+            "type": "multiple_choice",
+            "stem": "与其他模型相比，GPT-5.5在高级工程师基准上的得分表现如何？",
+            "options": [
+              {
+                "id": "A",
+                "text": "得分最低，表现最差"
+              },
+              {
+                "id": "B",
+                "text": "得分中等，与其他模型持平"
+              },
+              {
+                "id": "C",
+                "text": "得分62.5，显著领先其他模型"
+              },
+              {
+                "id": "D",
+                "text": "得分未知，无法比较"
+              }
+            ],
+            "correctOptionId": "C",
+            "correct_answer": "C",
+            "explanation": "原文指出GPT-5.5得了62.5分，且在高级工程师基准上领先其他模型。",
+            "shortExplanation": "原文指出GPT-5.5得了62.5分，且在高级工程师基准上领先其他模型。",
+            "fullExplanation": "GPT-5.5的得分在该基准上显著高于其他模型。",
+            "correct_understanding": "GPT-5.5的得分在该基准上显著高于其他模型。",
+            "correctUnderstanding": "GPT-5.5的得分在该基准上显著高于其他模型。",
+            "common_misconception": "误以为62.5分不高，实际上已是领先分数。",
+            "commonMisconception": "误以为62.5分不高，实际上已是领先分数。",
+            "pitfalls": [
+              "误以为62.5分不高，实际上已是领先分数。"
+            ],
+            "source_snippet": "在高级工程师基准上，GPT-5.5 得了 62.5 分。",
+            "sourceSnippet": "在高级工程师基准上，GPT-5.5 得了 62.5 分。",
+            "sourceQuote": "在高级工程师基准上，GPT-5.5 得了 62.5 分。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-5",
+            "knowledgePointId": "kp-3",
+            "pointId": "kp-3",
+            "pointTitle": "GPT-5.5的胆量表现",
+            "type": "multiple_choice",
+            "stem": "GPT-5.5在操作中表现出怎样的胆量？",
+            "options": [
+              {
+                "id": "A",
+                "text": "胆小如鼠，不敢进行任何写操作"
+              },
+              {
+                "id": "B",
+                "text": "胆量适中，只会修改少量文件"
+              },
+              {
+                "id": "C",
+                "text": "足够胆大，会删掉一堆文件"
+              },
+              {
+                "id": "D",
+                "text": "完全依赖用户确认，从不主动执行危险操作"
+              }
+            ],
+            "correctOptionId": "C",
+            "correct_answer": "C",
+            "explanation": "原文说“它有足够的胆量，真的会删掉一堆文件”，表明其胆量大。",
+            "shortExplanation": "原文说“它有足够的胆量，真的会删掉一堆文件”，表明其胆量大。",
+            "fullExplanation": "GPT-5.5会主动执行如删除文件等破坏性操作，胆量较大。",
+            "correct_understanding": "GPT-5.5会主动执行如删除文件等破坏性操作，胆量较大。",
+            "correctUnderstanding": "GPT-5.5会主动执行如删除文件等破坏性操作，胆量较大。",
+            "common_misconception": "误以为AI模型通常保守，不会执行危险操作。",
+            "commonMisconception": "误以为AI模型通常保守，不会执行危险操作。",
+            "pitfalls": [
+              "误以为AI模型通常保守，不会执行危险操作。"
+            ],
+            "source_snippet": "它有足够的胆量，真的会删掉一堆文件。",
+            "sourceSnippet": "它有足够的胆量，真的会删掉一堆文件。",
+            "sourceQuote": "它有足够的胆量，真的会删掉一堆文件。",
+            "difficulty": "easy",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 3,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 2,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-6",
+            "knowledgePointId": "kp-3",
+            "pointId": "kp-3",
+            "pointTitle": "GPT-5.5的胆量表现",
+            "type": "multiple_choice",
+            "stem": "以下行为中，最可能由GPT-5.5做出的是？",
+            "options": [
+              {
+                "id": "A",
+                "text": "仅建议用户删除无用文件，但自己不动手"
+              },
+              {
+                "id": "B",
+                "text": "直接删除一系列文件而不询问"
+              },
+              {
+                "id": "C",
+                "text": "拒绝执行任何可能删除文件的指令"
+              },
+              {
+                "id": "D",
+                "text": "只读不写，从不修改文件系统"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "原文表明GPT-5.5有足够胆量会删掉一堆文件，说明它会直接执行删除操作。",
+            "shortExplanation": "原文表明GPT-5.5有足够胆量会删掉一堆文件，说明它会直接执行删除操作。",
+            "fullExplanation": "GPT-5.5会主动、直接地执行删除文件等操作。",
+            "correct_understanding": "GPT-5.5会主动、直接地执行删除文件等操作。",
+            "correctUnderstanding": "GPT-5.5会主动、直接地执行删除文件等操作。",
+            "common_misconception": "认为模型总是需要用户确认才执行危险操作。",
+            "commonMisconception": "认为模型总是需要用户确认才执行危险操作。",
+            "pitfalls": [
+              "认为模型总是需要用户确认才执行危险操作。"
+            ],
+            "source_snippet": "它有足够的胆量，真的会删掉一堆文件。",
+            "sourceSnippet": "它有足够的胆量，真的会删掉一堆文件。",
+            "sourceQuote": "它有足够的胆量，真的会删掉一堆文件。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 3,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          }
+        ],
+        "qualitySummary": {
+          "totalGenerated": 16,
+          "passed": 4,
+          "rewrite": 12,
+          "discarded": 0,
+          "averageScore": 4.4,
+          "seriousIssueCount": 8,
+          "judgeUnavailable": false
+        },
+        "generationMeta": {
+          "startedAt": "2026-05-15T08:50:33.208Z",
+          "currentStage": "completed",
+          "stages": [
+            {
+              "status": "submitted",
+              "at": "2026-05-15T08:50:33.208Z"
+            },
+            {
+              "status": "generating_points",
+              "displayStatusText": "正在生成知识点",
+              "at": "2026-05-15T08:50:33.208Z"
+            },
+            {
+              "status": "generating_questions",
+              "displayStatusText": "正在生成题目",
+              "at": "2026-05-15T08:50:49.435Z"
+            },
+            {
+              "status": "quality_checking",
+              "displayStatusText": "正在检查题目质量",
+              "at": "2026-05-15T08:51:24.741Z"
+            },
+            {
+              "status": "auto_regenerating_questions",
+              "displayStatusText": "正在重新生成题目",
+              "at": "2026-05-15T08:51:43.535Z"
+            },
+            {
+              "status": "completed",
+              "displayStatusText": "已生成",
+              "at": "2026-05-15T08:53:08.845Z"
+            }
+          ],
+          "finishedAt": "2026-05-15T08:53:08.845Z",
+          "chunkCount": 18,
+          "candidateCount": 5,
+          "keptKnowledgePointCount": 5,
+          "filteredKnowledgePointCount": 0,
+          "totalGenerated": 16,
+          "rewrittenCount": 6,
+          "discardedCount": 6,
+          "qualifiedQuestionCount": 4
+        }
+      },
+      "message": ""
+    },
+    {
+      "file": "wechat-claude-code-second-brain-every.md",
+      "startedAt": "2026-05-15T08:53:08.845Z",
+      "status": "failed_no_qualified_questions",
+      "chapter": {
+        "title": "Claude Code 正在重写你的第二大脑丨Every",
+        "sourceType": "text",
+        "status": "failed_no_qualified_questions",
+        "displayStatusText": "题目生成失败",
+        "failureReason": "生成失败。系统已经提取到知识点，但暂时没有生成适合复习的题目。你可以手动重新生成一次。",
+        "source": {
+          "type": "text",
+          "title": "Claude Code 正在重写你的第二大脑丨Every",
+          "url": "",
+          "account": "",
+          "rawText": "# Claude Code 正在重写你的第二大脑丨Every\n\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/FJ99W8U6QpxHHuQvtYtp9g\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n\n---\n\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 3900 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\n\"当你只是在思考时，必须明确告诉 Claude Code：我不想让你现在帮我写东西。\"\n\n\"我可以坐在手机上工作两个小时，做真正的思考和研究。\"\n\n\"如果一个工具能让 10 岁孩子做出一个应用，我看不到它会是泡沫。\"\n\nNoah 早年共同创办 Percolate，后来做 Variance，现在经营 AI 策略咨询公司 Alephic，也做一个关于 AI 与营销的会议 brand.ai。本期节目他把Claude code带到现场：Obsidian 笔记库、Git、家里地下室的小服务器、手机终端、客户项目和写作资料，全都接在一起。Dan 说这是他见过最酷的 Claude Code setup，原因不在炫技，核心是每个环节都能落到具体工作：想演讲、查旧资料、修网站、整理 PDF、给客户项目补一个小改动。这期对话真正适合工程师、产品经理和内容工作者看的地方，是 Noah 把“第二大脑”从一个收藏系统，改造成了一个会追问、会整理、会帮你推 PR 的工作伙伴。\n\nClaude Code 先接管的是笔记库\n\nNoah 以前重度使用 Evernote，后来转到 Obsidian。原因很工程师：Obsidian 的笔记就是一堆 Markdown 文件和文件夹，可以同步到 Git，也能被命令行工具直接读写。于是，他把 Claude Code 跑在整个 Obsidian vault 的根目录，而不是只打开某个单独项目。这样一来，Claude Code 可以读他的旧笔记、会议资料、网页剪藏、研究文档，再把相关素材拉进当前项目。\n\n\"我使用 Claude Code 的第一大场景，就是让它和我的笔记互动。\"\n\n他正在准备一场关于 AI 和营销的演讲，项目文件夹里有 chats、daily progress、research 等目录。外部聊天用 Obsidian Web Clipper 存进来，文章和 PDF 放到 research，每天结束时再让 Claude Code 看当天新增笔记，写出当天学到了什么、哪些想法能推进演讲。项目刚开始时，他还会让 Claude Code 先看过去几场 brand.ai 演讲，理解自己的表达风格，再去全库里找和新主题有关的旧材料。第二大脑在这里承担的任务，是把全库上下文带进当下的思考现场。\n\n想清楚之前，先禁止它写稿\n\nNoah 最有参考价值的习惯，是给 AI 划分“thinking mode”和“writing mode”。他发现模型总想立刻帮你产出最终稿，尤其是当你把演讲、文章、结论这些词丢给它时，它会很快滑向成品。Noah 会在项目说明里直接写清楚：现在不要帮我写任何东西，只帮我思考，问我问题，记录我新给出的想法。\n\n\"当你只是在思考时，必须非常明确地说：我只想让你帮我思考，问我问题。\"\n\n这件事对今天用 Claude Code 的人很现实。很多人失败在第一步：让 AI 太早生成 artifact，然后自己开始改一份并不成熟的稿子。Noah 的流程更像产品早期探索。他先把过去几场 brand.ai 演讲给 Claude Code，看风格；再给它一个粗标题，比如“Transformers are eating the world”；然后让它从 1500 多条 Obsidian 笔记里找可能有用的材料。等到他卡在结尾时，Claude Code 会围绕他过去几年服务 Amazon、Meta、PayPal 等大公司的经验，帮他整理哪些观察可以放到演讲尾声。先把素材、判断和问题堆到同一个工作台上，成品反而更晚出现。\n\n手机第一次变成深度工作入口\n\nNoah 这套系统最离谱的部分，是他把它搬到了手机上。地下室里一台 mini PC 跑着 Tailscale，Obsidian vault 通过 GitHub 私有仓库同步。他在手机里打开 Termius，连进自己的个人 VPN，再启动 Claude Code。于是，他可以在手机上问“过去两天有什么新东西”，调用自己的 agent，打开别的 repo，甚至修一个会议网站里的坏链接。\n\n\"周二我送孩子上校车，然后坐下来吃早餐，真的在手机上做了两个小时的思考和研究。\"\n\n手机过去适合处理消息、刷资料、临时搜索，却很少适合写作、研究和改代码。Noah 的变化在于，手机不再负责显示完整工作环境，而是变成远程进入工作环境的窄入口。Claude Code 在服务器上读文件、改文件、跑命令，手机只是一个对话窗口。有一次客户项目快交付，只有一个小改动最适合他来处理；他坐在池塘边，用手机拉下 repo，让 Claude Code 先确认问题，再推了一个解决方案和 PR。另一条线是语音。他开车送女儿去新罕布什尔州夏令营，路上用 Grok voice mode 花了两个小时研究一篇文章；后来 Tesla 也把 Grok 放进车里，他能在路上继续追问 Walter Benjamin、技术精英主义和自注意力。当“工作台”被放到远端，手机终于可以承载一些真正需要上下文的任务。\n\nAI 会钻进组织缝隙里\n\nNoah 准备演讲时研究了 OSS 的《Simple Sabotage Field Manual》。那本二战时期的手册里，白领破坏工作的办法很简单：把事情交给委员会，反复重提已经决定过的问题，在别人要行动时提醒他们不要太仓促。Noah 想借这个材料讲大型组织里的官僚流程，以及 AI 可能如何绕开那些慢动作。\n\n\"AI 有点像模糊接口，它不太在意输入输出的形式。\"\n\n他给了一个很形象的说法：AI 像 Thomas' English muffin，会钻进 nooks and crannies，也就是组织的缝隙。企业软件过去最难的是 adoption 和 change management，每个人都要迁移到同一个系统、同一种流程。模型作为中间层后，员工可以保留原本的文件、仓库和工具，AI 负责翻译、连接和补齐。Noah 在给大品牌做 AI 项目时，看到的常见难点正是旧系统、旧流程和新需求之间的摩擦；Claude Code 这类工具的价值，往往出现在那些没人愿意重做平台、但又急需把信息接起来的地方。工作方式不一定先被统一，信息可以先被模型打通。\n\n他准备这场演讲时，还把 OSS 手册印了 300 本，自己写了新序言，准备在纽约的 brand.ai 会议上发给参会者。这个细节很能说明他的工作方式：先把公共领域材料、历史人物 Wild Bill Donovan、AI 营销项目和自己的客户经验放在同一个文件夹里，再让 Claude Code 在这些材料之间找连接，最后回到具体演讲现场。\n\n代码复用开始绕过“抽库”\n\nDan 在 Every 内部也看到类似变化。Every 只有 15 个人，却跑着 6 个产品，每个 GM 可以选择自己的技术栈。Sparkle 做文件组织和 Spotlight 式搜索，另一个产品 Paralegal 用 Claude Code 坐在法律文件目录上，回答“有没有签过这份合同”“员工协议模板在哪里”这类问题。两个产品都需要快速文件搜索。\n\n\"我们没有把 Sparkle 的文件搜索抽象成一个所有人都能用的模块，而是让开发者去问 Claude Code：它是怎么做的，然后做自己的版本。\"\n\n过去要复用这套能力，团队得抽一个库，统一平台、接口和依赖。现在的做法更轻：把 Paralegal 的开发者加到 Sparkle repo，让 Claude Code 读实现，再迁移出适合自己栈的版本。Dan 把它叫作 tacit code sharing，隐性代码共享。Noah 也在客户和内部工具里这样做，用 GitHub MCP 让 Claude Code 去别的 repo 看最佳实践，再搬到当前项目。比如他们内部有个叫 intelligence 的工具，包着 CRM 和公司运营所需的各种功能；以后新项目遇到类似问题，Claude Code 可以直接去那里找实现痕迹。知识复用从“封装给人调用”，变成“让模型读懂再转译”。\n\n写作、代码和表达会重新混在一起\n\nNoah 谈到自己的 10 岁女儿。家里每年圣诞会做抽礼物对象的活动，她想当那个“chooser”。Noah 把手机和 v0 给她，让她自己 vibe code 一个应用。她最后迭代了 75 次，还在过程中自己碰到数据建模：原来规则写“成人给成人送、孩子给孩子送”，后来她想做成更通用的应用，于是意识到应该叫 groups。\n\n\"她开始进入很有意思的计算机科学概念，虽然她自己并不知道。\"\n\nNoah 对“vibe coding 泡沫”的回应很直接：他不关心某家公司估值是否过高。一个工具如果能让 10 岁孩子把想法做成可运行应用，它打开的表达空间就很难被一句泡沫盖过去。他还在给 NYU 提一门课，暂名叫 Code is Essay。代码过去长期只属于会编程的人，现在开始变成一种表达媒介，像写作、演讲、剪辑一样，被更多人拿来说明自己的想法。女儿做抽礼物应用时，最有价值的部分并非“写出代码”四个字；她在和工具来回 75 轮里，开始理解规则、对象、分组和通用性。\n\n学校要教会孩子判断机器\n\n教育部分里，Noah 的观点比“禁用 AI”更温和，也更难。他在洛杉矶和一位 11 年级英文老师聊过，对方问学生都用 AI 写作该怎么办。Noah 说，他不知道英文老师的工作该怎么做，但从非常基础的层面看，老师的任务可能不只是教孩子写作，因为写作是一生的事；更重要的是让孩子相信写作值得学。\n\n\"你无法把一种不会被藏起来的技术藏起来。\"\n\n他把 AI 幻觉和电视、互联网、社交媒体里的错误信息放在同一类能力训练中：学生需要媒体素养，需要知道自己什么时候被一个看似顺耳的答案骗了。Noah 推荐 Tim Harford 写给孩子的《The Truth Detective》，书里有个说法叫 brain guard：当一条信息让你感觉特别好、特别符合自己观点时，反而要更怀疑一点。他还提到 NYU Gallatin 的毕业答辩：学生要在一个房间里，围绕 25 本书和几位教授连续讲清楚自己的学习路径。无论准备时有没有 AI，进房间后都得真的能说清楚。AI 时代的基础能力，不只是会提问，还包括能识别自己为什么轻易相信。\n\n命令行会变成个人操作系统\n\n对 Noah 来说，Claude Code 已经把他重新带回命令行。他最近在 Linux 上玩 DHH 的 Omarchy，不熟悉命令和配置，就给这个机器建了一个专门的 Claude Code 项目，负责帮他改 Neovim、装插件、理解 Linux 操作。他还在 Mac 上做了类似助手，让它清理 Homebrew、把 Python 包管理从 pip 换到 uv，并记住他的偏好设置。\n\n\"Claude Code 已经成了我生活里非常核心的一部分，所以我对命令行越来越感兴趣。\"\n\n最后一个小工具更像日常刚需：Obsidian 的 attachments 文件夹里，PDF 和图片常常名字很乱。Noah 做了一个 Claude Code 小工具，遍历附件，用 Gemini Flash 重命名，生成元数据表，再把笔记里的附件链接全部改回去。它不像一个宏大的 AI 产品，却非常像未来个人软件的样子：你说出一件重复、琐碎、需要理解文件关系的事，系统直接在你的资料库里完成。Noah 说自己现在“玩得很开心”，白天给 Amazon、Meta、PayPal 这类公司做 AI 项目，业余继续在命令行里搭自己的小系统；这股兴奋感，来自工具终于能进入日常细节。\n\n写在最后\n\nNoah 的做法不适合照抄成一套教程。更值得拿走的是他的判断：Claude Code 的入口不只在代码仓库，也可以在笔记库、演讲项目、手机终端和个人服务器里。先让它贴近你已经在做的工作，再慢慢把重复劳动和上下文检索交出去。工程师可以从一个 repo 开始，产品经理可以从一组 PRD 和用户访谈开始，内容工作者可以从自己的笔记库开始。第二大脑不需要一开始就宏大，先让它帮你守住一个真实流程。\n\n内容来源：\"Claude Code Can Be Your Second Brain\"丨Every / AI & I\n\n原视频：https://www.youtube.com/watch?v=in7i-EVDDlk\n\n如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣",
+          "cleanedText": "# Claude Code 正在重写你的第二大脑丨Every\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/FJ99W8U6QpxHHuQvtYtp9g\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n---\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 3900 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\"当你只是在思考时，必须明确告诉 Claude Code：我不想让你现在帮我写东西。\"\n\"我可以坐在手机上工作两个小时，做真正的思考和研究。\"\n\"如果一个工具能让 10 岁孩子做出一个应用，我看不到它会是泡沫。\"\nNoah 早年共同创办 Percolate，后来做 Variance，现在经营 AI 策略咨询公司 Alephic，也做一个关于 AI 与营销的会议 brand.ai。本期节目他把Claude code带到现场：Obsidian 笔记库、Git、家里地下室的小服务器、手机终端、客户项目和写作资料，全都接在一起。Dan 说这是他见过最酷的 Claude Code setup，原因不在炫技，核心是每个环节都能落到具体工作：想演讲、查旧资料、修网站、整理 PDF、给客户项目补一个小改动。这期对话真正适合工程师、产品经理和内容工作者看的地方，是 Noah 把“第二大脑”从一个收藏系统，改造成了一个会追问、会整理、会帮你推 PR 的工作伙伴。\nClaude Code 先接管的是笔记库\nNoah 以前重度使用 Evernote，后来转到 Obsidian。原因很工程师：Obsidian 的笔记就是一堆 Markdown 文件和文件夹，可以同步到 Git，也能被命令行工具直接读写。于是，他把 Claude Code 跑在整个 Obsidian vault 的根目录，而不是只打开某个单独项目。这样一来，Claude Code 可以读他的旧笔记、会议资料、网页剪藏、研究文档，再把相关素材拉进当前项目。\n\"我使用 Claude Code 的第一大场景，就是让它和我的笔记互动。\"\n他正在准备一场关于 AI 和营销的演讲，项目文件夹里有 chats、daily progress、research 等目录。外部聊天用 Obsidian Web Clipper 存进来，文章和 PDF 放到 research，每天结束时再让 Claude Code 看当天新增笔记，写出当天学到了什么、哪些想法能推进演讲。项目刚开始时，他还会让 Claude Code 先看过去几场 brand.ai 演讲，理解自己的表达风格，再去全库里找和新主题有关的旧材料。第二大脑在这里承担的任务，是把全库上下文带进当下的思考现场。\n想清楚之前，先禁止它写稿\nNoah 最有参考价值的习惯，是给 AI 划分“thinking mode”和“writing mode”。他发现模型总想立刻帮你产出最终稿，尤其是当你把演讲、文章、结论这些词丢给它时，它会很快滑向成品。Noah 会在项目说明里直接写清楚：现在不要帮我写任何东西，只帮我思考，问我问题，记录我新给出的想法。\n\"当你只是在思考时，必须非常明确地说：我只想让你帮我思考，问我问题。\"\n这件事对今天用 Claude Code 的人很现实。很多人失败在第一步：让 AI 太早生成 artifact，然后自己开始改一份并不成熟的稿子。Noah 的流程更像产品早期探索。他先把过去几场 brand.ai 演讲给 Claude Code，看风格；再给它一个粗标题，比如“Transformers are eating the world”；然后让它从 1500 多条 Obsidian 笔记里找可能有用的材料。等到他卡在结尾时，Claude Code 会围绕他过去几年服务 Amazon、Meta、PayPal 等大公司的经验，帮他整理哪些观察可以放到演讲尾声。先把素材、判断和问题堆到同一个工作台上，成品反而更晚出现。\n手机第一次变成深度工作入口\nNoah 这套系统最离谱的部分，是他把它搬到了手机上。地下室里一台 mini PC 跑着 Tailscale，Obsidian vault 通过 GitHub 私有仓库同步。他在手机里打开 Termius，连进自己的个人 VPN，再启动 Claude Code。于是，他可以在手机上问“过去两天有什么新东西”，调用自己的 agent，打开别的 repo，甚至修一个会议网站里的坏链接。\n\"周二我送孩子上校车，然后坐下来吃早餐，真的在手机上做了两个小时的思考和研究。\"\n手机过去适合处理消息、刷资料、临时搜索，却很少适合写作、研究和改代码。Noah 的变化在于，手机不再负责显示完整工作环境，而是变成远程进入工作环境的窄入口。Claude Code 在服务器上读文件、改文件、跑命令，手机只是一个对话窗口。有一次客户项目快交付，只有一个小改动最适合他来处理；他坐在池塘边，用手机拉下 repo，让 Claude Code 先确认问题，再推了一个解决方案和 PR。另一条线是语音。他开车送女儿去新罕布什尔州夏令营，路上用 Grok voice mode 花了两个小时研究一篇文章；后来 Tesla 也把 Grok 放进车里，他能在路上继续追问 Walter Benjamin、技术精英主义和自注意力。当“工作台”被放到远端，手机终于可以承载一些真正需要上下文的任务。\nAI 会钻进组织缝隙里\nNoah 准备演讲时研究了 OSS 的《Simple Sabotage Field Manual》。那本二战时期的手册里，白领破坏工作的办法很简单：把事情交给委员会，反复重提已经决定过的问题，在别人要行动时提醒他们不要太仓促。Noah 想借这个材料讲大型组织里的官僚流程，以及 AI 可能如何绕开那些慢动作。\n\"AI 有点像模糊接口，它不太在意输入输出的形式。\"\n他给了一个很形象的说法：AI 像 Thomas' English muffin，会钻进 nooks and crannies，也就是组织的缝隙。企业软件过去最难的是 adoption 和 change management，每个人都要迁移到同一个系统、同一种流程。模型作为中间层后，员工可以保留原本的文件、仓库和工具，AI 负责翻译、连接和补齐。Noah 在给大品牌做 AI 项目时，看到的常见难点正是旧系统、旧流程和新需求之间的摩擦；Claude Code 这类工具的价值，往往出现在那些没人愿意重做平台、但又急需把信息接起来的地方。工作方式不一定先被统一，信息可以先被模型打通。\n他准备这场演讲时，还把 OSS 手册印了 300 本，自己写了新序言，准备在纽约的 brand.ai 会议上发给参会者。这个细节很能说明他的工作方式：先把公共领域材料、历史人物 Wild Bill Donovan、AI 营销项目和自己的客户经验放在同一个文件夹里，再让 Claude Code 在这些材料之间找连接，最后回到具体演讲现场。\n代码复用开始绕过“抽库”\nDan 在 Every 内部也看到类似变化。Every 只有 15 个人，却跑着 6 个产品，每个 GM 可以选择自己的技术栈。Sparkle 做文件组织和 Spotlight 式搜索，另一个产品 Paralegal 用 Claude Code 坐在法律文件目录上，回答“有没有签过这份合同”“员工协议模板在哪里”这类问题。两个产品都需要快速文件搜索。\n\"我们没有把 Sparkle 的文件搜索抽象成一个所有人都能用的模块，而是让开发者去问 Claude Code：它是怎么做的，然后做自己的版本。\"\n过去要复用这套能力，团队得抽一个库，统一平台、接口和依赖。现在的做法更轻：把 Paralegal 的开发者加到 Sparkle repo，让 Claude Code 读实现，再迁移出适合自己栈的版本。Dan 把它叫作 tacit code sharing，隐性代码共享。Noah 也在客户和内部工具里这样做，用 GitHub MCP 让 Claude Code 去别的 repo 看最佳实践，再搬到当前项目。比如他们内部有个叫 intelligence 的工具，包着 CRM 和公司运营所需的各种功能；以后新项目遇到类似问题，Claude Code 可以直接去那里找实现痕迹。知识复用从“封装给人调用”，变成“让模型读懂再转译”。\n写作、代码和表达会重新混在一起\nNoah 谈到自己的 10 岁女儿。家里每年圣诞会做抽礼物对象的活动，她想当那个“chooser”。Noah 把手机和 v0 给她，让她自己 vibe code 一个应用。她最后迭代了 75 次，还在过程中自己碰到数据建模：原来规则写“成人给成人送、孩子给孩子送”，后来她想做成更通用的应用，于是意识到应该叫 groups。\n\"她开始进入很有意思的计算机科学概念，虽然她自己并不知道。\"\nNoah 对“vibe coding 泡沫”的回应很直接：他不关心某家公司估值是否过高。一个工具如果能让 10 岁孩子把想法做成可运行应用，它打开的表达空间就很难被一句泡沫盖过去。他还在给 NYU 提一门课，暂名叫 Code is Essay。代码过去长期只属于会编程的人，现在开始变成一种表达媒介，像写作、演讲、剪辑一样，被更多人拿来说明自己的想法。女儿做抽礼物应用时，最有价值的部分并非“写出代码”四个字；她在和工具来回 75 轮里，开始理解规则、对象、分组和通用性。\n学校要教会孩子判断机器\n教育部分里，Noah 的观点比“禁用 AI”更温和，也更难。他在洛杉矶和一位 11 年级英文老师聊过，对方问学生都用 AI 写作该怎么办。Noah 说，他不知道英文老师的工作该怎么做，但从非常基础的层面看，老师的任务可能不只是教孩子写作，因为写作是一生的事；更重要的是让孩子相信写作值得学。\n\"你无法把一种不会被藏起来的技术藏起来。\"\n他把 AI 幻觉和电视、互联网、社交媒体里的错误信息放在同一类能力训练中：学生需要媒体素养，需要知道自己什么时候被一个看似顺耳的答案骗了。Noah 推荐 Tim Harford 写给孩子的《The Truth Detective》，书里有个说法叫 brain guard：当一条信息让你感觉特别好、特别符合自己观点时，反而要更怀疑一点。他还提到 NYU Gallatin 的毕业答辩：学生要在一个房间里，围绕 25 本书和几位教授连续讲清楚自己的学习路径。无论准备时有没有 AI，进房间后都得真的能说清楚。AI 时代的基础能力，不只是会提问，还包括能识别自己为什么轻易相信。\n命令行会变成个人操作系统\n对 Noah 来说，Claude Code 已经把他重新带回命令行。他最近在 Linux 上玩 DHH 的 Omarchy，不熟悉命令和配置，就给这个机器建了一个专门的 Claude Code 项目，负责帮他改 Neovim、装插件、理解 Linux 操作。他还在 Mac 上做了类似助手，让它清理 Homebrew、把 Python 包管理从 pip 换到 uv，并记住他的偏好设置。\n\"Claude Code 已经成了我生活里非常核心的一部分，所以我对命令行越来越感兴趣。\"\n最后一个小工具更像日常刚需：Obsidian 的 attachments 文件夹里，PDF 和图片常常名字很乱。Noah 做了一个 Claude Code 小工具，遍历附件，用 Gemini Flash 重命名，生成元数据表，再把笔记里的附件链接全部改回去。它不像一个宏大的 AI 产品，却非常像未来个人软件的样子：你说出一件重复、琐碎、需要理解文件关系的事，系统直接在你的资料库里完成。Noah 说自己现在“玩得很开心”，白天给 Amazon、Meta、PayPal 这类公司做 AI 项目，业余继续在命令行里搭自己的小系统；这股兴奋感，来自工具终于能进入日常细节。\n写在最后\nNoah 的做法不适合照抄成一套教程。更值得拿走的是他的判断：Claude Code 的入口不只在代码仓库，也可以在笔记库、演讲项目、手机终端和个人服务器里。先让它贴近你已经在做的工作，再慢慢把重复劳动和上下文检索交出去。工程师可以从一个 repo 开始，产品经理可以从一组 PRD 和用户访谈开始，内容工作者可以从自己的笔记库开始。第二大脑不需要一开始就宏大，先让它帮你守住一个真实流程。\n内容来源：\"Claude Code Can Be Your Second Brain\"丨Every / AI & I\n原视频：https://www.youtube.com/watch?v=in7i-EVDDlk\n如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣"
+        },
+        "knowledgePoints": [
+          {
+            "id": "kp-1",
+            "title": "将Claude Code运行在Obsidian vault根目录以访问全库",
+            "knowledgeType": "method",
+            "summary": "将Claude Code配置为访问整个Obsidian笔记根目录，使其能全面读取笔记库。",
+            "keyClaim": "通过将Claude Code运行在Obsidian根目录，它能利用整个笔记库的上下文辅助当前工作。",
+            "sourceQuote": "他把Claude Code跑在整个Obsidian vault的根目录，而不是只打开某个单独项目。这样一来，Claude Code可以读他的旧笔记、会议资料、网页剪藏、研究文档，再把相关素材拉进当前项目。",
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-3",
+            "title": "让Claude Code先分析过往演讲风格再搜索相关材料",
+            "knowledgeType": "step",
+            "summary": "准备新演讲时，让Claude Code先分析过往演讲风格，再搜索相关旧材料。",
+            "keyClaim": "通过分析过去作品风格，Claude Code能更好地辅助新内容创作。",
+            "sourceQuote": "他还会让Claude Code先看过去几场brand.ai演讲，理解自己的表达风格，再去全库里找和新主题有关的旧材料。",
+            "testabilityScore": 3
+          }
+        ],
+        "filteredKnowledgePoints": [
+          {
+            "id": "kp-2",
+            "title": "区分thinking mode和writing mode避免AI过早产出成品",
+            "knowledgeType": "method",
+            "summary": "在项目说明中明确禁止AI直接写作，只允许其辅助思考和提问。",
+            "keyClaim": "通过明确指令分隔思考与写作阶段，能更有效地利用AI进行头脑风暴。",
+            "sourceQuote": "他会在项目说明里直接写清楚：现在不要帮我写任何东西，只帮我思考，问我问题，记录我新给出的想法。",
+            "testabilityScore": 4,
+            "filterReasons": [
+              "source_not_supported"
+            ]
+          }
+        ],
+        "questions": [],
+        "qualitySummary": {
+          "totalGenerated": 8,
+          "passed": 0,
+          "rewrite": 8,
+          "discarded": 0,
+          "averageScore": 0,
+          "seriousIssueCount": 9,
+          "judgeUnavailable": false
+        },
+        "generationMeta": {
+          "startedAt": "2026-05-15T08:53:08.845Z",
+          "currentStage": "failed_no_qualified_questions",
+          "stages": [
+            {
+              "status": "submitted",
+              "at": "2026-05-15T08:53:08.845Z"
+            },
+            {
+              "status": "generating_points",
+              "displayStatusText": "正在生成知识点",
+              "at": "2026-05-15T08:53:08.845Z"
+            },
+            {
+              "status": "generating_questions",
+              "displayStatusText": "正在生成题目",
+              "at": "2026-05-15T08:53:23.155Z"
+            },
+            {
+              "status": "quality_checking",
+              "displayStatusText": "正在检查题目质量",
+              "at": "2026-05-15T08:53:38.696Z"
+            },
+            {
+              "status": "auto_regenerating_questions",
+              "displayStatusText": "正在重新生成题目",
+              "at": "2026-05-15T08:53:57.887Z"
+            },
+            {
+              "status": "failed_no_qualified_questions",
+              "displayStatusText": "题目生成失败",
+              "at": "2026-05-15T08:55:18.724Z"
+            }
+          ],
+          "finishedAt": "2026-05-15T08:55:18.724Z",
+          "failedStage": "quality_checking",
+          "failureReason": "生成失败。系统已经提取到知识点，但暂时没有生成适合复习的题目。你可以手动重新生成一次。",
+          "candidateCount": 3,
+          "keptKnowledgePointCount": 2,
+          "filteredKnowledgePointCount": 1,
+          "totalGenerated": 8,
+          "rewrittenCount": 8,
+          "discardedCount": 8,
+          "qualifiedQuestionCount": 0
+        }
+      },
+      "message": "生成失败。系统已经提取到知识点，但暂时没有生成适合复习的题目。你可以手动重新生成一次。"
+    },
+    {
+      "file": "wechat-ojH_AFbwlHJSv-Jg-yafWg.md",
+      "startedAt": "2026-05-15T08:55:18.725Z",
+      "status": "completed",
+      "chapter": {
+        "title": "DeepMind CEO：Agent 才刚开始，真正的机会在工作流深处",
+        "sourceType": "text",
+        "status": "completed",
+        "displayStatusText": "已生成",
+        "failureReason": "",
+        "source": {
+          "type": "text",
+          "title": "DeepMind CEO：Agent 才刚开始，真正的机会在工作流深处",
+          "url": "",
+          "account": "",
+          "rawText": "# DeepMind CEO：Agent 才刚开始，真正的机会在工作流深处丨Y Combinator\n\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/ojH_AFbwlHJSv-Jg-yafWg\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n\n---\n\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 3800 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\n\"持续学习、长期推理和一部分记忆能力，仍然没有解决。\"\n\n\"如果你的 AGI 时间线是 2030 年，今天做深科技，就要考虑 AGI 会在半路出现。\"\n\n\"Agent 是通往 AGI 的路径，而我们才刚刚开始。\"\n\nDemis Hassabis 的履历很少能被一句话装下。他小时候是国际象棋神童，17 岁设计出游戏《Theme Park》，后来读认知神经科学博士，2010 年共同创办 DeepMind。AlphaGo 赢下围棋世界冠军，AlphaFold 解决蛋白质结构预测这个 50 年难题，并免费开放给全球科研人员使用；这项工作让他拿到 2024 年诺贝尔化学奖。YC 这场对话里，Garry Tan 没让他讲励志故事，而是连续追问：AGI 还差什么，Agent 现在到底能做什么，工程师和创业者该往哪里走。Demis 给出的答案很克制：能力曲线还在涨，但几个基础部件没有补齐；眼下最先改变的，可能是工程师、创业者和深科技团队组织工作的方式。\n\nAGI 还差几块硬骨头\n\n开场第一个问题就很硬：现在的大规模预训练、RLHF、思维链，离 AGI 的最终架构还有多远？Demis 的回答并不悲观。他认为这些组件会留在最终系统里，过去几年已经证明了太多能力，过两年再说整条路线走错了，并不合理。但他也没有把当下模型直接等同于 AGI。持续学习、长期推理、记忆，以及跨任务稳定性，仍是没啃完的部分。DeepMind 的策略也因此分成两条线：一边继续放大已经有效的方法，一边寻找可能还缺的一两个大想法。\n\n\"我很确定这些组件会成为 AGI 最终架构的一部分，但在我们已经知道有效的东西之上，可能还缺一两个东西。\"\n\n这段判断对工程团队很现实。今天用模型做产品，不能只问“模型够不够聪明”，还要问它能不能在一个长期项目里持续吸收上下文，能不能把昨天的失败变成今天的判断，能不能在复杂流程里保持一致。很多 Agent 产品卡住的地方，恰好不在 demo，而在这些长期性能力。\n\n他还把自己的时间线说得很直白：大约 2030 年。如果一个深科技项目通常要跑 10 年，今天动手的人，项目半程就可能撞上 AGI。这个判断会改变路线图：技术债、数据资产、实验平台、工具接口，都要预留给一个更强系统接手。\n\n大上下文救不了所有记忆\n\n谈到记忆，Demis 回到自己的博士研究：海马体如何把新的情节记忆整合进已有知识。DeepMind 早期的 Atari 程序 DQN，就借鉴过“经验回放”，反复重放成功轨迹来学习。今天的模型有百万甚至千万 token 的上下文，看上去比人的工作记忆大得多，但做法仍粗糙：把重要的、不重要的、甚至错误的东西一股脑塞进去。能存下来和能在决策时找到正确材料，是两回事。\n\n\"我们现在有百万、千万 token 的上下文窗口，但问题是，我们试图把所有东西都存在里面。\"\n\n他还给了一个很具体的尺度：如果系统要实时处理视频，朴素记录所有 token，百万 token 可能只够 20 分钟。一个想理解用户一两个月生活状态的助手，需要的不只是更长窗口，还需要会筛选、会整理、会调取的记忆系统。这也是做个人助理、企业知识库、长期项目 Agent 时最容易被低估的基础设施。\n\nAlphaGo 的老方法回到 Gemini\n\nDeepMind 从第一天就把自己放在 Agent 路线上。Atari、AlphaGo、AlphaZero、AlphaStar，都是会设目标、做决策、制定计划的系统，只是它们先在游戏里训练，因为游戏可控、反馈明确。现在的问题变成：这些模型能不能从游戏世界泛化到语言、现实世界和工具使用？Demis 认为，今天带 thinking mode、chain of thought 的前沿模型，很多影子都能追到 AlphaGo。强化学习和搜索没有过时，它们正在以更通用的方式回来。\n\n\"我们从 DeepMind 一开始就研究 Agent。Atari 和 AlphaGo，尤其是 AlphaGo，都是 Agent 系统。\"\n\n这也是为什么“只把 LLM 接上工具”很快会遇到天花板。真正能跑长任务的系统，需要搜索、规划、反馈、纠错和环境交互。AlphaGo 年代的 Monte Carlo tree search、强化学习增强、世界模型思路，放到今天的基础模型上，会变成下一波能力改进的来源。\n\n小模型把速度还给工程师\n\nGarry Tan 提到一个现场感很强的观察：房间里有些工程师，工作量已经达到 2000 年代 Google 工程师的 1000 倍。Demis 接住了这个说法，随即把焦点放到小模型的速度上。Google 要把 Gemini 用在搜索、AI Overview、Gemini App、Maps、YouTube 等十几个十亿级产品里，必须把前沿模型的能力快速蒸馏进 Flash、Flash-Lite、Gemma 这类更小、更快、更便宜的模型。\n\n\"如果一个系统有前沿模型 90% 或 95% 的能力，已经足够好；你会从迭代速度里把那 10% 赚回来。\"\n\n这对写代码很直接。协作式编程里，等待时间会打断思路；模型稍弱一点，但能快速生成、快速改、快速本地运行，反而让人保持流动。Demis 还提到边缘设备、隐私和机器人：家里的机器人、手机上的个人音视频流，很多内容应该先在本地处理，只有少数场景再交给云端大模型。\n\n他对小模型上限也没有给出悲观判断。一个前沿 Pro 模型发布半年到一年后，其中很多能力会被压进更小的边缘模型和 Gemma 这样的开放模型。软件团队会因此多出一层选择：复杂规划用大模型，频繁编辑、测试、重构、检索用便宜快模型，整个工具链的手感会明显不同。\n\nAgent 才走到能干活的早期\n\n当问题转向 Agent 是否被炒过头，Demis 的回答很清楚：它们刚开始。要到 AGI，系统必须能主动解决问题，Agent 就是那条路。但他也看到，过去几个月大家还在实验如何把 Agent 放进工作流里。很多团队会同时启动几十个 Agent 跑 40 小时，他还没看到产出完全配得上投入。Agent 已经能做任务的一部分，距离“交给它就能自己收尾”还有一段路。\n\n\"它们现在能处理任务的某些部分，你可以把它们拼起来做出很酷的东西，但它们还不能很好适应你所在的上下文。\"\n\n他把缺口指向持续学习。企业里的工单、代码库、客户记录、权限系统和历史决策，都不是一次 prompt 能交代完的材料。Agent 要长期可靠，必须学会特定环境里的背景和偏好。今天很多“自动化”看起来热闹，落到真实工作时仍需要人盯着，原因就在这里。\n\n推理也有类似断层。Demis 会拿 Gemini 下棋，看它的思考轨迹：模型有时会发现一步棋是坏棋，却找不到更好选择，于是又走回那步坏棋。同一个系统能解 IMO 金牌级数学题，也可能在某些提问方式下犯基础错误。产品经理评估 Agent 时，不能只看最亮的样例，还要看它在坏局面里能不能停下来改路线。\n\nVibe coding 还缺手艺和品味\n\nDemis 年轻时做《Theme Park》花了 6 个月。现在他用 AI 半小时就能做出原型，这件事让他觉得震撼。可他也追问了一个简单事实：如果工具已经能把个人产能放大到 1000x，为什么还没看到一个孩子 vibe coding 出登顶应用商店的 3A 游戏？他的判断很朴素：还差工艺、人的灵魂和品味。工具能把原型速度拉满，产品能不能打动人，仍要看操作者的审美、耐心和取舍。\n\n\"我能在半小时里做出 Theme Park 的原型，当年我 17 岁时花了 6 个月，这很惊人；但它仍然需要手艺、人的灵魂和品味。\"\n\n他用 AlphaGo 的第 37 手解释创造力：AI 能走出人类意想不到的一步，但发明围棋是另一层能力。给系统一句高层描述，“五分钟学规则，几辈子才能精通，下午能玩完，还要有美感”，它能不能返回一个像围棋那样的游戏？Demis 认为今天还没有看到，但也承认，可能只差一个足够强的创作者把系统用对。\n\n多模态让模型走进物理世界\n\nGemini 从一开始就按多模态训练，这让早期研发更难，因为团队不能只盯文本。但 Demis 认为这笔账正在回收：世界模型 Genie、Gemini Robotics、自动驾驶和随身设备，都需要模型理解物理环境、直觉物理和现场上下文。一个陪你走进现实世界的助手，不能只会读文档，也要看得懂你所在的房间、手里的物体和正在发生的动作。\n\n\"Gemini 系列从一开始就是多模态的。起步时这让事情更难，但我们相信长期会从中获益。\"\n\n推理成本下降以后，很多人期待“无限便宜的智能”。Demis 反而提醒会出现类似 Jevons 悖论的消耗：只要算力便宜，人们会用更多 Agent 群、更多方向并行思考、更多结果集成，把可用推理吃完。做产品时，成本下降当然重要，但把计算花在哪些判断上、哪些任务适合本地跑，仍会影响体验和毛利。\n\n这也是 Google 把多模态和本地模型放在同一张路线图里的原因。眼镜、手机、车、机器人会产生连续的图像、语音、位置和动作流，全部送到云端并不现实。未来的助手可能先在设备上理解世界，再把少数高难决策交给云端模型。\n\n创业者要押注原子世界\n\nYC 现场很多人想做 AI for science。Garry 追问：怎样区分推进前沿的创业公司，和只是把 API 包一层的公司？Demis 给出的路线很明确：把 AI 的发展方向和另一个深技术领域相交，尤其是材料、医学、药物发现这些涉及物理世界的地方。只要业务进入原子世界，就不会被下一次基础模型更新轻易淹没。最耐久的公司，往往把机器学习和某个硬领域同时做深。\n\n\"如果它涉及原子世界，至少在可预见的未来，就不会有捷径。\"\n\nAlphaFold 的突破也有规律：巨大的组合搜索空间、清晰的目标函数、足够数据或可生成数据的模拟器。围棋有胜负，蛋白质有能量最小化，药物发现也像在巨大空间里找能治病且副作用可控的化合物。Demis 还提到“虚拟细胞”：完整模拟一个细胞，对它施加扰动，输出足够接近实验结果。他估计完整虚拟细胞大约还要 10 年，DeepMind 先从相对自洽的细胞核开始。\n\n在科学推理上，他也没有提前宣布胜利。DeepMind 有 co-scientist，也有 AlphaEvolve，能比基础 Gemini 多走一步；但他还没看到系统独立做出重大科学发现。Demis 想看的测试更苛刻：给模型 1901 年以前的物理知识，看它能不能在 1905 年那样提出狭义相对论。能解题还不够，能提出让顶尖科学家投入一生的新题，才是另一层创造力。\n\n写在最后\n\nDemis 给创业者最后一句话很值得放在桌面上：如果你今天开始一段 10 年深科技旅程，就要认真设想 AGI 在中途出现。别把它当远方新闻，也别把它当万能替身。更稳的做法，是挑一个足够难、足够具体、AI 到来后反而更能放大的工作，然后现在就开始积累。\n\n内容来源：\"Demis Hassabis: Agents, AGI & The Next Big Scientific Breakthrough\"丨Y Combinator\n\n原视频：https://www.youtube.com/watch?v=JNyuX1zoOgU\n\n相关文章如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣",
+          "cleanedText": "# DeepMind CEO：Agent 才刚开始，真正的机会在工作流深处丨Y Combinator\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/ojH_AFbwlHJSv-Jg-yafWg\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n---\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 3800 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\"持续学习、长期推理和一部分记忆能力，仍然没有解决。\"\n\"如果你的 AGI 时间线是 2030 年，今天做深科技，就要考虑 AGI 会在半路出现。\"\n\"Agent 是通往 AGI 的路径，而我们才刚刚开始。\"\nDemis Hassabis 的履历很少能被一句话装下。他小时候是国际象棋神童，17 岁设计出游戏《Theme Park》，后来读认知神经科学博士，2010 年共同创办 DeepMind。AlphaGo 赢下围棋世界冠军，AlphaFold 解决蛋白质结构预测这个 50 年难题，并免费开放给全球科研人员使用；这项工作让他拿到 2024 年诺贝尔化学奖。YC 这场对话里，Garry Tan 没让他讲励志故事，而是连续追问：AGI 还差什么，Agent 现在到底能做什么，工程师和创业者该往哪里走。Demis 给出的答案很克制：能力曲线还在涨，但几个基础部件没有补齐；眼下最先改变的，可能是工程师、创业者和深科技团队组织工作的方式。\nAGI 还差几块硬骨头\n开场第一个问题就很硬：现在的大规模预训练、RLHF、思维链，离 AGI 的最终架构还有多远？Demis 的回答并不悲观。他认为这些组件会留在最终系统里，过去几年已经证明了太多能力，过两年再说整条路线走错了，并不合理。但他也没有把当下模型直接等同于 AGI。持续学习、长期推理、记忆，以及跨任务稳定性，仍是没啃完的部分。DeepMind 的策略也因此分成两条线：一边继续放大已经有效的方法，一边寻找可能还缺的一两个大想法。\n\"我很确定这些组件会成为 AGI 最终架构的一部分，但在我们已经知道有效的东西之上，可能还缺一两个东西。\"\n这段判断对工程团队很现实。今天用模型做产品，不能只问“模型够不够聪明”，还要问它能不能在一个长期项目里持续吸收上下文，能不能把昨天的失败变成今天的判断，能不能在复杂流程里保持一致。很多 Agent 产品卡住的地方，恰好不在 demo，而在这些长期性能力。\n他还把自己的时间线说得很直白：大约 2030 年。如果一个深科技项目通常要跑 10 年，今天动手的人，项目半程就可能撞上 AGI。这个判断会改变路线图：技术债、数据资产、实验平台、工具接口，都要预留给一个更强系统接手。\n大上下文救不了所有记忆\n谈到记忆，Demis 回到自己的博士研究：海马体如何把新的情节记忆整合进已有知识。DeepMind 早期的 Atari 程序 DQN，就借鉴过“经验回放”，反复重放成功轨迹来学习。今天的模型有百万甚至千万 token 的上下文，看上去比人的工作记忆大得多，但做法仍粗糙：把重要的、不重要的、甚至错误的东西一股脑塞进去。能存下来和能在决策时找到正确材料，是两回事。\n\"我们现在有百万、千万 token 的上下文窗口，但问题是，我们试图把所有东西都存在里面。\"\n他还给了一个很具体的尺度：如果系统要实时处理视频，朴素记录所有 token，百万 token 可能只够 20 分钟。一个想理解用户一两个月生活状态的助手，需要的不只是更长窗口，还需要会筛选、会整理、会调取的记忆系统。这也是做个人助理、企业知识库、长期项目 Agent 时最容易被低估的基础设施。\nAlphaGo 的老方法回到 Gemini\nDeepMind 从第一天就把自己放在 Agent 路线上。Atari、AlphaGo、AlphaZero、AlphaStar，都是会设目标、做决策、制定计划的系统，只是它们先在游戏里训练，因为游戏可控、反馈明确。现在的问题变成：这些模型能不能从游戏世界泛化到语言、现实世界和工具使用？Demis 认为，今天带 thinking mode、chain of thought 的前沿模型，很多影子都能追到 AlphaGo。强化学习和搜索没有过时，它们正在以更通用的方式回来。\n\"我们从 DeepMind 一开始就研究 Agent。Atari 和 AlphaGo，尤其是 AlphaGo，都是 Agent 系统。\"\n这也是为什么“只把 LLM 接上工具”很快会遇到天花板。真正能跑长任务的系统，需要搜索、规划、反馈、纠错和环境交互。AlphaGo 年代的 Monte Carlo tree search、强化学习增强、世界模型思路，放到今天的基础模型上，会变成下一波能力改进的来源。\n小模型把速度还给工程师\nGarry Tan 提到一个现场感很强的观察：房间里有些工程师，工作量已经达到 2000 年代 Google 工程师的 1000 倍。Demis 接住了这个说法，随即把焦点放到小模型的速度上。Google 要把 Gemini 用在搜索、AI Overview、Gemini App、Maps、YouTube 等十几个十亿级产品里，必须把前沿模型的能力快速蒸馏进 Flash、Flash-Lite、Gemma 这类更小、更快、更便宜的模型。\n\"如果一个系统有前沿模型 90% 或 95% 的能力，已经足够好；你会从迭代速度里把那 10% 赚回来。\"\n这对写代码很直接。协作式编程里，等待时间会打断思路；模型稍弱一点，但能快速生成、快速改、快速本地运行，反而让人保持流动。Demis 还提到边缘设备、隐私和机器人：家里的机器人、手机上的个人音视频流，很多内容应该先在本地处理，只有少数场景再交给云端大模型。\n他对小模型上限也没有给出悲观判断。一个前沿 Pro 模型发布半年到一年后，其中很多能力会被压进更小的边缘模型和 Gemma 这样的开放模型。软件团队会因此多出一层选择：复杂规划用大模型，频繁编辑、测试、重构、检索用便宜快模型，整个工具链的手感会明显不同。\nAgent 才走到能干活的早期\n当问题转向 Agent 是否被炒过头，Demis 的回答很清楚：它们刚开始。要到 AGI，系统必须能主动解决问题，Agent 就是那条路。但他也看到，过去几个月大家还在实验如何把 Agent 放进工作流里。很多团队会同时启动几十个 Agent 跑 40 小时，他还没看到产出完全配得上投入。Agent 已经能做任务的一部分，距离“交给它就能自己收尾”还有一段路。\n\"它们现在能处理任务的某些部分，你可以把它们拼起来做出很酷的东西，但它们还不能很好适应你所在的上下文。\"\n他把缺口指向持续学习。企业里的工单、代码库、客户记录、权限系统和历史决策，都不是一次 prompt 能交代完的材料。Agent 要长期可靠，必须学会特定环境里的背景和偏好。今天很多“自动化”看起来热闹，落到真实工作时仍需要人盯着，原因就在这里。\n推理也有类似断层。Demis 会拿 Gemini 下棋，看它的思考轨迹：模型有时会发现一步棋是坏棋，却找不到更好选择，于是又走回那步坏棋。同一个系统能解 IMO 金牌级数学题，也可能在某些提问方式下犯基础错误。产品经理评估 Agent 时，不能只看最亮的样例，还要看它在坏局面里能不能停下来改路线。\nVibe coding 还缺手艺和品味\nDemis 年轻时做《Theme Park》花了 6 个月。现在他用 AI 半小时就能做出原型，这件事让他觉得震撼。可他也追问了一个简单事实：如果工具已经能把个人产能放大到 1000x，为什么还没看到一个孩子 vibe coding 出登顶应用商店的 3A 游戏？他的判断很朴素：还差工艺、人的灵魂和品味。工具能把原型速度拉满，产品能不能打动人，仍要看操作者的审美、耐心和取舍。\n\"我能在半小时里做出 Theme Park 的原型，当年我 17 岁时花了 6 个月，这很惊人；但它仍然需要手艺、人的灵魂和品味。\"\n他用 AlphaGo 的第 37 手解释创造力：AI 能走出人类意想不到的一步，但发明围棋是另一层能力。给系统一句高层描述，“五分钟学规则，几辈子才能精通，下午能玩完，还要有美感”，它能不能返回一个像围棋那样的游戏？Demis 认为今天还没有看到，但也承认，可能只差一个足够强的创作者把系统用对。\n多模态让模型走进物理世界\nGemini 从一开始就按多模态训练，这让早期研发更难，因为团队不能只盯文本。但 Demis 认为这笔账正在回收：世界模型 Genie、Gemini Robotics、自动驾驶和随身设备，都需要模型理解物理环境、直觉物理和现场上下文。一个陪你走进现实世界的助手，不能只会读文档，也要看得懂你所在的房间、手里的物体和正在发生的动作。\n\"Gemini 系列从一开始就是多模态的。起步时这让事情更难，但我们相信长期会从中获益。\"\n推理成本下降以后，很多人期待“无限便宜的智能”。Demis 反而提醒会出现类似 Jevons 悖论的消耗：只要算力便宜，人们会用更多 Agent 群、更多方向并行思考、更多结果集成，把可用推理吃完。做产品时，成本下降当然重要，但把计算花在哪些判断上、哪些任务适合本地跑，仍会影响体验和毛利。\n这也是 Google 把多模态和本地模型放在同一张路线图里的原因。眼镜、手机、车、机器人会产生连续的图像、语音、位置和动作流，全部送到云端并不现实。未来的助手可能先在设备上理解世界，再把少数高难决策交给云端模型。\n创业者要押注原子世界\nYC 现场很多人想做 AI for science。Garry 追问：怎样区分推进前沿的创业公司，和只是把 API 包一层的公司？Demis 给出的路线很明确：把 AI 的发展方向和另一个深技术领域相交，尤其是材料、医学、药物发现这些涉及物理世界的地方。只要业务进入原子世界，就不会被下一次基础模型更新轻易淹没。最耐久的公司，往往把机器学习和某个硬领域同时做深。\n\"如果它涉及原子世界，至少在可预见的未来，就不会有捷径。\"\nAlphaFold 的突破也有规律：巨大的组合搜索空间、清晰的目标函数、足够数据或可生成数据的模拟器。围棋有胜负，蛋白质有能量最小化，药物发现也像在巨大空间里找能治病且副作用可控的化合物。Demis 还提到“虚拟细胞”：完整模拟一个细胞，对它施加扰动，输出足够接近实验结果。他估计完整虚拟细胞大约还要 10 年，DeepMind 先从相对自洽的细胞核开始。\n在科学推理上，他也没有提前宣布胜利。DeepMind 有 co-scientist，也有 AlphaEvolve，能比基础 Gemini 多走一步；但他还没看到系统独立做出重大科学发现。Demis 想看的测试更苛刻：给模型 1901 年以前的物理知识，看它能不能在 1905 年那样提出狭义相对论。能解题还不够，能提出让顶尖科学家投入一生的新题，才是另一层创造力。\n写在最后\nDemis 给创业者最后一句话很值得放在桌面上：如果你今天开始一段 10 年深科技旅程，就要认真设想 AGI 在中途出现。别把它当远方新闻，也别把它当万能替身。更稳的做法，是挑一个足够难、足够具体、AI 到来后反而更能放大的工作，然后现在就开始积累。\n内容来源：\"Demis Hassabis: Agents, AGI & The Next Big Scientific Breakthrough\"丨Y Combinator\n原视频：https://www.youtube.com/watch?v=JNyuX1zoOgU\n相关文章如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣"
+        },
+        "knowledgePoints": [
+          {
+            "id": "kp-1",
+            "title": "AGI的缺失组件",
+            "knowledgeType": "concept",
+            "summary": "AGI仍缺失持续学习、长期推理、记忆能力，以及跨任务稳定性。",
+            "keyClaim": "AGI的缺失组件包括持续学习、长期推理和记忆能力。",
+            "sourceQuote": "持续学习、长期推理和一部分记忆能力，仍然没有解决。",
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-2",
+            "title": "当前模型组件将保留",
+            "knowledgeType": "judgment",
+            "summary": "Demis认为当前的大规模预训练、RLHF、思维链等组件会成为AGI最终架构的一部分。",
+            "keyClaim": "当前模型的关键组件会保留在AGI最终架构中。",
+            "sourceQuote": "我很确定这些组件会成为AGI最终架构的一部分，但在我们已经知道有效的东西之上，可能还缺一两个东西。",
+            "testabilityScore": 3
+          },
+          {
+            "id": "kp-3",
+            "title": "Agent产品卡点的长期性问题",
+            "knowledgeType": "counterexample",
+            "summary": "许多Agent产品卡在长期性能力上，如持续吸收上下文、从失败中学习、保持一致性，而不是在演示阶段。",
+            "keyClaim": "Agent产品的主要挑战在于长期性能力，而非短期演示。",
+            "sourceQuote": "很多 Agent 产品卡住的地方，恰好不在 demo，而在这些长期性能力。",
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-4",
+            "title": "AGI时间线影响深科技项目路线图",
+            "knowledgeType": "scenario",
+            "summary": "如果AGI在2030年出现，深科技项目半路可能会遇到AGI，需要提前考虑技术债、数据资产等留给更强系统。",
+            "keyClaim": "AGI时间线影响深科技项目的规划。",
+            "sourceQuote": "如果一个深科技项目通常要跑 10 年，今天动手的人，项目半程就可能撞上 AGI。",
+            "testabilityScore": 3
+          },
+          {
+            "id": "kp-5",
+            "title": "Agent是通往AGI的路径",
+            "knowledgeType": "judgment",
+            "summary": "Demis认为Agent是通往AGI的路径，目前才刚刚开始。",
+            "keyClaim": "Agent是通往AGI的路径。",
+            "sourceQuote": "Agent 是通往 AGI 的路径，而我们才刚刚开始。",
+            "testabilityScore": 3
+          },
+          {
+            "id": "kp-6",
+            "title": "工程团队应关注的长期能力",
+            "knowledgeType": "method",
+            "summary": "工程团队在使用模型时不能只问模型是否聪明，还要关注其在长期项目中的表现，如持续上下文、错误学习、一致性。",
+            "keyClaim": "工程团队应评估模型的长期能力。",
+            "sourceQuote": "今天用模型做产品，不能只问“模型够不够聪明”，还要问它能不能在一个长期项目里持续吸收上下文，能不能把昨天的失败变成今天的判断，能不能在复杂流程里保持一致。",
+            "testabilityScore": 4
+          }
+        ],
+        "filteredKnowledgePoints": [],
+        "questions": [
+          {
+            "id": "q-1",
+            "knowledgePointId": "kp-1",
+            "pointId": "kp-1",
+            "pointTitle": "AGI的缺失组件",
+            "type": "multiple_choice",
+            "stem": "根据当前AI研究，以下哪项被认为是AGI至今仍缺失的关键能力？",
+            "options": [
+              {
+                "id": "A",
+                "text": "持续学习、长期推理和记忆能力"
+              },
+              {
+                "id": "B",
+                "text": "高精度图像识别"
+              },
+              {
+                "id": "C",
+                "text": "实时语音合成"
+              },
+              {
+                "id": "D",
+                "text": "大规模并行计算"
+              }
+            ],
+            "correctOptionId": "A",
+            "correct_answer": "A",
+            "explanation": "原文明确指出这些组件仍然没有解决，是缺失的。",
+            "shortExplanation": "原文明确指出这些组件仍然没有解决，是缺失的。",
+            "fullExplanation": "AGI目前缺少持续学习、长期推理和记忆能力，这些是实现通用智能的关键。",
+            "correct_understanding": "AGI目前缺少持续学习、长期推理和记忆能力，这些是实现通用智能的关键。",
+            "correctUnderstanding": "AGI目前缺少持续学习、长期推理和记忆能力，这些是实现通用智能的关键。",
+            "common_misconception": "有人可能误以为图像识别或语音合成等当前强项是缺失的。",
+            "commonMisconception": "有人可能误以为图像识别或语音合成等当前强项是缺失的。",
+            "pitfalls": [
+              "有人可能误以为图像识别或语音合成等当前强项是缺失的。"
+            ],
+            "source_snippet": "持续学习、长期推理和一部分记忆能力，仍然没有解决。",
+            "sourceSnippet": "持续学习、长期推理和一部分记忆能力，仍然没有解决。",
+            "sourceQuote": "持续学习、长期推理和一部分记忆能力，仍然没有解决。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.8
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-5",
+            "knowledgePointId": "kp-3",
+            "pointId": "kp-3",
+            "pointTitle": "Agent产品卡点的长期性问题",
+            "type": "multiple_choice",
+            "stem": "一个Agent在演示中表现出色，但在实际长期项目中频繁失败，最可能的原因是？",
+            "options": [
+              {
+                "id": "A",
+                "text": "演示环境过于简单"
+              },
+              {
+                "id": "B",
+                "text": "模型缺乏长期性能力"
+              },
+              {
+                "id": "C",
+                "text": "用户使用不当"
+              },
+              {
+                "id": "D",
+                "text": "网络延迟过高"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "根据原文，长期性能力是Agent产品卡住的地方，演示成功不代表长期能力足够。",
+            "shortExplanation": "根据原文，长期性能力是Agent产品卡住的地方，演示成功不代表长期能力足够。",
+            "fullExplanation": "长期性能力不足是Agent失败的根本原因。",
+            "correct_understanding": "长期性能力不足是Agent失败的根本原因。",
+            "correctUnderstanding": "长期性能力不足是Agent失败的根本原因。",
+            "common_misconception": "可能误以为是演示环境差异或用户问题，但核心是长期能力缺失。",
+            "commonMisconception": "可能误以为是演示环境差异或用户问题，但核心是长期能力缺失。",
+            "pitfalls": [
+              "可能误以为是演示环境差异或用户问题，但核心是长期能力缺失。"
+            ],
+            "source_snippet": "很多 Agent 产品卡住的地方，恰好不在 demo，而在这些长期性能力。",
+            "sourceSnippet": "很多 Agent 产品卡住的地方，恰好不在 demo，而在这些长期性能力。",
+            "sourceQuote": "很多 Agent 产品卡住的地方，恰好不在 demo，而在这些长期性能力。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 5,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 5
+              },
+              "judgeAverage": 5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-2-rewrite-1-1",
+            "knowledgePointId": "kp-1",
+            "pointId": "kp-1",
+            "pointTitle": "AGI的缺失组件",
+            "type": "multiple_choice",
+            "stem": "根据当前对AGI缺失组件的讨论，以下哪项能力仍然被认为是尚未解决的核心挑战之一？",
+            "options": [
+              {
+                "id": "A",
+                "text": "持续学习"
+              },
+              {
+                "id": "B",
+                "text": "图像识别"
+              },
+              {
+                "id": "C",
+                "text": "自然语言生成"
+              },
+              {
+                "id": "D",
+                "text": "情感计算"
+              }
+            ],
+            "correctOptionId": "A",
+            "correct_answer": "A",
+            "explanation": "持续学习是AGI缺失的组件之一，而图像识别、自然语言生成和情感计算在现有AI系统中已有显著进展或并非核心缺失组件。",
+            "shortExplanation": "持续学习是AGI缺失的组件之一，而图像识别、自然语言生成和情感计算在现有AI系统中已有显著进展或并非核心缺失组件。",
+            "fullExplanation": "AGI尚未解决持续学习、长期推理和一部分记忆能力，因此持续学习是核心缺失组件之一。",
+            "correct_understanding": "AGI尚未解决持续学习、长期推理和一部分记忆能力，因此持续学习是核心缺失组件之一。",
+            "correctUnderstanding": "AGI尚未解决持续学习、长期推理和一部分记忆能力，因此持续学习是核心缺失组件之一。",
+            "common_misconception": "误以为图像识别或自然语言生成仍是AGI的主要瓶颈，实际上这些领域已有较大突破。",
+            "commonMisconception": "误以为图像识别或自然语言生成仍是AGI的主要瓶颈，实际上这些领域已有较大突破。",
+            "pitfalls": [
+              "误以为图像识别或自然语言生成仍是AGI的主要瓶颈，实际上这些领域已有较大突破。"
+            ],
+            "source_snippet": "持续学习、长期推理和一部分记忆能力，仍然没有解决。",
+            "sourceSnippet": "持续学习、长期推理和一部分记忆能力，仍然没有解决。",
+            "sourceQuote": "持续学习、长期推理和一部分记忆能力，仍然没有解决。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "pass",
+            "isNew": true
+          }
+        ],
+        "qualitySummary": {
+          "totalGenerated": 17,
+          "passed": 3,
+          "rewrite": 13,
+          "discarded": 1,
+          "averageScore": 4.4,
+          "seriousIssueCount": 17,
+          "judgeUnavailable": false
+        },
+        "generationMeta": {
+          "startedAt": "2026-05-15T08:55:18.725Z",
+          "currentStage": "completed",
+          "stages": [
+            {
+              "status": "submitted",
+              "at": "2026-05-15T08:55:18.725Z"
+            },
+            {
+              "status": "generating_points",
+              "displayStatusText": "正在生成知识点",
+              "at": "2026-05-15T08:55:18.725Z"
+            },
+            {
+              "status": "generating_questions",
+              "displayStatusText": "正在生成题目",
+              "at": "2026-05-15T08:55:31.363Z"
+            },
+            {
+              "status": "quality_checking",
+              "displayStatusText": "正在检查题目质量",
+              "at": "2026-05-15T08:55:58.936Z"
+            },
+            {
+              "status": "auto_regenerating_questions",
+              "displayStatusText": "正在重新生成题目",
+              "at": "2026-05-15T08:56:15.728Z"
+            },
+            {
+              "status": "completed",
+              "displayStatusText": "已生成",
+              "at": "2026-05-15T08:57:58.685Z"
+            }
+          ],
+          "finishedAt": "2026-05-15T08:57:58.685Z",
+          "chunkCount": 18,
+          "candidateCount": 6,
+          "keptKnowledgePointCount": 6,
+          "filteredKnowledgePointCount": 0,
+          "totalGenerated": 17,
+          "rewrittenCount": 7,
+          "discardedCount": 7,
+          "qualifiedQuestionCount": 3
+        }
+      },
+      "message": ""
+    }
+  ]
+}

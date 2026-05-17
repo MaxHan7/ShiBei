@@ -87,11 +87,14 @@ export async function generateReviewChapter(input) {
       meta
     });
     const qualifiedQuestions = questionBuild.qualifiedQuestions;
+    const uncoveredPoints = questionBuild.pointDiagnostics.filter((point) => point.status !== "covered");
 
-    if (!qualifiedQuestions.length) {
+    if (!qualifiedQuestions.length || uncoveredPoints.length) {
       return failure({
         status: "failed_no_qualified_questions",
-        message: "生成失败。系统已经提取到知识点，但暂时没有生成适合复习的题目。你可以手动重新生成一次。",
+        message: uncoveredPoints.length
+          ? `生成失败。还有 ${uncoveredPoints.length} 个知识点没有合格题目。你可以手动重新生成一次。`
+          : "生成失败。系统已经提取到知识点，但暂时没有生成适合复习的题目。你可以手动重新生成一次。",
         input,
         cleaned,
         meta,
@@ -99,7 +102,10 @@ export async function generateReviewChapter(input) {
         extracted,
         knowledgePoints,
         filteredKnowledgePoints,
+        questions: qualifiedQuestions.map(toClientQuestion),
         evaluatedQuestions: questionBuild.evaluatedQuestions,
+        pointDiagnostics: questionBuild.pointDiagnostics,
+        generationErrors: questionBuild.generationErrors,
         qualitySummary: summarizeQuality(questionBuild.evaluatedQuestions, questionBuild.judgeUnavailable)
       });
     }
@@ -124,12 +130,21 @@ export async function generateReviewChapter(input) {
           filteredKnowledgePointCount: filteredKnowledgePoints.length,
           totalGenerated: questionBuild.generationMeta.totalGenerated,
           rewrittenCount: questionBuild.generationMeta.rewrittenCount,
+          supplementCount: questionBuild.generationMeta.supplementCount,
+          generationErrorCount: questionBuild.generationMeta.generationErrorCount,
           discardedCount: questionBuild.generationMeta.discardedCount,
           qualifiedQuestionCount: qualifiedQuestions.length
         }),
         status: "completed",
         message: ""
-      })
+      }),
+      generationDebug: {
+        knowledgePoints,
+        filteredKnowledgePoints,
+        evaluatedQuestions: questionBuild.evaluatedQuestions,
+        pointDiagnostics: questionBuild.pointDiagnostics,
+        generationErrors: questionBuild.generationErrors
+      }
     };
   } catch (error) {
     return failure({
@@ -147,9 +162,10 @@ async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta }) 
   markStage(meta, "quality_checking");
   const firstEvaluation = await evaluateWithJudge({ questions: generatedQuestions, knowledgePoints, cleanedText });
 
-  const passFromFirstRound = firstEvaluation.evaluatedQuestions.filter((question) => question.qualityAction === "pass");
   const rewriteCandidates = firstEvaluation.evaluatedQuestions.filter((question) => question.qualityAction === "rewrite");
   const rewrittenEvaluations = [];
+  const supplementEvaluations = [];
+  const generationErrors = [];
 
   if (rewriteCandidates.length) markStage(meta, "auto_regenerating_questions");
   for (let index = 0; index < rewriteCandidates.length; index += 1) {
@@ -157,42 +173,167 @@ async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta }) 
     const point = knowledgePoints.find((item) => item.id === question.knowledgePointId);
     if (!point) continue;
 
-    const rewritten = await generateQuestions({
-      knowledgePoints: [point],
-      rewrite: true,
-      rewriteContext: question.qualityIssues.join(", ")
-    });
-    const rewrittenWithId = withStableIds(rewritten, `${question.id}-rewrite-${index + 1}`);
-    const rewriteEvaluation = await evaluateWithJudge({
-      questions: rewrittenWithId,
-      knowledgePoints,
-      cleanedText
-    });
-    rewrittenEvaluations.push(...rewriteEvaluation.evaluatedQuestions);
-    firstEvaluation.judgeUnavailable ||= rewriteEvaluation.judgeUnavailable;
+    try {
+      const rewritten = await generateQuestions({
+        knowledgePoints: [point],
+        rewrite: true,
+        rewriteContext: question.qualityIssues.join(", ")
+      });
+      const rewrittenWithId = withStableIds(rewritten, `${question.id}-rewrite-${index + 1}`);
+      const rewriteEvaluation = await evaluateWithJudge({
+        questions: rewrittenWithId,
+        knowledgePoints,
+        cleanedText
+      });
+      rewrittenEvaluations.push(...rewriteEvaluation.evaluatedQuestions);
+      firstEvaluation.judgeUnavailable ||= rewriteEvaluation.judgeUnavailable;
+    } catch (error) {
+      generationErrors.push({
+        stage: "rewrite_question",
+        pointId: point.id,
+        questionId: question.id,
+        message: error instanceof Error ? error.message : "题目重写失败"
+      });
+    }
+  }
+
+  const beforeSupplement = [
+    ...firstEvaluation.evaluatedQuestions,
+    ...rewrittenEvaluations
+  ];
+  const pointsNeedingSupplement = knowledgePoints.filter((point) => shouldSupplementPoint(point, beforeSupplement));
+  for (let index = 0; index < pointsNeedingSupplement.length; index += 1) {
+    const point = pointsNeedingSupplement[index];
+    try {
+      const rewritten = await generateQuestions({
+        knowledgePoints: [point],
+        rewrite: true,
+        rewriteContext: `no_qualified_question_for_point; ${summarizePointIssues(point.id, beforeSupplement)}`
+      });
+      const rewrittenWithId = withStableIds(rewritten, `supplement-${point.id}-${index + 1}`);
+      const supplementEvaluation = await evaluateWithJudge({
+        questions: rewrittenWithId,
+        knowledgePoints,
+        cleanedText
+      });
+      supplementEvaluations.push(...supplementEvaluation.evaluatedQuestions);
+      firstEvaluation.judgeUnavailable ||= supplementEvaluation.judgeUnavailable;
+    } catch (error) {
+      generationErrors.push({
+        stage: "supplement_question",
+        pointId: point.id,
+        questionId: "",
+        message: error instanceof Error ? error.message : "题目补充生成失败"
+      });
+    }
   }
 
   const evaluatedQuestions = [
     ...firstEvaluation.evaluatedQuestions,
-    ...rewrittenEvaluations
+    ...rewrittenEvaluations,
+    ...supplementEvaluations
   ];
-  const qualifiedQuestions = [
-    ...passFromFirstRound,
-    ...rewrittenEvaluations.filter((question) => question.qualityAction === "pass")
-  ];
-  const discardedCount = firstEvaluation.evaluatedQuestions.filter((question) => question.qualityAction === "discard").length
-    + rewrittenEvaluations.filter((question) => question.qualityAction !== "pass").length;
+  const qualifiedQuestions = selectQualifiedQuestionsByPoint(knowledgePoints, evaluatedQuestions);
+  const discardedCount = evaluatedQuestions.filter((question) => question.qualityAction !== "pass").length;
 
   return {
     evaluatedQuestions,
     qualifiedQuestions,
+    pointDiagnostics: buildPointDiagnostics(knowledgePoints, evaluatedQuestions),
+    generationErrors,
     judgeUnavailable: firstEvaluation.judgeUnavailable,
     generationMeta: {
-      totalGenerated: generatedQuestions.length + rewrittenEvaluations.length,
-      rewrittenCount: rewriteCandidates.length,
+      totalGenerated: generatedQuestions.length + rewrittenEvaluations.length + supplementEvaluations.length,
+      rewrittenCount: rewriteCandidates.length + pointsNeedingSupplement.length,
+      supplementCount: pointsNeedingSupplement.length,
+      generationErrorCount: generationErrors.length,
       discardedCount
     }
   };
+}
+
+function selectQualifiedQuestionsByPoint(knowledgePoints, evaluatedQuestions) {
+  const selected = [];
+  for (const point of knowledgePoints) {
+    const passed = evaluatedQuestions
+      .filter((question) => question.knowledgePointId === point.id && question.qualityAction === "pass")
+      .sort((a, b) => (b.qualityScore?.average || 0) - (a.qualityScore?.average || 0));
+    selected.push(...dedupeSimilarQuestions(passed).slice(0, maxQuestionsForPoint(point)));
+  }
+  return selected;
+}
+
+function maxQuestionsForPoint(point) {
+  const angleCount = Array.isArray(point.questionAngles) ? point.questionAngles.length : 0;
+  if ((Number(point.testabilityScore) || 0) >= 5 && angleCount >= 2) return 3;
+  if ((Number(point.testabilityScore) || 0) >= 4 || ["method", "scenario", "step", "comparison", "counterexample"].includes(point.knowledgeType)) {
+    return 2;
+  }
+  return 1;
+}
+
+function dedupeSimilarQuestions(questions) {
+  const selected = [];
+  for (const question of questions) {
+    const stem = compactText(question.stem);
+    if (selected.some((item) => overlapRatio(compactText(item.stem), stem) > 0.72)) continue;
+    selected.push(question);
+  }
+  return selected;
+}
+
+function shouldSupplementPoint(point, evaluatedQuestions) {
+  return !evaluatedQuestions.some((question) => (
+    question.knowledgePointId === point.id && question.qualityAction === "pass"
+  ));
+}
+
+function summarizePointIssues(pointId, evaluatedQuestions) {
+  const issues = evaluatedQuestions
+    .filter((question) => question.knowledgePointId === pointId)
+    .flatMap((question) => [
+      ...(question.qualityIssues || []),
+      question.ruleQualityAction && question.ruleQualityAction !== "pass" ? `rule_${question.ruleQualityAction}` : "",
+      question.judgeQualityAction && question.judgeQualityAction !== "pass" ? `judge_${question.judgeQualityAction}` : "",
+      question.judgeReason ? `judge_reason:${question.judgeReason}` : ""
+    ].filter(Boolean));
+  return [...new Set(issues)].join(", ") || "no_passed_question";
+}
+
+function buildPointDiagnostics(knowledgePoints, evaluatedQuestions) {
+  return knowledgePoints.map((point) => {
+    const related = evaluatedQuestions.filter((question) => question.knowledgePointId === point.id);
+    const passed = selectQualifiedQuestionsByPoint([point], evaluatedQuestions);
+    return {
+      pointId: point.id,
+      title: point.title,
+      testabilityScore: point.testabilityScore,
+      candidateQuestionCount: related.length,
+      qualifiedQuestionCount: passed.length,
+      status: passed.length ? "covered" : "no_qualified_question",
+      failureReasons: passed.length ? [] : [...new Set(related.flatMap((question) => [
+        ...(question.qualityIssues || []),
+        question.ruleQualityAction && question.ruleQualityAction !== "pass" ? `rule_${question.ruleQualityAction}` : "",
+        question.judgeQualityAction && question.judgeQualityAction !== "pass" ? `judge_${question.judgeQualityAction}` : "",
+        question.judgeReason ? `judge_reason:${question.judgeReason}` : ""
+      ].filter(Boolean)))]
+    };
+  });
+}
+
+function compactText(value) {
+  return String(value || "").replace(/\s+/g, "");
+}
+
+function overlapRatio(a, b) {
+  if (!a || !b) return 0;
+  const shorter = a.length < b.length ? a : b;
+  const longer = a.length < b.length ? b : a;
+  let hits = 0;
+  for (const char of new Set([...shorter])) {
+    if (longer.includes(char)) hits += 1;
+  }
+  return hits / Math.max(1, new Set([...shorter]).size);
 }
 
 async function evaluateWithJudge({ questions, knowledgePoints, cleanedText }) {
@@ -275,7 +416,10 @@ function failure({
   extracted = null,
   knowledgePoints = [],
   filteredKnowledgePoints = [],
+  questions = [],
   evaluatedQuestions = [],
+  pointDiagnostics = [],
+  generationErrors = [],
   qualitySummary = null
 }) {
   markStage(meta, status);
@@ -291,7 +435,7 @@ function failure({
       title: input.sourceTitle || extracted?.chapterTitle || "未生成章节",
       knowledgePoints,
       filteredKnowledgePoints,
-      questions: [],
+      questions,
       qualitySummary,
       generationMeta: finishMeta(meta, {
         failedStage,
@@ -301,8 +445,10 @@ function failure({
         filteredKnowledgePointCount: filteredKnowledgePoints.length,
         totalGenerated: evaluatedQuestions.length,
         rewrittenCount: evaluatedQuestions.filter((question) => question.qualityAction === "rewrite").length,
+        supplementCount: pointDiagnostics.filter((point) => point.status === "no_qualified_question").length,
+        generationErrorCount: generationErrors.length,
         discardedCount: evaluatedQuestions.filter((question) => question.qualityAction !== "pass").length,
-        qualifiedQuestionCount: 0
+        qualifiedQuestionCount: questions.length
       }),
       status,
       message
@@ -310,7 +456,9 @@ function failure({
     generationDebug: {
       knowledgePoints,
       filteredKnowledgePoints,
-      evaluatedQuestions
+      evaluatedQuestions,
+      pointDiagnostics,
+      generationErrors
     }
   };
 }

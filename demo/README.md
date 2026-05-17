@@ -39,6 +39,8 @@ http://127.0.0.1:5173/index.html
 
 当前版本通过后端 `POST /api/generate` 调用核心出题系统。核心出题系统会按 PRD 流程执行内容清洗、语义分块、知识点提取、题目生成、质量检查和一次自动重写。
 
+当前 Demo 已支持多章节本地状态、每个章节独立复习进度、生成成功/失败通知、失败章节详情、重新生成、不再提示、章节删除和章节总结后继续下一章。这些能力用于验证产品流，后续迁移到 iOS 时应按 PRD 和 Demo 行为重新用 SwiftUI 实现，而不是直接复用 HTML/CSS。
+
 接口：
 
 ```text
@@ -55,3 +57,52 @@ POST /api/generate
 ```
 
 返回章节标题、知识点、题目、解释、常见误区、来源片段和质量评分。
+
+## 当前本地 API 雏形
+
+除了 Demo 主要使用的 `/api/generate` 和 `/api/regenerate`，后端还保留了一组内存版章节/通知接口，用于提前对齐未来 iOS Service 层的数据形状：
+
+```text
+POST /api/chapters
+GET /api/chapters
+GET /api/chapters/:id
+POST /api/chapters/:id/regenerate
+DELETE /api/chapters/:id
+GET /api/notifications
+POST /api/notifications/:id/read
+POST /api/notifications/:id/dismiss
+```
+
+这些接口暂不接数据库、不做账号和鉴权，数据重启后会丢失。真实 iOS MVP 后续需要接账号、数据库、异步生成任务和 APNs 推送。
+
+## 当前限制
+
+这个 Demo 只用于迁移前验证真实体验，不是正式 iOS 架构：
+
+- 没有账号系统，数据只保存在本地浏览器或本地内存。
+- 没有数据库，后端内存 API 重启后数据会丢失。
+- 没有真实系统推送，通知页只是本地产品流模拟。
+- 文章链接提取是轻量方案；公众号抓取依赖 Playwright 和平台限制，不能保证成功。
+- 视频链接目前只识别并返回友好失败，不提取字幕或转写。
+- 复习记录和掌握分只用于 Demo 当前本地会话，不支持跨设备同步。
+- HTML/CSS 只作为交互和视觉参考，迁移到 iOS 时应使用 SwiftUI 重新实现。
+
+## MacBook / Xcode 迁移说明
+
+如果要把项目迁移到 MacBook 并在 Xcode 中继续开发，请先阅读：
+
+```text
+docs/macbook-xcode-migration-handoff-zh.md
+```
+
+该文档是迁移交接总入口，说明了当前项目进度、运行方式、核心系统状态、未完成事项和 Xcode 迁移建议。
+
+## iOS 接口契约
+
+迁移到 Xcode 前，接口和数据结构已单独收口到：
+
+```text
+docs/ios-api-data-contract-zh.md
+```
+
+后续 iOS 开发应优先按这份文档定义 Swift `Codable` 模型和 Service 层。`/api/chapters` 是未来 iOS 主入口；`/api/generate` 和 `/api/regenerate` 只作为当前 HTML Demo 与调试兼容入口保留。

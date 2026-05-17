@@ -6,13 +6,13 @@ export function filterKnowledgePoints(candidates, cleanedText) {
   for (const candidate of candidates || []) {
     const reasons = filterReasons(candidate, cleanedText, seen);
     const normalized = normalizePoint(candidate);
-    if (!reasons.length && kept.length < 8) {
+    if (!reasons.length) {
       kept.push(normalized);
       seen.add(fingerprint(normalized));
     } else {
       filtered.push({
         ...normalized,
-        filterReasons: reasons.length ? reasons : ["over_limit"]
+        filterReasons: reasons
       });
     }
   }
@@ -27,6 +27,10 @@ function normalizePoint(candidate = {}) {
     summary: String(candidate.summary || "").trim(),
     keyClaim: String(candidate.keyClaim || "").trim(),
     sourceQuote: String(candidate.sourceQuote || "").trim(),
+    testabilityReason: String(candidate.testabilityReason || "").trim(),
+    questionAngles: Array.isArray(candidate.questionAngles)
+      ? candidate.questionAngles.map((angle) => String(angle || "").trim()).filter(Boolean)
+      : [],
     testabilityScore: Number(candidate.testabilityScore) || 1
   };
 }
@@ -55,7 +59,9 @@ function sourceExists(cleanedText, sourceQuote) {
 }
 
 function normalize(value) {
-  return String(value || "").replace(/\s+/g, "");
+  return String(value || "")
+    .replace(/\s+/g, "")
+    .replace(/[“”"「」『』《》〈〉（）()，,。.!！?？:：;；、]/g, "");
 }
 
 function fingerprint(point) {

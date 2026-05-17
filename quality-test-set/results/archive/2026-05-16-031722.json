@@ -1,0 +1,1829 @@
+{
+  "generatedAt": "2026-05-16T02:17:22.100Z",
+  "summary": {
+    "sampleCount": 1,
+    "successCount": 0,
+    "failureCount": 1,
+    "knowledgePointCount": 0,
+    "qualifiedQuestionCount": 0,
+    "coveredKnowledgePointCount": 0,
+    "uncoveredKnowledgePointCount": 0,
+    "questionCoverageRate": 0,
+    "averageQualityScore": 0,
+    "seriousIssueCount": 0
+  },
+  "reviewRows": [
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "failed_no_qualified_questions",
+      "questionId": "q-1",
+      "knowledgePoint": "行业AI顾问的启动方法",
+      "questionType": "scenario_judgment",
+      "stem": "你是一名AI顾问，想在LinkedIn上建立专业形象以吸引客户。以下哪种做法最符合Marina的建议？",
+      "sourceSnippet": "Marina的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR或语言学习，连续30天在LinkedIn发带截图和数字的案例。",
+      "machineAverageScore": 4.8,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "failed_no_qualified_questions",
+      "questionId": "q-2",
+      "knowledgePoint": "行业AI顾问的启动方法",
+      "questionType": "scenario_judgment",
+      "stem": "你的朋友认为，与其花精力连续发30天案例，不如花时间写一篇深度爆款文章。你认为Marina的经验更支持哪种策略？",
+      "sourceSnippet": "Marina的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR或语言学习，连续30天在LinkedIn发带截图和数字的案例。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "failed_no_qualified_questions",
+      "questionId": "q-4",
+      "knowledgePoint": "GEO机会：让本地商家出现在AI搜索结果中",
+      "questionType": "scenario_judgment",
+      "stem": "你发现一家本地花店在Google Maps上评分高，但在ChatGPT搜索中很少被推荐。你想判断是否缺失GEO机会，第一步应该做什么？",
+      "sourceSnippet": "Robbie Stein在访谈里说，很多传统SEO最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。",
+      "machineAverageScore": 4.8,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "failed_no_qualified_questions",
+      "questionId": "q-3-rewrite-1-1",
+      "knowledgePoint": "GEO机会：让本地商家出现在AI搜索结果中",
+      "questionType": "scenario_judgment",
+      "stem": "某本地餐厅老板发现，用户在ChatGPT上询问“附近好吃的川菜馆”时，ChatGPT并未推荐他的餐厅，而他在传统搜索引擎中的排名很高。他向你咨询原因和解决方法。作为GEO顾问，你的建议是？",
+      "sourceSnippet": "Robbie Stein在访谈里说，很多传统SEO最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "failed_no_qualified_questions",
+      "questionId": "q-5",
+      "knowledgePoint": "语音AI前台的测试与销售方法",
+      "questionType": "scenario_judgment",
+      "stem": "你准备为本地牙医诊所测试语音AI前台的潜在需求。根据Marina的方法，以下哪种测试策略最有效？",
+      "sourceSnippet": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+      "machineAverageScore": 4.7,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "failed_no_qualified_questions",
+      "questionId": "q-7",
+      "knowledgePoint": "语音AI前台的测试与销售方法",
+      "questionType": "scenario_judgment",
+      "stem": "你已通过午餐时间测试发现某牙医诊所的漏接电话率很高，现在想说服客户购买AI前台服务。以下哪种方式最有效？",
+      "sourceSnippet": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+      "machineAverageScore": 4.7,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "failed_no_qualified_questions",
+      "questionId": "q-6",
+      "knowledgePoint": "语音AI前台的测试与销售方法",
+      "questionType": "scenario_judgment",
+      "stem": "一家律师事务所的合伙人告诉你，他们不想为AI前台付费，因为他们觉得语音信箱够用了。你认为最有效的说服论据是什么？",
+      "sourceSnippet": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "failed_no_qualified_questions:rejected",
+      "questionId": "q-3",
+      "knowledgePoint": "GEO机会：让本地商家出现在AI搜索结果中",
+      "questionType": "scenario_judgment",
+      "stem": "你为一家本地牙医诊所提供AI搜索优化服务，客户问GEO和SEO有什么区别。以下哪种解释最准确？",
+      "sourceSnippet": "Robbie Stein在访谈里说，很多传统SEO最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "failed_no_qualified_questions:rejected",
+      "questionId": "q-8",
+      "knowledgePoint": "普通人做AI生意应避免宏大叙事",
+      "questionType": "true_false",
+      "stem": "普通人做AI生意时，从服务小流程入手比从一开始就想做平台更容易成功。",
+      "sourceSnippet": "普通人做AI生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "failed_no_qualified_questions:rejected",
+      "questionId": "q-9",
+      "knowledgePoint": "普通人做AI生意应避免宏大叙事",
+      "questionType": "true_false",
+      "stem": "对于普通人做AI生意，一旦通过服务模式验证了客户需求，就应立即转型开发平台产品。",
+      "sourceSnippet": "普通人做AI生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "failed_no_qualified_questions:rejected",
+      "questionId": "q-8-rewrite-2-1",
+      "knowledgePoint": "普通人做AI生意应避免宏大叙事",
+      "questionType": "true_false",
+      "stem": "“普通人做AI生意，应该先打造一个综合性平台，以便快速占领市场。”这一观点与原文主张一致。",
+      "sourceSnippet": "普通人做AI生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。",
+      "machineAverageScore": 4,
+      "machineIssues": "understandingDepth_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "failed_no_qualified_questions:rejected",
+      "questionId": "q-9-rewrite-3-1",
+      "knowledgePoint": "普通人做AI生意应避免宏大叙事",
+      "questionType": "true_false",
+      "stem": "根据文章观点，普通人做AI生意时，从服务小流程入手比直接打造平台更容易成功。",
+      "sourceSnippet": "普通人做AI生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "failed_no_qualified_questions:rejected",
+      "questionId": "supplement-kp-9-1-1",
+      "knowledgePoint": "普通人做AI生意应避免宏大叙事",
+      "questionType": "true_false",
+      "stem": "根据原文观点，普通人做AI生意应当优先考虑搭建平台，因为平台能产生更大规模效益。",
+      "sourceSnippet": "普通人做AI生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。",
+      "machineAverageScore": 4,
+      "machineIssues": "understandingDepth_low;judge_题目过于简单，仅考察原文记忆，缺乏理解深度",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    }
+  ],
+  "results": [
+    {
+      "file": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "startedAt": "2026-05-16T02:15:15.518Z",
+      "status": "failed_no_qualified_questions",
+      "chapter": {
+        "title": "2026年最适合启动的6个AI创业点子",
+        "sourceType": "text",
+        "status": "failed_no_qualified_questions",
+        "displayStatusText": "题目生成失败",
+        "failureReason": "生成失败。还有 1 个知识点没有合格题目。你可以手动重新生成一次。",
+        "source": {
+          "type": "text",
+          "title": "2026年最适合启动的6个AI创业点子",
+          "url": "",
+          "account": "",
+          "rawText": "# 2026年最适合启动的6个AI创业点子丨Silicon Valley Girl\n\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/OLsU21MsXlUtZlubVj5tkg\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n\n---\n\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 3900 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\n\"他们从 160 人变成 40 人，业绩反而提高了。\"\n\n\"公司知道自己需要 AI，只是不知道该信任谁。\"\n\n\"大语言模型就是新的电力。\"\n\n本期节目标题看起来很像清单，但它真正有用的地方，不在“点子”本身，而在每个点子背后都有一个已经发生的市场变化。主持人把过去 6 个月采访过的 Reid Hoffman、Google Search 产品负责人 Robbie Stein、ElevenLabs 创始人 Mati Staniszewski、Higgsfield 创始人 Alex Mashrabov、Daniel Priestley、Vise CEO Samir Vasavada 的判断放在一起，试图回答一个更具体的问题：如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。\n\n小团队已经先跑起来了\n\nMarina 开场先讲了一个很硬的变化。她问 Vise CEO Samir Vasavada，公司过去 3 年发生了什么。Samir 的回答是，公司曾经有 150 到 160 人，现在接近 40 人，但从指标看，比 160 人时好 10 倍。这已经发生在真实公司里：人力结构和工具结构被重新排过一遍。2011 年做一个基础落地页还要找程序员，如今一个人身边可以同时有法律、财务、网页设计、营销和内容助理。\n\n\"我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。\"\n\n所以她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。这里最值得抓住的信号是：公司愿意为“把 AI 放进具体业务流程”付钱，而且他们往往缺少把模型带到现场的人。模型 API 已经摆在那里，客户更关心谁能改掉一个漏钱流程，谁能带来一个新客户，谁能把一天的杂活压成 5 分钟。\n\n第一笔钱来自行业 AI 顾问\n\n第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。\n\n\"今年我们会开始看到更多应用：我怎样把生意跑得更好？怎样做供应链分析、财务分析、风险分析、营销和销售？\"\n\nReid Hoffman 给出的动作很朴素：熟悉一个领域里的工具，然后去帮别人，并且把结果展示出来。Marina 的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR 或语言学习，连续 30 天在 LinkedIn 发带截图和数字的案例。不要追求爆款，先让未来客户看到“原流程哪里坏了、你怎样用 AI 修好、成本和时间前后差多少”。\n\n这类顾问工作容易被误解成卖工具包。实际收费点在诊断和落地：帮客户找出哪个流程最浪费时间，哪类线索最容易流失，哪份报告每周都要重复做，再把 AI 放进去做出可量化的前后对比。客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。\n\n本地商家要被 AI 搜到\n\n第二个机会是 GEO，也就是让本地商家出现在 ChatGPT、Gemini、Perplexity 的答案里。美国有 3300 万小企业依赖 Google 带来客户，但用户现在会直接问 AI：Austin 最好的牙医是谁，Denver 最好的修车厂是哪家。答案里出现的商家，未必是买了 Google Ads 的商家，更可能是被文章、目录、博客、Reddit、LinkedIn、YouTube 提到过的商家。\n\n\"AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。\"\n\nRobbie Stein 在访谈里说，很多传统 SEO 最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。Marina 自己也在做类似实验。她发现通过 ChatGPT 推荐订阅邮件通讯的人，打开率达到 80%，高于平时 40% 到 50% 的平均水平。她给的销售动作也很直接：找 3 家本地商家，在 ChatGPT、Gemini、Perplexity 里问“本城最好的某类服务”，如果对方没出现，那就是你的 pitch。\n\n这门生意的好处是验证成本低。你不需要先搭系统，只要能证明“AI 答案里没有你”就足够开启一次对话。牙医、修车厂、律师事务所、健身房、播客、地方服务商，都可以用同一套方式检查。客户听不懂 GEO 没关系，他能听懂“用户问 AI 时，推荐名单里没有你”。\n\n语音 AI 前台先救漏接电话\n\n第三个机会是语音 AI 前台，复杂度中等，但场景非常具体。ElevenLabs 创始人 Mati Staniszewski 被问到如果从零开始、想尽快做到每月 1 万美元收入，会选什么。他会选语音 Agent。原因很简单：基础设施正在成熟，平台越来越自助化，但大多数小企业并不知道可以把语音 Agent 部署到预约、接线和客户沟通里。\n\n\"很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。\"\n\nMarina 的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在 Google Maps 上找 20 家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。然后带着数字去谈：“我刚才数过，你午休漏了这么多电话，我每月 500 美元帮你修掉。”先做几家换推荐语，再开始收费。\n\n这里的门槛不是写出一个语音模型。Mati 说得很清楚，平台已经能让普通人以相对自助的方式部署语音 Agent，机会在“轻微改造到某个领域”。牙医问诊、修车预约、律师初筛、诊所改约，每个场景都有自己的话术和边界。谁愿意打电话、问流程、做配置，谁就先拿到服务费。\n\n本地广告代理开始 AI Native\n\n第四个机会是 AI native 广告代理，服务本地房地产经纪、医美、牙医、独立健身房。复杂度比顾问和 GEO 高，因为它要求创意、文案、媒介投放能力一起上。客户痛点也清楚：本地代理公司每月收几千美元，却只能交付少量广告素材；AI native 代理可以用更低成本生成上百个版本，快速测试哪一个能跑出结果。\n\n\"从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。\"\n\nHiggsfield 创始人 Alex Mashrabov 说，去年 3 月他们交付了相机控制，4 月交付视觉效果库，到了 6 月，行业已经变了。很多代理开始绕过 Adobe 等传统工具，端到端用 AI 交付广告。AI 当时能力还有局限，但毛利结构明显改善，客户也能看到“几天内做出广告”的速度。\n\n本地服务商真正关心的是下个月能不能多约到客户，“AI 广告”只是交付手段。过去代理公司往往用少量素材慢慢投，AI native 代理可以把同一个卖点拆成多个镜头、多个开头、多个优惠表达，再把差的版本迅速淘汰。技术降低了出片成本，创意判断和投放经验反而变成收费理由。\n\n电商品牌要更快测试内容\n\n第五个机会是电商内容生成，比广告代理更难，因为创意标准更高。目标客户包括护肤品、补剂、宠物产品、厨房小工具、健身装备。它们都在烧钱维持 TikTok Shop 和 Instagram 广告，每月需要 30、50、100 条手持手机风格的 UGC 视频。真人创作者每条通常收 150 到 500 美元，测试速度受拍摄和修改周期限制。\n\n\"用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。\"\n\nMarina 并没有说品牌应该停止和真人 UGC 创作者合作。她自己的做法是先用 AI 批量测试脚本，找到跑得动的方向，再找真人创作者拍。Alex 也提到，有段生成视频成本不到 500 美元，却足以让客户惊讶。行动路径很具体：选一个品类，用产品图做 5 条样片，私信创始人，“我免费给你做了 5 条，如果喜欢，我可以持续交付，比如 100 条 3000 美元。”\n\n垂直 AI 产品要靠数据和 UX\n\n第六个机会是垂直 AI 产品，也就是很多人嘴里的 GPT wrapper。去年 VC 很爱投，后来热度降了，因为任何人都能做一个 wrapper。但 Daniel Priestley 给了一个更清楚的模型：有价值的垂直产品，来自三件事，拿到客户数据、写出更好的提示词、设计比聊天框更合适的 UX。把三件事放在一起，它就会变成专用工具。\n\n\"我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。\"\n\n他用了电力类比：电被发明以后，人们把电导向烤面包机、水壶、灯泡。没人会因为水壶“只是电力 wrapper”就否认它是一门生意。Marina 举的轻量例子是上传简历后自动填写 LinkedIn 资料的产品。它的价值不在模型多先进，而在团队里有人懂 LinkedIn 资料怎样写才会被注意到，并把这套知识放进 Lovable 做出的流程里。\n\nDaniel Priestley 甚至给了一个收入想象：很多小型 AI SaaS 可能做到一年四五百万美元收入，利润率达到 50%。这种公司不一定是 VC 最爱的超级独角兽，但对创业者本人足够有吸引力。它们的共同点是很窄：AI mortgage lender、医疗运营、医疗呼叫中心、LinkedIn 资料填写，先守住一个工作流，再慢慢扩。\n\n先卖服务，再沉淀产品\n\n6 个机会从易到难排下来，会出现一条共同路径：先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。Marina 最后给垂直产品的验证标准很小：找 10 个真实用户，如果 3 个愿意付钱，就有业务雏形。\n\n\"挑一个你了解的行业，写下这个行业里人们每周都会做、又让他们抓狂的三个重复任务。\"\n\n原视频的清单感很强，但真正该带走的并非“哪 6 个行业最赚钱”。更稳的读法是：AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。第一笔钱通常来自流程现场，不来自一个宏大商业计划书。\n\n普通人做 AI 生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。平台需要流量、研发、客服、合规和持续迭代，任何一项都会拖慢第一笔收入。服务的优势在于反馈很短：客户愿不愿意接电话，愿不愿意发资料，愿不愿意为样片付钱，几天内就能看出来。先从笨办法里拿到真实需求，后面的产品才不会悬空。公司内部做 AI 转型的人也可以照这个顺序走：先找流程缺口，再谈工具采购，最后把成功案例复制到相邻团队。\n\n写在最后\n\n如果你还没想清楚该做什么，先别急着追大词。挑一个熟悉行业，找一个漏钱、漏客户或浪费时间的小流程，用 AI 做出可展示的前后对比。先让一个真实客户愿意付钱，再谈产品化。AI 时代的入口，有时就是一通没人接的电话。\n\n内容来源：\"6 Profitable AI business ideas for 2026\"丨Silicon Valley Girl\n\n原视频：https://www.youtube.com/watch?v=gwsaC3WiCqs&t=63s\n\n如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣",
+          "cleanedText": "# 2026年最适合启动的6个AI创业点子丨Silicon Valley Girl\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/OLsU21MsXlUtZlubVj5tkg\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n---\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 3900 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\"他们从 160 人变成 40 人，业绩反而提高了。\"\n\"公司知道自己需要 AI，只是不知道该信任谁。\"\n\"大语言模型就是新的电力。\"\n本期节目标题看起来很像清单，但它真正有用的地方，不在“点子”本身，而在每个点子背后都有一个已经发生的市场变化。主持人把过去 6 个月采访过的 Reid Hoffman、Google Search 产品负责人 Robbie Stein、ElevenLabs 创始人 Mati Staniszewski、Higgsfield 创始人 Alex Mashrabov、Daniel Priestley、Vise CEO Samir Vasavada 的判断放在一起，试图回答一个更具体的问题：如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。\n小团队已经先跑起来了\nMarina 开场先讲了一个很硬的变化。她问 Vise CEO Samir Vasavada，公司过去 3 年发生了什么。Samir 的回答是，公司曾经有 150 到 160 人，现在接近 40 人，但从指标看，比 160 人时好 10 倍。这已经发生在真实公司里：人力结构和工具结构被重新排过一遍。2011 年做一个基础落地页还要找程序员，如今一个人身边可以同时有法律、财务、网页设计、营销和内容助理。\n\"我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。\"\n所以她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。这里最值得抓住的信号是：公司愿意为“把 AI 放进具体业务流程”付钱，而且他们往往缺少把模型带到现场的人。模型 API 已经摆在那里，客户更关心谁能改掉一个漏钱流程，谁能带来一个新客户，谁能把一天的杂活压成 5 分钟。\n第一笔钱来自行业 AI 顾问\n第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。\n\"今年我们会开始看到更多应用：我怎样把生意跑得更好？怎样做供应链分析、财务分析、风险分析、营销和销售？\"\nReid Hoffman 给出的动作很朴素：熟悉一个领域里的工具，然后去帮别人，并且把结果展示出来。Marina 的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR 或语言学习，连续 30 天在 LinkedIn 发带截图和数字的案例。不要追求爆款，先让未来客户看到“原流程哪里坏了、你怎样用 AI 修好、成本和时间前后差多少”。\n这类顾问工作容易被误解成卖工具包。实际收费点在诊断和落地：帮客户找出哪个流程最浪费时间，哪类线索最容易流失，哪份报告每周都要重复做，再把 AI 放进去做出可量化的前后对比。客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。\n本地商家要被 AI 搜到\n第二个机会是 GEO，也就是让本地商家出现在 ChatGPT、Gemini、Perplexity 的答案里。美国有 3300 万小企业依赖 Google 带来客户，但用户现在会直接问 AI：Austin 最好的牙医是谁，Denver 最好的修车厂是哪家。答案里出现的商家，未必是买了 Google Ads 的商家，更可能是被文章、目录、博客、Reddit、LinkedIn、YouTube 提到过的商家。\n\"AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。\"\nRobbie Stein 在访谈里说，很多传统 SEO 最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。Marina 自己也在做类似实验。她发现通过 ChatGPT 推荐订阅邮件通讯的人，打开率达到 80%，高于平时 40% 到 50% 的平均水平。她给的销售动作也很直接：找 3 家本地商家，在 ChatGPT、Gemini、Perplexity 里问“本城最好的某类服务”，如果对方没出现，那就是你的 pitch。\n这门生意的好处是验证成本低。你不需要先搭系统，只要能证明“AI 答案里没有你”就足够开启一次对话。牙医、修车厂、律师事务所、健身房、播客、地方服务商，都可以用同一套方式检查。客户听不懂 GEO 没关系，他能听懂“用户问 AI 时，推荐名单里没有你”。\n语音 AI 前台先救漏接电话\n第三个机会是语音 AI 前台，复杂度中等，但场景非常具体。ElevenLabs 创始人 Mati Staniszewski 被问到如果从零开始、想尽快做到每月 1 万美元收入，会选什么。他会选语音 Agent。原因很简单：基础设施正在成熟，平台越来越自助化，但大多数小企业并不知道可以把语音 Agent 部署到预约、接线和客户沟通里。\n\"很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。\"\nMarina 的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在 Google Maps 上找 20 家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。然后带着数字去谈：“我刚才数过，你午休漏了这么多电话，我每月 500 美元帮你修掉。”先做几家换推荐语，再开始收费。\n这里的门槛不是写出一个语音模型。Mati 说得很清楚，平台已经能让普通人以相对自助的方式部署语音 Agent，机会在“轻微改造到某个领域”。牙医问诊、修车预约、律师初筛、诊所改约，每个场景都有自己的话术和边界。谁愿意打电话、问流程、做配置，谁就先拿到服务费。\n本地广告代理开始 AI Native\n第四个机会是 AI native 广告代理，服务本地房地产经纪、医美、牙医、独立健身房。复杂度比顾问和 GEO 高，因为它要求创意、文案、媒介投放能力一起上。客户痛点也清楚：本地代理公司每月收几千美元，却只能交付少量广告素材；AI native 代理可以用更低成本生成上百个版本，快速测试哪一个能跑出结果。\n\"从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。\"\nHiggsfield 创始人 Alex Mashrabov 说，去年 3 月他们交付了相机控制，4 月交付视觉效果库，到了 6 月，行业已经变了。很多代理开始绕过 Adobe 等传统工具，端到端用 AI 交付广告。AI 当时能力还有局限，但毛利结构明显改善，客户也能看到“几天内做出广告”的速度。\n本地服务商真正关心的是下个月能不能多约到客户，“AI 广告”只是交付手段。过去代理公司往往用少量素材慢慢投，AI native 代理可以把同一个卖点拆成多个镜头、多个开头、多个优惠表达，再把差的版本迅速淘汰。技术降低了出片成本，创意判断和投放经验反而变成收费理由。\n电商品牌要更快测试内容\n第五个机会是电商内容生成，比广告代理更难，因为创意标准更高。目标客户包括护肤品、补剂、宠物产品、厨房小工具、健身装备。它们都在烧钱维持 TikTok Shop 和 Instagram 广告，每月需要 30、50、100 条手持手机风格的 UGC 视频。真人创作者每条通常收 150 到 500 美元，测试速度受拍摄和修改周期限制。\n\"用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。\"\nMarina 并没有说品牌应该停止和真人 UGC 创作者合作。她自己的做法是先用 AI 批量测试脚本，找到跑得动的方向，再找真人创作者拍。Alex 也提到，有段生成视频成本不到 500 美元，却足以让客户惊讶。行动路径很具体：选一个品类，用产品图做 5 条样片，私信创始人，“我免费给你做了 5 条，如果喜欢，我可以持续交付，比如 100 条 3000 美元。”\n垂直 AI 产品要靠数据和 UX\n第六个机会是垂直 AI 产品，也就是很多人嘴里的 GPT wrapper。去年 VC 很爱投，后来热度降了，因为任何人都能做一个 wrapper。但 Daniel Priestley 给了一个更清楚的模型：有价值的垂直产品，来自三件事，拿到客户数据、写出更好的提示词、设计比聊天框更合适的 UX。把三件事放在一起，它就会变成专用工具。\n\"我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。\"\n他用了电力类比：电被发明以后，人们把电导向烤面包机、水壶、灯泡。没人会因为水壶“只是电力 wrapper”就否认它是一门生意。Marina 举的轻量例子是上传简历后自动填写 LinkedIn 资料的产品。它的价值不在模型多先进，而在团队里有人懂 LinkedIn 资料怎样写才会被注意到，并把这套知识放进 Lovable 做出的流程里。\nDaniel Priestley 甚至给了一个收入想象：很多小型 AI SaaS 可能做到一年四五百万美元收入，利润率达到 50%。这种公司不一定是 VC 最爱的超级独角兽，但对创业者本人足够有吸引力。它们的共同点是很窄：AI mortgage lender、医疗运营、医疗呼叫中心、LinkedIn 资料填写，先守住一个工作流，再慢慢扩。\n先卖服务，再沉淀产品\n6 个机会从易到难排下来，会出现一条共同路径：先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。Marina 最后给垂直产品的验证标准很小：找 10 个真实用户，如果 3 个愿意付钱，就有业务雏形。\n\"挑一个你了解的行业，写下这个行业里人们每周都会做、又让他们抓狂的三个重复任务。\"\n原视频的清单感很强，但真正该带走的并非“哪 6 个行业最赚钱”。更稳的读法是：AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。第一笔钱通常来自流程现场，不来自一个宏大商业计划书。\n普通人做 AI 生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。平台需要流量、研发、客服、合规和持续迭代，任何一项都会拖慢第一笔收入。服务的优势在于反馈很短：客户愿不愿意接电话，愿不愿意发资料，愿不愿意为样片付钱，几天内就能看出来。先从笨办法里拿到真实需求，后面的产品才不会悬空。公司内部做 AI 转型的人也可以照这个顺序走：先找流程缺口，再谈工具采购，最后把成功案例复制到相邻团队。\n写在最后\n如果你还没想清楚该做什么，先别急着追大词。挑一个熟悉行业，找一个漏钱、漏客户或浪费时间的小流程，用 AI 做出可展示的前后对比。先让一个真实客户愿意付钱，再谈产品化。AI 时代的入口，有时就是一通没人接的电话。\n内容来源：\"6 Profitable AI business ideas for 2026\"丨Silicon Valley Girl\n原视频：https://www.youtube.com/watch?v=gwsaC3WiCqs&t=63s\n如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣"
+        },
+        "knowledgePoints": [
+          {
+            "id": "kp-2",
+            "title": "行业AI顾问的启动方法",
+            "knowledgeType": "method",
+            "summary": "选一个自己懂的职能（如营销、财务），连续30天在LinkedIn发布带截图和数字的案例，展示原流程问题与AI修复后的对比，以此吸引客户。",
+            "keyClaim": "通过持续发布具体案例可以建立专业形象并获取客户。",
+            "sourceQuote": "Marina的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR或语言学习，连续30天在LinkedIn发带截图和数字的案例。",
+            "testabilityReason": "该方法有明确的时间周期和输出形式，适合考核步骤记忆和执行细节。",
+            "questionAngles": [
+              "行业AI顾问应该怎样展示自己的价值？",
+              "为什么连续30天发布案例比追求爆款更有效？",
+              "客户真正愿意为AI顾问的什么服务付费？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-3",
+            "title": "GEO机会：让本地商家出现在AI搜索结果中",
+            "knowledgeType": "method",
+            "summary": "检查本地商家是否出现在ChatGPT、Gemini等AI的推荐答案中，若未出现则向商家推销GEO服务，帮助其被AI发现。",
+            "keyClaim": "AI搜索推荐已成为本地商家获取客户的新渠道，GEO是新兴机会。",
+            "sourceQuote": "Robbie Stein在访谈里说，很多传统SEO最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。",
+            "testabilityReason": "该方法包含具体的验证步骤（搜索测试）和销售切入点，适合考核实操逻辑。",
+            "questionAngles": [
+              "什么是GEO？与SEO有何异同？",
+              "如何判断一个本地商家是否缺失在AI搜索结果中？",
+              "GEO服务的销售话术应该怎么组织？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-4",
+            "title": "语音AI前台的测试与销售方法",
+            "knowledgeType": "method",
+            "summary": "通过地推方式，在午餐时间给20家潜在客户打电话，记录漏接数，然后带着数据推销语音AI前台服务，每月500美元。",
+            "keyClaim": "用实际数据证明问题，比直接推销技术更有效。",
+            "sourceQuote": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+            "testabilityReason": "方法中有具体数字（20家、每月500美元）和步骤，适合考核细节和执行力。",
+            "questionAngles": [
+              "为什么选择午餐时间测试漏接电话？",
+              "语音AI前台的核心价值是什么？",
+              "如何说服客户为语音AI前台付费？"
+            ],
+            "testabilityScore": 5
+          },
+          {
+            "id": "kp-9",
+            "title": "普通人做AI生意应避免宏大叙事",
+            "knowledgeType": "judgment",
+            "summary": "普通人做AI生意最怕一开始就要做平台，平台需要流量、研发等资源，会拖慢第一笔收入；应先用服务验证需求，再产品化。",
+            "keyClaim": "从服务小流程入手，比直接做平台更容易成功。",
+            "sourceQuote": "普通人做AI生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。",
+            "testabilityReason": "该判断提供了明确的商务策略对比，适合测试决策能力和商业敏锐度。",
+            "questionAngles": [
+              "为什么普通人做AI生意不适合从平台开始？",
+              "服务模式相比平台模式有哪些优势？",
+              "如果客户需求验证成功，如何判断何时转型产品？"
+            ],
+            "testabilityScore": 4
+          }
+        ],
+        "filteredKnowledgePoints": [
+          {
+            "id": "kp-1",
+            "title": "小团队减员增效案例",
+            "knowledgeType": "counterexample",
+            "summary": "公司从160人缩减到40人，业绩反而提升10倍，表明AI工具可以有效替代人力，颠覆传统“人多力量大”的认知。",
+            "keyClaim": "更少的人配合AI可以产生更好的业绩。",
+            "sourceQuote": "“我们一度有150到160人，现在接近40人；从指标看，40人时比160人时好10倍。”",
+            "testabilityReason": "该案例提供具体的量化对比（人数与业绩），便于测试理解程度和逻辑推理能力。",
+            "questionAngles": [
+              "为什么缩减团队反而能提升业绩？",
+              "AI在人员优化中扮演了什么角色？",
+              "这个案例对创业公司有什么启示？"
+            ],
+            "testabilityScore": 5,
+            "filterReasons": [
+              "source_not_supported"
+            ]
+          },
+          {
+            "id": "kp-5",
+            "title": "AI Native广告代理的优势",
+            "knowledgeType": "method",
+            "summary": "AI native广告代理能用较低成本生成上百个广告版本，快速测试不同创意，相比传统代理每月只能交付少量素材，具有成本和质量优势。",
+            "keyClaim": "AI降低了广告素材制作成本，提升了测试速度和效果。",
+            "sourceQuote": "“从去年6月到12月，AI native代理这个新行业完全爆发了。”",
+            "testabilityReason": "该知识点揭示了AI改变广告行业的一个具体方向，容易测试对趋势和商业模式的理解。",
+            "questionAngles": [
+              "AI native广告代理相比传统代理有哪些优势？",
+              "为什么本地服务商更关心客户获取而非“AI广告”概念？",
+              "AI native代理的毛利结构为何更优？"
+            ],
+            "testabilityScore": 4,
+            "filterReasons": [
+              "source_not_supported"
+            ]
+          },
+          {
+            "id": "kp-6",
+            "title": "电商内容生成：先用AI测脚本再找真人拍摄",
+            "knowledgeType": "method",
+            "summary": "品牌先用AI生成上千个不同视频脚本进行投放测试，找到有效方向后再请真人UGC创作者拍摄，从而节约时间和成本。",
+            "keyClaim": "AI批量测试脚本可提高内容营销的效率和效果。",
+            "sourceQuote": "“用AI创意，我们可以生成上千个不同视频，投放、做A/B测试，然后看出哪个脚本真的有效。”",
+            "testabilityReason": "该方法有清晰的流程（批量生成→A/B测试→真人拍摄），容易考核步骤和原理。",
+            "questionAngles": [
+              "电商品牌为什么要先用AI测试脚本？",
+              "AI生成视频和真人UGC视频的关系是什么？",
+              "如何用免费样片获取电商客户的信任？"
+            ],
+            "testabilityScore": 4,
+            "filterReasons": [
+              "source_not_supported"
+            ]
+          },
+          {
+            "id": "kp-7",
+            "title": "垂直AI产品的核心三要素",
+            "knowledgeType": "concept",
+            "summary": "有价值的垂直AI产品来自三个要素：获取客户数据、写出更好的提示词、设计比聊天框更适合的UX，三者结合才能做出专用工具。",
+            "keyClaim": "仅有模型（GPT wrapper）不够，需要数据、提示词和UX的深度优化。",
+            "sourceQuote": "“我们可以通过UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。”",
+            "testabilityReason": "该概念明确了垂直AI产品的构成，适合测试判断力和区分度。",
+            "questionAngles": [
+              "为什么GPT wrapper容易失败？",
+              "垂直AI产品需要哪三个要素？",
+              "举一个垂直AI产品的例子并说明其如何体现三要素。"
+            ],
+            "testabilityScore": 5,
+            "filterReasons": [
+              "source_not_supported"
+            ]
+          },
+          {
+            "id": "kp-8",
+            "title": "先卖服务再沉淀产品的共同路径",
+            "knowledgeType": "step",
+            "summary": "从易到难的6个机会都遵循一条路径：先选一个行业，找到重复且烦人的任务，以服务方式交付，获得反馈后把重复动作产品化。",
+            "keyClaim": "服务先行可以快速验证需求并积累客户反馈，为产品开发打下基础。",
+            "sourceQuote": "“挑一个你了解的行业，写下这个行业里人们每周都会做、又让他们抓狂的三个重复任务。”",
+            "testabilityReason": "该路径总结了从服务到产品的转型逻辑，适合考核整体战略思维。",
+            "questionAngles": [
+              "为什么建议先卖服务而不是直接做产品？",
+              "服务先行有哪些优势？",
+              "如何判断一个服务经验可以产品化？"
+            ],
+            "testabilityScore": 4,
+            "filterReasons": [
+              "source_not_supported"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "id": "q-1",
+            "knowledgePointId": "kp-2",
+            "pointId": "kp-2",
+            "pointTitle": "行业AI顾问的启动方法",
+            "type": "scenario_judgment",
+            "stem": "你是一名AI顾问，想在LinkedIn上建立专业形象以吸引客户。以下哪种做法最符合Marina的建议？",
+            "options": [
+              {
+                "id": "A",
+                "text": "每天发布一条行业动态和观点。"
+              },
+              {
+                "id": "B",
+                "text": "挑选一个你擅长的职能，连续30天发布带截图和数据的案例。"
+              },
+              {
+                "id": "C",
+                "text": "先发布几篇爆款文章，再偶尔更新案例。"
+              },
+              {
+                "id": "D",
+                "text": "只发布客户好评和推荐信。"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "Marina的做法是挑一个自己懂的职能，连续30天在LinkedIn发带截图和数字的案例，以此建立专业形象。选项B准确描述了这一方法。",
+            "shortExplanation": "Marina的做法是挑一个自己懂的职能，连续30天在LinkedIn发带截图和数字的案例，以此建立专业形象。选项B准确描述了这一方法。",
+            "fullExplanation": "通过持续发布具体案例可以建立专业形象并获取客户。",
+            "correct_understanding": "通过持续发布具体案例可以建立专业形象并获取客户。",
+            "correctUnderstanding": "通过持续发布具体案例可以建立专业形象并获取客户。",
+            "common_misconception": "认为爆款文章或行业动态比连续发布案例更有效。",
+            "commonMisconception": "认为爆款文章或行业动态比连续发布案例更有效。",
+            "pitfalls": [
+              "认为爆款文章或行业动态比连续发布案例更有效。"
+            ],
+            "source_snippet": "Marina的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR或语言学习，连续30天在LinkedIn发带截图和数字的案例。",
+            "sourceSnippet": "Marina的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR或语言学习，连续30天在LinkedIn发带截图和数字的案例。",
+            "sourceQuote": "Marina的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR或语言学习，连续30天在LinkedIn发带截图和数字的案例。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-2",
+            "knowledgePointId": "kp-2",
+            "pointId": "kp-2",
+            "pointTitle": "行业AI顾问的启动方法",
+            "type": "scenario_judgment",
+            "stem": "你的朋友认为，与其花精力连续发30天案例，不如花时间写一篇深度爆款文章。你认为Marina的经验更支持哪种策略？",
+            "options": [
+              {
+                "id": "A",
+                "text": "爆款文章能快速吸引大量流量，效果更好。"
+              },
+              {
+                "id": "B",
+                "text": "连续发布案例能持续建立专业信任，积累潜在客户。"
+              },
+              {
+                "id": "C",
+                "text": "两种策略都有效，可以同时进行。"
+              },
+              {
+                "id": "D",
+                "text": "不需要发布内容，直接联系客户推销即可。"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "Marina的方法强调连续30天发布案例，这比追求单次爆款更能持续展示专业能力，从而建立信任。",
+            "shortExplanation": "Marina的方法强调连续30天发布案例，这比追求单次爆款更能持续展示专业能力，从而建立信任。",
+            "fullExplanation": "持续发布案例比追求爆款更有效，因为信任的建立需要过程。",
+            "correct_understanding": "持续发布案例比追求爆款更有效，因为信任的建立需要过程。",
+            "correctUnderstanding": "持续发布案例比追求爆款更有效，因为信任的建立需要过程。",
+            "common_misconception": "认为爆款文章可以替代持续的内容输出。",
+            "commonMisconception": "认为爆款文章可以替代持续的内容输出。",
+            "pitfalls": [
+              "认为爆款文章可以替代持续的内容输出。"
+            ],
+            "source_snippet": "Marina的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR或语言学习，连续30天在LinkedIn发带截图和数字的案例。",
+            "sourceSnippet": "Marina的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR或语言学习，连续30天在LinkedIn发带截图和数字的案例。",
+            "sourceQuote": "Marina的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR或语言学习，连续30天在LinkedIn发带截图和数字的案例。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-4",
+            "knowledgePointId": "kp-3",
+            "pointId": "kp-3",
+            "pointTitle": "GEO机会：让本地商家出现在AI搜索结果中",
+            "type": "scenario_judgment",
+            "stem": "你发现一家本地花店在Google Maps上评分高，但在ChatGPT搜索中很少被推荐。你想判断是否缺失GEO机会，第一步应该做什么？",
+            "options": [
+              {
+                "id": "A",
+                "text": "建议花店立即开通社交媒体账号。"
+              },
+              {
+                "id": "B",
+                "text": "在ChatGPT或Perplexity等AI搜索中测试相关关键词，看花店是否出现在结果中。"
+              },
+              {
+                "id": "C",
+                "text": "分析花店网站的关键词密度。"
+              },
+              {
+                "id": "D",
+                "text": "检查花店在Google上的广告投放。"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "要判断本地商家是否缺失在AI搜索结果中，最直接的方法是在AI搜索引擎中输入相关查询，看商家是否出现。",
+            "shortExplanation": "要判断本地商家是否缺失在AI搜索结果中，最直接的方法是在AI搜索引擎中输入相关查询，看商家是否出现。",
+            "fullExplanation": "通过AI搜索测试可以快速判断GEO机会。",
+            "correct_understanding": "通过AI搜索测试可以快速判断GEO机会。",
+            "correctUnderstanding": "通过AI搜索测试可以快速判断GEO机会。",
+            "common_misconception": "认为只需优化传统SEO即可覆盖AI搜索。",
+            "commonMisconception": "认为只需优化传统SEO即可覆盖AI搜索。",
+            "pitfalls": [
+              "认为只需优化传统SEO即可覆盖AI搜索。"
+            ],
+            "source_snippet": "Robbie Stein在访谈里说，很多传统SEO最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。",
+            "sourceSnippet": "Robbie Stein在访谈里说，很多传统SEO最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。",
+            "sourceQuote": "Robbie Stein在访谈里说，很多传统SEO最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-3-rewrite-1-1",
+            "knowledgePointId": "kp-3",
+            "pointId": "kp-3",
+            "pointTitle": "GEO机会：让本地商家出现在AI搜索结果中",
+            "type": "scenario_judgment",
+            "stem": "某本地餐厅老板发现，用户在ChatGPT上询问“附近好吃的川菜馆”时，ChatGPT并未推荐他的餐厅，而他在传统搜索引擎中的排名很高。他向你咨询原因和解决方法。作为GEO顾问，你的建议是？",
+            "options": [
+              {
+                "id": "A",
+                "text": "建议他放弃传统SEO，全力投入AI搜索优化，因为传统SEO已失效。"
+              },
+              {
+                "id": "B",
+                "text": "建议他检查餐厅网站内容是否清晰、有帮助、能被AI搜索工具理解，并据此优化内容。"
+              },
+              {
+                "id": "C",
+                "text": "建议他增加网站的关键词密度和外部链接，因为AI搜索完全依赖传统SEO指标。"
+              },
+              {
+                "id": "D",
+                "text": "建议他不要做任何事，因为AI搜索结果不可控，只能等待被自然收录。"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "根据来源，传统SEO最佳实践仍然适用，但需要内容清晰、有帮助、能被搜索工具理解。B选项正确结合了这两点。A选项错误地认为传统SEO完全无效；C选项过度强调传统指标，忽视了AI对内容理解的要求；D选项消极等待，忽略了可优化的空间。",
+            "shortExplanation": "根据来源，传统SEO最佳实践仍然适用，但需要内容清晰、有帮助、能被搜索工具理解。B选项正确结合了这两点。A选项错误地认为传统SEO完全无效；C选项过度强调传统指标，忽视了AI对内容理解的要求；D选项消极等待，忽略了可优化的空间。",
+            "fullExplanation": "GEO需要继承传统SEO的最佳实践，同时优化内容使其对AI搜索工具更易理解。",
+            "correct_understanding": "GEO需要继承传统SEO的最佳实践，同时优化内容使其对AI搜索工具更易理解。",
+            "correctUnderstanding": "GEO需要继承传统SEO的最佳实践，同时优化内容使其对AI搜索工具更易理解。",
+            "common_misconception": "认为传统SEO在AI搜索中完全失效或完全决定AI搜索排名。",
+            "commonMisconception": "认为传统SEO在AI搜索中完全失效或完全决定AI搜索排名。",
+            "pitfalls": [
+              "认为传统SEO在AI搜索中完全失效或完全决定AI搜索排名。"
+            ],
+            "source_snippet": "Robbie Stein在访谈里说，很多传统SEO最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。",
+            "sourceSnippet": "Robbie Stein在访谈里说，很多传统SEO最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。",
+            "sourceQuote": "Robbie Stein在访谈里说，很多传统SEO最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-5",
+            "knowledgePointId": "kp-4",
+            "pointId": "kp-4",
+            "pointTitle": "语音AI前台的测试与销售方法",
+            "type": "scenario_judgment",
+            "stem": "你准备为本地牙医诊所测试语音AI前台的潜在需求。根据Marina的方法，以下哪种测试策略最有效？",
+            "options": [
+              {
+                "id": "A",
+                "text": "在营业时间随机打电话给多家诊所，记录通话情况。"
+              },
+              {
+                "id": "B",
+                "text": "在午餐时间打电话给20家诊所，统计进入语音信箱的比例。"
+              },
+              {
+                "id": "C",
+                "text": "通过邮件调查询问诊所是否对AI前台感兴趣。"
+              },
+              {
+                "id": "D",
+                "text": "在诊所网站植入聊天机器人测试响应率。"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "Marina的方法是在午餐时间逐个打电话给20家办公室，统计语音信箱接听比例，以此证明漏接电话的问题。",
+            "shortExplanation": "Marina的方法是在午餐时间逐个打电话给20家办公室，统计语音信箱接听比例，以此证明漏接电话的问题。",
+            "fullExplanation": "午餐时间打电话测试可以高效反映客户流失问题。",
+            "correct_understanding": "午餐时间打电话测试可以高效反映客户流失问题。",
+            "correctUnderstanding": "午餐时间打电话测试可以高效反映客户流失问题。",
+            "common_misconception": "认为随机时间或邮件调查也能同样有效。",
+            "commonMisconception": "认为随机时间或邮件调查也能同样有效。",
+            "pitfalls": [
+              "认为随机时间或邮件调查也能同样有效。"
+            ],
+            "source_snippet": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+            "sourceSnippet": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+            "sourceQuote": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 4,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.7,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-7",
+            "knowledgePointId": "kp-4",
+            "pointId": "kp-4",
+            "pointTitle": "语音AI前台的测试与销售方法",
+            "type": "scenario_judgment",
+            "stem": "你已通过午餐时间测试发现某牙医诊所的漏接电话率很高，现在想说服客户购买AI前台服务。以下哪种方式最有效？",
+            "options": [
+              {
+                "id": "A",
+                "text": "演示AI前台的功能有多强大。"
+              },
+              {
+                "id": "B",
+                "text": "用测试数据展示他们每月丢失了多少潜在客户，并计算挽回价值。"
+              },
+              {
+                "id": "C",
+                "text": "承诺免费试用一个月。"
+              },
+              {
+                "id": "D",
+                "text": "与竞争对手的AI前台价格对比。"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "用实际数据（漏接电话率）来证明问题存在并量化价值，比空谈功能或价格更具说服力。",
+            "shortExplanation": "用实际数据（漏接电话率）来证明问题存在并量化价值，比空谈功能或价格更具说服力。",
+            "fullExplanation": "用数据证明问题比推销技术更有效。",
+            "correct_understanding": "用数据证明问题比推销技术更有效。",
+            "correctUnderstanding": "用数据证明问题比推销技术更有效。",
+            "common_misconception": "认为演示功能或免费试用就能打动客户。",
+            "commonMisconception": "认为演示功能或免费试用就能打动客户。",
+            "pitfalls": [
+              "认为演示功能或免费试用就能打动客户。"
+            ],
+            "source_snippet": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+            "sourceSnippet": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+            "sourceQuote": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 4,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.7,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-6",
+            "knowledgePointId": "kp-4",
+            "pointId": "kp-4",
+            "pointTitle": "语音AI前台的测试与销售方法",
+            "type": "scenario_judgment",
+            "stem": "一家律师事务所的合伙人告诉你，他们不想为AI前台付费，因为他们觉得语音信箱够用了。你认为最有效的说服论据是什么？",
+            "options": [
+              {
+                "id": "A",
+                "text": "语音AI前台可以24小时接听，成本更低。"
+              },
+              {
+                "id": "B",
+                "text": "语音AI前台能自动预约并减少客户流失，而语音信箱会错失商机。"
+              },
+              {
+                "id": "C",
+                "text": "语音AI前台比人工接听更专业。"
+              },
+              {
+                "id": "D",
+                "text": "语音AI前台不需要培训即可使用。"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "语音AI前台的核心价值在于减少漏接电话，避免潜在客户流失，这是语音信箱无法做到的。",
+            "shortExplanation": "语音AI前台的核心价值在于减少漏接电话，避免潜在客户流失，这是语音信箱无法做到的。",
+            "fullExplanation": "语音AI前台通过自动接听和预约增加客户转化率。",
+            "correct_understanding": "语音AI前台通过自动接听和预约增加客户转化率。",
+            "correctUnderstanding": "语音AI前台通过自动接听和预约增加客户转化率。",
+            "common_misconception": "仅强调成本或功能，而忽略客户流失这个痛点。",
+            "commonMisconception": "仅强调成本或功能，而忽略客户流失这个痛点。",
+            "pitfalls": [
+              "仅强调成本或功能，而忽略客户流失这个痛点。"
+            ],
+            "source_snippet": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+            "sourceSnippet": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+            "sourceQuote": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          }
+        ],
+        "qualitySummary": {
+          "totalGenerated": 13,
+          "passed": 7,
+          "rewrite": 6,
+          "discarded": 0,
+          "averageScore": 4.6,
+          "seriousIssueCount": 4,
+          "judgeUnavailable": false
+        },
+        "generationMeta": {
+          "startedAt": "2026-05-16T02:15:15.518Z",
+          "currentStage": "failed_no_qualified_questions",
+          "stages": [
+            {
+              "status": "submitted",
+              "at": "2026-05-16T02:15:15.518Z"
+            },
+            {
+              "status": "generating_points",
+              "displayStatusText": "正在生成知识点",
+              "at": "2026-05-16T02:15:15.518Z"
+            },
+            {
+              "status": "generating_questions",
+              "displayStatusText": "正在生成题目",
+              "at": "2026-05-16T02:15:37.066Z"
+            },
+            {
+              "status": "quality_checking",
+              "displayStatusText": "正在检查题目质量",
+              "at": "2026-05-16T02:16:23.077Z"
+            },
+            {
+              "status": "auto_regenerating_questions",
+              "displayStatusText": "正在重新生成题目",
+              "at": "2026-05-16T02:16:35.752Z"
+            },
+            {
+              "status": "failed_no_qualified_questions",
+              "displayStatusText": "题目生成失败",
+              "at": "2026-05-16T02:17:22.100Z"
+            }
+          ],
+          "finishedAt": "2026-05-16T02:17:22.100Z",
+          "failedStage": "quality_checking",
+          "failureReason": "生成失败。还有 1 个知识点没有合格题目。你可以手动重新生成一次。",
+          "candidateCount": 9,
+          "keptKnowledgePointCount": 4,
+          "filteredKnowledgePointCount": 5,
+          "totalGenerated": 13,
+          "rewrittenCount": 6,
+          "supplementCount": 1,
+          "generationErrorCount": 0,
+          "discardedCount": 6,
+          "qualifiedQuestionCount": 7
+        }
+      },
+      "generationDebug": {
+        "knowledgePoints": [
+          {
+            "id": "kp-2",
+            "title": "行业AI顾问的启动方法",
+            "knowledgeType": "method",
+            "summary": "选一个自己懂的职能（如营销、财务），连续30天在LinkedIn发布带截图和数字的案例，展示原流程问题与AI修复后的对比，以此吸引客户。",
+            "keyClaim": "通过持续发布具体案例可以建立专业形象并获取客户。",
+            "sourceQuote": "Marina的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR或语言学习，连续30天在LinkedIn发带截图和数字的案例。",
+            "testabilityReason": "该方法有明确的时间周期和输出形式，适合考核步骤记忆和执行细节。",
+            "questionAngles": [
+              "行业AI顾问应该怎样展示自己的价值？",
+              "为什么连续30天发布案例比追求爆款更有效？",
+              "客户真正愿意为AI顾问的什么服务付费？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-3",
+            "title": "GEO机会：让本地商家出现在AI搜索结果中",
+            "knowledgeType": "method",
+            "summary": "检查本地商家是否出现在ChatGPT、Gemini等AI的推荐答案中，若未出现则向商家推销GEO服务，帮助其被AI发现。",
+            "keyClaim": "AI搜索推荐已成为本地商家获取客户的新渠道，GEO是新兴机会。",
+            "sourceQuote": "Robbie Stein在访谈里说，很多传统SEO最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。",
+            "testabilityReason": "该方法包含具体的验证步骤（搜索测试）和销售切入点，适合考核实操逻辑。",
+            "questionAngles": [
+              "什么是GEO？与SEO有何异同？",
+              "如何判断一个本地商家是否缺失在AI搜索结果中？",
+              "GEO服务的销售话术应该怎么组织？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-4",
+            "title": "语音AI前台的测试与销售方法",
+            "knowledgeType": "method",
+            "summary": "通过地推方式，在午餐时间给20家潜在客户打电话，记录漏接数，然后带着数据推销语音AI前台服务，每月500美元。",
+            "keyClaim": "用实际数据证明问题，比直接推销技术更有效。",
+            "sourceQuote": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+            "testabilityReason": "方法中有具体数字（20家、每月500美元）和步骤，适合考核细节和执行力。",
+            "questionAngles": [
+              "为什么选择午餐时间测试漏接电话？",
+              "语音AI前台的核心价值是什么？",
+              "如何说服客户为语音AI前台付费？"
+            ],
+            "testabilityScore": 5
+          },
+          {
+            "id": "kp-9",
+            "title": "普通人做AI生意应避免宏大叙事",
+            "knowledgeType": "judgment",
+            "summary": "普通人做AI生意最怕一开始就要做平台，平台需要流量、研发等资源，会拖慢第一笔收入；应先用服务验证需求，再产品化。",
+            "keyClaim": "从服务小流程入手，比直接做平台更容易成功。",
+            "sourceQuote": "普通人做AI生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。",
+            "testabilityReason": "该判断提供了明确的商务策略对比，适合测试决策能力和商业敏锐度。",
+            "questionAngles": [
+              "为什么普通人做AI生意不适合从平台开始？",
+              "服务模式相比平台模式有哪些优势？",
+              "如果客户需求验证成功，如何判断何时转型产品？"
+            ],
+            "testabilityScore": 4
+          }
+        ],
+        "filteredKnowledgePoints": [
+          {
+            "id": "kp-1",
+            "title": "小团队减员增效案例",
+            "knowledgeType": "counterexample",
+            "summary": "公司从160人缩减到40人，业绩反而提升10倍，表明AI工具可以有效替代人力，颠覆传统“人多力量大”的认知。",
+            "keyClaim": "更少的人配合AI可以产生更好的业绩。",
+            "sourceQuote": "“我们一度有150到160人，现在接近40人；从指标看，40人时比160人时好10倍。”",
+            "testabilityReason": "该案例提供具体的量化对比（人数与业绩），便于测试理解程度和逻辑推理能力。",
+            "questionAngles": [
+              "为什么缩减团队反而能提升业绩？",
+              "AI在人员优化中扮演了什么角色？",
+              "这个案例对创业公司有什么启示？"
+            ],
+            "testabilityScore": 5,
+            "filterReasons": [
+              "source_not_supported"
+            ]
+          },
+          {
+            "id": "kp-5",
+            "title": "AI Native广告代理的优势",
+            "knowledgeType": "method",
+            "summary": "AI native广告代理能用较低成本生成上百个广告版本，快速测试不同创意，相比传统代理每月只能交付少量素材，具有成本和质量优势。",
+            "keyClaim": "AI降低了广告素材制作成本，提升了测试速度和效果。",
+            "sourceQuote": "“从去年6月到12月，AI native代理这个新行业完全爆发了。”",
+            "testabilityReason": "该知识点揭示了AI改变广告行业的一个具体方向，容易测试对趋势和商业模式的理解。",
+            "questionAngles": [
+              "AI native广告代理相比传统代理有哪些优势？",
+              "为什么本地服务商更关心客户获取而非“AI广告”概念？",
+              "AI native代理的毛利结构为何更优？"
+            ],
+            "testabilityScore": 4,
+            "filterReasons": [
+              "source_not_supported"
+            ]
+          },
+          {
+            "id": "kp-6",
+            "title": "电商内容生成：先用AI测脚本再找真人拍摄",
+            "knowledgeType": "method",
+            "summary": "品牌先用AI生成上千个不同视频脚本进行投放测试，找到有效方向后再请真人UGC创作者拍摄，从而节约时间和成本。",
+            "keyClaim": "AI批量测试脚本可提高内容营销的效率和效果。",
+            "sourceQuote": "“用AI创意，我们可以生成上千个不同视频，投放、做A/B测试，然后看出哪个脚本真的有效。”",
+            "testabilityReason": "该方法有清晰的流程（批量生成→A/B测试→真人拍摄），容易考核步骤和原理。",
+            "questionAngles": [
+              "电商品牌为什么要先用AI测试脚本？",
+              "AI生成视频和真人UGC视频的关系是什么？",
+              "如何用免费样片获取电商客户的信任？"
+            ],
+            "testabilityScore": 4,
+            "filterReasons": [
+              "source_not_supported"
+            ]
+          },
+          {
+            "id": "kp-7",
+            "title": "垂直AI产品的核心三要素",
+            "knowledgeType": "concept",
+            "summary": "有价值的垂直AI产品来自三个要素：获取客户数据、写出更好的提示词、设计比聊天框更适合的UX，三者结合才能做出专用工具。",
+            "keyClaim": "仅有模型（GPT wrapper）不够，需要数据、提示词和UX的深度优化。",
+            "sourceQuote": "“我们可以通过UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。”",
+            "testabilityReason": "该概念明确了垂直AI产品的构成，适合测试判断力和区分度。",
+            "questionAngles": [
+              "为什么GPT wrapper容易失败？",
+              "垂直AI产品需要哪三个要素？",
+              "举一个垂直AI产品的例子并说明其如何体现三要素。"
+            ],
+            "testabilityScore": 5,
+            "filterReasons": [
+              "source_not_supported"
+            ]
+          },
+          {
+            "id": "kp-8",
+            "title": "先卖服务再沉淀产品的共同路径",
+            "knowledgeType": "step",
+            "summary": "从易到难的6个机会都遵循一条路径：先选一个行业，找到重复且烦人的任务，以服务方式交付，获得反馈后把重复动作产品化。",
+            "keyClaim": "服务先行可以快速验证需求并积累客户反馈，为产品开发打下基础。",
+            "sourceQuote": "“挑一个你了解的行业，写下这个行业里人们每周都会做、又让他们抓狂的三个重复任务。”",
+            "testabilityReason": "该路径总结了从服务到产品的转型逻辑，适合考核整体战略思维。",
+            "questionAngles": [
+              "为什么建议先卖服务而不是直接做产品？",
+              "服务先行有哪些优势？",
+              "如何判断一个服务经验可以产品化？"
+            ],
+            "testabilityScore": 4,
+            "filterReasons": [
+              "source_not_supported"
+            ]
+          }
+        ],
+        "evaluatedQuestions": [
+          {
+            "id": "q-1",
+            "knowledgePointId": "kp-2",
+            "type": "scenario_judgment",
+            "stem": "你是一名AI顾问，想在LinkedIn上建立专业形象以吸引客户。以下哪种做法最符合Marina的建议？",
+            "options": [
+              {
+                "id": "A",
+                "text": "每天发布一条行业动态和观点。"
+              },
+              {
+                "id": "B",
+                "text": "挑选一个你擅长的职能，连续30天发布带截图和数据的案例。"
+              },
+              {
+                "id": "C",
+                "text": "先发布几篇爆款文章，再偶尔更新案例。"
+              },
+              {
+                "id": "D",
+                "text": "只发布客户好评和推荐信。"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "Marina的做法是挑一个自己懂的职能，连续30天在LinkedIn发带截图和数字的案例，以此建立专业形象。选项B准确描述了这一方法。",
+            "correctUnderstanding": "通过持续发布具体案例可以建立专业形象并获取客户。",
+            "commonMisconception": "认为爆款文章或行业动态比连续发布案例更有效。",
+            "sourceSnippet": "Marina的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR或语言学习，连续30天在LinkedIn发带截图和数字的案例。",
+            "difficulty": "medium",
+            "pointTitle": "行业AI顾问的启动方法",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目直接对应来源，答案唯一，考查方法理解，选项清晰，干扰项合理但明确错误，值得复习。"
+          },
+          {
+            "id": "q-2",
+            "knowledgePointId": "kp-2",
+            "type": "scenario_judgment",
+            "stem": "你的朋友认为，与其花精力连续发30天案例，不如花时间写一篇深度爆款文章。你认为Marina的经验更支持哪种策略？",
+            "options": [
+              {
+                "id": "A",
+                "text": "爆款文章能快速吸引大量流量，效果更好。"
+              },
+              {
+                "id": "B",
+                "text": "连续发布案例能持续建立专业信任，积累潜在客户。"
+              },
+              {
+                "id": "C",
+                "text": "两种策略都有效，可以同时进行。"
+              },
+              {
+                "id": "D",
+                "text": "不需要发布内容，直接联系客户推销即可。"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "Marina的方法强调连续30天发布案例，这比追求单次爆款更能持续展示专业能力，从而建立信任。",
+            "correctUnderstanding": "持续发布案例比追求爆款更有效，因为信任的建立需要过程。",
+            "commonMisconception": "认为爆款文章可以替代持续的内容输出。",
+            "sourceSnippet": "Marina的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR或语言学习，连续30天在LinkedIn发带截图和数字的案例。",
+            "difficulty": "medium",
+            "pointTitle": "行业AI顾问的启动方法",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "来源支持对比策略，答案唯一，考查深层理解，题干清晰，干扰项合理。"
+          },
+          {
+            "id": "q-3",
+            "knowledgePointId": "kp-3",
+            "type": "scenario_judgment",
+            "stem": "你为一家本地牙医诊所提供AI搜索优化服务，客户问GEO和SEO有什么区别。以下哪种解释最准确？",
+            "options": [
+              {
+                "id": "A",
+                "text": "GEO是全新的方法，SEO已经不适用。"
+              },
+              {
+                "id": "B",
+                "text": "GEO和SEO完全不同，需要针对AI搜索重新构建网站。"
+              },
+              {
+                "id": "C",
+                "text": "GEO是SEO的补充，许多SEO最佳实践仍适用于GEO。"
+              },
+              {
+                "id": "D",
+                "text": "GEO只关注语音搜索，与传统搜索无关。"
+              }
+            ],
+            "correctOptionId": "C",
+            "explanation": "Robbie Stein指出很多传统SEO最佳实践仍然适用于AI搜索，因此GEO并非全新事物，而是SEO的补充。",
+            "correctUnderstanding": "GEO是新兴机会，且许多SEO最佳实践仍然适用。",
+            "commonMisconception": "认为GEO完全推翻了SEO。",
+            "sourceSnippet": "Robbie Stein在访谈里说，很多传统SEO最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。",
+            "difficulty": "medium",
+            "pointTitle": "GEO机会：让本地商家出现在AI搜索结果中",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "直接引用来源，答案唯一，考查概念辨析，选项无歧义，干扰项合理。"
+          },
+          {
+            "id": "q-4",
+            "knowledgePointId": "kp-3",
+            "type": "scenario_judgment",
+            "stem": "你发现一家本地花店在Google Maps上评分高，但在ChatGPT搜索中很少被推荐。你想判断是否缺失GEO机会，第一步应该做什么？",
+            "options": [
+              {
+                "id": "A",
+                "text": "建议花店立即开通社交媒体账号。"
+              },
+              {
+                "id": "B",
+                "text": "在ChatGPT或Perplexity等AI搜索中测试相关关键词，看花店是否出现在结果中。"
+              },
+              {
+                "id": "C",
+                "text": "分析花店网站的关键词密度。"
+              },
+              {
+                "id": "D",
+                "text": "检查花店在Google上的广告投放。"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "要判断本地商家是否缺失在AI搜索结果中，最直接的方法是在AI搜索引擎中输入相关查询，看商家是否出现。",
+            "correctUnderstanding": "通过AI搜索测试可以快速判断GEO机会。",
+            "commonMisconception": "认为只需优化传统SEO即可覆盖AI搜索。",
+            "sourceSnippet": "Robbie Stein在访谈里说，很多传统SEO最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。",
+            "difficulty": "medium",
+            "pointTitle": "GEO机会：让本地商家出现在AI搜索结果中",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "来源虽未明确说第一步，但内容支持该逻辑，答案唯一，考查方法应用，选项清晰。"
+          },
+          {
+            "id": "q-5",
+            "knowledgePointId": "kp-4",
+            "type": "scenario_judgment",
+            "stem": "你准备为本地牙医诊所测试语音AI前台的潜在需求。根据Marina的方法，以下哪种测试策略最有效？",
+            "options": [
+              {
+                "id": "A",
+                "text": "在营业时间随机打电话给多家诊所，记录通话情况。"
+              },
+              {
+                "id": "B",
+                "text": "在午餐时间打电话给20家诊所，统计进入语音信箱的比例。"
+              },
+              {
+                "id": "C",
+                "text": "通过邮件调查询问诊所是否对AI前台感兴趣。"
+              },
+              {
+                "id": "D",
+                "text": "在诊所网站植入聊天机器人测试响应率。"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "Marina的方法是在午餐时间逐个打电话给20家办公室，统计语音信箱接听比例，以此证明漏接电话的问题。",
+            "correctUnderstanding": "午餐时间打电话测试可以高效反映客户流失问题。",
+            "commonMisconception": "认为随机时间或邮件调查也能同样有效。",
+            "sourceSnippet": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+            "difficulty": "medium",
+            "pointTitle": "语音AI前台的测试与销售方法",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 4,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.7,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "来源直接描述了午餐时间打电话，答案唯一，考查执行细节，干扰项合理。"
+          },
+          {
+            "id": "q-6",
+            "knowledgePointId": "kp-4",
+            "type": "scenario_judgment",
+            "stem": "一家律师事务所的合伙人告诉你，他们不想为AI前台付费，因为他们觉得语音信箱够用了。你认为最有效的说服论据是什么？",
+            "options": [
+              {
+                "id": "A",
+                "text": "语音AI前台可以24小时接听，成本更低。"
+              },
+              {
+                "id": "B",
+                "text": "语音AI前台能自动预约并减少客户流失，而语音信箱会错失商机。"
+              },
+              {
+                "id": "C",
+                "text": "语音AI前台比人工接听更专业。"
+              },
+              {
+                "id": "D",
+                "text": "语音AI前台不需要培训即可使用。"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "语音AI前台的核心价值在于减少漏接电话，避免潜在客户流失，这是语音信箱无法做到的。",
+            "correctUnderstanding": "语音AI前台通过自动接听和预约增加客户转化率。",
+            "commonMisconception": "仅强调成本或功能，而忽略客户流失这个痛点。",
+            "sourceSnippet": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+            "difficulty": "medium",
+            "pointTitle": "语音AI前台的测试与销售方法",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "来源强调用数据证明问题，选项B对应减少客户流失，推理合理，答案唯一。"
+          },
+          {
+            "id": "q-7",
+            "knowledgePointId": "kp-4",
+            "type": "scenario_judgment",
+            "stem": "你已通过午餐时间测试发现某牙医诊所的漏接电话率很高，现在想说服客户购买AI前台服务。以下哪种方式最有效？",
+            "options": [
+              {
+                "id": "A",
+                "text": "演示AI前台的功能有多强大。"
+              },
+              {
+                "id": "B",
+                "text": "用测试数据展示他们每月丢失了多少潜在客户，并计算挽回价值。"
+              },
+              {
+                "id": "C",
+                "text": "承诺免费试用一个月。"
+              },
+              {
+                "id": "D",
+                "text": "与竞争对手的AI前台价格对比。"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "用实际数据（漏接电话率）来证明问题存在并量化价值，比空谈功能或价格更具说服力。",
+            "correctUnderstanding": "用数据证明问题比推销技术更有效。",
+            "commonMisconception": "认为演示功能或免费试用就能打动客户。",
+            "sourceSnippet": "Marina的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在Google Maps上找20家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。",
+            "difficulty": "medium",
+            "pointTitle": "语音AI前台的测试与销售方法",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 4,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.7,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "来源支持用数据说服，答案唯一，考查销售策略，选项清晰。"
+          },
+          {
+            "id": "q-8",
+            "knowledgePointId": "kp-9",
+            "type": "true_false",
+            "stem": "普通人做AI生意时，从服务小流程入手比从一开始就想做平台更容易成功。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "文中提到：普通人做AI生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。这暗示从服务小流程入手更可行。",
+            "correctUnderstanding": "从服务小流程入手比直接做平台更容易成功。",
+            "commonMisconception": "认为做平台才有前途，服务模式太低级。",
+            "sourceSnippet": "普通人做AI生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。",
+            "difficulty": "medium",
+            "pointTitle": "普通人做AI生意应避免宏大叙事",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "来源直接支持，答案唯一，考查对平台叙事的理解，true/false题型干扰项有限但合理。"
+          },
+          {
+            "id": "q-9",
+            "knowledgePointId": "kp-9",
+            "type": "true_false",
+            "stem": "对于普通人做AI生意，一旦通过服务模式验证了客户需求，就应立即转型开发平台产品。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "文中并未说验证需求后就要立即转型做平台，反而强调一开始不要陷入做平台的叙事，因此该说法不成立。",
+            "correctUnderstanding": "验证需求后仍需谨慎考虑，不应急于转型平台。",
+            "commonMisconception": "认为服务只是跳板，最终目标必须是平台。",
+            "sourceSnippet": "普通人做AI生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。",
+            "difficulty": "medium",
+            "pointTitle": "普通人做AI生意应避免宏大叙事",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "来源未提立即转型，答案唯一，考查推断能力，干扰项合理但简单。"
+          },
+          {
+            "id": "q-3-rewrite-1-1",
+            "knowledgePointId": "kp-3",
+            "type": "scenario_judgment",
+            "stem": "某本地餐厅老板发现，用户在ChatGPT上询问“附近好吃的川菜馆”时，ChatGPT并未推荐他的餐厅，而他在传统搜索引擎中的排名很高。他向你咨询原因和解决方法。作为GEO顾问，你的建议是？",
+            "options": [
+              {
+                "id": "A",
+                "text": "建议他放弃传统SEO，全力投入AI搜索优化，因为传统SEO已失效。"
+              },
+              {
+                "id": "B",
+                "text": "建议他检查餐厅网站内容是否清晰、有帮助、能被AI搜索工具理解，并据此优化内容。"
+              },
+              {
+                "id": "C",
+                "text": "建议他增加网站的关键词密度和外部链接，因为AI搜索完全依赖传统SEO指标。"
+              },
+              {
+                "id": "D",
+                "text": "建议他不要做任何事，因为AI搜索结果不可控，只能等待被自然收录。"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "根据来源，传统SEO最佳实践仍然适用，但需要内容清晰、有帮助、能被搜索工具理解。B选项正确结合了这两点。A选项错误地认为传统SEO完全无效；C选项过度强调传统指标，忽视了AI对内容理解的要求；D选项消极等待，忽略了可优化的空间。",
+            "correctUnderstanding": "GEO需要继承传统SEO的最佳实践，同时优化内容使其对AI搜索工具更易理解。",
+            "commonMisconception": "认为传统SEO在AI搜索中完全失效或完全决定AI搜索排名。",
+            "sourceSnippet": "Robbie Stein在访谈里说，很多传统SEO最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。",
+            "difficulty": "medium",
+            "pointTitle": "GEO机会：让本地商家出现在AI搜索结果中",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目基于来源片段设计，选项B正确且唯一，考查GEO与传统SEO关系，题干清晰，干扰项合理但明显错误，具有复习价值。"
+          },
+          {
+            "id": "q-8-rewrite-2-1",
+            "knowledgePointId": "kp-9",
+            "type": "true_false",
+            "stem": "“普通人做AI生意，应该先打造一个综合性平台，以便快速占领市场。”这一观点与原文主张一致。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文明确指出“普通人做AI生意，最怕一开始就把自己放进‘我要做一个平台’的叙事里”，主张从服务小流程入手，而不是直接做平台。因此题干观点与原文相反。",
+            "correctUnderstanding": "普通人做AI生意应避免宏大叙事，从服务小流程入手比直接做平台更容易成功。",
+            "commonMisconception": "有人认为做平台才能体现规模和价值，但忽略了资源资源和能力限制，导致失败风险高。",
+            "sourceSnippet": "普通人做AI生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。",
+            "difficulty": "easy",
+            "pointTitle": "普通人做AI生意应避免宏大叙事",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 2,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [
+              "understandingDepth_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "各维度评分良好，无严重问题，答案唯一且来源充分，考核理解而非记忆，值得复习。"
+          },
+          {
+            "id": "q-9-rewrite-3-1",
+            "knowledgePointId": "kp-9",
+            "type": "true_false",
+            "stem": "根据文章观点，普通人做AI生意时，从服务小流程入手比直接打造平台更容易成功。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "原文指出“普通人做AI生意，最怕一开始就把自己放进‘我要做一个平台’的叙事里”，言下之意是应避免宏大叙事，从服务小流程入手更容易成功。",
+            "correctUnderstanding": "普通人应避免直接做平台，从服务小流程切入更可行。",
+            "commonMisconception": "误以为平台模式回报更高，因此认为原文主张做平台更好。",
+            "sourceSnippet": "普通人做AI生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。",
+            "difficulty": "easy",
+            "pointTitle": "普通人做AI生意应避免宏大叙事",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 2,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目有明确来源支撑，答案唯一，但理解深度较低，属于直接复述原文观点。整体质量可接受，建议入池。"
+          },
+          {
+            "id": "supplement-kp-9-1-1",
+            "knowledgePointId": "kp-9",
+            "type": "true_false",
+            "stem": "根据原文观点，普通人做AI生意应当优先考虑搭建平台，因为平台能产生更大规模效益。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文指出‘普通人做AI生意，最怕一开始就把自己放进“我要做一个平台”的叙事里’，明确反对从平台入手，因此该陈述不成立。",
+            "correctUnderstanding": "普通人做AI生意应避免一开始就做平台，而应从服务小流程入手，这样更容易成功。",
+            "commonMisconception": "认为做平台是更高级、收益更大的路径，因此会误以为原文支持平台优先。",
+            "sourceSnippet": "普通人做AI生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。",
+            "difficulty": "easy",
+            "pointTitle": "普通人做AI生意应避免宏大叙事",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 2,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 2,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 2
+              },
+              "judgeAverage": 3.8
+            },
+            "qualityIssues": [
+              "understandingDepth_low",
+              "judge_题目过于简单，仅考察原文记忆，缺乏理解深度"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "rewrite",
+            "judgeReason": "题目只是判断题，直接复述原文，可以改为考察为什么平台不适合普通人，从而提升理解深度。"
+          }
+        ],
+        "pointDiagnostics": [
+          {
+            "pointId": "kp-2",
+            "title": "行业AI顾问的启动方法",
+            "testabilityScore": 4,
+            "candidateQuestionCount": 2,
+            "qualifiedQuestionCount": 2,
+            "status": "covered",
+            "failureReasons": []
+          },
+          {
+            "pointId": "kp-3",
+            "title": "GEO机会：让本地商家出现在AI搜索结果中",
+            "testabilityScore": 4,
+            "candidateQuestionCount": 3,
+            "qualifiedQuestionCount": 2,
+            "status": "covered",
+            "failureReasons": []
+          },
+          {
+            "pointId": "kp-4",
+            "title": "语音AI前台的测试与销售方法",
+            "testabilityScore": 5,
+            "candidateQuestionCount": 3,
+            "qualifiedQuestionCount": 3,
+            "status": "covered",
+            "failureReasons": []
+          },
+          {
+            "pointId": "kp-9",
+            "title": "普通人做AI生意应避免宏大叙事",
+            "testabilityScore": 4,
+            "candidateQuestionCount": 5,
+            "qualifiedQuestionCount": 0,
+            "status": "no_qualified_question",
+            "failureReasons": [
+              "rule_rewrite",
+              "judge_reason:来源直接支持，答案唯一，考查对平台叙事的理解，true/false题型干扰项有限但合理。",
+              "judge_reason:来源未提立即转型，答案唯一，考查推断能力，干扰项合理但简单。",
+              "understandingDepth_low",
+              "judge_reason:各维度评分良好，无严重问题，答案唯一且来源充分，考核理解而非记忆，值得复习。",
+              "judge_reason:题目有明确来源支撑，答案唯一，但理解深度较低，属于直接复述原文观点。整体质量可接受，建议入池。",
+              "judge_题目过于简单，仅考察原文记忆，缺乏理解深度",
+              "judge_rewrite",
+              "judge_reason:题目只是判断题，直接复述原文，可以改为考察为什么平台不适合普通人，从而提升理解深度。"
+            ]
+          }
+        ],
+        "generationErrors": []
+      },
+      "message": "生成失败。还有 1 个知识点没有合格题目。你可以手动重新生成一次。"
+    }
+  ]
+}

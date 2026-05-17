@@ -1,0 +1,3027 @@
+{
+  "generatedAt": "2026-05-16T00:58:55.804Z",
+  "summary": {
+    "sampleCount": 1,
+    "successCount": 1,
+    "failureCount": 0,
+    "knowledgePointCount": 7,
+    "qualifiedQuestionCount": 7,
+    "averageQualityScore": 4.6,
+    "seriousIssueCount": 17
+  },
+  "reviewRows": [
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed",
+      "questionId": "q-4",
+      "knowledgePoint": "公司需要AI但缺乏信任，为顾问创造机会",
+      "questionType": "multiple_choice",
+      "stem": "为什么公司需要AI顾问？",
+      "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+      "machineAverageScore": 4.8,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed",
+      "questionId": "q-5",
+      "knowledgePoint": "公司需要AI但缺乏信任，为顾问创造机会",
+      "questionType": "multiple_choice",
+      "stem": "AI顾问的核心价值是什么？",
+      "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed",
+      "questionId": "q-10",
+      "knowledgePoint": "YC大量投资AI Agent，60%批次为AI原生",
+      "questionType": "multiple_choice",
+      "stem": "YC的投资数据说明了什么？",
+      "sourceSnippet": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed",
+      "questionId": "q-11",
+      "knowledgePoint": "YC大量投资AI Agent，60%批次为AI原生",
+      "questionType": "multiple_choice",
+      "stem": "什么是‘AI原生创业’？",
+      "sourceSnippet": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed",
+      "questionId": "q-12",
+      "knowledgePoint": "YC大量投资AI Agent，60%批次为AI原生",
+      "questionType": "multiple_choice",
+      "stem": "AI Agent为什么受投资者青睐？",
+      "sourceSnippet": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+      "machineAverageScore": 4.8,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed",
+      "questionId": "q-6-rewrite-4-1",
+      "knowledgePoint": "AI降低了创业门槛：不会代码、不在硅谷、无融资也能起步",
+      "questionType": "scenario_judgment",
+      "stem": "小王不会写代码，不在硅谷，也没有融资。他利用现成的AI工具，为本地餐馆开发了一个自动接单和回复顾客的聊天机器人，并收取每月维护费。以下哪个判断最准确？",
+      "sourceSnippet": "如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。",
+      "machineAverageScore": 4.8,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed",
+      "questionId": "q-17-rewrite-12-1",
+      "knowledgePoint": "六个创业机会按难度排列：从服务到产品",
+      "questionType": "scenario_judgment",
+      "stem": "设计师小王想创业，他有两个想法：一是在线教企业品牌设计（服务），二是开发品牌设计软件（产品）。按照创业机会的难度梯度，他应该从哪个开始？",
+      "sourceSnippet": "她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-1",
+      "knowledgePoint": "小团队通过AI实现人效提升10倍",
+      "questionType": "true_false",
+      "stem": "该案例表明，减少团队规模就一定能提升业绩。",
+      "sourceSnippet": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-2",
+      "knowledgePoint": "小团队通过AI实现人效提升10倍",
+      "questionType": "true_false",
+      "stem": "该案例中，40人时业绩比160人时好10倍，完全是因为AI替代了人工。",
+      "sourceSnippet": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-3",
+      "knowledgePoint": "小团队通过AI实现人效提升10倍",
+      "questionType": "true_false",
+      "stem": "该案例说明，AI可以使得小团队产生超越大团队的效果。",
+      "sourceSnippet": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "judge_understandingDepth太低，问题过于简单，仅考察原文复述。",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-6",
+      "knowledgePoint": "AI降低了创业门槛：不会代码、不在硅谷、无融资也能起步",
+      "questionType": "scenario_judgment",
+      "stem": "小明不会写代码，不在硅谷，也没有融资。他利用AI工具为当地小餐馆开发了一个自动化点餐系统，并成功收费。判断：小明的做法符合原文中AI降低创业门槛的观点。",
+      "sourceSnippet": "如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low;judge_understandingDepth太低，仅为场景匹配，缺乏深层分析。",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-7",
+      "knowledgePoint": "AI降低了创业门槛：不会代码、不在硅谷、无融资也能起步",
+      "questionType": "scenario_judgment",
+      "stem": "小李在硅谷一家AI初创公司工作，拥有丰富的编程经验。他利用业余时间开发了一个SaaS产品并获得了融资。判断：小李的创业历程与原文中AI降低创业门槛的观点一致。",
+      "sourceSnippet": "如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-8",
+      "knowledgePoint": "第一笔钱来自行业AI顾问，应届毕业生有优势",
+      "questionType": "scenario_judgment",
+      "stem": "应届毕业生小张，虽然缺乏工作经验，但愿意花时间研究物流行业的低效环节，并尝试用AI工具优化流程。判断：小张适合从行业AI顾问开始创业。",
+      "sourceSnippet": "第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-9",
+      "knowledgePoint": "第一笔钱来自行业AI顾问，应届毕业生有优势",
+      "questionType": "scenario_judgment",
+      "stem": "一位资深工程师想转型做AI顾问，他利用自己的技术背景直接开发了一个通用AI平台。判断：他的做法符合原文中行业AI顾问的起步方式。",
+      "sourceSnippet": "第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-13",
+      "knowledgePoint": "工具已成熟，稀缺的是部署能力",
+      "questionType": "true_false",
+      "stem": "根据原文，当前AI领域最稀缺的是更先进的工具。",
+      "sourceSnippet": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+      "machineAverageScore": 4,
+      "machineIssues": "understandingDepth_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-14",
+      "knowledgePoint": "工具已成熟，稀缺的是部署能力",
+      "questionType": "true_false",
+      "stem": "部署能力比工具本身更有价值。",
+      "sourceSnippet": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "judge_understandingDepth太低，仅重复原文判断。",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-15",
+      "knowledgePoint": "工具已成熟，稀缺的是部署能力",
+      "questionType": "true_false",
+      "stem": "只要拥有最新的AI工具，创业就一定能成功。",
+      "sourceSnippet": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-16",
+      "knowledgePoint": "六个创业机会按难度排列：从服务到产品",
+      "questionType": "scenario_judgment",
+      "stem": "创业者小王想从零开始做AI生意，他决定先开发一个复杂的垂直软件产品，然后再去服务客户。判断：小王的做法符合原文中创业机会的排列顺序。",
+      "sourceSnippet": "她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-17",
+      "knowledgePoint": "六个创业机会按难度排列：从服务到产品",
+      "questionType": "scenario_judgment",
+      "stem": "创业者小李从为本地商家提供AI咨询（服务）开始，逐步开发出针对该行业的软件产品。判断：小李的做法符合原文的创业路径。",
+      "sourceSnippet": "她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low;judge_understandingDepth太低，仅为路径匹配。",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-1-rewrite-1-1",
+      "knowledgePoint": "小团队通过AI实现人效提升10倍",
+      "questionType": "true_false",
+      "stem": "根据案例，AI的应用使得40人团队的业绩比160人时提升了10倍。",
+      "sourceSnippet": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "judge_缺乏深度理解",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-2-rewrite-2-1",
+      "knowledgePoint": "小团队通过AI实现人效提升10倍",
+      "questionType": "true_false",
+      "stem": "根据该案例，40人团队的业绩是160人团队的10倍，这意味着每个员工的生产力提升了40倍。",
+      "sourceSnippet": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-3-rewrite-3-1",
+      "knowledgePoint": "小团队通过AI实现人效提升10倍",
+      "questionType": "true_false",
+      "stem": "一位管理者从该案例得出“只要引入AI，团队规模减半业绩就能翻倍”的结论。这个结论成立吗？",
+      "sourceSnippet": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+      "machineAverageScore": 4.3,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-7-rewrite-5-1",
+      "knowledgePoint": "AI降低了创业门槛：不会代码、不在硅谷、无融资也能起步",
+      "questionType": "scenario_judgment",
+      "stem": "一位不会编程的创业者，利用AI代码生成工具和低代码平台，快速开发出一款在线工具并开始收费，期间没有寻求风险投资。这一场景是否体现了AI降低了创业门槛？",
+      "sourceSnippet": "如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-8-rewrite-6-1",
+      "knowledgePoint": "第一笔钱来自行业AI顾问，应届毕业生有优势",
+      "questionType": "scenario_judgment",
+      "stem": "应届毕业生小张没有行业经验，但他利用课余时间学习AI工具，深入研究物流行业的低效环节，并开始为小型物流公司提供AI优化顾问服务。这一做法是否与“行业AI顾问”的创业路径一致？",
+      "sourceSnippet": "第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-9-rewrite-7-1",
+      "knowledgePoint": "第一笔钱来自行业AI顾问，应届毕业生有优势",
+      "questionType": "scenario_judgment",
+      "stem": "应届毕业生小王，利用课余时间学习AI工具，关注制造业中的质检环节，发现传统人工质检效率低，他设计了一套基于计算机视觉的辅助检测方案，向几家工厂推广，获得初步合作。判断：小王的做法符合“行业AI顾问”的创业起点。",
+      "sourceSnippet": "第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-13-rewrite-8-1",
+      "knowledgePoint": "工具已成熟，稀缺的是部署能力",
+      "questionType": "true_false",
+      "stem": "在AI创业中，只要拥有最先进的工具就能获得持续竞争优势，这一说法成立吗？",
+      "sourceSnippet": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-14-rewrite-9-1",
+      "knowledgePoint": "工具已成熟，稀缺的是部署能力",
+      "questionType": "true_false",
+      "stem": "某AI创业公司认为拥有顶尖算法工具就能成功，因此全力投入研发新模型，而忽视将现有模型集成到客户业务流程中。根据‘工具已成熟，稀缺的是部署能力’的判断，该公司的策略是否正确？",
+      "sourceSnippet": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-15-rewrite-10-1",
+      "knowledgePoint": "工具已成熟，稀缺的是部署能力",
+      "questionType": "true_false",
+      "stem": "在AI领域，拥有最先进的工具就足以在商业上取得成功。",
+      "sourceSnippet": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "q-16-rewrite-11-1",
+      "knowledgePoint": "六个创业机会按难度排列：从服务到产品",
+      "questionType": "scenario_judgment",
+      "stem": "一位创业者想开发一个复杂的垂直软件，但缺乏技术团队和资金。他决定先提供简单的咨询服务，积累行业经验和客户，再逐步开发软件产品。这种做法是否符合知识点中提到的创业机会排列原则？",
+      "sourceSnippet": "她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "supplement-kp-1-1-1",
+      "knowledgePoint": "小团队通过AI实现人效提升10倍",
+      "questionType": "true_false",
+      "stem": "一个40人的团队如果引入AI，其业绩就一定比160人的团队更好。",
+      "sourceSnippet": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "supplement-kp-4-2-1",
+      "knowledgePoint": "第一笔钱来自行业AI顾问，应届毕业生有优势",
+      "questionType": "scenario_judgment",
+      "stem": "应届毕业生小王发现传统农业种植效率低，他利用课余时间学习AI工具，跑通流程，然后主动联系农场主提供AI顾问服务。判断：小王的做法符合行业AI顾问的创业起点特征。",
+      "sourceSnippet": "第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。",
+      "machineAverageScore": 4.2,
+      "machineIssues": "distractorQuality_low",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    },
+    {
+      "sample": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "status": "completed:rejected",
+      "questionId": "supplement-kp-6-3-1",
+      "knowledgePoint": "工具已成熟，稀缺的是部署能力",
+      "questionType": "true_false",
+      "stem": "某AI创业团队专注于开发更强大的工具，认为只要工具足够好就能在市场中胜出。根据上述判断，该团队的做法对吗？",
+      "sourceSnippet": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+      "machineAverageScore": 4.5,
+      "machineIssues": "",
+      "humanSourceSupport": "",
+      "humanAnswerUniqueness": "",
+      "humanUnderstandingDepth": "",
+      "humanClarity": "",
+      "humanDistractorQuality": "",
+      "humanReviewValue": "",
+      "humanUsable": "",
+      "humanSeriousIssue": "",
+      "humanNotes": ""
+    }
+  ],
+  "results": [
+    {
+      "file": "wechat-OLsU21MsXlUtZlubVj5tkg.md",
+      "startedAt": "2026-05-16T00:54:13.097Z",
+      "status": "completed",
+      "chapter": {
+        "title": "2026年AI创业点子背后的市场变化",
+        "sourceType": "text",
+        "status": "completed",
+        "displayStatusText": "已生成",
+        "failureReason": "",
+        "source": {
+          "type": "text",
+          "title": "2026年AI创业点子背后的市场变化",
+          "url": "",
+          "account": "",
+          "rawText": "# 2026年最适合启动的6个AI创业点子丨Silicon Valley Girl\n\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/OLsU21MsXlUtZlubVj5tkg\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n\n---\n\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 3900 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\n\"他们从 160 人变成 40 人，业绩反而提高了。\"\n\n\"公司知道自己需要 AI，只是不知道该信任谁。\"\n\n\"大语言模型就是新的电力。\"\n\n本期节目标题看起来很像清单，但它真正有用的地方，不在“点子”本身，而在每个点子背后都有一个已经发生的市场变化。主持人把过去 6 个月采访过的 Reid Hoffman、Google Search 产品负责人 Robbie Stein、ElevenLabs 创始人 Mati Staniszewski、Higgsfield 创始人 Alex Mashrabov、Daniel Priestley、Vise CEO Samir Vasavada 的判断放在一起，试图回答一个更具体的问题：如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。\n\n小团队已经先跑起来了\n\nMarina 开场先讲了一个很硬的变化。她问 Vise CEO Samir Vasavada，公司过去 3 年发生了什么。Samir 的回答是，公司曾经有 150 到 160 人，现在接近 40 人，但从指标看，比 160 人时好 10 倍。这已经发生在真实公司里：人力结构和工具结构被重新排过一遍。2011 年做一个基础落地页还要找程序员，如今一个人身边可以同时有法律、财务、网页设计、营销和内容助理。\n\n\"我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。\"\n\n所以她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。这里最值得抓住的信号是：公司愿意为“把 AI 放进具体业务流程”付钱，而且他们往往缺少把模型带到现场的人。模型 API 已经摆在那里，客户更关心谁能改掉一个漏钱流程，谁能带来一个新客户，谁能把一天的杂活压成 5 分钟。\n\n第一笔钱来自行业 AI 顾问\n\n第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。\n\n\"今年我们会开始看到更多应用：我怎样把生意跑得更好？怎样做供应链分析、财务分析、风险分析、营销和销售？\"\n\nReid Hoffman 给出的动作很朴素：熟悉一个领域里的工具，然后去帮别人，并且把结果展示出来。Marina 的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR 或语言学习，连续 30 天在 LinkedIn 发带截图和数字的案例。不要追求爆款，先让未来客户看到“原流程哪里坏了、你怎样用 AI 修好、成本和时间前后差多少”。\n\n这类顾问工作容易被误解成卖工具包。实际收费点在诊断和落地：帮客户找出哪个流程最浪费时间，哪类线索最容易流失，哪份报告每周都要重复做，再把 AI 放进去做出可量化的前后对比。客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。\n\n本地商家要被 AI 搜到\n\n第二个机会是 GEO，也就是让本地商家出现在 ChatGPT、Gemini、Perplexity 的答案里。美国有 3300 万小企业依赖 Google 带来客户，但用户现在会直接问 AI：Austin 最好的牙医是谁，Denver 最好的修车厂是哪家。答案里出现的商家，未必是买了 Google Ads 的商家，更可能是被文章、目录、博客、Reddit、LinkedIn、YouTube 提到过的商家。\n\n\"AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。\"\n\nRobbie Stein 在访谈里说，很多传统 SEO 最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。Marina 自己也在做类似实验。她发现通过 ChatGPT 推荐订阅邮件通讯的人，打开率达到 80%，高于平时 40% 到 50% 的平均水平。她给的销售动作也很直接：找 3 家本地商家，在 ChatGPT、Gemini、Perplexity 里问“本城最好的某类服务”，如果对方没出现，那就是你的 pitch。\n\n这门生意的好处是验证成本低。你不需要先搭系统，只要能证明“AI 答案里没有你”就足够开启一次对话。牙医、修车厂、律师事务所、健身房、播客、地方服务商，都可以用同一套方式检查。客户听不懂 GEO 没关系，他能听懂“用户问 AI 时，推荐名单里没有你”。\n\n语音 AI 前台先救漏接电话\n\n第三个机会是语音 AI 前台，复杂度中等，但场景非常具体。ElevenLabs 创始人 Mati Staniszewski 被问到如果从零开始、想尽快做到每月 1 万美元收入，会选什么。他会选语音 Agent。原因很简单：基础设施正在成熟，平台越来越自助化，但大多数小企业并不知道可以把语音 Agent 部署到预约、接线和客户沟通里。\n\n\"很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。\"\n\nMarina 的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在 Google Maps 上找 20 家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。然后带着数字去谈：“我刚才数过，你午休漏了这么多电话，我每月 500 美元帮你修掉。”先做几家换推荐语，再开始收费。\n\n这里的门槛不是写出一个语音模型。Mati 说得很清楚，平台已经能让普通人以相对自助的方式部署语音 Agent，机会在“轻微改造到某个领域”。牙医问诊、修车预约、律师初筛、诊所改约，每个场景都有自己的话术和边界。谁愿意打电话、问流程、做配置，谁就先拿到服务费。\n\n本地广告代理开始 AI Native\n\n第四个机会是 AI native 广告代理，服务本地房地产经纪、医美、牙医、独立健身房。复杂度比顾问和 GEO 高，因为它要求创意、文案、媒介投放能力一起上。客户痛点也清楚：本地代理公司每月收几千美元，却只能交付少量广告素材；AI native 代理可以用更低成本生成上百个版本，快速测试哪一个能跑出结果。\n\n\"从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。\"\n\nHiggsfield 创始人 Alex Mashrabov 说，去年 3 月他们交付了相机控制，4 月交付视觉效果库，到了 6 月，行业已经变了。很多代理开始绕过 Adobe 等传统工具，端到端用 AI 交付广告。AI 当时能力还有局限，但毛利结构明显改善，客户也能看到“几天内做出广告”的速度。\n\n本地服务商真正关心的是下个月能不能多约到客户，“AI 广告”只是交付手段。过去代理公司往往用少量素材慢慢投，AI native 代理可以把同一个卖点拆成多个镜头、多个开头、多个优惠表达，再把差的版本迅速淘汰。技术降低了出片成本，创意判断和投放经验反而变成收费理由。\n\n电商品牌要更快测试内容\n\n第五个机会是电商内容生成，比广告代理更难，因为创意标准更高。目标客户包括护肤品、补剂、宠物产品、厨房小工具、健身装备。它们都在烧钱维持 TikTok Shop 和 Instagram 广告，每月需要 30、50、100 条手持手机风格的 UGC 视频。真人创作者每条通常收 150 到 500 美元，测试速度受拍摄和修改周期限制。\n\n\"用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。\"\n\nMarina 并没有说品牌应该停止和真人 UGC 创作者合作。她自己的做法是先用 AI 批量测试脚本，找到跑得动的方向，再找真人创作者拍。Alex 也提到，有段生成视频成本不到 500 美元，却足以让客户惊讶。行动路径很具体：选一个品类，用产品图做 5 条样片，私信创始人，“我免费给你做了 5 条，如果喜欢，我可以持续交付，比如 100 条 3000 美元。”\n\n垂直 AI 产品要靠数据和 UX\n\n第六个机会是垂直 AI 产品，也就是很多人嘴里的 GPT wrapper。去年 VC 很爱投，后来热度降了，因为任何人都能做一个 wrapper。但 Daniel Priestley 给了一个更清楚的模型：有价值的垂直产品，来自三件事，拿到客户数据、写出更好的提示词、设计比聊天框更合适的 UX。把三件事放在一起，它就会变成专用工具。\n\n\"我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。\"\n\n他用了电力类比：电被发明以后，人们把电导向烤面包机、水壶、灯泡。没人会因为水壶“只是电力 wrapper”就否认它是一门生意。Marina 举的轻量例子是上传简历后自动填写 LinkedIn 资料的产品。它的价值不在模型多先进，而在团队里有人懂 LinkedIn 资料怎样写才会被注意到，并把这套知识放进 Lovable 做出的流程里。\n\nDaniel Priestley 甚至给了一个收入想象：很多小型 AI SaaS 可能做到一年四五百万美元收入，利润率达到 50%。这种公司不一定是 VC 最爱的超级独角兽，但对创业者本人足够有吸引力。它们的共同点是很窄：AI mortgage lender、医疗运营、医疗呼叫中心、LinkedIn 资料填写，先守住一个工作流，再慢慢扩。\n\n先卖服务，再沉淀产品\n\n6 个机会从易到难排下来，会出现一条共同路径：先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。Marina 最后给垂直产品的验证标准很小：找 10 个真实用户，如果 3 个愿意付钱，就有业务雏形。\n\n\"挑一个你了解的行业，写下这个行业里人们每周都会做、又让他们抓狂的三个重复任务。\"\n\n原视频的清单感很强，但真正该带走的并非“哪 6 个行业最赚钱”。更稳的读法是：AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。第一笔钱通常来自流程现场，不来自一个宏大商业计划书。\n\n普通人做 AI 生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。平台需要流量、研发、客服、合规和持续迭代，任何一项都会拖慢第一笔收入。服务的优势在于反馈很短：客户愿不愿意接电话，愿不愿意发资料，愿不愿意为样片付钱，几天内就能看出来。先从笨办法里拿到真实需求，后面的产品才不会悬空。公司内部做 AI 转型的人也可以照这个顺序走：先找流程缺口，再谈工具采购，最后把成功案例复制到相邻团队。\n\n写在最后\n\n如果你还没想清楚该做什么，先别急着追大词。挑一个熟悉行业，找一个漏钱、漏客户或浪费时间的小流程，用 AI 做出可展示的前后对比。先让一个真实客户愿意付钱，再谈产品化。AI 时代的入口，有时就是一通没人接的电话。\n\n内容来源：\"6 Profitable AI business ideas for 2026\"丨Silicon Valley Girl\n\n原视频：https://www.youtube.com/watch?v=gwsaC3WiCqs&t=63s\n\n如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣",
+          "cleanedText": "# 2026年最适合启动的6个AI创业点子丨Silicon Valley Girl\n> 来源：微信公众号\n> 账号：晚点再听LaterCast\n> 原文链接：https://mp.weixin.qq.com/s/OLsU21MsXlUtZlubVj5tkg\n> 样本类型：真实公众号文章\n> 用途：题目质量 baseline\n---\n我们每天为你更新硅谷最新的 AI 创业与科技播客总结，让你与前沿保持同频。全文约 3900 字，如果你现在没有时间，试试转成播客稍后再听晚点再听LaterCast\n\"他们从 160 人变成 40 人，业绩反而提高了。\"\n\"公司知道自己需要 AI，只是不知道该信任谁。\"\n\"大语言模型就是新的电力。\"\n本期节目标题看起来很像清单，但它真正有用的地方，不在“点子”本身，而在每个点子背后都有一个已经发生的市场变化。主持人把过去 6 个月采访过的 Reid Hoffman、Google Search 产品负责人 Robbie Stein、ElevenLabs 创始人 Mati Staniszewski、Higgsfield 创始人 Alex Mashrabov、Daniel Priestley、Vise CEO Samir Vasavada 的判断放在一起，试图回答一个更具体的问题：如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。\n小团队已经先跑起来了\nMarina 开场先讲了一个很硬的变化。她问 Vise CEO Samir Vasavada，公司过去 3 年发生了什么。Samir 的回答是，公司曾经有 150 到 160 人，现在接近 40 人，但从指标看，比 160 人时好 10 倍。这已经发生在真实公司里：人力结构和工具结构被重新排过一遍。2011 年做一个基础落地页还要找程序员，如今一个人身边可以同时有法律、财务、网页设计、营销和内容助理。\n\"我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。\"\n所以她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。这里最值得抓住的信号是：公司愿意为“把 AI 放进具体业务流程”付钱，而且他们往往缺少把模型带到现场的人。模型 API 已经摆在那里，客户更关心谁能改掉一个漏钱流程，谁能带来一个新客户，谁能把一天的杂活压成 5 分钟。\n第一笔钱来自行业 AI 顾问\n第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。\n\"今年我们会开始看到更多应用：我怎样把生意跑得更好？怎样做供应链分析、财务分析、风险分析、营销和销售？\"\nReid Hoffman 给出的动作很朴素：熟悉一个领域里的工具，然后去帮别人，并且把结果展示出来。Marina 的做法更具体：挑一个自己懂的职能，比如营销、财务、留学、运营、HR 或语言学习，连续 30 天在 LinkedIn 发带截图和数字的案例。不要追求爆款，先让未来客户看到“原流程哪里坏了、你怎样用 AI 修好、成本和时间前后差多少”。\n这类顾问工作容易被误解成卖工具包。实际收费点在诊断和落地：帮客户找出哪个流程最浪费时间，哪类线索最容易流失，哪份报告每周都要重复做，再把 AI 放进去做出可量化的前后对比。客户不会为“我会用十个 AI 工具”付钱，但会为“你帮我每周省下 8 小时，或者多拿到 5 个销售线索”付钱。\n本地商家要被 AI 搜到\n第二个机会是 GEO，也就是让本地商家出现在 ChatGPT、Gemini、Perplexity 的答案里。美国有 3300 万小企业依赖 Google 带来客户，但用户现在会直接问 AI：Austin 最好的牙医是谁，Denver 最好的修车厂是哪家。答案里出现的商家，未必是买了 Google Ads 的商家，更可能是被文章、目录、博客、Reddit、LinkedIn、YouTube 提到过的商家。\n\"AI 很像人，会根据自己提出的问题去搜索；如果一家企业被公开文章或榜单提到，这些信息会帮助 AI 找到它。\"\nRobbie Stein 在访谈里说，很多传统 SEO 最佳实践仍然适用：清晰、有帮助、能被搜索工具理解的内容，会进入模型回答的上下文。Marina 自己也在做类似实验。她发现通过 ChatGPT 推荐订阅邮件通讯的人，打开率达到 80%，高于平时 40% 到 50% 的平均水平。她给的销售动作也很直接：找 3 家本地商家，在 ChatGPT、Gemini、Perplexity 里问“本城最好的某类服务”，如果对方没出现，那就是你的 pitch。\n这门生意的好处是验证成本低。你不需要先搭系统，只要能证明“AI 答案里没有你”就足够开启一次对话。牙医、修车厂、律师事务所、健身房、播客、地方服务商，都可以用同一套方式检查。客户听不懂 GEO 没关系，他能听懂“用户问 AI 时，推荐名单里没有你”。\n语音 AI 前台先救漏接电话\n第三个机会是语音 AI 前台，复杂度中等，但场景非常具体。ElevenLabs 创始人 Mati Staniszewski 被问到如果从零开始、想尽快做到每月 1 万美元收入，会选什么。他会选语音 Agent。原因很简单：基础设施正在成熟，平台越来越自助化，但大多数小企业并不知道可以把语音 Agent 部署到预约、接线和客户沟通里。\n\"很多预约没有被订上，只是因为电话那头没人接。你可以去牙医诊所、修车厂，帮他们更容易地接预约。\"\nMarina 的测试方法很像地推：选牙医、律师、按摩师或脊椎理疗师这类垂直行业，在 Google Maps 上找 20 家办公室，午餐时间逐个打电话，数有多少通进了语音信箱。然后带着数字去谈：“我刚才数过，你午休漏了这么多电话，我每月 500 美元帮你修掉。”先做几家换推荐语，再开始收费。\n这里的门槛不是写出一个语音模型。Mati 说得很清楚，平台已经能让普通人以相对自助的方式部署语音 Agent，机会在“轻微改造到某个领域”。牙医问诊、修车预约、律师初筛、诊所改约，每个场景都有自己的话术和边界。谁愿意打电话、问流程、做配置，谁就先拿到服务费。\n本地广告代理开始 AI Native\n第四个机会是 AI native 广告代理，服务本地房地产经纪、医美、牙医、独立健身房。复杂度比顾问和 GEO 高，因为它要求创意、文案、媒介投放能力一起上。客户痛点也清楚：本地代理公司每月收几千美元，却只能交付少量广告素材；AI native 代理可以用更低成本生成上百个版本，快速测试哪一个能跑出结果。\n\"从去年 6 月到 12 月，AI native 代理这个新行业完全爆发了。\"\nHiggsfield 创始人 Alex Mashrabov 说，去年 3 月他们交付了相机控制，4 月交付视觉效果库，到了 6 月，行业已经变了。很多代理开始绕过 Adobe 等传统工具，端到端用 AI 交付广告。AI 当时能力还有局限，但毛利结构明显改善，客户也能看到“几天内做出广告”的速度。\n本地服务商真正关心的是下个月能不能多约到客户，“AI 广告”只是交付手段。过去代理公司往往用少量素材慢慢投，AI native 代理可以把同一个卖点拆成多个镜头、多个开头、多个优惠表达，再把差的版本迅速淘汰。技术降低了出片成本，创意判断和投放经验反而变成收费理由。\n电商品牌要更快测试内容\n第五个机会是电商内容生成，比广告代理更难，因为创意标准更高。目标客户包括护肤品、补剂、宠物产品、厨房小工具、健身装备。它们都在烧钱维持 TikTok Shop 和 Instagram 广告，每月需要 30、50、100 条手持手机风格的 UGC 视频。真人创作者每条通常收 150 到 500 美元，测试速度受拍摄和修改周期限制。\n\"用 AI 创意，我们可以生成上千个不同视频，投放、做 A/B 测试，然后看出哪个脚本真的有效。\"\nMarina 并没有说品牌应该停止和真人 UGC 创作者合作。她自己的做法是先用 AI 批量测试脚本，找到跑得动的方向，再找真人创作者拍。Alex 也提到，有段生成视频成本不到 500 美元，却足以让客户惊讶。行动路径很具体：选一个品类，用产品图做 5 条样片，私信创始人，“我免费给你做了 5 条，如果喜欢，我可以持续交付，比如 100 条 3000 美元。”\n垂直 AI 产品要靠数据和 UX\n第六个机会是垂直 AI 产品，也就是很多人嘴里的 GPT wrapper。去年 VC 很爱投，后来热度降了，因为任何人都能做一个 wrapper。但 Daniel Priestley 给了一个更清楚的模型：有价值的垂直产品，来自三件事，拿到客户数据、写出更好的提示词、设计比聊天框更合适的 UX。把三件事放在一起，它就会变成专用工具。\n\"我们可以通过 UX、更好的提示词、更好的用户数据捕捉方式，把大语言模型用得更好。\"\n他用了电力类比：电被发明以后，人们把电导向烤面包机、水壶、灯泡。没人会因为水壶“只是电力 wrapper”就否认它是一门生意。Marina 举的轻量例子是上传简历后自动填写 LinkedIn 资料的产品。它的价值不在模型多先进，而在团队里有人懂 LinkedIn 资料怎样写才会被注意到，并把这套知识放进 Lovable 做出的流程里。\nDaniel Priestley 甚至给了一个收入想象：很多小型 AI SaaS 可能做到一年四五百万美元收入，利润率达到 50%。这种公司不一定是 VC 最爱的超级独角兽，但对创业者本人足够有吸引力。它们的共同点是很窄：AI mortgage lender、医疗运营、医疗呼叫中心、LinkedIn 资料填写，先守住一个工作流，再慢慢扩。\n先卖服务，再沉淀产品\n6 个机会从易到难排下来，会出现一条共同路径：先选一个自己懂的行业，找到每周重复发生、让人烦躁、又能带来收入或省下成本的任务；先用服务方式交付，拿到第一批客户反馈，再把重复动作做进更清楚的界面里。Marina 最后给垂直产品的验证标准很小：找 10 个真实用户，如果 3 个愿意付钱，就有业务雏形。\n\"挑一个你了解的行业，写下这个行业里人们每周都会做、又让他们抓狂的三个重复任务。\"\n原视频的清单感很强，但真正该带走的并非“哪 6 个行业最赚钱”。更稳的读法是：AI 创业机会正在从模型能力本身，转向“谁能把模型放进牙医电话、地方搜索、电商素材、广告测试、LinkedIn 资料、行业知识这类小而具体的流程里”。第一笔钱通常来自流程现场，不来自一个宏大商业计划书。\n普通人做 AI 生意，最怕一开始就把自己放进“我要做一个平台”的叙事里。平台需要流量、研发、客服、合规和持续迭代，任何一项都会拖慢第一笔收入。服务的优势在于反馈很短：客户愿不愿意接电话，愿不愿意发资料，愿不愿意为样片付钱，几天内就能看出来。先从笨办法里拿到真实需求，后面的产品才不会悬空。公司内部做 AI 转型的人也可以照这个顺序走：先找流程缺口，再谈工具采购，最后把成功案例复制到相邻团队。\n写在最后\n如果你还没想清楚该做什么，先别急着追大词。挑一个熟悉行业，找一个漏钱、漏客户或浪费时间的小流程，用 AI 做出可展示的前后对比。先让一个真实客户愿意付钱，再谈产品化。AI 时代的入口，有时就是一通没人接的电话。\n内容来源：\"6 Profitable AI business ideas for 2026\"丨Silicon Valley Girl\n原视频：https://www.youtube.com/watch?v=gwsaC3WiCqs&t=63s\n如果你喜欢深度好文，试试用小程序将不方便立刻阅读的文章转成播客，用「听」的方式，稍后阅读，不再错过好文章⇣\n⇣ 关注我，每天为你更新硅谷最新的 AI 创业／科技播客总结，让你与前沿保持同频 ⇣"
+        },
+        "knowledgePoints": [
+          {
+            "id": "kp-1",
+            "title": "小团队通过AI实现人效提升10倍",
+            "knowledgeType": "judgment",
+            "summary": "一个真实公司案例表明，通过AI和工具优化，团队从160人缩减到40人，业绩反而提升10倍，证明AI可以大幅提升人效。",
+            "keyClaim": "AI使得小团队能产生比大团队更高10倍的业绩。",
+            "sourceQuote": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+            "testabilityReason": "这是一个具体的数字案例，可以考察对AI效率提升的理解和解释能力。",
+            "questionAngles": [
+              "这个案例说明了什么？",
+              "为什么40人比160人业绩更好？",
+              "AI在其中的作用是什么？"
+            ],
+            "testabilityScore": 5
+          },
+          {
+            "id": "kp-2",
+            "title": "公司需要AI但缺乏信任，为顾问创造机会",
+            "knowledgeType": "concept",
+            "summary": "公司意识到需要AI，但不知道该信任谁、如何部署，这为懂行业的AI顾问提供了市场机会。",
+            "keyClaim": "市场存在信任和部署缺口，AI顾问可以填补。",
+            "sourceQuote": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "testabilityReason": "这是一个市场痛点洞察，可以出题考察对用户需求的分析。",
+            "questionAngles": [
+              "为什么公司需要AI顾问？",
+              "AI顾问的价值是什么？",
+              "信任问题的根源在哪里？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-3",
+            "title": "AI降低了创业门槛：不会代码、不在硅谷、无融资也能起步",
+            "knowledgeType": "scenario",
+            "summary": "主持人提出一个具体问题：即使没有技术背景、不在硅谷、没有融资，AI仍能帮助做出可收费业务，说明创业门槛大幅降低。",
+            "keyClaim": "AI使得创业无需传统资源，普通人也能切入。",
+            "sourceQuote": "如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。",
+            "testabilityReason": "这是一个假设性问题，可以考察对AI赋能创业的理解。",
+            "questionAngles": [
+              "AI如何降低创业门槛？",
+              "不写代码的AI创业有哪些途径？",
+              "这个问题的背景是什么？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-4",
+            "title": "第一笔钱来自行业AI顾问，应届毕业生有优势",
+            "knowledgeType": "method",
+            "summary": "最轻的生意是成为某个行业的AI顾问，特别是应届毕业生因时间充裕、善于试用工具而适合起步。",
+            "keyClaim": "行业AI顾问是低门槛的AI创业起点，应届毕业生有独特优势。",
+            "sourceQuote": "第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。",
+            "testabilityReason": "给出了具体的人群和切入点，可以考察对创业路径的把握。",
+            "questionAngles": [
+              "为什么应届毕业生适合做AI顾问？",
+              "AI顾问业务如何起步？",
+              "行业AI顾问解决什么问题？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-5",
+            "title": "YC大量投资AI Agent，60%批次为AI原生",
+            "knowledgeType": "concept",
+            "summary": "YC一个季度向AI Agent创业公司投资3600万美元，约60%的YC批公司是AI原生，表明AI Agent是热门方向。",
+            "keyClaim": "AI Agent创业获得资本青睐，是当前创业热点。",
+            "sourceQuote": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+            "testabilityReason": "有具体数据和比例，可考察对投资趋势的理解。",
+            "questionAngles": [
+              "YC的投资数据说明了什么？",
+              "什么是AI原生创业？",
+              "AI Agent为什么受投资者青睐？"
+            ],
+            "testabilityScore": 5
+          },
+          {
+            "id": "kp-6",
+            "title": "工具已成熟，稀缺的是部署能力",
+            "knowledgeType": "judgment",
+            "summary": "虽然AI工具越来越多，但真正稀缺的是能够将工具部署到真实业务、解决实际问题的人。",
+            "keyClaim": "部署能力比工具本身更有价值。",
+            "sourceQuote": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+            "testabilityReason": "这是一个市场判断，可以考察对商业机会的洞察。",
+            "questionAngles": [
+              "为什么部署能力比工具更稀缺？",
+              "如何理解‘部署’在AI创业中的意义？",
+              "这个判断对创业者有什么启示？"
+            ],
+            "testabilityScore": 5
+          },
+          {
+            "id": "kp-7",
+            "title": "六个创业机会按难度排列：从服务到产品",
+            "knowledgeType": "method",
+            "summary": "主持人将6个AI创业机会按难度排列，从本周就能开始的服务型业务，到可以慢慢做成的垂直软件产品。",
+            "keyClaim": "创业机会有梯度，可以从简单服务入手再向产品延伸。",
+            "sourceQuote": "她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。",
+            "testabilityReason": "提供了创业路径的框架，可以考察对机会分类和进阶的理解。",
+            "questionAngles": [
+              "六个机会的排列顺序是什么？",
+              "为什么先从服务开始？",
+              "服务型业务和产品型业务的区别？"
+            ],
+            "testabilityScore": 4
+          }
+        ],
+        "filteredKnowledgePoints": [],
+        "questions": [
+          {
+            "id": "q-4",
+            "knowledgePointId": "kp-2",
+            "pointId": "kp-2",
+            "pointTitle": "公司需要AI但缺乏信任，为顾问创造机会",
+            "type": "multiple_choice",
+            "stem": "为什么公司需要AI顾问？",
+            "options": [
+              {
+                "id": "A",
+                "text": "因为公司不知道如何开发AI工具"
+              },
+              {
+                "id": "B",
+                "text": "因为公司知道自己需要AI，但不知道该信任谁"
+              },
+              {
+                "id": "C",
+                "text": "因为公司缺乏足够的AI人才"
+              },
+              {
+                "id": "D",
+                "text": "因为公司希望外包所有AI业务"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "原文明确指出‘公司知道自己需要 AI，只是不知道该信任谁’，这反映了信任缺口，AI顾问可以填补这一角色。",
+            "shortExplanation": "原文明确指出‘公司知道自己需要 AI，只是不知道该信任谁’，这反映了信任缺口，AI顾问可以填补这一角色。",
+            "fullExplanation": "AI顾问的价值在于解决信任和部署问题，而非单纯的技术开发。",
+            "correct_understanding": "AI顾问的价值在于解决信任和部署问题，而非单纯的技术开发。",
+            "correctUnderstanding": "AI顾问的价值在于解决信任和部署问题，而非单纯的技术开发。",
+            "common_misconception": "认为公司需要AI是因为缺技术，实际上更多是缺乏信任和落地指导。",
+            "commonMisconception": "认为公司需要AI是因为缺技术，实际上更多是缺乏信任和落地指导。",
+            "pitfalls": [
+              "认为公司需要AI是因为缺技术，实际上更多是缺乏信任和落地指导。"
+            ],
+            "source_snippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "sourceQuote": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "difficulty": "easy",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-5",
+            "knowledgePointId": "kp-2",
+            "pointId": "kp-2",
+            "pointTitle": "公司需要AI但缺乏信任，为顾问创造机会",
+            "type": "multiple_choice",
+            "stem": "AI顾问的核心价值是什么？",
+            "options": [
+              {
+                "id": "A",
+                "text": "提供最先进的AI算法"
+              },
+              {
+                "id": "B",
+                "text": "帮助公司部署AI并建立信任"
+              },
+              {
+                "id": "C",
+                "text": "降低AI工具的采购成本"
+              },
+              {
+                "id": "D",
+                "text": "培训公司员工学习AI编程"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "原文强调‘不知道该信任谁’，因此AI顾问的价值是帮助公司选择和部署合适的AI方案，建立信任。",
+            "shortExplanation": "原文强调‘不知道该信任谁’，因此AI顾问的价值是帮助公司选择和部署合适的AI方案，建立信任。",
+            "fullExplanation": "AI顾问的核心是解决信任与部署的缺口，而非技术或成本问题。",
+            "correct_understanding": "AI顾问的核心是解决信任与部署的缺口，而非技术或成本问题。",
+            "correctUnderstanding": "AI顾问的核心是解决信任与部署的缺口，而非技术或成本问题。",
+            "common_misconception": "误以为AI顾问是技术开发角色，实际更重要的是咨询和信任建立。",
+            "commonMisconception": "误以为AI顾问是技术开发角色，实际更重要的是咨询和信任建立。",
+            "pitfalls": [
+              "误以为AI顾问是技术开发角色，实际更重要的是咨询和信任建立。"
+            ],
+            "source_snippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "sourceQuote": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-10",
+            "knowledgePointId": "kp-5",
+            "pointId": "kp-5",
+            "pointTitle": "YC大量投资AI Agent，60%批次为AI原生",
+            "type": "multiple_choice",
+            "stem": "YC的投资数据说明了什么？",
+            "options": [
+              {
+                "id": "A",
+                "text": "AI Agent创业是当前资本关注的热点"
+              },
+              {
+                "id": "B",
+                "text": "YC大部分投资失败，转向AI"
+              },
+              {
+                "id": "C",
+                "text": "AI原生公司更容易获得融资"
+              },
+              {
+                "id": "D",
+                "text": "AI Agent市场已经饱和"
+              }
+            ],
+            "correctOptionId": "A",
+            "correct_answer": "A",
+            "explanation": "原文提到YC一个季度投了3600万美元给AI Agent公司，60%批次为AI原生，表明资本高度关注AI Agent创业。",
+            "shortExplanation": "原文提到YC一个季度投了3600万美元给AI Agent公司，60%批次为AI原生，表明资本高度关注AI Agent创业。",
+            "fullExplanation": "YC的大规模投资表明AI Agent是当前创业和投资的热点方向。",
+            "correct_understanding": "YC的大规模投资表明AI Agent是当前创业和投资的热点方向。",
+            "correctUnderstanding": "YC的大规模投资表明AI Agent是当前创业和投资的热点方向。",
+            "common_misconception": "可能认为投资数据代表市场饱和或全面转型，实际是趋势信号。",
+            "commonMisconception": "可能认为投资数据代表市场饱和或全面转型，实际是趋势信号。",
+            "pitfalls": [
+              "可能认为投资数据代表市场饱和或全面转型，实际是趋势信号。"
+            ],
+            "source_snippet": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+            "sourceSnippet": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+            "sourceQuote": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+            "difficulty": "easy",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-11",
+            "knowledgePointId": "kp-5",
+            "pointId": "kp-5",
+            "pointTitle": "YC大量投资AI Agent，60%批次为AI原生",
+            "type": "multiple_choice",
+            "stem": "什么是‘AI原生创业’？",
+            "options": [
+              {
+                "id": "A",
+                "text": "以AI技术为核心驱动的创业公司"
+              },
+              {
+                "id": "B",
+                "text": "使用AI工具进行辅助运营的传统公司"
+              },
+              {
+                "id": "C",
+                "text": "完全由AI自动运营的公司"
+              },
+              {
+                "id": "D",
+                "text": "只关注AI Agent领域的创业"
+              }
+            ],
+            "correctOptionId": "A",
+            "correct_answer": "A",
+            "explanation": "原文中‘AI native’指以AI为核心技术和业务模式的创业公司，而非传统公司使用AI辅助。",
+            "shortExplanation": "原文中‘AI native’指以AI为核心技术和业务模式的创业公司，而非传统公司使用AI辅助。",
+            "fullExplanation": "AI原生指的是公司从创立之初就以AI为内核，而不是后期加上AI功能。",
+            "correct_understanding": "AI原生指的是公司从创立之初就以AI为内核，而不是后期加上AI功能。",
+            "correctUnderstanding": "AI原生指的是公司从创立之初就以AI为内核，而不是后期加上AI功能。",
+            "common_misconception": "混淆AI原生与传统企业AI转型，或误解为完全自动化。",
+            "commonMisconception": "混淆AI原生与传统企业AI转型，或误解为完全自动化。",
+            "pitfalls": [
+              "混淆AI原生与传统企业AI转型，或误解为完全自动化。"
+            ],
+            "source_snippet": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+            "sourceSnippet": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+            "sourceQuote": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-12",
+            "knowledgePointId": "kp-5",
+            "pointId": "kp-5",
+            "pointTitle": "YC大量投资AI Agent，60%批次为AI原生",
+            "type": "multiple_choice",
+            "stem": "AI Agent为什么受投资者青睐？",
+            "options": [
+              {
+                "id": "A",
+                "text": "因为AI Agent能自主完成任务，具有广泛商业应用前景"
+              },
+              {
+                "id": "B",
+                "text": "因为AI Agent开发成本极低"
+              },
+              {
+                "id": "C",
+                "text": "因为投资者大多缺乏技术判断"
+              },
+              {
+                "id": "D",
+                "text": "因为AI Agent是唯一可行的AI方向"
+              }
+            ],
+            "correctOptionId": "A",
+            "correct_answer": "A",
+            "explanation": "原文通过投资数据暗示AI Agent有巨大潜力，其自主任务能力可应用于多种场景，吸引投资。",
+            "shortExplanation": "原文通过投资数据暗示AI Agent有巨大潜力，其自主任务能力可应用于多种场景，吸引投资。",
+            "fullExplanation": "AI Agent的自主性和应用广度使其成为投资热点。",
+            "correct_understanding": "AI Agent的自主性和应用广度使其成为投资热点。",
+            "correctUnderstanding": "AI Agent的自主性和应用广度使其成为投资热点。",
+            "common_misconception": "认为投资是因为低成本或盲目跟风，实际上基于商业潜力。",
+            "commonMisconception": "认为投资是因为低成本或盲目跟风，实际上基于商业潜力。",
+            "pitfalls": [
+              "认为投资是因为低成本或盲目跟风，实际上基于商业潜力。"
+            ],
+            "source_snippet": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+            "sourceSnippet": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+            "sourceQuote": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-6-rewrite-4-1",
+            "knowledgePointId": "kp-3",
+            "pointId": "kp-3",
+            "pointTitle": "AI降低了创业门槛：不会代码、不在硅谷、无融资也能起步",
+            "type": "scenario_judgment",
+            "stem": "小王不会写代码，不在硅谷，也没有融资。他利用现成的AI工具，为本地餐馆开发了一个自动接单和回复顾客的聊天机器人，并收取每月维护费。以下哪个判断最准确？",
+            "options": [
+              {
+                "id": "A",
+                "text": "这个场景不可能，因为没有编程技能就无法开发AI产品。"
+              },
+              {
+                "id": "B",
+                "text": "这个场景可行，AI降低了技术门槛，普通人也能通过AI工具提供定制化服务并产生收费业务。"
+              },
+              {
+                "id": "C",
+                "text": "这个场景可行，但必须要有融资才能启动。"
+              },
+              {
+                "id": "D",
+                "text": "这个场景可行，但必须搬到硅谷才能接触到客户。"
+              }
+            ],
+            "correctOptionId": "B",
+            "correct_answer": "B",
+            "explanation": "原话指出即使不会写代码、不在硅谷、没有融资，AI仍能帮助人做出第一笔可收费业务。小王的场景完全符合这一条件，AI工具降低了技术和地理门槛，无需融资即可起步。",
+            "shortExplanation": "原话指出即使不会写代码、不在硅谷、没有融资，AI仍能帮助人做出第一笔可收费业务。小王的场景完全符合这一条件，AI工具降低了技术和地理门槛，无需融资即可起步。",
+            "fullExplanation": "AI使得创业无需传统资源（编程、地理位置、融资），普通人也能利用AI工具开发可收费的服务。",
+            "correct_understanding": "AI使得创业无需传统资源（编程、地理位置、融资），普通人也能利用AI工具开发可收费的服务。",
+            "correctUnderstanding": "AI使得创业无需传统资源（编程、地理位置、融资），普通人也能利用AI工具开发可收费的服务。",
+            "common_misconception": "很多人认为创业必须掌握编程、位于科技中心或获得投资，实际上AI工具已经大大降低了这些门槛。",
+            "commonMisconception": "很多人认为创业必须掌握编程、位于科技中心或获得投资，实际上AI工具已经大大降低了这些门槛。",
+            "pitfalls": [
+              "很多人认为创业必须掌握编程、位于科技中心或获得投资，实际上AI工具已经大大降低了这些门槛。"
+            ],
+            "source_snippet": "如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。",
+            "sourceSnippet": "如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。",
+            "sourceQuote": "如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 5,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.7
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          },
+          {
+            "id": "q-17-rewrite-12-1",
+            "knowledgePointId": "kp-7",
+            "pointId": "kp-7",
+            "pointTitle": "六个创业机会按难度排列：从服务到产品",
+            "type": "scenario_judgment",
+            "stem": "设计师小王想创业，他有两个想法：一是在线教企业品牌设计（服务），二是开发品牌设计软件（产品）。按照创业机会的难度梯度，他应该从哪个开始？",
+            "options": [
+              {
+                "id": "A",
+                "text": "从做服务（在线教品牌设计）开始"
+              },
+              {
+                "id": "B",
+                "text": "从做产品（开发品牌设计软件）开始"
+              },
+              {
+                "id": "C",
+                "text": "先做产品，再做服务"
+              },
+              {
+                "id": "D",
+                "text": "两个同时进行"
+              }
+            ],
+            "correctOptionId": "A",
+            "correct_answer": "A",
+            "explanation": "六个创业机会按难度排列，从最简单的服务到较复杂的产品。从服务入手可以快速验证需求、积累客户，再逐步向产品延伸，因此从服务开始是正确的选择。",
+            "shortExplanation": "六个创业机会按难度排列，从最简单的服务到较复杂的产品。从服务入手可以快速验证需求、积累客户，再逐步向产品延伸，因此从服务开始是正确的选择。",
+            "fullExplanation": "创业机会有梯度，从本周就能开始的服务应该优先于需要长期开发的产品。",
+            "correct_understanding": "创业机会有梯度，从本周就能开始的服务应该优先于需要长期开发的产品。",
+            "correctUnderstanding": "创业机会有梯度，从本周就能开始的服务应该优先于需要长期开发的产品。",
+            "common_misconception": "认为产品看起来更有技术含量或利润更高，应该先从产品入手，但忽略了产品开发周期长、风险高，服务是更稳妥的起点。",
+            "commonMisconception": "认为产品看起来更有技术含量或利润更高，应该先从产品入手，但忽略了产品开发周期长、风险高，服务是更稳妥的起点。",
+            "pitfalls": [
+              "认为产品看起来更有技术含量或利润更高，应该先从产品入手，但忽略了产品开发周期长、风险高，服务是更稳妥的起点。"
+            ],
+            "source_snippet": "她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。",
+            "sourceSnippet": "她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。",
+            "sourceQuote": "她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。",
+            "difficulty": "medium",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 5,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 5
+              },
+              "judgeAverage": 5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "isNew": true
+          }
+        ],
+        "qualitySummary": {
+          "totalGenerated": 32,
+          "passed": 7,
+          "rewrite": 25,
+          "discarded": 0,
+          "averageScore": 4.6,
+          "seriousIssueCount": 17,
+          "judgeUnavailable": false
+        },
+        "generationMeta": {
+          "startedAt": "2026-05-16T00:54:13.098Z",
+          "currentStage": "completed",
+          "stages": [
+            {
+              "status": "submitted",
+              "at": "2026-05-16T00:54:13.098Z"
+            },
+            {
+              "status": "generating_points",
+              "displayStatusText": "正在生成知识点",
+              "at": "2026-05-16T00:54:13.098Z"
+            },
+            {
+              "status": "generating_questions",
+              "displayStatusText": "正在生成题目",
+              "at": "2026-05-16T00:54:30.284Z"
+            },
+            {
+              "status": "quality_checking",
+              "displayStatusText": "正在检查题目质量",
+              "at": "2026-05-16T00:55:08.209Z"
+            },
+            {
+              "status": "auto_regenerating_questions",
+              "displayStatusText": "正在重新生成题目",
+              "at": "2026-05-16T00:55:40.700Z"
+            },
+            {
+              "status": "completed",
+              "displayStatusText": "已生成",
+              "at": "2026-05-16T00:58:55.803Z"
+            }
+          ],
+          "finishedAt": "2026-05-16T00:58:55.803Z",
+          "chunkCount": 18,
+          "candidateCount": 7,
+          "keptKnowledgePointCount": 7,
+          "filteredKnowledgePointCount": 0,
+          "totalGenerated": 32,
+          "rewrittenCount": 15,
+          "supplementCount": 3,
+          "discardedCount": 25,
+          "qualifiedQuestionCount": 7
+        }
+      },
+      "generationDebug": {
+        "knowledgePoints": [
+          {
+            "id": "kp-1",
+            "title": "小团队通过AI实现人效提升10倍",
+            "knowledgeType": "judgment",
+            "summary": "一个真实公司案例表明，通过AI和工具优化，团队从160人缩减到40人，业绩反而提升10倍，证明AI可以大幅提升人效。",
+            "keyClaim": "AI使得小团队能产生比大团队更高10倍的业绩。",
+            "sourceQuote": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+            "testabilityReason": "这是一个具体的数字案例，可以考察对AI效率提升的理解和解释能力。",
+            "questionAngles": [
+              "这个案例说明了什么？",
+              "为什么40人比160人业绩更好？",
+              "AI在其中的作用是什么？"
+            ],
+            "testabilityScore": 5
+          },
+          {
+            "id": "kp-2",
+            "title": "公司需要AI但缺乏信任，为顾问创造机会",
+            "knowledgeType": "concept",
+            "summary": "公司意识到需要AI，但不知道该信任谁、如何部署，这为懂行业的AI顾问提供了市场机会。",
+            "keyClaim": "市场存在信任和部署缺口，AI顾问可以填补。",
+            "sourceQuote": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "testabilityReason": "这是一个市场痛点洞察，可以出题考察对用户需求的分析。",
+            "questionAngles": [
+              "为什么公司需要AI顾问？",
+              "AI顾问的价值是什么？",
+              "信任问题的根源在哪里？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-3",
+            "title": "AI降低了创业门槛：不会代码、不在硅谷、无融资也能起步",
+            "knowledgeType": "scenario",
+            "summary": "主持人提出一个具体问题：即使没有技术背景、不在硅谷、没有融资，AI仍能帮助做出可收费业务，说明创业门槛大幅降低。",
+            "keyClaim": "AI使得创业无需传统资源，普通人也能切入。",
+            "sourceQuote": "如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。",
+            "testabilityReason": "这是一个假设性问题，可以考察对AI赋能创业的理解。",
+            "questionAngles": [
+              "AI如何降低创业门槛？",
+              "不写代码的AI创业有哪些途径？",
+              "这个问题的背景是什么？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-4",
+            "title": "第一笔钱来自行业AI顾问，应届毕业生有优势",
+            "knowledgeType": "method",
+            "summary": "最轻的生意是成为某个行业的AI顾问，特别是应届毕业生因时间充裕、善于试用工具而适合起步。",
+            "keyClaim": "行业AI顾问是低门槛的AI创业起点，应届毕业生有独特优势。",
+            "sourceQuote": "第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。",
+            "testabilityReason": "给出了具体的人群和切入点，可以考察对创业路径的把握。",
+            "questionAngles": [
+              "为什么应届毕业生适合做AI顾问？",
+              "AI顾问业务如何起步？",
+              "行业AI顾问解决什么问题？"
+            ],
+            "testabilityScore": 4
+          },
+          {
+            "id": "kp-5",
+            "title": "YC大量投资AI Agent，60%批次为AI原生",
+            "knowledgeType": "concept",
+            "summary": "YC一个季度向AI Agent创业公司投资3600万美元，约60%的YC批公司是AI原生，表明AI Agent是热门方向。",
+            "keyClaim": "AI Agent创业获得资本青睐，是当前创业热点。",
+            "sourceQuote": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+            "testabilityReason": "有具体数据和比例，可考察对投资趋势的理解。",
+            "questionAngles": [
+              "YC的投资数据说明了什么？",
+              "什么是AI原生创业？",
+              "AI Agent为什么受投资者青睐？"
+            ],
+            "testabilityScore": 5
+          },
+          {
+            "id": "kp-6",
+            "title": "工具已成熟，稀缺的是部署能力",
+            "knowledgeType": "judgment",
+            "summary": "虽然AI工具越来越多，但真正稀缺的是能够将工具部署到真实业务、解决实际问题的人。",
+            "keyClaim": "部署能力比工具本身更有价值。",
+            "sourceQuote": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+            "testabilityReason": "这是一个市场判断，可以考察对商业机会的洞察。",
+            "questionAngles": [
+              "为什么部署能力比工具更稀缺？",
+              "如何理解‘部署’在AI创业中的意义？",
+              "这个判断对创业者有什么启示？"
+            ],
+            "testabilityScore": 5
+          },
+          {
+            "id": "kp-7",
+            "title": "六个创业机会按难度排列：从服务到产品",
+            "knowledgeType": "method",
+            "summary": "主持人将6个AI创业机会按难度排列，从本周就能开始的服务型业务，到可以慢慢做成的垂直软件产品。",
+            "keyClaim": "创业机会有梯度，可以从简单服务入手再向产品延伸。",
+            "sourceQuote": "她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。",
+            "testabilityReason": "提供了创业路径的框架，可以考察对机会分类和进阶的理解。",
+            "questionAngles": [
+              "六个机会的排列顺序是什么？",
+              "为什么先从服务开始？",
+              "服务型业务和产品型业务的区别？"
+            ],
+            "testabilityScore": 4
+          }
+        ],
+        "filteredKnowledgePoints": [],
+        "evaluatedQuestions": [
+          {
+            "id": "q-1",
+            "knowledgePointId": "kp-1",
+            "type": "true_false",
+            "stem": "该案例表明，减少团队规模就一定能提升业绩。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "案例中40人时业绩更好是因为引入了AI，而非单纯减员。如果不借助AI，减员可能反而降低业绩。",
+            "correctUnderstanding": "AI的引入才是人效提升的关键，减少人数只是结果而非原因。",
+            "commonMisconception": "误以为减员就能自动提升效率，忽视了AI作为核心驱动因素。",
+            "sourceSnippet": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+            "difficulty": "medium",
+            "pointTitle": "小团队通过AI实现人效提升10倍",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "所有维度良好，有效纠正常见误解。"
+          },
+          {
+            "id": "q-2",
+            "knowledgePointId": "kp-1",
+            "type": "true_false",
+            "stem": "该案例中，40人时业绩比160人时好10倍，完全是因为AI替代了人工。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文并未说明业绩提升完全由AI替代人工导致，可能涉及流程优化、战略调整等多种因素，AI是重要因素之一。",
+            "correctUnderstanding": "AI为人效提升提供了关键工具，但业绩提升可能是综合因素的结果。",
+            "commonMisconception": "将业绩提升完全归因于AI，忽略了其他可能的优化措施。",
+            "sourceSnippet": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+            "difficulty": "medium",
+            "pointTitle": "小团队通过AI实现人效提升10倍",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "有效考察综合因素理解，解释清晰。"
+          },
+          {
+            "id": "q-3",
+            "knowledgePointId": "kp-1",
+            "type": "true_false",
+            "stem": "该案例说明，AI可以使得小团队产生超越大团队的效果。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "原文案例直接表明，40人团队借助AI取得了比160人团队好10倍的业绩，支持了这一结论。",
+            "correctUnderstanding": "AI能够显著提升小团队的产出效率，使其超越规模更大的传统团队。",
+            "commonMisconception": "认为团队规模越大越好，忽略了AI带来的非线性增长。",
+            "sourceSnippet": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+            "difficulty": "easy",
+            "pointTitle": "小团队通过AI实现人效提升10倍",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 1,
+                "clarity": 5,
+                "distractorQuality": 2,
+                "reviewValue": 2
+              },
+              "judgeAverage": 3.3
+            },
+            "qualityIssues": [
+              "judge_understandingDepth太低，问题过于简单，仅考察原文复述。"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "rewrite",
+            "judgeReason": "缺乏理解深度，需修改为考察因果关系或边界条件。"
+          },
+          {
+            "id": "q-4",
+            "knowledgePointId": "kp-2",
+            "type": "multiple_choice",
+            "stem": "为什么公司需要AI顾问？",
+            "options": [
+              {
+                "id": "A",
+                "text": "因为公司不知道如何开发AI工具"
+              },
+              {
+                "id": "B",
+                "text": "因为公司知道自己需要AI，但不知道该信任谁"
+              },
+              {
+                "id": "C",
+                "text": "因为公司缺乏足够的AI人才"
+              },
+              {
+                "id": "D",
+                "text": "因为公司希望外包所有AI业务"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文明确指出‘公司知道自己需要 AI，只是不知道该信任谁’，这反映了信任缺口，AI顾问可以填补这一角色。",
+            "correctUnderstanding": "AI顾问的价值在于解决信任和部署问题，而非单纯的技术开发。",
+            "commonMisconception": "认为公司需要AI是因为缺技术，实际上更多是缺乏信任和落地指导。",
+            "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "difficulty": "easy",
+            "pointTitle": "公司需要AI但缺乏信任，为顾问创造机会",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "有效考察需求本质，选项合理。"
+          },
+          {
+            "id": "q-5",
+            "knowledgePointId": "kp-2",
+            "type": "multiple_choice",
+            "stem": "AI顾问的核心价值是什么？",
+            "options": [
+              {
+                "id": "A",
+                "text": "提供最先进的AI算法"
+              },
+              {
+                "id": "B",
+                "text": "帮助公司部署AI并建立信任"
+              },
+              {
+                "id": "C",
+                "text": "降低AI工具的采购成本"
+              },
+              {
+                "id": "D",
+                "text": "培训公司员工学习AI编程"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文强调‘不知道该信任谁’，因此AI顾问的价值是帮助公司选择和部署合适的AI方案，建立信任。",
+            "correctUnderstanding": "AI顾问的核心是解决信任与部署的缺口，而非技术或成本问题。",
+            "commonMisconception": "误以为AI顾问是技术开发角色，实际更重要的是咨询和信任建立。",
+            "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+            "difficulty": "medium",
+            "pointTitle": "公司需要AI但缺乏信任，为顾问创造机会",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "有效区分核心价值与表面功能。"
+          },
+          {
+            "id": "q-6",
+            "knowledgePointId": "kp-3",
+            "type": "scenario_judgment",
+            "stem": "小明不会写代码，不在硅谷，也没有融资。他利用AI工具为当地小餐馆开发了一个自动化点餐系统，并成功收费。判断：小明的做法符合原文中AI降低创业门槛的观点。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "原文提出即使不会写代码、不在硅谷、没有融资，AI也能帮助做出第一笔可收费业务。小明的场景完全对应。",
+            "correctUnderstanding": "AI让普通人也能在缺乏传统资源的情况下创业。",
+            "commonMisconception": "认为创业必须掌握编程或位于科技中心，原文否定了这一点。",
+            "sourceSnippet": "如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。",
+            "difficulty": "easy",
+            "pointTitle": "AI降低了创业门槛：不会代码、不在硅谷、无融资也能起步",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 2,
+                "clarity": 5,
+                "distractorQuality": 2,
+                "reviewValue": 2
+              },
+              "judgeAverage": 3.5
+            },
+            "qualityIssues": [
+              "distractorQuality_low",
+              "judge_understandingDepth太低，仅为场景匹配，缺乏深层分析。"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "rewrite",
+            "judgeReason": "需增加对AI降低门槛机制的理解考察。"
+          },
+          {
+            "id": "q-7",
+            "knowledgePointId": "kp-3",
+            "type": "scenario_judgment",
+            "stem": "小李在硅谷一家AI初创公司工作，拥有丰富的编程经验。他利用业余时间开发了一个SaaS产品并获得了融资。判断：小李的创业历程与原文中AI降低创业门槛的观点一致。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文强调的是没有传统资源的人也能借助AI创业，而小李拥有编程、地理位置和融资等传统优势，不符合‘降低门槛’的典型情境。",
+            "correctUnderstanding": "AI降低门槛的对象是缺乏传统资源的人，而非已有优势的创业者。",
+            "commonMisconception": "认为任何AI创业都体现了门槛降低，忽略了原文针对的是弱势群体。",
+            "sourceSnippet": "如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。",
+            "difficulty": "medium",
+            "pointTitle": "AI降低了创业门槛：不会代码、不在硅谷、无融资也能起步",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "有效考察门槛条件的边界，需要辨析。"
+          },
+          {
+            "id": "q-8",
+            "knowledgePointId": "kp-4",
+            "type": "scenario_judgment",
+            "stem": "应届毕业生小张，虽然缺乏工作经验，但愿意花时间研究物流行业的低效环节，并尝试用AI工具优化流程。判断：小张适合从行业AI顾问开始创业。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "原文指出应届毕业生有时间和精力去试工具、跑流程、研究行业低效环节，这正是行业AI顾问的起步方式。",
+            "correctUnderstanding": "应届毕业生可以利用时间精力优势，从研究行业低效环节切入AI顾问业务。",
+            "commonMisconception": "认为应届毕业生经验不足不适合创业，原文肯定了他们的独特优势。",
+            "sourceSnippet": "第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。",
+            "difficulty": "easy",
+            "pointTitle": "第一笔钱来自行业AI顾问，应届毕业生有优势",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "有效理解应届毕业生优势，但可加深。"
+          },
+          {
+            "id": "q-9",
+            "knowledgePointId": "kp-4",
+            "type": "scenario_judgment",
+            "stem": "一位资深工程师想转型做AI顾问，他利用自己的技术背景直接开发了一个通用AI平台。判断：他的做法符合原文中行业AI顾问的起步方式。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文中行业AI顾问的起步方式是轻量化服务，从研究某个行业的低效环节入手，而不是直接开发通用平台。",
+            "correctUnderstanding": "行业AI顾问应聚焦具体行业问题，提供轻量服务，而非一开始就做产品。",
+            "commonMisconception": "误以为AI顾问必须技术驱动，忽略了服务导向的轻模式。",
+            "sourceSnippet": "第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。",
+            "difficulty": "medium",
+            "pointTitle": "第一笔钱来自行业AI顾问，应届毕业生有优势",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "有效对比轻服务与重产品路径。"
+          },
+          {
+            "id": "q-10",
+            "knowledgePointId": "kp-5",
+            "type": "multiple_choice",
+            "stem": "YC的投资数据说明了什么？",
+            "options": [
+              {
+                "id": "A",
+                "text": "AI Agent创业是当前资本关注的热点"
+              },
+              {
+                "id": "B",
+                "text": "YC大部分投资失败，转向AI"
+              },
+              {
+                "id": "C",
+                "text": "AI原生公司更容易获得融资"
+              },
+              {
+                "id": "D",
+                "text": "AI Agent市场已经饱和"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "原文提到YC一个季度投了3600万美元给AI Agent公司，60%批次为AI原生，表明资本高度关注AI Agent创业。",
+            "correctUnderstanding": "YC的大规模投资表明AI Agent是当前创业和投资的热点方向。",
+            "commonMisconception": "可能认为投资数据代表市场饱和或全面转型，实际是趋势信号。",
+            "sourceSnippet": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+            "difficulty": "easy",
+            "pointTitle": "YC大量投资AI Agent，60%批次为AI原生",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "有效解读投资数据趋势。"
+          },
+          {
+            "id": "q-11",
+            "knowledgePointId": "kp-5",
+            "type": "multiple_choice",
+            "stem": "什么是‘AI原生创业’？",
+            "options": [
+              {
+                "id": "A",
+                "text": "以AI技术为核心驱动的创业公司"
+              },
+              {
+                "id": "B",
+                "text": "使用AI工具进行辅助运营的传统公司"
+              },
+              {
+                "id": "C",
+                "text": "完全由AI自动运营的公司"
+              },
+              {
+                "id": "D",
+                "text": "只关注AI Agent领域的创业"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "原文中‘AI native’指以AI为核心技术和业务模式的创业公司，而非传统公司使用AI辅助。",
+            "correctUnderstanding": "AI原生指的是公司从创立之初就以AI为内核，而不是后期加上AI功能。",
+            "commonMisconception": "混淆AI原生与传统企业AI转型，或误解为完全自动化。",
+            "sourceSnippet": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+            "difficulty": "medium",
+            "pointTitle": "YC大量投资AI Agent，60%批次为AI原生",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "概念清晰，区分度好。"
+          },
+          {
+            "id": "q-12",
+            "knowledgePointId": "kp-5",
+            "type": "multiple_choice",
+            "stem": "AI Agent为什么受投资者青睐？",
+            "options": [
+              {
+                "id": "A",
+                "text": "因为AI Agent能自主完成任务，具有广泛商业应用前景"
+              },
+              {
+                "id": "B",
+                "text": "因为AI Agent开发成本极低"
+              },
+              {
+                "id": "C",
+                "text": "因为投资者大多缺乏技术判断"
+              },
+              {
+                "id": "D",
+                "text": "因为AI Agent是唯一可行的AI方向"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "原文通过投资数据暗示AI Agent有巨大潜力，其自主任务能力可应用于多种场景，吸引投资。",
+            "correctUnderstanding": "AI Agent的自主性和应用广度使其成为投资热点。",
+            "commonMisconception": "认为投资是因为低成本或盲目跟风，实际上基于商业潜力。",
+            "sourceSnippet": "YC 一个季度投了 3600 万美元给 AI Agent 创业公司，约 60% 的 YC batch 已经是 AI native。",
+            "difficulty": "medium",
+            "pointTitle": "YC大量投资AI Agent，60%批次为AI原生",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "合理推论，考察商业逻辑。"
+          },
+          {
+            "id": "q-13",
+            "knowledgePointId": "kp-6",
+            "type": "true_false",
+            "stem": "根据原文，当前AI领域最稀缺的是更先进的工具。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文说‘工具会越来越多，真正稀缺的是把工具部署到真实业务里的人’，说明稀缺的是部署能力，而非工具。",
+            "correctUnderstanding": "工具丰富，但能够有效部署的人才是稀缺资源。",
+            "commonMisconception": "误以为技术工具是瓶颈，实际是落地能力不足。",
+            "sourceSnippet": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+            "difficulty": "easy",
+            "pointTitle": "工具已成熟，稀缺的是部署能力",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 2,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4
+            },
+            "qualityIssues": [
+              "understandingDepth_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "直接考察稀缺性认知。"
+          },
+          {
+            "id": "q-14",
+            "knowledgePointId": "kp-6",
+            "type": "true_false",
+            "stem": "部署能力比工具本身更有价值。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "原文明确指出工具会很多，但部署到业务中的人才是真正稀缺的，因此部署能力价值更高。",
+            "correctUnderstanding": "在AI商业中，将工具与实际业务结合的能力是核心价值。",
+            "commonMisconception": "认为掌握最新工具才是竞争力，忽略了应用落地。",
+            "sourceSnippet": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+            "difficulty": "easy",
+            "pointTitle": "工具已成熟，稀缺的是部署能力",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 2,
+                "clarity": 5,
+                "distractorQuality": 2,
+                "reviewValue": 2
+              },
+              "judgeAverage": 3.5
+            },
+            "qualityIssues": [
+              "judge_understandingDepth太低，仅重复原文判断。"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "rewrite",
+            "judgeReason": "需修改为考察部署能力的具体体现。"
+          },
+          {
+            "id": "q-15",
+            "knowledgePointId": "kp-6",
+            "type": "true_false",
+            "stem": "只要拥有最新的AI工具，创业就一定能成功。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文强调部署能力才是关键，工具本身并不稀缺，所以仅靠工具无法保证成功。",
+            "correctUnderstanding": "创业成功取决于能否将工具有效部署到业务中，而非工具本身的新旧。",
+            "commonMisconception": "高估工具的作用，低估了落地执行的重要性。",
+            "sourceSnippet": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+            "difficulty": "medium",
+            "pointTitle": "工具已成熟，稀缺的是部署能力",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "有效反驳工具决定论。"
+          },
+          {
+            "id": "q-16",
+            "knowledgePointId": "kp-7",
+            "type": "scenario_judgment",
+            "stem": "创业者小王想从零开始做AI生意，他决定先开发一个复杂的垂直软件产品，然后再去服务客户。判断：小王的做法符合原文中创业机会的排列顺序。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原文建议从最简单的服务开始，再逐步向产品延伸，而小王直接做复杂产品，违背了由易到难的顺序。",
+            "correctUnderstanding": "创业应从轻服务入手，积累经验和客户后再过渡到产品。",
+            "commonMisconception": "认为直接做产品更高级，忽略了从服务起步的低风险路径。",
+            "sourceSnippet": "她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。",
+            "difficulty": "medium",
+            "pointTitle": "六个创业机会按难度排列：从服务到产品",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 3
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "正确理解创业顺序。"
+          },
+          {
+            "id": "q-17",
+            "knowledgePointId": "kp-7",
+            "type": "scenario_judgment",
+            "stem": "创业者小李从为本地商家提供AI咨询（服务）开始，逐步开发出针对该行业的软件产品。判断：小李的做法符合原文的创业路径。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "原文明确提出机会排列从服务到产品，小李从咨询起步再产品化，完全符合此路径。",
+            "correctUnderstanding": "正确的创业路径是先从轻量服务验证市场，再逐步产品化。",
+            "commonMisconception": "可能认为服务与产品是独立选择，实际上可以渐进升级。",
+            "sourceSnippet": "她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。",
+            "difficulty": "easy",
+            "pointTitle": "六个创业机会按难度排列：从服务到产品",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 2,
+                "clarity": 5,
+                "distractorQuality": 2,
+                "reviewValue": 2
+              },
+              "judgeAverage": 3.5
+            },
+            "qualityIssues": [
+              "distractorQuality_low",
+              "judge_understandingDepth太低，仅为路径匹配。"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "rewrite",
+            "judgeReason": "需增加对路径原因或例外情况的考察。"
+          },
+          {
+            "id": "q-1-rewrite-1-1",
+            "knowledgePointId": "kp-1",
+            "type": "true_false",
+            "stem": "根据案例，AI的应用使得40人团队的业绩比160人时提升了10倍。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "原文明确说“40人时比160人时好10倍”，结合AI工具的应用，说明小团队借助AI实现了人效的大幅提升。",
+            "correctUnderstanding": "AI赋能小团队后，人效显著提升，业绩指标从160人时的水平提升了10倍。",
+            "commonMisconception": "可能认为人少了业绩不可能更好，忽略了AI带来的效率革命。",
+            "sourceSnippet": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+            "difficulty": "medium",
+            "pointTitle": "小团队通过AI实现人效提升10倍",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 1,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 3
+              },
+              "judgeAverage": 3.7
+            },
+            "qualityIssues": [
+              "judge_缺乏深度理解"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "rewrite",
+            "judgeReason": "题目仅考察原文事实记忆，未涉及理解或迁移，建议改为考察因果关系的理解题。"
+          },
+          {
+            "id": "q-2-rewrite-2-1",
+            "knowledgePointId": "kp-1",
+            "type": "true_false",
+            "stem": "根据该案例，40人团队的业绩是160人团队的10倍，这意味着每个员工的生产力提升了40倍。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "业绩提升10倍，人数减少为原来的1/4，因此人均业绩提升10倍 ÷ (1/4) = 40倍。",
+            "correctUnderstanding": "该案例显示，在AI支持下，小团队的人效提升是非线性的，人数减少75%而整体业绩提升10倍，人均业绩提升40倍。",
+            "commonMisconception": "容易误认为业绩提升10倍等价于人效提升10倍，忽略了人数大幅减少的影响。",
+            "sourceSnippet": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+            "difficulty": "medium",
+            "pointTitle": "小团队通过AI实现人效提升10倍",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 5,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目基于来源片段，考察人均效能计算，理解深度好，选项清晰，干扰合理，值得复习。"
+          },
+          {
+            "id": "q-3-rewrite-3-1",
+            "knowledgePointId": "kp-1",
+            "type": "true_false",
+            "stem": "一位管理者从该案例得出“只要引入AI，团队规模减半业绩就能翻倍”的结论。这个结论成立吗？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "案例中团队从160人减至40人（减少75%），业绩提升10倍，而非简单的减半翻倍。该管理者错误地将非线性关系线性化。",
+            "correctUnderstanding": "AI带来的效率提升不是简单的线性比例关系，具体效果取决于多种因素。",
+            "commonMisconception": "误以为AI的效果与人力减少幅度成固定比例。",
+            "sourceSnippet": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+            "difficulty": "medium",
+            "pointTitle": "小团队通过AI实现人效提升10倍",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 4,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.3,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 5,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.8
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目基于具体案例，考察对非线性效率提升的理解，选项清晰，陷阱合理，值得复习。"
+          },
+          {
+            "id": "q-6-rewrite-4-1",
+            "knowledgePointId": "kp-3",
+            "type": "scenario_judgment",
+            "stem": "小王不会写代码，不在硅谷，也没有融资。他利用现成的AI工具，为本地餐馆开发了一个自动接单和回复顾客的聊天机器人，并收取每月维护费。以下哪个判断最准确？",
+            "options": [
+              {
+                "id": "A",
+                "text": "这个场景不可能，因为没有编程技能就无法开发AI产品。"
+              },
+              {
+                "id": "B",
+                "text": "这个场景可行，AI降低了技术门槛，普通人也能通过AI工具提供定制化服务并产生收费业务。"
+              },
+              {
+                "id": "C",
+                "text": "这个场景可行，但必须要有融资才能启动。"
+              },
+              {
+                "id": "D",
+                "text": "这个场景可行，但必须搬到硅谷才能接触到客户。"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "原话指出即使不会写代码、不在硅谷、没有融资，AI仍能帮助人做出第一笔可收费业务。小王的场景完全符合这一条件，AI工具降低了技术和地理门槛，无需融资即可起步。",
+            "correctUnderstanding": "AI使得创业无需传统资源（编程、地理位置、融资），普通人也能利用AI工具开发可收费的服务。",
+            "commonMisconception": "很多人认为创业必须掌握编程、位于科技中心或获得投资，实际上AI工具已经大大降低了这些门槛。",
+            "sourceSnippet": "如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。",
+            "difficulty": "medium",
+            "pointTitle": "AI降低了创业门槛：不会代码、不在硅谷、无融资也能起步",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.8,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 5,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.7
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目考察对AI降低创业门槛的理解，迁移至具体场景，选项合理但明确，解释清晰。无严重问题。"
+          },
+          {
+            "id": "q-7-rewrite-5-1",
+            "knowledgePointId": "kp-3",
+            "type": "scenario_judgment",
+            "stem": "一位不会编程的创业者，利用AI代码生成工具和低代码平台，快速开发出一款在线工具并开始收费，期间没有寻求风险投资。这一场景是否体现了AI降低了创业门槛？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "该场景中，创业者不具备编程能力、不在科技中心、也没有融资，但借助AI工具成功推出收费产品，正是对“AI降低了创业门槛”的典型体现。",
+            "correctUnderstanding": "AI使得缺乏传统创业资源（如编程技能、地理位置、资金）的人也能开发出可收费产品，从而降低创业门槛。",
+            "commonMisconception": "认为创业必须掌握编程技能或拥有融资，忽略AI工具对非技术人员赋能的可能。",
+            "sourceSnippet": "如果你不会写代码、不在硅谷、也没有融资，AI 还能不能帮你做出第一笔可收费业务。",
+            "difficulty": "medium",
+            "pointTitle": "AI降低了创业门槛：不会代码、不在硅谷、无融资也能起步",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 5,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.8
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目直接对应来源，场景判断清晰，考察对AI降低门槛的迁移理解，干扰项明确错误，无严重问题。"
+          },
+          {
+            "id": "q-8-rewrite-6-1",
+            "knowledgePointId": "kp-4",
+            "type": "scenario_judgment",
+            "stem": "应届毕业生小张没有行业经验，但他利用课余时间学习AI工具，深入研究物流行业的低效环节，并开始为小型物流公司提供AI优化顾问服务。这一做法是否与“行业AI顾问”的创业路径一致？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "原文指出“第一个生意最轻：做某个行业的AI顾问”，并特别提到应届毕业生因为有时机和精力去试工具、跑流程、研究低效环节，因此这一做法与创业路径一致。",
+            "correctUnderstanding": "行业AI顾问门槛低，应届毕业生可以利用时间和精力优势，通过研究行业低效环节来启动创业。",
+            "commonMisconception": "认为应届毕业生缺乏行业经验，无法提供有价值的AI顾问服务，但原文强调年轻人在试工具和跑流程上有独特优势。",
+            "sourceSnippet": "第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。",
+            "difficulty": "medium",
+            "pointTitle": "第一笔钱来自行业AI顾问，应届毕业生有优势",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.7
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目完全由来源支撑，答案唯一，考察对创业路径的理解和迁移，清晰无歧义，错误选项合理，有复习价值。"
+          },
+          {
+            "id": "q-9-rewrite-7-1",
+            "knowledgePointId": "kp-4",
+            "type": "scenario_judgment",
+            "stem": "应届毕业生小王，利用课余时间学习AI工具，关注制造业中的质检环节，发现传统人工质检效率低，他设计了一套基于计算机视觉的辅助检测方案，向几家工厂推广，获得初步合作。判断：小王的做法符合“行业AI顾问”的创业起点。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "行业AI顾问的起点是研究一个行业里的低效环节，利用AI工具提供解决方案。小王的行为完全符合这一路径，且应届毕业生的时间和精力优势使他能快速试错和跑通流程。",
+            "correctUnderstanding": "行业AI顾问从发现低效环节和运用AI工具起步，应届毕业生因有时间和精力去试工具、跑流程，具有独特优势。",
+            "commonMisconception": "认为行业AI顾问需要深厚的行业经验或技术背景，所以应届毕业生不适合。实际上，关键在于发现低效环节和掌握AI工具，应届毕业生的学习能力和时间精力反而是优势。",
+            "sourceSnippet": "第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。",
+            "difficulty": "medium",
+            "pointTitle": "第一笔钱来自行业AI顾问，应届毕业生有优势",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.8
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目完全符合来源支撑，答案唯一，考察了概念迁移，题干清晰，干扰项合理且错误，值得复习。"
+          },
+          {
+            "id": "q-13-rewrite-8-1",
+            "knowledgePointId": "kp-6",
+            "type": "true_false",
+            "stem": "在AI创业中，只要拥有最先进的工具就能获得持续竞争优势，这一说法成立吗？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "工具越来越多，但真正稀缺的是把工具部署到真实业务里的能力，因此仅仅拥有工具不足以获得持续竞争优势。",
+            "correctUnderstanding": "部署能力比工具本身更有价值，能够将工具有效应用于实际业务才是关键。",
+            "commonMisconception": "认为工具先进就能自动带来竞争优势，忽略了实施和落地的困难。",
+            "sourceSnippet": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+            "difficulty": "medium",
+            "pointTitle": "工具已成熟，稀缺的是部署能力",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 4,
+                "distractorQuality": 3,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目直接来自来源，考察对部署能力稀缺性的理解，作为是非题选项虽简单但有效，整体可通过。"
+          },
+          {
+            "id": "q-14-rewrite-9-1",
+            "knowledgePointId": "kp-6",
+            "type": "true_false",
+            "stem": "某AI创业公司认为拥有顶尖算法工具就能成功，因此全力投入研发新模型，而忽视将现有模型集成到客户业务流程中。根据‘工具已成熟，稀缺的是部署能力’的判断，该公司的策略是否正确？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "该判断强调部署能力比工具更稀缺，只重视工具而忽视部署是误区，因此公司策略不正确。",
+            "correctUnderstanding": "部署能力是将工具应用到真实业务中的关键，比工具本身更有价值。",
+            "commonMisconception": "认为拥有先进工具就等同于竞争力，忽略了部署的稀缺性。",
+            "sourceSnippet": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+            "difficulty": "medium",
+            "pointTitle": "工具已成熟，稀缺的是部署能力",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.7
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目直接基于来源判断，答案唯一，考察对核心概念的理解，清晰无歧义，干扰项合理，具有复习价值。"
+          },
+          {
+            "id": "q-15-rewrite-10-1",
+            "knowledgePointId": "kp-6",
+            "type": "true_false",
+            "stem": "在AI领域，拥有最先进的工具就足以在商业上取得成功。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "该判断不成立。根据知识点，工具会越来越多，真正稀缺的是把工具部署到真实业务里的人，因此单纯拥有先进工具并不能保证成功，部署能力更为关键。",
+            "correctUnderstanding": "工具本身虽然重要，但将工具有效部署到实际业务场景中并创造价值的能力才是稀缺资源。",
+            "commonMisconception": "误以为技术或工具本身是决定性因素，而忽略了部署、实施和业务结合的重要性。",
+            "sourceSnippet": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+            "difficulty": "medium",
+            "pointTitle": "工具已成熟，稀缺的是部署能力",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目直接考察对核心论点的理解，来源支持充分，解释清晰，干扰项虽简单但明确错误，值得复习。"
+          },
+          {
+            "id": "q-16-rewrite-11-1",
+            "knowledgePointId": "kp-7",
+            "type": "scenario_judgment",
+            "stem": "一位创业者想开发一个复杂的垂直软件，但缺乏技术团队和资金。他决定先提供简单的咨询服务，积累行业经验和客户，再逐步开发软件产品。这种做法是否符合知识点中提到的创业机会排列原则？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "知识点的核心是创业机会应按难度排列，从简单服务起步，再向产品延伸。该场景中，创业者先做咨询服务（服务），再开发软件（产品），符合这一梯度原则。",
+            "correctUnderstanding": "从服务起步有助于降低初期门槛，积累资源和经验，为后续产品开发打下基础，这是有效的创业路径。",
+            "commonMisconception": "有人认为创业必须直接做产品，服务型业务不够“高级”或不是真正的创业，但忽略了服务可作为产品的前奏和验证。",
+            "sourceSnippet": "她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。",
+            "difficulty": "medium",
+            "pointTitle": "六个创业机会按难度排列：从服务到产品",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 5,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.8
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目符合所有维度要求，有清晰的场景迁移，解释到位，错误选项合理，值得保留。"
+          },
+          {
+            "id": "q-17-rewrite-12-1",
+            "knowledgePointId": "kp-7",
+            "type": "scenario_judgment",
+            "stem": "设计师小王想创业，他有两个想法：一是在线教企业品牌设计（服务），二是开发品牌设计软件（产品）。按照创业机会的难度梯度，他应该从哪个开始？",
+            "options": [
+              {
+                "id": "A",
+                "text": "从做服务（在线教品牌设计）开始"
+              },
+              {
+                "id": "B",
+                "text": "从做产品（开发品牌设计软件）开始"
+              },
+              {
+                "id": "C",
+                "text": "先做产品，再做服务"
+              },
+              {
+                "id": "D",
+                "text": "两个同时进行"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "六个创业机会按难度排列，从最简单的服务到较复杂的产品。从服务入手可以快速验证需求、积累客户，再逐步向产品延伸，因此从服务开始是正确的选择。",
+            "correctUnderstanding": "创业机会有梯度，从本周就能开始的服务应该优先于需要长期开发的产品。",
+            "commonMisconception": "认为产品看起来更有技术含量或利润更高，应该先从产品入手，但忽略了产品开发周期长、风险高，服务是更稳妥的起点。",
+            "sourceSnippet": "她把 6 个机会按难度排列：从本周就能开始的服务，到可以慢慢做成产品的垂直软件。",
+            "difficulty": "medium",
+            "pointTitle": "六个创业机会按难度排列：从服务到产品",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 5,
+              "understandingDepth": 3,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 5,
+                "clarity": 5,
+                "distractorQuality": 5,
+                "reviewValue": 5
+              },
+              "judgeAverage": 5
+            },
+            "qualityIssues": [],
+            "qualityAction": "pass",
+            "ruleQualityAction": "pass",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目基于知识点的梯度原则，应用到具体场景，考察迁移理解，选项设计合理，解释清晰，无严重问题。"
+          },
+          {
+            "id": "supplement-kp-1-1-1",
+            "knowledgePointId": "kp-1",
+            "type": "true_false",
+            "stem": "一个40人的团队如果引入AI，其业绩就一定比160人的团队更好。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "案例中该团队在40人时比160人时业绩好10倍，但这是该团队特定情境下的结果，并不意味着任何40人团队引入AI后都能自动超越160人团队。业绩提升取决于AI的应用方式、业务匹配度、团队能力等多种因素。",
+            "correctUnderstanding": "AI提升效率需要结合具体业务场景和团队能力，并非所有小团队引入AI就能自动超越大团队。",
+            "commonMisconception": "认为只要引入AI就能实现10倍提升，忽视了案例的具体条件和团队因素。",
+            "sourceSnippet": "我们一度有 150 到 160 人，现在接近 40 人；从指标看，40 人时比 160 人时好 10 倍。",
+            "difficulty": "medium",
+            "pointTitle": "小团队通过AI实现人效提升10倍",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 5
+              },
+              "judgeAverage": 4.5
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目设计合理，考察对案例的过度泛化理解，选项明确，解释清晰，无严重问题。"
+          },
+          {
+            "id": "supplement-kp-4-2-1",
+            "knowledgePointId": "kp-4",
+            "type": "scenario_judgment",
+            "stem": "应届毕业生小王发现传统农业种植效率低，他利用课余时间学习AI工具，跑通流程，然后主动联系农场主提供AI顾问服务。判断：小王的做法符合行业AI顾问的创业起点特征。",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "根据来源，行业AI顾问是低门槛的创业起点，应届毕业生有时间和精力去试工具、跑流程、研究行业低效环节，小王正是这样做的，因此说法成立。",
+            "correctUnderstanding": "应届毕业生利用自身时间和精力优势，通过试工具、跑流程、研究行业低效环节，可以低成本启动行业AI顾问业务。",
+            "commonMisconception": "误以为应届毕业生缺乏行业经验，不适合做AI顾问，但来源强调其学习能力和执行力是独特优势。",
+            "sourceSnippet": "第一个生意最轻：做某个行业的 AI 顾问。Marina 特别提到应届毕业生，因为入门岗位正在变少，但年轻人恰好有时间和精力去试工具、跑流程、研究一个行业里的低效环节。",
+            "difficulty": "easy",
+            "pointTitle": "第一笔钱来自行业AI顾问，应届毕业生有优势",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 2,
+              "reviewValue": 5,
+              "average": 4.2,
+              "judge": {
+                "sourceSupport": 5,
+                "answerUniqueness": 5,
+                "understandingDepth": 3,
+                "clarity": 5,
+                "distractorQuality": 3,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.2
+            },
+            "qualityIssues": [
+              "distractorQuality_low"
+            ],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目来源支持充分，答案唯一，清晰无歧义，虽然理解深度中等且干扰项简单，但整体合格，值得复习。"
+          },
+          {
+            "id": "supplement-kp-6-3-1",
+            "knowledgePointId": "kp-6",
+            "type": "true_false",
+            "stem": "某AI创业团队专注于开发更强大的工具，认为只要工具足够好就能在市场中胜出。根据上述判断，该团队的做法对吗？",
+            "options": [
+              {
+                "id": "A",
+                "text": "成立"
+              },
+              {
+                "id": "B",
+                "text": "不成立"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "工具已不再稀缺，真正稀缺的是把工具部署到真实业务中的能力，因此仅关注工具开发可能错失商业机会。",
+            "correctUnderstanding": "部署能力比工具本身更有价值，成功的关键在于如何将工具有效应用到真实业务场景。",
+            "commonMisconception": "误以为工具本身是核心竞争力，忽视部署和场景落地的重要性。",
+            "sourceSnippet": "工具会越来越多，真正稀缺的是把工具部署到真实业务里的人。",
+            "difficulty": "medium",
+            "pointTitle": "工具已成熟，稀缺的是部署能力",
+            "qualityScore": {
+              "sourceSupport": 5,
+              "answerUniqueness": 3,
+              "understandingDepth": 5,
+              "clarity": 5,
+              "distractorQuality": 4,
+              "reviewValue": 5,
+              "average": 4.5,
+              "judge": {
+                "sourceSupport": 4,
+                "answerUniqueness": 5,
+                "understandingDepth": 4,
+                "clarity": 5,
+                "distractorQuality": 4,
+                "reviewValue": 4
+              },
+              "judgeAverage": 4.3
+            },
+            "qualityIssues": [],
+            "qualityAction": "rewrite",
+            "ruleQualityAction": "rewrite",
+            "judgeQualityAction": "pass",
+            "judgeReason": "题目符合要求，无严重问题，建议通过。"
+          }
+        ],
+        "pointDiagnostics": [
+          {
+            "pointId": "kp-1",
+            "title": "小团队通过AI实现人效提升10倍",
+            "testabilityScore": 5,
+            "candidateQuestionCount": 7,
+            "qualifiedQuestionCount": 0,
+            "status": "no_qualified_question",
+            "failureReasons": [
+              "judge_understandingDepth太低，问题过于简单，仅考察原文复述。",
+              "judge_缺乏深度理解"
+            ]
+          },
+          {
+            "pointId": "kp-2",
+            "title": "公司需要AI但缺乏信任，为顾问创造机会",
+            "testabilityScore": 4,
+            "candidateQuestionCount": 2,
+            "qualifiedQuestionCount": 2,
+            "status": "covered",
+            "failureReasons": []
+          },
+          {
+            "pointId": "kp-3",
+            "title": "AI降低了创业门槛：不会代码、不在硅谷、无融资也能起步",
+            "testabilityScore": 4,
+            "candidateQuestionCount": 4,
+            "qualifiedQuestionCount": 1,
+            "status": "covered",
+            "failureReasons": []
+          },
+          {
+            "pointId": "kp-4",
+            "title": "第一笔钱来自行业AI顾问，应届毕业生有优势",
+            "testabilityScore": 4,
+            "candidateQuestionCount": 5,
+            "qualifiedQuestionCount": 0,
+            "status": "no_qualified_question",
+            "failureReasons": [
+              "distractorQuality_low"
+            ]
+          },
+          {
+            "pointId": "kp-5",
+            "title": "YC大量投资AI Agent，60%批次为AI原生",
+            "testabilityScore": 5,
+            "candidateQuestionCount": 3,
+            "qualifiedQuestionCount": 3,
+            "status": "covered",
+            "failureReasons": []
+          },
+          {
+            "pointId": "kp-6",
+            "title": "工具已成熟，稀缺的是部署能力",
+            "testabilityScore": 5,
+            "candidateQuestionCount": 7,
+            "qualifiedQuestionCount": 0,
+            "status": "no_qualified_question",
+            "failureReasons": [
+              "understandingDepth_low",
+              "judge_understandingDepth太低，仅重复原文判断。"
+            ]
+          },
+          {
+            "pointId": "kp-7",
+            "title": "六个创业机会按难度排列：从服务到产品",
+            "testabilityScore": 4,
+            "candidateQuestionCount": 4,
+            "qualifiedQuestionCount": 1,
+            "status": "covered",
+            "failureReasons": []
+          }
+        ]
+      },
+      "message": ""
+    }
+  ]
+}
