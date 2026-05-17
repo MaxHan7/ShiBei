@@ -1,0 +1,14 @@
+{
+  "name": "shibei",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm --prefix backend install",
+    "start": "npm --prefix backend start",
+    "check": "npm --prefix backend run check"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
