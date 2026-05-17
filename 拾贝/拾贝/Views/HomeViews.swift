@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct HomeView: View {
     @ObservedObject var store: AppStore
@@ -106,6 +107,11 @@ struct AddKnowledgeView: View {
         ChapterInput.parse(input)
     }
 
+    private func dismissInput() {
+        isInputFocused = false
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+
     var body: some View {
         AppScaffold(store: store, title: "添加知识") {
             ScrollView {
@@ -125,6 +131,9 @@ struct AddKnowledgeView: View {
                         }
                         TextEditor(text: $input)
                             .focused($isInputFocused)
+                            .onTapGesture {
+                                isInputFocused = true
+                            }
                             .frame(minHeight: 210)
                             .scrollContentBackground(.hidden)
                             .overlay(alignment: .topLeading) {
@@ -159,7 +168,7 @@ struct AddKnowledgeView: View {
                         disabled: !chapterInput.canSubmit || store.isWritingChapter
                     ) {
                         let submittedInput = input
-                        isInputFocused = false
+                        dismissInput()
                         Task {
                             if await store.createChapter(from: submittedInput) {
                                 input = ""
@@ -188,7 +197,7 @@ struct AddKnowledgeView: View {
                     .frame(maxWidth: .infinity)
 
                     Button("填入示例内容") {
-                        isInputFocused = false
+                        dismissInput()
                         input = "真正的进步不是问 AI 更多问题，而是把任务、边界、资料范围和交付格式说清楚，让 AI 在可控范围内进入真实工作流。"
                     }
                     .font(.system(size: 14))
@@ -199,16 +208,30 @@ struct AddKnowledgeView: View {
                 .padding(.bottom, 120)
             }
             .scrollDismissesKeyboard(.interactively)
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("完成") {
-                        isInputFocused = false
+            .safeAreaInset(edge: .bottom) {
+                if isInputFocused {
+                    HStack {
+                        Spacer()
+                        Button {
+                            dismissInput()
+                        } label: {
+                            Label("收起键盘", systemImage: "keyboard.chevron.compact.down")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(ShiBeiTheme.text)
+                                .padding(.horizontal, 14)
+                                .frame(height: 44)
+                                .background(ShiBeiTheme.card)
+                                .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
+                                .shadow(color: .black.opacity(0.08), radius: 10, y: 4)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(ShiBeiTheme.primary)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 8)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
+            .animation(.easeInOut(duration: 0.16), value: isInputFocused)
         }
     }
 }
