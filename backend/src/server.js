@@ -605,6 +605,8 @@ function normalizeQuestions(questions, chapterId, knowledgePoints = []) {
       difficulty: toStringValue(question.difficulty || "medium"),
       qualityScore: normalizeQualityScore(question.qualityScore),
       qualityIssues: Array.isArray(question.qualityIssues) ? question.qualityIssues.map((issue) => toStringValue(issue)).filter(Boolean) : [],
+      confidenceLevel: question.confidenceLevel === "low" ? "low" : "high",
+      retainedBy: toStringValue(question.retainedBy || (question.confidenceLevel === "low" ? "best_effort_quality_fallback" : "quality_pass")),
       shortExplanation: toStringValue(question.shortExplanation || question.explanation || ""),
       fullExplanation: toStringValue(question.fullExplanation || question.correctUnderstanding || question.correct_understanding || ""),
       pitfalls: Array.isArray(question.pitfalls) ? question.pitfalls.map((pitfall) => toStringValue(pitfall)).filter(Boolean) : [],
@@ -640,7 +642,13 @@ function normalizeQualitySummary(qualitySummary) {
       : (Number.isFinite(Number(qualitySummary.averageScore)) ? Number(qualitySummary.averageScore) : null),
     questionCoverageRate: Number.isFinite(Number(qualitySummary.questionCoverageRate))
       ? Number(qualitySummary.questionCoverageRate)
-      : (Number.isFinite(Number(qualitySummary.coverageRate)) ? Number(qualitySummary.coverageRate) : null)
+      : (Number.isFinite(Number(qualitySummary.coverageRate)) ? Number(qualitySummary.coverageRate) : null),
+    totalGenerated: toIntegerValue(qualitySummary.totalGenerated, 0),
+    retainedQuestionCount: toIntegerValue(qualitySummary.retainedQuestionCount, 0),
+    lowConfidenceQuestionCount: toIntegerValue(qualitySummary.lowConfidenceQuestionCount, 0),
+    uncoveredPointCount: toIntegerValue(qualitySummary.uncoveredPointCount, 0),
+    seriousIssueCount: toIntegerValue(qualitySummary.seriousIssueCount, 0),
+    judgeUnavailable: Boolean(qualitySummary.judgeUnavailable)
   };
 }
 

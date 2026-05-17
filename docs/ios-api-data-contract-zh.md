@@ -191,9 +191,12 @@ unrelated_to_source
   "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
   "difficulty": "medium",
   "qualityScore": {},
-  "qualityIssues": []
+  "qualityIssues": [],
+  "confidenceLevel": "high"
 }
 ```
+
+`confidenceLevel` 取值为 `high` / `low`。`low` 表示该题未完全通过质量审查，但结构完整、来源可支撑、答案唯一，因此作为低置信题进入复习池；第一版 iOS 可以不展示该标签。
 
 解释页只展示：正确答案、正确理解、常见误区、来源片段。
 

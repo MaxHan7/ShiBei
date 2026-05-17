@@ -201,6 +201,7 @@ struct ReviewQuestion: Codable, Identifiable, Hashable {
     var difficulty: String
     var qualityScore: [String: Double]?
     var qualityIssues: [String]
+    var confidenceLevel: String? = nil
 
     var sourceText: String {
         sourceQuote ?? sourceSnippet
