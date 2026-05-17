@@ -12,6 +12,9 @@ struct HomeView: View {
                 EmptyHomeContent()
             }
         }
+        .task(id: store.activeHomeChapter?.id) {
+            await store.refreshActiveHomeChapterFromAPI()
+        }
     }
 }
 

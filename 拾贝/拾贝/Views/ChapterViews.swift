@@ -143,7 +143,7 @@ struct ChapterDetailView: View {
                         if chapter.status.isFailed {
                             FailedChapterCard(store: store, chapter: chapter)
                         } else if chapter.status.isProcessing {
-                            ProcessingCard(chapter: chapter)
+                            ProcessingCard(store: store, chapter: chapter)
                         } else {
                             PrimaryButton(title: "开始复习") {
                                 Task {
@@ -256,6 +256,7 @@ private struct FailedChapterCard: View {
 }
 
 private struct ProcessingCard: View {
+    @ObservedObject var store: AppStore
     let chapter: Chapter
 
     var body: some View {
@@ -265,6 +266,11 @@ private struct ProcessingCard: View {
                     .tint(ShiBeiTheme.primary)
                 Text(chapter.visibleStatusText)
                     .font(.system(size: 18, weight: .bold))
+                SecondaryButton(title: "刷新状态", systemImage: "arrow.clockwise") {
+                    Task {
+                        await store.refreshSelectedChapterFromAPI()
+                    }
+                }
             }
             .frame(maxWidth: .infinity)
         }

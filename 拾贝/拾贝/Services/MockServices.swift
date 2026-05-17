@@ -280,13 +280,8 @@ final class AppStore: ObservableObject {
             return
         }
         do {
-            async let fetchedChapters = client.fetchChapters()
-            async let fetchedNotifications = client.fetchNotifications()
-            let (chapters, notifications) = try await (fetchedChapters, fetchedNotifications)
-            self.chapters = chapters
-            self.notifications = notifications
-            cancelGenerationPolling()
-            chapters.filter { $0.status.isProcessing }.forEach { startGenerationPolling(for: $0.id, mode: mode) }
+            let (chapters, notifications) = try await fetchAPIState(client: client)
+            applyAPIState(chapters: chapters, notifications: notifications, mode: mode)
             selectedChapterId = activeHomeChapter?.id ?? chapters.first?.id
             selectedTab = .home
             route = .home
@@ -525,6 +520,14 @@ final class AppStore: ObservableObject {
         return reviewService.currentQuestion(in: chapter)
     }
 
+    func refreshActiveHomeChapterFromAPI() async {
+        guard dataMode != .mock,
+              let chapter = activeHomeChapter,
+              chapter.status.isProcessing else { return }
+        selectedChapterId = chapter.id
+        await refreshSelectedChapterFromAPI()
+    }
+
     func refreshSelectedChapterFromAPI() async {
         guard dataMode != .mock,
               let selectedChapterId,
@@ -540,7 +543,7 @@ final class AppStore: ObservableObject {
             }
             dataSourceMessage = "\(dataMode.apiLabel)已刷新章节：\(chapter.visibleStatusText)"
         } catch {
-            dataSourceMessage = "刷新章节失败：\(error.localizedDescription)"
+            await handleMissingOrFailedAPIChapter(error, chapterId: selectedChapterId, mode: dataMode)
         }
     }
 
@@ -579,7 +582,7 @@ final class AppStore: ObservableObject {
         guard let client = apiClient(for: mode) else { return }
         generationPollTasks[chapterId]?.cancel()
         let modeLabel = mode.apiLabel
-        generationPollTasks[chapterId] = Task { [weak self, client, modeLabel] in
+        generationPollTasks[chapterId] = Task { [weak self, client, mode, modeLabel] in
             for _ in 0..<240 {
                 do {
                     try await Task.sleep(nanoseconds: 2_000_000_000)
@@ -605,15 +608,91 @@ final class AppStore: ObservableObject {
                     }
                     if !chapter.status.isProcessing { return }
                 } catch {
-                    await MainActor.run {
-                        self?.dataSourceMessage = "刷新生成状态失败：\(error.localizedDescription)"
-                    }
+                    await self?.handleMissingOrFailedAPIChapter(error, chapterId: chapterId, mode: mode)
                 }
             }
             await MainActor.run {
                 self?.generationPollTasks[chapterId] = nil
             }
         }
+    }
+
+    private func fetchAPIState(client: APIClient) async throws -> ([Chapter], [NotificationItem]) {
+        async let fetchedChapters = client.fetchChapters()
+        async let fetchedNotifications = client.fetchNotifications()
+        return try await (fetchedChapters, fetchedNotifications)
+    }
+
+    private func applyAPIState(chapters: [Chapter], notifications: [NotificationItem], mode: AppDataMode) {
+        self.chapters = chapters
+        self.notifications = notifications
+        cancelGenerationPolling()
+        chapters.filter { $0.status.isProcessing }.forEach { startGenerationPolling(for: $0.id, mode: mode) }
+    }
+
+    private func handleMissingOrFailedAPIChapter(_ error: Error, chapterId: String, mode: AppDataMode) async {
+        if case APIClientError.httpStatus(404) = error {
+            generationPollTasks[chapterId]?.cancel()
+            generationPollTasks[chapterId] = nil
+            await refreshAPIStateAfterMissingChapter(chapterId: chapterId, mode: mode)
+            return
+        }
+        dataSourceMessage = "刷新生成状态失败：\(error.localizedDescription)"
+    }
+
+    private func refreshAPIStateAfterMissingChapter(chapterId: String, mode: AppDataMode) async {
+        guard let client = apiClient(for: mode) else {
+            markChapterAsCloudExpired(chapterId)
+            return
+        }
+        do {
+            let staleChapter = chapters.first { $0.id == chapterId }
+            let (latestChapters, latestNotifications) = try await fetchAPIState(client: client)
+            applyAPIState(chapters: latestChapters, notifications: latestNotifications, mode: mode)
+            dataMode = mode
+            if latestChapters.contains(where: { $0.id == chapterId }) {
+                selectedChapterId = chapterId
+                dataSourceMessage = "\(mode.apiLabel)已重新同步章节状态"
+                return
+            }
+            if latestChapters.isEmpty {
+                selectedChapterId = nil
+                selectedTab = .home
+                route = .home
+                dataSourceMessage = "\(mode.apiLabel)当前没有章节，旧生成记录可能已随部署失效"
+                return
+            }
+            if let staleChapter {
+                upsertChapter(expiredCloudChapter(from: staleChapter))
+                selectedChapterId = chapterId
+                dataSourceMessage = "云端记录已失效，请重新提交内容"
+            }
+        } catch {
+            markChapterAsCloudExpired(chapterId)
+            dataSourceMessage = "云端记录已失效，请重新提交内容"
+        }
+    }
+
+    private func markChapterAsCloudExpired(_ chapterId: String) {
+        updateChapter(chapterId) { chapter in
+            chapter = expiredCloudChapter(from: chapter)
+        }
+        dataSourceMessage = "云端记录已失效，请重新提交内容"
+    }
+
+    private func expiredCloudChapter(from chapter: Chapter) -> Chapter {
+        var expired = chapter
+        expired.status = .failedQuestions
+        expired.displayStatusText = "云端记录已失效"
+        expired.failureReason = "Railway 云端原型使用内存存储，部署或重启后旧生成记录会失效。请重新提交内容。"
+        expired.generationMeta = GenerationMeta(
+            currentStage: ChapterStatus.failedQuestions.rawValue,
+            qualifiedQuestionCount: chapter.generationMeta?.qualifiedQuestionCount,
+            failedStage: ChapterStatus.failedQuestions.rawValue,
+            failureReason: "云端记录已失效，请重新提交内容"
+        )
+        expired.updatedAt = Date.nowISO8601
+        return expired
     }
 
     private func cancelGenerationPolling() {

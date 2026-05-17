@@ -11,6 +11,7 @@ const projectRoot = resolve(__dirname, "..", "..");
 const demoRoot = resolve(projectRoot, "demo");
 const host = process.env.HOST || "0.0.0.0";
 const port = Number(process.env.PORT || 5173);
+const startedAt = new Date().toISOString();
 const memory = {
   chapters: [],
   notifications: []
@@ -862,7 +863,12 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && req.url === "/api/health") {
-    sendJson(res, 200, { ok: true, service: "shibei-api" });
+    sendJson(res, 200, {
+      ok: true,
+      service: "shibei-api",
+      startedAt,
+      memoryChapterCount: memory.chapters.length
+    });
     return;
   }
 
