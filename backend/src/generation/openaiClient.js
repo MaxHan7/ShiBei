@@ -43,7 +43,7 @@ export async function callOpenAIJson({ system, user, schemaName, schema }) {
 
   const text = extractResponseText(payload);
   try {
-    return JSON.parse(text);
+    return parseModelJson(text);
   } catch {
     throw new Error("模型返回内容不是可解析 JSON，请重试。");
   }
@@ -87,7 +87,7 @@ async function callDeepSeekJson({ system, user, schemaName, schema }) {
   if (!text) throw new Error("DeepSeek 没有返回结构化文本。");
 
   try {
-    return JSON.parse(stripCodeFence(text));
+    return parseModelJson(text);
   } catch {
     throw new Error("模型返回内容不是可解析 JSON，请重试。");
   }
@@ -113,4 +113,50 @@ function stripCodeFence(text) {
     .replace(/^```\s*/i, "")
     .replace(/\s*```$/i, "")
     .trim();
+}
+
+export function parseModelJson(text) {
+  const normalized = stripCodeFence(text);
+  try {
+    return JSON.parse(normalized);
+  } catch {
+    const extracted = extractFirstJsonObject(normalized);
+    if (!extracted) throw new Error("no_json_object");
+    return JSON.parse(extracted);
+  }
+}
+
+function extractFirstJsonObject(text) {
+  const value = String(text || "");
+  const start = value.indexOf("{");
+  if (start < 0) return "";
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let index = start; index < value.length; index += 1) {
+    const char = value[index];
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (char === "\\") {
+        escaped = true;
+      } else if (char === "\"") {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (char === "\"") {
+      inString = true;
+    } else if (char === "{") {
+      depth += 1;
+    } else if (char === "}") {
+      depth -= 1;
+      if (depth === 0) return value.slice(start, index + 1);
+    }
+  }
+
+  return "";
 }
