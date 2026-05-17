@@ -528,6 +528,15 @@ final class AppStore: ObservableObject {
         await refreshSelectedChapterFromAPI()
     }
 
+    func refreshVisibleProcessingChapterFromAPI() async {
+        guard dataMode != .mock else { return }
+        if let selectedChapter, selectedChapter.status.isProcessing {
+            await refreshSelectedChapterFromAPI()
+            return
+        }
+        await refreshActiveHomeChapterFromAPI()
+    }
+
     func refreshSelectedChapterFromAPI() async {
         guard dataMode != .mock,
               let selectedChapterId,
@@ -544,6 +553,19 @@ final class AppStore: ObservableObject {
             dataSourceMessage = "\(dataMode.apiLabel)已刷新章节：\(chapter.visibleStatusText)"
         } catch {
             await handleMissingOrFailedAPIChapter(error, chapterId: selectedChapterId, mode: dataMode)
+        }
+    }
+
+    func refreshSelectedChapterUntilResolved() async {
+        while !Task.isCancelled {
+            guard let chapter = selectedChapter, chapter.status.isProcessing else { return }
+            await refreshSelectedChapterFromAPI()
+            guard let updated = selectedChapter, updated.status.isProcessing else { return }
+            do {
+                try await Task.sleep(nanoseconds: 3_000_000_000)
+            } catch {
+                return
+            }
         }
     }
 

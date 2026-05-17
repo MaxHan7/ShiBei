@@ -274,6 +274,9 @@ private struct ProcessingCard: View {
             }
             .frame(maxWidth: .infinity)
         }
+        .task(id: chapter.id) {
+            await store.refreshSelectedChapterUntilResolved()
+        }
     }
 }
 
