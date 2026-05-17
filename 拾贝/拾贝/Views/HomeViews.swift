@@ -165,6 +165,14 @@ struct AddKnowledgeView: View {
                     }
 
                     HStack(spacing: 6) {
+                        Image(systemName: store.submissionTargetTitle == AppDataMode.cloudAPI.title ? "cloud" : "shippingbox")
+                        Text("提交到：\(store.submissionTargetTitle)")
+                    }
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(ShiBeiTheme.textSoft)
+                    .frame(maxWidth: .infinity)
+
+                    HStack(spacing: 6) {
                         Image(systemName: "lock.square")
                         Text("内容仅用于生成复习，不会公开")
                     }

@@ -69,8 +69,16 @@ final class AppStore: ObservableObject {
     }
 
     var activeHomeChapter: Chapter? {
-        chapters.first { $0.reviewSession?.status == .active }
+        chapters.first { $0.status.isProcessing }
+            ?? chapters.first { $0.reviewSession?.status == .active }
             ?? chapters.first { $0.status == .completed && $0.reviewSession?.completedAt == nil }
+    }
+
+    var submissionTargetTitle: String {
+        if dataMode == .mock, apiClient(for: .cloudAPI) != nil {
+            return AppDataMode.cloudAPI.title
+        }
+        return dataMode.title
     }
 
     var selectedChapter: Chapter? {
@@ -111,30 +119,38 @@ final class AppStore: ObservableObject {
 
     func createChapter(from input: String) async -> Bool {
         let parsedInput = ChapterInput.parse(input)
+        let targetMode = submissionModeForCreate()
+        let shouldReplaceMockState = dataMode == .mock && targetMode == .cloudAPI
         isWritingChapter = true
         defer { isWritingChapter = false }
 
         do {
             let created: ChapterCreationResult
-            switch dataMode {
+            switch targetMode {
             case .mock:
+                dataSourceMessage = "当前使用 Mock 数据生成。"
                 created = chapterService.createChapter(from: parsedInput)
             case .localAPI, .cloudAPI:
-                guard let chapterService = activeChapterService else {
+                guard let client = apiClient(for: targetMode) else {
                     dataSourceMessage = "请先填写有效的 Railway 云端 API 地址"
                     return false
                 }
-                dataSourceMessage = "正在提交到\(dataMode.apiLabel)..."
+                dataSourceMessage = "正在提交到\(targetMode.apiLabel)..."
+                let chapterService = LocalAPIChapterService(apiClient: client)
                 created = try await chapterService.createChapter(from: parsedInput)
-                dataSourceMessage = "\(dataMode.apiLabel)已接收，正在生成章节..."
+                dataSourceMessage = "\(targetMode.apiLabel)已接收，正在生成章节..."
             }
+            if shouldReplaceMockState {
+                clearCurrentStateForCloudSubmission()
+            }
+            dataMode = targetMode
             applyCreatedChapter(created)
-            if dataMode != .mock, created.chapter.status.isProcessing {
-                startGenerationPolling(for: created.chapter.id, mode: dataMode)
+            if targetMode != .mock, created.chapter.status.isProcessing {
+                startGenerationPolling(for: created.chapter.id, mode: targetMode)
             }
             return true
         } catch {
-            dataSourceMessage = "\(dataMode.apiLabel)提交失败：\(error.localizedDescription)"
+            dataSourceMessage = "\(targetMode.apiLabel)提交失败：\(error.localizedDescription)"
             return false
         }
     }
@@ -519,6 +535,21 @@ final class AppStore: ObservableObject {
         } else {
             notifications.insert(notification, at: 0)
         }
+    }
+
+    private func submissionModeForCreate() -> AppDataMode {
+        if dataMode == .mock, apiClient(for: .cloudAPI) != nil {
+            return .cloudAPI
+        }
+        return dataMode
+    }
+
+    private func clearCurrentStateForCloudSubmission() {
+        cancelGenerationPolling()
+        chapters = []
+        notifications = []
+        selectedChapterId = nil
+        reviewedCount = 0
     }
 
     private func startGenerationPolling(for chapterId: String, mode: AppDataMode) {
