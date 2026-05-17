@@ -13,7 +13,7 @@
 
 1. 在 Railway 新建项目，并连接当前仓库。
 2. 项目 Root Directory 选择 `backend/`。
-3. Build 使用 Railway 默认 Node/npm install。
+3. Build 使用仓库根目录 `npm run build`，该命令会安装 `backend/` 依赖并下载 Playwright Chromium。
 4. Start Command 使用：
 
 ```bash
@@ -37,6 +37,8 @@ OPENAI_MODEL=gpt-4.1-mini
 ```
 
 Railway 会自动注入 `PORT`，后端会监听 `0.0.0.0:$PORT`。本地开发仍可继续使用 `npm --prefix backend run dev`。
+
+如果部署日志里出现 Playwright/Chromium 缺失，请确认 Railway 使用的是最新提交，并且 build command 是根目录的 `npm run build`。
 
 ## 部署后验证
 
@@ -83,4 +85,3 @@ https://你的域名.up.railway.app
 6. 回到“添加”页，粘贴长文本并开始生成。
 
 如果数据源显示“Railway 云端”，添加内容会走云端真实生成；如果仍显示“Mock 数据”，生成会是本地 mock，通常会瞬间完成且只有示例知识点和题目。
-

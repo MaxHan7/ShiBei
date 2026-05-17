@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node src/server.js",
     "start": "node src/server.js",
+    "build": "playwright install --with-deps chromium",
     "check": "node --check src/server.js && node --check src/generation/index.js && node --check src/generation/tests/runQualitySet.js && node --check src/sources/extractSourceContent.js",
     "quality:test": "cd .. && node backend/src/generation/tests/runQualitySet.js"
   },

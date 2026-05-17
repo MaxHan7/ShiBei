@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "npm --prefix backend install",
+    "build": "npm --prefix backend install && npm --prefix backend run build",
     "start": "npm --prefix backend start",
     "check": "npm --prefix backend run check"
   },
