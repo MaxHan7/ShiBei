@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, join, normalize, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { generateReviewChapter } from "./generation/index.js";
 import { extractSourceContent } from "./sources/extractSourceContent.js";
 import { STATUS_TEXT } from "./generation/types.js";
@@ -869,11 +869,15 @@ function createReviewSessionForChapter(chapter) {
 }
 
 function startOrResumeReviewSession(chapter) {
-  if (chapter.reviewSession) {
-    chapter.reviewSession = normalizeReviewSession(chapter.reviewSession, chapter);
+  const existingSession = chapter.reviewSession
+    ? normalizeReviewSession(chapter.reviewSession, chapter)
+    : null;
+  if (existingSession?.status === "active") {
+    chapter.reviewSession = existingSession;
   } else {
     chapter.reviewSession = createReviewSessionForChapter(chapter);
   }
+  chapter.masteredPoints = currentMasteredCount(chapter, chapter.reviewSession);
   chapter.updatedAt = new Date().toISOString();
   return chapter.reviewSession;
 }
@@ -1318,13 +1322,21 @@ const server = createServer(async (req, res) => {
   sendJson(res, 405, { errorCode: "method_not_allowed", message: "不支持的请求方法。" });
 });
 
-initDatabase()
-  .then((result) => {
-    server.listen(port, host, () => {
-      console.log(`拾贝 Demo 已启动：http://${host}:${port} (${result.storage})`);
+function startServer() {
+  return initDatabase()
+    .then((result) => {
+      server.listen(port, host, () => {
+        console.log(`拾贝 Demo 已启动：http://${host}:${port} (${result.storage})`);
+      });
+    })
+    .catch((error) => {
+      console.error("数据库初始化失败", error);
+      process.exit(1);
     });
-  })
-  .catch((error) => {
-    console.error("数据库初始化失败", error);
-    process.exit(1);
-  });
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  startServer();
+}
+
+export { createReviewSessionForChapter, startOrResumeReviewSession };
