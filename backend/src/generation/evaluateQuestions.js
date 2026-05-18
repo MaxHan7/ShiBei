@@ -7,19 +7,20 @@ export function evaluateQuestions({ questions, knowledgePoints, cleanedText = ""
 
   return questions.map((question) => {
     const point = pointMap.get(question.knowledgePointId);
+    const normalizedQuestion = normalizeQuestionSourceSnippet(question, point, cleanedText);
     const typeValidation = validateQuestionType(question, point);
-    const sourceValidation = validateSourceSnippet(question, point, cleanedText);
-    const scores = scoreQuestion(question, point, seenStems, sourceValidation);
+    const sourceValidation = validateSourceSnippet(normalizedQuestion, point, cleanedText);
+    const scores = scoreQuestion(normalizedQuestion, point, seenStems, sourceValidation);
     const averageScore = average(Object.values(scores));
-    const ruleIssues = collectIssues(question, scores, point, typeValidation, sourceValidation);
+    const ruleIssues = collectIssues(normalizedQuestion, scores, point, typeValidation, sourceValidation);
     const ruleAction = decideAction(scores, averageScore, ruleIssues);
-    const judge = judgeMap.get(question.id) || null;
+    const judge = judgeMap.get(normalizedQuestion.id) || null;
     const qualityIssues = mergeIssues(ruleIssues, judge?.seriousIssues);
     const action = mergeActions(ruleAction, judge?.qualityAction, qualityIssues);
-    seenStems.add(normalize(question.stem));
+    seenStems.add(normalize(normalizedQuestion.stem));
 
     return {
-      ...question,
+      ...normalizedQuestion,
       pointTitle: point?.title || "",
       qualityScore: {
         ...scores,
@@ -32,6 +33,21 @@ export function evaluateQuestions({ questions, knowledgePoints, cleanedText = ""
       ...(judge ? { judgeQualityAction: judge.qualityAction, judgeReason: judge.reason } : {})
     };
   });
+}
+
+function normalizeQuestionSourceSnippet(question, point, cleanedText) {
+  if (!point?.sourceQuote) return question;
+  const currentValidation = validateSourceSnippet(question, point, cleanedText);
+  if (currentValidation.valid) return question;
+  const support = currentValidation.support;
+  if (support === "missing" || support === "not_found") {
+    return {
+      ...question,
+      sourceSnippet: point.sourceQuote,
+      sourceSnippetWasBackfilled: true
+    };
+  }
+  return question;
 }
 
 export function validateQuestionType(question, point) {
@@ -159,9 +175,7 @@ function collectIssues(question, scores, point, typeValidation, sourceValidation
     if (scores[key] <= 2) issues.push(`${key}_low`);
   }
   if (!point) issues.push("missing_knowledge_point");
-  if (typeValidation && !typeValidation.valid && typeValidation.issue) {
-    issues.push(typeValidation.issue);
-  }
+  if (typeValidation && !typeValidation.valid && typeValidation.issue) issues.push(typeValidation.issue);
   if (!question.sourceSnippet) issues.push("missing_source_snippet");
   if (sourceValidation && !sourceValidation.valid) issues.push(`source_snippet_${sourceValidation.support}`);
   if (!question.options.length) issues.push("missing_options");
@@ -179,7 +193,6 @@ function decideAction(scores, averageScore, issues) {
   if (issues.includes("source_snippet_not_found") || issues.includes("source_snippet_missing_source")) return "discard";
   if (issues.includes("scenario_judgment_binary_options")) return "rewrite";
   if (issues.includes("non_binary_question_requires_four_options") || issues.includes("true_false_requires_two_options")) return "rewrite";
-  if (issues.includes("question_type_mismatch")) return "rewrite";
   if (scores.sourceSupport < 4 || scores.answerUniqueness < 4 || scores.clarity < 4 || scores.distractorQuality < 4) {
     return "rewrite";
   }

@@ -268,7 +268,7 @@ export function selectQualifiedQuestionsByPoint(knowledgePoints, evaluatedQuesti
       .sort(compareQuestionQuality);
     const bestPassed = dedupeSimilarQuestions(passed)[0];
     if (bestPassed) {
-      selected.push(markConfidence(bestPassed, "high"));
+      selected.push(markConfidence(bestPassed, confidenceLevelForQuestion(bestPassed)));
       continue;
     }
 
@@ -288,6 +288,12 @@ function markConfidence(question, confidenceLevel) {
     confidenceLevel,
     retainedBy: confidenceLevel === "low" ? "best_effort_quality_fallback" : "quality_pass"
   };
+}
+
+function confidenceLevelForQuestion(question) {
+  const issues = new Set(question.qualityIssues || []);
+  if (issues.has("question_type_mismatch") || question.sourceSnippetWasBackfilled) return "low";
+  return "high";
 }
 
 function compareQuestionQuality(a, b) {
@@ -425,6 +431,7 @@ function toClientQuestion(question) {
     source_snippet: question.sourceSnippet,
     sourceSnippet: question.sourceSnippet,
     sourceQuote: question.sourceSnippet,
+    sourceSnippetWasBackfilled: Boolean(question.sourceSnippetWasBackfilled),
     difficulty: question.difficulty,
     qualityScore: question.qualityScore,
     qualityIssues: question.qualityIssues,

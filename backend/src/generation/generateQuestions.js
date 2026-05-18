@@ -43,16 +43,17 @@ function buildUserPrompt({ points, rewrite, rewriteContext }) {
     ? `上一题没有通过质量检查。请只为给定知识点重写 1 道题。
 需要修复的问题：${rewriteContext || "质量检查未通过"}
 ${rewriteGuidance(rewriteContext)}
-避免原文填空、凑数干扰项、多个正确答案、题型不匹配、来源片段不匹配。`
+避免原文填空、凑数干扰项、多个正确答案和来源片段不匹配。`
     : "";
 
   return `${rewriteInstruction}
 请为每个知识点生成 targetQuestionCount 道候选题。targetQuestionCount 是根据该知识点价值动态给出的候选数量，不代表最终入池数量。
-题型必须严格等于 preferredQuestionType。
-如果 preferredQuestionType 是 true_false，只能使用两个选项：A 成立，B 不成立。
-如果 preferredQuestionType 是 multiple_choice，必须使用 A/B/C/D 四个选项。
-如果 preferredQuestionType 是 scenario_judgment，必须使用 A/B/C/D 四个选项；题干描述具体使用场景，四个选项分别是四种行动方案、判断方式或处理策略，禁止使用“成立 / 不成立”。
-sourceSnippet 必须逐字来自该知识点 sourceQuote，不要改写来源片段。
+每个知识点至少返回 1 道结构完整题，不要跳过任何知识点。
+preferredQuestionType 是推荐题型：优先使用它；如果另一种题型更自然、更能考理解，也可以改用其它允许题型。
+如果使用 true_false，只能使用两个选项：A 成立，B 不成立。
+如果使用 multiple_choice，必须使用 A/B/C/D 四个选项。
+如果使用 scenario_judgment，必须使用 A/B/C/D 四个选项；题干描述具体使用场景，四个选项分别是四种行动方案、判断方式或处理策略，禁止使用“成立 / 不成立”。
+sourceSnippet 优先逐字来自该知识点 sourceQuote，不要改写来源片段；如果不确定怎么截取，直接把完整 sourceQuote 作为 sourceSnippet。
 题目必须考理解、边界、场景、误区或迁移应用，不要问“原文提到了什么”。
 每道题的 3 个错误选项必须来自不同常见误解：错因要接近真实用户会犯的理解偏差，而不是随便编无关选项。
 如果 sourceQuote 很短，优先生成直接理解题或边界判断题；不要编造 sourceQuote 没有支撑的复杂业务细节。
@@ -81,10 +82,10 @@ function rewriteGuidance(context = "") {
     guidance.push("理解深度修复：把题干改成应用场景、边界判断、误区辨析或行动选择，不要问原文复述。");
   }
   if (/source|来源/.test(issues)) {
-    guidance.push("来源修复：sourceSnippet 必须逐字截取自当前知识点 sourceQuote，不要拼接、改写或概括。");
+    guidance.push("来源修复：sourceSnippet 优先逐字截取自当前知识点 sourceQuote；如果无法稳定截取，直接使用完整 sourceQuote。不要拼接、改写或概括。");
   }
   if (/question_type|题型/.test(issues)) {
-    guidance.push("题型修复：题型必须严格等于 preferredQuestionType。");
+    guidance.push("题型提示：preferredQuestionType 只是推荐题型。优先使用它；如果当前题型更自然，也可以保留，但选项结构必须合法。");
   }
   return guidance.join("\n");
 }

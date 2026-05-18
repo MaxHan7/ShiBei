@@ -1,13 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { evaluateQuestions } from "../evaluateQuestions.js";
 import { selectQualifiedQuestionsByPoint } from "../index.js";
 
 const point = {
   id: "kp-1",
   title: "测试知识点",
   testabilityScore: 4,
-  knowledgeType: "concept"
+  knowledgeType: "concept",
+  sourceQuote: "这是一段可以支撑题目的来源片段。"
 };
 
 function question(overrides = {}) {
@@ -87,4 +89,63 @@ test("does not retain structurally invalid rewrite questions", () => {
   ]);
 
   assert.equal(selected.length, 0);
+});
+
+test("retains question type mismatch as low confidence instead of blocking coverage", () => {
+  const evaluated = evaluateQuestions({
+    questions: [
+      question({
+        id: "type-mismatch",
+        type: "scenario_judgment",
+        sourceSnippet: point.sourceQuote
+      })
+    ],
+    knowledgePoints: [point],
+    cleanedText: point.sourceQuote
+  });
+  const selected = selectQualifiedQuestionsByPoint([point], evaluated);
+
+  assert.equal(evaluated[0].qualityIssues.includes("question_type_mismatch"), true);
+  assert.equal(selected.length, 1);
+  assert.equal(selected[0].id, "type-mismatch");
+  assert.equal(selected[0].confidenceLevel, "low");
+});
+
+test("backfills missing source snippet from source quote and keeps the question reviewable", () => {
+  const evaluated = evaluateQuestions({
+    questions: [
+      question({
+        id: "missing-source",
+        sourceSnippet: ""
+      })
+    ],
+    knowledgePoints: [point],
+    cleanedText: point.sourceQuote
+  });
+  const selected = selectQualifiedQuestionsByPoint([point], evaluated);
+
+  assert.equal(evaluated[0].sourceSnippet, point.sourceQuote);
+  assert.equal(evaluated[0].sourceSnippetWasBackfilled, true);
+  assert.equal(selected.length, 1);
+  assert.equal(selected[0].confidenceLevel, "low");
+});
+
+test("keeps one reviewable question for each covered knowledge point", () => {
+  const points = Array.from({ length: 10 }, (_, index) => ({
+    ...point,
+    id: `kp-${index + 1}`,
+    title: `知识点 ${index + 1}`,
+    sourceQuote: `第 ${index + 1} 个知识点的来源片段可以支撑题目。`
+  }));
+  const selected = selectQualifiedQuestionsByPoint(
+    points,
+    points.map((item, index) => question({
+      id: `q-${index + 1}`,
+      knowledgePointId: item.id,
+      sourceSnippet: item.sourceQuote
+    }))
+  );
+
+  assert.equal(selected.length, 10);
+  assert.deepEqual(selected.map((item) => item.knowledgePointId), points.map((item) => item.id));
 });
