@@ -129,7 +129,10 @@ private struct OptionButton: View {
                 Text(option.text)
                     .font(.system(size: 16))
                     .foregroundStyle(isWrong ? Color(red: 0.545, green: 0.102, blue: 0.071) : ShiBeiTheme.text)
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(3)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .padding(16)
             .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading)
