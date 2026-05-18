@@ -14,6 +14,32 @@ final class APIClientDecodingTests: XCTestCase {
         XCTAssertEqual(response.chapters[0].knowledgePoints.count, fixture.chapter.knowledgePoints.count)
     }
 
+    func testDecodesLegacyChapterWithoutCoreSummary() throws {
+        var payload = try completedChapterPayload()
+        var chapter = try XCTUnwrap(payload["chapter"] as? [String: Any])
+        chapter.removeValue(forKey: "coreSummary")
+        payload["chapter"] = chapter
+        let data = try JSONSerialization.data(withJSONObject: payload)
+
+        let fixture = try JSONDecoder().decode(ChapterFixture.self, from: data)
+
+        XCTAssertEqual(fixture.chapter.coreSummary, "")
+        XCTAssertEqual(fixture.chapter.id, "chapter-ai-agent-business")
+    }
+
+    func testDecodesLegacyChapterWithInvalidCoreSummaryType() throws {
+        var payload = try completedChapterPayload()
+        var chapter = try XCTUnwrap(payload["chapter"] as? [String: Any])
+        chapter["coreSummary"] = ["legacy": true]
+        payload["chapter"] = chapter
+        let data = try JSONSerialization.data(withJSONObject: payload)
+
+        let fixture = try JSONDecoder().decode(ChapterFixture.self, from: data)
+
+        XCTAssertEqual(fixture.chapter.coreSummary, "")
+        XCTAssertEqual(fixture.chapter.id, "chapter-ai-agent-business")
+    }
+
     func testDecodesChapterResponseShape() throws {
         let data = try fixtureData(named: "failed-chapter")
         let fixture = try JSONDecoder().decode(ChapterFixture.self, from: data)
@@ -264,6 +290,11 @@ final class APIClientDecodingTests: XCTestCase {
                 ?? Bundle(for: Self.self).url(forResource: name, withExtension: "json")
         )
         return try Data(contentsOf: url)
+    }
+
+    private func completedChapterPayload() throws -> [String: Any] {
+        let data = try fixtureData(named: "completed-chapter")
+        return try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
     }
 
     private func completedChapterFixture() throws -> ChapterFixture {

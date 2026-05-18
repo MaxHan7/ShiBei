@@ -332,19 +332,17 @@ struct SummaryView: View {
                                 }
                             }
                         }
-                        if let coreSummary = chapter.coreSummary?.trimmingCharacters(in: .whitespacesAndNewlines), !coreSummary.isEmpty {
-                            SBCard(padding: 20) {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    Text("文章核心")
-                                        .font(.system(size: 18, weight: .bold))
-                                        .foregroundStyle(ShiBeiTheme.text)
-                                    Text(coreSummary)
-                                        .font(.system(size: 15))
-                                        .foregroundStyle(ShiBeiTheme.muted)
-                                        .lineSpacing(5)
-                                        .multilineTextAlignment(.leading)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                }
+                        SBCard(padding: 20) {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("文章核心")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundStyle(ShiBeiTheme.text)
+                                Text(articleCoreText(for: chapter))
+                                    .font(.system(size: 15))
+                                    .foregroundStyle(ShiBeiTheme.muted)
+                                    .lineSpacing(5)
+                                    .multilineTextAlignment(.leading)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                             }
                         }
                         VStack(alignment: .leading, spacing: 12) {
@@ -372,5 +370,40 @@ struct SummaryView: View {
                 }
             }
         }
+    }
+
+    private func articleCoreText(for chapter: Chapter) -> String {
+        let coreSummary = chapter.coreSummary?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if !coreSummary.isEmpty {
+            return coreSummary
+        }
+
+        let sourceText = chapter.sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !sourceText.isEmpty {
+            return clippedSummary(sourceText)
+        }
+
+        let claims = chapter.knowledgePoints
+            .prefix(3)
+            .map { point in
+                let claim = point.keyClaim.trimmingCharacters(in: .whitespacesAndNewlines)
+                return claim.isEmpty ? point.summary.trimmingCharacters(in: .whitespacesAndNewlines) : claim
+            }
+            .filter { !$0.isEmpty }
+
+        if !claims.isEmpty {
+            return claims.joined(separator: " ")
+        }
+
+        return "本章已整理出可复习内容，可以通过知识点和题目快速回顾文章主线。"
+    }
+
+    private func clippedSummary(_ text: String) -> String {
+        let normalized = text
+            .replacingOccurrences(of: "\n", with: " ")
+            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard normalized.count > 180 else { return normalized }
+        return String(normalized.prefix(180)).trimmingCharacters(in: .whitespacesAndNewlines) + "..."
     }
 }

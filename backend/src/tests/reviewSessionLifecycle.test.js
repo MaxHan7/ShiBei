@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { startOrResumeReviewSession } from "../server.js";
+import { serializeChapterForClient, startOrResumeReviewSession } from "../server.js";
 
 function reviewableChapter(overrides = {}) {
   return {
@@ -82,4 +82,13 @@ test("resumes an active review session without replacing it", () => {
   assert.equal(session.currentQueueIndex, 1);
   assert.deepEqual(session.masteredThisRoundPointIds, ["kp-1"]);
   assert.equal(chapter.masteredPoints, 1);
+});
+
+test("serializes legacy chapters with an empty core summary", () => {
+  const chapter = reviewableChapter();
+
+  const serialized = serializeChapterForClient(chapter);
+
+  assert.equal(serialized.coreSummary, "");
+  assert.equal(serialized.id, chapter.id);
 });
