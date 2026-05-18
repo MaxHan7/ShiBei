@@ -332,6 +332,21 @@ struct SummaryView: View {
                                 }
                             }
                         }
+                        if let coreSummary = chapter.coreSummary?.trimmingCharacters(in: .whitespacesAndNewlines), !coreSummary.isEmpty {
+                            SBCard(padding: 20) {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text("文章核心")
+                                        .font(.system(size: 18, weight: .bold))
+                                        .foregroundStyle(ShiBeiTheme.text)
+                                    Text(coreSummary)
+                                        .font(.system(size: 15))
+                                        .foregroundStyle(ShiBeiTheme.muted)
+                                        .lineSpacing(5)
+                                        .multilineTextAlignment(.leading)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                            }
+                        }
                         VStack(alignment: .leading, spacing: 12) {
                             Text("本章知识点")
                                 .font(.system(size: 18, weight: .bold))

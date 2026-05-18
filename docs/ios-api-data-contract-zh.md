@@ -112,6 +112,7 @@ unrelated_to_source
   "source": {},
   "sourceType": "wechat_article",
   "sourceText": "原始或提取后的正文",
+  "coreSummary": "这篇内容围绕企业使用 AI 的真实落地问题展开，重点讨论信任、场景识别和低风险验证如何影响 AI 顾问的价值。",
   "knowledgePoints": [],
   "filteredKnowledgePoints": [],
   "questions": [],
@@ -127,6 +128,8 @@ unrelated_to_source
   "updatedAt": "2026-05-16T00:00:00.000Z"
 }
 ```
+
+`coreSummary` 是章节总结页展示的文章整体核心摘要，基于原文全文生成，不是知识点列表、题目解释或复习建议；旧章节可能为空字符串。
 
 ### ChapterSource
 

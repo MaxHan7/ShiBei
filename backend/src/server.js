@@ -670,6 +670,7 @@ function ensureChapterRecord(chapter) {
     source,
     sourceType: source.type,
     sourceText: source.rawInput || source.extractedText || "",
+    coreSummary: toStringValue(chapter.coreSummary || ""),
     knowledgePoints,
     filteredKnowledgePoints,
     questions,

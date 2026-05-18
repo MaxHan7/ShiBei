@@ -289,6 +289,7 @@ struct Chapter: Codable, Identifiable, Hashable {
     var source: ChapterSource
     var sourceType: SourceType
     var sourceText: String
+    var coreSummary: String?
     var knowledgePoints: [KnowledgePoint]
     var filteredKnowledgePoints: [KnowledgePoint]
     var questions: [ReviewQuestion]
