@@ -17,7 +17,6 @@ final class AppStore: ObservableObject {
     @Published var latestFeedbackMessage = ""
     @Published var lastAnsweredQuestion: ReviewQuestion?
     @Published var sourceFocusText: String?
-    @Published var reviewedCount = 35
     @Published var dataMode: AppDataMode = .mock
     @Published var dataSourceMessage = "Mock 数据已就绪"
     @Published var cloudAPIBaseURLString: String
@@ -80,6 +79,12 @@ final class AppStore: ObservableObject {
         chapters.first { $0.status.isProcessing }
             ?? chapters.first { $0.reviewSession?.status == .active }
             ?? chapters.first { $0.status == .completed && $0.reviewSession?.completedAt == nil }
+    }
+
+    var reviewedKnowledgePointCount: Int {
+        chapters.reduce(0) { total, chapter in
+            total + reviewedKnowledgePointCount(in: chapter)
+        }
     }
 
     var submissionTargetTitle: String {
@@ -287,7 +292,6 @@ final class AppStore: ObservableObject {
         selectedFeedbackQuestionId = nil
         latestFeedbackMessage = ""
         lastAnsweredQuestion = nil
-        reviewedCount = scenario == .emptyHome ? 0 : 35
         dataMode = .mock
         dataSourceMessage = "已切换到 \(scenario.title)"
         isWritingChapter = false
@@ -312,7 +316,6 @@ final class AppStore: ObservableObject {
         selectedFeedbackQuestionId = nil
         latestFeedbackMessage = ""
         lastAnsweredQuestion = nil
-        reviewedCount = 35
         isWritingChapter = false
         isSubmittingReview = false
         cancelGenerationPolling()
@@ -513,7 +516,6 @@ final class AppStore: ObservableObject {
             }
             upsertChapter(updated.chapter)
             if updated.session.status == .completed {
-                reviewedCount += updated.chapter.knowledgePoints.count
                 route = .summary
             } else if result == .correct && updated.attempt.isReinforcement {
                 route = .review
@@ -660,6 +662,14 @@ final class AppStore: ObservableObject {
         }
     }
 
+    private func reviewedKnowledgePointCount(in chapter: Chapter) -> Int {
+        let knownPointIds = Set(chapter.knowledgePoints.map(\.id))
+        let sessionReviewedCount = chapter.reviewSession.map { session in
+            Set(session.masteredThisRoundPointIds).intersection(knownPointIds).count
+        } ?? 0
+        return min(chapter.knowledgePoints.count, max(chapter.masteredPoints, sessionReviewedCount))
+    }
+
     private func submissionModeForCreate() -> AppDataMode {
         if dataMode == .mock, apiClient(for: .cloudAPI) != nil {
             return .cloudAPI
@@ -672,7 +682,6 @@ final class AppStore: ObservableObject {
         chapters = []
         notifications = []
         selectedChapterId = nil
-        reviewedCount = 0
     }
 
     private func startGenerationPolling(for chapterId: String, mode: AppDataMode) {

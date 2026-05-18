@@ -56,7 +56,7 @@ private struct HomeChapterContent: View {
                 Text("已复习知识点")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(ShiBeiTheme.textSoft)
-                Text("\(store.reviewedCount)")
+                Text("\(store.reviewedKnowledgePointCount)")
                     .font(.system(size: 80, weight: .black))
                     .tracking(-4)
                     .foregroundStyle(ShiBeiTheme.primary)
