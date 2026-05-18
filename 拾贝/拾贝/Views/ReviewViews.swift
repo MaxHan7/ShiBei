@@ -80,7 +80,7 @@ private struct ReviewTopBar: View {
     var body: some View {
         HStack {
             Button {
-                store.route = .chapterDetail
+                store.showSelectedChapterDetail()
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 18, weight: .bold))
@@ -291,7 +291,7 @@ struct SummaryView: View {
     @ObservedObject var store: AppStore
 
     var body: some View {
-        AppScaffold(store: store, title: "章节总结", showsTabBar: false, leadingAction: { store.route = .chapterDetail }) {
+        AppScaffold(store: store, title: "章节总结", showsTabBar: false, leadingAction: { store.showSelectedChapterDetail() }) {
             if let chapter = store.selectedChapter {
                 ScrollView {
                     VStack(spacing: 22) {

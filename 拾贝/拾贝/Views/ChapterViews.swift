@@ -119,7 +119,7 @@ struct ChapterDetailView: View {
         AppScaffold(
             store: store,
             title: "章节详情",
-            leadingAction: { store.route = .chapters },
+            leadingAction: { store.returnFromChapterDetail() },
             trailing: {
                 Button("删除") {
                     store.showingDeleteConfirmation = true

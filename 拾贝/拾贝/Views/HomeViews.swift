@@ -87,7 +87,7 @@ private struct HomeChapterContent: View {
                     systemImage: "arrow.right"
                 ) {
                     if chapter.status.isFailed || chapter.status.isProcessing {
-                        store.selectChapter(chapter)
+                        store.selectChapter(chapter, returnTo: .home)
                     } else {
                         Task {
                             await store.startOrResumeReview(for: chapter)

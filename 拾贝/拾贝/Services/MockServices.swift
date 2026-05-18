@@ -7,6 +7,7 @@ final class AppStore: ObservableObject {
     @Published var selectedTab: AppTab = .home
     @Published var selectedChapterId: String?
     @Published var route: AppRoute = .home
+    @Published var chapterDetailReturnRoute: AppRoute = .chapters
     @Published var showingSubmittedToast = false
     @Published var showingNotificationEducation = false
     @Published var hasShownNotificationEducation = false
@@ -97,12 +98,51 @@ final class AppStore: ObservableObject {
         notifications.filter { !$0.dismissed }
     }
 
-    func selectChapter(_ chapter: Chapter) {
+    func selectChapter(_ chapter: Chapter, returnTo returnRoute: AppRoute = .chapters) {
         selectedChapterId = chapter.id
+        chapterDetailReturnRoute = rootReturnRoute(for: returnRoute)
         selectedTab = .chapters
         route = .chapterDetail
         Task {
             await refreshSelectedChapterFromAPI()
+        }
+    }
+
+    func returnFromChapterDetail() {
+        navigateToRootRoute(chapterDetailReturnRoute)
+    }
+
+    func showSelectedChapterDetail() {
+        selectedTab = .chapters
+        route = .chapterDetail
+    }
+
+    private func navigateToRootRoute(_ rootRoute: AppRoute) {
+        switch rootReturnRoute(for: rootRoute) {
+        case .home:
+            selectedTab = .home
+            route = .home
+        case .notifications:
+            selectedTab = .notifications
+            route = .notifications
+        case .profile:
+            selectedTab = .profile
+            route = .profile
+        case .add:
+            selectedTab = .add
+            route = .add
+        default:
+            selectedTab = .chapters
+            route = .chapters
+        }
+    }
+
+    private func rootReturnRoute(for route: AppRoute) -> AppRoute {
+        switch route {
+        case .home, .notifications, .profile, .add:
+            route
+        default:
+            .chapters
         }
     }
 
@@ -123,6 +163,7 @@ final class AppStore: ObservableObject {
             notificationService.markRead(notification.id, notifications: &notifications)
         }
         selectedChapterId = notification.chapterId
+        chapterDetailReturnRoute = .notifications
         selectedTab = .chapters
         route = .chapterDetail
         await refreshSelectedChapterFromAPI()
@@ -238,6 +279,7 @@ final class AppStore: ObservableObject {
         selectedChapterId = state.selectedChapterId
         selectedTab = scenario.targetTab
         route = scenario.targetRoute
+        chapterDetailReturnRoute = .chapters
         showingSubmittedToast = false
         showingNotificationEducation = false
         showingDeleteConfirmation = false
@@ -260,6 +302,7 @@ final class AppStore: ObservableObject {
         selectedChapterId = state.selectedChapterId
         selectedTab = .home
         route = .home
+        chapterDetailReturnRoute = .chapters
         dataMode = .mock
         dataSourceMessage = "Mock 数据已就绪"
         showingSubmittedToast = false
@@ -298,6 +341,7 @@ final class AppStore: ObservableObject {
             notifications = []
             selectedChapterId = nil
             route = .home
+            chapterDetailReturnRoute = .chapters
         }
     }
 
@@ -382,7 +426,7 @@ final class AppStore: ObservableObject {
                 dataSourceMessage = "\(dataMode.apiLabel)已删除章节"
             }
             self.selectedChapterId = activeHomeChapter?.id ?? chapters.first?.id
-            route = selectedTab == .chapters ? .chapters : .home
+            returnFromChapterDetail()
         } catch {
             dataSourceMessage = "删除失败：\(error.localizedDescription)"
         }
@@ -396,8 +440,7 @@ final class AppStore: ObservableObject {
         case .localAPI, .cloudAPI:
             guard let notification = notifications.first(where: { $0.chapterId == chapter.id && $0.type == .generationFailed && !$0.dismissed }) else {
                 notificationService.dismissFailure(for: chapter.id, chapters: &chapters, notifications: &notifications)
-                selectedTab = .chapters
-                route = .chapters
+                returnFromChapterDetail()
                 return
             }
             do {
@@ -412,14 +455,16 @@ final class AppStore: ObservableObject {
                 dataSourceMessage = "隐藏通知失败：\(error.localizedDescription)"
             }
         }
-        selectedTab = .chapters
-        route = .chapters
+        returnFromChapterDetail()
     }
 
     func startOrResumeReview(for chapter: Chapter? = nil) async {
         let target = chapter ?? selectedChapter ?? activeHomeChapter
         guard let target, target.status == .completed else { return }
         selectedChapterId = target.id
+        if route != .chapterDetail {
+            chapterDetailReturnRoute = rootReturnRoute(for: route)
+        }
         isSubmittingReview = true
         defer { isSubmittingReview = false }
 
