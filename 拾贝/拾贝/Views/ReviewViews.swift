@@ -173,7 +173,7 @@ struct ExplanationView: View {
                             ExplanationCard(title: "来源片段", systemImage: "text.quote", text: question.sourceText, warm: true)
                             HStack {
                                 Button("查看完整来源") {
-                                    store.openSource(returnTo: .explanation)
+                                    store.openSource(returnTo: .explanation, focusText: question.sourceText)
                                 }
                                 Spacer()
                                 Button("题目有问题") {

@@ -15,6 +15,7 @@ final class AppStore: ObservableObject {
     @Published var selectedFeedbackQuestionId: String?
     @Published var latestFeedbackMessage = ""
     @Published var lastAnsweredQuestion: ReviewQuestion?
+    @Published var sourceFocusText: String?
     @Published var reviewedCount = 35
     @Published var dataMode: AppDataMode = .mock
     @Published var dataSourceMessage = "Mock 数据已就绪"
@@ -105,7 +106,8 @@ final class AppStore: ObservableObject {
         }
     }
 
-    func openSource(returnTo route: AppRoute = .chapterDetail) {
+    func openSource(returnTo route: AppRoute = .chapterDetail, focusText: String? = nil) {
+        sourceFocusText = focusText?.trimmingCharacters(in: .whitespacesAndNewlines)
         self.route = route == .explanation ? .reviewSource : .source
     }
 
