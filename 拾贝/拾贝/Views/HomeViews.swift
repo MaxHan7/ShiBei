@@ -53,7 +53,7 @@ private struct HomeChapterContent: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 4) {
-                Text("已复习知识点")
+                Text("已掌握知识点")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(ShiBeiTheme.textSoft)
                 Text("\(store.reviewedKnowledgePointCount)")
