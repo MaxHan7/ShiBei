@@ -37,10 +37,25 @@ export function evaluateQuestions({ questions, knowledgePoints, cleanedText = ""
 
 function normalizeQuestionSourceSnippet(question, point, cleanedText) {
   if (!point?.sourceQuote) return question;
+  const sourceContext = selectSourceContext({ question, point, cleanedText });
+  if (sourceContext) {
+    return {
+      ...question,
+      sourceSnippet: sourceContext.text,
+      sourceSnippetAnchor: point.sourceQuote,
+      sourceContextWasExpanded: sourceContext.text !== question.sourceSnippet,
+      sourceContextScore: sourceContext.score
+    };
+  }
+  if (cleanedText && !sourceMatches(cleanedText, point.sourceQuote)) {
+    return {
+      ...question,
+      sourceSnippet: point.sourceQuote,
+      sourceSnippetWasBackfilled: true
+    };
+  }
   const currentValidation = validateSourceSnippet(question, point, cleanedText);
-  if (currentValidation.valid) return question;
-  const support = currentValidation.support;
-  if (support === "missing" || support === "not_found") {
+  if (currentValidation.support === "missing" || currentValidation.support === "not_found") {
     return {
       ...question,
       sourceSnippet: point.sourceQuote,
@@ -48,6 +63,186 @@ function normalizeQuestionSourceSnippet(question, point, cleanedText) {
     };
   }
   return question;
+}
+
+function selectSourceContext({ question, point, cleanedText }) {
+  if (!point?.sourceQuote || !cleanedText) return null;
+  const paragraphs = splitParagraphs(cleanedText);
+  const candidates = [];
+
+  paragraphs.forEach((paragraph, index) => {
+    if (!sourceMatches(paragraph.text, point.sourceQuote)) return;
+    const context = buildContextWindow(paragraphs, index, paragraph.text, point.sourceQuote, question, point);
+    if (!context) return;
+    candidates.push(context);
+  });
+
+  candidates.sort((a, b) => b.score - a.score || scoreLength(b.text) - scoreLength(a.text));
+  return candidates[0] || null;
+}
+
+function splitParagraphs(text) {
+  return String(text || "")
+    .split(/\n+/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+    .map((paragraph) => ({ text: paragraph, sentences: splitSentences(paragraph) }));
+}
+
+function splitSentences(text) {
+  const normalized = String(text || "").replace(/\s+/g, " ").trim();
+  if (!normalized) return [];
+  const matches = normalized.match(/[^。！？!?；;\n]+[。！？!?；;]?/g) || [normalized];
+  return matches.map((sentence) => sentence.trim()).filter(Boolean);
+}
+
+function sourceMatches(text, sourceQuote) {
+  const body = normalize(text);
+  const quote = normalize(sourceQuote);
+  if (!body || !quote) return false;
+  if (body.includes(quote)) return true;
+  if (quote.length >= 24 && body.includes(quote.slice(0, 24))) return true;
+  return quote.length >= 24 && body.includes(quote.slice(-24));
+}
+
+function buildContextWindow(paragraphs, paragraphIndex, paragraphText, sourceQuote, question, point) {
+  if (paragraphText.length >= 150 && paragraphText.length <= 500) {
+    return scoreContext(paragraphText, sourceQuote, question, point);
+  }
+
+  if (paragraphText.length < 150) {
+    const nearby = [
+      ...(paragraphs[paragraphIndex - 1]?.sentences || []).slice(-2),
+      ...paragraphs[paragraphIndex].sentences,
+      ...(paragraphs[paragraphIndex + 1]?.sentences || []).slice(0, 2)
+    ];
+    const expanded = trimSentencesToLimit(nearby, sourceQuote);
+    return scoreContext(expanded || paragraphText, sourceQuote, question, point);
+  }
+
+  const sentences = paragraphs[paragraphIndex].sentences;
+  const anchorIndex = sentences.findIndex((sentence) => sourceMatches(sentence, sourceQuote));
+  if (anchorIndex === -1) {
+    return scoreContext(cropAtSentenceBoundary(paragraphText, sourceQuote), sourceQuote, question, point);
+  }
+  const window = expandSentenceWindow(sentences, anchorIndex, question, point);
+  return scoreContext(window, sourceQuote, question, point);
+}
+
+function expandSentenceWindow(sentences, anchorIndex, question, point) {
+  const selected = new Set([anchorIndex]);
+  let left = anchorIndex - 1;
+  let right = anchorIndex + 1;
+  let text = sentences[anchorIndex] || "";
+  const keywords = extractKeywords(question, point);
+
+  while (text.length < 150 && (left >= 0 || right < sentences.length)) {
+    const leftScore = left >= 0 ? sentenceRelevance(sentences[left], keywords) : -1;
+    const rightScore = right < sentences.length ? sentenceRelevance(sentences[right], keywords) : -1;
+    const nextIndex = rightScore > leftScore ? right++ : left--;
+    selected.add(nextIndex);
+    text = [...selected].sort((a, b) => a - b).map((index) => sentences[index]).join("");
+    if (text.length > 500) {
+      selected.delete(nextIndex);
+      break;
+    }
+  }
+
+  while (left >= 0 || right < sentences.length) {
+    const leftSentence = left >= 0 ? sentences[left] : "";
+    const rightSentence = right < sentences.length ? sentences[right] : "";
+    const leftScore = sentenceRelevance(leftSentence, keywords);
+    const rightScore = sentenceRelevance(rightSentence, keywords);
+    if (Math.max(leftScore, rightScore) <= 0) break;
+    const nextIndex = rightScore > leftScore ? right++ : left--;
+    const nextText = [...selected, nextIndex].sort((a, b) => a - b).map((index) => sentences[index]).join("");
+    if (nextText.length > 500) break;
+    selected.add(nextIndex);
+    text = nextText;
+  }
+
+  return text || sentences[anchorIndex] || "";
+}
+
+function trimSentencesToLimit(sentences, sourceQuote) {
+  const anchorIndex = sentences.findIndex((sentence) => sourceMatches(sentence, sourceQuote));
+  const start = anchorIndex === -1 ? 0 : anchorIndex;
+  const selected = [];
+  for (let index = start; index < sentences.length; index += 1) {
+    const next = [...selected, sentences[index]].join("");
+    if (next.length > 500 && selected.length) break;
+    selected.push(sentences[index]);
+    if (next.length >= 150) break;
+  }
+  for (let index = start - 1; selected.join("").length < 150 && index >= 0; index -= 1) {
+    const next = [sentences[index], ...selected].join("");
+    if (next.length > 500) break;
+    selected.unshift(sentences[index]);
+  }
+  return selected.join("");
+}
+
+function cropAtSentenceBoundary(text, sourceQuote) {
+  const quote = normalize(sourceQuote);
+  const normalizedText = normalize(text);
+  const normalizedIndex = normalizedText.indexOf(quote.slice(0, Math.min(quote.length, 24)));
+  if (normalizedIndex === -1) return text.slice(0, 500);
+  const approximateStart = Math.max(0, normalizedIndex - 180);
+  const approximateEnd = Math.min(text.length, approximateStart + 500);
+  const chunk = text.slice(approximateStart, approximateEnd);
+  return chunk.replace(/^[^。！？!?；;]*[。！？!?；;]?/, "").trim() || chunk.trim();
+}
+
+function scoreContext(text, sourceQuote, question, point) {
+  const trimmed = String(text || "").trim();
+  if (!trimmed || !sourceMatches(trimmed, sourceQuote)) return null;
+  const keywords = extractKeywords(question, point);
+  const relevance = keywords.reduce((sum, keyword) => sum + (normalize(trimmed).includes(keyword) ? 1 : 0), 0);
+  return {
+    text: trimmed,
+    score: 100 + relevance * 5 + scoreLength(trimmed)
+  };
+}
+
+function scoreLength(text) {
+  const length = String(text || "").length;
+  if (length >= 150 && length <= 500) return 20;
+  if (length >= 80 && length < 150) return 10;
+  if (length > 500) return 4;
+  return 0;
+}
+
+function extractKeywords(question, point) {
+  const source = [
+    question?.stem,
+    question?.correctUnderstanding,
+    question?.commonMisconception,
+    point?.title,
+    point?.keyClaim,
+    point?.summary
+  ].filter(Boolean).join(" ");
+  const normalized = source
+    .replace(/[，。！？；：、,.!?;:()[\]{}"'“”‘’|/\\-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const words = normalized.split(" ").filter((word) => /[A-Za-z0-9]/.test(word) && word.length >= 3);
+  const chineseRuns = normalized.split(/\s+/).filter((word) => /[\u4e00-\u9fff]/.test(word));
+  const grams = [];
+  for (const run of chineseRuns) {
+    const chars = [...run].filter((char) => /[\u4e00-\u9fff]/.test(char));
+    for (let index = 0; index < chars.length - 1; index += 1) {
+      grams.push(chars.slice(index, index + 2).join(""));
+    }
+    for (let index = 0; index < chars.length - 2; index += 1) {
+      grams.push(chars.slice(index, index + 3).join(""));
+    }
+  }
+  return [...new Set([...words, ...grams].map(normalize).filter((keyword) => keyword.length >= 2))].slice(0, 60);
+}
+
+function sentenceRelevance(sentence, keywords) {
+  const body = normalize(sentence);
+  return keywords.reduce((sum, keyword) => sum + (body.includes(keyword) ? 1 : 0), 0);
 }
 
 export function validateQuestionType(question, point) {

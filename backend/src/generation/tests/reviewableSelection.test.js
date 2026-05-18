@@ -19,12 +19,15 @@ function question(overrides = {}) {
     type: "multiple_choice",
     stem: "在一个具体场景中，哪种理解最符合这个知识点？",
     options: [
-      { id: "A", text: "正确理解" },
-      { id: "B", text: "常见误解一" },
-      { id: "C", text: "常见误解二" },
-      { id: "D", text: "常见误解三" }
+      { id: "A", text: "把来源主张迁移到具体场景中判断" },
+      { id: "B", text: "只记住来源里的几个关键词" },
+      { id: "C", text: "忽略题目场景直接照搬原句" },
+      { id: "D", text: "根据常识补充原文没有的结论" }
     ],
     correctOptionId: "A",
+    explanation: "正确理解能把来源片段里的主张迁移到具体判断场景。",
+    correctUnderstanding: "这个知识点强调要从来源片段里的关键主张出发，判断具体场景是否符合原文逻辑。",
+    commonMisconception: "常见误区是只记住关键词，而没有理解来源片段支撑的判断边界。",
     sourceSnippet: "这是一段可以支撑题目的来源片段。",
     qualityAction: "pass",
     qualityIssues: [],
@@ -111,7 +114,7 @@ test("retains question type mismatch as low confidence instead of blocking cover
   assert.equal(selected[0].confidenceLevel, "low");
 });
 
-test("backfills missing source snippet from source quote and keeps the question reviewable", () => {
+test("expands source snippet to the original paragraph context", () => {
   const evaluated = evaluateQuestions({
     questions: [
       question({
@@ -120,7 +123,74 @@ test("backfills missing source snippet from source quote and keeps the question 
       })
     ],
     knowledgePoints: [point],
-    cleanedText: point.sourceQuote
+    cleanedText: `前一句说明了用户为什么需要回看上下文。${point.sourceQuote}后一句解释了这段话和题目判断之间的关系。`
+  });
+  const selected = selectQualifiedQuestionsByPoint([point], evaluated);
+
+  assert.equal(evaluated[0].sourceSnippet.includes(point.sourceQuote), true);
+  assert.equal(evaluated[0].sourceSnippet.includes("后一句解释了这段话和题目判断之间的关系"), true);
+  assert.equal(evaluated[0].sourceSnippetWasBackfilled, undefined);
+  assert.equal(selected.length, 1);
+  assert.equal(selected[0].confidenceLevel, "high");
+});
+
+test("keeps long source context sentence-bounded and near the anchor", () => {
+  const longPoint = {
+    ...point,
+    sourceQuote: "团队应该先用只读权限验证代理能力。"
+  };
+  const evaluated = evaluateQuestions({
+    questions: [
+      question({
+        sourceSnippet: "",
+        stem: "为什么团队应该先用只读权限验证代理能力？",
+        correctUnderstanding: "只读权限能降低早期试错风险，同时让团队观察代理是否可靠。"
+      })
+    ],
+    knowledgePoints: [longPoint],
+    cleanedText: "文章先介绍了很多背景信息，讨论企业对自动化系统的期待，也描述了团队协作的复杂性。随后作者指出，团队应该先用只读权限验证代理能力。这样做的原因是只读权限不会直接改动生产系统，却能暴露代理在理解任务、检索资料、汇总证据时是否可靠。等团队积累足够信任以后，再逐步开放低风险写权限。最后文章还提醒，不要把一次成功演示误认为长期可靠的生产能力。"
+  });
+
+  assert.equal(evaluated[0].sourceSnippet.includes(longPoint.sourceQuote), true);
+  assert.equal(evaluated[0].sourceSnippet.includes("只读权限不会直接改动生产系统"), true);
+  assert.equal(evaluated[0].sourceSnippet.length <= 500, true);
+  assert.equal(/[。！？!?]$/.test(evaluated[0].sourceSnippet), true);
+});
+
+test("chooses the source context that best matches the question keywords", () => {
+  const repeatedPoint = {
+    ...point,
+    sourceQuote: "公司知道自己需要 AI，只是不知道该信任谁。"
+  };
+  const evaluated = evaluateQuestions({
+    questions: [
+      question({
+        sourceSnippet: "",
+        stem: "这句话为什么说明 AI 顾问的价值在于建立信任？",
+        correctUnderstanding: "AI 顾问要把抽象需求转成可信、低风险、可验证的场景。"
+      })
+    ],
+    knowledgePoints: [repeatedPoint],
+    cleanedText: [
+      "市场报道里提到，公司知道自己需要 AI，只是不知道该信任谁。这一句只是在描述采购热度，并没有展开顾问的具体工作。",
+      "真正的问题是，公司知道自己需要 AI，只是不知道该信任谁。所以 AI 顾问的价值不只是推荐工具，而是通过低风险试点、边界说明和证据回看帮助团队建立信任。"
+    ].join("\n")
+  });
+
+  assert.equal(evaluated[0].sourceSnippet.includes("低风险试点"), true);
+  assert.equal(evaluated[0].sourceSnippet.includes("建立信任"), true);
+});
+
+test("falls back to source quote as low confidence when the quote cannot be located", () => {
+  const evaluated = evaluateQuestions({
+    questions: [
+      question({
+        id: "missing-anchor",
+        sourceSnippet: ""
+      })
+    ],
+    knowledgePoints: [point],
+    cleanedText: "这段原文没有包含对应的短锚点，因此无法可靠定位上下文。"
   });
   const selected = selectQualifiedQuestionsByPoint([point], evaluated);
 

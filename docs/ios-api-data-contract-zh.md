@@ -188,7 +188,7 @@ unrelated_to_source
   "correctOptionId": "B",
   "correctUnderstanding": "AI 顾问的核心不是卖工具，而是帮助企业把 AI 用到可信、具体、低风险的业务场景中。",
   "commonMisconception": "容易把 AI 顾问理解成工具推荐或模板售卖。",
-  "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
+  "sourceSnippet": "真正的问题是，公司知道自己需要 AI，只是不知道该信任谁。所以 AI 顾问的价值不只是推荐工具，而是通过低风险试点、边界说明和证据回看帮助团队建立信任。",
   "difficulty": "medium",
   "qualityScore": {},
   "qualityIssues": [],
@@ -202,7 +202,9 @@ unrelated_to_source
 
 - 每个可复习知识点尽量至少对应 1 道题，后端最终第一版每个知识点最多入池 1 道题。
 - 后端推荐题型，但题型不匹配不是硬失败；题型不匹配但结构完整的题可作为低置信题入池。
-- `sourceSnippet` 优先来自题目生成结果；如果为空或轻微不匹配，后端可以用对应知识点的 `sourceQuote` 回填。
+- `sourceSnippet` 是 iOS 解释页用户可见的原文上下文段落，不再是最短证据句。后端以知识点 `sourceQuote` 为锚点在 `cleanedText` 中定位，优先返回包含锚点的完整段落；段落过短时扩展相邻句，段落过长时按句子边界裁剪到约 150-500 字。
+- 后端选择 `sourceSnippet` 时会参考题干、正确理解、常见误区和知识点主张的关键词，优先选择能解释该题上下文的原文段落，而不是机械截取前后固定字数。
+- `sourceSnippet` 必须来自原文；如果无法可靠定位，后端只回退到知识点 `sourceQuote`，并将题目标记为低置信。
 - 只有最终 0 道可复习题时才返回 `failed_no_qualified_questions`；部分知识点未覆盖不让整章失败。
 
 解释页只展示：正确答案、正确理解、常见误区、来源片段。
