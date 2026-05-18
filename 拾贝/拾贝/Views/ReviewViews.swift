@@ -198,7 +198,7 @@ struct ExplanationView: View {
                         .padding(.bottom, 120)
                     }
                     VStack {
-                        PrimaryButton(title: "继续复习", systemImage: "arrow.right") {
+                        PrimaryButton(title: continueTitle, systemImage: "arrow.right") {
                             store.nextQuestion()
                         }
                     }
@@ -214,6 +214,10 @@ struct ExplanationView: View {
 
     private var emptySession: ReviewSession {
         ReviewSession(id: "", chapterId: "", status: .active, queue: [], reinforcementQueue: [], currentQueueIndex: 0, attempts: [], masteryByPointId: [:], answeredPointIds: [], masteredThisRoundPointIds: [], skippedPointIds: [], createdAt: "", updatedAt: "", completedAt: nil)
+    }
+
+    private var continueTitle: String {
+        store.selectedChapter?.reviewSession?.status == .completed ? "查看总结" : "继续复习"
     }
 }
 

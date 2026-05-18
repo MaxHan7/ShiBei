@@ -516,7 +516,7 @@ final class AppStore: ObservableObject {
             }
             upsertChapter(updated.chapter)
             if updated.session.status == .completed {
-                route = .summary
+                route = .explanation
             } else if result == .correct && updated.attempt.isReinforcement {
                 route = .review
             } else {
