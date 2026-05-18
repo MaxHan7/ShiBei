@@ -171,19 +171,28 @@ struct ExplanationView: View {
                             ExplanationCard(title: "正确理解", systemImage: "asterisk", text: question.correctUnderstanding)
                             ExplanationCard(title: "常见误区", systemImage: "exclamationmark", text: "• \(question.commonMisconception)")
                             ExplanationCard(title: "来源片段", systemImage: "text.quote", text: question.sourceText, warm: true)
-                            HStack {
-                                Button("查看完整来源") {
+                            VStack(spacing: 12) {
+                                Button {
                                     store.openSource(returnTo: .explanation, focusText: question.sourceText)
+                                } label: {
+                                    Label("查看完整来源", systemImage: "link")
+                                        .font(.system(size: 15, weight: .semibold))
+                                        .padding(.horizontal, 18)
+                                        .padding(.vertical, 11)
+                                        .background(ShiBeiTheme.primary.opacity(0.1))
+                                        .clipShape(Capsule())
                                 }
-                                Spacer()
+
                                 Button("题目有问题") {
                                     store.selectedFeedbackQuestionId = question.id
                                     store.feedbackSheetContext = FeedbackSheetContext(questionId: question.id)
                                 }
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(ShiBeiTheme.muted)
                             }
-                            .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(ShiBeiTheme.primary)
-                            .padding(.top, 10)
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 8)
                         }
                         .padding(24)
                         .padding(.bottom, 120)
