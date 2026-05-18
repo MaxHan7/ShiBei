@@ -7,7 +7,7 @@
     "dev": "node src/server.js",
     "start": "node src/server.js",
     "build": "playwright install --with-deps chromium",
-    "check": "node --check src/server.js && node --check src/generation/index.js && node --check src/generation/tests/runQualitySet.js && node --check src/generation/tests/reviewableSelection.test.js && node --check src/tests/reviewSessionLifecycle.test.js && node --check src/sources/extractSourceContent.js && node --test src/generation/tests/reviewableSelection.test.js src/tests/reviewSessionLifecycle.test.js",
+    "check": "node --check src/server.js && node --check src/generation/index.js && node --check src/generation/tests/runQualitySet.js && node --check src/generation/tests/reviewableSelection.test.js && node --check src/generation/tests/answerPosition.test.js && node --check src/tests/reviewSessionLifecycle.test.js && node --check src/sources/extractSourceContent.js && node --test src/generation/tests/reviewableSelection.test.js src/generation/tests/answerPosition.test.js src/tests/reviewSessionLifecycle.test.js",
     "quality:test": "cd .. && node backend/src/generation/tests/runQualitySet.js"
   },
   "engines": {
