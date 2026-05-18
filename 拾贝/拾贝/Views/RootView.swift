@@ -42,10 +42,8 @@ struct RootView: View {
 
     private var usesFullScreenRoute: Bool {
         switch store.route {
-        case .review, .explanation, .summary:
+        case .review, .explanation, .summary, .reviewSource:
             true
-        case .source:
-            store.sourceReturnRoute == .explanation
         default:
             false
         }
@@ -130,6 +128,8 @@ struct RootView: View {
             KnowledgeListView(store: store)
         case .source:
             SourceView(store: store)
+        case .reviewSource:
+            SourceView(store: store)
         case .review:
             ReviewView(store: store)
         case .explanation:
@@ -163,6 +163,8 @@ struct RootView: View {
         case .knowledgeList:
             KnowledgeListView(store: store)
         case .source:
+            SourceView(store: store)
+        case .reviewSource:
             SourceView(store: store)
         default:
             ChaptersView(store: store)

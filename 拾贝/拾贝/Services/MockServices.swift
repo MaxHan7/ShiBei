@@ -7,7 +7,6 @@ final class AppStore: ObservableObject {
     @Published var selectedTab: AppTab = .home
     @Published var selectedChapterId: String?
     @Published var route: AppRoute = .home
-    @Published var sourceReturnRoute: AppRoute = .chapterDetail
     @Published var showingSubmittedToast = false
     @Published var showingNotificationEducation = false
     @Published var hasShownNotificationEducation = false
@@ -107,15 +106,11 @@ final class AppStore: ObservableObject {
     }
 
     func openSource(returnTo route: AppRoute = .chapterDetail) {
-        sourceReturnRoute = route
-        self.route = .source
+        self.route = route == .explanation ? .reviewSource : .source
     }
 
     func returnFromSource() {
-        route = sourceReturnRoute
-        if sourceReturnRoute != .explanation {
-            sourceReturnRoute = .chapterDetail
-        }
+        route = route == .reviewSource ? .explanation : .chapterDetail
     }
 
     func openNotification(_ notification: NotificationItem) async {
@@ -932,6 +927,7 @@ enum AppRoute {
     case chapterDetail
     case knowledgeList
     case source
+    case reviewSource
     case review
     case explanation
     case summary
