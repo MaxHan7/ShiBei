@@ -7,6 +7,7 @@ final class AppStore: ObservableObject {
     @Published var selectedTab: AppTab = .home
     @Published var selectedChapterId: String?
     @Published var route: AppRoute = .home
+    @Published var sourceReturnRoute: AppRoute = .chapterDetail
     @Published var showingSubmittedToast = false
     @Published var showingNotificationEducation = false
     @Published var hasShownNotificationEducation = false
@@ -102,6 +103,18 @@ final class AppStore: ObservableObject {
         route = .chapterDetail
         Task {
             await refreshSelectedChapterFromAPI()
+        }
+    }
+
+    func openSource(returnTo route: AppRoute = .chapterDetail) {
+        sourceReturnRoute = route
+        self.route = .source
+    }
+
+    func returnFromSource() {
+        route = sourceReturnRoute
+        if sourceReturnRoute != .explanation {
+            sourceReturnRoute = .chapterDetail
         }
     }
 

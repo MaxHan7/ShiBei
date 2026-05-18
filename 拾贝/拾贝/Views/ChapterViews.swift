@@ -198,7 +198,7 @@ struct ChapterDetailView: View {
         }
 
         Button {
-            store.route = .source
+            store.openSource(returnTo: .chapterDetail)
         } label: {
             HStack {
                 Image(systemName: "link")
@@ -304,7 +304,7 @@ struct SourceView: View {
     @ObservedObject var store: AppStore
 
     var body: some View {
-        AppScaffold(store: store, title: "来源内容", leadingAction: { store.route = .chapterDetail }) {
+        AppScaffold(store: store, title: "来源内容", leadingAction: { store.returnFromSource() }) {
             ScrollView {
                 if let chapter = store.selectedChapter {
                     VStack(spacing: 18) {

@@ -44,6 +44,8 @@ struct RootView: View {
         switch store.route {
         case .review, .explanation, .summary:
             true
+        case .source:
+            store.sourceReturnRoute == .explanation
         default:
             false
         }
