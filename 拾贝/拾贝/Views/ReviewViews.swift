@@ -44,7 +44,7 @@ struct ReviewView: View {
                         .padding(.bottom, 110)
                     }
                     VStack {
-                        SecondaryButton(title: "? 不知道") {
+                        SecondaryButton(title: "不知道？") {
                             guard !store.isSubmittingReview else { return }
                             revealedCorrectOptionId = question.correctOptionId
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
