@@ -56,5 +56,6 @@ protocol ReviewServicing {
 
 protocol NotificationServicing {
     func markRead(_ id: String, notifications: inout [NotificationItem])
+    func dismiss(_ id: String, notifications: inout [NotificationItem])
     func dismissFailure(for chapterId: String, chapters: inout [Chapter], notifications: inout [NotificationItem])
 }

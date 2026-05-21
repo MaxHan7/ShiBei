@@ -51,7 +51,8 @@ function normalizeQuestionSourceSnippet(question, point, cleanedText) {
     return {
       ...question,
       sourceSnippet: point.sourceQuote,
-      sourceSnippetWasBackfilled: true
+      sourceSnippetWasBackfilled: true,
+      sourceContextUnsupported: true
     };
   }
   const currentValidation = validateSourceSnippet(question, point, cleanedText);
@@ -59,7 +60,8 @@ function normalizeQuestionSourceSnippet(question, point, cleanedText) {
     return {
       ...question,
       sourceSnippet: point.sourceQuote,
-      sourceSnippetWasBackfilled: true
+      sourceSnippetWasBackfilled: true,
+      sourceContextUnsupported: true
     };
   }
   return question;
@@ -111,12 +113,7 @@ function buildContextWindow(paragraphs, paragraphIndex, paragraphText, sourceQuo
   }
 
   if (paragraphText.length < 150) {
-    const nearby = [
-      ...(paragraphs[paragraphIndex - 1]?.sentences || []).slice(-2),
-      ...paragraphs[paragraphIndex].sentences,
-      ...(paragraphs[paragraphIndex + 1]?.sentences || []).slice(0, 2)
-    ];
-    const expanded = trimSentencesToLimit(nearby, sourceQuote);
+    const expanded = buildNearbyParagraphContext(paragraphs, paragraphIndex, sourceQuote);
     return scoreContext(expanded || paragraphText, sourceQuote, question, point);
   }
 
@@ -164,6 +161,59 @@ function expandSentenceWindow(sentences, anchorIndex, question, point) {
   return text || sentences[anchorIndex] || "";
 }
 
+function buildNearbyParagraphContext(paragraphs, paragraphIndex, sourceQuote) {
+  const groups = [
+    (paragraphs[paragraphIndex - 1]?.sentences || []).slice(-2),
+    paragraphs[paragraphIndex].sentences,
+    (paragraphs[paragraphIndex + 1]?.sentences || []).slice(0, 2)
+  ].map((sentences) => sentences.filter(Boolean));
+  const expanded = trimParagraphGroupsToLimit(groups, sourceQuote);
+  if (expanded) return expanded;
+
+  const nearby = groups.flat();
+  return trimSentencesToLimit(nearby, sourceQuote);
+}
+
+function trimParagraphGroupsToLimit(groups, sourceQuote) {
+  const groupTexts = groups.map((sentences) => sentences.join("")).filter(Boolean);
+  if (!groupTexts.length) return "";
+  const anchorIndex = groupTexts.findIndex((text) => sourceMatches(text, sourceQuote));
+  if (anchorIndex === -1) return "";
+
+  const selected = new Set([anchorIndex]);
+  let left = anchorIndex - 1;
+  let right = anchorIndex + 1;
+  let text = joinParagraphGroups(groupTexts, selected);
+
+  while (text.length < 150 && (left >= 0 || right < groupTexts.length)) {
+    const nextIndex = right < groupTexts.length ? right++ : left--;
+    const nextSelected = new Set([...selected, nextIndex]);
+    const nextText = joinParagraphGroups(groupTexts, nextSelected);
+    if (nextText.length > 500) break;
+    selected.add(nextIndex);
+    text = nextText;
+  }
+
+  while (text.length < 150 && left >= 0) {
+    const nextSelected = new Set([...selected, left]);
+    const nextText = joinParagraphGroups(groupTexts, nextSelected);
+    if (nextText.length > 500) break;
+    selected.add(left);
+    left -= 1;
+    text = nextText;
+  }
+
+  return text;
+}
+
+function joinParagraphGroups(groupTexts, selected) {
+  return [...selected]
+    .sort((a, b) => a - b)
+    .map((index) => groupTexts[index])
+    .filter(Boolean)
+    .join("\n\n");
+}
+
 function trimSentencesToLimit(sentences, sourceQuote) {
   const anchorIndex = sentences.findIndex((sentence) => sourceMatches(sentence, sourceQuote));
   const start = anchorIndex === -1 ? 0 : anchorIndex;
@@ -196,8 +246,9 @@ function cropAtSentenceBoundary(text, sourceQuote) {
 function scoreContext(text, sourceQuote, question, point) {
   const trimmed = String(text || "").trim();
   if (!trimmed || !sourceMatches(trimmed, sourceQuote)) return null;
-  const keywords = extractKeywords(question, point);
-  const relevance = keywords.reduce((sum, keyword) => sum + (normalize(trimmed).includes(keyword) ? 1 : 0), 0);
+  const support = scoreQuestionContextSupport(trimmed, question, point);
+  if (!support.supported) return null;
+  const relevance = support.score;
   return {
     text: trimmed,
     score: 100 + relevance * 5 + scoreLength(trimmed)
@@ -238,6 +289,121 @@ function extractKeywords(question, point) {
     }
   }
   return [...new Set([...words, ...grams].map(normalize).filter((keyword) => keyword.length >= 2))].slice(0, 60);
+}
+
+function scoreQuestionContextSupport(text, question, point) {
+  const body = normalize(text);
+  const requiredPhrases = extractSupportPhrases([
+    question?.correctUnderstanding,
+    correctOptionText(question)
+  ]);
+  const strongKeywords = extractSupportKeywords([
+    question?.correctUnderstanding,
+    correctOptionText(question)
+  ], { minChineseLength: 2, minLatinLength: 3, limit: 40 });
+  const weakKeywords = extractSupportKeywords([
+    question?.stem,
+    question?.commonMisconception,
+    point?.keyClaim,
+    point?.summary
+  ], { minChineseLength: 2, minLatinLength: 3, limit: 60 });
+  const phraseHits = countKeywordHits(body, requiredPhrases);
+  const strongHits = countKeywordHits(body, strongKeywords);
+  const weakHits = countKeywordHits(body, weakKeywords);
+
+  return {
+    supported: phraseHits >= 1 || strongHits >= 3 || (strongHits >= 2 && weakHits >= 2),
+    score: phraseHits * 4 + strongHits * 2 + weakHits
+  };
+}
+
+function extractSupportPhrases(parts) {
+  const stopPhrases = new Set(["正确理解", "常见误区", "这个知识点", "来源片段"]);
+  const phrases = [];
+  for (const part of parts.filter(Boolean)) {
+    const normalized = String(part)
+      .replace(/[，。！？；：、,.!?;:()[\]{}"'“”‘’|/\\-]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    const chineseRuns = normalized.split(/\s+/).filter((word) => /[\u4e00-\u9fff]/.test(word));
+    for (const run of chineseRuns) {
+      const chars = [...run].filter((char) => /[\u4e00-\u9fff]/.test(char));
+      for (let length = 4; length <= Math.min(8, chars.length); length += 1) {
+        for (let index = 0; index <= chars.length - length; index += 1) {
+          phrases.push(chars.slice(index, index + length).join(""));
+        }
+      }
+    }
+  }
+  return [...new Set(phrases.map(normalize).filter((phrase) => (
+    phrase.length >= 4 && ![...stopPhrases].some((stop) => phrase.includes(stop))
+  )))].slice(0, 80);
+}
+
+function extractSupportKeywords(parts, options = {}) {
+  const minChineseLength = options.minChineseLength || 2;
+  const minLatinLength = options.minLatinLength || 3;
+  const normalized = parts
+    .filter(Boolean)
+    .join(" ")
+    .replace(/[，。！？；：、,.!?;:()[\]{}"'“”‘’|/\\-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const stopWords = new Set([
+    "这个",
+    "一种",
+    "需要",
+    "不能",
+    "不是",
+    "因为",
+    "所以",
+    "正确",
+    "理解",
+    "文章",
+    "原文",
+    "选项",
+    "用户",
+    "问题",
+    "场景",
+    "判断",
+    "符合",
+    "知识",
+    "来源",
+    "常见",
+    "误区",
+    "通过",
+    "顾问",
+    "信任",
+    "建立"
+  ]);
+  const words = normalized
+    .split(" ")
+    .filter((word) => /[A-Za-z0-9]/.test(word) && word.length >= minLatinLength);
+  const chineseRuns = normalized.split(/\s+/).filter((word) => /[\u4e00-\u9fff]/.test(word));
+  const grams = [];
+  for (const run of chineseRuns) {
+    const chars = [...run].filter((char) => /[\u4e00-\u9fff]/.test(char));
+    for (let index = 0; index <= chars.length - minChineseLength; index += 1) {
+      grams.push(chars.slice(index, index + minChineseLength).join(""));
+    }
+    if (chars.length >= 4) {
+      for (let index = 0; index <= chars.length - 4; index += 1) {
+        grams.push(chars.slice(index, index + 4).join(""));
+      }
+    }
+  }
+  return [...new Set([...words, ...grams].map(normalize).filter((keyword) => (
+    keyword.length >= minChineseLength && !stopWords.has(keyword)
+  )))].slice(0, options.limit || 60);
+}
+
+function correctOptionText(question) {
+  if (!Array.isArray(question?.options)) return "";
+  return question.options.find((option) => option.id === question.correctOptionId)?.text || "";
+}
+
+function countKeywordHits(body, keywords) {
+  return keywords.reduce((sum, keyword) => sum + (body.includes(keyword) ? 1 : 0), 0);
 }
 
 function sentenceRelevance(sentence, keywords) {
@@ -294,6 +460,7 @@ function validateSourceSnippet(question, point, cleanedText) {
   const fullText = normalize(cleanedText);
   if (!snippet) return { valid: false, support: "missing" };
   if (!pointSource && !fullText) return { valid: false, support: "missing_source" };
+  if (question.sourceContextUnsupported) return { valid: false, support: "unsupported_question_context" };
   if (pointSource.includes(snippet) || snippet.includes(pointSource.slice(0, 24))) {
     return { valid: true, support: "point_source" };
   }
@@ -386,6 +553,7 @@ function collectIssues(question, scores, point, typeValidation, sourceValidation
 function decideAction(scores, averageScore, issues) {
   if (issues.includes("missing_knowledge_point") || issues.includes("missing_source_snippet")) return "discard";
   if (issues.includes("source_snippet_not_found") || issues.includes("source_snippet_missing_source")) return "discard";
+  if (issues.includes("source_snippet_unsupported_question_context")) return "discard";
   if (issues.includes("scenario_judgment_binary_options")) return "rewrite";
   if (issues.includes("non_binary_question_requires_four_options") || issues.includes("true_false_requires_two_options")) return "rewrite";
   if (scores.sourceSupport < 4 || scores.answerUniqueness < 4 || scores.clarity < 4 || scores.distractorQuality < 4) {
@@ -398,6 +566,7 @@ function decideAction(scores, averageScore, issues) {
 
 function mergeActions(ruleAction, judgeAction, qualityIssues = []) {
   const rank = { pass: 0, rewrite: 1, discard: 2 };
+  if (ruleAction === "discard") return "discard";
   if (qualityIssues.some((issue) => /来源.*不.*支撑|来源.*未.*支持|来源.*不足|source.*support/i.test(issue))) {
     return "rewrite";
   }

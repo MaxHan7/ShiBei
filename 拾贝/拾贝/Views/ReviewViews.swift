@@ -80,7 +80,7 @@ private struct ReviewTopBar: View {
     var body: some View {
         HStack {
             Button {
-                store.showSelectedChapterDetail()
+                store.exitReviewToHome()
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 18, weight: .bold))
@@ -234,12 +234,28 @@ private struct ExplanationCard: View {
                 Text(title)
                     .font(.system(size: 18, weight: .bold))
             }
-            Text(text)
-                .font(.system(size: 15))
-                .foregroundStyle(ShiBeiTheme.muted)
-                .lineSpacing(5)
+            VStack(alignment: .leading, spacing: 10) {
+                ForEach(Array(paragraphs.enumerated()), id: \.offset) { _, paragraph in
+                    Text(paragraph)
+                        .font(.system(size: 15))
+                        .foregroundStyle(ShiBeiTheme.muted)
+                        .lineSpacing(5)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
         }
         .background(warm ? Color(red: 1, green: 0.969, blue: 0.910) : .clear)
+    }
+
+    private var paragraphs: [String] {
+        let normalized = text
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+        let blocks = normalized
+            .components(separatedBy: "\n\n")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        return blocks.isEmpty ? [text] : blocks
     }
 }
 
@@ -332,19 +348,7 @@ struct SummaryView: View {
                                 }
                             }
                         }
-                        SBCard(padding: 20) {
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text("文章核心")
-                                    .font(.system(size: 18, weight: .bold))
-                                    .foregroundStyle(ShiBeiTheme.text)
-                                Text(articleCoreText(for: chapter))
-                                    .font(.system(size: 15))
-                                    .foregroundStyle(ShiBeiTheme.muted)
-                                    .lineSpacing(5)
-                                    .multilineTextAlignment(.leading)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                        }
+                        ArticleCoreCard(chapter: chapter)
                         VStack(alignment: .leading, spacing: 12) {
                             Text("本章知识点")
                                 .font(.system(size: 18, weight: .bold))
@@ -371,8 +375,28 @@ struct SummaryView: View {
             }
         }
     }
+}
 
-    private func articleCoreText(for chapter: Chapter) -> String {
+struct ArticleCoreCard: View {
+    let chapter: Chapter
+
+    var body: some View {
+        SBCard(padding: 20) {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("文章核心")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(ShiBeiTheme.text)
+                Text(articleCoreText)
+                    .font(.system(size: 15))
+                    .foregroundStyle(ShiBeiTheme.muted)
+                    .lineSpacing(5)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+
+    private var articleCoreText: String {
         let coreSummary = chapter.coreSummary?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if !coreSummary.isEmpty {
             return coreSummary

@@ -78,6 +78,7 @@ final class AppStore: ObservableObject {
     var activeHomeChapter: Chapter? {
         chapters.first { $0.status.isProcessing }
             ?? chapters.first { $0.reviewSession?.status == .active }
+            ?? chapters.first { $0.id == selectedChapterId && $0.status == .completed && $0.reviewSession?.status == .completed }
             ?? chapters.first { $0.status == .completed && $0.reviewSession?.completedAt == nil }
     }
 
@@ -122,6 +123,17 @@ final class AppStore: ObservableObject {
         route = .chapterDetail
     }
 
+    func exitReviewToHome() {
+        selectedTab = .home
+        route = .home
+    }
+
+    func showCompletedSummary(for chapter: Chapter) {
+        selectedChapterId = chapter.id
+        selectedTab = .home
+        route = .summary
+    }
+
     private func navigateToRootRoute(_ rootRoute: AppRoute) {
         switch rootReturnRoute(for: rootRoute) {
         case .home:
@@ -164,8 +176,14 @@ final class AppStore: ObservableObject {
         switch dataMode {
         case .mock:
             notificationService.markRead(notification.id, notifications: &notifications)
+            if notification.type == .generationCompleted {
+                notificationService.dismiss(notification.id, notifications: &notifications)
+            }
         case .localAPI, .cloudAPI:
             notificationService.markRead(notification.id, notifications: &notifications)
+            if notification.type == .generationCompleted {
+                notificationService.dismiss(notification.id, notifications: &notifications)
+            }
         }
         selectedChapterId = notification.chapterId
         chapterDetailReturnRoute = .notifications
@@ -175,11 +193,43 @@ final class AppStore: ObservableObject {
 
         guard let notificationService = activeNotificationService else { return }
         do {
-            let updated = try await notificationService.markRead(id: notification.id)
+            let updated = notification.type == .generationCompleted
+                ? try await notificationService.dismiss(id: notification.id)
+                : try await notificationService.markRead(id: notification.id)
             upsertNotification(updated)
-            dataSourceMessage = "\(dataMode.apiLabel) 已标记通知为已读"
+            dataSourceMessage = notification.type == .generationCompleted
+                ? "\(dataMode.apiLabel) 已归档通知"
+                : "\(dataMode.apiLabel) 已标记通知为已读"
         } catch {
-            dataSourceMessage = "标记通知失败：\(error.localizedDescription)"
+            dataSourceMessage = "更新通知失败：\(error.localizedDescription)"
+        }
+    }
+
+    func dismissNotification(_ notification: NotificationItem) async {
+        switch dataMode {
+        case .mock:
+            notificationService.dismiss(notification.id, notifications: &notifications)
+        case .localAPI, .cloudAPI:
+            notificationService.dismiss(notification.id, notifications: &notifications)
+            do {
+                guard let notificationService = activeNotificationService else {
+                    dataSourceMessage = "请先填写有效的 Railway 云端 API 地址"
+                    return
+                }
+                let updated = try await notificationService.dismiss(id: notification.id)
+                upsertNotification(updated)
+                dataSourceMessage = "\(dataMode.apiLabel) 已移除通知"
+            } catch {
+                dataSourceMessage = "移除通知失败：\(error.localizedDescription)"
+            }
+        }
+    }
+
+    func clearReadNotifications() async {
+        let readNotifications = visibleNotifications.filter(\.read)
+        guard !readNotifications.isEmpty else { return }
+        for notification in readNotifications {
+            await dismissNotification(notification)
         }
     }
 
@@ -1080,6 +1130,12 @@ final class MockNotificationService: NotificationServicing {
         notifications[index].read = true
     }
 
+    func dismiss(_ id: String, notifications: inout [NotificationItem]) {
+        guard let index = notifications.firstIndex(where: { $0.id == id }) else { return }
+        notifications[index].read = true
+        notifications[index].dismissed = true
+    }
+
     func dismissFailure(for chapterId: String, chapters: inout [Chapter], notifications: inout [NotificationItem]) {
         if let chapterIndex = chapters.firstIndex(where: { $0.id == chapterId }) {
             chapters[chapterIndex].dismissedFromNotifications = true
@@ -1099,7 +1155,16 @@ final class MockReviewService: ReviewServicing {
         if let session = chapter.reviewSession, session.status == .active {
             return session
         }
-        let queue = chapter.knowledgePoints.compactMap { point -> ReviewQueueItem? in
+        let orderedPoints = chapter.knowledgePoints.sorted { lhs, rhs in
+            if (lhs.sourceOrder ?? Int.max) != (rhs.sourceOrder ?? Int.max) {
+                return (lhs.sourceOrder ?? Int.max) < (rhs.sourceOrder ?? Int.max)
+            }
+            if (lhs.sourceStartOffset ?? Int.max) != (rhs.sourceStartOffset ?? Int.max) {
+                return (lhs.sourceStartOffset ?? Int.max) < (rhs.sourceStartOffset ?? Int.max)
+            }
+            return lhs.id < rhs.id
+        }
+        let queue = orderedPoints.compactMap { point -> ReviewQueueItem? in
             guard let question = pickQuestion(for: point.id, in: chapter) else { return nil }
             return ReviewQueueItem(id: "queue-\(UUID().uuidString)", pointId: point.id, questionId: question.id, isReinforcement: false)
         }
@@ -1288,7 +1353,17 @@ final class MockReviewService: ReviewServicing {
     }
 
     private func pickQuestion(for pointId: String, in chapter: Chapter, excluding questionId: String = "") -> ReviewQuestion? {
-        let candidates = chapter.questions.filter { $0.knowledgePointId == pointId && !chapter.removedQuestionIds.contains($0.id) }
+        let candidates = chapter.questions
+            .filter { $0.knowledgePointId == pointId && !chapter.removedQuestionIds.contains($0.id) }
+            .sorted { lhs, rhs in
+                if (lhs.sourceOrder ?? Int.max) != (rhs.sourceOrder ?? Int.max) {
+                    return (lhs.sourceOrder ?? Int.max) < (rhs.sourceOrder ?? Int.max)
+                }
+                if (lhs.sourceStartOffset ?? Int.max) != (rhs.sourceStartOffset ?? Int.max) {
+                    return (lhs.sourceStartOffset ?? Int.max) < (rhs.sourceStartOffset ?? Int.max)
+                }
+                return lhs.id < rhs.id
+            }
         return candidates.first { $0.id != questionId } ?? candidates.first
     }
 

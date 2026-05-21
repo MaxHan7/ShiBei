@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>拾贝首页 Cognitive Paper 质感探索</title>
+  <style>
+    :root {
+      --paper: #faf9f5;
+      --paper-deep: #f4f1e9;
+      --paper-card: #fffefd;
+      --paper-card-warm: #fffdf8;
+      --glass: rgba(255, 255, 255, 0.72);
+      --glass-strong: rgba(255, 255, 255, 0.86);
+      --line: #e8e3da;
+      --line-soft: #dce8e6;
+      --text: #161819;
+      --text-soft: #40595d;
+      --muted: #656b70;
+      --faint: #a1a7a8;
+      --primary: #245c63;
+      --primary-strong: #19494f;
+      --primary-soft: #e7f0ef;
+      --accent: #f5c84b;
+      --accent-deep: #d7a42f;
+      --accent-soft: #fff3c4;
+      --shadow-card: 0 18px 42px rgba(30, 48, 49, 0.075), 0 3px 10px rgba(35, 29, 18, 0.035);
+      --shadow-button: 0 12px 20px rgba(36, 92, 99, 0.22);
+      --shadow-glass: 0 18px 40px rgba(35, 43, 43, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.86);
+      --radius-card: 18px;
+      --radius-control: 16px;
+      --radius-pill: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 12% 10%, rgba(245, 200, 75, 0.16), transparent 26%),
+        radial-gradient(circle at 88% 8%, rgba(36, 92, 99, 0.14), transparent 28%),
+        linear-gradient(135deg, #f7f3eb 0%, #eeebe5 100%);
+      padding: 34px 24px 46px;
+    }
+
+    .board {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(390px, 430px) minmax(320px, 1fr);
+      gap: 34px;
+      align-items: center;
+    }
+
+    .phone {
+      width: min(100%, 430px);
+      min-height: 844px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 46px;
+      background: var(--paper);
+      box-shadow:
+        0 34px 76px rgba(26, 31, 28, 0.20),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.68);
+    }
+
+    .phone::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(245, 200, 75, 0.09), transparent 24%),
+        radial-gradient(circle at 90% 28%, rgba(36, 92, 99, 0.07), transparent 28%),
+        linear-gradient(120deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0) 44%);
+      z-index: 1;
+    }
+
+    .phone::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.36;
+      mix-blend-mode: multiply;
+      background-image:
+        repeating-radial-gradient(circle at 17% 23%, rgba(42, 38, 30, 0.035) 0 0.45px, transparent 0.55px 3px),
+        repeating-linear-gradient(91deg, rgba(255, 255, 255, 0.16) 0 1px, transparent 1px 7px);
+      z-index: 2;
+    }
+
+    .screen {
+      min-height: 844px;
+      position: relative;
+      z-index: 3;
+      padding-bottom: 120px;
+    }
+
+    .topbar {
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.50));
+      border-bottom: 1px solid rgba(255, 255, 255, 0.48);
+      box-shadow: inset 0 -1px 0 rgba(232, 227, 218, 0.38);
+      backdrop-filter: blur(18px) saturate(1.18);
+      -webkit-backdrop-filter: blur(18px) saturate(1.18);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      color: var(--text);
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 760;
+      letter-spacing: 0;
+    }
+
+    .content {
+      padding: 24px 24px 0;
+    }
+
+    .hero {
+      min-height: auto;
+      padding-top: 48px;
+      padding-bottom: 34px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .kicker {
+      margin: 0 0 4px;
+      color: var(--text-soft);
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 560;
+    }
+
+    .hero-number {
+      margin: 0;
+      color: var(--primary);
+      font-size: 82px;
+      line-height: 82px;
+      font-weight: 900;
+      letter-spacing: -4px;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.82);
+    }
+
+    .memory-mark {
+      width: 86px;
+      height: 8px;
+      margin-top: 9px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(245, 200, 75, 0), rgba(245, 200, 75, 0.88), rgba(245, 200, 75, 0));
+      filter: blur(0.1px);
+    }
+
+    .card {
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 253, 248, 0.98)),
+        var(--paper-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      pointer-events: none;
+      border-radius: calc(var(--radius-card) - 1px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.96), inset 0 -16px 34px rgba(232, 227, 218, 0.14);
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: var(--radius-card);
+      opacity: 0.20;
+      mix-blend-mode: multiply;
+      background-image: repeating-radial-gradient(circle at 10% 20%, rgba(40, 37, 31, 0.035) 0 0.42px, transparent 0.55px 3.4px);
+    }
+
+    .chapter-card {
+      width: 100%;
+      padding: 25px;
+      margin-top: 0;
+    }
+
+    .chapter-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      width: max-content;
+      max-width: 100%;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 15px;
+      line-height: 24px;
+      font-weight: 650;
+      letter-spacing: 1.3px;
+      box-shadow: inset 0 0 0 1px rgba(36, 92, 99, 0.06);
+    }
+
+    .chapter-title {
+      margin: 16px 0 18px;
+      color: var(--text);
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 430;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .row strong {
+      color: var(--primary);
+      font-size: 15px;
+      font-weight: 760;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #dfe8e5;
+      margin-top: 10px;
+      box-shadow: inset 0 1px 2px rgba(20, 44, 48, 0.08);
+    }
+
+    .progress-fill {
+      width: 64%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #f8d86f);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.46), 0 4px 10px rgba(245, 200, 75, 0.28);
+    }
+
+    .primary-button {
+      width: 100%;
+      min-height: 56px;
+      margin-top: 20px;
+      border: 0;
+      border-radius: var(--radius-control);
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      background: linear-gradient(180deg, #2d6970, var(--primary));
+      box-shadow: var(--shadow-button), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 720;
+    }
+
+    .secondary-card {
+      margin-top: 18px;
+      padding: 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .secondary-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .secondary-card h3 {
+      margin: 0;
+      color: var(--text);
+      font-size: 18px;
+      line-height: 1.25;
+      font-weight: 760;
+    }
+
+    .mini-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .mini-row span:first-child {
+      color: var(--text-soft);
+      font-weight: 650;
+    }
+
+    .bottom-nav {
+      position: absolute;
+      left: 50%;
+      bottom: 50px;
+      transform: translateX(-50%);
+      width: min(351px, calc(100% - 48px));
+      height: 64px;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      align-items: center;
+      padding: 0 10px;
+      border-radius: 22px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.56));
+      border: 1px solid rgba(255, 255, 255, 0.74);
+      box-shadow: var(--shadow-glass);
+      backdrop-filter: blur(24px) saturate(1.25);
+      -webkit-backdrop-filter: blur(24px) saturate(1.25);
+    }
+
+    .bottom-nav::before {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      border-radius: 21px;
+      pointer-events: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.90), inset 0 -14px 30px rgba(36, 92, 99, 0.045);
+    }
+
+    .tab {
+      min-width: 0;
+      height: 58px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      color: #111;
+      opacity: 0.82;
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 560;
+      background: transparent;
+      border: 0;
+    }
+
+    .tab.active {
+      color: var(--accent);
+      opacity: 1;
+    }
+
+    .tab-icon {
+      height: 22px;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .add-tab {
+      transform: translateY(-14px);
+    }
+
+    .add-tab .plus {
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 4px;
+      background: linear-gradient(180deg, #ffdc6c, var(--accent));
+      color: #fff;
+      font-size: 29px;
+      line-height: 1;
+      font-weight: 430;
+      box-shadow: 0 9px 18px rgba(215, 164, 47, 0.27), inset 0 1px 0 rgba(255, 255, 255, 0.46);
+    }
+
+    .notes {
+      display: grid;
+      gap: 18px;
+    }
+
+    .notes h1 {
+      margin: 0;
+      color: var(--text);
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .notes > p {
+      max-width: 620px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    .token-card {
+      width: min(620px, 100%);
+      padding: 22px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      box-shadow: 0 18px 40px rgba(40, 38, 30, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.84);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .token-card h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    .tokens {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .token {
+      min-height: 68px;
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.64);
+      border: 1px solid rgba(232, 227, 218, 0.70);
+    }
+
+    .swatch {
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      background: var(--color);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+    }
+
+    .token strong {
+      display: block;
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .token span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .principles {
+      width: min(620px, 100%);
+      display: grid;
+      gap: 10px;
+    }
+
+    .principle {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.54);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      box-shadow: 0 10px 24px rgba(40, 38, 30, 0.07);
+    }
+
+    .principle b {
+      width: 24px;
+      height: 24px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      color: var(--primary);
+      background: var(--accent-soft);
+      font-size: 12px;
+    }
+
+    .principle p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.58;
+    }
+
+    .principle strong {
+      color: var(--text);
+    }
+
+    @media (max-width: 900px) {
+      body {
+        padding: 20px 14px 34px;
+      }
+
+      .board {
+        grid-template-columns: 1fr;
+        justify-items: center;
+      }
+
+      .notes {
+        order: -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="board">
+    <section class="phone" aria-label="拾贝首页 Cognitive Paper 视觉探索">
+      <div class="screen">
+        <div class="topbar"><h1>首页</h1></div>
+        <section class="content">
+          <div class="hero">
+            <p class="kicker">已掌握知识点</p>
+            <h2 class="hero-number">35</h2>
+            <div class="memory-mark"></div>
+          </div>
+
+          <article class="card chapter-card">
+            <span class="pill">当前章节</span>
+            <h3 class="chapter-title">DeepMind CEO：真正的 Agent 还没开始爆发 | Y Combinator</h3>
+            <div class="row">
+              <span class="muted">已复习 6/10 个知识点</span>
+              <strong>60%</strong>
+            </div>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+          </article>
+
+          <button class="primary-button">继续复习 →</button>
+
+          <article class="card secondary-card">
+            <h3>今日状态</h3>
+            <div class="mini-row"><span>待复习</span><span>12 个知识点</span></div>
+            <div class="mini-row"><span>最近生成</span><span>2 个章节</span></div>
+          </article>
+        </section>
+
+        <nav class="bottom-nav" aria-label="底部导航">
+          <button class="tab active"><span class="tab-icon">⌂</span><span>首页</span></button>
+          <button class="tab"><span class="tab-icon">☷</span><span>章节</span></button>
+          <button class="tab add-tab"><span class="plus">+</span><span>添加</span></button>
+          <button class="tab"><span class="tab-icon">♢</span><span>通知</span></button>
+          <button class="tab"><span class="tab-icon">◦</span><span>我的</span></button>
+        </nav>
+      </div>
+    </section>
+
+    <aside class="notes">
+      <h1>Cognitive Paper<br>+ Liquid Glass</h1>
+      <p>这版只探索首页质感：内容层像干净纸卡，导航层像 iOS 原生玻璃。深青蓝负责可信和清醒，拾贝黄只作为记忆标记出现。</p>
+
+      <section class="token-card">
+        <h2>精准色彩 Token</h2>
+        <div class="tokens">
+          <div class="token"><div class="swatch" style="--color:#FAF9F5"></div><strong>Paper Background</strong><span>#FAF9F5</span></div>
+          <div class="token"><div class="swatch" style="--color:#245C63"></div><strong>Cognitive Primary</strong><span>#245C63</span></div>
+          <div class="token"><div class="swatch" style="--color:#F5C84B"></div><strong>Memory Accent</strong><span>#F5C84B</span></div>
+          <div class="token"><div class="swatch" style="--color:#E8E3DA"></div><strong>Paper Border</strong><span>#E8E3DA</span></div>
+        </div>
+      </section>
+
+      <section class="principles">
+        <div class="principle"><b>1</b><p><strong>60-30-10：</strong>大面积纸白，深青蓝做主行动，黄色只做记忆点。</p></div>
+        <div class="principle"><b>2</b><p><strong>材质分层：</strong>导航是玻璃，学习内容是纸卡，避免全局玻璃影响阅读。</p></div>
+        <div class="principle"><b>3</b><p><strong>高级感来源：</strong>微纸感、内高光、细边框、轻阴影，而不是重渐变或装饰图案。</p></div>
+      </section>
+    </aside>
+  </main>
+</body>
+</html>

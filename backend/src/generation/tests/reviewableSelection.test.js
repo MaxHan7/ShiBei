@@ -157,6 +157,32 @@ test("keeps long source context sentence-bounded and near the anchor", () => {
   assert.equal(/[。！？!?]$/.test(evaluated[0].sourceSnippet), true);
 });
 
+test("preserves paragraph breaks when source context spans original paragraphs", () => {
+  const shortPoint = {
+    ...point,
+    sourceQuote: "HTML 原型让沟通媒介更丰富。"
+  };
+  const evaluated = evaluateQuestions({
+    questions: [
+      question({
+        sourceSnippet: "",
+        stem: "为什么 HTML 原型能让人和 Claude 的沟通更丰富？",
+        correctUnderstanding: "HTML 原型把任务状态和交互反馈放在一个可检查的界面里。"
+      })
+    ],
+    knowledgePoints: [shortPoint],
+    cleanedText: [
+      "前文先说明 Markdown 计划过长时会让人不愿意读，也不容易发现遗漏。",
+      "HTML 原型让沟通媒介更丰富。",
+      "它把任务状态和交互反馈放在一起，让人能沿着界面检查 Claude 的计划，而不是只读一段抽象文字。"
+    ].join("\n")
+  });
+
+  assert.equal(evaluated[0].sourceSnippet.includes(shortPoint.sourceQuote), true);
+  assert.equal(evaluated[0].sourceSnippet.includes("任务状态和交互反馈"), true);
+  assert.equal(evaluated[0].sourceSnippet.includes("\n\n"), true);
+});
+
 test("chooses the source context that best matches the question keywords", () => {
   const repeatedPoint = {
     ...point,
@@ -181,7 +207,37 @@ test("chooses the source context that best matches the question keywords", () =>
   assert.equal(evaluated[0].sourceSnippet.includes("建立信任"), true);
 });
 
-test("falls back to source quote as low confidence when the quote cannot be located", () => {
+test("does not retain a question when no source context supports its answer", () => {
+  const unsupportedPoint = {
+    ...point,
+    sourceQuote: "公司知道自己需要 AI，只是不知道该信任谁。"
+  };
+  const evaluated = evaluateQuestions({
+    questions: [
+      question({
+        id: "unsupported-context",
+        sourceSnippet: "",
+        stem: "这句话为什么说明 AI 顾问应该通过试点建立信任？",
+        correctUnderstanding: "顾问需要通过低风险试点、边界说明和证据回看来建立信任。",
+        options: [
+          { id: "A", text: "通过低风险试点建立信任" },
+          { id: "B", text: "直接出售提示词模板" },
+          { id: "C", text: "替企业购买所有模型账号" },
+          { id: "D", text: "只讲行业趋势不做验证" }
+        ]
+      })
+    ],
+    knowledgePoints: [unsupportedPoint],
+    cleanedText: "市场报道里提到，公司知道自己需要 AI，只是不知道该信任谁。这一句只是在描述采购热度，并没有展开顾问的具体工作。"
+  });
+  const selected = selectQualifiedQuestionsByPoint([unsupportedPoint], evaluated);
+
+  assert.equal(evaluated[0].qualityIssues.includes("source_snippet_unsupported_question_context"), true);
+  assert.equal(evaluated[0].qualityAction, "discard");
+  assert.equal(selected.length, 0);
+});
+
+test("falls back to unsupported source quote as discard when the quote cannot be located", () => {
   const evaluated = evaluateQuestions({
     questions: [
       question({
@@ -196,8 +252,8 @@ test("falls back to source quote as low confidence when the quote cannot be loca
 
   assert.equal(evaluated[0].sourceSnippet, point.sourceQuote);
   assert.equal(evaluated[0].sourceSnippetWasBackfilled, true);
-  assert.equal(selected.length, 1);
-  assert.equal(selected[0].confidenceLevel, "low");
+  assert.equal(evaluated[0].qualityIssues.includes("source_snippet_unsupported_question_context"), true);
+  assert.equal(selected.length, 0);
 });
 
 test("keeps one reviewable question for each covered knowledge point", () => {

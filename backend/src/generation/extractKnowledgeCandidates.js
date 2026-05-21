@@ -3,7 +3,7 @@ import { knowledgePointSchema, knowledgePointSystemPrompt } from "./prompts/know
 
 export async function extractKnowledgeCandidates({ cleanedText, chunks }) {
   const chunkText = chunks
-    .map((chunk) => `【${chunk.id}｜${chunk.chunkType}】${chunk.text}`)
+    .map((chunk) => `【${chunk.id}｜${chunk.chunkType}｜${chunk.sourceRole || "body"}】${chunk.text}`)
     .join("\n\n");
 
   const result = await callOpenAIJson({

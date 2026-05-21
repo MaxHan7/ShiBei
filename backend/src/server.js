@@ -6,6 +6,18 @@ import { generateReviewChapter } from "./generation/index.js";
 import { extractSourceContent } from "./sources/extractSourceContent.js";
 import { STATUS_TEXT } from "./generation/types.js";
 import {
+  applyAnnotation,
+  autoLabelReviewRows,
+  buildQualityRun,
+  calculateRunStats,
+  expandReviewRows,
+  loadQualityRun,
+  mergeAutoLabels,
+  qualityRunManualCsvFile,
+  saveQualityRun,
+  toCsv
+} from "./qualityWorkbench.js";
+import {
   chapterCount,
   checkDatabase,
   deleteChapter as deleteDatabaseChapter,
@@ -54,6 +66,14 @@ function sendJson(res, statusCode, body) {
   res.end(JSON.stringify(body));
 }
 
+function sendText(res, statusCode, body, contentType = "text/plain; charset=utf-8") {
+  res.writeHead(statusCode, {
+    "content-type": contentType,
+    "access-control-allow-origin": "*"
+  });
+  res.end(body);
+}
+
 async function readBody(req) {
   const chunks = [];
   for await (const chunk of req) chunks.push(chunk);
@@ -88,6 +108,102 @@ async function handleCreateChapter(req, res) {
     message: "已提交，正在生成。"
   });
   void runChapterGeneration(deviceId, submittedChapter.id, body);
+}
+
+async function handleCreateQualityRun(req, res) {
+  const body = await readBody(req);
+  const runId = createQualityRunId();
+  try {
+    const result = await generateFromInput(body);
+    const initialRun = buildQualityRun({ id: runId, input: body, result });
+    let run = initialRun;
+    try {
+      const autoLabels = await autoLabelReviewRows(initialRun.reviewRows);
+      run = {
+        ...initialRun,
+        status: "ready_for_review",
+        autoLabelError: "",
+        reviewRows: mergeAutoLabels(initialRun.reviewRows, autoLabels)
+      };
+      run.stats = calculateRunStats(run.reviewRows);
+    } catch (error) {
+      run = {
+        ...initialRun,
+        status: "auto_label_failed",
+        autoLabelError: error instanceof Error ? error.message : "AI 预标注失败。"
+      };
+    }
+    await saveQualityRun(run);
+    sendJson(res, 200, run);
+  } catch (error) {
+    sendJson(res, 422, {
+      id: runId,
+      status: "generation_failed",
+      message: error instanceof Error ? error.message : "质量工作台生成失败。"
+    });
+  }
+}
+
+async function handleAutoLabelQualityRun(req, res, runId) {
+  try {
+    const body = await readBody(req);
+    const run = await loadQualityRun(runId);
+    const ids = Array.isArray(body.questionIds) ? new Set(body.questionIds.map(String)) : null;
+    const rows = ids ? run.reviewRows.filter((row) => ids.has(row.questionId)) : run.reviewRows;
+    const autoLabels = await autoLabelReviewRows(rows);
+    run.reviewRows = mergeAutoLabels(expandReviewRows(run.reviewRows), autoLabels);
+    run.status = "ready_for_review";
+    run.autoLabelError = "";
+    run.updatedAt = new Date().toISOString();
+    run.stats = calculateRunStats(run.reviewRows);
+    await saveQualityRun(run);
+    sendJson(res, 200, run);
+  } catch (error) {
+    sendJson(res, 422, {
+      errorCode: "auto_label_failed",
+      message: error instanceof Error ? error.message : "AI 预标注失败。"
+    });
+  }
+}
+
+async function handleQualityRunAnnotation(req, res, runId) {
+  try {
+    const body = await readBody(req);
+    const run = await loadQualityRun(runId);
+    const annotations = Array.isArray(body.annotations) ? body.annotations : [body];
+    const results = annotations.map((annotation) => applyAnnotation(run, annotation));
+    await saveQualityRun(run);
+    sendJson(res, 200, { run, results });
+  } catch (error) {
+    sendJson(res, 422, {
+      errorCode: "annotation_save_failed",
+      message: error instanceof Error ? error.message : "保存标注失败。"
+    });
+  }
+}
+
+async function handleGetQualityRun(req, res, runId) {
+  try {
+    const run = await loadQualityRun(runId);
+    sendJson(res, 200, run);
+  } catch {
+    sendJson(res, 404, { errorCode: "quality_run_not_found", message: "质量工作台记录不存在。" });
+  }
+}
+
+async function handleExportQualityRun(req, res, runId) {
+  try {
+    const run = await loadQualityRun(runId);
+    const csv = toCsv(run.reviewRows);
+    sendText(res, 200, csv, "text/csv; charset=utf-8");
+  } catch {
+    try {
+      const csv = await readFile(qualityRunManualCsvFile(runId), "utf8");
+      sendText(res, 200, csv, "text/csv; charset=utf-8");
+    } catch {
+      sendJson(res, 404, { errorCode: "quality_run_not_found", message: "质量工作台记录不存在。" });
+    }
+  }
 }
 
 async function runChapterGeneration(deviceId, chapterId, body) {
@@ -368,6 +484,17 @@ function createId(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+function createQualityRunId() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  const hh = String(now.getHours()).padStart(2, "0");
+  const mi = String(now.getMinutes()).padStart(2, "0");
+  const ss = String(now.getSeconds()).padStart(2, "0");
+  return `quality-workbench-${yyyy}-${mm}-${dd}-${hh}${mi}${ss}`;
+}
+
 function readPositiveInt(value, fallback) {
   const number = Number(value);
   return Number.isFinite(number) && number > 0 ? number : fallback;
@@ -557,6 +684,12 @@ function toIntegerValue(value, fallback = 0) {
   return Math.round(toNumberValue(value, fallback));
 }
 
+function nullableInteger(value) {
+  if (value === undefined || value === null || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.round(number) : null;
+}
+
 function normalizeKnowledgePoints(points, chapterId) {
   const now = new Date().toISOString();
   return points.map((point, index) => {
@@ -571,6 +704,9 @@ function normalizeKnowledgePoints(points, chapterId) {
       knowledgeType: normalizeKnowledgeType(point.knowledgeType || point.knowledge_type),
       sourceSnippet,
       sourceQuote: toStringValue(point.sourceQuote || sourceSnippet),
+      sourceOrder: toIntegerValue(point.sourceOrder ?? point.source_order, index),
+      sourceStartOffset: nullableInteger(point.sourceStartOffset ?? point.source_start_offset),
+      sourceEndOffset: nullableInteger(point.sourceEndOffset ?? point.source_end_offset),
       testabilityScore: toIntegerValue(point.testabilityScore ?? point.testability_score, 3),
       masteryScore: toIntegerValue(point.masteryScore ?? point.mastery_score, INITIAL_MASTERY_SCORE),
       answeredCount: toIntegerValue(point.answeredCount ?? point.answered_count, 0),
@@ -579,7 +715,7 @@ function normalizeKnowledgePoints(points, chapterId) {
       createdAt: toStringValue(point.createdAt || now),
       updatedAt: toStringValue(point.updatedAt || now)
     };
-  });
+  }).sort(compareNormalizedSourceOrder);
 }
 
 function normalizeQuestions(questions, chapterId, knowledgePoints = []) {
@@ -602,6 +738,9 @@ function normalizeQuestions(questions, chapterId, knowledgePoints = []) {
       commonMisconception: toStringValue(question.commonMisconception || question.common_misconception || ""),
       sourceSnippet,
       sourceQuote: toStringValue(question.sourceQuote || sourceSnippet),
+      sourceOrder: toIntegerValue(question.sourceOrder ?? question.source_order ?? point?.sourceOrder, index),
+      sourceStartOffset: nullableInteger(question.sourceStartOffset ?? question.source_start_offset ?? point?.sourceStartOffset),
+      sourceEndOffset: nullableInteger(question.sourceEndOffset ?? question.source_end_offset ?? point?.sourceEndOffset),
       difficulty: toStringValue(question.difficulty || "medium"),
       qualityScore: normalizeQualityScore(question.qualityScore),
       qualityIssues: Array.isArray(question.qualityIssues) ? question.qualityIssues.map((issue) => toStringValue(issue)).filter(Boolean) : [],
@@ -614,7 +753,15 @@ function normalizeQuestions(questions, chapterId, knowledgePoints = []) {
       createdAt: toStringValue(question.createdAt || now),
       updatedAt: toStringValue(question.updatedAt || now)
     };
-  });
+  }).sort(compareNormalizedSourceOrder);
+}
+
+function compareNormalizedSourceOrder(a, b) {
+  if (a.sourceOrder !== b.sourceOrder) return a.sourceOrder - b.sourceOrder;
+  const aStart = Number.isFinite(a.sourceStartOffset) ? a.sourceStartOffset : Number.MAX_SAFE_INTEGER;
+  const bStart = Number.isFinite(b.sourceStartOffset) ? b.sourceStartOffset : Number.MAX_SAFE_INTEGER;
+  if (aStart !== bStart) return aStart - bStart;
+  return String(a.id).localeCompare(String(b.id));
 }
 
 function normalizeQuestionOptions(options) {
@@ -839,7 +986,7 @@ function normalizeReviewAttempt(attempt = {}) {
 function createReviewSessionForChapter(chapter) {
   const masteryByPointId = {};
   const queue = [];
-  for (const point of chapter.knowledgePoints || []) {
+  for (const point of [...(chapter.knowledgePoints || [])].sort(compareNormalizedSourceOrder)) {
     masteryByPointId[point.id] = point.masteryScore ?? INITIAL_MASTERY_SCORE;
     const question = pickQuestionForPoint(chapter, point.id);
     if (question) {
@@ -900,7 +1047,7 @@ function pickQuestionForPoint(chapter, pointId, excludeQuestionId = "") {
   const removed = new Set(chapter.removedQuestionIds || []);
   const candidates = (chapter.questions || []).filter((question) => {
     return question.knowledgePointId === pointId && !removed.has(question.id);
-  });
+  }).sort(compareNormalizedSourceOrder);
   if (!candidates.length) return null;
   return candidates.find((question) => question.id !== excludeQuestionId) || candidates[0];
 }
@@ -1188,6 +1335,35 @@ const server = createServer(async (req, res) => {
 
   if (req.method === "POST" && (req.url === "/api/generate" || req.url === "/api/regenerate")) {
     await handleGenerate(req, res);
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/api/quality-runs") {
+    await handleCreateQualityRun(req, res);
+    return;
+  }
+
+  const qualityRunExportMatch = req.url?.match(/^\/api\/quality-runs\/([^/]+)\/export\.csv$/);
+  if (qualityRunExportMatch && req.method === "GET") {
+    await handleExportQualityRun(req, res, decodeURIComponent(qualityRunExportMatch[1]));
+    return;
+  }
+
+  const qualityRunAutoLabelMatch = req.url?.match(/^\/api\/quality-runs\/([^/]+)\/auto-label$/);
+  if (qualityRunAutoLabelMatch && req.method === "POST") {
+    await handleAutoLabelQualityRun(req, res, decodeURIComponent(qualityRunAutoLabelMatch[1]));
+    return;
+  }
+
+  const qualityRunAnnotationMatch = req.url?.match(/^\/api\/quality-runs\/([^/]+)\/annotations$/);
+  if (qualityRunAnnotationMatch && req.method === "POST") {
+    await handleQualityRunAnnotation(req, res, decodeURIComponent(qualityRunAnnotationMatch[1]));
+    return;
+  }
+
+  const qualityRunMatch = req.url?.match(/^\/api\/quality-runs\/([^/]+)$/);
+  if (qualityRunMatch && req.method === "GET") {
+    await handleGetQualityRun(req, res, decodeURIComponent(qualityRunMatch[1]));
     return;
   }
 

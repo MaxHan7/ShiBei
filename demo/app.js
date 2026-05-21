@@ -213,6 +213,21 @@ function dismissFailureNotification(chapterId) {
   });
 }
 
+function dismissNotification(notificationId) {
+  const notification = state.notifications.find((item) => item.id === notificationId);
+  if (!notification) return;
+  notification.read = true;
+  notification.dismissed = true;
+}
+
+function clearReadNotifications() {
+  state.notifications.forEach((notification) => {
+    if (notification.read && !notification.dismissed) {
+      notification.dismissed = true;
+    }
+  });
+}
+
 function visibleNotifications() {
   return [...state.notifications]
     .filter((notification) => !notification.dismissed)
@@ -428,12 +443,18 @@ function renderNotifications() {
   if (!notifications.length) {
     return shell("通知", `<section class="center-stage"><h2 class="hint-title">暂时没有通知</h2></section>`);
   }
+  const hasRead = notifications.some((notification) => notification.read);
   return shell("通知", `<section class="content">
+    ${hasRead ? `<div class="notification-toolbar"><button class="ghost-button small-link" data-action="clear-read-notifications">清空已读</button></div>` : ""}
     ${notifications.map((notification) => {
       const chapter = state.chapters.find((item) => item.id === notification.chapterId);
       const failed = notification.type === "generation_failed";
-      return `<article class="card chapter-card" data-action="open-notification" data-notification-id="${escapeHtml(notification.id)}">
-        <span class="pill ${failed ? "danger" : ""}">${escapeHtml(notification.title)}</span>
+      return `<article class="card chapter-card notification-card ${notification.read ? "read" : "unread"}" data-action="open-notification" data-notification-id="${escapeHtml(notification.id)}">
+        <div class="notification-card-top">
+          <span class="notification-dot" aria-hidden="true"></span>
+          <span class="pill ${failed ? "danger" : ""}">${escapeHtml(notification.title)}</span>
+          <button class="notification-remove" data-action="dismiss-notification" data-notification-id="${escapeHtml(notification.id)}" aria-label="移除通知">移除</button>
+        </div>
         <h3 class="chapter-title">${escapeHtml(chapter?.title || notification.body)}</h3>
         <p class="muted">${escapeHtml(notification.body)}</p>
       </article>`;
@@ -552,7 +573,7 @@ function renderExplanation() {
     </article>
     <article class="card explain-card source-card">
       <h2>${icon("source")} 来源片段</h2>
-      <p>${escapeHtml(q.sourceQuote)}</p>
+      <div class="source-paragraphs">${formatSourceParagraphs(q.sourceSnippet || q.sourceQuote)}</div>
     </article>
     <nav class="action-links">
       <button class="ghost-button small-link" data-action="source">查看完整来源</button>
@@ -587,6 +608,17 @@ function renderSummary() {
     ${nextChapter ? `<button class="primary-button" data-action="continue-next-chapter" data-chapter-id="${escapeHtml(nextChapter.id)}">继续下一章 ${icon("arrow")}</button>` : ""}
     <button class="${nextChapter ? "ghost-button" : "primary-button"}" data-action="chapters">回到章节</button>
   </div>`, { nav: false });
+}
+
+function formatSourceParagraphs(value) {
+  const paragraphs = String(value || "")
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .split(/\n{2,}/)
+    .map(item => item.trim())
+    .filter(Boolean);
+  const blocks = paragraphs.length ? paragraphs : [String(value || "").trim()].filter(Boolean);
+  return blocks.map(item => `<p>${escapeHtml(item)}</p>`).join("");
 }
 
 function feedbackSheet() {
@@ -659,7 +691,7 @@ function statusText(chapter) {
     generating_points: "正在生成知识点",
     generating_questions: "正在生成题目",
     quality_checking: "正在检查题目质量",
-    auto_regenerating_questions: "正在重新生成题目",
+    auto_regenerating_questions: "正在检查题目质量",
     completed: "已生成",
     failed_extract_article: "文章正文提取失败",
     failed_extract_video: "视频文本提取失败",
@@ -905,9 +937,22 @@ function bindEvents() {
       const notification = state.notifications.find((item) => item.id === target.dataset.notificationId);
       if (!notification) return;
       notification.read = true;
+      if (notification.type === "generation_completed") {
+        notification.dismissed = true;
+      }
       setCurrentChapter(notification.chapterId);
       saveState();
       return navigate("chapter", "chapters");
+    }
+    if (action === "dismiss-notification") {
+      dismissNotification(target.dataset.notificationId);
+      saveState();
+      return render();
+    }
+    if (action === "clear-read-notifications") {
+      clearReadNotifications();
+      saveState();
+      return render();
     }
     if (action === "knowledge") return navigate("knowledge", "chapters");
     if (action === "source") {
@@ -1049,12 +1094,7 @@ function createReviewSession(chapter) {
     masteryByPointId[point.id] = point.masteryScore ?? INITIAL_MASTERY_SCORE;
   }
 
-  const points = [...chapter.knowledgePoints].sort((a, b) => {
-    const aAnswered = hasPointEverBeenAnswered(a.id);
-    const bAnswered = hasPointEverBeenAnswered(b.id);
-    if (aAnswered !== bAnswered) return aAnswered ? 1 : -1;
-    return (masteryByPointId[a.id] ?? INITIAL_MASTERY_SCORE) - (masteryByPointId[b.id] ?? INITIAL_MASTERY_SCORE);
-  });
+  const points = [...chapter.knowledgePoints].sort(compareSourceOrder);
 
   return normalizeReviewSession({
     id: `session-${Date.now()}`,
@@ -1410,7 +1450,7 @@ function startRegenerate() {
     ...previous,
     dismissedFromNotifications: false,
     status: previous.knowledgePoints?.length ? "auto_regenerating_questions" : "submitted",
-    displayStatusText: previous.knowledgePoints?.length ? "正在重新生成题目" : "已提交，等待处理",
+    displayStatusText: previous.knowledgePoints?.length ? "正在检查题目质量" : "已提交，等待处理",
     failureReason: ""
   };
   upsertChapter(processingChapter);
@@ -1541,8 +1581,11 @@ function normalizeGeneratedChapter(chapter, fallbackText) {
     summary: point.summary || point.keyClaim || "",
     keyClaim: point.keyClaim || point.summary || "",
     knowledgeType: point.knowledgeType || "concept",
-    sourceQuote: point.sourceQuote || ""
-  }));
+    sourceQuote: point.sourceQuote || "",
+    sourceOrder: Number.isFinite(Number(point.sourceOrder)) ? Number(point.sourceOrder) : index,
+    sourceStartOffset: Number.isFinite(Number(point.sourceStartOffset)) ? Number(point.sourceStartOffset) : null,
+    sourceEndOffset: Number.isFinite(Number(point.sourceEndOffset)) ? Number(point.sourceEndOffset) : null
+  })).sort(compareSourceOrder);
 
   const questions = (chapter.questions || []).map((question, index) => ({
     id: question.id || `q-${index + 1}`,
@@ -1562,8 +1605,11 @@ function normalizeGeneratedChapter(chapter, fallbackText) {
     sourceSnippet: question.sourceSnippet || question.source_snippet || question.sourceQuote || "",
     difficulty: question.difficulty || "medium",
     qualityScore: question.qualityScore,
+    sourceOrder: Number.isFinite(Number(question.sourceOrder)) ? Number(question.sourceOrder) : (knowledgePoints.find((point) => point.id === (question.knowledgePointId || question.pointId))?.sourceOrder ?? index),
+    sourceStartOffset: Number.isFinite(Number(question.sourceStartOffset)) ? Number(question.sourceStartOffset) : (knowledgePoints.find((point) => point.id === (question.knowledgePointId || question.pointId))?.sourceStartOffset ?? null),
+    sourceEndOffset: Number.isFinite(Number(question.sourceEndOffset)) ? Number(question.sourceEndOffset) : (knowledgePoints.find((point) => point.id === (question.knowledgePointId || question.pointId))?.sourceEndOffset ?? null),
     isNew: index === 0
-  }));
+  })).sort(compareSourceOrder);
 
   return {
     id: chapter.id || createId("chapter"),
@@ -1589,6 +1635,16 @@ function normalizeGeneratedChapter(chapter, fallbackText) {
     createdAt: chapter.createdAt || Date.now(),
     updatedAt: chapter.updatedAt || Date.now()
   };
+}
+
+function compareSourceOrder(a, b) {
+  const aOrder = Number.isFinite(Number(a.sourceOrder)) ? Number(a.sourceOrder) : Number.MAX_SAFE_INTEGER;
+  const bOrder = Number.isFinite(Number(b.sourceOrder)) ? Number(b.sourceOrder) : Number.MAX_SAFE_INTEGER;
+  if (aOrder !== bOrder) return aOrder - bOrder;
+  const aStart = Number.isFinite(Number(a.sourceStartOffset)) ? Number(a.sourceStartOffset) : Number.MAX_SAFE_INTEGER;
+  const bStart = Number.isFinite(Number(b.sourceStartOffset)) ? Number(b.sourceStartOffset) : Number.MAX_SAFE_INTEGER;
+  if (aStart !== bStart) return aStart - bStart;
+  return String(a.id || "").localeCompare(String(b.id || ""));
 }
 
 function startGenerateFallback() {

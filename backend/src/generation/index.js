@@ -68,6 +68,8 @@ export async function generateReviewChapter(input, options = {}) {
       knowledgePoints = filterResult.kept;
       filteredKnowledgePoints = filterResult.filtered;
     }
+    knowledgePoints = orderKnowledgePointsBySource(knowledgePoints, cleaned.cleanedText);
+    filteredKnowledgePoints = orderKnowledgePointsBySource(filteredKnowledgePoints, cleaned.cleanedText);
 
     if (!knowledgePoints.length) {
       return failure({
@@ -261,7 +263,10 @@ async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta, on
     ...rewrittenEvaluations,
     ...supplementEvaluations
   ];
-  const qualifiedQuestions = selectQualifiedQuestionsByPoint(knowledgePoints, evaluatedQuestions);
+  const qualifiedQuestions = orderQuestionsBySource(
+    selectQualifiedQuestionsByPoint(knowledgePoints, evaluatedQuestions),
+    knowledgePoints
+  );
   const discardedCount = evaluatedQuestions.filter((question) => !isReviewableQuestion(question)).length;
 
   return {
@@ -451,6 +456,9 @@ function toClientQuestion(question) {
     source_snippet: question.sourceSnippet,
     sourceSnippet: question.sourceSnippet,
     sourceQuote: question.sourceSnippet,
+    sourceOrder: question.sourceOrder ?? 0,
+    sourceStartOffset: question.sourceStartOffset ?? null,
+    sourceEndOffset: question.sourceEndOffset ?? null,
     sourceSnippetWasBackfilled: Boolean(question.sourceSnippetWasBackfilled),
     difficulty: question.difficulty,
     qualityScore: question.qualityScore,
@@ -460,6 +468,105 @@ function toClientQuestion(question) {
     retainedBy: question.retainedBy || "quality_pass",
     isNew: true
   };
+}
+
+function orderKnowledgePointsBySource(points, cleanedText) {
+  return (points || [])
+    .map((point, index) => {
+      const offsets = locateSourceQuote(cleanedText, point.sourceQuote);
+      return {
+        ...point,
+        sourceOrder: Number.isFinite(Number(point.sourceOrder)) ? Number(point.sourceOrder) : index,
+        sourceStartOffset: Number.isFinite(Number(point.sourceStartOffset)) ? Number(point.sourceStartOffset) : offsets.start,
+        sourceEndOffset: Number.isFinite(Number(point.sourceEndOffset)) ? Number(point.sourceEndOffset) : offsets.end
+      };
+    })
+    .sort(compareSourcePosition)
+    .map((point, index) => ({
+      ...point,
+      sourceOrder: index
+    }));
+}
+
+function orderQuestionsBySource(questions, knowledgePoints) {
+  const pointOrder = new Map((knowledgePoints || []).map((point, index) => [point.id, {
+    order: Number.isFinite(Number(point.sourceOrder)) ? Number(point.sourceOrder) : index,
+    start: Number.isFinite(Number(point.sourceStartOffset)) ? Number(point.sourceStartOffset) : Number.MAX_SAFE_INTEGER,
+    end: Number.isFinite(Number(point.sourceEndOffset)) ? Number(point.sourceEndOffset) : null
+  }]));
+  return [...(questions || [])]
+    .map((question, index) => {
+      const position = pointOrder.get(question.knowledgePointId) || { order: index, start: Number.MAX_SAFE_INTEGER, end: null };
+      return {
+        ...question,
+        sourceOrder: position.order,
+        sourceStartOffset: position.start === Number.MAX_SAFE_INTEGER ? null : position.start,
+        sourceEndOffset: position.end
+      };
+    })
+    .sort((a, b) => {
+      const aStart = Number.isFinite(Number(a.sourceStartOffset)) ? Number(a.sourceStartOffset) : Number.MAX_SAFE_INTEGER;
+      const bStart = Number.isFinite(Number(b.sourceStartOffset)) ? Number(b.sourceStartOffset) : Number.MAX_SAFE_INTEGER;
+      if (a.sourceOrder !== b.sourceOrder) return a.sourceOrder - b.sourceOrder;
+      if (aStart !== bStart) return aStart - bStart;
+      return String(a.id).localeCompare(String(b.id));
+    });
+}
+
+function compareSourcePosition(a, b) {
+  const aStart = Number.isFinite(Number(a.sourceStartOffset)) ? Number(a.sourceStartOffset) : Number.MAX_SAFE_INTEGER;
+  const bStart = Number.isFinite(Number(b.sourceStartOffset)) ? Number(b.sourceStartOffset) : Number.MAX_SAFE_INTEGER;
+  if (aStart !== bStart) return aStart - bStart;
+  return Number(a.sourceOrder || 0) - Number(b.sourceOrder || 0);
+}
+
+function locateSourceQuote(cleanedText, sourceQuote) {
+  const text = String(cleanedText || "");
+  const quote = String(sourceQuote || "").trim();
+  if (!text || !quote) return { start: null, end: null };
+
+  const direct = text.indexOf(quote);
+  if (direct >= 0) return { start: direct, end: direct + quote.length };
+
+  const normalizedText = normalizeWithMap(text);
+  const normalizedQuote = normalizeForSourcePosition(quote);
+  if (normalizedQuote.length < 8) return { start: null, end: null };
+  const normalizedIndex = normalizedText.text.indexOf(normalizedQuote);
+  if (normalizedIndex >= 0) {
+    const start = normalizedText.map[normalizedIndex];
+    const end = normalizedText.map[normalizedIndex + normalizedQuote.length - 1] + 1;
+    return { start, end };
+  }
+
+  const prefix = normalizedQuote.slice(0, Math.min(28, normalizedQuote.length));
+  if (prefix.length >= 8) {
+    const prefixIndex = normalizedText.text.indexOf(prefix);
+    if (prefixIndex >= 0) {
+      const start = normalizedText.map[prefixIndex];
+      const end = normalizedText.map[prefixIndex + prefix.length - 1] + 1;
+      return { start, end };
+    }
+  }
+
+  return { start: null, end: null };
+}
+
+function normalizeWithMap(value) {
+  const chars = [];
+  const map = [];
+  [...String(value || "")].forEach((char, index) => {
+    const normalized = normalizeForSourcePosition(char);
+    if (!normalized) return;
+    chars.push(normalized);
+    map.push(index);
+  });
+  return { text: chars.join(""), map };
+}
+
+function normalizeForSourcePosition(value) {
+  return String(value || "")
+    .replace(/\s+/g, "")
+    .replace(/[“”"「」『』《》〈〉（）()，,。.!！?？:：;；、]/g, "");
 }
 
 function summarizeQuality(evaluatedQuestions, judgeUnavailable, selectedQuestions = [], pointDiagnostics = []) {
