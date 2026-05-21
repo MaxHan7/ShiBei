@@ -84,6 +84,25 @@ test("resumes an active review session without replacing it", () => {
   assert.equal(chapter.masteredPoints, 1);
 });
 
+test("starts the first review session in source order", () => {
+  const chapter = reviewableChapter({
+    knowledgePoints: [
+      { id: "kp-late", masteryScore: 20, sourceOrder: 2, sourceStartOffset: 80 },
+      { id: "kp-early", masteryScore: 90, sourceOrder: 0, sourceStartOffset: 10 }
+    ],
+    questions: [
+      { id: "q-late", knowledgePointId: "kp-late", sourceOrder: 2, sourceStartOffset: 80 },
+      { id: "q-early", knowledgePointId: "kp-early", sourceOrder: 0, sourceStartOffset: 10 }
+    ],
+    masteredPoints: 0
+  });
+
+  const session = startOrResumeReviewSession(chapter);
+
+  assert.deepEqual(session.queue.map((item) => item.pointId), ["kp-early", "kp-late"]);
+  assert.deepEqual(session.queue.map((item) => item.questionId), ["q-early", "q-late"]);
+});
+
 test("serializes legacy chapters with an empty core summary", () => {
   const chapter = reviewableChapter();
 

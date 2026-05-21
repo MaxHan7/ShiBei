@@ -1,6 +1,11 @@
 backend/node_modules/
 .tmp/
+.superpowers/
+ios/
 .DS_Store
 **/.DS_Store
 **/xcuserdata/
 **/UserInterfaceState.xcuserstate
+quality-test-set/results/20*.json
+quality-test-set/results/quality-workbench-*.json
+quality-test-set/results/quality-workbench-*.csv

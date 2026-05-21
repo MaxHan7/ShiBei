@@ -1,15 +1,16 @@
+import { isLeadSummaryParagraph, splitParagraphs } from "./sourceSections.js";
+
 const SENTENCE_SPLIT = /(?<=[。！？!?；;])\s*/;
 
 export function chunkContent(cleanedText) {
-  const paragraphs = cleanedText
-    .split(/\n+/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean);
+  const paragraphs = splitParagraphs(cleanedText);
 
   const chunks = [];
-  for (const paragraph of paragraphs) {
+  for (let paragraphIndex = 0; paragraphIndex < paragraphs.length; paragraphIndex += 1) {
+    const paragraph = paragraphs[paragraphIndex];
+    const isLeadSummary = isLeadSummaryParagraph(paragraph, paragraphIndex, paragraphs);
     if (paragraph.length <= 420) {
-      chunks.push(toChunk(paragraph));
+      chunks.push(toChunk(paragraph, isLeadSummary));
       continue;
     }
 
@@ -17,13 +18,13 @@ export function chunkContent(cleanedText) {
     let buffer = "";
     for (const sentence of sentences) {
       if ((buffer + sentence).length > 360 && buffer) {
-        chunks.push(toChunk(buffer));
+        chunks.push(toChunk(buffer, isLeadSummary));
         buffer = sentence;
       } else {
         buffer += sentence;
       }
     }
-    if (buffer) chunks.push(toChunk(buffer));
+    if (buffer) chunks.push(toChunk(buffer, isLeadSummary));
   }
 
   return chunks.map((chunk, index) => ({
@@ -32,10 +33,11 @@ export function chunkContent(cleanedText) {
   }));
 }
 
-function toChunk(text) {
+function toChunk(text, isLeadSummary = false) {
   return {
     text,
-    chunkType: inferChunkType(text)
+    chunkType: isLeadSummary ? "lead_summary" : inferChunkType(text),
+    sourceRole: isLeadSummary ? "lead_summary" : "body"
   };
 }
 

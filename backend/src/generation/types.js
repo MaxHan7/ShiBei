@@ -40,7 +40,7 @@ export const STATUS_TEXT = {
   generating_points: "正在生成知识点",
   generating_questions: "正在生成题目",
   quality_checking: "正在检查题目质量",
-  auto_regenerating_questions: "正在重新生成题目",
+  auto_regenerating_questions: "正在检查题目质量",
   completed: "已生成",
   failed_extract_article: "文章正文提取失败",
   failed_extract_video: "视频文本提取失败",

@@ -2,35 +2,35 @@ import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateReviewChapter } from "../index.js";
+import { buildReviewRows, parseSampleFile, summarize } from "./qualityReport.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "../../../..");
 const samplesDir = path.join(repoRoot, "quality-test-set", "samples");
+const syntheticSamplesDir = path.join(repoRoot, "quality-test-set", "synthetic-samples");
 const resultsDir = path.join(repoRoot, "quality-test-set", "results");
 
 async function main() {
-  const sampleFilter = process.env.QUALITY_SAMPLE?.trim().toLowerCase();
-  const sampleFiles = (await readdir(samplesDir))
-    .filter((file) => file.endsWith(".md") || file.endsWith(".txt"))
-    .filter((file) => file.toLowerCase() !== "readme.md")
-    .filter((file) => !sampleFilter || file.toLowerCase().includes(sampleFilter))
-    .sort();
+  const sampleFiles = await listSampleFiles();
 
   if (!sampleFiles.length) {
-    throw new Error(sampleFilter
+    throw new Error(process.env.QUALITY_SAMPLE
       ? `没有找到匹配 QUALITY_SAMPLE=${process.env.QUALITY_SAMPLE} 的测试样本。`
       : "没有找到可运行的测试样本。");
   }
 
   const results = [];
-  for (const file of sampleFiles) {
-    const rawText = await readFile(path.join(samplesDir, file), "utf8");
+  for (const sample of sampleFiles) {
+    const rawFile = await readFile(sample.path, "utf8");
+    const parsed = parseSampleFile(rawFile, sample.file);
     const startedAt = new Date().toISOString();
     try {
-      const output = await generateReviewChapter({ sourceType: "text", rawText });
+      const output = await generateReviewChapter({ sourceType: "text", rawText: parsed.body });
       results.push({
-        file,
+        file: sample.file,
+        sampleSet: sample.sampleSet,
+        sampleMeta: parsed.meta,
         startedAt,
         status: output.status,
         chapter: output.chapter || null,
@@ -39,10 +39,13 @@ async function main() {
       });
     } catch (error) {
       results.push({
-        file,
+        file: sample.file,
+        sampleSet: sample.sampleSet,
+        sampleMeta: parsed.meta,
         startedAt,
         status: "error",
         chapter: null,
+        generationDebug: null,
         message: error.message
       });
     }
@@ -50,122 +53,49 @@ async function main() {
 
   const report = {
     generatedAt: new Date().toISOString(),
+    config: {
+      sampleFilter: process.env.QUALITY_SAMPLE || "",
+      limit: process.env.QUALITY_LIMIT || "",
+      includeSynthetic: process.env.QUALITY_INCLUDE_SYNTHETIC === "1"
+    },
     summary: summarize(results),
     reviewRows: buildReviewRows(results),
     results
   };
 
   await mkdir(resultsDir, { recursive: true });
-  const outputFile = path.join(resultsDir, `${timestamp()}.json`);
+  const outputFile = path.join(resultsDir, `${outputBasename()}.json`);
   await writeFile(outputFile, JSON.stringify(report, null, 2), "utf8");
   console.log(JSON.stringify({ outputFile, summary: report.summary }, null, 2));
 }
 
-function summarize(results) {
-  const completed = results.filter((result) => result.status === "completed");
-  const chapters = results.filter((result) => result.chapter);
-  const allQuestions = chapters.flatMap((result) => result.chapter?.questions || []);
-  const qualityScores = allQuestions
-    .map((question) => question.qualityScore?.average)
-    .filter((score) => Number.isFinite(score));
-  const seriousIssueCount = completed.reduce(
-    (sum, result) => sum + (result.chapter?.qualitySummary?.seriousIssueCount || 0),
-    0
-  );
-
-  return {
-    sampleCount: results.length,
-    successCount: completed.length,
-    failureCount: results.length - completed.length,
-    knowledgePointCount: chapters.reduce((sum, result) => sum + (result.chapter?.knowledgePoints?.length || 0), 0),
-    qualifiedQuestionCount: allQuestions.length,
-    coveredKnowledgePointCount: chapters.reduce((sum, result) => {
-      const diagnostics = result.generationDebug?.pointDiagnostics || [];
-      return sum + diagnostics.filter((point) => point.status === "covered").length;
-    }, 0),
-    uncoveredKnowledgePointCount: chapters.reduce((sum, result) => {
-      const diagnostics = result.generationDebug?.pointDiagnostics || [];
-      return sum + diagnostics.filter((point) => point.status !== "covered").length;
-    }, 0),
-    questionCoverageRate: calculateCoverageRate(chapters),
-    averageQualityScore: qualityScores.length
-      ? Math.round((qualityScores.reduce((sum, score) => sum + score, 0) / qualityScores.length) * 10) / 10
-      : 0,
-    seriousIssueCount
-  };
+async function listSampleFiles() {
+  const sampleFilter = process.env.QUALITY_SAMPLE?.trim().toLowerCase();
+  const limit = Number.parseInt(process.env.QUALITY_LIMIT || "", 10);
+  const includeSynthetic = process.env.QUALITY_INCLUDE_SYNTHETIC === "1";
+  const realSamples = await listFiles(samplesDir, "real");
+  const syntheticSamples = includeSynthetic ? await listFiles(syntheticSamplesDir, "synthetic") : [];
+  const filtered = [...realSamples, ...syntheticSamples]
+    .filter((sample) => !sampleFilter || sample.file.toLowerCase().includes(sampleFilter))
+    .sort((a, b) => `${a.sampleSet}:${a.file}`.localeCompare(`${b.sampleSet}:${b.file}`));
+  return Number.isFinite(limit) && limit > 0 ? filtered.slice(0, limit) : filtered;
 }
 
-function calculateCoverageRate(completed) {
-  const diagnostics = completed.flatMap((result) => result.generationDebug?.pointDiagnostics || []);
-  if (!diagnostics.length) return 0;
-  const covered = diagnostics.filter((point) => point.status === "covered").length;
-  return Math.round((covered / diagnostics.length) * 1000) / 10;
-}
-
-function buildReviewRows(results) {
-  return results.flatMap((result) => {
-    const chapter = result.chapter;
-    const acceptedRows = (chapter?.questions || []).map((question) => questionToReviewRow({
-      result,
-      question,
-      status: result.status
+async function listFiles(directory, sampleSet) {
+  const files = await readdir(directory);
+  return files
+    .filter((file) => file.endsWith(".md") || file.endsWith(".txt"))
+    .filter((file) => file.toLowerCase() !== "readme.md")
+    .map((file) => ({
+      file,
+      sampleSet,
+      path: path.join(directory, file)
     }));
-    const rejectedQuestions = (result.generationDebug?.evaluatedQuestions || [])
-      .filter((question) => question.qualityAction !== "pass");
-    const rejectedRows = rejectedQuestions.map((question) => questionToReviewRow({
-      result,
-      question,
-      status: `${result.status}:rejected`
-    }));
-
-    if (!acceptedRows.length && !rejectedRows.length) {
-      return [{
-        sample: result.file,
-        status: result.status,
-        questionId: "",
-        knowledgePoint: "",
-        questionType: "",
-        stem: "",
-        sourceSnippet: "",
-        machineAverageScore: "",
-        machineIssues: result.message || "no_questions",
-        humanSourceSupport: "",
-        humanAnswerUniqueness: "",
-        humanUnderstandingDepth: "",
-        humanClarity: "",
-        humanDistractorQuality: "",
-        humanReviewValue: "",
-        humanUsable: "",
-        humanSeriousIssue: "",
-        humanNotes: ""
-      }];
-    }
-
-    return [...acceptedRows, ...rejectedRows];
-  });
 }
 
-function questionToReviewRow({ result, question, status }) {
-  return {
-    sample: result.file,
-    status,
-    questionId: question.id,
-    knowledgePoint: question.pointTitle || question.knowledgePointId || "",
-    questionType: question.type,
-    stem: question.stem,
-    sourceSnippet: question.sourceSnippet || question.source_snippet || "",
-    machineAverageScore: question.qualityScore?.average ?? "",
-    machineIssues: (question.qualityIssues || []).join(";"),
-    humanSourceSupport: "",
-    humanAnswerUniqueness: "",
-    humanUnderstandingDepth: "",
-    humanClarity: "",
-    humanDistractorQuality: "",
-    humanReviewValue: "",
-    humanUsable: "",
-    humanSeriousIssue: "",
-    humanNotes: ""
-  };
+function outputBasename() {
+  const requested = process.env.QUALITY_OUTPUT_BASENAME?.trim();
+  return requested || timestamp();
 }
 
 function timestamp() {

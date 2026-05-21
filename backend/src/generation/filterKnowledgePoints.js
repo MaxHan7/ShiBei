@@ -1,3 +1,5 @@
+import { isLeadSummarySource } from "./sourceSections.js";
+
 export function filterKnowledgePoints(candidates, cleanedText) {
   const kept = [];
   const filtered = [];
@@ -40,7 +42,11 @@ function filterReasons(candidate, cleanedText, seen) {
   const reasons = [];
 
   if (!point.title || !point.summary || !point.keyClaim) reasons.push("incomplete_fields");
-  if (!point.sourceQuote || !sourceExists(cleanedText, point.sourceQuote)) reasons.push("source_not_supported");
+  if (!point.sourceQuote || !sourceExists(cleanedText, point.sourceQuote)) {
+    reasons.push("source_not_supported");
+  } else if (isLeadSummarySource(cleanedText, point.sourceQuote)) {
+    reasons.push("lead_summary_source");
+  }
   if (point.testabilityScore < 3) reasons.push("low_testability");
   if (isFragment(point)) reasons.push("fragmented_information");
   if (isEmotionalExpression(point)) reasons.push("emotional_expression");

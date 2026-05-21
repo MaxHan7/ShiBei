@@ -41,6 +41,8 @@ failed_no_qualified_questions
 | `failed_points` | 暂时没能提取出可复习知识点 |
 | `failed_questions` / `failed_no_qualified_questions` | 暂时没能生成可复习题目 |
 
+`auto_regenerating_questions` 是后端内部自动恢复阶段，前端不得展示“正在重新生成题目”，应继续显示“正在检查题目质量”，避免让用户感知为生成失败后又从头来过。
+
 ### SourceType
 
 ```text
@@ -159,6 +161,9 @@ unrelated_to_source
   "knowledgeType": "scenario",
   "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
   "sourceQuote": "公司知道自己需要 AI，只是不知道该信任谁。",
+  "sourceOrder": 0,
+  "sourceStartOffset": 124,
+  "sourceEndOffset": 148,
   "testabilityScore": 4,
   "masteryScore": 50,
   "answeredCount": 0,
@@ -192,6 +197,9 @@ unrelated_to_source
   "correctUnderstanding": "AI 顾问的核心不是卖工具，而是帮助企业把 AI 用到可信、具体、低风险的业务场景中。",
   "commonMisconception": "容易把 AI 顾问理解成工具推荐或模板售卖。",
   "sourceSnippet": "真正的问题是，公司知道自己需要 AI，只是不知道该信任谁。所以 AI 顾问的价值不只是推荐工具，而是通过低风险试点、边界说明和证据回看帮助团队建立信任。",
+  "sourceOrder": 0,
+  "sourceStartOffset": 124,
+  "sourceEndOffset": 148,
   "difficulty": "medium",
   "qualityScore": {},
   "qualityIssues": [],
@@ -201,10 +209,14 @@ unrelated_to_source
 
 `confidenceLevel` 取值为 `high` / `low`。`low` 表示该题未完全通过质量审查，但结构完整、来源可支撑、答案唯一，因此作为低置信题进入复习池；第一版 iOS 可以不展示该标签。
 
+`sourceOrder`、`sourceStartOffset`、`sourceEndOffset` 用于保持章节内顺序和来源定位。`sourceOrder` 表示知识点或题目在原文中的相对顺序；offset 是基于清洗后正文的字符位置，旧章节可能为空。iOS 展示知识点、题目和首次复习队列时应优先按 `sourceOrder` 排序，保证用户沿文章脉络复习。
+
 出题策略：
 
 - 每个可复习知识点尽量至少对应 1 道题，后端最终第一版每个知识点最多入池 1 道题。
+- 题目入池后按对应知识点在原文中的位置排序；首次复习按文章内容先后推进，帮助用户像重新走一遍文章主线一样主动回忆。
 - 后端推荐题型，但题型不匹配不是硬失败；题型不匹配但结构完整的题可作为低置信题入池。
+- 文章开头的导读、金句摘录、编辑摘要只用于理解主题，不能作为知识点 `sourceQuote` 或题目来源锚点。若观点只在导读区出现、正文没有展开，后端会按 `lead_summary_source` 过滤该知识点；若正文有展开，必须锚定正文段落。
 - `sourceSnippet` 是 iOS 解释页用户可见的原文上下文段落，不再是最短证据句。后端以知识点 `sourceQuote` 为锚点在 `cleanedText` 中定位，优先返回包含锚点的完整段落；段落过短时扩展相邻句，段落过长时按句子边界裁剪到约 150-500 字。
 - 后端选择 `sourceSnippet` 时会参考题干、正确理解、常见误区和知识点主张的关键词，优先选择能解释该题上下文的原文段落，而不是机械截取前后固定字数。
 - `sourceSnippet` 必须来自原文；如果无法可靠定位，后端只回退到知识点 `sourceQuote`，并将题目标记为低置信。
@@ -240,6 +252,12 @@ unrelated_to_source
 - 所有未跳过知识点都至少答过一次。
 - 所有未跳过知识点本轮都答对过。
 - `reinforcementQueue` 为空。
+
+队列顺序：
+
+- 首次创建 ReviewSession 时，默认按 `sourceOrder` 创建题目队列。
+- 答错或“不知道”后的强化题仍按章节内强化规则插入，例如间隔 3 题后再次出现。
+- 恢复未完成 ReviewSession 时保持原队列，不因为章节重新排序而打断用户进度。
 
 ### ReviewAttempt
 

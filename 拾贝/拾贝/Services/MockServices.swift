@@ -1259,7 +1259,7 @@ final class MockReviewService: ReviewServicing {
         if let session = chapter.reviewSession, session.status == .active {
             return session
         }
-        let orderedPoints = chapter.knowledgePoints.sorted(by: { lhs, rhs in
+        let orderedPoints = chapter.knowledgePoints.sorted { lhs, rhs in
             if (lhs.sourceOrder ?? Int.max) != (rhs.sourceOrder ?? Int.max) {
                 return (lhs.sourceOrder ?? Int.max) < (rhs.sourceOrder ?? Int.max)
             }
@@ -1267,7 +1267,7 @@ final class MockReviewService: ReviewServicing {
                 return (lhs.sourceStartOffset ?? Int.max) < (rhs.sourceStartOffset ?? Int.max)
             }
             return lhs.id < rhs.id
-        })
+        }
         let queue = orderedPoints.compactMap { point -> ReviewQueueItem? in
             guard let question = pickQuestion(for: point.id, in: chapter) else { return nil }
             return ReviewQueueItem(id: "queue-\(UUID().uuidString)", pointId: point.id, questionId: question.id, isReinforcement: false)
@@ -1459,7 +1459,7 @@ final class MockReviewService: ReviewServicing {
     private func pickQuestion(for pointId: String, in chapter: Chapter, excluding questionId: String = "") -> ReviewQuestion? {
         let candidates = chapter.questions
             .filter { $0.knowledgePointId == pointId && !chapter.removedQuestionIds.contains($0.id) }
-            .sorted(by: { lhs, rhs in
+            .sorted { lhs, rhs in
                 if (lhs.sourceOrder ?? Int.max) != (rhs.sourceOrder ?? Int.max) {
                     return (lhs.sourceOrder ?? Int.max) < (rhs.sourceOrder ?? Int.max)
                 }
@@ -1467,7 +1467,7 @@ final class MockReviewService: ReviewServicing {
                     return (lhs.sourceStartOffset ?? Int.max) < (rhs.sourceStartOffset ?? Int.max)
                 }
                 return lhs.id < rhs.id
-            })
+            }
         return candidates.first { $0.id != questionId } ?? candidates.first
     }
 

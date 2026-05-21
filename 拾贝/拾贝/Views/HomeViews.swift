@@ -50,6 +50,36 @@ private struct HomeChapterContent: View {
         max(1, chapter.knowledgePoints.count)
     }
 
+    private var isReviewCompleted: Bool {
+        chapter.reviewSession?.status == .completed
+    }
+
+    private var statusText: String {
+        if chapter.status.isFailed {
+            return "生成失败"
+        }
+        if chapter.status.isProcessing {
+            return chapter.visibleStatusText
+        }
+        if isReviewCompleted {
+            return "本章已完成"
+        }
+        return "当前章节"
+    }
+
+    private var primaryButtonTitle: String {
+        if chapter.status.isFailed || chapter.status.isProcessing {
+            return "查看章节"
+        }
+        if isReviewCompleted {
+            return "查看总结"
+        }
+        if chapter.reviewSession?.status == .active {
+            return "继续复习"
+        }
+        return "开始复习"
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 4) {
@@ -66,7 +96,7 @@ private struct HomeChapterContent: View {
 
             VStack(spacing: 32) {
                 SBCard {
-                    StatusPill(text: chapter.status.isFailed ? "生成失败" : chapter.status.isProcessing ? chapter.visibleStatusText : "当前章节", isDanger: chapter.status.isFailed)
+                    StatusPill(text: statusText, isDanger: chapter.status.isFailed)
                     Text(chapter.title)
                         .font(.system(size: 16))
                         .lineLimit(2)
@@ -83,11 +113,13 @@ private struct HomeChapterContent: View {
                 }
 
                 PrimaryButton(
-                    title: chapter.status.isFailed || chapter.status.isProcessing ? "查看章节" : chapter.reviewSession?.status == .active ? "继续复习" : "开始复习",
+                    title: primaryButtonTitle,
                     systemImage: "arrow.right"
                 ) {
                     if chapter.status.isFailed || chapter.status.isProcessing {
                         store.selectChapter(chapter, returnTo: .home)
+                    } else if isReviewCompleted {
+                        store.showCompletedSummary(for: chapter)
                     } else {
                         Task {
                             await store.startOrResumeReview(for: chapter)

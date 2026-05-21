@@ -75,7 +75,21 @@ struct NotificationsView: View {
                             .font(.system(size: 24, weight: .bold))
                     }
                 } else {
-                    VStack(spacing: 16) {
+                    VStack(spacing: 14) {
+                        if store.visibleNotifications.contains(where: \.read) {
+                            HStack {
+                                Spacer()
+                                Button {
+                                    Task {
+                                        await store.clearReadNotifications()
+                                    }
+                                } label: {
+                                    Label("清空已读", systemImage: "checkmark.circle")
+                                        .font(.system(size: 14, weight: .semibold))
+                                }
+                                .foregroundStyle(ShiBeiTheme.primary)
+                            }
+                        }
                         ForEach(store.visibleNotifications) { notification in
                             Button {
                                 Task {
@@ -92,16 +106,30 @@ struct NotificationsView: View {
                                         }
                                         StatusPill(text: notification.title, isDanger: notification.type == .generationFailed)
                                         Spacer()
+                                        if notification.read {
+                                            Text("已读")
+                                                .font(.system(size: 12, weight: .semibold))
+                                                .foregroundStyle(ShiBeiTheme.muted.opacity(0.72))
+                                        }
                                     }
                                     Text(store.chapters.first(where: { $0.id == notification.chapterId })?.title ?? notification.body)
                                         .font(.system(size: 16, weight: notification.read ? .regular : .semibold))
-                                        .foregroundStyle(ShiBeiTheme.text)
+                                        .foregroundStyle(notification.read ? ShiBeiTheme.muted : ShiBeiTheme.text)
                                     Text(notification.body)
                                         .font(.system(size: 14))
                                         .foregroundStyle(ShiBeiTheme.muted)
                                 }
                             }
                             .buttonStyle(.plain)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    Task {
+                                        await store.dismissNotification(notification)
+                                    }
+                                } label: {
+                                    Label("移除", systemImage: "trash")
+                                }
+                            }
                         }
                     }
                     .padding(24)
@@ -139,6 +167,8 @@ struct ChapterDetailView: View {
                             .foregroundStyle(ShiBeiTheme.muted)
                         Text("状态：\(chapter.visibleStatusText)")
                             .foregroundStyle(ShiBeiTheme.muted)
+
+                        ArticleCoreCard(chapter: chapter)
 
                         if chapter.status.isFailed {
                             FailedChapterCard(store: store, chapter: chapter)

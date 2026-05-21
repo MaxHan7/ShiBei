@@ -159,6 +159,53 @@ button {
   margin-top: 32px;
 }
 
+.notification-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 -10px;
+}
+
+.notification-card {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.notification-card.read {
+  opacity: 0.72;
+}
+
+.notification-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notification-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--accent);
+  flex: 0 0 auto;
+}
+
+.notification-card.read .notification-dot {
+  opacity: 0;
+}
+
+.notification-remove {
+  min-height: 34px;
+  margin-left: auto;
+  padding: 0 10px;
+  border-radius: 9999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.notification-remove:active {
+  transform: scale(0.97);
+}
+
 .pill {
   display: inline-flex;
   align-items: center;
@@ -788,6 +835,15 @@ textarea::placeholder {
 .source-card {
   border-style: solid;
   background: var(--surface-warm);
+}
+
+.source-paragraphs {
+  display: grid;
+  gap: 10px;
+}
+
+.source-paragraphs p {
+  margin: 0;
 }
 
 .action-links {

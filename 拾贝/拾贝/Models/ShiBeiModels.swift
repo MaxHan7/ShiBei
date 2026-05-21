@@ -47,7 +47,7 @@ enum ChapterStatus: String, Codable {
         case .qualityChecking:
             "正在检查题目质量"
         case .autoRegeneratingQuestions:
-            "正在重新生成题目"
+            "正在检查题目质量"
         case .failedExtractArticle:
             "文章正文提取失败"
         case .failedExtractVideo:
@@ -160,6 +160,7 @@ struct KnowledgePoint: Codable, Identifiable, Hashable {
     var sourceQuote: String
     var sourceOrder: Int?
     var sourceStartOffset: Int?
+    var sourceEndOffset: Int?
     var testabilityScore: Int
     var masteryScore: Int
     var answeredCount: Int
@@ -202,6 +203,7 @@ struct ReviewQuestion: Codable, Identifiable, Hashable {
     var sourceQuote: String?
     var sourceOrder: Int?
     var sourceStartOffset: Int?
+    var sourceEndOffset: Int?
     var difficulty: String
     var qualityScore: [String: Double]?
     var qualityIssues: [String]
