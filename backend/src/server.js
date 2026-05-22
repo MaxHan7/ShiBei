@@ -9,6 +9,7 @@ import {
   chapterCount,
   checkDatabase,
   deleteChapter as deleteDatabaseChapter,
+  deleteDeviceData as deleteDatabaseDeviceData,
   deleteNotificationsForChapter,
   ensureDevice,
   getChapter as getDatabaseChapter,
@@ -436,6 +437,22 @@ async function deleteStoredChapter(deviceId, chapterId) {
   memory.chapters = memory.chapters.filter((chapter) => chapter.id !== chapterId);
   memory.notifications = memory.notifications.filter((notification) => notification.chapterId !== chapterId);
   return memory.chapters.length !== before;
+}
+
+async function deleteStoredDeviceData(deviceId) {
+  generationRuns.forEach((_, key) => {
+    if (key.startsWith(`${deviceId}:`)) generationRuns.delete(key);
+  });
+  if (hasDatabase) return deleteDatabaseDeviceData(deviceId);
+  const memory = getMemory(deviceId);
+  const deleted = {
+    chapters: memory.chapters.length,
+    notifications: memory.notifications.length,
+    generationJobs: 0
+  };
+  memory.chapters = [];
+  memory.notifications = [];
+  return deleted;
 }
 
 async function listStoredNotifications(deviceId) {
@@ -1198,6 +1215,12 @@ const server = createServer(async (req, res) => {
   if (req.method === "GET" && req.url === "/api/chapters") {
     const chapters = await listStoredChapters(deviceId);
     sendJson(res, 200, { chapters: sortByCreatedAtDesc(serializeChaptersForClient(chapters)) });
+    return;
+  }
+
+  if (req.method === "DELETE" && req.url === "/api/device-data") {
+    const deleted = await deleteStoredDeviceData(deviceId);
+    sendJson(res, 200, { ok: true, deleted });
     return;
   }
 
