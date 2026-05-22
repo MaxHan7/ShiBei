@@ -2,6 +2,7 @@ import { cleanContent } from "./cleanContent.js";
 import { chunkContent } from "./chunkContent.js";
 import { extractKnowledgeCandidates } from "./extractKnowledgeCandidates.js";
 import { filterKnowledgePoints } from "./filterKnowledgePoints.js";
+import { generateChapterSummary } from "./generateChapterSummary.js";
 import { generateQuestions } from "./generateQuestions.js";
 import { evaluateQuestions } from "./evaluateQuestions.js";
 import { judgeQuestionQuality } from "./judgeQuestionQuality.js";
@@ -9,6 +10,7 @@ import { STATUS_TEXT } from "./types.js";
 
 export async function generateReviewChapter(input, options = {}) {
   const onStage = typeof options.onStage === "function" ? options.onStage : null;
+  const summaryGenerator = typeof options.summaryGenerator === "function" ? options.summaryGenerator : generateChapterSummary;
   const meta = createGenerationMeta();
   const rawText = String(input.rawText || "").trim();
 
@@ -116,6 +118,12 @@ export async function generateReviewChapter(input, options = {}) {
       });
     }
 
+    const coreSummary = await generateCoreSummarySafely({
+      summaryGenerator,
+      cleanedText: cleaned.cleanedText,
+      title: extracted.chapterTitle,
+      meta
+    });
     markStage(meta, "completed");
     return {
       status: "completed",
@@ -128,6 +136,7 @@ export async function generateReviewChapter(input, options = {}) {
         knowledgePoints,
         filteredKnowledgePoints,
         questions: qualifiedQuestions.map(toClientQuestion),
+        coreSummary,
         qualitySummary,
         generationMeta: finishMeta(meta, {
           chunkCount: chunks.length,
@@ -162,6 +171,17 @@ export async function generateReviewChapter(input, options = {}) {
       meta,
       failedStage: meta.currentStage || "generating_questions"
     });
+  }
+}
+
+export async function generateCoreSummarySafely({ summaryGenerator, cleanedText, title, meta }) {
+  try {
+    return await summaryGenerator({ cleanedText, title });
+  } catch (error) {
+    if (meta && typeof meta === "object") {
+      meta.coreSummaryError = error instanceof Error ? error.message : "文章核心总结生成失败";
+    }
+    return "";
   }
 }
 
@@ -538,6 +558,7 @@ function buildChapter({
   knowledgePoints,
   filteredKnowledgePoints,
   questions,
+  coreSummary = "",
   qualitySummary,
   generationMeta,
   status,
@@ -560,6 +581,7 @@ function buildChapter({
     knowledgePoints,
     filteredKnowledgePoints,
     questions,
+    coreSummary,
     qualitySummary,
     generationMeta
   };

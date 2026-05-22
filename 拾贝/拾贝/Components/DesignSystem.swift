@@ -253,7 +253,11 @@ struct SubmittedToast: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.34).ignoresSafeArea()
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .ignoresSafeArea()
+            Color.black.opacity(0.16)
+                .ignoresSafeArea()
             VStack(spacing: 16) {
                 Image(systemName: "checkmark")
                     .font(.system(size: 28, weight: .bold))

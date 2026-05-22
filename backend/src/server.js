@@ -687,6 +687,7 @@ function ensureChapterRecord(chapter) {
     source,
     sourceType: source.type,
     sourceText: source.rawInput || source.extractedText || "",
+    coreSummary: toStringValue(chapter.coreSummary || ""),
     knowledgePoints,
     filteredKnowledgePoints,
     questions,
@@ -1362,4 +1363,4 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   startServer();
 }
 
-export { createReviewSessionForChapter, startOrResumeReviewSession };
+export { createReviewSessionForChapter, serializeChapterForClient, startOrResumeReviewSession };

@@ -293,6 +293,7 @@ struct Chapter: Codable, Identifiable, Hashable {
     var source: ChapterSource
     var sourceType: SourceType
     var sourceText: String
+    var coreSummary: String?
     var knowledgePoints: [KnowledgePoint]
     var filteredKnowledgePoints: [KnowledgePoint]
     var questions: [ReviewQuestion]
@@ -313,6 +314,111 @@ struct Chapter: Codable, Identifiable, Hashable {
 
     var reviewableQuestions: [ReviewQuestion] {
         questions.filter { !removedQuestionIds.contains($0.id) }
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case title
+        case status
+        case displayStatusText
+        case failureReason
+        case source
+        case sourceType
+        case sourceText
+        case coreSummary
+        case knowledgePoints
+        case filteredKnowledgePoints
+        case questions
+        case qualitySummary
+        case generationMeta
+        case reviewSession
+        case masteredPoints
+        case removedQuestionIds
+        case downgradedQuestionIds
+        case feedbackRecords
+        case dismissedFromNotifications
+        case createdAt
+        case updatedAt
+    }
+
+    init(
+        id: String,
+        title: String,
+        status: ChapterStatus,
+        displayStatusText: String,
+        failureReason: String,
+        source: ChapterSource,
+        sourceType: SourceType,
+        sourceText: String,
+        coreSummary: String? = nil,
+        knowledgePoints: [KnowledgePoint],
+        filteredKnowledgePoints: [KnowledgePoint],
+        questions: [ReviewQuestion],
+        qualitySummary: QualitySummary?,
+        generationMeta: GenerationMeta?,
+        reviewSession: ReviewSession?,
+        masteredPoints: Int,
+        removedQuestionIds: [String],
+        downgradedQuestionIds: [String],
+        feedbackRecords: [QuestionFeedback],
+        dismissedFromNotifications: Bool,
+        createdAt: String,
+        updatedAt: String
+    ) {
+        self.id = id
+        self.title = title
+        self.status = status
+        self.displayStatusText = displayStatusText
+        self.failureReason = failureReason
+        self.source = source
+        self.sourceType = sourceType
+        self.sourceText = sourceText
+        self.coreSummary = coreSummary
+        self.knowledgePoints = knowledgePoints
+        self.filteredKnowledgePoints = filteredKnowledgePoints
+        self.questions = questions
+        self.qualitySummary = qualitySummary
+        self.generationMeta = generationMeta
+        self.reviewSession = reviewSession
+        self.masteredPoints = masteredPoints
+        self.removedQuestionIds = removedQuestionIds
+        self.downgradedQuestionIds = downgradedQuestionIds
+        self.feedbackRecords = feedbackRecords
+        self.dismissedFromNotifications = dismissedFromNotifications
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        title = try container.decode(String.self, forKey: .title)
+        status = try container.decode(ChapterStatus.self, forKey: .status)
+        displayStatusText = try container.decode(String.self, forKey: .displayStatusText)
+        failureReason = try container.decode(String.self, forKey: .failureReason)
+        source = try container.decode(ChapterSource.self, forKey: .source)
+        sourceType = try container.decode(SourceType.self, forKey: .sourceType)
+        sourceText = try container.decode(String.self, forKey: .sourceText)
+        coreSummary = container.decodeLossyOptionalString(forKey: .coreSummary)
+        knowledgePoints = try container.decode([KnowledgePoint].self, forKey: .knowledgePoints)
+        filteredKnowledgePoints = try container.decode([KnowledgePoint].self, forKey: .filteredKnowledgePoints)
+        questions = try container.decode([ReviewQuestion].self, forKey: .questions)
+        qualitySummary = try container.decodeIfPresent(QualitySummary.self, forKey: .qualitySummary)
+        generationMeta = try container.decodeIfPresent(GenerationMeta.self, forKey: .generationMeta)
+        reviewSession = try container.decodeIfPresent(ReviewSession.self, forKey: .reviewSession)
+        masteredPoints = try container.decode(Int.self, forKey: .masteredPoints)
+        removedQuestionIds = try container.decode([String].self, forKey: .removedQuestionIds)
+        downgradedQuestionIds = try container.decode([String].self, forKey: .downgradedQuestionIds)
+        feedbackRecords = try container.decode([QuestionFeedback].self, forKey: .feedbackRecords)
+        dismissedFromNotifications = try container.decode(Bool.self, forKey: .dismissedFromNotifications)
+        createdAt = try container.decode(String.self, forKey: .createdAt)
+        updatedAt = try container.decode(String.self, forKey: .updatedAt)
+    }
+}
+
+private extension KeyedDecodingContainer {
+    func decodeLossyOptionalString(forKey key: Key) -> String? {
+        (try? decodeIfPresent(String.self, forKey: key)) ?? ""
     }
 }
 

@@ -53,10 +53,10 @@ private struct HomeChapterContent: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 4) {
-                Text("已复习知识点")
+                Text("已掌握知识点")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(ShiBeiTheme.textSoft)
-                Text("\(store.reviewedCount)")
+                Text("\(store.reviewedKnowledgePointCount)")
                     .font(.system(size: 80, weight: .black))
                     .tracking(-4)
                     .foregroundStyle(ShiBeiTheme.primary)
@@ -87,7 +87,7 @@ private struct HomeChapterContent: View {
                     systemImage: "arrow.right"
                 ) {
                     if chapter.status.isFailed || chapter.status.isProcessing {
-                        store.selectChapter(chapter)
+                        store.selectChapter(chapter, returnTo: .home)
                     } else {
                         Task {
                             await store.startOrResumeReview(for: chapter)

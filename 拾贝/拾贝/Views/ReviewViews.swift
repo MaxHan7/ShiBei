@@ -44,7 +44,7 @@ struct ReviewView: View {
                         .padding(.bottom, 110)
                     }
                     VStack {
-                        SecondaryButton(title: "? 不知道") {
+                        SecondaryButton(title: "不知道？") {
                             guard !store.isSubmittingReview else { return }
                             revealedCorrectOptionId = question.correctOptionId
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
@@ -80,7 +80,7 @@ private struct ReviewTopBar: View {
     var body: some View {
         HStack {
             Button {
-                store.route = .chapterDetail
+                store.showSelectedChapterDetail()
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 18, weight: .bold))
@@ -129,7 +129,10 @@ private struct OptionButton: View {
                 Text(option.text)
                     .font(.system(size: 16))
                     .foregroundStyle(isWrong ? Color(red: 0.545, green: 0.102, blue: 0.071) : ShiBeiTheme.text)
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(3)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .padding(16)
             .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading)
@@ -168,25 +171,34 @@ struct ExplanationView: View {
                             ExplanationCard(title: "正确理解", systemImage: "asterisk", text: question.correctUnderstanding)
                             ExplanationCard(title: "常见误区", systemImage: "exclamationmark", text: "• \(question.commonMisconception)")
                             ExplanationCard(title: "来源片段", systemImage: "text.quote", text: question.sourceText, warm: true)
-                            HStack {
-                                Button("查看完整来源") {
-                                    store.openSource(returnTo: .explanation)
+                            VStack(spacing: 12) {
+                                Button {
+                                    store.openSource(returnTo: .explanation, focusText: question.sourceText)
+                                } label: {
+                                    Label("查看完整来源", systemImage: "link")
+                                        .font(.system(size: 15, weight: .semibold))
+                                        .padding(.horizontal, 18)
+                                        .padding(.vertical, 11)
+                                        .background(ShiBeiTheme.primary.opacity(0.1))
+                                        .clipShape(Capsule())
                                 }
-                                Spacer()
+
                                 Button("题目有问题") {
                                     store.selectedFeedbackQuestionId = question.id
                                     store.feedbackSheetContext = FeedbackSheetContext(questionId: question.id)
                                 }
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(ShiBeiTheme.muted)
                             }
-                            .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(ShiBeiTheme.primary)
-                            .padding(.top, 10)
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 8)
                         }
                         .padding(24)
                         .padding(.bottom, 120)
                     }
                     VStack {
-                        PrimaryButton(title: "继续复习", systemImage: "arrow.right") {
+                        PrimaryButton(title: continueTitle, systemImage: "arrow.right") {
                             store.nextQuestion()
                         }
                     }
@@ -202,6 +214,10 @@ struct ExplanationView: View {
 
     private var emptySession: ReviewSession {
         ReviewSession(id: "", chapterId: "", status: .active, queue: [], reinforcementQueue: [], currentQueueIndex: 0, attempts: [], masteryByPointId: [:], answeredPointIds: [], masteredThisRoundPointIds: [], skippedPointIds: [], createdAt: "", updatedAt: "", completedAt: nil)
+    }
+
+    private var continueTitle: String {
+        store.selectedChapter?.reviewSession?.status == .completed ? "查看总结" : "继续复习"
     }
 }
 
@@ -279,7 +295,7 @@ struct SummaryView: View {
     @ObservedObject var store: AppStore
 
     var body: some View {
-        AppScaffold(store: store, title: "章节总结", showsTabBar: false, leadingAction: { store.route = .chapterDetail }) {
+        AppScaffold(store: store, title: "章节总结", showsTabBar: false, leadingAction: { store.showSelectedChapterDetail() }) {
             if let chapter = store.selectedChapter {
                 ScrollView {
                     VStack(spacing: 22) {
@@ -316,6 +332,19 @@ struct SummaryView: View {
                                 }
                             }
                         }
+                        SBCard(padding: 20) {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("文章核心")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundStyle(ShiBeiTheme.text)
+                                Text(articleCoreText(for: chapter))
+                                    .font(.system(size: 15))
+                                    .foregroundStyle(ShiBeiTheme.muted)
+                                    .lineSpacing(5)
+                                    .multilineTextAlignment(.leading)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
                         VStack(alignment: .leading, spacing: 12) {
                             Text("本章知识点")
                                 .font(.system(size: 18, weight: .bold))
@@ -341,5 +370,40 @@ struct SummaryView: View {
                 }
             }
         }
+    }
+
+    private func articleCoreText(for chapter: Chapter) -> String {
+        let coreSummary = chapter.coreSummary?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if !coreSummary.isEmpty {
+            return coreSummary
+        }
+
+        let sourceText = chapter.sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !sourceText.isEmpty {
+            return clippedSummary(sourceText)
+        }
+
+        let claims = chapter.knowledgePoints
+            .prefix(3)
+            .map { point in
+                let claim = point.keyClaim.trimmingCharacters(in: .whitespacesAndNewlines)
+                return claim.isEmpty ? point.summary.trimmingCharacters(in: .whitespacesAndNewlines) : claim
+            }
+            .filter { !$0.isEmpty }
+
+        if !claims.isEmpty {
+            return claims.joined(separator: " ")
+        }
+
+        return "本章已整理出可复习内容，可以通过知识点和题目快速回顾文章主线。"
+    }
+
+    private func clippedSummary(_ text: String) -> String {
+        let normalized = text
+            .replacingOccurrences(of: "\n", with: " ")
+            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard normalized.count > 180 else { return normalized }
+        return String(normalized.prefix(180)).trimmingCharacters(in: .whitespacesAndNewlines) + "..."
     }
 }

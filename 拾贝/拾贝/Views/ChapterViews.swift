@@ -119,7 +119,7 @@ struct ChapterDetailView: View {
         AppScaffold(
             store: store,
             title: "章节详情",
-            leadingAction: { store.route = .chapters },
+            leadingAction: { store.returnFromChapterDetail() },
             trailing: {
                 Button("删除") {
                     store.showingDeleteConfirmation = true
@@ -305,8 +305,12 @@ struct SourceView: View {
 
     var body: some View {
         AppScaffold(store: store, title: "来源内容", leadingAction: { store.returnFromSource() }) {
-            ScrollView {
+            ScrollViewReader { proxy in
+                ScrollView {
                 if let chapter = store.selectedChapter {
+                    let sourceText = chapter.sourceText.isEmpty ? chapter.source.extractedText : chapter.sourceText
+                    let sourceBlocks = SourceTextBlock.makeBlocks(from: sourceText)
+                    let focusedBlockId = SourceTextBlock.bestMatch(in: sourceBlocks, focusText: store.sourceFocusText)
                     VStack(spacing: 18) {
                         SBCard {
                             StatusPill(text: chapter.sourceType.label)
@@ -329,17 +333,141 @@ struct SourceView: View {
                             }
                         }
                         SBCard {
-                            Text(chapter.sourceText.isEmpty ? chapter.source.extractedText : chapter.sourceText)
-                                .font(.system(size: 15))
-                                .foregroundStyle(ShiBeiTheme.muted)
-                                .lineSpacing(5)
+                            VStack(alignment: .leading, spacing: 14) {
+                                ForEach(sourceBlocks) { block in
+                                    SourceTextBlockView(block: block, isFocused: block.id == focusedBlockId)
+                                        .id(block.id)
+                                }
+                            }
                         }
                     }
                     .padding(24)
                     .padding(.bottom, 120)
+                    .task(id: focusedBlockId) {
+                        guard let focusedBlockId else { return }
+                        try? await Task.sleep(for: .milliseconds(180))
+                        withAnimation(.easeInOut(duration: 0.28)) {
+                            proxy.scrollTo(focusedBlockId, anchor: .center)
+                        }
+                    }
+                }
                 }
             }
         }
+    }
+}
+
+private struct SourceTextBlock: Identifiable, Hashable {
+    let id: String
+    let text: String
+
+    static func makeBlocks(from sourceText: String) -> [SourceTextBlock] {
+        let paragraphs = sourceText
+            .components(separatedBy: CharacterSet.newlines)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+
+        let sourceBlocks = (paragraphs.isEmpty ? [sourceText.trimmingCharacters(in: .whitespacesAndNewlines)] : paragraphs)
+            .flatMap { splitLongBlock($0) }
+        return sourceBlocks.enumerated().map { index, text in
+            SourceTextBlock(id: "source-block-\(index)", text: text)
+        }
+    }
+
+    private static func splitLongBlock(_ text: String) -> [String] {
+        guard text.count > 700 else { return [text] }
+        let sentences = text
+            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+            .matches(of: /[^。！？!?；;]+[。！？!?；;]?/)
+            .map { String($0.output).trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        guard !sentences.isEmpty else { return [text] }
+
+        var blocks: [String] = []
+        var current = ""
+        for sentence in sentences {
+            let next = current + sentence
+            if next.count > 520, !current.isEmpty {
+                blocks.append(current)
+                current = sentence
+            } else {
+                current = next
+            }
+        }
+        if !current.isEmpty {
+            blocks.append(current)
+        }
+        return blocks
+    }
+
+    static func bestMatch(in blocks: [SourceTextBlock], focusText: String?) -> String? {
+        guard let focusText = focusText?.trimmingCharacters(in: .whitespacesAndNewlines), !focusText.isEmpty else { return nil }
+        let normalizedFocus = normalized(focusText)
+        if normalizedFocus.isEmpty { return nil }
+
+        if let exact = blocks.first(where: { normalized($0.text).contains(normalizedFocus) || normalizedFocus.contains(normalized($0.text)) }) {
+            return exact.id
+        }
+
+        let focusKeywords = keywords(from: focusText)
+        guard !focusKeywords.isEmpty else { return nil }
+        let scored = blocks.map { block in
+            let normalizedBlock = normalized(block.text)
+            let score = focusKeywords.reduce(0) { partial, keyword in
+                partial + (normalizedBlock.contains(keyword) ? 1 : 0)
+            }
+            return (block: block, score: score)
+        }
+        guard let best = scored.max(by: { $0.score < $1.score }), best.score >= max(2, min(5, focusKeywords.count / 5)) else {
+            return nil
+        }
+        return best.block.id
+    }
+
+    private static func normalized(_ text: String) -> String {
+        text.replacingOccurrences(of: "\\s+", with: "", options: .regularExpression)
+    }
+
+    private static func keywords(from text: String) -> [String] {
+        let cleaned = text.replacingOccurrences(of: "[，。！？；：、,.!?;:()\\[\\]{}\"'“”‘’|/\\\\-]", with: " ", options: .regularExpression)
+        let parts = cleaned.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
+        var terms: [String] = parts.filter { $0.range(of: "[A-Za-z0-9]", options: .regularExpression) != nil && $0.count >= 3 }
+        for part in parts where part.range(of: "[\\u4e00-\\u9fff]", options: .regularExpression) != nil {
+            let chars = part.filter { String($0).range(of: "[\\u4e00-\\u9fff]", options: .regularExpression) != nil }
+            let array = Array(chars)
+            guard array.count >= 2 else { continue }
+            for index in 0..<(array.count - 1) {
+                terms.append(String(array[index...index + 1]))
+            }
+            if array.count >= 3 {
+                for index in 0..<(array.count - 2) {
+                    terms.append(String(array[index...index + 2]))
+                }
+            }
+        }
+        return Array(Set(terms)).prefix(80).map(\.self)
+    }
+}
+
+private struct SourceTextBlockView: View {
+    let block: SourceTextBlock
+    let isFocused: Bool
+
+    var body: some View {
+        Text(block.text)
+            .font(.system(size: 15))
+            .foregroundStyle(ShiBeiTheme.muted)
+            .lineSpacing(5)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(isFocused ? 12 : 0)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(isFocused ? Color(red: 1, green: 0.961, blue: 0.843) : .clear)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(isFocused ? ShiBeiTheme.yellow.opacity(0.8) : .clear, lineWidth: 1)
+            )
     }
 }
 
