@@ -2,6 +2,7 @@ import Foundation
 
 struct APIClient {
     static let localBaseURL = URL(string: "http://127.0.0.1:5173")!
+    static let productionBaseURL = URL(string: "https://shibei-production.up.railway.app")!
 
     var baseURL: URL
     var session: URLSession
@@ -78,19 +79,27 @@ struct APIClient {
         return try await send("/api/questions/\(questionId)/feedback", method: "POST", body: request, acceptsFailureBody: false)
     }
 
+    func deleteDeviceData() async throws -> DeviceDataDeletionResponse {
+        try await send("/api/device-data", method: "DELETE", body: EmptyRequest(), acceptsFailureBody: false)
+    }
+
     private func get<Response: Decodable>(_ path: String) async throws -> Response {
         let url = baseURL.appending(path: path)
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "accept")
         request.setValue(deviceId, forHTTPHeaderField: "X-Device-Id")
+        #if DEBUG
         print("[ShiBei] API GET \(url.absoluteString) device=\(deviceId.suffix(6))")
+        #endif
 
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIClientError.invalidResponse
         }
+        #if DEBUG
         print("[ShiBei] API GET status=\(httpResponse.statusCode) path=\(path)")
+        #endif
         guard (200..<300).contains(httpResponse.statusCode) else {
             throw APIClientError.httpStatus(httpResponse.statusCode)
         }
@@ -108,7 +117,9 @@ struct APIClient {
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "accept")
         request.setValue(deviceId, forHTTPHeaderField: "X-Device-Id")
+        #if DEBUG
         print("[ShiBei] API \(method) \(url.absoluteString) device=\(deviceId.suffix(6))")
+        #endif
         if method != "DELETE" {
             request.setValue("application/json", forHTTPHeaderField: "content-type")
             request.httpBody = try JSONEncoder().encode(body)
@@ -118,7 +129,9 @@ struct APIClient {
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIClientError.invalidResponse
         }
+        #if DEBUG
         print("[ShiBei] API \(method) status=\(httpResponse.statusCode) path=\(path)")
+        #endif
         if (200..<300).contains(httpResponse.statusCode) || (acceptsFailureBody && httpResponse.statusCode == 422) {
             return try decode(Response.self, from: data, path: path)
         }
@@ -133,10 +146,14 @@ struct APIClient {
             return try decoder.decode(type, from: data)
         } catch let error as DecodingError {
             let message = Self.describeDecodingError(error)
+            #if DEBUG
             print("[ShiBei] API decode failed path=\(path): \(message)")
+            #endif
             throw APIClientError.decoding(message)
         } catch {
+            #if DEBUG
             print("[ShiBei] API decode failed path=\(path): \(error.localizedDescription)")
+            #endif
             throw error
         }
     }
@@ -239,6 +256,17 @@ struct ChapterMutationResponse: Codable {
 struct ChapterDeletionResponse: Codable {
     var deleted: Bool
     var chapterId: String
+}
+
+struct DeviceDataDeletionResponse: Codable {
+    struct Deleted: Codable {
+        var chapters: Int
+        var notifications: Int
+        var generationJobs: Int
+    }
+
+    var ok: Bool
+    var deleted: Deleted
 }
 
 struct APIErrorResponse: Codable {

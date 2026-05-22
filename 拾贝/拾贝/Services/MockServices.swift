@@ -43,7 +43,11 @@ final class AppStore: ObservableObject {
         apiClient: APIClient = APIClient(),
         deviceIdentityStore: DeviceIdentityStore = .shared
     ) {
+        #if DEBUG
         let state = Self.makeDefaultState()
+        #else
+        let state = MockState(chapters: [], notifications: [], selectedChapterId: nil)
+        #endif
         let deviceId = deviceIdentityStore.currentDeviceId()
         chapters = state.chapters
         notifications = state.notifications
@@ -57,7 +61,15 @@ final class AppStore: ObservableObject {
         localAPIReviewService = LocalAPIReviewService(apiClient: self.apiClient)
         localAPINotificationService = LocalAPINotificationService(apiClient: self.apiClient)
         anonymousDeviceId = deviceId
+        #if DEBUG
         cloudAPIBaseURLString = UserDefaults.standard.string(forKey: cloudAPIBaseURLKey) ?? ""
+        dataMode = .mock
+        dataSourceMessage = "Mock 数据已就绪"
+        #else
+        cloudAPIBaseURLString = APIClient.productionBaseURL.absoluteString
+        dataMode = .cloudAPI
+        dataSourceMessage = "正在连接拾贝云端"
+        #endif
     }
 
     private static func makeDefaultState() -> MockState {
@@ -95,6 +107,10 @@ final class AppStore: ObservableObject {
         return dataMode.title
     }
 
+    var isBetaAccount: Bool {
+        true
+    }
+
     var selectedChapter: Chapter? {
         guard let selectedChapterId else { return activeHomeChapter }
         return chapters.first { $0.id == selectedChapterId }
@@ -112,6 +128,15 @@ final class AppStore: ObservableObject {
         Task {
             await refreshSelectedChapterFromAPI()
         }
+    }
+
+    func bootstrapForCurrentEnvironment() async {
+        #if DEBUG
+        return
+        #else
+        guard dataMode == .cloudAPI else { return }
+        await loadCloudAPIReadOnly()
+        #endif
     }
 
     func returnFromChapterDetail() {
@@ -201,7 +226,7 @@ final class AppStore: ObservableObject {
                 ? "\(dataMode.apiLabel) 已归档通知"
                 : "\(dataMode.apiLabel) 已标记通知为已读"
         } catch {
-            dataSourceMessage = "更新通知失败：\(error.localizedDescription)"
+            dataSourceMessage = "更新通知失败：\(userFacingErrorMessage(error))"
         }
     }
 
@@ -213,14 +238,14 @@ final class AppStore: ObservableObject {
             notificationService.dismiss(notification.id, notifications: &notifications)
             do {
                 guard let notificationService = activeNotificationService else {
-                    dataSourceMessage = "请先填写有效的 Railway 云端 API 地址"
+                    dataSourceMessage = missingAPIMessage(for: dataMode)
                     return
                 }
                 let updated = try await notificationService.dismiss(id: notification.id)
                 upsertNotification(updated)
                 dataSourceMessage = "\(dataMode.apiLabel) 已移除通知"
             } catch {
-                dataSourceMessage = "移除通知失败：\(error.localizedDescription)"
+                dataSourceMessage = "移除通知失败：\(userFacingErrorMessage(error))"
             }
         }
     }
@@ -237,7 +262,9 @@ final class AppStore: ObservableObject {
         let parsedInput = ChapterInput.parse(input)
         let targetMode = submissionModeForCreate()
         let shouldReplaceMockState = dataMode == .mock && targetMode == .cloudAPI
+        #if DEBUG
         print("[ShiBei] AppStore.createChapter start target=\(targetMode.rawValue), sourceType=\(parsedInput.sourceType.rawValue), canSubmit=\(parsedInput.canSubmit), device=\(anonymousDeviceId.suffix(6))")
+        #endif
         isWritingChapter = true
         defer { isWritingChapter = false }
 
@@ -249,15 +276,19 @@ final class AppStore: ObservableObject {
                 created = chapterService.createChapter(from: parsedInput)
             case .localAPI, .cloudAPI:
                 guard let client = apiClient(for: targetMode) else {
-                    dataSourceMessage = "请先填写有效的 Railway 云端 API 地址"
+                    dataSourceMessage = missingAPIMessage(for: targetMode)
+                    #if DEBUG
                     print("[ShiBei] AppStore.createChapter missing valid API client for target=\(targetMode.rawValue), cloudURL=\(cloudAPIBaseURLString)")
+                    #endif
                     return false
                 }
                 dataSourceMessage = "正在提交到\(targetMode.apiLabel)..."
                 let chapterService = LocalAPIChapterService(apiClient: client)
                 created = try await chapterService.createChapter(from: parsedInput)
                 dataSourceMessage = "\(targetMode.apiLabel)已接收，正在生成章节..."
+                #if DEBUG
                 print("[ShiBei] AppStore.createChapter accepted chapter=\(created.chapter.id), status=\(created.chapter.status.rawValue)")
+                #endif
             }
             if shouldReplaceMockState {
                 clearCurrentStateForCloudSubmission()
@@ -269,8 +300,10 @@ final class AppStore: ObservableObject {
             }
             return true
         } catch {
-            dataSourceMessage = "\(targetMode.apiLabel)提交失败：\(error.localizedDescription)"
+            dataSourceMessage = "\(targetMode.apiLabel)提交失败：\(userFacingErrorMessage(error))"
+            #if DEBUG
             print("[ShiBei] AppStore.createChapter failed target=\(targetMode.rawValue), error=\(error.localizedDescription)")
+            #endif
             return false
         }
     }
@@ -403,7 +436,7 @@ final class AppStore: ObservableObject {
         dataSourceMessage = "正在读取\(mode.apiLabel)..."
         guard let client = apiClient(for: mode) else {
             dataMode = .mock
-            dataSourceMessage = "请先填写有效的 Railway 云端 API 地址"
+            dataSourceMessage = missingAPIMessage(for: mode)
             isLoadingLocalAPI = false
             return
         }
@@ -416,9 +449,43 @@ final class AppStore: ObservableObject {
             dataMode = mode
             dataSourceMessage = "已从\(mode.apiLabel)读取 \(chapters.count) 个章节、\(notifications.count) 条通知"
         } catch {
-            dataSourceMessage = "\(mode.apiLabel)读取失败：\(error.localizedDescription)"
+            dataSourceMessage = "\(mode.apiLabel)读取失败：\(userFacingErrorMessage(error))"
         }
         isLoadingLocalAPI = false
+    }
+
+    func deleteMyDeviceData() async -> Bool {
+        isWritingChapter = true
+        defer { isWritingChapter = false }
+
+        do {
+            switch dataMode {
+            case .mock:
+                clearCurrentStateForCloudSubmission()
+                dataSourceMessage = "本机测试数据已删除"
+            case .localAPI, .cloudAPI:
+                guard let client = activeAPIClient else {
+                    dataSourceMessage = missingAPIMessage(for: dataMode)
+                    return false
+                }
+                _ = try await client.deleteDeviceData()
+                clearCurrentStateForCloudSubmission()
+                dataSourceMessage = "你的数据已删除"
+            }
+            selectedTab = .home
+            route = .home
+            showingSubmittedToast = false
+            showingNotificationEducation = false
+            showingDeleteConfirmation = false
+            feedbackSheetContext = nil
+            selectedFeedbackQuestionId = nil
+            latestFeedbackMessage = ""
+            lastAnsweredQuestion = nil
+            return true
+        } catch {
+            dataSourceMessage = "删除数据失败：\(userFacingErrorMessage(error))"
+            return false
+        }
     }
 
     func regenerateSelectedChapter() async {
@@ -433,7 +500,7 @@ final class AppStore: ObservableObject {
                 result = chapterService.regenerateChapter(chapter)
             case .localAPI, .cloudAPI:
                 guard let chapterService = activeChapterService else {
-                    dataSourceMessage = "请先填写有效的 Railway 云端 API 地址"
+                    dataSourceMessage = missingAPIMessage(for: dataMode)
                     return
                 }
                 dataSourceMessage = "正在请求\(dataMode.apiLabel)重新生成..."
@@ -452,7 +519,7 @@ final class AppStore: ObservableObject {
             route = .home
             showingSubmittedToast = true
         } catch {
-            dataSourceMessage = "重新生成失败：\(error.localizedDescription)"
+            dataSourceMessage = "重新生成失败：\(userFacingErrorMessage(error))"
         }
     }
 
@@ -467,7 +534,7 @@ final class AppStore: ObservableObject {
                 chapterService.deleteChapter(selectedChapterId, chapters: &chapters, notifications: &notifications)
             case .localAPI, .cloudAPI:
                 guard let chapterService = activeChapterService else {
-                    dataSourceMessage = "请先填写有效的 Railway 云端 API 地址"
+                    dataSourceMessage = missingAPIMessage(for: dataMode)
                     return
                 }
                 dataSourceMessage = "正在请求\(dataMode.apiLabel)删除章节..."
@@ -481,7 +548,7 @@ final class AppStore: ObservableObject {
             self.selectedChapterId = activeHomeChapter?.id ?? chapters.first?.id
             returnFromChapterDetail()
         } catch {
-            dataSourceMessage = "删除失败：\(error.localizedDescription)"
+            dataSourceMessage = "删除失败：\(userFacingErrorMessage(error))"
         }
     }
 
@@ -498,14 +565,14 @@ final class AppStore: ObservableObject {
             }
             do {
                 guard let notificationService = activeNotificationService else {
-                    dataSourceMessage = "请先填写有效的 Railway 云端 API 地址"
+                    dataSourceMessage = missingAPIMessage(for: dataMode)
                     return
                 }
                 let updated = try await notificationService.dismiss(id: notification.id)
                 upsertNotification(updated)
                 dataSourceMessage = "\(dataMode.apiLabel)已隐藏失败通知"
             } catch {
-                dataSourceMessage = "隐藏通知失败：\(error.localizedDescription)"
+                dataSourceMessage = "隐藏通知失败：\(userFacingErrorMessage(error))"
             }
         }
         returnFromChapterDetail()
@@ -529,7 +596,7 @@ final class AppStore: ObservableObject {
                 }
             case .localAPI, .cloudAPI:
                 guard let reviewService = activeReviewService else {
-                    dataSourceMessage = "请先填写有效的 Railway 云端 API 地址"
+                    dataSourceMessage = missingAPIMessage(for: dataMode)
                     return
                 }
                 dataSourceMessage = "正在恢复\(dataMode.apiLabel)复习会话..."
@@ -539,7 +606,7 @@ final class AppStore: ObservableObject {
             }
             route = .review
         } catch {
-            dataSourceMessage = "开始复习失败：\(error.localizedDescription)"
+            dataSourceMessage = "开始复习失败：\(userFacingErrorMessage(error))"
         }
     }
 
@@ -556,7 +623,7 @@ final class AppStore: ObservableObject {
                 updated = reviewService.submitAttempt(chapter: chapter, session: session, answer: answer, result: result)
             case .localAPI, .cloudAPI:
                 guard let reviewService = activeReviewService else {
-                    dataSourceMessage = "请先填写有效的 Railway 云端 API 地址"
+                    dataSourceMessage = missingAPIMessage(for: dataMode)
                     return
                 }
                 dataSourceMessage = "正在提交答题..."
@@ -573,7 +640,7 @@ final class AppStore: ObservableObject {
                 route = .explanation
             }
         } catch {
-            dataSourceMessage = "答题提交失败：\(error.localizedDescription)"
+            dataSourceMessage = "答题提交失败：\(userFacingErrorMessage(error))"
         }
     }
 
@@ -610,7 +677,7 @@ final class AppStore: ObservableObject {
                 latestFeedbackMessage = result.message
             case .localAPI, .cloudAPI:
                 guard let reviewService = activeReviewService else {
-                    dataSourceMessage = "请先填写有效的 Railway 云端 API 地址"
+                    dataSourceMessage = missingAPIMessage(for: dataMode)
                     return
                 }
                 dataSourceMessage = "正在提交题目反馈..."
@@ -620,7 +687,7 @@ final class AppStore: ObservableObject {
                 dataSourceMessage = "题目反馈已同步到\(dataMode.apiLabel)"
             }
         } catch {
-            dataSourceMessage = "题目反馈提交失败：\(error.localizedDescription)"
+            dataSourceMessage = "题目反馈提交失败：\(userFacingErrorMessage(error))"
         }
     }
 
@@ -793,7 +860,7 @@ final class AppStore: ObservableObject {
             await refreshAPIStateAfterMissingChapter(chapterId: chapterId, mode: mode)
             return
         }
-        dataSourceMessage = "刷新生成状态失败：\(error.localizedDescription)"
+        dataSourceMessage = "刷新生成状态失败：\(userFacingErrorMessage(error))"
     }
 
     private func refreshAPIStateAfterMissingChapter(chapterId: String, mode: AppDataMode) async {
@@ -815,7 +882,7 @@ final class AppStore: ObservableObject {
                 selectedChapterId = nil
                 selectedTab = .home
                 route = .home
-                dataSourceMessage = "\(mode.apiLabel)当前没有章节，旧生成记录可能已随部署失效"
+                dataSourceMessage = "\(mode.apiLabel)当前没有章节"
                 return
             }
             if let staleChapter {
@@ -840,7 +907,7 @@ final class AppStore: ObservableObject {
         var expired = chapter
         expired.status = .failedQuestions
         expired.displayStatusText = "云端记录已失效"
-        expired.failureReason = "Railway 云端原型使用内存存储，部署或重启后旧生成记录会失效。请重新提交内容。"
+        expired.failureReason = "这条生成记录已经失效，请重新提交内容。"
         expired.generationMeta = GenerationMeta(
             currentStage: ChapterStatus.failedQuestions.rawValue,
             qualifiedQuestionCount: chapter.generationMeta?.qualifiedQuestionCount,
@@ -854,6 +921,39 @@ final class AppStore: ObservableObject {
     private func cancelGenerationPolling() {
         generationPollTasks.values.forEach { $0.cancel() }
         generationPollTasks.removeAll()
+    }
+
+    private func missingAPIMessage(for mode: AppDataMode) -> String {
+        switch mode {
+        case .mock:
+            "当前使用本机测试数据。"
+        case .localAPI:
+            "本地服务暂时不可用。"
+        case .cloudAPI:
+            "暂时无法连接拾贝云端，请稍后再试。"
+        }
+    }
+
+    private func userFacingErrorMessage(_ error: Error) -> String {
+        if case APIClientError.decoding = error {
+            return "服务返回内容暂时无法读取，请稍后再试。"
+        }
+        if case APIClientError.httpStatus(let statusCode) = error {
+            if statusCode == 404 { return "内容不存在或已被删除。" }
+            if statusCode == 422 { return "当前内容暂时不能完成这个操作。" }
+            if statusCode >= 500 { return "服务暂时繁忙，请稍后再试。" }
+        }
+        if case APIClientError.invalidResponse = error {
+            return "服务响应异常，请稍后再试。"
+        }
+        if case APIClientError.serverMessage(let message) = error {
+            return message
+        }
+        let nsError = error as NSError
+        if nsError.domain == NSURLErrorDomain {
+            return "网络连接失败，请检查网络后重试。"
+        }
+        return "操作失败，请稍后再试。"
     }
 
     private func updateChapter(_ id: String, mutate: (inout Chapter) -> Void) {

@@ -163,6 +163,18 @@ export async function deleteChapter(deviceId, chapterId) {
   return result.rowCount > 0;
 }
 
+export async function deleteDeviceData(deviceId) {
+  await ensureDevice(deviceId);
+  const notifications = await pool.query("DELETE FROM notifications WHERE device_id = $1", [deviceId]);
+  const generationJobs = await pool.query("DELETE FROM generation_jobs WHERE device_id = $1", [deviceId]);
+  const chapters = await pool.query("DELETE FROM chapters WHERE device_id = $1", [deviceId]);
+  return {
+    chapters: chapters.rowCount || 0,
+    notifications: notifications.rowCount || 0,
+    generationJobs: generationJobs.rowCount || 0
+  };
+}
+
 export async function listNotifications(deviceId) {
   await ensureDevice(deviceId);
   const result = await pool.query(
