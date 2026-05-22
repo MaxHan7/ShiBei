@@ -6,7 +6,9 @@
   "scripts": {
     "build": "npm --prefix backend install && npm --prefix backend run build",
     "start": "npm --prefix backend start",
-    "check": "npm --prefix backend run check"
+    "check": "npm --prefix backend run check",
+    "iteration:log": "node tools/iteration-log/create-entry.mjs",
+    "blog:serve": "node tools/iteration-log/serve-blog.mjs"
   },
   "engines": {
     "node": ">=20"

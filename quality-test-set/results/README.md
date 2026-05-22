@@ -31,7 +31,7 @@ results/<timestamp>.json
 
 - `config`：运行参数。
 - `summary`：成功率、覆盖率、低置信题比例、issue 频次等总体统计。
-- `reviewRows`：人工评分用题目级摘要。
+- `reviewRows`：人工评分用题目级摘要，包含题目字段、知识点结构字段，以及 `trustDiagnostics`、`confidenceReasons`、`blockingReasons` 可信度诊断字段。
 - `results`：每篇样本完整生成结果和调试信息。
 
 ## 人工评分
@@ -71,7 +71,7 @@ quality-workbench-<timestamp>.auto-review.csv
 quality-workbench-<timestamp>.manual-review.csv
 ```
 
-其中 `auto-review.csv` 包含 `ai_*` 预标字段，只能用于排序和初筛；`manual-review.csv` 只有在页面中确认或修改后，才会写入 `human_*`、`human_verified` 和 `review_decision`。后续训练或正式统计只能使用 `human_verified=true` 的行。
+其中 `auto-review.csv` 包含 `ai_*` 预标字段和机器可信度诊断，只能用于排序和初筛；`manual-review.csv` 只有在页面中确认或修改后，才会写入 `human_*`、`human_verified` 和 `review_decision`。后续训练或正式统计只能使用 `human_verified=true` 的行。
 
 ## 归档规则
 

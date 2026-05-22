@@ -37,9 +37,27 @@
 - `distractor_quality`：错误选项是否合理但明确错误。
 - `explanation_faithfulness`：正确理解、常见误区和解释是否忠实于原文与题目。
 - `review_value`：这道题是否值得未来再次复习。
+- `knowledge_mainline_relevance`：对应知识点是否属于文章主线或重要支撑。
+- `knowledge_granularity`：对应知识点是否粒度合适，不太碎也不太泛。
+- `knowledge_review_value`：对应知识点本身是否值得复习。
+- `missing_core_point`：是否明显漏掉文章核心知识点。
 - `blame_stage`：问题主要来自哪个阶段。
 - `option_issue`：如果主要问题在选项，记录具体选项问题。
 - `training_label_eligible`：是否适合进入后续训练级数据。
+- `trust_diagnostics`：机器可信度诊断摘要，用来辅助定位问题，不等同于人工评分。
+- `confidence_reasons`：机器认为该题低置信的原因。
+- `blocking_reasons`：机器认为该题不可入池的原因。
+
+## 可信度诊断口径
+
+机器诊断会把题目拆成四个分数：
+
+- `answerGroundingScore`：正确答案是否被来源上下文支撑。
+- `explanationFaithfulnessScore`：解释是否忠实于来源和正确答案。
+- `contextRelevanceScore`：来源片段是否有助于理解这道题。
+- `misconceptionSupportScore`：常见误区是否来自题目和来源，而不是模型硬编。
+
+`confidenceLevel=low` 不代表题目一定不可用，只表示需要优先人工检查。低置信题第一版仍可进入复习池，但用户侧不展示低置信标签。只有人工确认后的 `human_*` 字段才能作为正式统计或训练候选。
 
 ## 问题类型 Taxonomy
 

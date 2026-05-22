@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>拾贝产品迭代日志</title>
+  <meta name="description" content="拾贝从 HTML Demo 到 SwiftUI、云端生成和出题质量系统的产品迭代记录。">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">ShiBei Iteration Notes</p>
+        <h1>拾贝产品迭代日志</h1>
+        <p class="hero-text">从一个 HTML 原型开始，把知识提取、复习体验、云端生成和出题质量系统一点点磨成可用产品。这里记录每天真正推进了什么、为什么改、效果如何。</p>
+      </div>
+      <div class="hero-panel" aria-label="当前产品状态">
+        <div>
+          <span class="metric">SwiftUI</span>
+          <span class="metric-label">当前主线</span>
+        </div>
+        <div>
+          <span class="metric">Cloud API</span>
+          <span class="metric-label">真实生成</span>
+        </div>
+        <div>
+          <span class="metric">Quality Loop</span>
+          <span class="metric-label">出题评测</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="summary-grid" id="summary"></section>
+
+    <section class="timeline-header">
+      <div>
+        <p class="eyebrow">Timeline</p>
+        <h2>核心迭代</h2>
+      </div>
+      <p>每条记录保留问题、修改、效果和下一步，避免变成冗长开发流水账。</p>
+    </section>
+
+    <section class="timeline" id="timeline" aria-live="polite"></section>
+  </main>
+
+  <script src="./entries-data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

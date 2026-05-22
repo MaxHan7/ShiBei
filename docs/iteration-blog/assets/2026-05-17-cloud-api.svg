@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <rect x="100" y="112" width="260" height="200" rx="30" fill="#fff" stroke="#fbf3e4"/>
+  <text x="150" y="210" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="30" font-weight="800">iPhone</text>
+  <rect x="470" y="92" width="260" height="240" rx="30" fill="#fff" stroke="#fbf3e4"/>
+  <text x="522" y="196" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="30" font-weight="800">Railway</text>
+  <text x="524" y="238" fill="#e09859" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="20" font-weight="700">HTTPS API</text>
+  <rect x="840" y="112" width="260" height="200" rx="30" fill="#fff" stroke="#fbf3e4"/>
+  <text x="900" y="210" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="30" font-weight="800">Postgres</text>
+  <path d="M370 210 H450" stroke="#e09859" stroke-width="8" stroke-linecap="round"/>
+  <path d="M740 210 H820" stroke="#e09859" stroke-width="8" stroke-linecap="round"/>
+  <rect x="166" y="430" width="868" height="156" rx="34" fill="#fff" stroke="#fbf3e4"/>
+  <text x="220" y="508" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="38" font-weight="900">真机生成开始可验证</text>
+  <text x="220" y="552" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">云端生成、匿名设备和持久化让状态不再只存在本地内存里。</text>
+</svg>

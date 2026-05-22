@@ -1,0 +1,20 @@
+{
+  "date": "2026-05-22",
+  "title": "出题系统 V8：知识点主线化",
+  "phase": "核心出题系统",
+  "problem": "知识点如果只按可考性筛选，容易保留局部细节；用户复习完不一定能重建文章核心观点。",
+  "changes": [
+    "新增 structureRole、importanceScore、coverageReason，判断知识点在文章结构中的角色。",
+    "优先保留 main_claim、method_step、supporting_reason 和关键 boundary。",
+    "不硬编码固定知识点数量，而是按文章长度和内容密度动态精简入池。"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/question-logic-v8.svg",
+      "caption": "V8 把知识点从可出题片段升级为文章理解地图"
+    }
+  ],
+  "result": "出题系统的第一层基础变得更像产品想要的复习对象：主线、方法、边界和可迁移判断。",
+  "next": "进入可信度闭环：来源支撑、解释一致性、干扰项质量和低置信原因分层。",
+  "commits": []
+}

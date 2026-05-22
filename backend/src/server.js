@@ -679,6 +679,18 @@ function normalizeKnowledgeType(type) {
   return ["concept", "judgment", "method", "scenario", "counterexample", "comparison", "step"].includes(type) ? type : "concept";
 }
 
+function normalizeStructureRole(role) {
+  return [
+    "main_claim",
+    "supporting_reason",
+    "method_step",
+    "boundary",
+    "case_evidence",
+    "background",
+    "detail"
+  ].includes(role) ? role : "";
+}
+
 function normalizeQuestionType(type) {
   return ["multiple_choice", "true_false", "scenario_judgment"].includes(type) ? type : "multiple_choice";
 }
@@ -707,6 +719,12 @@ function nullableInteger(value) {
   return Number.isFinite(number) ? Math.round(number) : null;
 }
 
+function nullableNumber(value) {
+  if (value === undefined || value === null || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
 function normalizeKnowledgePoints(points, chapterId) {
   const now = new Date().toISOString();
   return points.map((point, index) => {
@@ -719,6 +737,9 @@ function normalizeKnowledgePoints(points, chapterId) {
       summary: toStringValue(point.summary || point.keyClaim || ""),
       keyClaim: toStringValue(point.keyClaim || point.summary || ""),
       knowledgeType: normalizeKnowledgeType(point.knowledgeType || point.knowledge_type),
+      structureRole: normalizeStructureRole(point.structureRole || point.structure_role),
+      importanceScore: toIntegerValue(point.importanceScore ?? point.importance_score, 3),
+      coverageReason: toStringValue(point.coverageReason || point.coverage_reason || ""),
       sourceSnippet,
       sourceQuote: toStringValue(point.sourceQuote || sourceSnippet),
       sourceOrder: toIntegerValue(point.sourceOrder ?? point.source_order, index),
@@ -761,6 +782,9 @@ function normalizeQuestions(questions, chapterId, knowledgePoints = []) {
       difficulty: toStringValue(question.difficulty || "medium"),
       qualityScore: normalizeQualityScore(question.qualityScore),
       qualityIssues: Array.isArray(question.qualityIssues) ? question.qualityIssues.map((issue) => toStringValue(issue)).filter(Boolean) : [],
+      trustDiagnostics: normalizeTrustDiagnostics(question.trustDiagnostics),
+      confidenceReasons: Array.isArray(question.confidenceReasons) ? question.confidenceReasons.map((reason) => toStringValue(reason)).filter(Boolean) : [],
+      blockingReasons: Array.isArray(question.blockingReasons) ? question.blockingReasons.map((reason) => toStringValue(reason)).filter(Boolean) : [],
       confidenceLevel: question.confidenceLevel === "low" ? "low" : "high",
       retainedBy: toStringValue(question.retainedBy || (question.confidenceLevel === "low" ? "best_effort_quality_fallback" : "quality_pass")),
       shortExplanation: toStringValue(question.shortExplanation || question.explanation || ""),
@@ -771,6 +795,16 @@ function normalizeQuestions(questions, chapterId, knowledgePoints = []) {
       updatedAt: toStringValue(question.updatedAt || now)
     };
   }).sort(compareNormalizedSourceOrder);
+}
+
+function normalizeTrustDiagnostics(value) {
+  if (!value || typeof value !== "object") return {};
+  return {
+    answerGroundingScore: nullableNumber(value.answerGroundingScore),
+    explanationFaithfulnessScore: nullableNumber(value.explanationFaithfulnessScore),
+    contextRelevanceScore: nullableNumber(value.contextRelevanceScore),
+    misconceptionSupportScore: nullableNumber(value.misconceptionSupportScore)
+  };
 }
 
 function compareNormalizedSourceOrder(a, b) {

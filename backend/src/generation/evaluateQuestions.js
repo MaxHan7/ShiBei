@@ -16,6 +16,16 @@ export function evaluateQuestions({ questions, knowledgePoints, cleanedText = ""
     const ruleAction = decideAction(scores, averageScore, ruleIssues);
     const judge = judgeMap.get(normalizedQuestion.id) || null;
     const qualityIssues = mergeIssues(ruleIssues, judge?.seriousIssues);
+    const trust = buildTrustDiagnostics({
+      question: normalizedQuestion,
+      point,
+      scores,
+      sourceValidation,
+      typeValidation,
+      qualityIssues,
+      ruleAction,
+      judge
+    });
     const action = mergeActions(ruleAction, judge?.qualityAction, qualityIssues);
     seenStems.add(normalize(normalizedQuestion.stem));
 
@@ -30,6 +40,9 @@ export function evaluateQuestions({ questions, knowledgePoints, cleanedText = ""
       qualityIssues,
       qualityAction: action,
       ruleQualityAction: ruleAction,
+      trustDiagnostics: trust.trustDiagnostics,
+      confidenceReasons: trust.confidenceReasons,
+      blockingReasons: trust.blockingReasons,
       ...(judge ? { judgeQualityAction: judge.qualityAction, judgeReason: judge.reason } : {})
     };
   });
@@ -315,6 +328,98 @@ function scoreQuestionContextSupport(text, question, point) {
     supported: phraseHits >= 1 || strongHits >= 3 || (strongHits >= 2 && weakHits >= 2),
     score: phraseHits * 4 + strongHits * 2 + weakHits
   };
+}
+
+function buildTrustDiagnostics({ question, point, scores, sourceValidation, typeValidation, qualityIssues, ruleAction, judge }) {
+  const answerGroundingScore = scoreTextGrounding(question.sourceSnippet, [
+    correctOptionText(question),
+    question.correctUnderstanding
+  ], [
+    question.stem,
+    point?.keyClaim,
+    point?.summary
+  ]);
+  const explanationFaithfulnessScore = scoreTextGrounding(question.sourceSnippet, [
+    question.explanation,
+    question.correctUnderstanding
+  ], [
+    correctOptionText(question),
+    point?.keyClaim,
+    point?.summary
+  ]);
+  const contextRelevanceScore = scoreContextRelevance(question, sourceValidation);
+  const misconceptionSupportScore = scoreTextGrounding(question.sourceSnippet, [
+    question.commonMisconception
+  ], [
+    question.stem,
+    point?.keyClaim,
+    point?.summary
+  ]);
+  const confidenceReasons = [];
+  const blockingReasons = [];
+  const issueSet = new Set(qualityIssues || []);
+
+  if (scores.sourceSupport < 4 || answerGroundingScore < 4) confidenceReasons.push("weak_source_support");
+  if (explanationFaithfulnessScore < 4) confidenceReasons.push("weak_explanation_faithfulness");
+  if (contextRelevanceScore < 4) confidenceReasons.push("weak_context_relevance");
+  if (misconceptionSupportScore < 3) confidenceReasons.push("weak_misconception_support");
+  if (typeValidation && !typeValidation.valid) confidenceReasons.push("question_type_mismatch");
+  if (question.sourceSnippetWasBackfilled || question.sourceContextUnsupported) confidenceReasons.push("source_context_backfilled");
+  if (judge?.qualityAction === "rewrite" || ruleAction === "rewrite") confidenceReasons.push("judge_rewrite");
+  if (scores.distractorQuality < 4) confidenceReasons.push("weak_distractors");
+  if (scores.answerUniqueness < 4) confidenceReasons.push("answer_not_unique");
+
+  if ([
+    "missing_knowledge_point",
+    "missing_source_snippet",
+    "missing_options",
+    "non_binary_question_requires_four_options",
+    "true_false_requires_two_options"
+  ].some((issue) => issueSet.has(issue))) {
+    blockingReasons.push("structure_invalid");
+  }
+  if (scores.answerUniqueness < 4) blockingReasons.push("answer_not_unique");
+  if (scores.sourceSupport <= 2 || answerGroundingScore <= 2 || issueSet.has("source_snippet_not_found") || issueSet.has("source_snippet_missing_source") || issueSet.has("source_snippet_unsupported_question_context")) {
+    blockingReasons.push("weak_source_support");
+  }
+  if (explanationFaithfulnessScore <= 2) blockingReasons.push("weak_explanation_faithfulness");
+
+  return {
+    trustDiagnostics: {
+      answerGroundingScore,
+      explanationFaithfulnessScore,
+      contextRelevanceScore,
+      misconceptionSupportScore
+    },
+    confidenceReasons: [...new Set(confidenceReasons)],
+    blockingReasons: [...new Set(blockingReasons)]
+  };
+}
+
+function scoreTextGrounding(sourceText, strongParts, weakParts = []) {
+  const body = normalize(sourceText);
+  if (!body) return 1;
+  const phrases = extractSupportPhrases(strongParts);
+  const strongKeywords = extractSupportKeywords(strongParts, { minChineseLength: 2, minLatinLength: 3, limit: 48 });
+  const weakKeywords = extractSupportKeywords(weakParts, { minChineseLength: 2, minLatinLength: 3, limit: 48 });
+  const phraseHits = countKeywordHits(body, phrases);
+  const strongHits = countKeywordHits(body, strongKeywords);
+  const weakHits = countKeywordHits(body, weakKeywords);
+  if (phraseHits >= 2 || strongHits >= 5) return 5;
+  if (phraseHits >= 1 || strongHits >= 3) return 4;
+  if (strongHits >= 2 || (strongHits >= 1 && weakHits >= 2)) return 3;
+  if (strongHits >= 1 || weakHits >= 2) return 2;
+  return 1;
+}
+
+function scoreContextRelevance(question, sourceValidation) {
+  if (!sourceValidation?.valid) return 1;
+  const sourceContextScore = Number(question.sourceContextScore || 0);
+  if (sourceContextScore >= 130) return 5;
+  if (sourceContextScore >= 110) return 4;
+  if (sourceValidation.support === "point_source") return 5;
+  if (sourceValidation.support === "cleaned_text" || sourceValidation.support === "partial_point_source") return 4;
+  return 3;
 }
 
 function extractSupportPhrases(parts) {

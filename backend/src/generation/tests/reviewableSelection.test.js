@@ -237,6 +237,67 @@ test("does not retain a question when no source context supports its answer", ()
   assert.equal(selected.length, 0);
 });
 
+test("adds trust diagnostics and confidence reasons for weak but reviewable questions", () => {
+  const weakPoint = {
+    ...point,
+    sourceQuote: "HTML 原型让沟通媒介更丰富。"
+  };
+  const evaluated = evaluateQuestions({
+    questions: [
+      question({
+        id: "weak-source",
+        sourceSnippet: "",
+        stem: "为什么 HTML 原型比长 Markdown 更适合和 AI 沟通？",
+        correctUnderstanding: "HTML 原型能把任务状态、交互和反馈组织成一个可检查的界面。",
+        commonMisconception: "误以为只要计划写得越长，沟通质量就越高。",
+        options: [
+          { id: "A", text: "因为它能承载更丰富的沟通媒介" },
+          { id: "B", text: "因为它可以完全替代人工判断" },
+          { id: "C", text: "因为它让模型运行时间变短" },
+          { id: "D", text: "因为它不需要任何上下文" }
+        ]
+      })
+    ],
+    knowledgePoints: [weakPoint],
+    cleanedText: [
+      "Markdown 计划太长时，读者很容易失去耐心。",
+      "HTML 原型让沟通媒介更丰富。"
+    ].join("\n")
+  });
+  const selected = selectQualifiedQuestionsByPoint([weakPoint], evaluated);
+
+  assert.equal(evaluated[0].trustDiagnostics.answerGroundingScore >= 1, true);
+  assert.equal(evaluated[0].confidenceReasons.includes("weak_explanation_faithfulness"), true);
+  assert.equal(selected.length, 1);
+  assert.equal(selected[0].confidenceLevel, "low");
+});
+
+test("blocks questions whose explanation is not faithful to the source context", () => {
+  const evaluated = evaluateQuestions({
+    questions: [
+      question({
+        id: "bad-explanation",
+        sourceSnippet: "",
+        stem: "这段来源说明什么？",
+        correctUnderstanding: "这段来源说明拾贝已经拥有成熟账号系统和推荐算法。",
+        explanation: "原文明确说拾贝已经通过账号系统解决了个性化推荐问题。",
+        options: [
+          { id: "A", text: "拾贝已经拥有成熟账号系统和推荐算法" },
+          { id: "B", text: "拾贝只需要改按钮颜色" },
+          { id: "C", text: "拾贝不需要复习流程" },
+          { id: "D", text: "拾贝应该删除所有来源" }
+        ]
+      })
+    ],
+    knowledgePoints: [point],
+    cleanedText: point.sourceQuote
+  });
+  const selected = selectQualifiedQuestionsByPoint([point], evaluated);
+
+  assert.equal(evaluated[0].blockingReasons.includes("weak_explanation_faithfulness"), true);
+  assert.equal(selected.length, 0);
+});
+
 test("falls back to unsupported source quote as discard when the quote cannot be located", () => {
   const evaluated = evaluateQuestions({
     questions: [

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <rect x="425" y="54" width="350" height="652" rx="54" fill="#1f1b12"/>
+  <rect x="445" y="84" width="310" height="592" rx="38" fill="#fffaf4"/>
+  <text x="507" y="156" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="30" font-weight="800">拾贝 SwiftUI</text>
+  <rect x="482" y="210" width="236" height="120" rx="20" fill="#fff" stroke="#fbf3e4"/>
+  <text x="508" y="260" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22" font-weight="700">当前章节</text>
+  <rect x="508" y="288" width="150" height="12" rx="6" fill="#eadfcd"/>
+  <rect x="508" y="288" width="96" height="12" rx="6" fill="#fcd34d"/>
+  <rect x="482" y="366" width="236" height="56" rx="15" fill="#e09859"/>
+  <text x="548" y="402" fill="#fff" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="20" font-weight="700">开始复习</text>
+  <rect x="474" y="585" width="252" height="58" rx="29" fill="#fff" stroke="#fbf3e4"/>
+  <circle cx="600" cy="612" r="28" fill="#fcd34d"/>
+  <text x="585" y="626" fill="#fff" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="38" font-weight="400">+</text>
+  <text x="100" y="180" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="40" font-weight="800">Mock First</text>
+  <text x="100" y="232" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">先把完整产品流跑通，再接真实 API。</text>
+</svg>

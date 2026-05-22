@@ -1,0 +1,20 @@
+{
+  "date": "2026-05-14",
+  "title": "完善 HTML Demo 和核心出题系统",
+  "phase": "HTML Demo",
+  "problem": "早期原型能展示概念，但视觉、复习流和失败恢复都不够完整。",
+  "changes": [
+    "统一暖白、橙色主按钮、黄色强调和 15px 圆角视觉体系。",
+    "补齐生成、失败、通知、复习、反馈和来源流程。",
+    "开始建立题目质量检查和失败恢复机制。"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/2026-05-14-html-demo.svg",
+      "caption": "HTML Demo 承担第一轮产品体验验证"
+    }
+  ],
+  "result": "HTML Demo 成为 SwiftUI 迁移的视觉和流程基准。",
+  "next": "用 Xcode 创建 SwiftUI 工程，迁移成可真机运行的 iOS mock。",
+  "commits": ["994764e"]
+}

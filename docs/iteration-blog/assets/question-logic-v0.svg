@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <text x="96" y="118" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="48" font-weight="900">V0 生成链路拆分</text>
+  <g font-family="-apple-system,BlinkMacSystemFont,sans-serif">
+    <rect x="100" y="210" width="170" height="110" rx="24" fill="#fff" stroke="#fbf3e4"/>
+    <rect x="315" y="210" width="170" height="110" rx="24" fill="#fff" stroke="#fbf3e4"/>
+    <rect x="530" y="210" width="170" height="110" rx="24" fill="#fff" stroke="#fbf3e4"/>
+    <rect x="745" y="210" width="170" height="110" rx="24" fill="#fff" stroke="#fbf3e4"/>
+    <rect x="960" y="210" width="170" height="110" rx="24" fill="#fff" stroke="#fbf3e4"/>
+    <text x="135" y="274" fill="#1f1b12" font-size="25" font-weight="800">清洗</text>
+    <text x="350" y="274" fill="#1f1b12" font-size="25" font-weight="800">分块</text>
+    <text x="552" y="274" fill="#1f1b12" font-size="25" font-weight="800">知识点</text>
+    <text x="780" y="274" fill="#1f1b12" font-size="25" font-weight="800">出题</text>
+    <text x="984" y="274" fill="#1f1b12" font-size="25" font-weight="800">入池</text>
+  </g>
+  <path d="M278 265 H307M493 265 H522M708 265 H737M923 265 H952" stroke="#e09859" stroke-width="8" stroke-linecap="round"/>
+  <rect x="154" y="438" width="892" height="140" rx="30" fill="#fff" stroke="#fbf3e4"/>
+  <text x="202" y="506" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="32" font-weight="900">核心变化</text>
+  <text x="202" y="552" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">从一次性模型黑盒，变成每一步都能定位和恢复的生成模块。</text>
+</svg>

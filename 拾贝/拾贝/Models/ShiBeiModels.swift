@@ -156,6 +156,9 @@ struct KnowledgePoint: Codable, Identifiable, Hashable {
     var summary: String
     var keyClaim: String
     var knowledgeType: KnowledgeType
+    var structureRole: String? = nil
+    var importanceScore: Int? = nil
+    var coverageReason: String? = nil
     var sourceSnippet: String
     var sourceQuote: String
     var sourceOrder: Int?
@@ -187,6 +190,13 @@ struct GenerationMeta: Codable, Hashable {
     var failureReason: String?
 }
 
+struct TrustDiagnostics: Codable, Hashable {
+    var answerGroundingScore: Double?
+    var explanationFaithfulnessScore: Double?
+    var contextRelevanceScore: Double?
+    var misconceptionSupportScore: Double?
+}
+
 struct ReviewQuestion: Codable, Identifiable, Hashable {
     var id: String
     var chapterId: String
@@ -207,6 +217,9 @@ struct ReviewQuestion: Codable, Identifiable, Hashable {
     var difficulty: String
     var qualityScore: [String: Double]?
     var qualityIssues: [String]
+    var trustDiagnostics: TrustDiagnostics? = nil
+    var confidenceReasons: [String]? = nil
+    var blockingReasons: [String]? = nil
     var confidenceLevel: String? = nil
 
     var sourceText: String {

@@ -118,6 +118,8 @@ test("exports AI and human label columns to CSV", () => {
 
   assert.match(csv.split("\n")[0], /ai_status/);
   assert.match(csv.split("\n")[0], /human_verified/);
+  assert.match(csv.split("\n")[0], /knowledgeStructureRole/);
+  assert.match(csv.split("\n")[0], /knowledge_mainline_relevance/);
   assert.match(csv, /这篇文章的核心判断是什么/);
 });
 

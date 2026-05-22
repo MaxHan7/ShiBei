@@ -1,0 +1,20 @@
+{
+  "date": "2026-05-16",
+  "title": "完成 SwiftUI Mock 主流程",
+  "phase": "iOS 原型",
+  "problem": "HTML Demo 可用，但还不是原生 iOS 体验，无法验证真机交互和系统导航。",
+  "changes": [
+    "创建 SwiftUI 工程并迁移完整产品流。",
+    "实现首页、添加、章节、通知、复习、解释、来源和总结页面。",
+    "用系统 TabView 和自定义图标打磨底部导航。"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/2026-05-16-swiftui-mock.svg",
+      "caption": "SwiftUI mock 把 HTML 产品流迁移到原生 iOS"
+    }
+  ],
+  "result": "iOS 端可以无网络走通完整 mock 流程，为后续接 API 打下基础。",
+  "next": "接入本地 API，再逐步迁移到云端服务。",
+  "commits": []
+}

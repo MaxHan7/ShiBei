@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <text x="96" y="118" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="48" font-weight="900">V5 来源上下文</text>
+  <rect x="120" y="210" width="320" height="300" rx="30" fill="#fff" stroke="#fbf3e4"/>
+  <text x="160" y="292" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="30" font-weight="900">短证据句</text>
+  <text x="160" y="352" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="23">能证明来自原文</text>
+  <text x="160" y="390" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="23">但不够帮助理解</text>
+  <path d="M470 360 H700" stroke="#e09859" stroke-width="10" stroke-linecap="round"/>
+  <rect x="730" y="210" width="350" height="300" rx="30" fill="#fff" stroke="#fbf3e4"/>
+  <text x="770" y="292" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="30" font-weight="900">原文上下文</text>
+  <text x="770" y="352" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="23">围绕 sourceQuote 定位</text>
+  <text x="770" y="390" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="23">按段落和句子边界裁剪</text>
+</svg>

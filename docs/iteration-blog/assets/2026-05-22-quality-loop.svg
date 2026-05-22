@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <text x="110" y="122" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="44" font-weight="900">出题可信度闭环</text>
+  <g font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="23" font-weight="800">
+    <rect x="110" y="210" width="220" height="100" rx="26" fill="#fff" stroke="#fbf3e4"/>
+    <text x="154" y="272" fill="#1f1b12">知识点</text>
+    <rect x="390" y="210" width="220" height="100" rx="26" fill="#fff" stroke="#fbf3e4"/>
+    <text x="434" y="272" fill="#1f1b12">候选题</text>
+    <rect x="670" y="210" width="220" height="100" rx="26" fill="#fff" stroke="#fbf3e4"/>
+    <text x="708" y="272" fill="#1f1b12">来源支撑</text>
+    <rect x="390" y="430" width="220" height="100" rx="26" fill="#fff" stroke="#fbf3e4"/>
+    <text x="428" y="492" fill="#1f1b12">解释一致</text>
+    <rect x="670" y="430" width="220" height="100" rx="26" fill="#fff" stroke="#fbf3e4"/>
+    <text x="708" y="492" fill="#1f1b12">低置信分层</text>
+  </g>
+  <path d="M340 260 H380" stroke="#e09859" stroke-width="8" stroke-linecap="round"/>
+  <path d="M620 260 H660" stroke="#e09859" stroke-width="8" stroke-linecap="round"/>
+  <path d="M780 325 C780 385 670 430 620 470" fill="none" stroke="#e09859" stroke-width="8" stroke-linecap="round"/>
+  <path d="M620 480 H660" stroke="#e09859" stroke-width="8" stroke-linecap="round"/>
+  <text x="110" y="650" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">从“能出题”进入“知道题目什么时候可信、什么时候必须重写”。</text>
+</svg>

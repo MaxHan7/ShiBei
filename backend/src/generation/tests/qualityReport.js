@@ -44,6 +44,13 @@ export function summarize(results) {
     results.flatMap((result) => allMachineIssues(result).map(categorizeMachineIssue))
   );
   const lowConfidenceCount = allQuestions.filter((question) => question.confidenceLevel === "low").length;
+  const trustReasonFrequency = countValues(allQuestions.flatMap((question) => question.confidenceReasons || []));
+  const blockingReasonFrequency = countValues(
+    chapters.flatMap((result) => [
+      ...(result.chapter?.questions || []),
+      ...(result.generationDebug?.evaluatedQuestions || [])
+    ]).flatMap((question) => question.blockingReasons || [])
+  );
   const seriousIssueCount = completed.reduce(
     (sum, result) => sum + (result.chapter?.qualitySummary?.seriousIssueCount || 0),
     0
@@ -72,7 +79,9 @@ export function summarize(results) {
       : 0,
     seriousIssueCount,
     issueFrequency,
-    machineIssueCategoryFrequency
+    machineIssueCategoryFrequency,
+    trustReasonFrequency,
+    blockingReasonFrequency
   };
 }
 
@@ -106,6 +115,8 @@ export function categorizeMachineIssue(issue) {
   if (/source.*unsupported|source.*not_found|source.*missing|来源.*不.*支撑|来源.*不足/.test(value)) {
     return "source_not_supporting";
   }
+  if (/weak_explanation|faithfulness|解释.*不.*一致|解释.*忠实/.test(value)) return "explanation_wrong";
+  if (/weak_context|context.*relevance|上下文.*不准|上下文.*弱/.test(value)) return "source_context_bad";
   if (/answeruniqueness|答案.*唯一|correct.*option/.test(value)) return "answer_not_unique";
   if (/explanation|解释/.test(value)) return "explanation_wrong";
   if (/understandingdepth|reviewvalue|too.*easy|太浅|太简单/.test(value)) return "too_shallow";
@@ -301,6 +312,7 @@ function countValues(values) {
 }
 
 function questionToReviewRow({ result, question, status }) {
+  const point = findQuestionKnowledgePoint(result.chapter, question);
   return {
     sample: result.file,
     sampleTitle: result.sampleMeta?.title || "",
@@ -308,6 +320,10 @@ function questionToReviewRow({ result, question, status }) {
     status,
     questionId: question.id,
     knowledgePoint: question.pointTitle || question.knowledgePointId || "",
+    knowledgePointId: question.knowledgePointId || question.pointId || "",
+    knowledgeStructureRole: point?.structureRole || "",
+    knowledgeImportanceScore: point?.importanceScore ?? "",
+    knowledgeCoverageReason: point?.coverageReason || "",
     questionType: question.type,
     stem: question.stem,
     options: formatOptions(question.options),
@@ -319,6 +335,9 @@ function questionToReviewRow({ result, question, status }) {
     confidenceLevel: question.confidenceLevel || "",
     retainedBy: question.retainedBy || "",
     sourceContextScore: question.sourceContextScore ?? "",
+    trustDiagnostics: formatTrustDiagnostics(question.trustDiagnostics),
+    confidenceReasons: (question.confidenceReasons || []).join(";"),
+    blockingReasons: (question.blockingReasons || []).join(";"),
     machineAverageScore: question.qualityScore?.average ?? "",
     machineIssues: (question.qualityIssues || []).join(";"),
     machineIssueCategory: categorizeMachineIssue((question.qualityIssues || [])[0] || ""),
@@ -349,6 +368,10 @@ function emptyReviewRow(result) {
     status: result.status,
     questionId: "",
     knowledgePoint: "",
+    knowledgePointId: "",
+    knowledgeStructureRole: "",
+    knowledgeImportanceScore: "",
+    knowledgeCoverageReason: "",
     questionType: "",
     stem: "",
     options: "",
@@ -360,6 +383,9 @@ function emptyReviewRow(result) {
     confidenceLevel: "",
     retainedBy: "",
     sourceContextScore: "",
+    trustDiagnostics: "",
+    confidenceReasons: "",
+    blockingReasons: "",
     machineAverageScore: "",
     machineIssues: result.message || "no_questions",
     machineIssueCategory: categorizeMachineIssue(result.message || "no_questions"),
@@ -382,12 +408,27 @@ function emptyReviewRow(result) {
   };
 }
 
+function findQuestionKnowledgePoint(chapter, question) {
+  const pointId = question.knowledgePointId || question.pointId;
+  return (chapter?.knowledgePoints || []).find((point) => point.id === pointId) || null;
+}
+
 function formatOptions(options = []) {
   return options.map((option) => `${option.id}. ${option.text}`).join(" | ");
 }
 
 function correctOptionText(question) {
   return (question.options || []).find((option) => option.id === question.correctOptionId)?.text || "";
+}
+
+function formatTrustDiagnostics(diagnostics) {
+  if (!diagnostics || typeof diagnostics !== "object") return "";
+  return [
+    `answer:${diagnostics.answerGroundingScore ?? ""}`,
+    `explanation:${diagnostics.explanationFaithfulnessScore ?? ""}`,
+    `context:${diagnostics.contextRelevanceScore ?? ""}`,
+    `misconception:${diagnostics.misconceptionSupportScore ?? ""}`
+  ].join(" | ");
 }
 
 function normalizeStatus(value) {

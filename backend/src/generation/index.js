@@ -317,6 +317,8 @@ function markConfidence(question, confidenceLevel) {
 
 function confidenceLevelForQuestion(question) {
   const issues = new Set(question.qualityIssues || []);
+  if ((question.blockingReasons || []).length) return "low";
+  if ((question.confidenceReasons || []).length) return "low";
   if (issues.has("question_type_mismatch") || question.sourceSnippetWasBackfilled) return "low";
   return "high";
 }
@@ -327,6 +329,7 @@ function compareQuestionQuality(a, b) {
 
 function isReviewableQuestion(question) {
   if (!question || question.qualityAction === "discard") return false;
+  if ((question.blockingReasons || []).length) return false;
   const issues = new Set(question.qualityIssues || []);
   const blockingIssues = [
     "missing_knowledge_point",
@@ -464,6 +467,9 @@ function toClientQuestion(question) {
     qualityScore: question.qualityScore,
     qualityIssues: question.qualityIssues,
     qualityAction: question.qualityAction,
+    trustDiagnostics: question.trustDiagnostics,
+    confidenceReasons: question.confidenceReasons || [],
+    blockingReasons: question.blockingReasons || [],
     confidenceLevel: question.confidenceLevel || "high",
     retainedBy: question.retainedBy || "quality_pass",
     isNew: true

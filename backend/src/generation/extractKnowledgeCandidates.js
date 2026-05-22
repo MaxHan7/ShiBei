@@ -23,6 +23,9 @@ export async function extractKnowledgeCandidates({ cleanedText, chunks }) {
       keyClaim: candidate.keyClaim?.trim() || candidate.summary?.trim() || "",
       sourceQuote: candidate.sourceQuote?.trim() || "",
       testabilityReason: candidate.testabilityReason?.trim() || "",
+      structureRole: normalizeStructureRole(candidate.structureRole, candidate.knowledgeType),
+      importanceScore: clampScore(candidate.importanceScore ?? candidate.testabilityScore),
+      coverageReason: candidate.coverageReason?.trim() || candidate.testabilityReason?.trim() || "",
       questionAngles: Array.isArray(candidate.questionAngles)
         ? candidate.questionAngles.map((angle) => String(angle || "").trim()).filter(Boolean)
         : [],
@@ -41,4 +44,34 @@ function clampScore(value) {
   const number = Number(value);
   if (!Number.isFinite(number)) return 1;
   return Math.min(5, Math.max(1, number));
+}
+
+function normalizeStructureRole(value, knowledgeType) {
+  const normalized = String(value || "").trim();
+  if ([
+    "main_claim",
+    "supporting_reason",
+    "method_step",
+    "boundary",
+    "case_evidence",
+    "background",
+    "detail"
+  ].includes(normalized)) {
+    return normalized;
+  }
+
+  switch (knowledgeType) {
+  case "method":
+  case "step":
+    return "method_step";
+  case "counterexample":
+    return "boundary";
+  case "scenario":
+  case "comparison":
+    return "supporting_reason";
+  case "judgment":
+  case "concept":
+  default:
+    return "main_claim";
+  }
 }

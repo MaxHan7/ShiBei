@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <text x="120" y="120" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="42" font-weight="900">Review Loop</text>
+  <g font-family="-apple-system,BlinkMacSystemFont,sans-serif">
+    <rect x="120" y="210" width="220" height="150" rx="28" fill="#fff" stroke="#fbf3e4"/>
+    <text x="176" y="296" fill="#1f1b12" font-size="30" font-weight="800">答题</text>
+    <rect x="420" y="210" width="220" height="150" rx="28" fill="#fff" stroke="#fbf3e4"/>
+    <text x="476" y="296" fill="#1f1b12" font-size="30" font-weight="800">解释</text>
+    <rect x="720" y="210" width="220" height="150" rx="28" fill="#fff" stroke="#fbf3e4"/>
+    <text x="756" y="296" fill="#1f1b12" font-size="30" font-weight="800">回看来源</text>
+    <rect x="420" y="460" width="220" height="150" rx="28" fill="#fff" stroke="#fbf3e4"/>
+    <text x="476" y="546" fill="#1f1b12" font-size="30" font-weight="800">总结</text>
+  </g>
+  <path d="M350 285 H405" stroke="#fcd34d" stroke-width="10" stroke-linecap="round"/>
+  <path d="M650 285 H705" stroke="#fcd34d" stroke-width="10" stroke-linecap="round"/>
+  <path d="M830 372 C780 460 700 535 655 535" fill="none" stroke="#fcd34d" stroke-width="10" stroke-linecap="round"/>
+  <text x="120" y="668" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">最后一题也先解释，再进入总结；来源页能定位到相关原文区域。</text>
+</svg>

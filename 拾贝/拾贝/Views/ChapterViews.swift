@@ -40,12 +40,17 @@ private struct ChapterListCard: View {
 
     var body: some View {
         SBCard {
-            HStack {
+            HStack(alignment: .top) {
                 StatusPill(text: chapter.visibleStatusText, isDanger: chapter.status.isFailed)
                 Spacer()
-                Text(chapter.createdAt.relativeLabel)
-                    .font(.system(size: 14))
-                    .foregroundStyle(ShiBeiTheme.muted)
+                VStack(alignment: .trailing, spacing: 6) {
+                    if let reviewStatus = ChapterReviewDisplayStatus(chapter: chapter) {
+                        ReviewStatusChip(status: reviewStatus)
+                    }
+                    Text(chapter.createdAt.relativeLabel)
+                        .font(.system(size: 14))
+                        .foregroundStyle(ShiBeiTheme.muted)
+                }
             }
             Text(chapter.title)
                 .font(.system(size: 16))
@@ -59,6 +64,77 @@ private struct ChapterListCard: View {
             .font(.system(size: 14))
             .foregroundStyle(ShiBeiTheme.muted)
         }
+    }
+}
+
+private enum ChapterReviewDisplayStatus {
+    case waiting
+    case inProgress
+    case completed
+
+    init?(chapter: Chapter) {
+        guard chapter.status == .completed, !chapter.knowledgePoints.isEmpty, !chapter.reviewableQuestions.isEmpty else {
+            return nil
+        }
+
+        if chapter.reviewSession?.status == .completed || chapter.reviewSession?.completedAt != nil {
+            self = .completed
+        } else if chapter.reviewSession?.status == .active
+                    || chapter.masteredPoints > 0
+                    || chapter.reviewSession?.attempts.isEmpty == false
+                    || chapter.reviewSession?.masteredThisRoundPointIds.isEmpty == false {
+            self = .inProgress
+        } else {
+            self = .waiting
+        }
+    }
+
+    var text: String {
+        switch self {
+        case .waiting:
+            "待复习"
+        case .inProgress:
+            "复习中"
+        case .completed:
+            "已完成"
+        }
+    }
+
+    var foreground: Color {
+        switch self {
+        case .waiting:
+            ShiBeiTheme.textSoft
+        case .inProgress:
+            ShiBeiTheme.primary
+        case .completed:
+            Color(red: 0.13, green: 0.48, blue: 0.29)
+        }
+    }
+
+    var background: Color {
+        switch self {
+        case .waiting:
+            Color(red: 0.965, green: 0.949, blue: 0.918)
+        case .inProgress:
+            ShiBeiTheme.yellowPale
+        case .completed:
+            Color(red: 0.914, green: 0.969, blue: 0.925)
+        }
+    }
+}
+
+private struct ReviewStatusChip: View {
+    let status: ChapterReviewDisplayStatus
+
+    var body: some View {
+        Text(status.text)
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundStyle(status.foreground)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(status.background)
+            .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+            .accessibilityLabel("复习状态：\(status.text)")
     }
 }
 

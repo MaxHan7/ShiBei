@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <text x="96" y="118" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="48" font-weight="900">V7 顺序和导读过滤</text>
+  <rect x="120" y="210" width="960" height="120" rx="30" fill="#fff" stroke="#fbf3e4"/>
+  <rect x="160" y="248" width="190" height="44" rx="14" fill="#ffeceb"/>
+  <text x="182" y="278" fill="#b3261e" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="20" font-weight="900">导读 / 金句</text>
+  <rect x="382" y="248" width="150" height="44" rx="14" fill="#fcd34d"/>
+  <rect x="560" y="248" width="150" height="44" rx="14" fill="#fcd34d"/>
+  <rect x="738" y="248" width="150" height="44" rx="14" fill="#fcd34d"/>
+  <rect x="916" y="248" width="110" height="44" rx="14" fill="#fcd34d"/>
+  <text x="160" y="430" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="32" font-weight="900">复习顺序按正文 sourceOrder 推进</text>
+  <text x="160" y="486" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">导读区只能帮助理解主题，不能作为题目来源锚点。</text>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <text x="96" y="118" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="48" font-weight="900">V6 答案位置后处理</text>
+  <g font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="900">
+    <rect x="170" y="235" width="150" height="110" rx="28" fill="#fff" stroke="#fbf3e4"/>
+    <text x="224" y="302" fill="#1f1b12">A</text>
+    <rect x="390" y="235" width="150" height="110" rx="28" fill="#fcd34d"/>
+    <text x="444" y="302" fill="#1f1b12">B</text>
+    <rect x="610" y="235" width="150" height="110" rx="28" fill="#fff" stroke="#fbf3e4"/>
+    <text x="664" y="302" fill="#1f1b12">C</text>
+    <rect x="830" y="235" width="150" height="110" rx="28" fill="#fff" stroke="#fbf3e4"/>
+    <text x="884" y="302" fill="#1f1b12">D</text>
+  </g>
+  <text x="220" y="450" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="26">模型偏置：正确答案容易集中在某个位置</text>
+  <path d="M245 515 C400 610 750 610 905 515" fill="none" stroke="#e09859" stroke-width="10" stroke-linecap="round"/>
+  <text x="260" y="655" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">后端稳定重排选项，并同步 correctOptionId。</text>
+</svg>
