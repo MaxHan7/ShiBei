@@ -158,6 +158,8 @@ struct KnowledgePoint: Codable, Identifiable, Hashable {
     var knowledgeType: KnowledgeType
     var sourceSnippet: String
     var sourceQuote: String
+    var sourceOrder: Int?
+    var sourceStartOffset: Int?
     var testabilityScore: Int
     var masteryScore: Int
     var answeredCount: Int
@@ -198,6 +200,8 @@ struct ReviewQuestion: Codable, Identifiable, Hashable {
     var commonMisconception: String
     var sourceSnippet: String
     var sourceQuote: String?
+    var sourceOrder: Int?
+    var sourceStartOffset: Int?
     var difficulty: String
     var qualityScore: [String: Double]?
     var qualityIssues: [String]

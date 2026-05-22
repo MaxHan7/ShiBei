@@ -14,7 +14,7 @@ enum AppDataMode: String, CaseIterable, Identifiable {
         case .localAPI:
             "本地 API"
         case .cloudAPI:
-            "Railway 云端"
+            "云端数据"
         }
     }
 
@@ -25,7 +25,7 @@ enum AppDataMode: String, CaseIterable, Identifiable {
         case .localAPI:
             "连接 Node 本地 API，章节、复习和通知状态由后端驱动"
         case .cloudAPI:
-            "连接 Railway 云端 API，用于真机真实生成验证"
+            "连接拾贝云端，章节、复习和通知状态会保存到服务器"
         }
     }
 
@@ -36,7 +36,7 @@ enum AppDataMode: String, CaseIterable, Identifiable {
         case .localAPI:
             "本地 API"
         case .cloudAPI:
-            "Railway 云端"
+            "云端"
         }
     }
 }
@@ -56,5 +56,6 @@ protocol ReviewServicing {
 
 protocol NotificationServicing {
     func markRead(_ id: String, notifications: inout [NotificationItem])
+    func dismiss(_ id: String, notifications: inout [NotificationItem])
     func dismissFailure(for chapterId: String, chapters: inout [Chapter], notifications: inout [NotificationItem])
 }

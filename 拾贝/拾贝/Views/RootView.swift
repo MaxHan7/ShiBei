@@ -38,6 +38,9 @@ struct RootView: View {
             }
             .presentationDetents([.height(330)])
         }
+        .task {
+            await store.bootstrapForCurrentEnvironment()
+        }
     }
 
     private var usesFullScreenRoute: Bool {
