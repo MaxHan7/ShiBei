@@ -1,0 +1,20 @@
+{
+  "date": "2026-05-16",
+  "title": "出题系统 V3：重写题型契约",
+  "phase": "核心出题系统",
+  "problem": "早期题型约束不够硬，scenario_judgment 容易退化成“成立/不成立”，没有真正考场景迁移。",
+  "changes": [
+    "明确 multiple_choice、true_false、scenario_judgment 三类题的边界。",
+    "规定 scenario_judgment 必须给出具体场景和 4 个行动、判断或处理方案。",
+    "要求题干优先考边界、误区、对比和迁移应用，而不是问原文提到了什么。"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/question-logic-v3.svg",
+      "caption": "V3 把题型从形式分类变成理解任务"
+    }
+  ],
+  "result": "题目开始更像复习训练，而不是原文填空或关键词识别。",
+  "next": "降低整章失败率，让结构完整但未完全过审的题有机会以低置信方式服务复习。",
+  "commits": []
+}

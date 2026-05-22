@@ -1,0 +1,20 @@
+{
+  "date": "2026-05-17",
+  "title": "把真机生成接到 Railway 云端",
+  "phase": "云端原型",
+  "problem": "真机只能跑 mock 或本地 API，生成状态容易卡住，部署后内存数据也会丢失。",
+  "changes": [
+    "部署 Node 后端到 Railway。",
+    "增加云端 API 模式。",
+    "接入 PostgreSQL 和匿名设备 ID 保存章节与通知。"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/2026-05-17-cloud-api.svg",
+      "caption": "从本地 mock 走向可真机访问的云端生成"
+    }
+  ],
+  "result": "真机可以提交真实文章到云端生成，章节数据也能跨部署保存。",
+  "next": "稳定题目生成质量，减少生成失败和低质量题入池。",
+  "commits": ["ac76759", "ee518e0", "ab5086e"]
+}

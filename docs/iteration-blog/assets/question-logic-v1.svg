@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <text x="96" y="118" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="48" font-weight="900">V1 质量门</text>
+  <rect x="135" y="205" width="930" height="340" rx="34" fill="#fff" stroke="#fbf3e4"/>
+  <g font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24" font-weight="800">
+    <text x="200" y="290" fill="#1f1b12">来源支撑</text>
+    <text x="430" y="290" fill="#1f1b12">答案唯一</text>
+    <text x="660" y="290" fill="#1f1b12">理解深度</text>
+    <text x="200" y="390" fill="#1f1b12">表达清晰</text>
+    <text x="430" y="390" fill="#1f1b12">干扰项</text>
+    <text x="660" y="390" fill="#1f1b12">复习价值</text>
+  </g>
+  <rect x="252" y="470" width="180" height="54" rx="27" fill="#e8f6ec"/>
+  <text x="303" y="505" fill="#2f855a" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24" font-weight="900">pass</text>
+  <rect x="510" y="470" width="180" height="54" rx="27" fill="#fff3df"/>
+  <text x="558" y="505" fill="#e09859" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24" font-weight="900">rewrite</text>
+  <rect x="768" y="470" width="180" height="54" rx="27" fill="#ffeceb"/>
+  <text x="814" y="505" fill="#b3261e" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24" font-weight="900">discard</text>
+  <text x="150" y="635" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">题目不再因为格式完整就进入复习池，必须先通过质量判断。</text>
+</svg>

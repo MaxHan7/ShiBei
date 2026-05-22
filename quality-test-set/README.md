@@ -86,6 +86,10 @@ QUALITY_OUTPUT_BASENAME=2026-05-18-source-context npm --prefix backend run quali
 - `machineIssueCategoryFrequency`：机器问题类型分布。
 - `averageQualityScore`：机器平均质量分，只作参考，不能替代人工审查。
 
+`reviewRows` 同时包含对应知识点的结构字段：`knowledgeStructureRole`、`knowledgeImportanceScore`、`knowledgeCoverageReason`。本轮以后需要同时检查题目质量和知识点是否符合“主线 + 可用方法型”：是否覆盖文章主线、是否可迁移、是否过碎。
+
+`reviewRows` 也会包含题目可信度诊断：`trustDiagnostics`、`confidenceReasons`、`blockingReasons`。它们用于回答“机器为什么认为这题高置信、低置信或不可入池”，重点辅助人工定位来源支撑、解释一致性和上下文定位问题；这些字段不能替代人工金标。
+
 ## 人工审查流程
 
 ### 批量 baseline
@@ -160,6 +164,8 @@ quality-test-set/results/<result>.manual-summary.json
 每一轮只改一个主要方向，例如：
 
 - 来源支撑。
+- 解释一致性。
+- 来源上下文定位。
 - 答案唯一性。
 - 干扰项质量。
 - 知识点覆盖。

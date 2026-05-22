@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <text x="96" y="118" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="48" font-weight="900">V4 低置信入池</text>
+  <rect x="138" y="210" width="310" height="180" rx="30" fill="#fff" stroke="#fbf3e4"/>
+  <text x="192" y="310" fill="#2f855a" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="34" font-weight="900">pass</text>
+  <rect x="138" y="455" width="310" height="180" rx="30" fill="#fff" stroke="#fbf3e4"/>
+  <text x="182" y="555" fill="#e09859" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="34" font-weight="900">rewrite</text>
+  <path d="M470 300 H700M470 545 H700" stroke="#e09859" stroke-width="10" stroke-linecap="round"/>
+  <rect x="730" y="265" width="330" height="225" rx="34" fill="#fff" stroke="#fbf3e4"/>
+  <text x="790" y="356" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="34" font-weight="900">复习池</text>
+  <text x="790" y="410" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">high / low</text>
+  <text x="150" y="690" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">结构完整、来源支撑、答案唯一的 rewrite 题可以低置信入池。</text>
+</svg>

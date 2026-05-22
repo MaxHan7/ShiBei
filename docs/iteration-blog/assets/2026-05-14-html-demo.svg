@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <rect x="90" y="78" width="1020" height="604" rx="42" fill="#fff" stroke="#fbf3e4" stroke-width="3"/>
+  <text x="144" y="156" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="42" font-weight="800">HTML Demo</text>
+  <text x="144" y="206" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">验证添加、生成、复习、解释和通知的完整产品流</text>
+  <rect x="144" y="270" width="330" height="250" rx="24" fill="#fffaf4" stroke="#eadfcd"/>
+  <text x="176" y="330" fill="#e09859" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="64" font-weight="900">35</text>
+  <text x="176" y="372" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="700">已掌握知识点</text>
+  <rect x="176" y="420" width="220" height="18" rx="9" fill="#eadfcd"/>
+  <rect x="176" y="420" width="150" height="18" rx="9" fill="#fcd34d"/>
+  <rect x="520" y="270" width="250" height="250" rx="24" fill="#fffaf4" stroke="#eadfcd"/>
+  <text x="552" y="334" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="30" font-weight="800">题卡</text>
+  <rect x="552" y="376" width="186" height="42" rx="14" fill="#fff" stroke="#fbf3e4"/>
+  <rect x="552" y="436" width="186" height="42" rx="14" fill="#fff" stroke="#fbf3e4"/>
+  <rect x="816" y="270" width="210" height="250" rx="24" fill="#fffaf4" stroke="#eadfcd"/>
+  <circle cx="920" cy="360" r="46" fill="#fcd34d"/>
+  <text x="896" y="380" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="56" font-weight="500">+</text>
+  <text x="842" y="458" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">底部导航</text>
+</svg>

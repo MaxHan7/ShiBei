@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <text x="96" y="118" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="48" font-weight="900">V2 全文覆盖</text>
+  <rect x="130" y="220" width="940" height="120" rx="28" fill="#fff" stroke="#fbf3e4"/>
+  <g fill="#fcd34d">
+    <rect x="170" y="255" width="84" height="50" rx="12"/>
+    <rect x="280" y="255" width="84" height="50" rx="12"/>
+    <rect x="390" y="255" width="84" height="50" rx="12"/>
+    <rect x="500" y="255" width="84" height="50" rx="12"/>
+    <rect x="610" y="255" width="84" height="50" rx="12"/>
+    <rect x="720" y="255" width="84" height="50" rx="12"/>
+    <rect x="830" y="255" width="84" height="50" rx="12"/>
+    <rect x="940" y="255" width="84" height="50" rx="12"/>
+  </g>
+  <path d="M170 410 H1024" stroke="#e09859" stroke-width="12" stroke-linecap="round"/>
+  <text x="150" y="510" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="34" font-weight="900">问题从“前半篇会出题”修到“整篇文章都被看见”</text>
+  <text x="150" y="565" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">长文后半段的知识点不再因为 chunk 读取策略被系统性漏掉。</text>
+</svg>

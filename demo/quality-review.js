@@ -16,6 +16,8 @@ const filters = [
   ["fixable", "AI fixable"],
   ["low", "低置信"],
   ["source", "来源问题"],
+  ["explanation", "解释问题"],
+  ["context", "上下文问题"],
   ["unique", "答案不唯一"],
   ["training", "训练候选"]
 ];
@@ -146,11 +148,23 @@ function renderQuestion(row) {
   return `
     <div class="quality-list-meta">
       ${chip(row.knowledgePoint || "知识点")}
+      ${row.knowledgeStructureRole ? chip(row.knowledgeStructureRole) : ""}
+      ${row.knowledgeImportanceScore ? chip(`重要度 ${row.knowledgeImportanceScore}`) : ""}
       ${chip(row.questionType || "题型")}
       ${chip(`机器分 ${row.machineAverageScore || "-"}`)}
+      ${row.confidenceLevel ? chip(`置信 ${row.confidenceLevel}`, row.confidenceLevel === "low" ? "fixable" : "accept") : ""}
       ${chip(row.machineIssueCategory || "other")}
     </div>
     <h2>${escapeHtml(row.stem || "无题目")}</h2>
+    <section class="quality-section">
+      <h3>对应知识点</h3>
+      <p class="quality-prose"><strong>${escapeHtml(row.knowledgePoint || "无")}</strong></p>
+      <div class="quality-list-meta">
+        ${row.knowledgeStructureRole ? chip(row.knowledgeStructureRole) : ""}
+        ${row.knowledgeImportanceScore ? chip(`重要度 ${row.knowledgeImportanceScore}`) : ""}
+      </div>
+      <p class="quality-prose">${escapeHtml(row.knowledgeCoverageReason || "暂无覆盖理由")}</p>
+    </section>
     <section class="quality-section">
       <h3>选项</h3>
       <div class="quality-options">
@@ -173,6 +187,14 @@ function renderQuestion(row) {
     <section class="quality-section">
       <h3>来源上下文</h3>
       <div class="quality-source quality-prose">${escapeHtml(row.sourceSnippet || "无")}</div>
+    </section>
+    <section class="quality-section">
+      <h3>可信度诊断</h3>
+      <p class="quality-prose">${escapeHtml(row.trustDiagnostics || "暂无诊断")}</p>
+      <div class="quality-list-meta">
+        ${(row.confidenceReasons || "").split(";").filter(Boolean).map((reason) => chip(reason, "fixable")).join("")}
+        ${(row.blockingReasons || "").split(";").filter(Boolean).map((reason) => chip(reason, "reject")).join("")}
+      </div>
     </section>
     <section class="quality-section">
       <h3>AI 预标理由</h3>
@@ -202,6 +224,10 @@ function renderAnnotationPanel(row) {
       ${scoreField("distractor_quality", "干扰项", row.distractor_quality || row.ai_distractor_quality)}
       ${scoreField("explanation_faithfulness", "解释忠实", row.explanation_faithfulness || row.ai_explanation_faithfulness)}
       ${scoreField("review_value", "复习价值", row.review_value || row.ai_review_value)}
+      ${scoreField("knowledge_mainline_relevance", "知识点主线相关", row.knowledge_mainline_relevance)}
+      ${scoreField("knowledge_granularity", "知识点粒度", row.knowledge_granularity)}
+      ${scoreField("knowledge_review_value", "知识点复习价值", row.knowledge_review_value)}
+      ${scoreField("missing_core_point", "漏掉核心点", row.missing_core_point)}
       <div class="quality-field wide">
         <label for="notes">人工备注</label>
         <textarea class="quality-textarea" data-field="notes">${escapeHtml(row.notes || "")}</textarea>
@@ -264,11 +290,17 @@ function visibleRows() {
     if (state.filter === "reject") return row.ai_status === "reject";
     if (state.filter === "fixable") return row.ai_status === "fixable";
     if (state.filter === "low") return row.confidenceLevel === "low";
-    if (state.filter === "source") return row.ai_primary_issue === "source_not_supporting" || row.machineIssueCategory === "source_not_supporting";
+    if (state.filter === "source") return row.ai_primary_issue === "source_not_supporting" || row.machineIssueCategory === "source_not_supporting" || hasTrustReason(row, "weak_source_support");
+    if (state.filter === "explanation") return row.ai_primary_issue === "explanation_wrong" || row.machineIssueCategory === "explanation_wrong" || hasTrustReason(row, "weak_explanation_faithfulness");
+    if (state.filter === "context") return row.ai_primary_issue === "source_context_bad" || row.machineIssueCategory === "source_context_bad" || hasTrustReason(row, "weak_context_relevance");
     if (state.filter === "unique") return row.ai_primary_issue === "answer_not_unique" || row.machineIssueCategory === "answer_not_unique";
     if (state.filter === "training") return String(row.ai_training_label_eligible || row.training_label_eligible).startsWith("yes_");
     return true;
   });
+}
+
+function hasTrustReason(row, reason) {
+  return String(`${row.confidenceReasons || ""};${row.blockingReasons || ""}`).split(";").includes(reason);
 }
 
 function selectedRow(rows) {

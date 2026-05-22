@@ -46,9 +46,15 @@ test("summarizes machine report and expands review rows for manual scoring", () 
     status: "completed",
     sampleMeta: { title: "样本", topic: "ai" },
     chapter: {
-      knowledgePoints: [{ id: "kp-1" }],
+      knowledgePoints: [{
+        id: "kp-1",
+        structureRole: "method_step",
+        importanceScore: 5,
+        coverageReason: "这是可迁移的方法原则。"
+      }],
       questions: [{
         id: "q-1",
+        knowledgePointId: "kp-1",
         pointTitle: "知识点",
         type: "multiple_choice",
         stem: "哪种做法更符合文章？",
@@ -65,6 +71,14 @@ test("summarizes machine report and expands review rows for manual scoring", () 
         confidenceLevel: "low",
         retainedBy: "best_effort_quality_fallback",
         sourceContextScore: 123,
+        trustDiagnostics: {
+          answerGroundingScore: 4,
+          explanationFaithfulnessScore: 3,
+          contextRelevanceScore: 5,
+          misconceptionSupportScore: 3
+        },
+        confidenceReasons: ["weak_explanation_faithfulness"],
+        blockingReasons: [],
         qualityScore: { average: 4.2 },
         qualityIssues: ["question_type_mismatch"]
       }]
@@ -83,6 +97,12 @@ test("summarizes machine report and expands review rows for manual scoring", () 
   assert.equal(rows[0].correctAnswerText, "正确做法");
   assert.equal(rows[0].confidenceLevel, "low");
   assert.equal(rows[0].sourceContextScore, 123);
+  assert.match(rows[0].trustDiagnostics, /answer:4/);
+  assert.equal(rows[0].confidenceReasons, "weak_explanation_faithfulness");
+  assert.equal(rows[0].blockingReasons, "");
+  assert.equal(rows[0].knowledgeStructureRole, "method_step");
+  assert.equal(rows[0].knowledgeImportanceScore, 5);
+  assert.equal(rows[0].knowledgeCoverageReason, "这是可迁移的方法原则。");
 });
 
 test("analyzes manual CSV and renders a markdown report", () => {

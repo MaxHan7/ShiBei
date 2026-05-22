@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <text x="96" y="118" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="48" font-weight="900">V8 知识点主线化</text>
+  <rect x="105" y="210" width="250" height="170" rx="30" fill="#fff" stroke="#fbf3e4"/>
+  <text x="145" y="308" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="900">main_claim</text>
+  <rect x="475" y="210" width="250" height="170" rx="30" fill="#fff" stroke="#fbf3e4"/>
+  <text x="510" y="308" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="900">method_step</text>
+  <rect x="845" y="210" width="250" height="170" rx="30" fill="#fff" stroke="#fbf3e4"/>
+  <text x="890" y="308" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="900">boundary</text>
+  <path d="M365 295 H465M735 295 H835" stroke="#e09859" stroke-width="9" stroke-linecap="round"/>
+  <rect x="160" y="500" width="880" height="116" rx="28" fill="#fff" stroke="#fbf3e4"/>
+  <text x="208" y="570" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="25">从“好出题的信息点”升级为“能重建文章主线的关键节点”。</text>
+</svg>

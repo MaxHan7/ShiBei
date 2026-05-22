@@ -37,29 +37,32 @@ struct ReviewView: View {
                                             }
                                         }
                                     }
+                                    Button {
+                                        guard selectedOptionId == nil, !store.isSubmittingReview else { return }
+                                        revealedCorrectOptionId = question.correctOptionId
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                            Task {
+                                                await store.submitAttempt(answer: nil, result: .unknown)
+                                                revealedCorrectOptionId = nil
+                                            }
+                                        }
+                                    } label: {
+                                        Text("忘记了")
+                                            .font(.system(size: 15, weight: .medium))
+                                            .foregroundStyle(ShiBeiTheme.muted)
+                                            .frame(maxWidth: .infinity, minHeight: 44)
+                                            .contentShape(Rectangle())
+                                    }
+                                    .buttonStyle(.plain)
+                                    .disabled(selectedOptionId != nil || store.isSubmittingReview)
+                                    .opacity(selectedOptionId != nil || store.isSubmittingReview ? 0.45 : 1)
+                                    .padding(.top, 2)
                                 }
                             }
                         }
                         .padding(24)
                         .padding(.bottom, 110)
                     }
-                    VStack {
-                        SecondaryButton(title: "不知道？") {
-                            guard !store.isSubmittingReview else { return }
-                            revealedCorrectOptionId = question.correctOptionId
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                                Task {
-                                    await store.submitAttempt(answer: nil, result: .unknown)
-                                    revealedCorrectOptionId = nil
-                                }
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 30)
-                    .background(
-                        LinearGradient(colors: [ShiBeiTheme.surface.opacity(0), ShiBeiTheme.surface], startPoint: .top, endPoint: .bottom)
-                    )
                 }
             } else {
                 SummaryView(store: store)

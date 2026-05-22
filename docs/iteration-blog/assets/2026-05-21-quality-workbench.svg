@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <rect x="82" y="84" width="1036" height="592" rx="34" fill="#fff" stroke="#fbf3e4"/>
+  <rect x="112" y="128" width="250" height="504" rx="24" fill="#fffaf4" stroke="#eadfcd"/>
+  <rect x="394" y="128" width="430" height="504" rx="24" fill="#fffaf4" stroke="#eadfcd"/>
+  <rect x="856" y="128" width="232" height="504" rx="24" fill="#fffaf4" stroke="#eadfcd"/>
+  <text x="142" y="186" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="26" font-weight="800">题目列表</text>
+  <text x="430" y="186" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="26" font-weight="800">审题区</text>
+  <text x="892" y="186" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="26" font-weight="800">AI 预标</text>
+  <rect x="142" y="234" width="170" height="38" rx="14" fill="#fcd34d"/>
+  <rect x="142" y="296" width="170" height="38" rx="14" fill="#fff" stroke="#eadfcd"/>
+  <rect x="430" y="240" width="340" height="80" rx="18" fill="#fff"/>
+  <rect x="430" y="350" width="340" height="46" rx="14" fill="#fff"/>
+  <rect x="430" y="416" width="340" height="46" rx="14" fill="#fff"/>
+  <rect x="892" y="236" width="150" height="34" rx="17" fill="#e8f6ec"/>
+  <text x="920" y="260" fill="#2f855a" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="18" font-weight="800">accept</text>
+  <text x="430" y="570" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">生成、预标注、人工确认在一个页面完成。</text>
+</svg>

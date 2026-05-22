@@ -159,6 +159,9 @@ unrelated_to_source
   "summary": "企业知道需要 AI，但缺少可信的落地顾问。",
   "keyClaim": "AI 顾问价值来自帮企业识别真实场景和建立信任。",
   "knowledgeType": "scenario",
+  "structureRole": "method_step",
+  "importanceScore": 4,
+  "coverageReason": "该点既支撑文章主线，也能迁移为判断企业 AI 落地机会的方法。",
   "sourceSnippet": "公司知道自己需要 AI，只是不知道该信任谁。",
   "sourceQuote": "公司知道自己需要 AI，只是不知道该信任谁。",
   "sourceOrder": 0,
@@ -175,6 +178,8 @@ unrelated_to_source
 ```
 
 `masteryScore` 前台不展示，只影响复习队列和强化逻辑。
+
+`structureRole`、`importanceScore`、`coverageReason` 用于服务端筛选和质量评测。MVP 采用“主线 + 可用方法型”：知识点数量随文章长短和内容密度变化，短内容可以只有少量知识点，普通文章通常保持精简，长文、清单、访谈或多段论证可以保留更多必要节点；无论数量多少，都优先覆盖文章核心观点，并保留可迁移的方法、判断原则、适用场景和少量关键误区。旧章节可能缺少这些字段，iOS 必须兼容缺失值。
 
 ### ReviewQuestion
 
@@ -203,11 +208,28 @@ unrelated_to_source
   "difficulty": "medium",
   "qualityScore": {},
   "qualityIssues": [],
+  "trustDiagnostics": {
+    "answerGroundingScore": 5,
+    "explanationFaithfulnessScore": 4,
+    "contextRelevanceScore": 5,
+    "misconceptionSupportScore": 3
+  },
+  "confidenceReasons": [],
+  "blockingReasons": [],
   "confidenceLevel": "high"
 }
 ```
 
-`confidenceLevel` 取值为 `high` / `low`。`low` 表示该题未完全通过质量审查，但结构完整、来源可支撑、答案唯一，因此作为低置信题进入复习池；第一版 iOS 可以不展示该标签。
+`confidenceLevel` 取值为 `high` / `low`。`low` 表示该题未完全通过质量审查，但结构完整、来源基本可支撑、答案唯一，因此作为低置信题进入复习池；第一版 iOS 不向用户展示该标签，只用于质量工作台、debug 和后续迭代。
+
+`trustDiagnostics` 是后端可信度诊断，不是人工金标：
+
+- `answerGroundingScore`：正确答案是否被来源上下文支撑。
+- `explanationFaithfulnessScore`：解释是否忠实于来源和正确答案。
+- `contextRelevanceScore`：来源片段是否是帮助理解题目的有效上下文。
+- `misconceptionSupportScore`：常见误区是否与题目和来源相关。
+
+`confidenceReasons` 记录低置信原因，例如 `weak_source_support`、`weak_explanation_faithfulness`、`weak_context_relevance`、`question_type_mismatch`、`judge_rewrite`。`blockingReasons` 记录不可入池原因，例如 `answer_not_unique`、`structure_invalid`、`weak_source_support`。
 
 `sourceOrder`、`sourceStartOffset`、`sourceEndOffset` 用于保持章节内顺序和来源定位。`sourceOrder` 表示知识点或题目在原文中的相对顺序；offset 是基于清洗后正文的字符位置，旧章节可能为空。iOS 展示知识点、题目和首次复习队列时应优先按 `sourceOrder` 排序，保证用户沿文章脉络复习。
 
