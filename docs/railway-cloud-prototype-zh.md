@@ -6,7 +6,7 @@
 
 - 这是开发/真机验证用云端原型，不是正式 App Store 生产后端。
 - 后端在 Railway 上使用 PostgreSQL 持久化章节、通知、生成任务和复习会话；本地没有 `DATABASE_URL` 时仍使用内存模式。
-- 第一版不做账号、鉴权、APNs 或正式异步任务队列，数据先按匿名设备 ID 隔离。
+- 第一版不做账号、鉴权或正式异步任务队列，数据先按匿名设备 ID 隔离；外部 TestFlight 前会使用 APNs 发送生成完成/失败通知。
 - iOS 不保存模型 API Key，也不直接调用大模型；生成逻辑只在服务端运行。
 
 ## Railway 项目设置
@@ -40,7 +40,14 @@ MODEL_REQUEST_TIMEOUT_MS=90000
 GENERATION_JOB_TIMEOUT_MS=360000
 ARTICLE_FETCH_TIMEOUT_MS=30000
 WECHAT_EXTRACT_TIMEOUT_MS=60000
+APNS_TEAM_ID=你的 Apple Developer Team ID
+APNS_KEY_ID=你的 APNs Auth Key ID
+APNS_BUNDLE_ID=com.maxhan.shibei
+APNS_PRIVATE_KEY_BASE64=.p8 文件内容的 base64
+APNS_ENV=production
 ```
+
+`.p8` 文件可用 `base64 -i AuthKey_XXXXXXXXXX.p8 | tr -d '\n'` 转成 `APNS_PRIVATE_KEY_BASE64`。
 
 Railway 会自动注入 `PORT`，后端会监听 `0.0.0.0:$PORT`。本地开发仍可继续使用 `npm --prefix backend run dev`。
 
@@ -62,9 +69,12 @@ curl https://你的域名.up.railway.app/api/health
   "service": "shibei-api",
   "storage": "postgres",
   "database": { "ok": true },
+  "apns": { "configured": true },
   "chapterCount": 0
 }
 ```
+
+APNs 相关环境变量未配置时，`apns.configured` 会是 `false`。这不会影响章节生成和 App 内通知，但真机不会收到系统通知。
 
 再用一段足够长的文本验证真实生成。创建接口会先返回 `submitted`，后台继续生成：
 
@@ -103,3 +113,5 @@ https://你的域名.up.railway.app
 如果数据源显示“Railway 云端”，添加内容会走云端真实生成；如果仍显示“Mock 数据”，生成会是本地 mock，通常会瞬间完成且只有示例知识点和题目。
 
 DEBUG 版本会在“我的”页显示匿名设备 ID 后 6 位。这个 ID 保存在 Keychain 中，卸载重装或点“重置”后可能变化；设备 ID 变化后，云端会把它当成一个新的匿名用户。
+
+Release / TestFlight 版本不会显示本地 API、Mock 或 Railway 地址输入框，默认连接生产云端域名。

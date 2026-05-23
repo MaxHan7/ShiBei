@@ -34,7 +34,9 @@ struct RootView: View {
         }
         .sheet(isPresented: $store.showingNotificationEducation) {
             NotificationEducationSheet {
-                store.finishNotificationEducation()
+                Task {
+                    await store.finishNotificationEducation()
+                }
             }
             .presentationDetents([.height(330)])
         }
@@ -203,7 +205,7 @@ private struct NotificationEducationSheet: View {
                 .clipShape(Circle())
             Text("生成完成后提醒你")
                 .font(.system(size: 22, weight: .bold))
-            Text("拾贝会在章节生成完成或失败时提醒你。当前阶段先使用应用内通知页和提交提示，不会触发系统权限弹窗。")
+            Text("拾贝会在章节生成完成或失败时提醒你。开启后，即使暂时离开 App，也能从系统通知回到对应章节。")
                 .font(.system(size: 15))
                 .foregroundStyle(ShiBeiTheme.muted)
                 .multilineTextAlignment(.center)

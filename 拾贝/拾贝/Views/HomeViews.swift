@@ -203,7 +203,9 @@ struct AddKnowledgeView: View {
                         disabled: !chapterInput.canSubmit || store.isWritingChapter
                     ) {
                         let submittedInput = input
+                        #if DEBUG
                         print("[ShiBei] AddKnowledgeView tapped generate. inputCount=\(submittedInput.count), canSubmit=\(chapterInput.canSubmit), target=\(store.submissionTargetTitle)")
+                        #endif
                         dismissInput()
                         Task {
                             if await store.createChapter(from: submittedInput) {

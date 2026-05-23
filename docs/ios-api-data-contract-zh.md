@@ -360,6 +360,24 @@ X-Device-Id: <uuid>
 
 后端用这个 ID 隔离章节、通知、复习会话和题目反馈。缺少该请求头时，后端使用 `demo-device`，用于 HTML Demo 和简单 curl 调试。账号系统后续再做，未来可把匿名设备数据迁移到登录账号下。
 
+### 注册系统通知 token
+
+```text
+POST /api/devices/push-token
+```
+
+请求：
+
+```json
+{
+  "token": "<apns-device-token>",
+  "platform": "ios",
+  "environment": "production"
+}
+```
+
+后端按 `X-Device-Id` 保存 APNs token。章节生成成功或失败时，后端会发送系统通知；通知 payload 包含 `notificationId`、`chapterId` 和 `type`，iOS 点击后进入对应章节详情。
+
 ### 创建章节
 
 ```text
@@ -552,6 +570,8 @@ POST /api/notifications/:id/dismiss
 ```
 
 `dismiss` 只隐藏通知，不删除章节。
+
+系统推送和 App 内通知共用同一条通知记录：成功通知点击后归档；失败通知点击后只标记已读，直到用户处理或手动移除。
 
 ## 5. iOS Service 建议
 

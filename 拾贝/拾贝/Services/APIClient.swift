@@ -83,6 +83,11 @@ struct APIClient {
         try await send("/api/device-data", method: "DELETE", body: EmptyRequest(), acceptsFailureBody: false)
     }
 
+    func registerPushToken(_ token: String, environment: PushTokenEnvironment) async throws -> PushTokenRegistrationResponse {
+        let request = PushTokenRequest(token: token, environment: environment)
+        return try await send("/api/devices/push-token", method: "POST", body: request, acceptsFailureBody: false)
+    }
+
     private func get<Response: Decodable>(_ path: String) async throws -> Response {
         let url = baseURL.appending(path: path)
         var request = URLRequest(url: url)
@@ -205,6 +210,36 @@ enum APIClientError: LocalizedError {
 }
 
 struct EmptyRequest: Codable {}
+
+enum PushTokenEnvironment: String, Codable {
+    case sandbox
+    case production
+
+    static var current: PushTokenEnvironment {
+        #if DEBUG
+        .sandbox
+        #else
+        .production
+        #endif
+    }
+}
+
+struct PushTokenRequest: Codable {
+    var token: String
+    var platform: String = "ios"
+    var environment: PushTokenEnvironment
+}
+
+struct PushTokenRegistrationResponse: Codable {
+    struct RegisteredToken: Codable {
+        var platform: String
+        var environment: PushTokenEnvironment
+    }
+
+    var ok: Bool
+    var pushToken: RegisteredToken?
+    var apnsConfigured: Bool?
+}
 
 struct ChapterCreateRequest: Codable {
     var sourceType: String

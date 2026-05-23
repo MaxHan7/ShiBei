@@ -30,11 +30,14 @@ import {
   initDatabase,
   listChapters as listDatabaseChapters,
   listNotifications as listDatabaseNotifications,
+  listPushTokens as listDatabasePushTokens,
   startGenerationJob,
   updateGenerationJob,
   upsertChapter as upsertDatabaseChapter,
-  upsertNotification as upsertDatabaseNotification
+  upsertNotification as upsertDatabaseNotification,
+  upsertPushToken as upsertDatabasePushToken
 } from "./db.js";
+import { isAPNSConfigured, sendGenerationNotification } from "./apns.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const projectRoot = resolve(__dirname, "..", "..");
@@ -529,7 +532,7 @@ function getDeviceId(req) {
 
 function getMemory(deviceId) {
   if (!memoryByDeviceId.has(deviceId)) {
-    memoryByDeviceId.set(deviceId, { chapters: [], notifications: [] });
+    memoryByDeviceId.set(deviceId, { chapters: [], notifications: [], pushTokens: [] });
   }
   return memoryByDeviceId.get(deviceId);
 }
@@ -579,7 +582,27 @@ async function deleteStoredDeviceData(deviceId) {
   };
   memory.chapters = [];
   memory.notifications = [];
+  memory.pushTokens = [];
   return deleted;
+}
+
+async function upsertStoredPushToken(deviceId, pushToken) {
+  const record = normalizePushToken(pushToken);
+  if (record.token.length < 32) return null;
+  if (hasDatabase) {
+    await upsertDatabasePushToken(deviceId, record);
+    return record;
+  }
+  const memory = getMemory(deviceId);
+  const existingIndex = memory.pushTokens.findIndex((item) => item.token === record.token);
+  if (existingIndex >= 0) memory.pushTokens.splice(existingIndex, 1, record);
+  else memory.pushTokens.unshift(record);
+  return record;
+}
+
+async function listStoredPushTokens(deviceId) {
+  if (hasDatabase) return listDatabasePushTokens(deviceId);
+  return getMemory(deviceId).pushTokens;
 }
 
 async function listStoredNotifications(deviceId) {
@@ -965,7 +988,39 @@ async function createMemoryNotification(deviceId, chapter) {
     dismissed: false,
     createdAt: new Date().toISOString()
   };
-  return upsertStoredNotification(deviceId, notification);
+  const saved = await upsertStoredNotification(deviceId, notification);
+  void sendStoredPushNotifications(deviceId, saved, chapter);
+  return saved;
+}
+
+function normalizePushToken(pushToken = {}) {
+  return {
+    token: toStringValue(pushToken.token || pushToken.deviceToken || "").replace(/[^a-fA-F0-9]/g, "").toLowerCase(),
+    platform: pushToken.platform === "ios" ? "ios" : "ios",
+    environment: pushToken.environment === "sandbox" ? "sandbox" : "production"
+  };
+}
+
+async function sendStoredPushNotifications(deviceId, notification, chapter) {
+  if (!notification || notification.dismissed) return;
+  if (!isAPNSConfigured()) return;
+  try {
+    const tokens = await listStoredPushTokens(deviceId);
+    await Promise.all(tokens.map(async (token) => {
+      const result = await sendGenerationNotification({ token, notification, chapter });
+      if (result && !result.skipped && !result.ok) {
+        console.warn("APNs send failed", {
+          deviceId,
+          chapterId: chapter?.id,
+          notificationId: notification.id,
+          status: result.status,
+          body: result.body
+        });
+      }
+    }));
+  } catch (error) {
+    console.warn("APNs send skipped after error", error instanceof Error ? error.message : error);
+  }
 }
 
 function normalizeReviewSession(session = {}, chapter = {}) {
@@ -1378,6 +1433,7 @@ const server = createServer(async (req, res) => {
       startedAt,
       storage: hasDatabase ? "postgres" : "memory",
       database,
+      apns: { configured: isAPNSConfigured() },
       chapterCount: count,
       memoryChapterCount: count
     });
@@ -1432,6 +1488,24 @@ const server = createServer(async (req, res) => {
   if (req.method === "DELETE" && req.url === "/api/device-data") {
     const deleted = await deleteStoredDeviceData(deviceId);
     sendJson(res, 200, { ok: true, deleted });
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/api/devices/push-token") {
+    const body = await readBody(req);
+    const pushToken = await upsertStoredPushToken(deviceId, body);
+    if (!pushToken) {
+      sendJson(res, 422, { errorCode: "invalid_push_token", message: "推送 token 无效。" });
+      return;
+    }
+    sendJson(res, 200, {
+      ok: true,
+      pushToken: {
+        platform: pushToken.platform,
+        environment: pushToken.environment
+      },
+      apnsConfigured: isAPNSConfigured()
+    });
     return;
   }
 
