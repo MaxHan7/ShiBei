@@ -341,8 +341,8 @@ private enum ProfileInfoSheet: String, Identifiable {
             ]
         case .notifications:
             [
-                "当前 Beta 版本会在 App 内通知页展示生成成功或失败状态。",
-                "远程系统推送还没有启用。你可以打开 App 查看章节生成进度和通知。"
+                "拾贝会在内容生成完成或失败时发送系统通知，帮助你回到对应章节继续复习。",
+                "如果你没有开启系统通知，仍然可以在 App 内通知页查看生成结果。成功通知打开后会自动归档，失败通知会保留到你处理或手动移除。"
             ]
         case .privacy:
             [

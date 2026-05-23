@@ -35,6 +35,7 @@ final class AppStore: ObservableObject {
     private let cloudAPIBaseURLKey = "cloudAPIBaseURLString"
     private let deviceIdentityStore: DeviceIdentityStore
     private var generationPollTasks: [String: Task<Void, Never>] = [:]
+    private var notificationObservers: [NSObjectProtocol] = []
 
     init(
         chapterService: any ChapterServicing = MockChapterService(),
@@ -70,6 +71,11 @@ final class AppStore: ObservableObject {
         dataMode = .cloudAPI
         dataSourceMessage = "正在连接拾贝云端"
         #endif
+        installPushNotificationObservers()
+    }
+
+    deinit {
+        notificationObservers.forEach(NotificationCenter.default.removeObserver)
     }
 
     private static func makeDefaultState() -> MockState {
@@ -140,7 +146,90 @@ final class AppStore: ObservableObject {
         #else
         guard dataMode == .cloudAPI else { return }
         await loadCloudAPIReadOnly()
+        await PushNotificationService.registerIfAuthorized()
         #endif
+    }
+
+    private func installPushNotificationObservers() {
+        let center = NotificationCenter.default
+        notificationObservers.append(center.addObserver(
+            forName: .shiBeiDidRegisterForRemoteNotifications,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let token = notification.userInfo?["deviceToken"] as? String else { return }
+            Task { @MainActor in
+                await self?.registerPushToken(token)
+            }
+        })
+        notificationObservers.append(center.addObserver(
+            forName: .shiBeiDidFailRemoteNotificationRegistration,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            let message = notification.userInfo?["message"] as? String ?? "系统通知注册失败"
+            Task { @MainActor in
+                self?.dataSourceMessage = "通知注册失败：\(message)"
+            }
+        })
+        notificationObservers.append(center.addObserver(
+            forName: .shiBeiDidReceiveRemoteNotificationResponse,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            Task { @MainActor in
+                await self?.openRemoteNotification(userInfo: notification.userInfo ?? [:])
+            }
+        })
+    }
+
+    private func registerPushToken(_ token: String) async {
+        guard let client = apiClient(for: .cloudAPI) ?? activeAPIClient else {
+            dataSourceMessage = "通知 token 暂时无法同步到云端"
+            return
+        }
+        do {
+            let response = try await client.registerPushToken(token, environment: .current)
+            dataSourceMessage = response.apnsConfigured == false
+                ? "通知权限已开启，云端推送配置待完成"
+                : "通知权限已开启"
+        } catch {
+            dataSourceMessage = "通知 token 同步失败：\(userFacingErrorMessage(error))"
+        }
+    }
+
+    private func openRemoteNotification(userInfo: [AnyHashable: Any]) async {
+        let chapterId = (userInfo["chapterId"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let notificationId = (userInfo["notificationId"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let type = (userInfo["type"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !chapterId.isEmpty else { return }
+
+        dataMode = .cloudAPI
+        selectedChapterId = chapterId
+        chapterDetailReturnRoute = .notifications
+        selectedTab = .chapters
+        route = .chapterDetail
+
+        if let client = apiClient(for: .cloudAPI) {
+            do {
+                async let fetchedChapter = client.fetchChapter(id: chapterId)
+                async let fetchedNotifications = client.fetchNotifications()
+                upsertChapter(try await fetchedChapter)
+                notifications = try await fetchedNotifications
+            } catch {
+                dataSourceMessage = "打开通知失败：\(userFacingErrorMessage(error))"
+            }
+        }
+
+        guard !notificationId.isEmpty, let service = activeNotificationService else { return }
+        do {
+            let updated = type == NotificationType.generationCompleted.rawValue
+                ? try await service.dismiss(id: notificationId)
+                : try await service.markRead(id: notificationId)
+            upsertNotification(updated)
+        } catch {
+            dataSourceMessage = "同步通知状态失败：\(userFacingErrorMessage(error))"
+        }
     }
 
     func returnFromChapterDetail() {
@@ -327,10 +416,16 @@ final class AppStore: ObservableObject {
         }
     }
 
-    func finishNotificationEducation() {
+    func finishNotificationEducation() async {
         hasShownNotificationEducation = true
         showingNotificationEducation = false
         showingSubmittedToast = true
+        do {
+            let granted = try await PushNotificationService.requestAuthorizationAndRegister()
+            dataSourceMessage = granted ? "通知已开启，生成完成后会提醒你" : "你可以在 App 内通知页查看生成结果"
+        } catch {
+            dataSourceMessage = "通知权限请求失败：\(userFacingErrorMessage(error))"
+        }
     }
 
     func applyMockScenario(_ scenario: MockScenario) {

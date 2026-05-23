@@ -75,6 +75,19 @@ export async function initDatabase() {
 
     CREATE INDEX IF NOT EXISTS generation_jobs_device_chapter_idx
       ON generation_jobs(device_id, chapter_id, updated_at DESC);
+
+    CREATE TABLE IF NOT EXISTS device_push_tokens (
+      device_id TEXT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+      token TEXT NOT NULL,
+      platform TEXT NOT NULL DEFAULT 'ios',
+      environment TEXT NOT NULL DEFAULT 'production',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (device_id, token)
+    );
+
+    CREATE INDEX IF NOT EXISTS device_push_tokens_device_idx
+      ON device_push_tokens(device_id, updated_at DESC);
   `);
 
   await markInterruptedGenerationJobs();
@@ -165,6 +178,7 @@ export async function deleteChapter(deviceId, chapterId) {
 
 export async function deleteDeviceData(deviceId) {
   await ensureDevice(deviceId);
+  await pool.query("DELETE FROM device_push_tokens WHERE device_id = $1", [deviceId]);
   const notifications = await pool.query("DELETE FROM notifications WHERE device_id = $1", [deviceId]);
   const generationJobs = await pool.query("DELETE FROM generation_jobs WHERE device_id = $1", [deviceId]);
   const chapters = await pool.query("DELETE FROM chapters WHERE device_id = $1", [deviceId]);
@@ -173,6 +187,41 @@ export async function deleteDeviceData(deviceId) {
     notifications: notifications.rowCount || 0,
     generationJobs: generationJobs.rowCount || 0
   };
+}
+
+export async function upsertPushToken(deviceId, pushToken) {
+  await ensureDevice(deviceId);
+  await pool.query(
+    `INSERT INTO device_push_tokens (device_id, token, platform, environment, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, NOW(), NOW())
+     ON CONFLICT (device_id, token)
+     DO UPDATE SET
+       platform = EXCLUDED.platform,
+       environment = EXCLUDED.environment,
+       updated_at = NOW()`,
+    [
+      deviceId,
+      pushToken.token,
+      pushToken.platform || "ios",
+      pushToken.environment || "production"
+    ]
+  );
+}
+
+export async function listPushTokens(deviceId) {
+  await ensureDevice(deviceId);
+  const result = await pool.query(
+    `SELECT token, platform, environment
+       FROM device_push_tokens
+      WHERE device_id = $1
+      ORDER BY updated_at DESC`,
+    [deviceId]
+  );
+  return result.rows.map((row) => ({
+    token: row.token,
+    platform: row.platform,
+    environment: row.environment
+  }));
 }
 
 export async function listNotifications(deviceId) {

@@ -1,6 +1,6 @@
 # 拾贝 TestFlight / App Store Beta 准备清单
 
-> 当前目标是先进入 TestFlight 用户测试。第一轮继续使用匿名设备身份，不做账号登录、不接广告、不接第三方分析 SDK、不接完整 APNs 远程推送。
+> 当前目标是先进入 TestFlight 用户测试。第一轮继续使用匿名设备身份，不做账号登录、不接广告、不接第三方分析 SDK；外部 TestFlight 前需要打通 APNs 远程推送。
 
 ## 1. Xcode 构建检查
 
@@ -16,6 +16,7 @@
   - 重置匿名设备
   - JSON decode / raw API / debug log 文案
 - App Icon 和 Launch Screen 必须使用正式素材。
+- Push Notifications capability 必须开启；Debug 使用 development APNs，Release / TestFlight 使用 production APNs。
 
 ## 2. App Store Connect 基本信息
 
@@ -102,3 +103,29 @@
 - App 内没有 Mock、Railway、本地 API、deviceId、decode path 等工程文案。
 - 后端 `/api/health` 正常。
 - 后端 `DELETE /api/device-data` 只删除当前 `X-Device-Id` 的数据。
+
+## 9. APNs 云端配置
+
+Railway 后端需要配置以下环境变量。缺失时 App 内通知仍可用，但不会发送系统推送。
+
+```text
+APNS_TEAM_ID=<Apple Developer Team ID>
+APNS_KEY_ID=<APNs Auth Key ID>
+APNS_BUNDLE_ID=com.maxhan.shibei
+APNS_PRIVATE_KEY_BASE64=<.p8 文件内容 base64>
+APNS_ENV=production
+```
+
+`.p8` 文件可以用下面的方式转成环境变量值：
+
+```bash
+base64 -i AuthKey_XXXXXXXXXX.p8 | tr -d '\n'
+```
+
+验证顺序：
+
+1. 真机允许通知后，iOS 调用 `POST /api/devices/push-token`。
+2. 后端 `/api/health` 返回 `apns.configured: true`。
+3. 提交一篇文章并等待生成完成。
+4. App 在后台或锁屏时收到系统通知。
+5. 点击通知进入对应章节详情；成功通知随后从 App 内通知页归档。
