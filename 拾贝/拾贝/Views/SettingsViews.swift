@@ -11,9 +11,9 @@ struct ProfileView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     SBCard {
-                        Text("匿名设备 Beta")
+                        Text("云端同步")
                             .font(.system(size: 20, weight: .bold))
-                        Text("当前测试版会把内容保存到拾贝云端，不需要登录账号。")
+                        Text("拾贝会把你的章节、通知和复习进度保存到云端，不需要注册或登录账号。")
                             .foregroundStyle(ShiBeiTheme.muted)
                     }
                     SBCard {
@@ -52,8 +52,10 @@ struct ProfileView: View {
                         .tint(ShiBeiTheme.error)
                         .disabled(isDeletingData)
                     }
+                    #if DEBUG
                     DataSourceCard(store: store)
                     MockScenarioCard(store: store)
+                    #endif
                 }
                 .padding(24)
                 .padding(.bottom, 120)
@@ -336,8 +338,8 @@ private enum ProfileInfoSheet: String, Identifiable {
         switch self {
         case .account:
             [
-                "当前 Beta 版本使用匿名设备身份保存数据，不需要注册或登录账号。",
-                "匿名设备身份只用于区分你的章节、通知、复习记录和题目反馈。后续正式账号系统上线后，会再提供数据迁移方案。"
+                "当前版本使用匿名设备身份保存数据，不需要注册或登录账号。",
+                "匿名设备身份只用于区分你的章节、通知、复习记录和题目反馈。后续如果提供账号系统，会再提供数据迁移方案。"
             ]
         case .notifications:
             [
@@ -353,7 +355,7 @@ private enum ProfileInfoSheet: String, Identifiable {
         case .about:
             [
                 "拾贝是一款把文章、链接和碎片知识转化为复习题的 iOS App。",
-                "当前版本是 TestFlight Beta，重点验证真实内容生成、复习和来源解释是否能帮助用户记住新知识。"
+                "当前版本重点打磨真实内容生成、复习和来源解释，让你更轻地把读过的内容变成可回顾的知识。"
             ]
         }
     }
