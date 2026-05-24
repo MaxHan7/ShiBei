@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <rect x="92" y="82" width="1016" height="596" rx="42" fill="#fff" stroke="#fbf3e4" stroke-width="3"/>
+  <text x="150" y="154" fill="#e09859" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24" font-weight="800">产品迭代</text>
+  <text x="150" y="220" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="44" font-weight="900">拾贝 2026-05-24 产品迭代</text>
+  <rect x="150" y="286" width="420" height="250" rx="28" fill="#fffaf4" stroke="#eadfcd"/>
+  <text x="188" y="346" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="800">问题</text>
+  <text x="188" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">发布/提审相关产物与设置页呈现需要进一步收敛，避免影响日常开发与发布流程</text>
+  <text x="188" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">体验。</text>
+  <rect x="630" y="286" width="420" height="250" rx="28" fill="#fffaf4" stroke="#eadfcd"/>
+  <text x="668" y="346" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="800">效果</text>
+  <text x="668" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">完善发布档位设置展示与清理本地 App Store 相关产物的忽略规则，降低</text>
+  <text x="668" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">误提交/误干扰风险。</text>
+  <text x="150" y="612" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">2026-05-24</text>
+</svg>
