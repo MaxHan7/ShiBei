@@ -1,6 +1,7 @@
 backend/node_modules/
 .tmp/
 .superpowers/
+.asc/
 ios/
 .DS_Store
 **/.DS_Store
