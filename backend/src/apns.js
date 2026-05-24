@@ -36,6 +36,15 @@ export function isAPNSConfigured() {
   return Boolean(config.teamId && config.keyId && config.bundleId && config.privateKey);
 }
 
+export function apnsConfigurationSummary() {
+  const config = apnsConfig();
+  return {
+    configured: isAPNSConfigured(),
+    environment: config.environment,
+    bundleId: config.bundleId
+  };
+}
+
 function makeAuthToken() {
   const config = apnsConfig();
   const now = Date.now();

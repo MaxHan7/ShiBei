@@ -37,7 +37,7 @@ import {
   upsertNotification as upsertDatabaseNotification,
   upsertPushToken as upsertDatabasePushToken
 } from "./db.js";
-import { isAPNSConfigured, sendGenerationNotification } from "./apns.js";
+import { apnsConfigurationSummary, isAPNSConfigured, sendGenerationNotification } from "./apns.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const projectRoot = resolve(__dirname, "..", "..");
@@ -51,6 +51,7 @@ const generationRuns = new Map();
 const INITIAL_MASTERY_SCORE = 50;
 const REINFORCEMENT_GAP = 3;
 const GENERATION_JOB_TIMEOUT_MS = readPositiveInt(process.env.GENERATION_JOB_TIMEOUT_MS, 360_000);
+const PENDING_PUSH_REPLAY_WINDOW_MS = readPositiveInt(process.env.PENDING_PUSH_REPLAY_WINDOW_MS, 30 * 60 * 1000);
 
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
@@ -938,6 +939,11 @@ function normalizeNotification(notification = {}) {
     body: toStringValue(notification.body || ""),
     read: Boolean(notification.read),
     dismissed: Boolean(notification.dismissed),
+    pushAttemptedAt: toStringValue(notification.pushAttemptedAt || notification.push_attempted_at || ""),
+    pushSentAt: toStringValue(notification.pushSentAt || notification.push_sent_at || ""),
+    pushDeliveryStatus: toStringValue(notification.pushDeliveryStatus || notification.push_delivery_status || ""),
+    pushDeliveryError: toStringValue(notification.pushDeliveryError || notification.push_delivery_error || ""),
+    pushAttemptCount: toIntegerValue(notification.pushAttemptCount ?? notification.push_attempt_count, 0),
     createdAt: toStringValue(notification.createdAt || notification.created_at || new Date().toISOString())
   };
 }
@@ -1002,11 +1008,25 @@ function normalizePushToken(pushToken = {}) {
 }
 
 async function sendStoredPushNotifications(deviceId, notification, chapter) {
-  if (!notification || notification.dismissed) return;
-  if (!isAPNSConfigured()) return;
+  if (!notification || notification.dismissed) return { skipped: true, reason: "notification_unavailable" };
+  if (!isAPNSConfigured()) {
+    await updateStoredNotificationPushDelivery(deviceId, notification, {
+      status: "apns_not_configured",
+      error: "APNs is not configured."
+    });
+    return { skipped: true, reason: "apns_not_configured" };
+  }
   try {
     const tokens = await listStoredPushTokens(deviceId);
-    await Promise.all(tokens.map(async (token) => {
+    if (tokens.length === 0) {
+      await updateStoredNotificationPushDelivery(deviceId, notification, {
+        status: "no_tokens",
+        error: "No APNs token registered for this device."
+      });
+      return { skipped: true, reason: "no_tokens" };
+    }
+
+    const results = await Promise.all(tokens.map(async (token) => {
       const result = await sendGenerationNotification({ token, notification, chapter });
       if (result && !result.skipped && !result.ok) {
         console.warn("APNs send failed", {
@@ -1017,10 +1037,61 @@ async function sendStoredPushNotifications(deviceId, notification, chapter) {
           body: result.body
         });
       }
+      return { token, result };
     }));
+    const sentCount = results.filter(({ result }) => result?.ok).length;
+    const failedResult = results.find(({ result }) => result && !result.skipped && !result.ok)?.result;
+    await updateStoredNotificationPushDelivery(deviceId, notification, {
+      sent: sentCount > 0,
+      status: sentCount > 0 ? "sent" : "failed",
+      error: sentCount > 0 ? "" : (failedResult?.body || failedResult?.status || "APNs send failed.")
+    });
+    return { sentCount, tokenCount: tokens.length };
   } catch (error) {
     console.warn("APNs send skipped after error", error instanceof Error ? error.message : error);
+    await updateStoredNotificationPushDelivery(deviceId, notification, {
+      status: "error",
+      error: error instanceof Error ? error.message : "APNs send failed."
+    });
+    return { skipped: true, reason: "error" };
   }
+}
+
+async function updateStoredNotificationPushDelivery(deviceId, notification, delivery = {}) {
+  const current = await getStoredNotification(deviceId, notification.id) || notification;
+  const now = new Date().toISOString();
+  const next = normalizeNotification({
+    ...current,
+    pushAttemptedAt: now,
+    pushSentAt: delivery.sent ? now : current.pushSentAt,
+    pushDeliveryStatus: delivery.status || current.pushDeliveryStatus,
+    pushDeliveryError: delivery.error === undefined ? current.pushDeliveryError : toStringValue(delivery.error),
+    pushAttemptCount: toIntegerValue(current.pushAttemptCount, 0) + 1
+  });
+  await upsertStoredNotification(deviceId, next);
+  return next;
+}
+
+function isPendingPushNotification(notification) {
+  if (!notification || notification.dismissed || notification.read || notification.pushSentAt) return false;
+  if (!["generation_completed", "generation_failed"].includes(notification.type)) return false;
+  const createdAtMs = Date.parse(notification.createdAt || "");
+  if (!Number.isFinite(createdAtMs)) return true;
+  return Date.now() - createdAtMs <= PENDING_PUSH_REPLAY_WINDOW_MS;
+}
+
+async function sendPendingStoredPushNotifications(deviceId) {
+  const notifications = await listStoredNotifications(deviceId);
+  const pending = notifications.filter(isPendingPushNotification);
+  if (pending.length === 0) return { attempted: 0 };
+
+  let sent = 0;
+  for (const notification of pending) {
+    const chapter = await getStoredChapter(deviceId, notification.chapterId);
+    const result = await sendStoredPushNotifications(deviceId, notification, chapter);
+    sent += toIntegerValue(result?.sentCount, 0);
+  }
+  return { attempted: pending.length, sent };
 }
 
 function normalizeReviewSession(session = {}, chapter = {}) {
@@ -1433,7 +1504,7 @@ const server = createServer(async (req, res) => {
       startedAt,
       storage: hasDatabase ? "postgres" : "memory",
       database,
-      apns: { configured: isAPNSConfigured() },
+      apns: apnsConfigurationSummary(),
       chapterCount: count,
       memoryChapterCount: count
     });
@@ -1498,13 +1569,16 @@ const server = createServer(async (req, res) => {
       sendJson(res, 422, { errorCode: "invalid_push_token", message: "推送 token 无效。" });
       return;
     }
+    const pendingPush = await sendPendingStoredPushNotifications(deviceId);
     sendJson(res, 200, {
       ok: true,
       pushToken: {
         platform: pushToken.platform,
         environment: pushToken.environment
       },
-      apnsConfigured: isAPNSConfigured()
+      apnsConfigured: isAPNSConfigured(),
+      apns: apnsConfigurationSummary(),
+      pendingPush
     });
     return;
   }
