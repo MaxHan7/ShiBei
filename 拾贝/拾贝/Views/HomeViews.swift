@@ -113,9 +113,6 @@ private struct HomeChapterContent: View {
         if chapter.status.isFailed || chapter.status.isProcessing {
             return "查看章节"
         }
-        if isReviewCompleted {
-            return "查看总结"
-        }
         if chapter.reviewSession?.status == .active {
             return "继续复习"
         }
@@ -160,8 +157,6 @@ private struct HomeChapterContent: View {
                 ) {
                     if chapter.status.isFailed || chapter.status.isProcessing {
                         store.selectChapter(chapter, returnTo: .home)
-                    } else if isReviewCompleted {
-                        store.showCompletedSummary(for: chapter)
                     } else {
                         Task {
                             await store.startOrResumeReview(for: chapter)
