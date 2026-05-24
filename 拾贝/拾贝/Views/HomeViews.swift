@@ -263,32 +263,6 @@ struct AddKnowledgeView: View {
                             .frame(maxWidth: .infinity, alignment: .center)
                     }
 
-                    HStack(spacing: 6) {
-                        Image(systemName: store.submissionTargetTitle == AppDataMode.cloudAPI.title ? "cloud" : "shippingbox")
-                        Text("提交到：\(store.submissionTargetTitle)")
-                    }
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(ShiBeiTheme.textSoft)
-                    .frame(maxWidth: .infinity)
-
-                    Text(store.dataSourceMessage)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(store.dataSourceMessage.contains("失败") || store.dataSourceMessage.contains("请先") ? ShiBeiTheme.error : ShiBeiTheme.muted)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity)
-
-                    HStack(spacing: 6) {
-                        Image(systemName: "lock.square")
-                        Text("内容仅用于生成复习，不会公开")
-                    }
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(ShiBeiTheme.textSoft)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(ShiBeiTheme.yellowPale)
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    .frame(maxWidth: .infinity)
-
                     Button("填入示例内容") {
                         dismissInput()
                         input = sampleArticleText
