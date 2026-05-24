@@ -215,7 +215,7 @@ struct AddKnowledgeView: View {
                             .scrollContentBackground(.hidden)
                             .overlay(alignment: .topLeading) {
                                 if input.isEmpty {
-                                    Text("粘贴文字 / 文章链接 / 视频链接...")
+                                    Text("粘贴公众号链接/文字")
                                         .foregroundStyle(ShiBeiTheme.faint)
                                         .padding(.top, 8)
                                         .padding(.leading, 5)
@@ -270,6 +270,11 @@ struct AddKnowledgeView: View {
                     .font(.system(size: 14))
                     .foregroundStyle(ShiBeiTheme.muted)
                     .frame(maxWidth: .infinity)
+
+                    Text("视频和播客的分析功能正在开发中")
+                        .font(.system(size: 12))
+                        .foregroundStyle(ShiBeiTheme.faint)
+                        .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .padding(24)
                 .padding(.bottom, 120)

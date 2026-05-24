@@ -421,7 +421,7 @@ function renderAdd() {
     <p class="input-intro">在此处粘贴您想学习的内容。</p>
     <article class="card input-card">
       <div class="input-title"><span class="badge">✎</span><span>输入内容</span></div>
-      <textarea id="knowledge-input" maxlength="5000" placeholder="粘贴文字 / 文章链接 / 视频链接...">${escapeHtml(state.input)}</textarea>
+      <textarea id="knowledge-input" maxlength="5000" placeholder="粘贴公众号链接/文字">${escapeHtml(state.input)}</textarea>
       <div class="input-footer">
         <div class="round-tools"><span class="mini-round">${icon("link")}</span><span class="mini-round">${icon("file")}</span></div>
         <span class="faint" id="counter">${state.input.length}/5000</span>
@@ -430,6 +430,7 @@ function renderAdd() {
     <button class="primary-button" id="generate-button" data-action="generate" ${state.input.trim().length < 24 ? "disabled" : ""}>开始生成 ${icon("spark")}</button>
     <div class="privacy-chip"><span>${icon("lock")}</span><span>内容仅用于生成复习，不会公开</span></div>
     <button class="ghost-button" data-action="sample">填入示例内容</button>
+    <p class="sample-note">视频和播客的分析功能正在开发中</p>
   </section>`);
 }
 

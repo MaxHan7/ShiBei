@@ -505,6 +505,14 @@ textarea::placeholder {
   font-weight: 500;
 }
 
+.sample-note {
+  margin: -2px 0 0;
+  color: var(--faint);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
 .modal-scrim {
   position: fixed;
   inset: 0;
