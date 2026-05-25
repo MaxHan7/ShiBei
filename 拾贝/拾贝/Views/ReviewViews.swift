@@ -7,11 +7,15 @@ struct ReviewView: View {
 
     var body: some View {
         AppScaffold(store: store, title: "", showsTopBar: false, showsTabBar: false) {
-            if store.isFavoriteReviewActive, let question = store.currentFavoriteQuestion() {
-                FavoriteReviewContent(store: store, question: question)
+            if store.favoriteReviewActive {
+                if let question = store.currentFavoriteQuestion() {
+                    FavoriteReviewContent(store: store, question: question)
+                } else {
+                    FavoriteReviewUnavailableContent(store: store)
+                }
             } else if let question = store.currentQuestion(), let chapter = store.selectedChapter, let session = chapter.reviewSession {
                 VStack(spacing: 0) {
-                    ReviewTopBar(store: store, chapter: chapter, session: session)
+                    ReviewTopBar(store: store, chapter: chapter, session: session, question: question)
                     ScrollView {
                         VStack(spacing: 30) {
                             ProgressBar(progress: ReviewProgressSnapshot(chapter: chapter, session: session).ratio)
@@ -74,6 +78,38 @@ struct ReviewView: View {
 
 }
 
+private struct FavoriteReviewUnavailableContent: View {
+    @ObservedObject var store: AppStore
+
+    var body: some View {
+        VStack(spacing: 0) {
+            FavoriteReviewTopBar(store: store)
+            Spacer()
+            SBCard(padding: 22) {
+                VStack(spacing: 12) {
+                    Image(systemName: "star")
+                        .font(.system(size: 26, weight: .semibold))
+                        .frame(width: 56, height: 56)
+                        .background(ShiBeiTheme.yellow.opacity(0.35))
+                        .clipShape(Circle())
+                    Text(store.localized("favorites.empty_title"))
+                        .font(.system(size: 20, weight: .bold))
+                    Text(store.localized("favorites.empty_body"))
+                        .font(.system(size: 15))
+                        .foregroundStyle(ShiBeiTheme.muted)
+                        .multilineTextAlignment(.center)
+                }
+            }
+            .padding(24)
+            PrimaryButton(title: store.localized("favorites.back_to_entry"), systemImage: "arrow.left") {
+                store.returnToFavoriteQuestions()
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 34)
+        }
+    }
+}
+
 private struct FavoriteReviewContent: View {
     @ObservedObject var store: AppStore
     let question: ReviewQuestion
@@ -82,7 +118,7 @@ private struct FavoriteReviewContent: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            FavoriteReviewTopBar(store: store)
+            FavoriteReviewTopBar(store: store, question: question)
             ScrollView {
                 VStack(spacing: 30) {
                     ProgressBar(progress: favoriteProgress)
@@ -143,6 +179,7 @@ private struct FavoriteReviewContent: View {
 
 private struct FavoriteReviewTopBar: View {
     @ObservedObject var store: AppStore
+    var question: ReviewQuestion?
 
     var body: some View {
         HStack {
@@ -163,7 +200,11 @@ private struct FavoriteReviewTopBar: View {
                     .foregroundStyle(ShiBeiTheme.muted)
             }
             Spacer()
-            Color.clear.frame(width: 42, height: 42)
+            if let question {
+                FavoriteQuestionButton(store: store, question: question)
+            } else {
+                Color.clear.frame(width: 42, height: 42)
+            }
         }
         .padding(.horizontal, 18)
         .frame(height: 66)
@@ -174,6 +215,7 @@ private struct ReviewTopBar: View {
     @ObservedObject var store: AppStore
     let chapter: Chapter
     let session: ReviewSession
+    var question: ReviewQuestion?
 
     private var progress: ReviewProgressSnapshot {
         ReviewProgressSnapshot(chapter: chapter, session: session)
@@ -198,10 +240,35 @@ private struct ReviewTopBar: View {
                     .foregroundStyle(ShiBeiTheme.muted)
             }
             Spacer()
-            Color.clear.frame(width: 42, height: 42)
+            if let question {
+                FavoriteQuestionButton(store: store, question: question)
+            } else {
+                Color.clear.frame(width: 42, height: 42)
+            }
         }
         .padding(.horizontal, 18)
         .frame(height: 66)
+    }
+}
+
+private struct FavoriteQuestionButton: View {
+    @ObservedObject var store: AppStore
+    let question: ReviewQuestion
+
+    var body: some View {
+        Button {
+            Task {
+                await store.toggleFavoriteQuestion(question)
+            }
+        } label: {
+            Image(systemName: store.isFavoriteQuestion(question) ? "star.fill" : "star")
+                .font(.system(size: 21, weight: .semibold))
+                .foregroundStyle(store.isFavoriteQuestion(question) ? ShiBeiTheme.yellow : ShiBeiTheme.text)
+                .frame(width: 42, height: 42)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(store.isFavoriteQuestion(question) ? store.localized("favorites.remove") : store.localized("favorites.add"))
     }
 }
 
@@ -286,29 +353,12 @@ struct ExplanationView: View {
             if let question {
                 VStack(spacing: 0) {
                     if store.isFavoriteExplanationActive {
-                        FavoriteReviewTopBar(store: store)
+                        FavoriteReviewTopBar(store: store, question: question)
                     } else if let chapter = store.selectedChapter {
-                        ReviewTopBar(store: store, chapter: chapter, session: chapter.reviewSession ?? emptySession)
+                        ReviewTopBar(store: store, chapter: chapter, session: chapter.reviewSession ?? emptySession, question: question)
                     }
                     ScrollView {
                         VStack(spacing: 18) {
-                            HStack {
-                                Spacer()
-                                Button {
-                                    Task {
-                                        await store.toggleFavoriteQuestion(question)
-                                    }
-                                } label: {
-                                    Image(systemName: store.isFavoriteQuestion(question) ? "star.fill" : "star")
-                                        .font(.system(size: 22, weight: .semibold))
-                                        .foregroundStyle(store.isFavoriteQuestion(question) ? ShiBeiTheme.yellow : ShiBeiTheme.text)
-                                        .frame(width: 44, height: 44)
-                                        .background(ShiBeiTheme.card)
-                                        .clipShape(Circle())
-                                        .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
-                                }
-                                .accessibilityLabel(store.isFavoriteQuestion(question) ? store.localized("favorites.remove") : store.localized("favorites.add"))
-                            }
                             VStack(spacing: 10) {
                                 Text(question.correctOptionId)
                                     .font(.system(size: 34, weight: .black))

@@ -4,80 +4,124 @@ struct ChaptersView: View {
     @ObservedObject var store: AppStore
 
     var body: some View {
-        AppScaffold(store: store, title: store.localized("chapters.title")) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 22) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text(store.localized("favorites.collections_title"))
-                            .font(.system(size: 18, weight: .bold))
-                        Button {
-                            if store.hasFavoriteQuestions {
-                                store.startFavoriteReview()
-                            } else {
-                                store.openFavoriteQuestions()
-                            }
-                        } label: {
-                            FavoriteCollectionCard(count: store.favoriteQuestionCount, language: store.appLanguage)
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    if store.chapters.isEmpty {
-                        VStack(spacing: 10) {
-                            Spacer(minLength: 120)
-                            Text(store.localized("chapters.empty.title"))
-                                .font(.system(size: 24, weight: .bold))
-                            Text(store.localized("home.empty.subtitle"))
-                                .font(.system(size: 15))
-                                .foregroundStyle(ShiBeiTheme.muted)
-                                .multilineTextAlignment(.center)
-                        }
-                        .frame(maxWidth: .infinity)
-                    } else {
-                        Text(store.localized("favorites.article_chapters_title"))
-                            .font(.system(size: 18, weight: .bold))
-                        ForEach(store.chapters) { chapter in
-                            Button {
-                                store.selectChapter(chapter)
-                            } label: {
-                                ChapterListCard(chapter: chapter, language: store.appLanguage)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
+        AppScaffold(store: store, title: "", showsTopBar: false) {
+            VStack(spacing: 0) {
+                ChapterSectionTabs(store: store)
+                TabView(selection: sectionSelection) {
+                    ChapterListContent(store: store)
+                        .tag(ChapterSection.chapters)
+                    FavoriteQuestionsContent(store: store)
+                        .tag(ChapterSection.favorites)
                 }
-                .padding(24)
-                .padding(.bottom, 120)
+                .tabViewStyle(.page(indexDisplayMode: .never))
             }
+            .animation(.easeInOut(duration: 0.18), value: store.chapterSection)
+        }
+    }
+
+    private var sectionSelection: Binding<ChapterSection> {
+        Binding {
+            store.chapterSection
+        } set: { section in
+            store.chapterSection = section
         }
     }
 }
 
-private struct FavoriteCollectionCard: View {
-    let count: Int
-    let language: AppLanguage
+private struct ChapterSectionTabs: View {
+    @ObservedObject var store: AppStore
 
     var body: some View {
-        SBCard(padding: 20) {
-            HStack(spacing: 14) {
-                Image(systemName: "star.fill")
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: 50, height: 50)
-                    .background(ShiBeiTheme.yellow)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(L10n.string("favorites.title", language: language))
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(ShiBeiTheme.text)
-                    Text(count == 0 ? L10n.string("favorites.empty_card_subtitle", language: language) : L10n.format("favorites.card_subtitle", language: language, count))
-                        .font(.system(size: 14))
-                        .foregroundStyle(ShiBeiTheme.muted)
+        HStack(spacing: 34) {
+            sectionButton(.chapters, title: store.localized("chapters.title"))
+            sectionButton(.favorites, title: store.localized("favorites.title"))
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 64)
+        .background(ShiBeiTheme.surface.opacity(0.94))
+    }
+
+    private func sectionButton(_ section: ChapterSection, title: String) -> some View {
+        let isSelected = store.chapterSection == section
+        return Button {
+            store.chapterSection = section
+        } label: {
+            VStack(spacing: 6) {
+                Text(title)
+                    .font(.system(size: 20, weight: isSelected ? .bold : .semibold))
+                    .foregroundStyle(isSelected ? ShiBeiTheme.text : ShiBeiTheme.faint)
+                Capsule()
+                    .fill(isSelected ? ShiBeiTheme.text : Color.clear)
+                    .frame(width: 22, height: 3)
+            }
+            .frame(width: 110, height: 44)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct ChapterListContent: View {
+    @ObservedObject var store: AppStore
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                if store.chapters.isEmpty {
+                    VStack(spacing: 10) {
+                        Spacer(minLength: 120)
+                        Text(store.localized("chapters.empty.title"))
+                            .font(.system(size: 24, weight: .bold))
+                        Text(store.localized("home.empty.subtitle"))
+                            .font(.system(size: 15))
+                            .foregroundStyle(ShiBeiTheme.muted)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                } else {
+                    ForEach(store.chapters) { chapter in
+                        Button {
+                            store.chapterSection = .chapters
+                            store.selectChapter(chapter)
+                        } label: {
+                            ChapterListCard(chapter: chapter, language: store.appLanguage)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(ShiBeiTheme.faint)
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 10)
+            .padding(.bottom, 120)
+        }
+    }
+}
+
+private struct FavoriteQuestionsContent: View {
+    @ObservedObject var store: AppStore
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if store.favoriteDisplayItems.isEmpty {
+                Text(store.localized("favorites.empty_title"))
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundStyle(ShiBeiTheme.muted)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 14) {
+                        ForEach(store.favoriteDisplayItems) { item in
+                            Button {
+                                store.startFavoriteReview(from: item.record.id)
+                            } label: {
+                                FavoriteQuestionPreviewCard(item: item, language: store.appLanguage)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.top, 10)
+                    .padding(.bottom, 120)
+                }
             }
         }
     }
@@ -275,49 +319,7 @@ struct FavoriteQuestionsView: View {
             title: store.localized("favorites.title"),
             leadingAction: { store.returnFromChapterDetail() }
         ) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    SBCard {
-                        HStack(spacing: 14) {
-                            Image(systemName: "star.fill")
-                                .font(.system(size: 24, weight: .semibold))
-                                .foregroundStyle(.white)
-                                .frame(width: 56, height: 56)
-                                .background(ShiBeiTheme.yellow)
-                                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(store.localized("favorites.review_title"))
-                                    .font(.system(size: 21, weight: .bold))
-                                Text(store.localizedFormat("favorites.total_count", store.favoriteQuestionCount))
-                                    .font(.system(size: 15))
-                                    .foregroundStyle(ShiBeiTheme.muted)
-                            }
-                        }
-                        if store.hasFavoriteQuestions {
-                            PrimaryButton(title: store.localized("favorites.start_review"), systemImage: "arrow.right") {
-                                store.startFavoriteReview()
-                            }
-                        } else {
-                            Text(store.localized("favorites.empty_body"))
-                                .font(.system(size: 15))
-                                .foregroundStyle(ShiBeiTheme.muted)
-                                .lineSpacing(4)
-                        }
-                    }
-
-                    if !store.favoriteDisplayItems.isEmpty {
-                        Text(store.localized("favorites.saved_questions"))
-                            .font(.system(size: 18, weight: .bold))
-                            .padding(.top, 4)
-
-                        ForEach(store.favoriteDisplayItems) { item in
-                            FavoriteQuestionPreviewCard(item: item, language: store.appLanguage)
-                        }
-                    }
-                }
-                .padding(24)
-                .padding(.bottom, 120)
-            }
+            FavoriteQuestionsContent(store: store)
         }
     }
 }
@@ -329,24 +331,23 @@ private struct FavoriteQuestionPreviewCard: View {
     var body: some View {
         SBCard(padding: 18) {
             HStack(alignment: .top, spacing: 12) {
-                Image(systemName: "star.fill")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(ShiBeiTheme.yellow)
-                    .frame(width: 28, height: 28)
-                    .background(ShiBeiTheme.yellowPale)
-                    .clipShape(Circle())
+                Circle()
+                    .fill(ShiBeiTheme.yellow)
+                    .frame(width: 8, height: 8)
+                    .padding(.top, 6)
                 VStack(alignment: .leading, spacing: 8) {
+                    Text(L10n.format("favorites.knowledge_point_label", language: language, item.question.pointTitle))
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(ShiBeiTheme.muted)
+                        .lineLimit(1)
                     Text(item.question.stem)
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(ShiBeiTheme.text)
                         .lineLimit(3)
-                    Text(item.chapterTitle)
+                    Text(L10n.format("favorites.source_chapter_label", language: language, item.chapterTitle))
                         .font(.system(size: 13))
                         .foregroundStyle(ShiBeiTheme.muted)
                         .lineLimit(1)
-                    Text(item.record.createdAt.relativeLabel(language: language))
-                        .font(.system(size: 12))
-                        .foregroundStyle(ShiBeiTheme.faint)
                 }
             }
         }

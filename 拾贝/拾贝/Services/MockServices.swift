@@ -17,7 +17,9 @@ final class AppStore: ObservableObject {
     @Published var latestFeedbackMessage = ""
     @Published var lastAnsweredQuestion: ReviewQuestion?
     @Published var favoriteQuestions: [FavoriteQuestionRecord] = []
+    @Published var chapterSection: ChapterSection = .chapters
     @Published var favoriteReviewQuestionIds: [String] = []
+    @Published var favoriteReviewRecords: [FavoriteQuestionRecord] = []
     @Published var favoriteReviewIndex = 0
     @Published var favoriteReviewActive = false
     @Published var sourceFocusText: String?
@@ -245,6 +247,7 @@ final class AppStore: ObservableObject {
     func selectChapter(_ chapter: Chapter, returnTo returnRoute: AppRoute = .chapters) {
         selectedChapterId = chapter.id
         chapterDetailReturnRoute = rootReturnRoute(for: returnRoute)
+        chapterSection = .chapters
         selectedTab = .chapters
         route = .chapterDetail
         Task {
@@ -301,11 +304,13 @@ final class AppStore: ObservableObject {
                 }
             }
         }
-        favoriteReviewQuestionIds.removeAll { id in
-            favoriteQuestion(forRecordId: id) == nil
-        }
-        if favoriteReviewIndex >= favoriteReviewQuestionIds.count {
-            favoriteReviewIndex = max(0, favoriteReviewQuestionIds.count - 1)
+        if !favoriteReviewActive {
+            favoriteReviewQuestionIds.removeAll { id in
+                favoriteQuestion(forRecordId: id) == nil
+            }
+            if favoriteReviewIndex >= favoriteReviewQuestionIds.count {
+                favoriteReviewIndex = max(0, favoriteReviewQuestionIds.count - 1)
+            }
         }
     }
 
@@ -315,30 +320,42 @@ final class AppStore: ObservableObject {
 
     func openFavoriteQuestions() {
         chapterDetailReturnRoute = .chapters
+        chapterSection = .favorites
         selectedTab = .chapters
-        route = .favoriteQuestions
+        route = .chapters
     }
 
-    func startFavoriteReview() {
-        let ids = favoriteQuestions.compactMap { record -> String? in
-            question(for: record.questionId, in: record.chapterId) == nil ? nil : record.id
+    func startFavoriteReview(from recordId: String? = nil) {
+        let records = favoriteQuestions.filter { record in
+            question(for: record.questionId, in: record.chapterId) != nil
         }
-        guard !ids.isEmpty else {
+        guard !records.isEmpty else {
             openFavoriteQuestions()
             return
         }
+        let ids = records.map(\.id)
         favoriteReviewQuestionIds = ids
-        favoriteReviewIndex = 0
+        favoriteReviewRecords = records
+        if let recordId, let index = ids.firstIndex(of: recordId) {
+            favoriteReviewIndex = index
+        } else {
+            favoriteReviewIndex = 0
+        }
         favoriteReviewActive = true
         lastAnsweredQuestion = nil
         if let question = currentFavoriteQuestion() {
             selectedChapterId = question.chapterId
         }
+        chapterSection = .favorites
         selectedTab = .chapters
         route = .review
     }
 
     func currentFavoriteQuestion() -> ReviewQuestion? {
+        if favoriteReviewRecords.indices.contains(favoriteReviewIndex) {
+            let record = favoriteReviewRecords[favoriteReviewIndex]
+            return question(for: record.questionId, in: record.chapterId)
+        }
         guard favoriteReviewQuestionIds.indices.contains(favoriteReviewIndex) else { return nil }
         return favoriteQuestion(forRecordId: favoriteReviewQuestionIds[favoriteReviewIndex])
     }
@@ -355,11 +372,13 @@ final class AppStore: ObservableObject {
 
     func returnToFavoriteQuestions() {
         favoriteReviewQuestionIds = []
+        favoriteReviewRecords = []
         favoriteReviewIndex = 0
         favoriteReviewActive = false
         lastAnsweredQuestion = nil
+        chapterSection = .favorites
         selectedTab = .chapters
-        route = .favoriteQuestions
+        route = .chapters
     }
 
     private func persistFavoriteQuestions() {
@@ -369,7 +388,8 @@ final class AppStore: ObservableObject {
     }
 
     private func favoriteQuestion(forRecordId recordId: String) -> ReviewQuestion? {
-        guard let record = favoriteQuestions.first(where: { $0.id == recordId }) else { return nil }
+        guard let record = favoriteQuestions.first(where: { $0.id == recordId })
+                ?? favoriteReviewRecords.first(where: { $0.id == recordId }) else { return nil }
         return question(for: record.questionId, in: record.chapterId)
     }
 
@@ -444,6 +464,7 @@ final class AppStore: ObservableObject {
         dataMode = .cloudAPI
         selectedChapterId = chapterId
         chapterDetailReturnRoute = .notifications
+        chapterSection = .chapters
         selectedTab = .chapters
         route = .chapterDetail
 
@@ -474,6 +495,7 @@ final class AppStore: ObservableObject {
     }
 
     func showSelectedChapterDetail() {
+        chapterSection = .chapters
         selectedTab = .chapters
         route = .chapterDetail
     }
@@ -716,8 +738,10 @@ final class AppStore: ObservableObject {
         latestFeedbackMessage = ""
         lastAnsweredQuestion = nil
         favoriteReviewQuestionIds = []
+        favoriteReviewRecords = []
         favoriteReviewIndex = 0
         favoriteReviewActive = false
+        chapterSection = .chapters
         dataMode = .mock
         dataSourceMessage = "已切换到 \(scenario.title)"
         isWritingChapter = false
@@ -743,8 +767,10 @@ final class AppStore: ObservableObject {
         latestFeedbackMessage = ""
         lastAnsweredQuestion = nil
         favoriteReviewQuestionIds = []
+        favoriteReviewRecords = []
         favoriteReviewIndex = 0
         favoriteReviewActive = false
+        chapterSection = .chapters
         isWritingChapter = false
         isSubmittingReview = false
         cancelGenerationPolling()
@@ -829,8 +855,10 @@ final class AppStore: ObservableObject {
             latestFeedbackMessage = ""
             lastAnsweredQuestion = nil
             favoriteReviewQuestionIds = []
+            favoriteReviewRecords = []
             favoriteReviewIndex = 0
             favoriteReviewActive = false
+            chapterSection = .chapters
             return true
         } catch {
             dataSourceMessage = "删除数据失败：\(userFacingErrorMessage(error))"
@@ -999,15 +1027,29 @@ final class AppStore: ObservableObject {
 
     func nextQuestion() {
         if favoriteReviewActive {
+            pruneInvalidFavoriteReviewItems()
+            guard !favoriteReviewQuestionIds.isEmpty else {
+                returnToFavoriteQuestions()
+                return
+            }
             if favoriteReviewIndex >= favoriteReviewQuestionIds.count - 1 {
                 returnToFavoriteQuestions()
             } else {
                 favoriteReviewIndex += 1
                 lastAnsweredQuestion = nil
+                while favoriteReviewQuestionIds.indices.contains(favoriteReviewIndex),
+                      currentFavoriteQuestion() == nil {
+                    favoriteReviewQuestionIds.remove(at: favoriteReviewIndex)
+                    if favoriteReviewRecords.indices.contains(favoriteReviewIndex) {
+                        favoriteReviewRecords.remove(at: favoriteReviewIndex)
+                    }
+                }
                 if let question = currentFavoriteQuestion() {
                     selectedChapterId = question.chapterId
+                    route = .review
+                } else {
+                    returnToFavoriteQuestions()
                 }
-                route = .review
             }
             return
         }
@@ -1025,6 +1067,17 @@ final class AppStore: ObservableObject {
             route = .summary
         } else {
             route = .review
+        }
+    }
+
+    private func pruneInvalidFavoriteReviewItems() {
+        let paired = zip(favoriteReviewQuestionIds, favoriteReviewRecords).filter { _, record in
+            question(for: record.questionId, in: record.chapterId) != nil
+        }
+        favoriteReviewQuestionIds = paired.map(\.0)
+        favoriteReviewRecords = paired.map(\.1)
+        if favoriteReviewIndex >= favoriteReviewQuestionIds.count {
+            favoriteReviewIndex = max(0, favoriteReviewQuestionIds.count - 1)
         }
     }
 
@@ -1166,8 +1219,10 @@ final class AppStore: ObservableObject {
         notifications = []
         favoriteQuestions = []
         favoriteReviewQuestionIds = []
+        favoriteReviewRecords = []
         favoriteReviewIndex = 0
         favoriteReviewActive = false
+        chapterSection = .chapters
         selectedChapterId = nil
     }
 
@@ -1488,6 +1543,13 @@ enum AppRoute {
     case review
     case explanation
     case summary
+}
+
+enum ChapterSection: String, CaseIterable, Identifiable {
+    case chapters
+    case favorites
+
+    var id: String { rawValue }
 }
 
 struct ChapterCreationResult {
