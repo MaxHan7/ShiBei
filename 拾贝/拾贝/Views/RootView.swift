@@ -5,10 +5,15 @@ struct RootView: View {
 
     var body: some View {
         ZStack {
-            if usesFullScreenRoute {
-                currentScreen
+            if store.isBootstrapping {
+                BootLoadingView(language: store.appLanguage)
+                    .transition(.opacity)
             } else {
-                tabRoot
+                if usesFullScreenRoute {
+                    currentScreen
+                } else {
+                    tabRoot
+                }
             }
             if store.showingSubmittedToast {
                 SubmittedToast(language: store.appLanguage) {
@@ -19,6 +24,7 @@ struct RootView: View {
         }
         .environment(\.locale, Locale(identifier: store.appLanguage.localeIdentifier))
         .animation(.easeInOut(duration: 0.18), value: store.showingSubmittedToast)
+        .animation(.easeInOut(duration: 0.22), value: store.isBootstrapping)
         .alert(store.localized("delete_chapter.alert.title"), isPresented: $store.showingDeleteConfirmation) {
             Button(store.localized("global.cancel"), role: .cancel) {}
             Button(store.localized("delete_chapter.alert.action"), role: .destructive) {
@@ -196,6 +202,39 @@ struct RootView: View {
         case .profile:
             .profile
         }
+    }
+}
+
+struct BootLoadingView: View {
+    let language: AppLanguage
+
+    private var valueProposition: String {
+        L10n.string("launch.value_proposition", language: language)
+    }
+
+    var body: some View {
+        ZStack {
+            ShiBeiTheme.surface.ignoresSafeArea()
+            if language == .zhHans {
+                VStack(spacing: 5) {
+                    ForEach(Array(valueProposition.enumerated()), id: \.offset) { _, character in
+                        Text(String(character))
+                            .font(.system(size: 31, weight: .semibold))
+                            .tracking(0)
+                    }
+                }
+                .foregroundStyle(ShiBeiTheme.text)
+            } else {
+                Text(valueProposition)
+                    .font(.system(size: 27, weight: .semibold))
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(ShiBeiTheme.text)
+                    .padding(.horizontal, 48)
+                    .frame(maxWidth: 360)
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(valueProposition))
     }
 }
 

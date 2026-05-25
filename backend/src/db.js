@@ -281,7 +281,7 @@ export async function upsertPushToken(deviceId, pushToken) {
 export async function listPushTokens(deviceId) {
   await ensureDevice(deviceId);
   const result = await pool.query(
-    `SELECT token, platform, environment
+    `SELECT token, platform, environment, created_at, updated_at
        FROM device_push_tokens
       WHERE device_id = $1
       ORDER BY updated_at DESC`,
@@ -290,7 +290,9 @@ export async function listPushTokens(deviceId) {
   return result.rows.map((row) => ({
     token: row.token,
     platform: row.platform,
-    environment: row.environment
+    environment: row.environment,
+    createdAt: row.created_at?.toISOString?.() || "",
+    updatedAt: row.updated_at?.toISOString?.() || ""
   }));
 }
 

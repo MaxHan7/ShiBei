@@ -1756,6 +1756,22 @@
         }
       }
     },
+    "launch.value_proposition" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Make knowledge more than saved."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "让知识不只被收藏。"
+          }
+        }
+      }
+    },
     "home.action.start_review" : {
       "extractionState" : "stale",
       "localizations" : {

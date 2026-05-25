@@ -1075,10 +1075,43 @@ async function createMemoryNotification(deviceId, chapter) {
 }
 
 function normalizePushToken(pushToken = {}) {
+  const now = new Date().toISOString();
   return {
     token: toStringValue(pushToken.token || pushToken.deviceToken || "").replace(/[^a-fA-F0-9]/g, "").toLowerCase(),
     platform: pushToken.platform === "ios" ? "ios" : "ios",
-    environment: pushToken.environment === "sandbox" ? "sandbox" : "production"
+    environment: pushToken.environment === "sandbox" ? "sandbox" : "production",
+    createdAt: toStringValue(pushToken.createdAt || pushToken.created_at || now),
+    updatedAt: toStringValue(pushToken.updatedAt || pushToken.updated_at || now)
+  };
+}
+
+function serializePushTokenForDiagnostics(token = {}) {
+  const normalized = normalizePushToken(token);
+  const tail = normalized.token ? normalized.token.slice(-8) : "";
+  return {
+    tokenTail: tail,
+    platform: normalized.platform,
+    environment: normalized.environment,
+    createdAt: normalized.createdAt,
+    updatedAt: normalized.updatedAt
+  };
+}
+
+function serializeNotificationPushDiagnostics(notification = {}) {
+  const normalized = normalizeNotification(notification);
+  return {
+    id: normalized.id,
+    chapterId: normalized.chapterId,
+    type: normalized.type,
+    title: normalized.title,
+    read: normalized.read,
+    dismissed: normalized.dismissed,
+    pushAttemptedAt: normalized.pushAttemptedAt,
+    pushSentAt: normalized.pushSentAt,
+    pushDeliveryStatus: normalized.pushDeliveryStatus,
+    pushDeliveryError: normalized.pushDeliveryError,
+    pushAttemptCount: normalized.pushAttemptCount,
+    createdAt: normalized.createdAt
   };
 }
 
@@ -1702,6 +1735,23 @@ const server = createServer(async (req, res) => {
       apnsConfigured: isAPNSConfigured(),
       apns: apnsConfigurationSummary(),
       pendingPush
+    });
+    return;
+  }
+
+  if (req.method === "GET" && req.url === "/api/devices/push-status") {
+    const [tokens, notifications] = await Promise.all([
+      listStoredPushTokens(deviceId),
+      listStoredNotifications(deviceId)
+    ]);
+    sendJson(res, 200, {
+      ok: true,
+      apns: apnsConfigurationSummary(),
+      pushTokenCount: tokens.length,
+      pushTokens: tokens.map(serializePushTokenForDiagnostics),
+      recentNotifications: sortByCreatedAtDesc(notifications)
+        .slice(0, 10)
+        .map(serializeNotificationPushDiagnostics)
     });
     return;
   }

@@ -28,6 +28,7 @@ final class AppStore: ObservableObject {
     @Published var cloudAPIBaseURLString: String
     @Published var anonymousDeviceId: String
     @Published var appLanguage: AppLanguage = .zhHans
+    @Published var isBootstrapping = true
     @Published var isLoadingLocalAPI = false
     @Published var isWritingChapter = false
     @Published var isSubmittingReview = false
@@ -398,13 +399,24 @@ final class AppStore: ObservableObject {
     }
 
     func bootstrapForCurrentEnvironment() async {
+        isBootstrapping = true
         #if DEBUG
+        isBootstrapping = false
         return
         #else
-        guard dataMode == .cloudAPI else { return }
+        guard dataMode == .cloudAPI else {
+            isBootstrapping = false
+            return
+        }
         await loadCloudAPIReadOnly()
-        await PushNotificationService.registerIfAuthorized()
+        isBootstrapping = false
+        await syncPushTokenIfAuthorized()
         #endif
+    }
+
+    func syncPushTokenIfAuthorized() async {
+        guard apiClient(for: .cloudAPI) != nil else { return }
+        await PushNotificationService.registerIfAuthorized()
     }
 
     private func installPushNotificationObservers() {
@@ -638,9 +650,15 @@ final class AppStore: ObservableObject {
                     #endif
                     return false
                 }
+                if targetMode == .cloudAPI {
+                    await syncPushTokenIfAuthorized()
+                }
                 dataSourceMessage = "正在提交到\(targetMode.apiLabel)..."
                 let chapterService = LocalAPIChapterService(apiClient: client)
                 created = try await chapterService.createChapter(from: parsedInput)
+                if targetMode == .cloudAPI {
+                    await syncPushTokenIfAuthorized()
+                }
                 dataSourceMessage = "\(targetMode.apiLabel)已接收，正在生成章节..."
                 #if DEBUG
                 print("[ShiBei] AppStore.createChapter accepted chapter=\(created.chapter.id), status=\(created.chapter.status.rawValue)")
@@ -685,6 +703,9 @@ final class AppStore: ObservableObject {
         showingSubmittedToast = true
         do {
             let granted = try await PushNotificationService.requestAuthorizationAndRegister()
+            if granted {
+                await syncPushTokenIfAuthorized()
+            }
             dataSourceMessage = granted ? "通知已开启，生成完成后会提醒你" : "你可以在 App 内通知页查看生成结果"
         } catch {
             dataSourceMessage = "通知权限请求失败：\(userFacingErrorMessage(error))"
