@@ -217,17 +217,14 @@ struct KnowledgePointRow: View {
     var showsSummary = false
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 12) {
-            Text("\(index + 1)")
-                .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(ShiBeiTheme.textSoft)
-                .frame(width: 26, height: 26)
-                .background(ShiBeiTheme.yellowPale)
-                .clipShape(Circle())
-                .alignmentGuide(.firstTextBaseline) { dimensions in
-                    dimensions[VerticalAlignment.center]
-                }
-            VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .center, spacing: 12) {
+                Text("\(index + 1)")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(ShiBeiTheme.textSoft)
+                    .frame(width: 26, height: 26)
+                    .background(ShiBeiTheme.yellowPale)
+                    .clipShape(Circle())
                 Text(point.title)
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(ShiBeiTheme.text)
@@ -235,17 +232,18 @@ struct KnowledgePointRow: View {
                     .lineSpacing(3)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
-                if showsSummary {
-                    Text(point.summary)
-                        .font(.system(size: 14))
-                        .foregroundStyle(ShiBeiTheme.muted)
-                        .multilineTextAlignment(.leading)
-                        .lineSpacing(3)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            if showsSummary {
+                Text(point.summary)
+                    .font(.system(size: 14))
+                    .foregroundStyle(ShiBeiTheme.muted)
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(3)
+                    .padding(.leading, 38)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
