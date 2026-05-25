@@ -134,12 +134,15 @@ private struct ChapterListCard: View {
     var body: some View {
         SBCard {
             HStack(alignment: .top) {
-                StatusPill(text: chapter.visibleStatusText(language: language), isDanger: chapter.status.isFailed)
+                if chapter.status.isProcessing {
+                    StatusPill(text: chapter.visibleStatusText(language: language), isDanger: false)
+                } else if chapter.status.isFailed {
+                    StatusPill(text: L10n.string("home.status.failed", language: language), isDanger: true)
+                } else if let reviewStatus = ChapterReviewDisplayStatus(chapter: chapter) {
+                    ReviewStatusChip(status: reviewStatus, language: language)
+                }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 6) {
-                    if let reviewStatus = ChapterReviewDisplayStatus(chapter: chapter) {
-                        ReviewStatusChip(status: reviewStatus, language: language)
-                    }
                     Text(chapter.createdAt.relativeLabel(language: language))
                         .font(.system(size: 14))
                         .foregroundStyle(ShiBeiTheme.muted)
@@ -170,7 +173,7 @@ private enum ChapterReviewDisplayStatus {
             return nil
         }
 
-        if chapter.reviewSession?.status == .completed || chapter.reviewSession?.completedAt != nil {
+        if chapter.hasCompletedReviewOnce {
             self = .completed
         } else if chapter.reviewSession?.status == .active
                     || chapter.masteredPoints > 0

@@ -104,6 +104,29 @@ final class MockReviewServiceTests: XCTestCase {
         XCTAssertEqual(result.chapter.reviewSession?.masteryByPointId["point-1"], 50)
     }
 
+    func testCompletedChapterKeepsLifetimeMasteryDuringAnotherReviewRound() {
+        let service = MockReviewService()
+        var chapter = makeChapter(pointCount: 2, questionsPerPoint: 2)
+        chapter.masteredPoints = 2
+        chapter.reviewSession = completedSession(for: chapter)
+
+        let session = service.startOrResumeSession(for: chapter)
+        chapter.reviewSession = session
+
+        XCTAssertEqual(session.status, .active)
+        XCTAssertTrue(chapter.hasCompletedReviewOnce)
+
+        let result = service.submitAttempt(
+            chapter: chapter,
+            session: session,
+            answer: "A",
+            result: .incorrect
+        )
+
+        XCTAssertEqual(result.chapter.masteredPoints, 2)
+        XCTAssertTrue(result.chapter.hasCompletedReviewOnce)
+    }
+
     private func makeChapter(pointCount: Int, questionsPerPoint: Int) -> Chapter {
         let now = "2026-05-17T00:00:00.000Z"
         let chapterId = "chapter-test"
@@ -183,6 +206,34 @@ final class MockReviewServiceTests: XCTestCase {
             dismissedFromNotifications: false,
             createdAt: now,
             updatedAt: now
+        )
+    }
+
+    private func completedSession(for chapter: Chapter) -> ReviewSession {
+        let pointIds = chapter.knowledgePoints.map(\.id)
+        let queue = chapter.questions.prefix(pointIds.count).map { question in
+            ReviewQueueItem(
+                id: "queue-\(question.id)",
+                pointId: question.knowledgePointId,
+                questionId: question.id,
+                isReinforcement: false
+            )
+        }
+        return ReviewSession(
+            id: "session-completed",
+            chapterId: chapter.id,
+            status: .completed,
+            queue: Array(queue),
+            reinforcementQueue: [],
+            currentQueueIndex: max(0, queue.count - 1),
+            attempts: [],
+            masteryByPointId: Dictionary(uniqueKeysWithValues: pointIds.map { ($0, 100) }),
+            answeredPointIds: pointIds,
+            masteredThisRoundPointIds: pointIds,
+            skippedPointIds: [],
+            createdAt: "2026-05-17T00:00:00.000Z",
+            updatedAt: "2026-05-17T00:10:00.000Z",
+            completedAt: "2026-05-17T00:10:00.000Z"
         )
     }
 }

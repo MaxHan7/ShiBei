@@ -1277,7 +1277,7 @@ function startOrResumeReviewSession(chapter) {
   } else {
     chapter.reviewSession = createReviewSessionForChapter(chapter);
   }
-  chapter.masteredPoints = currentMasteredCount(chapter, chapter.reviewSession);
+  updateChapterMasteredPoints(chapter, chapter.reviewSession);
   chapter.updatedAt = new Date().toISOString();
   return chapter.reviewSession;
 }
@@ -1353,7 +1353,7 @@ function recordSessionAttempt(chapter, body = {}) {
     session.completedAt = new Date().toISOString();
   }
   session.updatedAt = new Date().toISOString();
-  chapter.masteredPoints = currentMasteredCount(chapter, session);
+  updateChapterMasteredPoints(chapter, session);
   chapter.updatedAt = new Date().toISOString();
   return { attempt, session, question: currentQuestionForSession(chapter, session) };
 }
@@ -1444,6 +1444,19 @@ function currentMasteredCount(chapter, session) {
   return requiredPointIdsForSession(chapter, session).filter((pointId) => session.masteredThisRoundPointIds.includes(pointId)).length;
 }
 
+function updateChapterMasteredPoints(chapter, session) {
+  if (!session) return;
+  const totalPointCount = Array.isArray(chapter.knowledgePoints) ? chapter.knowledgePoints.length : 0;
+  const currentCount = currentMasteredCount(chapter, session);
+  const completedCount = session.status === "completed" ? requiredPointIdsForSession(chapter, session).length : 0;
+  const lifetimeCount = Math.max(
+    toIntegerValue(chapter.masteredPoints, 0),
+    currentCount,
+    completedCount
+  );
+  chapter.masteredPoints = Math.min(totalPointCount, lifetimeCount);
+}
+
 async function handleQuestionFeedback(deviceId, questionId, body = {}) {
   const chapters = await listStoredChapters(deviceId);
   const chapter = chapters.find((item) => item.questions?.some((question) => question.id === questionId));
@@ -1495,7 +1508,7 @@ async function handleQuestionFeedback(deviceId, questionId, body = {}) {
     createdAt: new Date().toISOString()
   };
   chapter.feedbackRecords.push(feedback);
-  chapter.masteredPoints = session ? currentMasteredCount(chapter, session) : chapter.masteredPoints;
+  if (session) updateChapterMasteredPoints(chapter, session);
   chapter.updatedAt = new Date().toISOString();
   await upsertStoredChapter(deviceId, chapter);
   return { chapter, feedback, reviewSession: chapter.reviewSession };

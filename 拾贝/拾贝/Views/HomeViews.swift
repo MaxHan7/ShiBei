@@ -85,9 +85,7 @@ private struct HomeChapterContent: View {
     let chapter: Chapter
 
     private var progress: Int {
-        chapter.reviewSession.map { session in
-            chapter.knowledgePoints.map(\.id).filter { session.masteredThisRoundPointIds.contains($0) }.count
-        } ?? chapter.masteredPoints
+        chapter.lifetimeMasteredPointCount
     }
 
     private var total: Int {
@@ -95,7 +93,7 @@ private struct HomeChapterContent: View {
     }
 
     private var isReviewCompleted: Bool {
-        chapter.reviewSession?.status == .completed
+        chapter.hasCompletedReviewOnce
     }
 
     private var statusText: String {

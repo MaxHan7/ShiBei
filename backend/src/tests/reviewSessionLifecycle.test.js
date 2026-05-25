@@ -48,7 +48,7 @@ test("starts a new review session after the previous one is completed", () => {
   assert.deepEqual(session.answeredPointIds, []);
   assert.deepEqual(session.masteredThisRoundPointIds, []);
   assert.equal(session.queue.length, 2);
-  assert.equal(chapter.masteredPoints, 0);
+  assert.equal(chapter.masteredPoints, 2);
 });
 
 test("resumes an active review session without replacing it", () => {

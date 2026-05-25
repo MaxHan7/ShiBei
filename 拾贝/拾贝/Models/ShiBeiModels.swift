@@ -304,6 +304,30 @@ struct Chapter: Codable, Identifiable, Hashable {
         questions.filter { !removedQuestionIds.contains($0.id) }
     }
 
+    var reviewableKnowledgePointCount: Int {
+        let reviewablePointIds = Set(reviewableQuestions.map(\.knowledgePointId))
+        return knowledgePoints.filter { reviewablePointIds.contains($0.id) }.count
+    }
+
+    var currentRoundMasteredPointCount: Int {
+        guard let reviewSession else { return 0 }
+        let knownPointIds = Set(knowledgePoints.map(\.id))
+        return Set(reviewSession.masteredThisRoundPointIds).intersection(knownPointIds).count
+    }
+
+    var lifetimeMasteredPointCount: Int {
+        min(knowledgePoints.count, max(masteredPoints, currentRoundMasteredPointCount))
+    }
+
+    var hasCompletedReviewOnce: Bool {
+        guard status == .completed else { return false }
+        if reviewSession?.status == .completed || reviewSession?.completedAt != nil {
+            return true
+        }
+        let requiredCount = reviewableKnowledgePointCount
+        return requiredCount > 0 && masteredPoints >= requiredCount
+    }
+
     enum CodingKeys: String, CodingKey {
         case id
         case title

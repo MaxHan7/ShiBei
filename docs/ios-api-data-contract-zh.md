@@ -133,6 +133,8 @@ unrelated_to_source
 
 `coreSummary` 是章节总结页展示的文章整体核心摘要，基于原文全文生成，不是知识点列表、题目解释或复习建议；旧章节可能为空字符串。
 
+`masteredPoints` 表示该章节长期累计已掌握的知识点数量，不是当前这一轮 `ReviewSession` 的临时进度。章节一旦完成过复习，重新开始第二轮复习不会把 `masteredPoints` 清零；前端应继续把它作为“已完成/已掌握”的用户反馈依据。
+
 ### ChapterSource
 
 ```json

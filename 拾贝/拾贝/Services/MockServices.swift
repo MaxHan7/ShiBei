@@ -1199,11 +1199,7 @@ final class AppStore: ObservableObject {
     }
 
     private func reviewedKnowledgePointCount(in chapter: Chapter) -> Int {
-        let knownPointIds = Set(chapter.knowledgePoints.map(\.id))
-        let sessionReviewedCount = chapter.reviewSession.map { session in
-            Set(session.masteredThisRoundPointIds).intersection(knownPointIds).count
-        } ?? 0
-        return min(chapter.knowledgePoints.count, max(chapter.masteredPoints, sessionReviewedCount))
+        chapter.lifetimeMasteredPointCount
     }
 
     private func submissionModeForCreate() -> AppDataMode {
@@ -1752,7 +1748,7 @@ final class MockReviewService: ReviewServicing {
         }
         session.updatedAt = Date.nowISO8601
         chapter.reviewSession = session
-        chapter.masteredPoints = currentMasteredCount(chapter: chapter, session: session)
+        updateLifetimeMasteredPoints(for: &chapter, session: session)
         return AttemptSubmissionResult(chapter: chapter, session: session, attempt: attempt)
     }
 
@@ -1806,7 +1802,7 @@ final class MockReviewService: ReviewServicing {
         )
         chapter.feedbackRecords.append(feedback)
         chapter.reviewSession = session
-        chapter.masteredPoints = currentMasteredCount(chapter: chapter, session: session)
+        updateLifetimeMasteredPoints(for: &chapter, session: session)
         let message = severe ? "已收到，这道题已从本次复习移除" : "已收到，后续会减少出现"
         return FeedbackSubmissionResult(chapter: chapter, message: message)
     }
@@ -1889,6 +1885,17 @@ final class MockReviewService: ReviewServicing {
 
     private func currentMasteredCount(chapter: Chapter, session: ReviewSession) -> Int {
         chapter.knowledgePoints.map(\.id).filter { session.masteredThisRoundPointIds.contains($0) }.count
+    }
+
+    private func updateLifetimeMasteredPoints(for chapter: inout Chapter, session: ReviewSession) {
+        let currentCount = currentMasteredCount(chapter: chapter, session: session)
+        let completedCount = session.status == .completed
+            ? chapter.knowledgePoints.map(\.id).filter { !session.skippedPointIds.contains($0) }.count
+            : 0
+        chapter.masteredPoints = min(
+            chapter.knowledgePoints.count,
+            max(chapter.masteredPoints, currentCount, completedCount)
+        )
     }
 }
 
