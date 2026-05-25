@@ -76,6 +76,22 @@ curl https://你的域名.up.railway.app/api/health
 
 APNs 相关环境变量未配置时，`apns.configured` 会是 `false`。这不会影响章节生成和 App 内通知，但真机不会收到系统通知。
 
+真机通知诊断接口：
+
+```bash
+curl https://你的域名.up.railway.app/api/devices/push-status \
+  -H 'X-Device-Id: 你的匿名设备 ID'
+```
+
+预期至少能看到：
+
+- `pushTokenCount > 0`：说明 App 已经把当前设备 token 上传到云端。
+- `pushTokens[].environment`：Debug 安装应为 `sandbox`，TestFlight / App Store 应为 `production`。
+- `recentNotifications[].pushDeliveryStatus`：最近通知的 APNs 发送状态。
+- `recentNotifications[].pushDeliveryError`：Apple 返回的错误，例如 `BadDeviceToken` 或 `BadEnvironmentKeyInToken`。
+
+如果 `/api/health` 显示 `apns.configured: true`，但 `pushTokenCount` 为 0，优先检查 iOS 是否已经授权通知并重新打开过 App。iOS 会在首次授权后、App 回到前台后、提交云端生成前后同步 token。
+
 再用一段足够长的文本验证真实生成。创建接口会先返回 `submitted`，后台继续生成：
 
 ```bash

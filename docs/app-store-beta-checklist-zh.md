@@ -126,6 +126,17 @@ base64 -i AuthKey_XXXXXXXXXX.p8 | tr -d '\n'
 
 1. 真机允许通知后，iOS 调用 `POST /api/devices/push-token`。
 2. 后端 `/api/health` 返回 `apns.configured: true`。
-3. 提交一篇文章并等待生成完成。
-4. App 在后台或锁屏时收到系统通知。
-5. 点击通知进入对应章节详情；成功通知随后从 App 内通知页归档。
+3. 后端 `/api/devices/push-status` 能看到当前设备 token，且 `pushTokenCount > 0`。
+4. 提交一篇文章并等待生成完成。
+5. App 在后台或锁屏时收到系统通知。
+6. 点击通知进入对应章节详情；成功通知随后从 App 内通知页归档。
+
+### APNs 诊断口径
+
+如果真机授权后仍收不到系统通知，优先检查这三个点：
+
+- App 是否真的上传了当前设备 token：`GET /api/devices/push-status` 需要带同一个 `X-Device-Id`。
+- token 环境是否和安装方式一致：Xcode Debug 使用 `sandbox`，TestFlight / App Store 使用 `production`。
+- 最近通知是否有 APNs 返回错误：`recentNotifications[].pushDeliveryStatus` 和 `pushDeliveryError` 会记录 `BadDeviceToken`、`BadEnvironmentKeyInToken` 等错误。
+
+iOS 端应在这些时机主动同步 token：用户首次授权通知后、App 回到前台后、提交云端生成前后。这样即使系统轮换 token 或用户先拒绝后开启通知，云端也能拿到最新 token。

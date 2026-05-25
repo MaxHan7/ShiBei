@@ -1,0 +1,23 @@
+{
+  "date": "2026-05-25",
+  "title": "系统通知从“配置好了”变成“可诊断”",
+  "phase": "TestFlight 发布准备",
+  "problem": "真机已经请求通知权限，Railway 也显示 APNs 配置完成，但生成结束后用户仍收不到系统通知。原有链路只能知道“配置是否存在”，无法判断设备 token 是否上传、环境是否匹配、APNs 是否返回错误。",
+  "changes": [
+    "iOS 在首次授权、回到前台、提交云端生成前后主动同步 APNs token，减少 token 未上传或过期导致的漏发。",
+    "后端新增 push-status 诊断接口，按匿名设备展示 token 尾号、sandbox/production 环境和最近通知的 APNs 发送结果。",
+    "通知记录补充 pushAttemptedAt、pushSentAt、pushDeliveryStatus、pushDeliveryError 和 pushAttemptCount，方便定位 BadDeviceToken、BadEnvironmentKeyInToken 等问题。",
+    "启动加载页承接云端首次同步时间，避免刚打开 App 时短暂显示空首页。"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/2026-05-25-apns-notification-diagnostics.svg",
+      "caption": "把通知链路拆成权限、token、云端发送和点击归档四个可检查节点"
+    }
+  ],
+  "result": "通知问题不再只靠猜：可以逐步确认 App 是否上传 token、后端是否尝试发送、Apple 返回了什么错误。TestFlight 前的通知闭环更接近可验收状态。",
+  "next": "部署 Railway 后用新版 TestFlight 真机回归：授权通知、提交生成、后台等待通知、点击进入章节详情，并检查 push-status 诊断结果。",
+  "commits": [
+    "fa12d54"
+  ]
+}

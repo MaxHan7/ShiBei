@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">APNs 通知诊断链路</title>
+  <desc id="desc">展示拾贝从通知权限到云端 APNs 发送诊断的四步链路。</desc>
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <rect x="72" y="64" width="1056" height="632" rx="30" fill="#ffffff" stroke="#fbf3e4"/>
+  <text x="116" y="132" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC',sans-serif" font-size="38" font-weight="800">系统通知可诊断化</text>
+  <text x="116" y="176" fill="#5e5e5e" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','PingFang SC',sans-serif" font-size="21">从“配置好了但收不到”拆成权限、token、发送结果和用户点击四个节点。</text>
+
+  <g font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','PingFang SC',sans-serif">
+    <rect x="116" y="238" width="214" height="210" rx="24" fill="#fff7df" stroke="#f6df9b"/>
+    <circle cx="156" cy="286" r="22" fill="#fcd34d"/>
+    <text x="148" y="294" fill="#1f1b12" font-size="22" font-weight="800">1</text>
+    <text x="116" y="342" fill="#1f1b12" font-size="26" font-weight="800">请求权限</text>
+    <text x="116" y="382" fill="#5e5e5e" font-size="18">首次提交后解释通知用途，</text>
+    <text x="116" y="412" fill="#5e5e5e" font-size="18">再触发系统权限弹窗。</text>
+
+    <rect x="368" y="238" width="214" height="210" rx="24" fill="#fff" stroke="#fbf3e4"/>
+    <circle cx="408" cy="286" r="22" fill="#e09859"/>
+    <text x="400" y="294" fill="#fff" font-size="22" font-weight="800">2</text>
+    <text x="368" y="342" fill="#1f1b12" font-size="26" font-weight="800">同步 token</text>
+    <text x="368" y="382" fill="#5e5e5e" font-size="18">授权后、回到前台、提交前后</text>
+    <text x="368" y="412" fill="#5e5e5e" font-size="18">都主动上传 APNs token。</text>
+
+    <rect x="620" y="238" width="214" height="210" rx="24" fill="#fff" stroke="#fbf3e4"/>
+    <circle cx="660" cy="286" r="22" fill="#e09859"/>
+    <text x="652" y="294" fill="#fff" font-size="22" font-weight="800">3</text>
+    <text x="620" y="342" fill="#1f1b12" font-size="26" font-weight="800">云端发送</text>
+    <text x="620" y="382" fill="#5e5e5e" font-size="18">生成完成或失败后调用 APNs，</text>
+    <text x="620" y="412" fill="#5e5e5e" font-size="18">记录 sent / failed / error。</text>
+
+    <rect x="872" y="238" width="214" height="210" rx="24" fill="#fff" stroke="#fbf3e4"/>
+    <circle cx="912" cy="286" r="22" fill="#e09859"/>
+    <text x="904" y="294" fill="#fff" font-size="22" font-weight="800">4</text>
+    <text x="872" y="342" fill="#1f1b12" font-size="26" font-weight="800">点击归档</text>
+    <text x="872" y="382" fill="#5e5e5e" font-size="18">点击通知进入章节详情，</text>
+    <text x="872" y="412" fill="#5e5e5e" font-size="18">成功通知自动归档。</text>
+  </g>
+
+  <g fill="none" stroke="#e7d8bd" stroke-width="4" stroke-linecap="round">
+    <path d="M330 343 H368"/>
+    <path d="M582 343 H620"/>
+    <path d="M834 343 H872"/>
+  </g>
+
+  <rect x="116" y="502" width="970" height="112" rx="22" fill="#1f1b12"/>
+  <text x="152" y="552" fill="#fcd34d" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','PingFang SC',sans-serif" font-size="24" font-weight="800">新增诊断接口</text>
+  <text x="152" y="590" fill="#fffaf4" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="22">GET /api/devices/push-status</text>
+  <text x="520" y="590" fill="#d8cfbd" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','PingFang SC',sans-serif" font-size="20">查看 token 环境、最近发送状态和 APNs 错误原因</text>
+</svg>

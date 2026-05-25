@@ -346,11 +346,18 @@ unrelated_to_source
   "body": "章节已生成，可以开始复习",
   "read": false,
   "dismissed": false,
+  "pushAttemptedAt": "",
+  "pushSentAt": "",
+  "pushDeliveryStatus": "",
+  "pushDeliveryError": "",
+  "pushAttemptCount": 0,
   "createdAt": "2026-05-16T00:00:00.000Z"
 }
 ```
 
 通知点击统一进入章节详情，不直接进入题卡。
+
+`push*` 字段用于后端诊断系统推送发送结果，iOS 用户侧不展示。它们可以帮助判断通知没有出现时是 token 未上传、APNs 环境不匹配，还是 Apple 返回了具体发送错误。
 
 ## 4. API 契约
 
@@ -381,6 +388,60 @@ POST /api/devices/push-token
 ```
 
 后端按 `X-Device-Id` 保存 APNs token。章节生成成功或失败时，后端会发送系统通知；通知 payload 包含 `notificationId`、`chapterId` 和 `type`，iOS 点击后进入对应章节详情。
+
+iOS 端同步规则：
+
+- 用户首次授权通知并注册 APNs 成功后，立即上传 token。
+- App 回到前台时，如果通知已授权，重新注册并同步 token。
+- 提交云端生成前后主动同步 token，避免首次授权和生成提交之间存在竞态。
+- Xcode Debug 安装上传 `sandbox` token，TestFlight / App Store 上传 `production` token。
+
+### 查询系统通知诊断
+
+```text
+GET /api/devices/push-status
+```
+
+请求头仍使用当前匿名设备：
+
+```text
+X-Device-Id: <uuid>
+```
+
+返回：
+
+```json
+{
+  "ok": true,
+  "apns": {
+    "configured": true,
+    "environment": "production",
+    "bundleId": "com.maxhan.shibei"
+  },
+  "pushTokenCount": 1,
+  "pushTokens": [
+    {
+      "tokenTail": "12ab34cd",
+      "platform": "ios",
+      "environment": "production",
+      "createdAt": "2026-05-25T00:00:00.000Z",
+      "updatedAt": "2026-05-25T00:00:00.000Z"
+    }
+  ],
+  "recentNotifications": [
+    {
+      "id": "notification-1",
+      "chapterId": "chapter-1",
+      "type": "generation_completed",
+      "pushDeliveryStatus": "sent",
+      "pushDeliveryError": "",
+      "pushAttemptCount": 1
+    }
+  ]
+}
+```
+
+该接口只用于诊断，不作为用户功能入口。token 只返回尾号，不能返回完整 APNs token。
 
 ### 创建章节
 
