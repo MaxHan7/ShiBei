@@ -152,6 +152,10 @@ private struct HomeChapterContent: View {
                         ProgressBar(progress: Double(progress) / Double(total))
                     }
                 }
+                .contentShape(RoundedRectangle(cornerRadius: ShiBeiTheme.radius, style: .continuous))
+                .onTapGesture {
+                    store.selectChapter(chapter, returnTo: .home)
+                }
 
                 PrimaryButton(
                     title: primaryButtonTitle,

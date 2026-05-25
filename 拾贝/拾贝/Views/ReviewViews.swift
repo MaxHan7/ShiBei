@@ -7,7 +7,9 @@ struct ReviewView: View {
 
     var body: some View {
         AppScaffold(store: store, title: "", showsTopBar: false, showsTabBar: false) {
-            if let question = store.currentQuestion(), let chapter = store.selectedChapter, let session = chapter.reviewSession {
+            if store.isFavoriteReviewActive, let question = store.currentFavoriteQuestion() {
+                FavoriteReviewContent(store: store, question: question)
+            } else if let question = store.currentQuestion(), let chapter = store.selectedChapter, let session = chapter.reviewSession {
                 VStack(spacing: 0) {
                     ReviewTopBar(store: store, chapter: chapter, session: session)
                     ScrollView {
@@ -70,6 +72,102 @@ struct ReviewView: View {
         }
     }
 
+}
+
+private struct FavoriteReviewContent: View {
+    @ObservedObject var store: AppStore
+    let question: ReviewQuestion
+    @State private var selectedOptionId: String?
+    @State private var revealedCorrectOptionId: String?
+
+    var body: some View {
+        VStack(spacing: 0) {
+            FavoriteReviewTopBar(store: store)
+            ScrollView {
+                VStack(spacing: 30) {
+                    ProgressBar(progress: favoriteProgress)
+                    SBCard {
+                        StatusPill(text: store.localizedFormat("review.point_prefix", question.pointTitle))
+                        Text(question.stem)
+                            .font(.system(size: 23, weight: .bold))
+                            .lineSpacing(4)
+                        VStack(spacing: 12) {
+                            ForEach(question.options) { option in
+                                OptionButton(
+                                    option: option,
+                                    correctOptionId: revealedCorrectOptionId,
+                                    selectedOptionId: selectedOptionId
+                                ) {
+                                    guard selectedOptionId == nil else { return }
+                                    selectedOptionId = option.id
+                                    revealedCorrectOptionId = question.correctOptionId
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                        store.submitFavoriteAttempt(question: question)
+                                        selectedOptionId = nil
+                                        revealedCorrectOptionId = nil
+                                    }
+                                }
+                            }
+                            Button {
+                                guard selectedOptionId == nil else { return }
+                                revealedCorrectOptionId = question.correctOptionId
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                    store.submitFavoriteAttempt(question: question)
+                                    revealedCorrectOptionId = nil
+                                }
+                            } label: {
+                                Text(store.localized("review.forgot"))
+                                    .font(.system(size: 15, weight: .medium))
+                                    .foregroundStyle(ShiBeiTheme.muted)
+                                    .frame(maxWidth: .infinity, minHeight: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(selectedOptionId != nil)
+                            .opacity(selectedOptionId != nil ? 0.45 : 1)
+                            .padding(.top, 2)
+                        }
+                    }
+                }
+                .padding(24)
+                .padding(.bottom, 110)
+            }
+        }
+    }
+
+    private var favoriteProgress: Double {
+        guard !store.favoriteReviewQuestionIds.isEmpty else { return 0 }
+        return Double(store.favoriteReviewIndex + 1) / Double(store.favoriteReviewQuestionIds.count)
+    }
+}
+
+private struct FavoriteReviewTopBar: View {
+    @ObservedObject var store: AppStore
+
+    var body: some View {
+        HStack {
+            Button {
+                store.exitReviewToHome()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 18, weight: .bold))
+                    .frame(width: 42, height: 42)
+            }
+            .accessibilityLabel(store.localized("review.close"))
+            Spacer()
+            VStack(spacing: 4) {
+                Text(store.localized("favorites.review_title"))
+                    .font(.system(size: 20, weight: .bold))
+                Text("\(store.favoriteReviewIndex + 1) / \(max(1, store.favoriteReviewQuestionIds.count))")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(ShiBeiTheme.muted)
+            }
+            Spacer()
+            Color.clear.frame(width: 42, height: 42)
+        }
+        .padding(.horizontal, 18)
+        .frame(height: 66)
+    }
 }
 
 private struct ReviewTopBar: View {
@@ -187,11 +285,30 @@ struct ExplanationView: View {
         AppScaffold(store: store, title: "", showsTopBar: false, showsTabBar: false) {
             if let question {
                 VStack(spacing: 0) {
-                    if let chapter = store.selectedChapter {
+                    if store.isFavoriteExplanationActive {
+                        FavoriteReviewTopBar(store: store)
+                    } else if let chapter = store.selectedChapter {
                         ReviewTopBar(store: store, chapter: chapter, session: chapter.reviewSession ?? emptySession)
                     }
                     ScrollView {
                         VStack(spacing: 18) {
+                            HStack {
+                                Spacer()
+                                Button {
+                                    Task {
+                                        await store.toggleFavoriteQuestion(question)
+                                    }
+                                } label: {
+                                    Image(systemName: store.isFavoriteQuestion(question) ? "star.fill" : "star")
+                                        .font(.system(size: 22, weight: .semibold))
+                                        .foregroundStyle(store.isFavoriteQuestion(question) ? ShiBeiTheme.yellow : ShiBeiTheme.text)
+                                        .frame(width: 44, height: 44)
+                                        .background(ShiBeiTheme.card)
+                                        .clipShape(Circle())
+                                        .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
+                                }
+                                .accessibilityLabel(store.isFavoriteQuestion(question) ? store.localized("favorites.remove") : store.localized("favorites.add"))
+                            }
                             VStack(spacing: 10) {
                                 Text(question.correctOptionId)
                                     .font(.system(size: 34, weight: .black))
@@ -216,12 +333,14 @@ struct ExplanationView: View {
                                         .clipShape(Capsule())
                                 }
 
-                                Button(store.localized("explanation.report_problem")) {
-                                    store.selectedFeedbackQuestionId = question.id
-                                    store.feedbackSheetContext = FeedbackSheetContext(questionId: question.id)
+                                if !store.isFavoriteExplanationActive {
+                                    Button(store.localized("explanation.report_problem")) {
+                                        store.selectedFeedbackQuestionId = question.id
+                                        store.feedbackSheetContext = FeedbackSheetContext(questionId: question.id)
+                                    }
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundStyle(ShiBeiTheme.muted)
                                 }
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(ShiBeiTheme.muted)
                             }
                             .foregroundStyle(ShiBeiTheme.primary)
                             .frame(maxWidth: .infinity)
@@ -250,7 +369,10 @@ struct ExplanationView: View {
     }
 
     private var continueTitle: String {
-        store.selectedChapter?.reviewSession?.status == .completed ? store.localized("explanation.view_summary") : store.localized("home.action.continue_review")
+        if store.isFavoriteExplanationActive {
+            return store.favoriteReviewIndex >= store.favoriteReviewQuestionIds.count - 1 ? store.localized("favorites.back_to_entry") : store.localized("home.action.continue_review")
+        }
+        return store.selectedChapter?.reviewSession?.status == .completed ? store.localized("explanation.view_summary") : store.localized("home.action.continue_review")
     }
 }
 

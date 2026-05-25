@@ -88,6 +88,20 @@ export async function initDatabase() {
 
     CREATE INDEX IF NOT EXISTS device_push_tokens_device_idx
       ON device_push_tokens(device_id, updated_at DESC);
+
+    CREATE TABLE IF NOT EXISTS favorite_questions (
+      id TEXT PRIMARY KEY,
+      device_id TEXT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+      chapter_id TEXT NOT NULL,
+      question_id TEXT NOT NULL,
+      favorite_json JSONB NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (device_id, chapter_id, question_id)
+    );
+
+    CREATE INDEX IF NOT EXISTS favorite_questions_device_created_idx
+      ON favorite_questions(device_id, created_at DESC);
   `);
 
   await markInterruptedGenerationJobs();
@@ -170,6 +184,7 @@ export async function upsertChapter(deviceId, chapter) {
 
 export async function deleteChapter(deviceId, chapterId) {
   await ensureDevice(deviceId);
+  await pool.query("DELETE FROM favorite_questions WHERE device_id = $1 AND chapter_id = $2", [deviceId, chapterId]);
   await pool.query("DELETE FROM notifications WHERE device_id = $1 AND chapter_id = $2", [deviceId, chapterId]);
   await pool.query("DELETE FROM generation_jobs WHERE device_id = $1 AND chapter_id = $2", [deviceId, chapterId]);
   const result = await pool.query("DELETE FROM chapters WHERE device_id = $1 AND id = $2", [deviceId, chapterId]);
@@ -179,14 +194,69 @@ export async function deleteChapter(deviceId, chapterId) {
 export async function deleteDeviceData(deviceId) {
   await ensureDevice(deviceId);
   await pool.query("DELETE FROM device_push_tokens WHERE device_id = $1", [deviceId]);
+  const favorites = await pool.query("DELETE FROM favorite_questions WHERE device_id = $1", [deviceId]);
   const notifications = await pool.query("DELETE FROM notifications WHERE device_id = $1", [deviceId]);
   const generationJobs = await pool.query("DELETE FROM generation_jobs WHERE device_id = $1", [deviceId]);
   const chapters = await pool.query("DELETE FROM chapters WHERE device_id = $1", [deviceId]);
   return {
     chapters: chapters.rowCount || 0,
     notifications: notifications.rowCount || 0,
-    generationJobs: generationJobs.rowCount || 0
+    generationJobs: generationJobs.rowCount || 0,
+    favorites: favorites.rowCount || 0
   };
+}
+
+export async function listFavoriteQuestions(deviceId) {
+  await ensureDevice(deviceId);
+  const result = await pool.query(
+    `SELECT favorite_json
+       FROM favorite_questions
+      WHERE device_id = $1
+      ORDER BY created_at DESC`,
+    [deviceId]
+  );
+  return result.rows.map((row) => row.favorite_json);
+}
+
+export async function getFavoriteQuestion(deviceId, favoriteId) {
+  await ensureDevice(deviceId);
+  const result = await pool.query(
+    `SELECT favorite_json
+       FROM favorite_questions
+      WHERE device_id = $1 AND id = $2`,
+    [deviceId, favoriteId]
+  );
+  return result.rows[0]?.favorite_json || null;
+}
+
+export async function upsertFavoriteQuestion(deviceId, favorite) {
+  await ensureDevice(deviceId);
+  await pool.query(
+    `INSERT INTO favorite_questions (id, device_id, chapter_id, question_id, favorite_json, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5::jsonb, $6, NOW())
+     ON CONFLICT (device_id, chapter_id, question_id)
+     DO UPDATE SET
+       favorite_json = EXCLUDED.favorite_json,
+       updated_at = NOW()`,
+    [
+      favorite.id,
+      deviceId,
+      favorite.chapterId,
+      favorite.questionId,
+      JSON.stringify(favorite),
+      favorite.createdAt || new Date().toISOString()
+    ]
+  );
+  return getFavoriteQuestion(deviceId, favorite.id);
+}
+
+export async function deleteFavoriteQuestion(deviceId, favoriteId) {
+  await ensureDevice(deviceId);
+  const result = await pool.query(
+    "DELETE FROM favorite_questions WHERE device_id = $1 AND id = $2",
+    [deviceId, favoriteId]
+  );
+  return result.rowCount > 0;
 }
 
 export async function upsertPushToken(deviceId, pushToken) {

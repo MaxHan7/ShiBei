@@ -209,6 +209,20 @@ struct ReviewAttempt: Codable, Identifiable, Hashable {
     var answeredAt: String
 }
 
+struct FavoriteQuestionRecord: Codable, Identifiable, Hashable {
+    var id: String
+    var chapterId: String
+    var questionId: String
+    var createdAt: String
+}
+
+struct FavoriteQuestionDisplayItem: Identifiable, Hashable {
+    var id: String { record.id }
+    var record: FavoriteQuestionRecord
+    var question: ReviewQuestion
+    var chapterTitle: String
+}
+
 struct ReviewSession: Codable, Identifiable, Hashable {
     var id: String
     var chapterId: String

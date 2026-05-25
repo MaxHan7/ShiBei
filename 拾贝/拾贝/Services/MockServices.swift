@@ -16,6 +16,10 @@ final class AppStore: ObservableObject {
     @Published var selectedFeedbackQuestionId: String?
     @Published var latestFeedbackMessage = ""
     @Published var lastAnsweredQuestion: ReviewQuestion?
+    @Published var favoriteQuestions: [FavoriteQuestionRecord] = []
+    @Published var favoriteReviewQuestionIds: [String] = []
+    @Published var favoriteReviewIndex = 0
+    @Published var favoriteReviewActive = false
     @Published var sourceFocusText: String?
     @Published var dataMode: AppDataMode = .mock
     @Published var dataSourceMessage = "Mock 数据已就绪"
@@ -35,6 +39,7 @@ final class AppStore: ObservableObject {
     private let localAPINotificationService: LocalAPINotificationService
     private let cloudAPIBaseURLKey = "cloudAPIBaseURLString"
     private let appLanguageKey = "appLanguage"
+    private let favoriteQuestionsKey = "favoriteQuestions"
     private let deviceIdentityStore: DeviceIdentityStore
     private var generationPollTasks: [String: Task<Void, Never>] = [:]
     private var notificationObservers: [NSObjectProtocol] = []
@@ -64,6 +69,7 @@ final class AppStore: ObservableObject {
         localAPIReviewService = LocalAPIReviewService(apiClient: self.apiClient)
         localAPINotificationService = LocalAPINotificationService(apiClient: self.apiClient)
         anonymousDeviceId = deviceId
+        favoriteQuestions = Self.loadFavoriteQuestions(key: favoriteQuestionsKey)
         if let savedLanguage = UserDefaults.standard.string(forKey: appLanguageKey),
            let language = AppLanguage(rawValue: savedLanguage) {
             appLanguage = language
@@ -167,6 +173,11 @@ final class AppStore: ObservableObject {
         )
     }
 
+    private static func loadFavoriteQuestions(key: String) -> [FavoriteQuestionRecord] {
+        guard let data = UserDefaults.standard.data(forKey: key) else { return [] }
+        return (try? JSONDecoder().decode([FavoriteQuestionRecord].self, from: data)) ?? []
+    }
+
     var activeHomeChapter: Chapter? {
         chapters.first { $0.status.isProcessing }
             ?? chapters.first { $0.reviewSession?.status == .active }
@@ -200,6 +211,33 @@ final class AppStore: ObservableObject {
         return chapters.first { $0.id == selectedChapterId }
     }
 
+    var favoriteQuestionCount: Int {
+        favoriteDisplayItems.count
+    }
+
+    var hasFavoriteQuestions: Bool {
+        favoriteQuestionCount > 0
+    }
+
+    var favoriteDisplayItems: [FavoriteQuestionDisplayItem] {
+        favoriteQuestions.compactMap { record in
+            guard let question = question(for: record.questionId, in: record.chapterId) else { return nil }
+            return FavoriteQuestionDisplayItem(
+                record: record,
+                question: question,
+                chapterTitle: chapters.first { $0.id == record.chapterId }?.title ?? localized("favorites.unknown_chapter")
+            )
+        }
+    }
+
+    var isFavoriteReviewActive: Bool {
+        route == .review && favoriteReviewActive
+    }
+
+    var isFavoriteExplanationActive: Bool {
+        route == .explanation && favoriteReviewActive
+    }
+
     var visibleNotifications: [NotificationItem] {
         notifications.filter { !$0.dismissed }
     }
@@ -212,6 +250,131 @@ final class AppStore: ObservableObject {
         Task {
             await refreshSelectedChapterFromAPI()
         }
+    }
+
+    func isFavoriteQuestion(_ question: ReviewQuestion) -> Bool {
+        favoriteQuestions.contains { $0.chapterId == question.chapterId && $0.questionId == question.id }
+    }
+
+    func toggleFavoriteQuestion(_ question: ReviewQuestion) async {
+        let previous = favoriteQuestions
+        if let existing = favoriteRecord(for: question) {
+            favoriteQuestions.removeAll { $0.id == existing.id }
+            if dataMode == .mock {
+                persistFavoriteQuestions()
+            } else {
+                do {
+                    guard let client = activeAPIClient else {
+                        favoriteQuestions = previous
+                        dataSourceMessage = missingAPIMessage(for: dataMode)
+                        return
+                    }
+                    _ = try await client.deleteFavoriteQuestion(id: existing.id)
+                } catch {
+                    favoriteQuestions = previous
+                    dataSourceMessage = "取消收藏失败：\(userFacingErrorMessage(error))"
+                }
+            }
+        } else {
+            let localRecord = FavoriteQuestionRecord(
+                id: "\(question.chapterId)-\(question.id)",
+                chapterId: question.chapterId,
+                questionId: question.id,
+                createdAt: Date.nowISO8601
+            )
+            favoriteQuestions.insert(localRecord, at: 0)
+            if dataMode == .mock {
+                persistFavoriteQuestions()
+            } else {
+                do {
+                    guard let client = activeAPIClient else {
+                        favoriteQuestions = previous
+                        dataSourceMessage = missingAPIMessage(for: dataMode)
+                        return
+                    }
+                    let saved = try await client.createFavoriteQuestion(chapterId: question.chapterId, questionId: question.id)
+                    favoriteQuestions.removeAll { $0.chapterId == question.chapterId && $0.questionId == question.id }
+                    favoriteQuestions.insert(saved, at: 0)
+                } catch {
+                    favoriteQuestions = previous
+                    dataSourceMessage = "收藏失败：\(userFacingErrorMessage(error))"
+                }
+            }
+        }
+        favoriteReviewQuestionIds.removeAll { id in
+            favoriteQuestion(forRecordId: id) == nil
+        }
+        if favoriteReviewIndex >= favoriteReviewQuestionIds.count {
+            favoriteReviewIndex = max(0, favoriteReviewQuestionIds.count - 1)
+        }
+    }
+
+    private func favoriteRecord(for question: ReviewQuestion) -> FavoriteQuestionRecord? {
+        favoriteQuestions.first { $0.chapterId == question.chapterId && $0.questionId == question.id }
+    }
+
+    func openFavoriteQuestions() {
+        chapterDetailReturnRoute = .chapters
+        selectedTab = .chapters
+        route = .favoriteQuestions
+    }
+
+    func startFavoriteReview() {
+        let ids = favoriteQuestions.compactMap { record -> String? in
+            question(for: record.questionId, in: record.chapterId) == nil ? nil : record.id
+        }
+        guard !ids.isEmpty else {
+            openFavoriteQuestions()
+            return
+        }
+        favoriteReviewQuestionIds = ids
+        favoriteReviewIndex = 0
+        favoriteReviewActive = true
+        lastAnsweredQuestion = nil
+        if let question = currentFavoriteQuestion() {
+            selectedChapterId = question.chapterId
+        }
+        selectedTab = .chapters
+        route = .review
+    }
+
+    func currentFavoriteQuestion() -> ReviewQuestion? {
+        guard favoriteReviewQuestionIds.indices.contains(favoriteReviewIndex) else { return nil }
+        return favoriteQuestion(forRecordId: favoriteReviewQuestionIds[favoriteReviewIndex])
+    }
+
+    func favoriteQuestionChapterTitle(_ question: ReviewQuestion) -> String {
+        chapters.first { $0.id == question.chapterId }?.title ?? localized("favorites.unknown_chapter")
+    }
+
+    func submitFavoriteAttempt(question: ReviewQuestion) {
+        selectedChapterId = question.chapterId
+        lastAnsweredQuestion = question
+        route = .explanation
+    }
+
+    func returnToFavoriteQuestions() {
+        favoriteReviewQuestionIds = []
+        favoriteReviewIndex = 0
+        favoriteReviewActive = false
+        lastAnsweredQuestion = nil
+        selectedTab = .chapters
+        route = .favoriteQuestions
+    }
+
+    private func persistFavoriteQuestions() {
+        if let data = try? JSONEncoder().encode(favoriteQuestions) {
+            UserDefaults.standard.set(data, forKey: favoriteQuestionsKey)
+        }
+    }
+
+    private func favoriteQuestion(forRecordId recordId: String) -> ReviewQuestion? {
+        guard let record = favoriteQuestions.first(where: { $0.id == recordId }) else { return nil }
+        return question(for: record.questionId, in: record.chapterId)
+    }
+
+    private func question(for questionId: String, in chapterId: String) -> ReviewQuestion? {
+        chapters.first { $0.id == chapterId }?.questions.first { $0.id == questionId }
     }
 
     func bootstrapForCurrentEnvironment() async {
@@ -316,6 +479,10 @@ final class AppStore: ObservableObject {
     }
 
     func exitReviewToHome() {
+        if favoriteReviewActive {
+            returnToFavoriteQuestions()
+            return
+        }
         selectedTab = .home
         route = .home
     }
@@ -548,6 +715,9 @@ final class AppStore: ObservableObject {
         selectedFeedbackQuestionId = nil
         latestFeedbackMessage = ""
         lastAnsweredQuestion = nil
+        favoriteReviewQuestionIds = []
+        favoriteReviewIndex = 0
+        favoriteReviewActive = false
         dataMode = .mock
         dataSourceMessage = "已切换到 \(scenario.title)"
         isWritingChapter = false
@@ -572,6 +742,9 @@ final class AppStore: ObservableObject {
         selectedFeedbackQuestionId = nil
         latestFeedbackMessage = ""
         lastAnsweredQuestion = nil
+        favoriteReviewQuestionIds = []
+        favoriteReviewIndex = 0
+        favoriteReviewActive = false
         isWritingChapter = false
         isSubmittingReview = false
         cancelGenerationPolling()
@@ -614,8 +787,8 @@ final class AppStore: ObservableObject {
             return
         }
         do {
-            let (chapters, notifications) = try await fetchAPIState(client: client)
-            applyAPIState(chapters: chapters, notifications: notifications, mode: mode)
+            let (chapters, notifications, favorites) = try await fetchAPIState(client: client)
+            applyAPIState(chapters: chapters, notifications: notifications, favorites: favorites, mode: mode)
             selectedChapterId = activeHomeChapter?.id ?? chapters.first?.id
             selectedTab = .home
             route = .home
@@ -635,6 +808,7 @@ final class AppStore: ObservableObject {
             switch dataMode {
             case .mock:
                 clearCurrentStateForCloudSubmission()
+                persistFavoriteQuestions()
                 dataSourceMessage = "本机测试数据已删除"
             case .localAPI, .cloudAPI:
                 guard let client = activeAPIClient else {
@@ -654,6 +828,9 @@ final class AppStore: ObservableObject {
             selectedFeedbackQuestionId = nil
             latestFeedbackMessage = ""
             lastAnsweredQuestion = nil
+            favoriteReviewQuestionIds = []
+            favoriteReviewIndex = 0
+            favoriteReviewActive = false
             return true
         } catch {
             dataSourceMessage = "删除数据失败：\(userFacingErrorMessage(error))"
@@ -705,6 +882,8 @@ final class AppStore: ObservableObject {
             switch dataMode {
             case .mock:
                 chapterService.deleteChapter(selectedChapterId, chapters: &chapters, notifications: &notifications)
+                favoriteQuestions.removeAll { $0.chapterId == selectedChapterId }
+                persistFavoriteQuestions()
             case .localAPI, .cloudAPI:
                 guard let chapterService = activeChapterService else {
                     dataSourceMessage = missingAPIMessage(for: dataMode)
@@ -714,6 +893,7 @@ final class AppStore: ObservableObject {
                 _ = try await chapterService.deleteChapter(selectedChapterId)
                 chapters.removeAll { $0.id == selectedChapterId }
                 notifications.removeAll { $0.chapterId == selectedChapterId }
+                favoriteQuestions.removeAll { $0.chapterId == selectedChapterId }
                 generationPollTasks[selectedChapterId]?.cancel()
                 generationPollTasks[selectedChapterId] = nil
                 dataSourceMessage = "\(dataMode.apiLabel)已删除章节"
@@ -818,6 +998,19 @@ final class AppStore: ObservableObject {
     }
 
     func nextQuestion() {
+        if favoriteReviewActive {
+            if favoriteReviewIndex >= favoriteReviewQuestionIds.count - 1 {
+                returnToFavoriteQuestions()
+            } else {
+                favoriteReviewIndex += 1
+                lastAnsweredQuestion = nil
+                if let question = currentFavoriteQuestion() {
+                    selectedChapterId = question.chapterId
+                }
+                route = .review
+            }
+            return
+        }
         guard let chapter = selectedChapter, let session = chapter.reviewSession else { return }
         if session.status == .completed {
             route = .summary
@@ -971,6 +1164,10 @@ final class AppStore: ObservableObject {
         cancelGenerationPolling()
         chapters = []
         notifications = []
+        favoriteQuestions = []
+        favoriteReviewQuestionIds = []
+        favoriteReviewIndex = 0
+        favoriteReviewActive = false
         selectedChapterId = nil
     }
 
@@ -1013,15 +1210,17 @@ final class AppStore: ObservableObject {
         }
     }
 
-    private func fetchAPIState(client: APIClient) async throws -> ([Chapter], [NotificationItem]) {
+    private func fetchAPIState(client: APIClient) async throws -> ([Chapter], [NotificationItem], [FavoriteQuestionRecord]) {
         async let fetchedChapters = client.fetchChapters()
         async let fetchedNotifications = client.fetchNotifications()
-        return try await (fetchedChapters, fetchedNotifications)
+        async let fetchedFavorites = client.fetchFavoriteQuestions()
+        return try await (fetchedChapters, fetchedNotifications, fetchedFavorites)
     }
 
-    private func applyAPIState(chapters: [Chapter], notifications: [NotificationItem], mode: AppDataMode) {
+    private func applyAPIState(chapters: [Chapter], notifications: [NotificationItem], favorites: [FavoriteQuestionRecord], mode: AppDataMode) {
         self.chapters = chapters
         self.notifications = notifications
+        self.favoriteQuestions = favorites
         cancelGenerationPolling()
         chapters.filter { $0.status.isProcessing }.forEach { startGenerationPolling(for: $0.id, mode: mode) }
     }
@@ -1043,8 +1242,8 @@ final class AppStore: ObservableObject {
         }
         do {
             let staleChapter = chapters.first { $0.id == chapterId }
-            let (latestChapters, latestNotifications) = try await fetchAPIState(client: client)
-            applyAPIState(chapters: latestChapters, notifications: latestNotifications, mode: mode)
+            let (latestChapters, latestNotifications, latestFavorites) = try await fetchAPIState(client: client)
+            applyAPIState(chapters: latestChapters, notifications: latestNotifications, favorites: latestFavorites, mode: mode)
             dataMode = mode
             if latestChapters.contains(where: { $0.id == chapterId }) {
                 selectedChapterId = chapterId
@@ -1282,6 +1481,7 @@ enum AppRoute {
     case notifications
     case profile
     case chapterDetail
+    case favoriteQuestions
     case knowledgeList
     case source
     case reviewSource

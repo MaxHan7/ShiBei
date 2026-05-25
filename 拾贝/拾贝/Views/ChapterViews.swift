@@ -6,18 +6,36 @@ struct ChaptersView: View {
     var body: some View {
         AppScaffold(store: store, title: store.localized("chapters.title")) {
             ScrollView {
-                if store.chapters.isEmpty {
-                    VStack(spacing: 10) {
-                        Spacer(minLength: 260)
-                        Text(store.localized("chapters.empty.title"))
-                            .font(.system(size: 24, weight: .bold))
-                        Text(store.localized("home.empty.subtitle"))
-                            .font(.system(size: 15))
-                            .foregroundStyle(ShiBeiTheme.muted)
-                            .multilineTextAlignment(.center)
+                VStack(alignment: .leading, spacing: 22) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(store.localized("favorites.collections_title"))
+                            .font(.system(size: 18, weight: .bold))
+                        Button {
+                            if store.hasFavoriteQuestions {
+                                store.startFavoriteReview()
+                            } else {
+                                store.openFavoriteQuestions()
+                            }
+                        } label: {
+                            FavoriteCollectionCard(count: store.favoriteQuestionCount, language: store.appLanguage)
+                        }
+                        .buttonStyle(.plain)
                     }
-                } else {
-                    VStack(spacing: 16) {
+
+                    if store.chapters.isEmpty {
+                        VStack(spacing: 10) {
+                            Spacer(minLength: 120)
+                            Text(store.localized("chapters.empty.title"))
+                                .font(.system(size: 24, weight: .bold))
+                            Text(store.localized("home.empty.subtitle"))
+                                .font(.system(size: 15))
+                                .foregroundStyle(ShiBeiTheme.muted)
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                    } else {
+                        Text(store.localized("favorites.article_chapters_title"))
+                            .font(.system(size: 18, weight: .bold))
                         ForEach(store.chapters) { chapter in
                             Button {
                                 store.selectChapter(chapter)
@@ -27,9 +45,39 @@ struct ChaptersView: View {
                             .buttonStyle(.plain)
                         }
                     }
-                    .padding(24)
-                    .padding(.bottom, 120)
                 }
+                .padding(24)
+                .padding(.bottom, 120)
+            }
+        }
+    }
+}
+
+private struct FavoriteCollectionCard: View {
+    let count: Int
+    let language: AppLanguage
+
+    var body: some View {
+        SBCard(padding: 20) {
+            HStack(spacing: 14) {
+                Image(systemName: "star.fill")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 50, height: 50)
+                    .background(ShiBeiTheme.yellow)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(L10n.string("favorites.title", language: language))
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(ShiBeiTheme.text)
+                    Text(count == 0 ? L10n.string("favorites.empty_card_subtitle", language: language) : L10n.format("favorites.card_subtitle", language: language, count))
+                        .font(.system(size: 14))
+                        .foregroundStyle(ShiBeiTheme.muted)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(ShiBeiTheme.faint)
             }
         }
     }
@@ -212,6 +260,93 @@ struct NotificationsView: View {
                     }
                     .padding(24)
                     .padding(.bottom, 120)
+                }
+            }
+        }
+    }
+}
+
+struct FavoriteQuestionsView: View {
+    @ObservedObject var store: AppStore
+
+    var body: some View {
+        AppScaffold(
+            store: store,
+            title: store.localized("favorites.title"),
+            leadingAction: { store.returnFromChapterDetail() }
+        ) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    SBCard {
+                        HStack(spacing: 14) {
+                            Image(systemName: "star.fill")
+                                .font(.system(size: 24, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: 56, height: 56)
+                                .background(ShiBeiTheme.yellow)
+                                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(store.localized("favorites.review_title"))
+                                    .font(.system(size: 21, weight: .bold))
+                                Text(store.localizedFormat("favorites.total_count", store.favoriteQuestionCount))
+                                    .font(.system(size: 15))
+                                    .foregroundStyle(ShiBeiTheme.muted)
+                            }
+                        }
+                        if store.hasFavoriteQuestions {
+                            PrimaryButton(title: store.localized("favorites.start_review"), systemImage: "arrow.right") {
+                                store.startFavoriteReview()
+                            }
+                        } else {
+                            Text(store.localized("favorites.empty_body"))
+                                .font(.system(size: 15))
+                                .foregroundStyle(ShiBeiTheme.muted)
+                                .lineSpacing(4)
+                        }
+                    }
+
+                    if !store.favoriteDisplayItems.isEmpty {
+                        Text(store.localized("favorites.saved_questions"))
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 4)
+
+                        ForEach(store.favoriteDisplayItems) { item in
+                            FavoriteQuestionPreviewCard(item: item, language: store.appLanguage)
+                        }
+                    }
+                }
+                .padding(24)
+                .padding(.bottom, 120)
+            }
+        }
+    }
+}
+
+private struct FavoriteQuestionPreviewCard: View {
+    let item: FavoriteQuestionDisplayItem
+    let language: AppLanguage
+
+    var body: some View {
+        SBCard(padding: 18) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "star.fill")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(ShiBeiTheme.yellow)
+                    .frame(width: 28, height: 28)
+                    .background(ShiBeiTheme.yellowPale)
+                    .clipShape(Circle())
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(item.question.stem)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(ShiBeiTheme.text)
+                        .lineLimit(3)
+                    Text(item.chapterTitle)
+                        .font(.system(size: 13))
+                        .foregroundStyle(ShiBeiTheme.muted)
+                        .lineLimit(1)
+                    Text(item.record.createdAt.relativeLabel(language: language))
+                        .font(.system(size: 12))
+                        .foregroundStyle(ShiBeiTheme.faint)
                 }
             }
         }

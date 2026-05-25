@@ -41,6 +41,22 @@ struct APIClient {
         return response.notifications
     }
 
+    func fetchFavoriteQuestions() async throws -> [FavoriteQuestionRecord] {
+        let response: FavoriteQuestionsResponse = try await get("/api/favorites/questions")
+        return response.favorites
+    }
+
+    func createFavoriteQuestion(chapterId: String, questionId: String) async throws -> FavoriteQuestionRecord {
+        let request = FavoriteQuestionRequest(chapterId: chapterId, questionId: questionId)
+        let response: FavoriteQuestionMutationResponse = try await send("/api/favorites/questions", method: "POST", body: request, acceptsFailureBody: false)
+        return response.favorite
+    }
+
+    func deleteFavoriteQuestion(id: String) async throws -> FavoriteQuestionDeletionResponse {
+        let encodedId = id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id
+        return try await send("/api/favorites/questions/\(encodedId)", method: "DELETE", body: EmptyRequest(), acceptsFailureBody: false)
+    }
+
     func markNotificationRead(id: String) async throws -> NotificationItem {
         let response: NotificationMutationResponse = try await send("/api/notifications/\(id)/read", method: "POST", body: EmptyRequest(), acceptsFailureBody: false)
         return response.notification
@@ -282,6 +298,24 @@ struct NotificationsResponse: Codable {
     var notifications: [NotificationItem]
 }
 
+struct FavoriteQuestionsResponse: Codable {
+    var favorites: [FavoriteQuestionRecord]
+}
+
+struct FavoriteQuestionRequest: Codable {
+    var chapterId: String
+    var questionId: String
+}
+
+struct FavoriteQuestionMutationResponse: Codable {
+    var favorite: FavoriteQuestionRecord
+}
+
+struct FavoriteQuestionDeletionResponse: Codable {
+    var deleted: Bool
+    var favoriteId: String
+}
+
 struct NotificationMutationResponse: Codable {
     var notification: NotificationItem
 }
@@ -303,6 +337,7 @@ struct DeviceDataDeletionResponse: Codable {
         var chapters: Int
         var notifications: Int
         var generationJobs: Int
+        var favorites: Int?
     }
 
     var ok: Bool

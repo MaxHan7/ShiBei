@@ -22,18 +22,22 @@ import {
   checkDatabase,
   deleteChapter as deleteDatabaseChapter,
   deleteDeviceData as deleteDatabaseDeviceData,
+  deleteFavoriteQuestion as deleteDatabaseFavoriteQuestion,
   deleteNotificationsForChapter,
   ensureDevice,
+  getFavoriteQuestion as getDatabaseFavoriteQuestion,
   getChapter as getDatabaseChapter,
   getNotification as getDatabaseNotification,
   hasDatabase,
   initDatabase,
   listChapters as listDatabaseChapters,
+  listFavoriteQuestions as listDatabaseFavoriteQuestions,
   listNotifications as listDatabaseNotifications,
   listPushTokens as listDatabasePushTokens,
   startGenerationJob,
   updateGenerationJob,
   upsertChapter as upsertDatabaseChapter,
+  upsertFavoriteQuestion as upsertDatabaseFavoriteQuestion,
   upsertNotification as upsertDatabaseNotification,
   upsertPushToken as upsertDatabasePushToken
 } from "./db.js";
@@ -533,7 +537,7 @@ function getDeviceId(req) {
 
 function getMemory(deviceId) {
   if (!memoryByDeviceId.has(deviceId)) {
-    memoryByDeviceId.set(deviceId, { chapters: [], notifications: [], pushTokens: [] });
+    memoryByDeviceId.set(deviceId, { chapters: [], notifications: [], pushTokens: [], favorites: [] });
   }
   return memoryByDeviceId.get(deviceId);
 }
@@ -567,6 +571,7 @@ async function deleteStoredChapter(deviceId, chapterId) {
   const before = memory.chapters.length;
   memory.chapters = memory.chapters.filter((chapter) => chapter.id !== chapterId);
   memory.notifications = memory.notifications.filter((notification) => notification.chapterId !== chapterId);
+  memory.favorites = memory.favorites.filter((favorite) => favorite.chapterId !== chapterId);
   return memory.chapters.length !== before;
 }
 
@@ -579,12 +584,45 @@ async function deleteStoredDeviceData(deviceId) {
   const deleted = {
     chapters: memory.chapters.length,
     notifications: memory.notifications.length,
-    generationJobs: 0
+    generationJobs: 0,
+    favorites: memory.favorites.length
   };
   memory.chapters = [];
   memory.notifications = [];
   memory.pushTokens = [];
+  memory.favorites = [];
   return deleted;
+}
+
+async function listStoredFavoriteQuestions(deviceId) {
+  if (hasDatabase) return listDatabaseFavoriteQuestions(deviceId);
+  return getMemory(deviceId).favorites;
+}
+
+async function getStoredFavoriteQuestion(deviceId, favoriteId) {
+  if (hasDatabase) return getDatabaseFavoriteQuestion(deviceId, favoriteId);
+  return getMemory(deviceId).favorites.find((item) => item.id === favoriteId) || null;
+}
+
+async function upsertStoredFavoriteQuestion(deviceId, favorite) {
+  const record = normalizeFavoriteQuestion(favorite);
+  if (hasDatabase) return upsertDatabaseFavoriteQuestion(deviceId, record);
+  const memory = getMemory(deviceId);
+  const existingIndex = memory.favorites.findIndex((item) => item.chapterId === record.chapterId && item.questionId === record.questionId);
+  if (existingIndex >= 0) {
+    memory.favorites.splice(existingIndex, 1, record);
+  } else {
+    memory.favorites.unshift(record);
+  }
+  return memory.favorites.find((item) => item.id === record.id);
+}
+
+async function deleteStoredFavoriteQuestion(deviceId, favoriteId) {
+  if (hasDatabase) return deleteDatabaseFavoriteQuestion(deviceId, favoriteId);
+  const memory = getMemory(deviceId);
+  const before = memory.favorites.length;
+  memory.favorites = memory.favorites.filter((item) => item.id !== favoriteId);
+  return memory.favorites.length !== before;
 }
 
 async function upsertStoredPushToken(deviceId, pushToken) {
@@ -954,6 +992,29 @@ function serializeNotificationForClient(notification) {
 
 function serializeNotificationsForClient(notifications = []) {
   return notifications.map(serializeNotificationForClient);
+}
+
+function normalizeFavoriteQuestion(favorite = {}) {
+  const chapterId = toStringValue(favorite.chapterId || favorite.chapter_id || "");
+  const questionId = toStringValue(favorite.questionId || favorite.question_id || "");
+  return {
+    id: toStringValue(favorite.id || createFavoriteQuestionId(chapterId, questionId)),
+    chapterId,
+    questionId,
+    createdAt: toStringValue(favorite.createdAt || favorite.created_at || new Date().toISOString())
+  };
+}
+
+function createFavoriteQuestionId(chapterId, questionId) {
+  return `favorite-${encodeURIComponent(chapterId)}-${encodeURIComponent(questionId)}`;
+}
+
+function serializeFavoriteQuestionForClient(favorite) {
+  return normalizeFavoriteQuestion(favorite);
+}
+
+function serializeFavoriteQuestionsForClient(favorites = []) {
+  return favorites.map(serializeFavoriteQuestionForClient);
 }
 
 function normalizeFeedbackRecords(feedbackRecords) {
@@ -1553,6 +1614,41 @@ const server = createServer(async (req, res) => {
   if (req.method === "GET" && req.url === "/api/chapters") {
     const chapters = await listStoredChapters(deviceId);
     sendJson(res, 200, { chapters: sortByCreatedAtDesc(serializeChaptersForClient(chapters)) });
+    return;
+  }
+
+  if (req.method === "GET" && req.url === "/api/favorites/questions") {
+    const favorites = await listStoredFavoriteQuestions(deviceId);
+    sendJson(res, 200, { favorites: serializeFavoriteQuestionsForClient(favorites) });
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/api/favorites/questions") {
+    const body = await readBody(req);
+    const chapterId = toStringValue(body.chapterId || body.chapter_id || "");
+    const questionId = toStringValue(body.questionId || body.question_id || "");
+    const chapter = chapterId ? await getStoredChapter(deviceId, chapterId) : null;
+    const questionExists = Boolean(chapter?.questions?.some((question) => question.id === questionId));
+    if (!chapter || !questionExists) {
+      sendJson(res, 404, { errorCode: "favorite_question_not_found", message: "收藏的题目不存在。" });
+      return;
+    }
+    const favorite = await upsertStoredFavoriteQuestion(deviceId, {
+      id: createFavoriteQuestionId(chapterId, questionId),
+      chapterId,
+      questionId,
+      createdAt: body.createdAt || body.created_at || new Date().toISOString()
+    });
+    sendJson(res, 200, { favorite: serializeFavoriteQuestionForClient(favorite) });
+    return;
+  }
+
+  const favoriteQuestionMatch = req.url?.match(/^\/api\/favorites\/questions\/([^/]+)$/);
+  if (favoriteQuestionMatch && req.method === "DELETE") {
+    const favoriteId = decodeURIComponent(favoriteQuestionMatch[1]);
+    const deleted = await deleteStoredFavoriteQuestion(deviceId, favoriteId);
+    if (!deleted) sendJson(res, 404, { errorCode: "favorite_not_found", message: "收藏记录不存在。" });
+    else sendJson(res, 200, { deleted: true, favoriteId });
     return;
   }
 

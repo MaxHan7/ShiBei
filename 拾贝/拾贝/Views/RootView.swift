@@ -132,6 +132,8 @@ struct RootView: View {
             ProfileView(store: store)
         case .chapterDetail:
             ChapterDetailView(store: store)
+        case .favoriteQuestions:
+            FavoriteQuestionsView(store: store)
         case .knowledgeList:
             KnowledgeListView(store: store)
         case .source:
@@ -168,6 +170,8 @@ struct RootView: View {
         switch store.route {
         case .chapterDetail:
             ChapterDetailView(store: store)
+        case .favoriteQuestions:
+            FavoriteQuestionsView(store: store)
         case .knowledgeList:
             KnowledgeListView(store: store)
         case .source:

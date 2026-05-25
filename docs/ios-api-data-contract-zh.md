@@ -358,7 +358,7 @@ iOS 请求必须附带：
 X-Device-Id: <uuid>
 ```
 
-后端用这个 ID 隔离章节、通知、复习会话和题目反馈。缺少该请求头时，后端使用 `demo-device`，用于 HTML Demo 和简单 curl 调试。账号系统后续再做，未来可把匿名设备数据迁移到登录账号下。
+后端用这个 ID 隔离章节、通知、复习会话、题目反馈和收藏题目。缺少该请求头时，后端使用 `demo-device`，用于 HTML Demo 和简单 curl 调试。账号系统后续再做，未来可把匿名设备数据迁移到登录账号下。
 
 ### 注册系统通知 token
 
@@ -573,6 +573,70 @@ POST /api/notifications/:id/dismiss
 
 系统推送和 App 内通知共用同一条通知记录：成功通知点击后归档；失败通知点击后只标记已读，直到用户处理或手动移除。
 
+### 收藏题目
+
+收藏题目是题目级用户状态，不代表题目质量，也不改变默认章节复习队列。它用于构建系统题集“收藏题目”，让用户回到自己标记过的高价值题。
+
+```text
+GET /api/favorites/questions
+POST /api/favorites/questions
+DELETE /api/favorites/questions/:id
+```
+
+列表返回：
+
+```json
+{
+  "favorites": [
+    {
+      "id": "favorite-chapter-1-q-1",
+      "chapterId": "chapter-1",
+      "questionId": "q-1",
+      "createdAt": "2026-05-25T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+创建请求：
+
+```json
+{
+  "chapterId": "chapter-1",
+  "questionId": "q-1"
+}
+```
+
+创建返回：
+
+```json
+{
+  "favorite": {
+    "id": "favorite-chapter-1-q-1",
+    "chapterId": "chapter-1",
+    "questionId": "q-1",
+    "createdAt": "2026-05-25T00:00:00.000Z"
+  }
+}
+```
+
+删除返回：
+
+```json
+{
+  "deleted": true,
+  "favoriteId": "favorite-chapter-1-q-1"
+}
+```
+
+规则：
+
+- 所有接口都按 `X-Device-Id` 隔离，只能读取或修改当前匿名设备下的收藏。
+- 同一个 `deviceId + chapterId + questionId` 只能有一条收藏记录；重复创建应返回同一条或更新后的收藏记录。
+- 创建收藏时后端必须校验章节和题目属于当前设备。
+- 删除章节或删除当前设备数据时，相关收藏题目一并删除。
+- 收藏题复习由 iOS 根据收藏记录和本地章节/题目数据组装题卡；第一版不单独创建后端 ReviewSession。
+
 ## 5. iOS Service 建议
 
 SwiftUI 第一版建议拆出：
@@ -595,12 +659,17 @@ SwiftUI 第一版建议拆出：
   - `markRead(id:)`
   - `dismiss(id:)`
 
+- `FavoriteQuestionService`
+  - `listFavoriteQuestions()`
+  - `createFavoriteQuestion(chapterId:questionId:)`
+  - `deleteFavoriteQuestion(id:)`
+
 第一轮 Xcode 可以先用 mock 实现这些 service，再切换到真实 HTTP 实现。
 
 ## 6. 当前限制
 
 - Railway 云端通过 PostgreSQL 保存数据；本地未配置 `DATABASE_URL` 时使用内存存储，不保证跨重启。
-- 当前 API 未做账号和鉴权，但已经按匿名设备 ID 做基础数据隔离。
+- 当前 API 未做账号和鉴权，但已经按匿名设备 ID 做基础数据隔离。章节、通知、复习状态、反馈和收藏题目都应绑定同一个匿名设备身份。
 - 当前生成流程是提交后后台执行，客户端轮询章节状态；后续正式生产版可再升级为队列、SSE、APNs 或后台任务系统。
 - 公众号抓取受平台限制，失败时应提示用户改为粘贴正文。
 - 视频链接只识别并友好失败，不提取视频文本。
