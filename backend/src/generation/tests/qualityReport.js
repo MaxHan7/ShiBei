@@ -44,6 +44,16 @@ export function summarize(results) {
     results.flatMap((result) => allMachineIssues(result).map(categorizeMachineIssue))
   );
   const lowConfidenceCount = allQuestions.filter((question) => question.confidenceLevel === "low").length;
+  const pointDiagnostics = chapters.flatMap((result) => result.generationDebug?.pointDiagnostics || []);
+  const questionCountDistribution = countValues(pointDiagnostics.map((point) => String(point.qualifiedQuestionCount || 0)));
+  const averageQuestionsPerPoint = pointDiagnostics.length
+    ? Math.round((pointDiagnostics.reduce((sum, point) => sum + (point.qualifiedQuestionCount || 0), 0) / pointDiagnostics.length) * 10) / 10
+    : 0;
+  const questionTypeCoverage = countValues(allQuestions.map((question) => question.type || "unknown"));
+  const threeQuestionPointRate = percent(
+    pointDiagnostics.filter((point) => (point.qualifiedQuestionCount || 0) >= 3).length,
+    pointDiagnostics.length
+  );
   const trustReasonFrequency = countValues(allQuestions.flatMap((question) => question.confidenceReasons || []));
   const blockingReasonFrequency = countValues(
     chapters.flatMap((result) => [
@@ -63,15 +73,19 @@ export function summarize(results) {
     successRate: percent(completed.length, results.length),
     knowledgePointCount: chapters.reduce((sum, result) => sum + (result.chapter?.knowledgePoints?.length || 0), 0),
     qualifiedQuestionCount: allQuestions.length,
+    averageQuestionsPerPoint,
+    questionCountDistribution,
+    questionTypeCoverage,
+    threeQuestionPointRate,
     lowConfidenceQuestionCount: lowConfidenceCount,
     lowConfidenceQuestionRate: percent(lowConfidenceCount, allQuestions.length),
     coveredKnowledgePointCount: chapters.reduce((sum, result) => {
       const diagnostics = result.generationDebug?.pointDiagnostics || [];
-      return sum + diagnostics.filter((point) => point.status === "covered").length;
+      return sum + diagnostics.filter((point) => point.status?.startsWith("covered")).length;
     }, 0),
     uncoveredKnowledgePointCount: chapters.reduce((sum, result) => {
       const diagnostics = result.generationDebug?.pointDiagnostics || [];
-      return sum + diagnostics.filter((point) => point.status !== "covered").length;
+      return sum + diagnostics.filter((point) => !point.status?.startsWith("covered")).length;
     }, 0),
     questionCoverageRate: calculateCoverageRate(chapters),
     averageQualityScore: qualityScores.length
@@ -228,6 +242,8 @@ export function renderManualReport({ machineReport, manualSummary, resultFile, r
     `- 样本数：${machineReport.summary?.sampleCount ?? 0}`,
     `- 机器成功率：${machineReport.summary?.successRate ?? 0}%`,
     `- 入池题数：${machineReport.summary?.qualifiedQuestionCount ?? 0}`,
+    `- 平均每知识点题数：${machineReport.summary?.averageQuestionsPerPoint ?? 0}`,
+    `- 3 题知识点比例：${machineReport.summary?.threeQuestionPointRate ?? 0}%`,
     `- 低置信题比例：${machineReport.summary?.lowConfidenceQuestionRate ?? 0}%`,
     `- 人工审查题数：${manualSummary.reviewedQuestionCount}`,
     `- 人工可用率：${manualSummary.acceptRate}%`,
@@ -289,7 +305,7 @@ function defaultSampleMeta(overrides = {}) {
 function calculateCoverageRate(completed) {
   const diagnostics = completed.flatMap((result) => result.generationDebug?.pointDiagnostics || []);
   if (!diagnostics.length) return 0;
-  const covered = diagnostics.filter((point) => point.status === "covered").length;
+  const covered = diagnostics.filter((point) => point.status?.startsWith("covered")).length;
   return percent(covered, diagnostics.length);
 }
 

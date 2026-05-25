@@ -84,7 +84,11 @@ test("summarizes machine report and expands review rows for manual scoring", () 
       }]
     },
     generationDebug: {
-      pointDiagnostics: [{ status: "covered" }],
+      pointDiagnostics: [{
+        status: "covered_low_confidence",
+        qualifiedQuestionCount: 1,
+        selectedQuestionTypes: ["multiple_choice"]
+      }],
       evaluatedQuestions: []
     }
   }];
@@ -94,6 +98,10 @@ test("summarizes machine report and expands review rows for manual scoring", () 
 
   assert.equal(machineSummary.successRate, 100);
   assert.equal(machineSummary.lowConfidenceQuestionRate, 100);
+  assert.equal(machineSummary.coveredKnowledgePointCount, 1);
+  assert.equal(machineSummary.averageQuestionsPerPoint, 1);
+  assert.deepEqual(machineSummary.questionCountDistribution, { "1": 1 });
+  assert.deepEqual(machineSummary.questionTypeCoverage, { multiple_choice: 1 });
   assert.equal(rows[0].correctAnswerText, "正确做法");
   assert.equal(rows[0].confidenceLevel, "low");
   assert.equal(rows[0].sourceContextScore, 123);

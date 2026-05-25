@@ -3,7 +3,7 @@ import { chunkContent } from "./chunkContent.js";
 import { extractKnowledgeCandidates } from "./extractKnowledgeCandidates.js";
 import { filterKnowledgePoints } from "./filterKnowledgePoints.js";
 import { generateChapterSummary } from "./generateChapterSummary.js";
-import { generateQuestions } from "./generateQuestions.js";
+import { generateQuestions, targetQuestionCountForPoint } from "./generateQuestions.js";
 import { evaluateQuestions } from "./evaluateQuestions.js";
 import { judgeQuestionQuality } from "./judgeQuestionQuality.js";
 import { STATUS_TEXT } from "./types.js";
@@ -231,14 +231,18 @@ async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta, on
     ...firstEvaluation.evaluatedQuestions,
     ...rewrittenEvaluations
   ];
-  const pointsNeedingSupplement = knowledgePoints.filter((point) => shouldSupplementPoint(point, beforeSupplement));
+  const pointsNeedingSupplement = knowledgePoints
+    .map((point) => supplementRequestForPoint(point, beforeSupplement))
+    .filter(Boolean);
   for (let index = 0; index < pointsNeedingSupplement.length; index += 1) {
-    const point = pointsNeedingSupplement[index];
+    const request = pointsNeedingSupplement[index];
+    const point = request.point;
     try {
       const rewritten = await generateQuestions({
         knowledgePoints: [point],
         rewrite: true,
-        rewriteContext: `no_qualified_question_for_point; ${summarizePointIssues(point.id, beforeSupplement)}`
+        targetQuestionCountOverride: request.missingCount,
+        rewriteContext: `supplement_for_multi_question_review; ${request.reason}; ${summarizePointIssues(point.id, beforeSupplement)}`
       });
       const rewrittenWithId = withStableIds(rewritten, `supplement-${point.id}-${index + 1}`);
       const supplementEvaluation = await evaluateWithJudge({
@@ -288,30 +292,59 @@ async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta, on
 export function selectQualifiedQuestionsByPoint(knowledgePoints, evaluatedQuestions) {
   const selected = [];
   for (const point of knowledgePoints) {
+    const targetCount = targetQuestionCountForPoint(point);
     const passed = evaluatedQuestions
       .filter((question) => question.knowledgePointId === point.id && question.qualityAction === "pass" && isReviewableQuestion(question))
       .sort(compareQuestionQuality);
-    const bestPassed = dedupeSimilarQuestions(passed)[0];
-    if (bestPassed) {
-      selected.push(markConfidence(bestPassed, confidenceLevelForQuestion(bestPassed)));
-      continue;
-    }
-
-    const bestEffort = evaluatedQuestions
+    const rewritten = evaluatedQuestions
       .filter((question) => question.knowledgePointId === point.id && question.qualityAction === "rewrite" && isReviewableQuestion(question))
-      .sort(compareQuestionQuality)[0];
-    if (bestEffort) {
-      selected.push(markConfidence(bestEffort, "low"));
-    }
+      .sort(compareQuestionQuality);
+    const chosen = selectDiverseQuestions({
+      passed: dedupeSimilarQuestions(passed),
+      rewritten: dedupeSimilarQuestions(rewritten),
+      targetCount
+    });
+    selected.push(...chosen);
   }
   return selected;
 }
 
-function markConfidence(question, confidenceLevel) {
+function selectDiverseQuestions({ passed, rewritten, targetCount }) {
+  const selected = [];
+  addDiverseQuestions({
+    selected,
+    candidates: passed,
+    targetCount,
+    mark: (question) => markConfidence(
+      question,
+      confidenceLevelForQuestion(question),
+      confidenceLevelForQuestion(question) === "low" ? "quality_pass_low_confidence" : "quality_pass"
+    )
+  });
+  addDiverseQuestions({
+    selected,
+    candidates: rewritten,
+    targetCount,
+    mark: (question) => markConfidence(question, "low", "best_effort_quality_fallback")
+  });
+  return selected;
+}
+
+function addDiverseQuestions({ selected, candidates, targetCount, mark }) {
+  const diverseTypeCandidates = candidates.filter((question) => !selected.some((item) => item.type === question.type));
+  for (const question of [...diverseTypeCandidates, ...candidates]) {
+    if (selected.length >= targetCount) break;
+    if (selected.some((item) => item.id === question.id)) continue;
+    if (selected.some((item) => overlapRatio(compactText(item.stem), compactText(question.stem)) > 0.72)) continue;
+    selected.push(mark(question));
+  }
+}
+
+function markConfidence(question, confidenceLevel, retainedBy = null) {
   return {
     ...question,
     confidenceLevel,
-    retainedBy: confidenceLevel === "low" ? "best_effort_quality_fallback" : "quality_pass"
+    retainedBy: retainedBy || (confidenceLevel === "low" ? "best_effort_quality_fallback" : "quality_pass")
   };
 }
 
@@ -362,10 +395,28 @@ function dedupeSimilarQuestions(questions) {
   return selected;
 }
 
-function shouldSupplementPoint(point, evaluatedQuestions) {
-  return !evaluatedQuestions.some((question) => (
-    question.knowledgePointId === point.id && question.qualityAction === "pass"
-  ));
+function supplementRequestForPoint(point, evaluatedQuestions) {
+  const selected = selectQualifiedQuestionsByPoint([point], evaluatedQuestions);
+  const targetCount = targetQuestionCountForPoint(point);
+  if (selected.length >= targetCount) return null;
+  return {
+    point,
+    missingCount: targetCount - selected.length,
+    reason: supplementReason({ point, selected, targetCount })
+  };
+}
+
+function supplementReason({ point, selected, targetCount }) {
+  const selectedTypes = new Set(selected.map((question) => question.type));
+  const missingTypes = ["multiple_choice", "true_false", "scenario_judgment"]
+    .filter((type) => !selectedTypes.has(type))
+    .slice(0, Math.max(1, targetCount - selected.length));
+  return [
+    `target_question_count:${targetCount}`,
+    `current_reviewable_count:${selected.length}`,
+    missingTypes.length ? `missing_question_types:${missingTypes.join("|")}` : "",
+    point.questionAngles?.length ? `question_angles:${point.questionAngles.join("|")}` : ""
+  ].filter(Boolean).join("; ");
 }
 
 function summarizePointIssues(pointId, evaluatedQuestions) {
@@ -388,10 +439,13 @@ function buildPointDiagnostics(knowledgePoints, evaluatedQuestions, selectedQues
       pointId: point.id,
       title: point.title,
       testabilityScore: point.testabilityScore,
+      targetQuestionCount: targetQuestionCountForPoint(point),
       candidateQuestionCount: related.length,
       qualifiedQuestionCount: selected.length,
+      selectedQuestionTypes: [...new Set(selected.map((question) => question.type))],
+      confidenceLevels: [...new Set(selected.map((question) => question.confidenceLevel))],
       confidenceLevel: selected[0]?.confidenceLevel || null,
-      status: selected.length ? (selected[0].confidenceLevel === "low" ? "covered_low_confidence" : "covered") : "no_reviewable_question",
+      status: selected.length ? (selected.every((question) => question.confidenceLevel === "low") ? "covered_low_confidence" : "covered") : "no_reviewable_question",
       failureReasons: selected.length ? [] : [...new Set(related.flatMap((question) => [
         ...(question.qualityIssues || []),
         question.ruleQualityAction && question.ruleQualityAction !== "pass" ? `rule_${question.ruleQualityAction}` : "",
@@ -589,6 +643,12 @@ function summarizeQuality(evaluatedQuestions, judgeUnavailable, selectedQuestion
   const questionCoverageRate = pointDiagnostics.length
     ? Math.round(((pointDiagnostics.length - uncoveredPointCount) / pointDiagnostics.length) * 1000) / 10
     : 0;
+  const retainedPerPoint = pointDiagnostics.map((point) => point.qualifiedQuestionCount || 0);
+  const questionCountDistribution = countNumberValues(retainedPerPoint);
+  const averageQuestionsPerPoint = retainedPerPoint.length
+    ? Math.round((retainedPerPoint.reduce((sum, count) => sum + count, 0) / retainedPerPoint.length) * 10) / 10
+    : 0;
+  const questionTypeCoverage = countValues(selectedQuestions.map((question) => question.type || "unknown"));
 
   return {
     totalGenerated: evaluatedQuestions.length,
@@ -599,11 +659,28 @@ function summarizeQuality(evaluatedQuestions, judgeUnavailable, selectedQuestion
     averageQualityScore: averageScore,
     questionCoverageRate,
     retainedQuestionCount: selectedQuestions.length,
+    averageQuestionsPerPoint,
+    questionCountDistribution,
+    questionTypeCoverage,
     lowConfidenceQuestionCount,
     uncoveredPointCount,
     seriousIssueCount,
     judgeUnavailable
   };
+}
+
+function countValues(values) {
+  return values.reduce((counts, value) => ({
+    ...counts,
+    [value]: (counts[value] || 0) + 1
+  }), {});
+}
+
+function countNumberValues(values) {
+  return values.reduce((counts, value) => ({
+    ...counts,
+    [String(value)]: (counts[String(value)] || 0) + 1
+  }), {});
 }
 
 function failure({

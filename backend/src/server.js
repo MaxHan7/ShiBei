@@ -905,11 +905,25 @@ function normalizeQualitySummary(qualitySummary) {
       : (Number.isFinite(Number(qualitySummary.coverageRate)) ? Number(qualitySummary.coverageRate) : null),
     totalGenerated: toIntegerValue(qualitySummary.totalGenerated, 0),
     retainedQuestionCount: toIntegerValue(qualitySummary.retainedQuestionCount, 0),
+    averageQuestionsPerPoint: Number.isFinite(Number(qualitySummary.averageQuestionsPerPoint))
+      ? Number(qualitySummary.averageQuestionsPerPoint)
+      : 0,
+    questionCountDistribution: normalizeObjectCounts(qualitySummary.questionCountDistribution),
+    questionTypeCoverage: normalizeObjectCounts(qualitySummary.questionTypeCoverage),
     lowConfidenceQuestionCount: toIntegerValue(qualitySummary.lowConfidenceQuestionCount, 0),
     uncoveredPointCount: toIntegerValue(qualitySummary.uncoveredPointCount, 0),
     seriousIssueCount: toIntegerValue(qualitySummary.seriousIssueCount, 0),
     judgeUnavailable: Boolean(qualitySummary.judgeUnavailable)
   };
+}
+
+function normalizeObjectCounts(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([, count]) => Number.isFinite(Number(count)))
+      .map(([key, count]) => [String(key), Number(count)])
+  );
 }
 
 function ensureChapterRecord(chapter) {

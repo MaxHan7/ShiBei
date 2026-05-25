@@ -12,6 +12,13 @@ const point = {
   sourceQuote: "这是一段可以支撑题目的来源片段。"
 };
 
+const highValuePoint = {
+  ...point,
+  testabilityScore: 5,
+  knowledgeType: "method",
+  questionAngles: ["理解核心判断", "辨析常见误区", "迁移到具体场景"]
+};
+
 function question(overrides = {}) {
   return {
     id: overrides.id || "q-1",
@@ -44,6 +51,30 @@ function question(overrides = {}) {
   };
 }
 
+function typedQuestion({ id, type, stem, qualityAction = "pass", average = 4.5 }) {
+  const base = question({
+    id,
+    type,
+    stem,
+    qualityAction,
+    qualityScore: {
+      ...question().qualityScore,
+      average
+    }
+  });
+  if (type === "true_false") {
+    return {
+      ...base,
+      options: [
+        { id: "A", text: "成立" },
+        { id: "B", text: "不成立" }
+      ],
+      correctOptionId: "A"
+    };
+  }
+  return base;
+}
+
 test("selects the highest-scoring pass question first", () => {
   const selected = selectQualifiedQuestionsByPoint([point], [
     question({ id: "rewrite-high", qualityAction: "rewrite", qualityScore: { ...question().qualityScore, average: 4.9 } }),
@@ -54,6 +85,52 @@ test("selects the highest-scoring pass question first", () => {
   assert.equal(selected.length, 1);
   assert.equal(selected[0].id, "pass-high");
   assert.equal(selected[0].confidenceLevel, "high");
+});
+
+test("retains up to three diverse pass questions for a high-value knowledge point", () => {
+  const selected = selectQualifiedQuestionsByPoint([highValuePoint], [
+    typedQuestion({ id: "mc", type: "multiple_choice", stem: "哪种理解最符合这个知识点？", average: 4.6 }),
+    typedQuestion({ id: "tf", type: "true_false", stem: "这个边界判断是否成立？", average: 4.4 }),
+    typedQuestion({ id: "scenario", type: "scenario_judgment", stem: "在具体业务场景中应该怎么应用？", average: 4.8 })
+  ]);
+
+  assert.equal(selected.length, 3);
+  assert.deepEqual(new Set(selected.map((item) => item.type)), new Set([
+    "multiple_choice",
+    "true_false",
+    "scenario_judgment"
+  ]));
+  assert.deepEqual(selected.map((item) => item.confidenceLevel), ["high", "high", "high"]);
+});
+
+test("uses reviewable rewrite questions as low-confidence supplements", () => {
+  const selected = selectQualifiedQuestionsByPoint([highValuePoint], [
+    typedQuestion({ id: "mc", type: "multiple_choice", stem: "哪种理解最符合这个知识点？", average: 4.7 }),
+    typedQuestion({ id: "tf", type: "true_false", stem: "这个边界判断是否成立？", average: 4.4 }),
+    typedQuestion({
+      id: "scenario-rewrite",
+      type: "scenario_judgment",
+      stem: "如果团队遇到相似场景，应该选择哪种做法？",
+      qualityAction: "rewrite",
+      average: 4.1
+    })
+  ]);
+
+  assert.equal(selected.length, 3);
+  assert.equal(selected[2].id, "scenario-rewrite");
+  assert.equal(selected[2].confidenceLevel, "low");
+  assert.equal(selected[2].retainedBy, "best_effort_quality_fallback");
+});
+
+test("does not keep near-duplicate questions just to reach three per point", () => {
+  const selected = selectQualifiedQuestionsByPoint([highValuePoint], [
+    typedQuestion({ id: "mc-1", type: "multiple_choice", stem: "哪种理解最符合这个知识点？", average: 4.8 }),
+    typedQuestion({ id: "mc-2", type: "multiple_choice", stem: "哪种理解最符合这个知识点呢？", average: 4.7 }),
+    typedQuestion({ id: "scenario", type: "scenario_judgment", stem: "在具体业务场景中应该怎么应用？", average: 4.5 })
+  ]);
+
+  assert.equal(selected.length, 2);
+  assert.deepEqual(selected.map((item) => item.id), ["mc-1", "scenario"]);
 });
 
 test("retains the best rewrite question as low confidence when no pass question exists", () => {

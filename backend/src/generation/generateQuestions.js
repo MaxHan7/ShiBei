@@ -2,7 +2,12 @@ import { callOpenAIJson } from "./openaiClient.js";
 import { expectedQuestionType } from "./evaluateQuestions.js";
 import { questionSchema, questionSystemPrompt } from "./prompts/questions.js";
 
-export async function generateQuestions({ knowledgePoints, rewrite = false, rewriteContext = "" }) {
+export async function generateQuestions({
+  knowledgePoints,
+  rewrite = false,
+  rewriteContext = "",
+  targetQuestionCountOverride = null
+}) {
   const points = knowledgePoints.map((point) => ({
     id: point.id,
     title: point.title,
@@ -13,7 +18,11 @@ export async function generateQuestions({ knowledgePoints, rewrite = false, rewr
     questionAngles: Array.isArray(point.questionAngles) ? point.questionAngles : [],
     testabilityScore: point.testabilityScore,
     preferredQuestionType: expectedQuestionType(point),
-    targetQuestionCount: rewrite ? 1 : targetQuestionCount(point)
+    targetQuestionCount: targetQuestionCountOverride !== null
+      && targetQuestionCountOverride !== undefined
+      && Number.isFinite(Number(targetQuestionCountOverride))
+      ? Math.max(1, Math.min(3, Number(targetQuestionCountOverride)))
+      : (rewrite ? 1 : targetQuestionCountForPoint(point))
   }));
 
   const result = await callOpenAIJson({
@@ -25,7 +34,7 @@ export async function generateQuestions({ knowledgePoints, rewrite = false, rewr
 
   return (result.questions || []).map((question, index) => normalizeAnswerPosition({
     id: `q-${index + 1}`,
-    knowledgePointId: String(question.knowledgePointId || points[index]?.id || "").trim(),
+    knowledgePointId: String(question.knowledgePointId || fallbackPointId(points, index) || "").trim(),
     type: question.type,
     stem: question.stem?.trim() || "",
     options: normalizeOptions(question),
@@ -38,9 +47,15 @@ export async function generateQuestions({ knowledgePoints, rewrite = false, rewr
   }, index));
 }
 
+function fallbackPointId(points, index) {
+  if (points.length === 1) return points[0].id;
+  return points[index]?.id || "";
+}
+
 function buildUserPrompt({ points, rewrite, rewriteContext }) {
+  const rewriteCount = points[0]?.targetQuestionCount || 1;
   const rewriteInstruction = rewrite
-    ? `上一题没有通过质量检查。请只为给定知识点重写 1 道题。
+    ? `上一题没有通过质量检查。请只为给定知识点重写 ${rewriteCount} 道题。
 需要修复的问题：${rewriteContext || "质量检查未通过"}
 ${rewriteGuidance(rewriteContext)}
 避免原文填空、凑数干扰项、多个正确答案和来源片段不匹配。`
@@ -49,6 +64,7 @@ ${rewriteGuidance(rewriteContext)}
   return `${rewriteInstruction}
 请为每个知识点生成 targetQuestionCount 道候选题。targetQuestionCount 是根据该知识点价值动态给出的候选数量，不代表最终入池数量。
 每个知识点至少返回 1 道结构完整题，不要跳过任何知识点。
+当 targetQuestionCount 为 2 或 3 时，不要生成同质题：优先覆盖“理解核心判断”“辨析误区/边界”“迁移到具体场景”三个不同记忆角度，并尽量使用不同题型。
 preferredQuestionType 是推荐题型：优先使用它；如果另一种题型更自然、更能考理解，也可以改用其它允许题型。
 如果使用 true_false，只能使用两个选项：A 成立，B 不成立。
 如果使用 multiple_choice，必须使用 A/B/C/D 四个选项。
@@ -62,7 +78,7 @@ sourceSnippet 优先逐字来自该知识点 sourceQuote，不要改写来源片
 ${JSON.stringify(points, null, 2)}`;
 }
 
-function targetQuestionCount(point) {
+export function targetQuestionCountForPoint(point) {
   const highValueType = ["method", "scenario", "step", "comparison", "counterexample"].includes(point.knowledgeType);
   const angleCount = Array.isArray(point.questionAngles) ? point.questionAngles.length : 0;
   if (point.testabilityScore >= 5 && (highValueType || angleCount >= 2)) return 3;
