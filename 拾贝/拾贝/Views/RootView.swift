@@ -39,6 +39,8 @@ struct RootView: View {
                 }
             }
             .presentationDetents([.height(330)])
+            .presentationBackground(ShiBeiTheme.card)
+            .presentationDragIndicator(.hidden)
         }
         .task {
             await store.bootstrapForCurrentEnvironment()
@@ -213,6 +215,7 @@ private struct NotificationEducationSheet: View {
             PrimaryButton(title: "开启通知", systemImage: "arrow.right", action: continueAction)
         }
         .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(ShiBeiTheme.card)
     }
 }
