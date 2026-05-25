@@ -442,6 +442,42 @@ window.iterationEntries = [
   },
   {
     "date": "2026-05-25",
+    "title": "ReviewSession V2 question-first",
+    "phase": "复习状态机",
+    "problem": "出题系统已恢复同一知识点 1–3 道入池题，但复习调度仍以‘每知识点抽 1 题’为隐含前提：进度条按知识点算、强化按知识点插入、完成条件又要求知识点都答对。结果是多题型产出被浪费，且在最后一题答错时可能出现‘无限强化/反复出现’或无法进入总结，破坏用户对复习闭环的信任。",
+    "changes": [
+      "ReviewSession schemaVersion 升级到 v2，构建队列从‘按知识点挑 1 题’改为‘按知识点顺序铺开所有可复习题’，同点内保持稳定排序。",
+      "答题提交与状态统计改为 queueItemId 驱动：attempt 记录 queueItemId，completedQueueItemIds 作为进度条与完成条件依据，并校验 questionId 与队列项匹配以防客户端漂移。",
+      "强化调度粒度从 knowledgePointId 改为 questionId：同题最多强化 2 次，超过后落入 needsReviewQuestionIds 并允许 session 完成，避免无限循环。",
+      "active legacy session 在恢复时迁移：保留已答对题目的完成事实并补齐缺失的主队列题，确保升级后不会重刷或卡死。",
+      "更新 iOS 数据契约与客户端：ReviewSession/ReviewAttempt 增加 schemaVersion、reinforcementAttempt、queueItemId 等字段，提交 attempt 时带上当前队列项 id。"
+    ],
+    "screenshots": [
+      {
+        "src": "assets/2026-05-25-reviewsession-v2-question-first.svg",
+        "caption": "2026-05-25 迭代摘要"
+      }
+    ],
+    "result": "后端以题目队列作为唯一复习事实来源：队列覆盖所有可复习主队列题目，完成条件改为 completedQueueItemIds 全覆盖；同题强化最多 2 次，超过后进入 needsReviewQuestionIds 但不阻塞本轮结束；masteredThisRoundPointIds 由该知识点的主队列题目全对聚合得到。对应的 reviewSessionLifecycle 单测覆盖了：多题入队、知识点掌握聚合、最后一题强化封顶与 v1→v2 迁移。iOS 端提交 attempt 时补齐 queueItemId，避免‘题目与队列项不一致’导致的进度与统计漂移。",
+    "next": "用真机回归 3 类章节：同点多题(全对/最后一题错/连续错)、中途反馈移除题目、收藏题入口复习；同时确认 needsReviewQuestionIds 是否需要在总结页显式提示。",
+    "commits": [
+      "9285345",
+      "fa12d54",
+      "9a15874",
+      "8de939d",
+      "c7cef80",
+      "ff5eb3c",
+      "cbc6573",
+      "3e3f0c8",
+      "d9d0f0d",
+      "ad3ca7b",
+      "b200e1e",
+      "2a960c1",
+      "bdaafff"
+    ]
+  },
+  {
+    "date": "2026-05-25",
     "title": "系统通知从“配置好了”变成“可诊断”",
     "phase": "TestFlight 发布准备",
     "problem": "真机已经请求通知权限，Railway 也显示 APNs 配置完成，但生成结束后用户仍收不到系统通知。原有链路只能知道“配置是否存在”，无法判断设备 token 是否上传、环境是否匹配、APNs 是否返回错误。",
