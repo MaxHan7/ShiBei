@@ -90,8 +90,8 @@ struct APIClient {
         try await get("/api/chapters/\(chapterId)/review-session")
     }
 
-    func submitAttempt(sessionId: String, questionId: String, answer: String?, result: AttemptResult) async throws -> AttemptResponse {
-        let request = AttemptRequest(questionId: questionId, answer: answer ?? "", result: result)
+    func submitAttempt(sessionId: String, queueItemId: String?, questionId: String, answer: String?, result: AttemptResult) async throws -> AttemptResponse {
+        let request = AttemptRequest(queueItemId: queueItemId, questionId: questionId, answer: answer ?? "", result: result)
         return try await send("/api/review-sessions/\(sessionId)/attempts", method: "POST", body: request, acceptsFailureBody: false)
     }
 
@@ -277,6 +277,7 @@ struct ChapterCreateRequest: Codable {
 }
 
 struct AttemptRequest: Codable {
+    var queueItemId: String?
     var questionId: String
     var answer: String
     var result: AttemptResult

@@ -191,6 +191,7 @@ struct ReviewQueueItem: Codable, Identifiable, Hashable {
     var pointId: String
     var questionId: String
     var isReinforcement: Bool
+    var reinforcementAttempt: Int?
 }
 
 struct ReviewAttempt: Codable, Identifiable, Hashable {
@@ -199,6 +200,7 @@ struct ReviewAttempt: Codable, Identifiable, Hashable {
     var chapterId: String
     var knowledgePointId: String
     var questionId: String
+    var queueItemId: String?
     var answer: String
     var result: AttemptResult
     var isReinforcement: Bool
@@ -224,6 +226,7 @@ struct FavoriteQuestionDisplayItem: Identifiable, Hashable {
 }
 
 struct ReviewSession: Codable, Identifiable, Hashable {
+    var schemaVersion: Int
     var id: String
     var chapterId: String
     var status: ReviewSessionStatus
@@ -234,10 +237,96 @@ struct ReviewSession: Codable, Identifiable, Hashable {
     var masteryByPointId: [String: Int]
     var answeredPointIds: [String]
     var masteredThisRoundPointIds: [String]
+    var completedQueueItemIds: [String]
+    var correctQuestionIds: [String]
+    var needsReviewQuestionIds: [String]
     var skippedPointIds: [String]
     var createdAt: String
     var updatedAt: String
     var completedAt: String?
+
+    init(
+        schemaVersion: Int = 1,
+        id: String,
+        chapterId: String,
+        status: ReviewSessionStatus,
+        queue: [ReviewQueueItem],
+        reinforcementQueue: [String],
+        currentQueueIndex: Int,
+        attempts: [ReviewAttempt],
+        masteryByPointId: [String: Int],
+        answeredPointIds: [String],
+        masteredThisRoundPointIds: [String],
+        completedQueueItemIds: [String] = [],
+        correctQuestionIds: [String] = [],
+        needsReviewQuestionIds: [String] = [],
+        skippedPointIds: [String],
+        createdAt: String,
+        updatedAt: String,
+        completedAt: String?
+    ) {
+        self.schemaVersion = schemaVersion
+        self.id = id
+        self.chapterId = chapterId
+        self.status = status
+        self.queue = queue
+        self.reinforcementQueue = reinforcementQueue
+        self.currentQueueIndex = currentQueueIndex
+        self.attempts = attempts
+        self.masteryByPointId = masteryByPointId
+        self.answeredPointIds = answeredPointIds
+        self.masteredThisRoundPointIds = masteredThisRoundPointIds
+        self.completedQueueItemIds = completedQueueItemIds
+        self.correctQuestionIds = correctQuestionIds
+        self.needsReviewQuestionIds = needsReviewQuestionIds
+        self.skippedPointIds = skippedPointIds
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.completedAt = completedAt
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion
+        case id
+        case chapterId
+        case status
+        case queue
+        case reinforcementQueue
+        case currentQueueIndex
+        case attempts
+        case masteryByPointId
+        case answeredPointIds
+        case masteredThisRoundPointIds
+        case completedQueueItemIds
+        case correctQuestionIds
+        case needsReviewQuestionIds
+        case skippedPointIds
+        case createdAt
+        case updatedAt
+        case completedAt
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
+        id = try container.decode(String.self, forKey: .id)
+        chapterId = try container.decode(String.self, forKey: .chapterId)
+        status = try container.decode(ReviewSessionStatus.self, forKey: .status)
+        queue = try container.decodeIfPresent([ReviewQueueItem].self, forKey: .queue) ?? []
+        reinforcementQueue = try container.decodeIfPresent([String].self, forKey: .reinforcementQueue) ?? []
+        currentQueueIndex = try container.decodeIfPresent(Int.self, forKey: .currentQueueIndex) ?? 0
+        attempts = try container.decodeIfPresent([ReviewAttempt].self, forKey: .attempts) ?? []
+        masteryByPointId = try container.decodeIfPresent([String: Int].self, forKey: .masteryByPointId) ?? [:]
+        answeredPointIds = try container.decodeIfPresent([String].self, forKey: .answeredPointIds) ?? []
+        masteredThisRoundPointIds = try container.decodeIfPresent([String].self, forKey: .masteredThisRoundPointIds) ?? []
+        completedQueueItemIds = try container.decodeIfPresent([String].self, forKey: .completedQueueItemIds) ?? []
+        correctQuestionIds = try container.decodeIfPresent([String].self, forKey: .correctQuestionIds) ?? []
+        needsReviewQuestionIds = try container.decodeIfPresent([String].self, forKey: .needsReviewQuestionIds) ?? []
+        skippedPointIds = try container.decodeIfPresent([String].self, forKey: .skippedPointIds) ?? []
+        createdAt = try container.decodeIfPresent(String.self, forKey: .createdAt) ?? ""
+        updatedAt = try container.decodeIfPresent(String.self, forKey: .updatedAt) ?? ""
+        completedAt = try container.decodeIfPresent(String.self, forKey: .completedAt)
+    }
 }
 
 struct QuestionFeedback: Codable, Identifiable, Hashable {

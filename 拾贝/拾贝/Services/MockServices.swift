@@ -1080,12 +1080,7 @@ final class AppStore: ObservableObject {
             return
         }
         if reviewService.currentQuestion(in: chapter) == nil {
-            updateChapter(chapter.id) { chapter in
-                chapter.reviewSession?.status = .completed
-                chapter.reviewSession?.completedAt = Date.nowISO8601
-                chapter.masteredPoints = chapter.knowledgePoints.count
-            }
-            route = .summary
+            dataSourceMessage = "复习队列暂时没有可继续的题目，请返回章节后重试。"
         } else {
             route = .review
         }
@@ -1680,35 +1675,28 @@ final class MockNotificationService: NotificationServicing {
 final class MockReviewService: ReviewServicing {
     private let initialMastery = 50
     private let reinforcementGap = 3
+    private let schemaVersion = 2
+    private let maxReinforcementsPerQuestion = 2
 
     func startOrResumeSession(for chapter: Chapter) -> ReviewSession {
         if let session = chapter.reviewSession, session.status == .active {
-            return session
-        }
-        let orderedPoints = chapter.knowledgePoints.sorted { lhs, rhs in
-            if (lhs.sourceOrder ?? Int.max) != (rhs.sourceOrder ?? Int.max) {
-                return (lhs.sourceOrder ?? Int.max) < (rhs.sourceOrder ?? Int.max)
-            }
-            if (lhs.sourceStartOffset ?? Int.max) != (rhs.sourceStartOffset ?? Int.max) {
-                return (lhs.sourceStartOffset ?? Int.max) < (rhs.sourceStartOffset ?? Int.max)
-            }
-            return lhs.id < rhs.id
-        }
-        let queue = orderedPoints.compactMap { point -> ReviewQueueItem? in
-            guard let question = pickQuestion(for: point.id, in: chapter) else { return nil }
-            return ReviewQueueItem(id: "queue-\(UUID().uuidString)", pointId: point.id, questionId: question.id, isReinforcement: false)
+            return migrateSessionIfNeeded(session, chapter: chapter)
         }
         return ReviewSession(
+            schemaVersion: schemaVersion,
             id: "session-\(UUID().uuidString)",
             chapterId: chapter.id,
             status: .active,
-            queue: queue,
+            queue: buildQueue(for: chapter),
             reinforcementQueue: [],
             currentQueueIndex: 0,
             attempts: [],
             masteryByPointId: Dictionary(uniqueKeysWithValues: chapter.knowledgePoints.map { ($0.id, $0.masteryScore) }),
             answeredPointIds: [],
             masteredThisRoundPointIds: [],
+            completedQueueItemIds: [],
+            correctQuestionIds: [],
+            needsReviewQuestionIds: [],
             skippedPointIds: [],
             createdAt: Date.nowISO8601,
             updatedAt: Date.nowISO8601,
@@ -1737,6 +1725,7 @@ final class MockReviewService: ReviewServicing {
             chapterId: chapter.id,
             knowledgePointId: pointId,
             questionId: item.questionId,
+            queueItemId: item.id,
             answer: answer ?? "",
             result: result,
             isReinforcement: item.isReinforcement,
@@ -1750,15 +1739,17 @@ final class MockReviewService: ReviewServicing {
         session.attempts.append(attempt)
         session.masteryByPointId[pointId] = scoreAfter
         appendUnique(pointId, to: &session.answeredPointIds)
+        appendUnique(item.id, to: &session.completedQueueItemIds)
 
         if result == .correct {
-            appendUnique(pointId, to: &session.masteredThisRoundPointIds)
-            session.reinforcementQueue.removeAll { $0 == pointId }
-            removeFutureReinforcement(for: pointId, session: &session)
+            appendUnique(item.questionId, to: &session.correctQuestionIds)
+            session.needsReviewQuestionIds.removeAll { $0 == item.questionId }
+            session.reinforcementQueue.removeAll { $0 == item.questionId }
+            removeFutureReinforcement(forQuestionId: item.questionId, session: &session)
         } else {
-            session.masteredThisRoundPointIds.removeAll { $0 == pointId }
-            scheduleReinforcement(for: pointId, currentQuestionId: item.questionId, chapter: chapter, session: &session)
+            scheduleReinforcement(for: item, chapter: chapter, session: &session)
         }
+        recalculateRoundMastery(chapter: chapter, session: &session)
 
         if let nextIndex = nextAvailableQueueIndex(in: chapter, session: session, startIndex: session.currentQueueIndex + 1) {
             session.currentQueueIndex = nextIndex
@@ -1798,13 +1789,20 @@ final class MockReviewService: ReviewServicing {
                     index == session.currentQueueIndex || item.questionId != questionId
                 }
                 .map(\.element)
-            session.reinforcementQueue.removeAll { $0 == question.knowledgePointId }
+            session.completedQueueItemIds.removeAll { id in
+                guard let item = session.queue.first(where: { $0.id == id }) else { return true }
+                return item.questionId == questionId
+            }
+            session.correctQuestionIds.removeAll { $0 == questionId }
+            session.needsReviewQuestionIds.removeAll { $0 == questionId }
+            session.reinforcementQueue.removeAll { $0 == questionId }
             if pickQuestion(for: question.knowledgePointId, in: chapter) == nil {
                 appendUnique(question.knowledgePointId, to: &session.skippedPointIds)
                 session.answeredPointIds.removeAll { $0 == question.knowledgePointId }
                 session.masteredThisRoundPointIds.removeAll { $0 == question.knowledgePointId }
                 actionTaken = "skipped_for_session"
             }
+            recalculateRoundMastery(chapter: chapter, session: &session)
         } else {
             appendUnique(questionId, to: &chapter.downgradedQuestionIds)
         }
@@ -1835,12 +1833,23 @@ final class MockReviewService: ReviewServicing {
         return isReinforcement ? -15 : -20
     }
 
-    private func scheduleReinforcement(for pointId: String, currentQuestionId: String, chapter: Chapter, session: inout ReviewSession) {
-        appendUnique(pointId, to: &session.reinforcementQueue)
-        removeFutureReinforcement(for: pointId, session: &session)
-        guard let question = pickQuestion(for: pointId, in: chapter, excluding: currentQuestionId) else { return }
-        let item = ReviewQueueItem(id: "reinforce-\(UUID().uuidString)", pointId: pointId, questionId: question.id, isReinforcement: true)
-        let index = reinforcementInsertIndex(for: pointId, chapter: chapter, session: session)
+    private func scheduleReinforcement(for answeredItem: ReviewQueueItem, chapter: Chapter, session: inout ReviewSession) {
+        removeFutureReinforcement(forQuestionId: answeredItem.questionId, session: &session)
+        let nextAttempt = (answeredItem.reinforcementAttempt ?? 0) + 1
+        guard nextAttempt <= maxReinforcementsPerQuestion else {
+            appendUnique(answeredItem.questionId, to: &session.needsReviewQuestionIds)
+            session.reinforcementQueue.removeAll { $0 == answeredItem.questionId }
+            return
+        }
+        appendUnique(answeredItem.questionId, to: &session.reinforcementQueue)
+        let item = ReviewQueueItem(
+            id: "reinforce-\(UUID().uuidString)",
+            pointId: answeredItem.pointId,
+            questionId: answeredItem.questionId,
+            isReinforcement: true,
+            reinforcementAttempt: nextAttempt
+        )
+        let index = reinforcementInsertIndex(for: answeredItem.pointId, chapter: chapter, session: session)
         session.queue.insert(item, at: index)
     }
 
@@ -1860,9 +1869,9 @@ final class MockReviewService: ReviewServicing {
         return session.queue.count
     }
 
-    private func removeFutureReinforcement(for pointId: String, session: inout ReviewSession) {
+    private func removeFutureReinforcement(forQuestionId questionId: String, session: inout ReviewSession) {
         session.queue = session.queue.enumerated().filter { index, item in
-            index <= session.currentQueueIndex || !(item.isReinforcement && item.pointId == pointId)
+            index <= session.currentQueueIndex || !(item.isReinforcement && item.questionId == questionId)
         }.map(\.element)
     }
 
@@ -1879,6 +1888,7 @@ final class MockReviewService: ReviewServicing {
     private func isQueueItemAvailable(_ item: ReviewQueueItem, in chapter: Chapter, session: ReviewSession) -> Bool {
         !session.skippedPointIds.contains(item.pointId)
             && !chapter.removedQuestionIds.contains(item.questionId)
+            && !session.completedQueueItemIds.contains(item.id)
             && chapter.questions.contains { $0.id == item.questionId }
     }
 
@@ -1898,25 +1908,115 @@ final class MockReviewService: ReviewServicing {
     }
 
     private func isComplete(chapter: Chapter, session: ReviewSession) -> Bool {
-        let required = chapter.knowledgePoints.map(\.id).filter { !session.skippedPointIds.contains($0) }
-        return required.allSatisfy { session.answeredPointIds.contains($0) }
-            && required.allSatisfy { session.masteredThisRoundPointIds.contains($0) }
-            && session.reinforcementQueue.isEmpty
+        let required = requiredQueueItems(chapter: chapter, session: session)
+        return !required.isEmpty && required.allSatisfy { session.completedQueueItemIds.contains($0.id) }
     }
 
     private func currentMasteredCount(chapter: Chapter, session: ReviewSession) -> Int {
-        chapter.knowledgePoints.map(\.id).filter { session.masteredThisRoundPointIds.contains($0) }.count
+        var session = session
+        recalculateRoundMastery(chapter: chapter, session: &session)
+        return session.masteredThisRoundPointIds.count
     }
 
     private func updateLifetimeMasteredPoints(for chapter: inout Chapter, session: ReviewSession) {
         let currentCount = currentMasteredCount(chapter: chapter, session: session)
-        let completedCount = session.status == .completed
-            ? chapter.knowledgePoints.map(\.id).filter { !session.skippedPointIds.contains($0) }.count
-            : 0
         chapter.masteredPoints = min(
             chapter.knowledgePoints.count,
-            max(chapter.masteredPoints, currentCount, completedCount)
+            max(chapter.masteredPoints, currentCount)
         )
+    }
+
+    private func requiredQueueItems(chapter: Chapter, session: ReviewSession) -> [ReviewQueueItem] {
+        session.queue.filter { item in
+            !session.skippedPointIds.contains(item.pointId)
+                && !chapter.removedQuestionIds.contains(item.questionId)
+                && chapter.questions.contains { $0.id == item.questionId }
+        }
+    }
+
+    private func recalculateRoundMastery(chapter: Chapter, session: inout ReviewSession) {
+        let mainItemsByPoint = Dictionary(grouping: session.queue.filter { item in
+            !item.isReinforcement
+                && !session.skippedPointIds.contains(item.pointId)
+                && !chapter.removedQuestionIds.contains(item.questionId)
+                && chapter.questions.contains { $0.id == item.questionId }
+        }, by: \.pointId)
+        session.masteredThisRoundPointIds = mainItemsByPoint.compactMap { pointId, items in
+            items.allSatisfy { session.correctQuestionIds.contains($0.questionId) } ? pointId : nil
+        }
+    }
+
+    private func migrateSessionIfNeeded(_ session: ReviewSession, chapter: Chapter) -> ReviewSession {
+        var migrated = session
+        if migrated.schemaVersion < schemaVersion {
+            migrated.schemaVersion = schemaVersion
+            migrated.queue = buildQueue(for: chapter)
+            migrated.reinforcementQueue = []
+            migrated.completedQueueItemIds = []
+            migrated.correctQuestionIds = []
+            migrated.needsReviewQuestionIds = []
+            for attempt in migrated.attempts where !attempt.invalidatedByFeedback && attempt.result == .correct {
+                appendUnique(attempt.questionId, to: &migrated.correctQuestionIds)
+            }
+            for item in migrated.queue where migrated.correctQuestionIds.contains(item.questionId) {
+                appendUnique(item.id, to: &migrated.completedQueueItemIds)
+            }
+        } else {
+            let queuedQuestionIds = Set(migrated.queue.filter { !$0.isReinforcement }.map(\.questionId))
+            for question in reviewableQuestions(in: chapter) where !queuedQuestionIds.contains(question.id) {
+                migrated.queue.append(ReviewQueueItem(
+                    id: "queue-\(UUID().uuidString)",
+                    pointId: question.knowledgePointId,
+                    questionId: question.id,
+                    isReinforcement: false,
+                    reinforcementAttempt: 0
+                ))
+            }
+        }
+        recalculateRoundMastery(chapter: chapter, session: &migrated)
+        if let nextIndex = nextAvailableQueueIndex(in: chapter, session: migrated, startIndex: 0) {
+            migrated.currentQueueIndex = nextIndex
+        }
+        return migrated
+    }
+
+    private func buildQueue(for chapter: Chapter) -> [ReviewQueueItem] {
+        reviewableQuestions(in: chapter).map { question in
+            ReviewQueueItem(
+                id: "queue-\(UUID().uuidString)",
+                pointId: question.knowledgePointId,
+                questionId: question.id,
+                isReinforcement: false,
+                reinforcementAttempt: 0
+            )
+        }
+    }
+
+    private func reviewableQuestions(in chapter: Chapter) -> [ReviewQuestion] {
+        let orderedPointIds = chapter.knowledgePoints.sorted { lhs, rhs in
+            if (lhs.sourceOrder ?? Int.max) != (rhs.sourceOrder ?? Int.max) {
+                return (lhs.sourceOrder ?? Int.max) < (rhs.sourceOrder ?? Int.max)
+            }
+            if (lhs.sourceStartOffset ?? Int.max) != (rhs.sourceStartOffset ?? Int.max) {
+                return (lhs.sourceStartOffset ?? Int.max) < (rhs.sourceStartOffset ?? Int.max)
+            }
+            return lhs.id < rhs.id
+        }
+        let pointOrder = Dictionary(uniqueKeysWithValues: orderedPointIds.enumerated().map { ($0.element.id, $0.offset) })
+        return chapter.questions
+            .filter { !chapter.removedQuestionIds.contains($0.id) }
+            .sorted { lhs, rhs in
+                let lhsPointOrder = pointOrder[lhs.knowledgePointId] ?? Int.max
+                let rhsPointOrder = pointOrder[rhs.knowledgePointId] ?? Int.max
+                if lhsPointOrder != rhsPointOrder { return lhsPointOrder < rhsPointOrder }
+                if (lhs.sourceOrder ?? Int.max) != (rhs.sourceOrder ?? Int.max) {
+                    return (lhs.sourceOrder ?? Int.max) < (rhs.sourceOrder ?? Int.max)
+                }
+                if (lhs.sourceStartOffset ?? Int.max) != (rhs.sourceStartOffset ?? Int.max) {
+                    return (lhs.sourceStartOffset ?? Int.max) < (rhs.sourceStartOffset ?? Int.max)
+                }
+                return lhs.id < rhs.id
+            }
     }
 }
 

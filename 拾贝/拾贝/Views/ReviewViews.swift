@@ -289,19 +289,24 @@ private struct ReviewProgressSnapshot {
 
     init(chapter: Chapter, session: ReviewSession) {
         let reviewableQuestionIds = Set(chapter.reviewableQuestions.map(\.id))
-        let queuePointIds = Set(session.queue.compactMap { item -> String? in
+        let queueItemIds = Set(session.queue.compactMap { item -> String? in
             guard !session.skippedPointIds.contains(item.pointId),
                   reviewableQuestionIds.contains(item.questionId) else {
                 return nil
             }
-            return item.pointId
+            return item.id
         })
-        let fallbackPointIds = Set(chapter.reviewableQuestions.map(\.knowledgePointId))
-            .subtracting(session.skippedPointIds)
-        let requiredPointIds = queuePointIds.isEmpty ? fallbackPointIds : queuePointIds
+        let completedItemIds = Set(session.completedQueueItemIds)
 
-        total = max(1, requiredPointIds.count)
-        completed = requiredPointIds.filter { session.masteredThisRoundPointIds.contains($0) }.count
+        if !queueItemIds.isEmpty {
+            total = max(1, queueItemIds.count)
+            completed = queueItemIds.filter { completedItemIds.contains($0) }.count
+        } else {
+            let fallbackPointIds = Set(chapter.reviewableQuestions.map(\.knowledgePointId))
+                .subtracting(session.skippedPointIds)
+            total = max(1, fallbackPointIds.count)
+            completed = fallbackPointIds.filter { session.masteredThisRoundPointIds.contains($0) }.count
+        }
     }
 }
 

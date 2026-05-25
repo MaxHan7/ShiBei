@@ -54,6 +54,8 @@ const memoryByDeviceId = new Map();
 const generationRuns = new Map();
 const INITIAL_MASTERY_SCORE = 50;
 const REINFORCEMENT_GAP = 3;
+const REVIEW_SESSION_SCHEMA_VERSION = 2;
+const MAX_REINFORCEMENTS_PER_QUESTION = 2;
 const GENERATION_JOB_TIMEOUT_MS = readPositiveInt(process.env.GENERATION_JOB_TIMEOUT_MS, 360_000);
 const PENDING_PUSH_REPLAY_WINDOW_MS = readPositiveInt(process.env.PENDING_PUSH_REPLAY_WINDOW_MS, 30 * 60 * 1000);
 
@@ -1205,6 +1207,7 @@ async function sendPendingStoredPushNotifications(deviceId) {
 function normalizeReviewSession(session = {}, chapter = {}) {
   const now = new Date().toISOString();
   const normalized = {
+    schemaVersion: toIntegerValue(session.schemaVersion ?? session.schema_version, 1),
     id: toStringValue(session.id || createId("session")),
     chapterId: toStringValue(session.chapterId || chapter.id || ""),
     status: normalizeReviewSessionStatus(session.status),
@@ -1215,6 +1218,9 @@ function normalizeReviewSession(session = {}, chapter = {}) {
     masteryByPointId: normalizeMasteryByPointId(session.masteryByPointId),
     answeredPointIds: Array.isArray(session.answeredPointIds) ? session.answeredPointIds.map((id) => toStringValue(id)).filter(Boolean) : [],
     masteredThisRoundPointIds: Array.isArray(session.masteredThisRoundPointIds) ? session.masteredThisRoundPointIds.map((id) => toStringValue(id)).filter(Boolean) : [],
+    completedQueueItemIds: Array.isArray(session.completedQueueItemIds) ? session.completedQueueItemIds.map((id) => toStringValue(id)).filter(Boolean) : [],
+    correctQuestionIds: Array.isArray(session.correctQuestionIds) ? session.correctQuestionIds.map((id) => toStringValue(id)).filter(Boolean) : [],
+    needsReviewQuestionIds: Array.isArray(session.needsReviewQuestionIds) ? session.needsReviewQuestionIds.map((id) => toStringValue(id)).filter(Boolean) : [],
     skippedPointIds: Array.isArray(session.skippedPointIds) ? session.skippedPointIds.map((id) => toStringValue(id)).filter(Boolean) : [],
     createdAt: toStringValue(session.createdAt || now),
     updatedAt: toStringValue(session.updatedAt || now),
@@ -1238,7 +1244,8 @@ function normalizeReviewQueue(queue) {
     id: toStringValue(item?.id || `queue-${index + 1}`),
     pointId: toStringValue(item?.pointId || item?.point_id || ""),
     questionId: toStringValue(item?.questionId || item?.question_id || ""),
-    isReinforcement: Boolean(item?.isReinforcement || item?.is_reinforcement)
+    isReinforcement: Boolean(item?.isReinforcement || item?.is_reinforcement),
+    reinforcementAttempt: toIntegerValue(item?.reinforcementAttempt ?? item?.reinforcement_attempt, 0)
   }));
 }
 
@@ -1257,6 +1264,7 @@ function normalizeReviewAttempt(attempt = {}) {
     chapterId: toStringValue(attempt.chapterId || attempt.chapter_id || ""),
     knowledgePointId: toStringValue(attempt.knowledgePointId || attempt.knowledge_point_id || ""),
     questionId: toStringValue(attempt.questionId || attempt.question_id || ""),
+    queueItemId: toStringValue(attempt.queueItemId || attempt.queue_item_id || ""),
     answer: toStringValue(attempt.answer || ""),
     result: attempt.result || "unknown",
     isReinforcement: Boolean(attempt.isReinforcement || attempt.is_reinforcement),
@@ -1270,30 +1278,24 @@ function normalizeReviewAttempt(attempt = {}) {
 
 function createReviewSessionForChapter(chapter) {
   const masteryByPointId = {};
-  const queue = [];
-  for (const point of [...(chapter.knowledgePoints || [])].sort(compareNormalizedSourceOrder)) {
+  for (const point of chapter.knowledgePoints || []) {
     masteryByPointId[point.id] = point.masteryScore ?? INITIAL_MASTERY_SCORE;
-    const question = pickQuestionForPoint(chapter, point.id);
-    if (question) {
-      queue.push({
-        id: createId("queue"),
-        pointId: point.id,
-        questionId: question.id,
-        isReinforcement: false
-      });
-    }
   }
   return normalizeReviewSession({
+    schemaVersion: REVIEW_SESSION_SCHEMA_VERSION,
     id: createId("session"),
     chapterId: chapter.id,
     status: "active",
-    queue,
+    queue: buildReviewQueueForChapter(chapter),
     reinforcementQueue: [],
     currentQueueIndex: 0,
     attempts: [],
     masteryByPointId,
     answeredPointIds: [],
     masteredThisRoundPointIds: [],
+    completedQueueItemIds: [],
+    correctQuestionIds: [],
+    needsReviewQuestionIds: [],
     skippedPointIds: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -1301,18 +1303,96 @@ function createReviewSessionForChapter(chapter) {
   }, chapter);
 }
 
+function buildReviewQueueForChapter(chapter) {
+  return reviewableQuestionsForChapter(chapter).map((question) => ({
+    id: createId("queue"),
+    pointId: question.knowledgePointId,
+    questionId: question.id,
+    isReinforcement: false,
+    reinforcementAttempt: 0
+  }));
+}
+
+function reviewableQuestionsForChapter(chapter) {
+  const removed = new Set(chapter.removedQuestionIds || []);
+  const pointOrder = new Map(
+    [...(chapter.knowledgePoints || [])]
+      .sort(compareNormalizedSourceOrder)
+      .map((point, index) => [point.id, index])
+  );
+  return [...(chapter.questions || [])]
+    .filter((question) => question?.id && question.knowledgePointId && !removed.has(question.id))
+    .sort((a, b) => {
+      const aPoint = pointOrder.has(a.knowledgePointId) ? pointOrder.get(a.knowledgePointId) : Number.MAX_SAFE_INTEGER;
+      const bPoint = pointOrder.has(b.knowledgePointId) ? pointOrder.get(b.knowledgePointId) : Number.MAX_SAFE_INTEGER;
+      if (aPoint !== bPoint) return aPoint - bPoint;
+      return compareNormalizedSourceOrder(a, b);
+    });
+}
+
 function startOrResumeReviewSession(chapter) {
   const existingSession = chapter.reviewSession
     ? normalizeReviewSession(chapter.reviewSession, chapter)
     : null;
   if (existingSession?.status === "active") {
-    chapter.reviewSession = existingSession;
+    chapter.reviewSession = migrateReviewSessionIfNeeded(chapter, existingSession);
   } else {
     chapter.reviewSession = createReviewSessionForChapter(chapter);
   }
+  recalculateRoundMastery(chapter, chapter.reviewSession);
   updateChapterMasteredPoints(chapter, chapter.reviewSession);
   chapter.updatedAt = new Date().toISOString();
   return chapter.reviewSession;
+}
+
+function migrateReviewSessionIfNeeded(chapter, session) {
+  if (session.schemaVersion >= REVIEW_SESSION_SCHEMA_VERSION) {
+    ensureReviewQueueCoversAllQuestions(chapter, session);
+    return session;
+  }
+
+  const migrated = normalizeReviewSession({
+    ...session,
+    schemaVersion: REVIEW_SESSION_SCHEMA_VERSION,
+    queue: buildReviewQueueForChapter(chapter),
+    reinforcementQueue: [],
+    completedQueueItemIds: [],
+    correctQuestionIds: [],
+    needsReviewQuestionIds: []
+  }, chapter);
+
+  for (const attempt of migrated.attempts.filter((item) => !item.invalidatedByFeedback)) {
+    if (attempt.result === "correct") addUnique(migrated.correctQuestionIds, attempt.questionId);
+  }
+  for (const legacyItem of session.queue || []) {
+    if (session.masteredThisRoundPointIds?.includes(legacyItem.pointId)) {
+      addUnique(migrated.correctQuestionIds, legacyItem.questionId);
+    }
+  }
+  for (const item of migrated.queue) {
+    if (migrated.correctQuestionIds.includes(item.questionId)) addUnique(migrated.completedQueueItemIds, item.id);
+  }
+  const nextIndex = nextAvailableQueueIndex(chapter, migrated, 0);
+  migrated.currentQueueIndex = nextIndex >= 0 ? nextIndex : Math.max(0, migrated.queue.length - 1);
+  return migrated;
+}
+
+function ensureReviewQueueCoversAllQuestions(chapter, session) {
+  const queuedMainQuestionIds = new Set(
+    session.queue
+      .filter((item) => !item.isReinforcement)
+      .map((item) => item.questionId)
+  );
+  for (const question of reviewableQuestionsForChapter(chapter)) {
+    if (queuedMainQuestionIds.has(question.id)) continue;
+    session.queue.push({
+      id: createId("queue"),
+      pointId: question.knowledgePointId,
+      questionId: question.id,
+      isReinforcement: false,
+      reinforcementAttempt: 0
+    });
+  }
 }
 
 function currentQueueItem(session) {
@@ -1339,13 +1419,17 @@ function pickQuestionForPoint(chapter, pointId, excludeQuestionId = "") {
 
 function recordSessionAttempt(chapter, body = {}) {
   const session = startOrResumeReviewSession(chapter);
-  const item = body.questionId
-    ? session.queue.find((queueItem) => queueItem.questionId === body.questionId) || currentQueueItem(session)
-    : currentQueueItem(session);
-  const question = body.questionId ? questionById(chapter, body.questionId) : currentQuestionForSession(chapter, session);
+  const item = queueItemForAttempt(session, body);
+  const submittedQuestionId = toStringValue(body.questionId || body.question_id || "");
+  const question = item ? questionById(chapter, item.questionId) : (submittedQuestionId ? questionById(chapter, submittedQuestionId) : currentQuestionForSession(chapter, session));
   if (!item || !question) {
     const error = new Error("当前复习队列没有可作答题目。");
     error.statusCode = 422;
+    throw error;
+  }
+  if (submittedQuestionId && item.questionId !== submittedQuestionId) {
+    const error = new Error("答题队列项和题目不匹配，请刷新后重试。");
+    error.statusCode = 409;
     throw error;
   }
   const pointId = item.pointId || question.knowledgePointId;
@@ -1359,6 +1443,7 @@ function recordSessionAttempt(chapter, body = {}) {
     chapterId: chapter.id,
     knowledgePointId: pointId,
     questionId: question.id,
+    queueItemId: item.id,
     answer: body.answer || body.selectedOptionId || "",
     result,
     isReinforcement,
@@ -1370,14 +1455,16 @@ function recordSessionAttempt(chapter, body = {}) {
   session.attempts.push(attempt);
   session.masteryByPointId[pointId] = scoreAfter;
   addUnique(session.answeredPointIds, pointId);
+  addUnique(session.completedQueueItemIds, item.id);
   if (result === "correct") {
-    addUnique(session.masteredThisRoundPointIds, pointId);
-    session.reinforcementQueue = session.reinforcementQueue.filter((id) => id !== pointId);
-    removeFutureReinforcementForPoint(chapter, session, pointId);
+    addUnique(session.correctQuestionIds, question.id);
+    session.needsReviewQuestionIds = session.needsReviewQuestionIds.filter((id) => id !== question.id);
+    session.reinforcementQueue = session.reinforcementQueue.filter((id) => id !== question.id);
+    removeFutureReinforcementForQuestion(session, question.id);
   } else {
-    session.masteredThisRoundPointIds = session.masteredThisRoundPointIds.filter((id) => id !== pointId);
-    scheduleReinforcement(chapter, session, pointId, question.id);
+    scheduleReinforcement(chapter, session, item);
   }
+  recalculateRoundMastery(chapter, session);
 
   const nextIndex = nextAvailableQueueIndex(chapter, session, session.currentQueueIndex + 1);
   session.currentQueueIndex = nextIndex >= 0 ? nextIndex : session.currentQueueIndex;
@@ -1391,6 +1478,19 @@ function recordSessionAttempt(chapter, body = {}) {
   return { attempt, session, question: currentQuestionForSession(chapter, session) };
 }
 
+function queueItemForAttempt(session, body = {}) {
+  const queueItemId = toStringValue(body.queueItemId || body.queue_item_id || "");
+  const questionId = toStringValue(body.questionId || body.question_id || "");
+  if (queueItemId) {
+    return session.queue.find((item) => item.id === queueItemId) || null;
+  }
+  const current = currentQueueItem(session);
+  if (!questionId || current?.questionId === questionId) return current;
+  return session.queue.find((item) => item.questionId === questionId && !session.completedQueueItemIds.includes(item.id))
+    || session.queue.find((item) => item.questionId === questionId)
+    || current;
+}
+
 function normalizeAttemptResult(result) {
   if (result === "wrong" || result === "incorrect") return "incorrect";
   if (result === "correct") return "correct";
@@ -1402,18 +1502,24 @@ function scoreDelta(result, isReinforcement) {
   return isReinforcement ? -15 : -20;
 }
 
-function scheduleReinforcement(chapter, session, pointId, currentQuestionId) {
-  addUnique(session.reinforcementQueue, pointId);
-  removeFutureReinforcementForPoint(chapter, session, pointId);
-  const question = pickQuestionForPoint(chapter, pointId, currentQuestionId);
-  if (!question) return;
+function scheduleReinforcement(chapter, session, answeredItem) {
+  const questionId = answeredItem.questionId;
+  removeFutureReinforcementForQuestion(session, questionId);
+  const nextReinforcementAttempt = toIntegerValue(answeredItem.reinforcementAttempt, 0) + 1;
+  if (nextReinforcementAttempt > MAX_REINFORCEMENTS_PER_QUESTION) {
+    addUnique(session.needsReviewQuestionIds, questionId);
+    session.reinforcementQueue = session.reinforcementQueue.filter((id) => id !== questionId);
+    return;
+  }
+  addUnique(session.reinforcementQueue, questionId);
   const item = {
     id: createId("reinforce"),
-    pointId,
-    questionId: question.id,
-    isReinforcement: true
+    pointId: answeredItem.pointId,
+    questionId,
+    isReinforcement: true,
+    reinforcementAttempt: nextReinforcementAttempt
   };
-  session.queue.splice(reinforcementInsertIndex(chapter, session, pointId), 0, item);
+  session.queue.splice(reinforcementInsertIndex(chapter, session, answeredItem.pointId), 0, item);
 }
 
 function reinforcementInsertIndex(chapter, session, pointId) {
@@ -1427,31 +1533,17 @@ function reinforcementInsertIndex(chapter, session, pointId) {
   return session.queue.length;
 }
 
-function removeFutureReinforcementForPoint(chapter, session, pointId) {
+function removeFutureReinforcementForQuestion(session, questionId) {
   session.queue = session.queue.filter((item, index) => {
     if (index <= session.currentQueueIndex) return true;
-    return !(item.isReinforcement && item.pointId === pointId);
+    return !(item.isReinforcement && item.questionId === questionId);
   });
 }
 
 function nextAvailableQueueIndex(chapter, session, startIndex) {
   for (let index = startIndex; index < session.queue.length; index += 1) {
-    if (isQueueItemAvailable(chapter, session, session.queue[index])) return index;
-  }
-  const pendingPointId = session.reinforcementQueue.find((pointId) => !session.masteredThisRoundPointIds.includes(pointId));
-  if (pendingPointId) {
-    const question = pickQuestionForPoint(chapter, pendingPointId);
-    if (question) {
-      session.queue.push({
-        id: createId("reinforce-tail"),
-        pointId: pendingPointId,
-        questionId: question.id,
-        isReinforcement: true
-      });
-      return session.queue.length - 1;
-    }
-    addUnique(session.skippedPointIds, pendingPointId);
-    session.reinforcementQueue = session.reinforcementQueue.filter((id) => id !== pendingPointId);
+    if (!session.completedQueueItemIds.includes(session.queue[index].id)
+      && isQueueItemAvailable(chapter, session, session.queue[index])) return index;
   }
   return -1;
 }
@@ -1461,33 +1553,46 @@ function isQueueItemAvailable(chapter, session, item) {
   return Boolean(questionById(chapter, item.questionId) && !(chapter.removedQuestionIds || []).includes(item.questionId));
 }
 
-function requiredPointIdsForSession(chapter, session) {
-  const skipped = new Set(session.skippedPointIds || []);
-  return (chapter.knowledgePoints || []).map((point) => point.id).filter((pointId) => !skipped.has(pointId));
+function requiredQueueItemsForSession(chapter, session) {
+  return (session.queue || []).filter((item) => isQueueItemAvailable(chapter, session, item));
 }
 
 function isSessionComplete(chapter, session) {
-  const required = requiredPointIdsForSession(chapter, session);
-  return required.every((pointId) => session.answeredPointIds.includes(pointId))
-    && required.every((pointId) => session.masteredThisRoundPointIds.includes(pointId))
-    && session.reinforcementQueue.length === 0;
+  const required = requiredQueueItemsForSession(chapter, session);
+  return required.length > 0 && required.every((item) => session.completedQueueItemIds.includes(item.id));
 }
 
 function currentMasteredCount(chapter, session) {
-  return requiredPointIdsForSession(chapter, session).filter((pointId) => session.masteredThisRoundPointIds.includes(pointId)).length;
+  recalculateRoundMastery(chapter, session);
+  return session.masteredThisRoundPointIds.length;
 }
 
 function updateChapterMasteredPoints(chapter, session) {
   if (!session) return;
   const totalPointCount = Array.isArray(chapter.knowledgePoints) ? chapter.knowledgePoints.length : 0;
   const currentCount = currentMasteredCount(chapter, session);
-  const completedCount = session.status === "completed" ? requiredPointIdsForSession(chapter, session).length : 0;
   const lifetimeCount = Math.max(
     toIntegerValue(chapter.masteredPoints, 0),
-    currentCount,
-    completedCount
+    currentCount
   );
   chapter.masteredPoints = Math.min(totalPointCount, lifetimeCount);
+}
+
+function recalculateRoundMastery(chapter, session) {
+  const removed = new Set(chapter.removedQuestionIds || []);
+  const mainQuestionsByPoint = new Map();
+  for (const item of session.queue || []) {
+    if (item.isReinforcement || session.skippedPointIds.includes(item.pointId) || removed.has(item.questionId)) continue;
+    if (!questionById(chapter, item.questionId)) continue;
+    if (!mainQuestionsByPoint.has(item.pointId)) mainQuestionsByPoint.set(item.pointId, []);
+    mainQuestionsByPoint.get(item.pointId).push(item.questionId);
+  }
+  session.masteredThisRoundPointIds = [];
+  for (const [pointId, questionIds] of mainQuestionsByPoint.entries()) {
+    if (questionIds.every((id) => session.correctQuestionIds.includes(id))) {
+      session.masteredThisRoundPointIds.push(pointId);
+    }
+  }
 }
 
 async function handleQuestionFeedback(deviceId, questionId, body = {}) {
@@ -1514,13 +1619,20 @@ async function handleQuestionFeedback(deviceId, questionId, body = {}) {
         invalidatedAttemptId = attempt.id;
       }
       session.queue = session.queue.filter((item, index) => index === session.currentQueueIndex || item.questionId !== questionId);
-      session.reinforcementQueue = session.reinforcementQueue.filter((id) => id !== pointId);
+      session.completedQueueItemIds = session.completedQueueItemIds.filter((id) => {
+        const queueItem = session.queue.find((item) => item.id === id);
+        return queueItem && queueItem.questionId !== questionId;
+      });
+      session.correctQuestionIds = session.correctQuestionIds.filter((id) => id !== questionId);
+      session.needsReviewQuestionIds = session.needsReviewQuestionIds.filter((id) => id !== questionId);
+      session.reinforcementQueue = session.reinforcementQueue.filter((id) => id !== questionId);
       if (!pickQuestionForPoint(chapter, pointId)) {
         addUnique(session.skippedPointIds, pointId);
         session.answeredPointIds = session.answeredPointIds.filter((id) => id !== pointId);
         session.masteredThisRoundPointIds = session.masteredThisRoundPointIds.filter((id) => id !== pointId);
         actionTaken = "skipped_for_session";
       }
+      recalculateRoundMastery(chapter, session);
       session.updatedAt = new Date().toISOString();
       chapter.reviewSession = session;
     }
@@ -1894,4 +2006,4 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   startServer();
 }
 
-export { createReviewSessionForChapter, serializeChapterForClient, startOrResumeReviewSession };
+export { createReviewSessionForChapter, recordSessionAttempt, serializeChapterForClient, startOrResumeReviewSession };

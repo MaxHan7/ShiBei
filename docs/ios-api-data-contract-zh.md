@@ -254,11 +254,12 @@ unrelated_to_source
 
 ```json
 {
+  "schemaVersion": 2,
   "id": "session-1",
   "chapterId": "chapter-1",
   "status": "active",
   "queue": [
-    { "id": "queue-1", "pointId": "kp-1", "questionId": "q-1", "isReinforcement": false }
+    { "id": "queue-1", "pointId": "kp-1", "questionId": "q-1", "isReinforcement": false, "reinforcementAttempt": 0 }
   ],
   "reinforcementQueue": [],
   "currentQueueIndex": 0,
@@ -266,6 +267,9 @@ unrelated_to_source
   "masteryByPointId": { "kp-1": 50 },
   "answeredPointIds": [],
   "masteredThisRoundPointIds": [],
+  "completedQueueItemIds": [],
+  "correctQuestionIds": [],
+  "needsReviewQuestionIds": [],
   "skippedPointIds": [],
   "createdAt": "2026-05-16T00:00:00.000Z",
   "updatedAt": "2026-05-16T00:00:00.000Z",
@@ -275,15 +279,18 @@ unrelated_to_source
 
 完成条件：
 
-- 所有未跳过知识点都至少答过一次。
-- 所有未跳过知识点本轮都答对过。
-- `reinforcementQueue` 为空。
+- ReviewSession v2 以题目队列为唯一复习事实来源，而不是以知识点数量推断进度。
+- 所有可用主队列题目都必须进入本轮复习；同一知识点有 1-3 道入池题时，这些题都会进入队列。
+- 所有可用 `queue` 项都进入 `completedQueueItemIds` 后，本轮才完成。
+- 答错或“忘记了”会针对当前 `questionId + queueItemId` 安排强化题；同一题本轮最多强化 2 次，仍未答对则进入 `needsReviewQuestionIds`，但不阻塞本轮结束。
+- `masteredThisRoundPointIds` 由题目结果聚合：一个知识点的主队列题目都答对后，才计入本轮掌握。
 
 队列顺序：
 
-- 首次创建 ReviewSession 时，默认按 `sourceOrder` 创建题目队列。
+- 首次创建 ReviewSession 时，后端按原文知识点顺序创建题目队列，同一知识点内按题型/生成顺序稳定排列。
 - 答错或“不知道”后的强化题仍按章节内强化规则插入，例如间隔 3 题后再次出现。
 - 恢复未完成 ReviewSession 时保持原队列，不因为章节重新排序而打断用户进度。
+- 旧版 active session 会在下一次开始/恢复时迁移到 `schemaVersion: 2`，保留已答对题目的完成事实。
 
 ### ReviewAttempt
 
@@ -294,6 +301,7 @@ unrelated_to_source
   "chapterId": "chapter-1",
   "knowledgePointId": "kp-1",
   "questionId": "q-1",
+  "queueItemId": "queue-1",
   "answer": "B",
   "result": "correct",
   "isReinforcement": false,
@@ -583,11 +591,14 @@ POST /api/review-sessions/:id/attempts
 
 ```json
 {
+  "queueItemId": "queue-1",
   "questionId": "q-1",
   "answer": "B",
   "result": "correct"
 }
 ```
+
+`queueItemId` 是 v2 客户端应提交的队列项 ID；`questionId` 继续保留用于兼容旧客户端和诊断。
 
 `result` 可为：`correct`、`incorrect`、`unknown`。
 

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { serializeChapterForClient, startOrResumeReviewSession } from "../server.js";
+import { recordSessionAttempt, serializeChapterForClient, startOrResumeReviewSession } from "../server.js";
 
 function reviewableChapter(overrides = {}) {
   return {
@@ -101,6 +101,147 @@ test("starts the first review session in source order", () => {
 
   assert.deepEqual(session.queue.map((item) => item.pointId), ["kp-early", "kp-late"]);
   assert.deepEqual(session.queue.map((item) => item.questionId), ["q-early", "q-late"]);
+});
+
+test("starts review sessions with every reviewable question, not one question per point", () => {
+  const chapter = reviewableChapter({
+    knowledgePoints: [
+      { id: "kp-1", masteryScore: 80, sourceOrder: 0 },
+      { id: "kp-2", masteryScore: 65, sourceOrder: 1 }
+    ],
+    questions: [
+      { id: "q-1-a", knowledgePointId: "kp-1", sourceOrder: 0, sourceStartOffset: 10 },
+      { id: "q-1-b", knowledgePointId: "kp-1", sourceOrder: 0, sourceStartOffset: 20 },
+      { id: "q-1-c", knowledgePointId: "kp-1", sourceOrder: 0, sourceStartOffset: 30 },
+      { id: "q-2-a", knowledgePointId: "kp-2", sourceOrder: 1, sourceStartOffset: 40 }
+    ],
+    masteredPoints: 0
+  });
+
+  const session = startOrResumeReviewSession(chapter);
+
+  assert.equal(session.schemaVersion, 2);
+  assert.deepEqual(session.queue.map((item) => item.questionId), ["q-1-a", "q-1-b", "q-1-c", "q-2-a"]);
+});
+
+test("completes when every queued question is answered correctly even if some knowledge points have no question", () => {
+  const chapter = reviewableChapter({
+    knowledgePoints: [
+      { id: "kp-1", masteryScore: 80 },
+      { id: "kp-2", masteryScore: 65 },
+      { id: "kp-no-question", masteryScore: 50 }
+    ],
+    questions: [
+      { id: "q-1", knowledgePointId: "kp-1" },
+      { id: "q-2", knowledgePointId: "kp-2" }
+    ],
+    masteredPoints: 0
+  });
+
+  const session = startOrResumeReviewSession(chapter);
+
+  assert.deepEqual(session.queue.map((item) => item.pointId), ["kp-1", "kp-2"]);
+
+  recordSessionAttempt(chapter, { questionId: "q-1", answer: "A", result: "correct" });
+  const result = recordSessionAttempt(chapter, { questionId: "q-2", answer: "A", result: "correct" });
+
+  assert.equal(result.session.status, "completed");
+  assert.equal(chapter.reviewSession.status, "completed");
+  assert.equal(chapter.masteredPoints, 2);
+});
+
+test("does not complete a point until all of that point's main questions are correct", () => {
+  const chapter = reviewableChapter({
+    knowledgePoints: [{ id: "kp-1", masteryScore: 80 }],
+    questions: [
+      { id: "q-1-a", knowledgePointId: "kp-1", sourceOrder: 0 },
+      { id: "q-1-b", knowledgePointId: "kp-1", sourceOrder: 1 },
+      { id: "q-1-c", knowledgePointId: "kp-1", sourceOrder: 2 }
+    ],
+    masteredPoints: 0
+  });
+
+  let session = startOrResumeReviewSession(chapter);
+  assert.equal(session.queue.length, 3);
+
+  session = recordSessionAttempt(chapter, { queueItemId: session.queue[0].id, questionId: "q-1-a", answer: "A", result: "correct" }).session;
+  assert.deepEqual(session.masteredThisRoundPointIds, []);
+  session = recordSessionAttempt(chapter, { queueItemId: session.queue[1].id, questionId: "q-1-b", answer: "A", result: "correct" }).session;
+  assert.deepEqual(session.masteredThisRoundPointIds, []);
+  session = recordSessionAttempt(chapter, { queueItemId: session.queue[2].id, questionId: "q-1-c", answer: "A", result: "correct" }).session;
+
+  assert.equal(session.status, "completed");
+  assert.deepEqual(session.masteredThisRoundPointIds, ["kp-1"]);
+  assert.equal(chapter.masteredPoints, 1);
+});
+
+test("caps reinforcement for the final question so the session can finish", () => {
+  const chapter = reviewableChapter({
+    knowledgePoints: [{ id: "kp-1", masteryScore: 80 }],
+    questions: [{ id: "q-1", knowledgePointId: "kp-1" }],
+    masteredPoints: 0
+  });
+
+  let session = startOrResumeReviewSession(chapter);
+  session = recordSessionAttempt(chapter, { queueItemId: session.queue[0].id, questionId: "q-1", answer: "B", result: "incorrect" }).session;
+  assert.equal(session.status, "active");
+  assert.equal(session.queue[session.currentQueueIndex].isReinforcement, true);
+
+  session = recordSessionAttempt(chapter, {
+    queueItemId: session.queue[session.currentQueueIndex].id,
+    questionId: "q-1",
+    answer: "B",
+    result: "incorrect"
+  }).session;
+  assert.equal(session.status, "active");
+  assert.equal(session.queue[session.currentQueueIndex].isReinforcement, true);
+
+  session = recordSessionAttempt(chapter, {
+    queueItemId: session.queue[session.currentQueueIndex].id,
+    questionId: "q-1",
+    answer: "B",
+    result: "incorrect"
+  }).session;
+
+  assert.equal(session.status, "completed");
+  assert.deepEqual(session.needsReviewQuestionIds, ["q-1"]);
+});
+
+test("migrates active legacy sessions to question-first queues", () => {
+  const chapter = reviewableChapter({
+    questions: [
+      { id: "q-1-a", knowledgePointId: "kp-1", sourceOrder: 0 },
+      { id: "q-1-b", knowledgePointId: "kp-1", sourceOrder: 1 },
+      { id: "q-2-a", knowledgePointId: "kp-2", sourceOrder: 2 }
+    ],
+    masteredPoints: 0,
+    reviewSession: {
+      id: "session-v1",
+      chapterId: "chapter-test",
+      status: "active",
+      queue: [{ id: "queue-v1", pointId: "kp-1", questionId: "q-1-a", isReinforcement: false }],
+      reinforcementQueue: [],
+      currentQueueIndex: 0,
+      attempts: [
+        { id: "attempt-1", reviewSessionId: "session-v1", chapterId: "chapter-test", knowledgePointId: "kp-1", questionId: "q-1-a", answer: "A", result: "correct" }
+      ],
+      masteryByPointId: { "kp-1": 95, "kp-2": 50 },
+      answeredPointIds: ["kp-1"],
+      masteredThisRoundPointIds: ["kp-1"],
+      skippedPointIds: [],
+      createdAt: "2026-05-18T00:00:00.000Z",
+      updatedAt: "2026-05-18T00:10:00.000Z",
+      completedAt: null
+    }
+  });
+
+  const session = startOrResumeReviewSession(chapter);
+
+  assert.equal(session.id, "session-v1");
+  assert.equal(session.schemaVersion, 2);
+  assert.deepEqual(session.queue.map((item) => item.questionId), ["q-1-a", "q-1-b", "q-2-a"]);
+  assert.equal(session.completedQueueItemIds.length, 1);
+  assert.equal(session.queue[session.currentQueueIndex].questionId, "q-1-b");
 });
 
 test("serializes legacy chapters with an empty core summary", () => {

@@ -12,7 +12,11 @@ struct LocalAPIReviewService {
     }
 
     func submitAttempt(chapter: Chapter, session: ReviewSession, question: ReviewQuestion, answer: String?, result: AttemptResult) async throws -> AttemptResponse {
-        try await apiClient.submitAttempt(sessionId: session.id, questionId: question.id, answer: answer, result: result)
+        let currentItem = session.queue.indices.contains(session.currentQueueIndex)
+            ? session.queue[session.currentQueueIndex]
+            : nil
+        let queueItemId = currentItem?.questionId == question.id ? currentItem?.id : nil
+        return try await apiClient.submitAttempt(sessionId: session.id, queueItemId: queueItemId, questionId: question.id, answer: answer, result: result)
     }
 
     func submitFeedback(questionId: String, type: FeedbackType) async throws -> FeedbackResponse {
