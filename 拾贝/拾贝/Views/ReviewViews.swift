@@ -24,6 +24,9 @@ struct ReviewView: View {
                                 Text(question.stem)
                                     .font(.system(size: 23, weight: .bold))
                                     .lineSpacing(4)
+                                    .multilineTextAlignment(.leading)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .fixedSize(horizontal: false, vertical: true)
                                 VStack(spacing: 12) {
                                     ForEach(question.options) { option in
                                         OptionButton(
@@ -127,6 +130,9 @@ private struct FavoriteReviewContent: View {
                         Text(question.stem)
                             .font(.system(size: 23, weight: .bold))
                             .lineSpacing(4)
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .fixedSize(horizontal: false, vertical: true)
                         VStack(spacing: 12) {
                             ForEach(question.options) { option in
                                 OptionButton(
@@ -323,7 +329,7 @@ private struct OptionButton: View {
                     .background(isCorrect ? ShiBeiTheme.success : .clear)
                     .clipShape(Circle())
                 Text(option.text)
-                    .font(.system(size: 16))
+                    .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(isWrong ? Color(red: 0.545, green: 0.102, blue: 0.071) : ShiBeiTheme.text)
                     .multilineTextAlignment(.leading)
                     .lineSpacing(3)
@@ -377,11 +383,10 @@ struct ExplanationView: View {
                                 } label: {
                                     Label(store.localized("explanation.view_full_source"), systemImage: "link")
                                         .font(.system(size: 15, weight: .semibold))
-                                        .padding(.horizontal, 18)
-                                        .padding(.vertical, 11)
-                                        .background(ShiBeiTheme.primary.opacity(0.1))
-                                        .clipShape(Capsule())
+                                        .frame(minHeight: 44)
+                                        .contentShape(Rectangle())
                                 }
+                                .buttonStyle(.plain)
 
                                 if !store.isFavoriteExplanationActive {
                                     Button(store.localized("explanation.report_problem")) {
@@ -557,10 +562,12 @@ struct SummaryView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             Text(store.localized("chapter.knowledge_points"))
                                 .font(.system(size: 18, weight: .bold))
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             ForEach(Array(chapter.knowledgePoints.prefix(4).enumerated()), id: \.element.id) { index, point in
                                 KnowledgePointRow(index: index, point: point)
                             }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         if let next = store.nextReviewableChapter(after: chapter.id) {
                             PrimaryButton(title: store.localized("summary.next_chapter"), systemImage: "arrow.right") {
                                 Task {

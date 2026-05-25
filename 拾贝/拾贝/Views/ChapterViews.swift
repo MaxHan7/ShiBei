@@ -376,6 +376,9 @@ struct ChapterDetailView: View {
                         Text(chapter.title)
                             .font(.system(size: 25, weight: .bold))
                             .lineSpacing(2)
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .fixedSize(horizontal: false, vertical: true)
                         sourceLines(for: chapter)
                         Text(store.localizedFormat("chapter.counts", chapter.knowledgePoints.count, chapter.questions.count))
                             .foregroundStyle(ShiBeiTheme.muted)
@@ -399,6 +402,7 @@ struct ChapterDetailView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             Text(store.localized("chapter.knowledge_points"))
                                 .font(.system(size: 18, weight: .bold))
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             ForEach(Array(chapter.knowledgePoints.prefix(6).enumerated()), id: \.element.id) { index, point in
                                 KnowledgePointRow(index: index, point: point)
                             }
@@ -412,6 +416,7 @@ struct ChapterDetailView: View {
                             }
                         }
                         .padding(.top, 12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .padding(24)
                     .padding(.bottom, 120)
@@ -536,6 +541,7 @@ struct KnowledgeListView: View {
                             KnowledgePointRow(index: index, point: point, showsSummary: true)
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(24)
                     .padding(.bottom, 120)
                 }
