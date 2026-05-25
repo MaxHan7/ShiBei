@@ -11,16 +11,16 @@ struct ProfileView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     SBCard {
-                        Text("profile.cloud_sync.title")
+                        Text(store.localized("profile.cloud_sync.title"))
                             .font(.system(size: 20, weight: .bold))
-                        Text("profile.cloud_sync.body")
+                        Text(store.localized("profile.cloud_sync.body"))
                             .foregroundStyle(ShiBeiTheme.muted)
                     }
                     SBCard {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("profile.language")
+                            Text(store.localized("profile.language"))
                                 .font(.system(size: 18, weight: .bold))
-                            Text("profile.language.body")
+                            Text(store.localized("profile.language.body"))
                                 .font(.system(size: 13))
                                 .foregroundStyle(ShiBeiTheme.muted)
                             Picker("profile.language", selection: Binding(
@@ -28,7 +28,7 @@ struct ProfileView: View {
                                 set: { store.setAppLanguage($0) }
                             )) {
                                 ForEach(AppLanguage.allCases) { language in
-                                    Text(language.displayName).tag(language)
+                                    Text(language.displayName(in: store.appLanguage)).tag(language)
                                 }
                             }
                             .pickerStyle(.segmented)
@@ -50,9 +50,9 @@ struct ProfileView: View {
                     }
                     SBCard {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("profile.data_management.title")
+                            Text(store.localized("profile.data_management.title"))
                                 .font(.system(size: 18, weight: .bold))
-                            Text("profile.data_management.body")
+                            Text(store.localized("profile.data_management.body"))
                                 .font(.system(size: 13))
                                 .foregroundStyle(ShiBeiTheme.muted)
                         }
@@ -106,9 +106,9 @@ private struct DataSourceCard: View {
         #if DEBUG
         SBCard {
             VStack(alignment: .leading, spacing: 4) {
-                Text("数据源")
+                Text(store.localized("debug.datasource.title"))
                     .font(.system(size: 18, weight: .bold))
-                Text(store.dataMode.subtitle)
+                Text(store.dataMode.subtitle(language: store.appLanguage))
                     .font(.system(size: 13))
                     .foregroundStyle(ShiBeiTheme.muted)
             }
@@ -121,9 +121,9 @@ private struct DataSourceCard: View {
                     .background(ShiBeiTheme.yellowPale)
                     .clipShape(Circle())
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(store.dataMode.title)
+                    Text(store.dataMode.title(language: store.appLanguage))
                         .font(.system(size: 15, weight: .semibold))
-                    Text(store.dataSourceMessage)
+                    Text(store.localizedDataSourceMessage)
                         .font(.system(size: 12))
                         .foregroundStyle(ShiBeiTheme.muted)
                 }
@@ -138,14 +138,14 @@ private struct DataSourceCard: View {
                     .background(ShiBeiTheme.yellowPale)
                     .clipShape(Circle())
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("匿名设备")
+                    Text(store.localized("debug.anonymous_device"))
                         .font(.system(size: 15, weight: .semibold))
-                    Text("ID 尾号 \(store.anonymousDeviceId.suffix(6))")
+                    Text(store.localizedFormat("debug.device_id_suffix", String(store.anonymousDeviceId.suffix(6))))
                         .font(.system(size: 12))
                         .foregroundStyle(ShiBeiTheme.muted)
                 }
                 Spacer()
-                Button("重置") {
+                Button(store.localized("debug.reset")) {
                     store.resetAnonymousDeviceIdentity()
                 }
                 .font(.system(size: 14, weight: .semibold))
@@ -153,7 +153,7 @@ private struct DataSourceCard: View {
             }
 
             HStack(spacing: 10) {
-                SecondaryButton(title: "读取本地 API", systemImage: "arrow.down.circle") {
+                SecondaryButton(title: store.localized("debug.read_local_api"), systemImage: "arrow.down.circle") {
                     Task {
                         await store.loadLocalAPIReadOnly()
                     }
@@ -163,7 +163,7 @@ private struct DataSourceCard: View {
                 Button {
                     store.resetToMockData()
                 } label: {
-                    Label("回到 Mock", systemImage: "arrow.counterclockwise")
+                    Label(store.localized("debug.back_to_mock"), systemImage: "arrow.counterclockwise")
                         .font(.system(size: 16, weight: .medium))
                         .frame(maxWidth: .infinity, minHeight: 56)
                         .foregroundStyle(ShiBeiTheme.textSoft)
@@ -172,7 +172,7 @@ private struct DataSourceCard: View {
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("Railway 云端 API")
+                Text(store.localized("debug.railway_cloud_api"))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(ShiBeiTheme.textSoft)
                 TextField("https://xxx.up.railway.app", text: $cloudURLText)
@@ -190,11 +190,11 @@ private struct DataSourceCard: View {
                     .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
 
                 HStack(spacing: 10) {
-                    SecondaryButton(title: "保存云端地址", systemImage: "checkmark.circle") {
+                    SecondaryButton(title: store.localized("debug.save_cloud_url"), systemImage: "checkmark.circle") {
                         store.saveCloudAPIBaseURL(cloudURLText)
                     }
 
-                    SecondaryButton(title: "读取云端 API", systemImage: "cloud") {
+                    SecondaryButton(title: store.localized("debug.read_cloud_api"), systemImage: "cloud") {
                         store.saveCloudAPIBaseURL(cloudURLText)
                         Task {
                             await store.loadCloudAPIReadOnly()
@@ -220,9 +220,9 @@ private struct MockScenarioCard: View {
         #if DEBUG
         SBCard {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Mock 场景")
+                Text(store.localized("debug.mock_scenarios.title"))
                     .font(.system(size: 18, weight: .bold))
-                Text("用于第一轮 SwiftUI 验收，接后端前可移除。")
+                Text(store.localized("debug.mock_scenarios.body"))
                     .font(.system(size: 13))
                     .foregroundStyle(ShiBeiTheme.muted)
             }
@@ -240,10 +240,10 @@ private struct MockScenarioCard: View {
                                 .background(ShiBeiTheme.yellowPale)
                                 .clipShape(Circle())
                             VStack(alignment: .leading, spacing: 3) {
-                                Text(scenario.title)
+                                Text(scenario.title(language: store.appLanguage))
                                     .font(.system(size: 15, weight: .semibold))
                                     .foregroundStyle(ShiBeiTheme.text)
-                                Text(scenario.subtitle)
+                                Text(scenario.subtitle(language: store.appLanguage))
                                     .font(.system(size: 12))
                                     .foregroundStyle(ShiBeiTheme.muted)
                             }

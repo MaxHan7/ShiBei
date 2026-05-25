@@ -47,7 +47,7 @@ struct ReviewView: View {
                                             }
                                         }
                                     } label: {
-                                        Text("review.forgot")
+                                        Text(store.localized("review.forgot"))
                                             .font(.system(size: 15, weight: .medium))
                                             .foregroundStyle(ShiBeiTheme.muted)
                                             .frame(maxWidth: .infinity, minHeight: 44)
@@ -90,10 +90,10 @@ private struct ReviewTopBar: View {
                     .font(.system(size: 18, weight: .bold))
                     .frame(width: 42, height: 42)
             }
-            .accessibilityLabel("review.close")
+            .accessibilityLabel(store.localized("review.close"))
             Spacer()
             VStack(spacing: 4) {
-                Text("review.in_progress")
+                Text(store.localized("review.in_progress"))
                     .font(.system(size: 20, weight: .bold))
                 Text("\(progress.completed) / \(progress.total)")
                     .font(.system(size: 12, weight: .semibold))
@@ -198,7 +198,7 @@ struct ExplanationView: View {
                                     .frame(width: 76, height: 76)
                                     .background(ShiBeiTheme.yellow)
                                     .clipShape(Circle())
-                                Text("review.correct_answer")
+                                Text(store.localized("review.correct_answer"))
                                     .foregroundStyle(ShiBeiTheme.muted)
                             }
                             ExplanationCard(title: store.localized("explanation.correct_understanding"), systemImage: "asterisk", text: question.correctUnderstanding)
@@ -299,7 +299,7 @@ struct FeedbackSheet: View {
     var body: some View {
         VStack(spacing: 18) {
             if store.latestFeedbackMessage.isEmpty {
-                Text("feedback.title")
+                Text(store.localized("feedback.title"))
                     .font(.system(size: 22, weight: .bold))
                 ForEach(FeedbackType.allCases) { type in
                     Button {
@@ -325,9 +325,9 @@ struct FeedbackSheet: View {
                     .frame(width: 56, height: 56)
                     .background(ShiBeiTheme.yellow)
                     .clipShape(Circle())
-                Text("feedback.received")
+                Text(store.localized("feedback.received"))
                     .font(.system(size: 22, weight: .bold))
-                Text(store.latestFeedbackMessage)
+                Text(store.localizedLatestFeedbackMessage)
                     .foregroundStyle(ShiBeiTheme.muted)
                 PrimaryButton(title: store.localized("home.action.continue_review")) {
                     dismiss()
@@ -354,7 +354,7 @@ struct SummaryView: View {
                                 .frame(width: 56, height: 56)
                                 .background(ShiBeiTheme.yellow)
                                 .clipShape(Circle())
-                            Text("summary.completed")
+                            Text(store.localized("summary.completed"))
                                 .foregroundStyle(ShiBeiTheme.textSoft)
                         }
                         SBCard {
@@ -368,7 +368,7 @@ struct SummaryView: View {
                                     Text("\(chapter.knowledgePoints.count)")
                                         .font(.system(size: 28, weight: .bold))
                                         .foregroundStyle(ShiBeiTheme.primary)
-                                    Text("global.knowledge_points")
+                                    Text(store.localized("global.knowledge_points"))
                                         .foregroundStyle(ShiBeiTheme.muted)
                                 }
                                 Spacer()
@@ -376,14 +376,14 @@ struct SummaryView: View {
                                     Text("\(chapter.questions.count)")
                                         .font(.system(size: 28, weight: .bold))
                                         .foregroundStyle(ShiBeiTheme.primary)
-                                    Text("global.questions")
+                                    Text(store.localized("global.questions"))
                                         .foregroundStyle(ShiBeiTheme.muted)
                                 }
                             }
                         }
                         ArticleCoreCard(chapter: chapter, language: store.appLanguage)
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("chapter.knowledge_points")
+                            Text(store.localized("chapter.knowledge_points"))
                                 .font(.system(size: 18, weight: .bold))
                             ForEach(Array(chapter.knowledgePoints.prefix(4).enumerated()), id: \.element.id) { index, point in
                                 KnowledgePointRow(index: index, point: point)
@@ -417,7 +417,7 @@ struct ArticleCoreCard: View {
     var body: some View {
         SBCard(padding: 20) {
             VStack(alignment: .leading, spacing: 12) {
-                Text("article_core.title")
+                Text(L10n.string("article_core.title", language: language))
                     .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(ShiBeiTheme.text)
                 Text(articleCoreText)

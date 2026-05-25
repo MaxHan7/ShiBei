@@ -9,9 +9,9 @@ struct ChaptersView: View {
                 if store.chapters.isEmpty {
                     VStack(spacing: 10) {
                         Spacer(minLength: 260)
-                        Text("chapters.empty.title")
+                        Text(store.localized("chapters.empty.title"))
                             .font(.system(size: 24, weight: .bold))
-                        Text("home.empty.subtitle")
+                        Text(store.localized("home.empty.subtitle"))
                             .font(.system(size: 15))
                             .foregroundStyle(ShiBeiTheme.muted)
                             .multilineTextAlignment(.center)
@@ -149,7 +149,7 @@ struct NotificationsView: View {
                 if store.visibleNotifications.isEmpty {
                     VStack {
                         Spacer(minLength: 280)
-                        Text("notifications.empty")
+                        Text(store.localized("notifications.empty"))
                             .font(.system(size: 24, weight: .bold))
                     }
                 } else {
@@ -185,7 +185,7 @@ struct NotificationsView: View {
                                         StatusPill(text: notification.title, isDanger: notification.type == .generationFailed)
                                         Spacer()
                                         if notification.read {
-                                            Text("notifications.read")
+                                            Text(store.localized("notifications.read"))
                                                 .font(.system(size: 12, weight: .semibold))
                                                 .foregroundStyle(ShiBeiTheme.muted.opacity(0.72))
                                         }
@@ -261,7 +261,7 @@ struct ChapterDetailView: View {
                         }
 
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("chapter.knowledge_points")
+                            Text(store.localized("chapter.knowledge_points"))
                                 .font(.system(size: 18, weight: .bold))
                             ForEach(Array(chapter.knowledgePoints.prefix(6).enumerated()), id: \.element.id) { index, point in
                                 KnowledgePointRow(index: index, point: point)

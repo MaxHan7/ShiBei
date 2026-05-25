@@ -66,9 +66,9 @@ private struct EmptyHomeContent: View {
     var body: some View {
         VStack(spacing: 10) {
             Spacer()
-            Text("home.empty.title")
+            Text(store.localized("home.empty.title"))
                 .font(.system(size: 24, weight: .bold))
-            Text("home.empty.subtitle")
+            Text(store.localized("home.empty.subtitle"))
                 .font(.system(size: 15))
                 .foregroundStyle(ShiBeiTheme.muted)
                 .multilineTextAlignment(.center)
@@ -124,7 +124,7 @@ private struct HomeChapterContent: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 4) {
-                Text("home.mastered_points")
+                Text(store.localized("home.mastered_points"))
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(ShiBeiTheme.textSoft)
                 Text("\(store.reviewedKnowledgePointCount)")
@@ -190,7 +190,7 @@ struct AddKnowledgeView: View {
         AppScaffold(store: store, title: store.localized("add.title")) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    Text("add.intro")
+                    Text(store.localized("add.intro"))
                         .font(.system(size: 15))
                         .foregroundStyle(ShiBeiTheme.muted)
 
@@ -200,7 +200,7 @@ struct AddKnowledgeView: View {
                                 .frame(width: 34, height: 34)
                                 .background(ShiBeiTheme.yellowPale)
                                 .clipShape(Circle())
-                            Text("add.input_title")
+                            Text(store.localized("add.input_title"))
                                 .font(.system(size: 17, weight: .semibold))
                         }
                         TextEditor(text: $input)
@@ -212,7 +212,7 @@ struct AddKnowledgeView: View {
                             .scrollContentBackground(.hidden)
                             .overlay(alignment: .topLeading) {
                                 if input.isEmpty {
-                                    Text("add.placeholder")
+                                    Text(store.localized("add.placeholder"))
                                         .foregroundStyle(ShiBeiTheme.faint)
                                         .padding(.top, 8)
                                         .padding(.leading, 5)
@@ -254,7 +254,7 @@ struct AddKnowledgeView: View {
                     }
 
                     if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !chapterInput.canSubmit {
-                        Text("add.invalid_input")
+                        Text(store.localized("add.invalid_input"))
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(ShiBeiTheme.error)
                             .frame(maxWidth: .infinity, alignment: .center)
@@ -268,7 +268,7 @@ struct AddKnowledgeView: View {
                     .foregroundStyle(ShiBeiTheme.muted)
                     .frame(maxWidth: .infinity)
 
-                    Text("add.video_podcast_note")
+                    Text(store.localized("add.video_podcast_note"))
                         .font(.system(size: 12))
                         .foregroundStyle(ShiBeiTheme.faint)
                         .frame(maxWidth: .infinity, alignment: .center)

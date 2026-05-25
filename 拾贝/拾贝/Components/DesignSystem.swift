@@ -265,9 +265,9 @@ struct SubmittedToast: View {
                     .frame(width: 56, height: 56)
                     .background(ShiBeiTheme.yellow)
                     .clipShape(Circle())
-                Text("toast.submitted.title")
+                Text(L10n.string("toast.submitted.title", language: language))
                     .font(.system(size: 22, weight: .bold))
-                Text("toast.submitted.body")
+                Text(L10n.string("toast.submitted.body", language: language))
                     .foregroundStyle(ShiBeiTheme.muted)
                 PrimaryButton(title: L10n.string("toast.submitted.action", language: language), action: close)
             }

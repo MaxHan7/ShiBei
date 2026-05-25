@@ -97,6 +97,57 @@ final class AppStore: ObservableObject {
         )
     }
 
+    var localizedDataSourceMessage: String {
+        localizedDataSourceMessage(dataSourceMessage)
+    }
+
+    private func localizedDataSourceMessage(_ message: String) -> String {
+        switch message {
+        case "Mock 数据已就绪":
+            localized("debug.message.mock_ready")
+        case "正在连接拾贝云端":
+            localized("debug.message.connecting_cloud")
+        case "当前使用 Mock 数据生成。":
+            localized("debug.message.using_mock_generation")
+        case "请填写 Railway 云端 API 地址":
+            localized("debug.message.enter_cloud_url")
+        case "Railway 云端地址已保存":
+            localized("debug.message.cloud_url_saved")
+        case "已重置匿名设备身份，请重新读取云端 API。":
+            localized("debug.message.device_reset")
+        case "本机测试数据已删除":
+            localized("debug.message.local_data_deleted")
+        case "你的数据已删除":
+            localized("debug.message.my_data_deleted")
+        case "云端记录已失效，请重新提交内容":
+            localized("debug.message.cloud_record_expired")
+        default:
+            if appLanguage == .zhHans {
+                message
+            } else if message.hasPrefix("已切换到 ") {
+                localized("debug.message.mock_scenario_applied")
+            } else if message.contains("失败") || message.contains("无法") || message.contains("不可用") {
+                localized("debug.message.operation_failed")
+            } else if message.contains("已读取") || message.contains("已刷新") || message.contains("已重新同步") {
+                localized("debug.message.sync_complete")
+            } else if message.contains("正在") {
+                localized("debug.message.working")
+            } else {
+                message
+            }
+        }
+    }
+
+    var localizedLatestFeedbackMessage: String {
+        if latestFeedbackMessage.isEmpty {
+            ""
+        } else if latestFeedbackMessage.contains("移除") {
+            localized("feedback.message.removed")
+        } else {
+            localized("feedback.message.received")
+        }
+    }
+
     deinit {
         notificationObservers.forEach(NotificationCenter.default.removeObserver)
     }
@@ -1140,27 +1191,11 @@ enum MockScenario: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     var title: String {
-        switch self {
-        case .emptyHome: "空首页"
-        case .unreviewedChapter: "未复习章节"
-        case .activeReview: "未完成复习"
-        case .processingChapter: "处理中章节"
-        case .failedChapter: "失败章节"
-        case .successNotification: "成功通知"
-        case .failedNotification: "失败通知"
-        }
+        title(language: .zhHans)
     }
 
     var subtitle: String {
-        switch self {
-        case .emptyHome: "验证新用户空状态和添加入口"
-        case .unreviewedChapter: "首页展示最近可开始章节"
-        case .activeReview: "首页展示继续复习入口"
-        case .processingChapter: "章节详情展示生成中状态"
-        case .failedChapter: "章节详情展示失败处理路径"
-        case .successNotification: "通知页点击进入成功章节"
-        case .failedNotification: "通知页点击进入失败章节"
-        }
+        subtitle(language: .zhHans)
     }
 
     var targetTab: AppTab {
@@ -1196,13 +1231,7 @@ enum AppTab: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     var title: String {
-        switch self {
-        case .home: "首页"
-        case .chapters: "章节"
-        case .add: "添加"
-        case .notifications: "通知"
-        case .profile: "我的"
-        }
+        title(language: .zhHans)
     }
 
     var systemImage: String {

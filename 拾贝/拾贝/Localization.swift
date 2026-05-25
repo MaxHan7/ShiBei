@@ -11,23 +11,22 @@ enum AppLanguage: String, CaseIterable, Codable, Identifiable {
     }
 
     var displayName: String {
+        displayName(in: .zhHans)
+    }
+
+    func displayName(in language: AppLanguage) -> String {
         switch self {
         case .zhHans:
-            "中文"
+            L10n.string("language.zh_hans", language: language)
         case .en:
-            "English"
+            L10n.string("language.en", language: language)
         }
     }
 }
 
 enum L10n {
     static func string(_ key: String, language: AppLanguage) -> String {
-        String(
-            localized: String.LocalizationValue(key),
-            table: "Localizable",
-            bundle: .main,
-            locale: Locale(identifier: language.localeIdentifier)
-        )
+        bundle(for: language).localizedString(forKey: key, value: key, table: "Localizable")
     }
 
     static func format(_ key: String, language: AppLanguage, _ arguments: CVarArg...) -> String {
@@ -37,7 +36,20 @@ enum L10n {
             arguments: arguments
         )
     }
+
+    private static func bundle(for language: AppLanguage) -> Bundle {
+        let candidates = [Bundle.main, Bundle(for: LocalizationBundleMarker.self)] + Bundle.allBundles
+        for candidate in candidates {
+            if let path = candidate.path(forResource: language.localeIdentifier, ofType: "lproj"),
+               let bundle = Bundle(path: path) {
+                return bundle
+            }
+        }
+        return .main
+    }
 }
+
+private final class LocalizationBundleMarker {}
 
 extension AppTab {
     var titleKey: String {
@@ -126,6 +138,46 @@ extension ChapterInput {
             L10n.string("add.input.article", language: language)
         case .videoLink:
             L10n.string("add.input.video", language: language)
+        }
+    }
+}
+
+extension MockScenario {
+    func title(language: AppLanguage) -> String {
+        switch self {
+        case .emptyHome:
+            L10n.string("debug.mock_scenario.empty_home.title", language: language)
+        case .unreviewedChapter:
+            L10n.string("debug.mock_scenario.unreviewed_chapter.title", language: language)
+        case .activeReview:
+            L10n.string("debug.mock_scenario.active_review.title", language: language)
+        case .processingChapter:
+            L10n.string("debug.mock_scenario.processing_chapter.title", language: language)
+        case .failedChapter:
+            L10n.string("debug.mock_scenario.failed_chapter.title", language: language)
+        case .successNotification:
+            L10n.string("debug.mock_scenario.success_notification.title", language: language)
+        case .failedNotification:
+            L10n.string("debug.mock_scenario.failed_notification.title", language: language)
+        }
+    }
+
+    func subtitle(language: AppLanguage) -> String {
+        switch self {
+        case .emptyHome:
+            L10n.string("debug.mock_scenario.empty_home.subtitle", language: language)
+        case .unreviewedChapter:
+            L10n.string("debug.mock_scenario.unreviewed_chapter.subtitle", language: language)
+        case .activeReview:
+            L10n.string("debug.mock_scenario.active_review.subtitle", language: language)
+        case .processingChapter:
+            L10n.string("debug.mock_scenario.processing_chapter.subtitle", language: language)
+        case .failedChapter:
+            L10n.string("debug.mock_scenario.failed_chapter.subtitle", language: language)
+        case .successNotification:
+            L10n.string("debug.mock_scenario.success_notification.subtitle", language: language)
+        case .failedNotification:
+            L10n.string("debug.mock_scenario.failed_notification.subtitle", language: language)
         }
     }
 }

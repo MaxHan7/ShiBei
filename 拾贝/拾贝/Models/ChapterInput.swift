@@ -7,14 +7,7 @@ struct ChapterInput: Equatable {
     var sourceTitle: String?
 
     var displayText: String {
-        switch sourceType {
-        case .text:
-            "将作为粘贴文字生成"
-        case .articleLink, .wechatArticle:
-            "将作为网页文章生成"
-        case .videoLink:
-            "视频链接会尝试生成，失败时展示原因"
-        }
+        displayText(language: .zhHans)
     }
 
     var canSubmit: Bool {

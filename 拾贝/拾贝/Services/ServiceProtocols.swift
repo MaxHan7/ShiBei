@@ -8,35 +8,47 @@ enum AppDataMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     var title: String {
+        title(language: .zhHans)
+    }
+
+    func title(language: AppLanguage) -> String {
         switch self {
         case .mock:
-            "Mock 数据"
+            L10n.string("debug.data_mode.mock.title", language: language)
         case .localAPI:
-            "本地 API"
+            L10n.string("debug.data_mode.local.title", language: language)
         case .cloudAPI:
-            "云端数据"
+            L10n.string("debug.data_mode.cloud.title", language: language)
         }
     }
 
     var subtitle: String {
+        subtitle(language: .zhHans)
+    }
+
+    func subtitle(language: AppLanguage) -> String {
         switch self {
         case .mock:
-            "当前使用 SwiftUI 本地 mock state"
+            L10n.string("debug.data_mode.mock.subtitle", language: language)
         case .localAPI:
-            "连接 Node 本地 API，章节、复习和通知状态由后端驱动"
+            L10n.string("debug.data_mode.local.subtitle", language: language)
         case .cloudAPI:
-            "连接拾贝云端，章节、复习和通知状态会保存到服务器"
+            L10n.string("debug.data_mode.cloud.subtitle", language: language)
         }
     }
 
     var apiLabel: String {
+        apiLabel(language: .zhHans)
+    }
+
+    func apiLabel(language: AppLanguage) -> String {
         switch self {
         case .mock:
-            "Mock"
+            L10n.string("debug.data_mode.mock.api_label", language: language)
         case .localAPI:
-            "本地 API"
+            L10n.string("debug.data_mode.local.api_label", language: language)
         case .cloudAPI:
-            "云端"
+            L10n.string("debug.data_mode.cloud.api_label", language: language)
         }
     }
 }

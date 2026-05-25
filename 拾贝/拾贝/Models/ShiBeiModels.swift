@@ -33,30 +33,7 @@ enum ChapterStatus: String, Codable {
     }
 
     var displayText: String {
-        switch self {
-        case .completed:
-            "已生成"
-        case .submitted:
-            "已提交"
-        case .extractingContent:
-            "正在提取正文"
-        case .generatingPoints:
-            "正在生成知识点"
-        case .generatingQuestions:
-            "正在生成题目"
-        case .qualityChecking:
-            "正在检查题目质量"
-        case .autoRegeneratingQuestions:
-            "正在检查题目质量"
-        case .failedExtractArticle:
-            "文章正文提取失败"
-        case .failedExtractVideo:
-            "当前暂未接入视频文本提取"
-        case .failedPoints:
-            "暂时没能提取出可复习知识点"
-        case .failedQuestions, .failedNoQualifiedQuestions:
-            "暂时没能生成可复习题目"
-        }
+        displayText(language: .zhHans)
     }
 }
 
@@ -67,16 +44,7 @@ enum SourceType: String, Codable {
     case videoLink = "video_link"
 
     var label: String {
-        switch self {
-        case .text:
-            "粘贴文字"
-        case .articleLink:
-            "网页文章"
-        case .wechatArticle:
-            "公众号文章"
-        case .videoLink:
-            "视频链接"
-        }
+        label(language: .zhHans)
     }
 }
 
@@ -117,16 +85,7 @@ enum FeedbackType: String, Codable, Identifiable, CaseIterable {
     var id: String { rawValue }
 
     var label: String {
-        switch self {
-        case .answerWrong:
-            "答案不准"
-        case .unclear:
-            "题目看不懂"
-        case .unrelatedToSource:
-            "和来源无关"
-        case .tooEasy:
-            "太简单"
-        }
+        label(language: .zhHans)
     }
 
     var isSevere: Bool {
