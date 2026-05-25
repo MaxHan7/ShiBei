@@ -47,7 +47,7 @@ struct HomeView: View {
     @ObservedObject var store: AppStore
 
     var body: some View {
-        AppScaffold(store: store, title: "首页") {
+        AppScaffold(store: store, title: "") {
             if let chapter = store.activeHomeChapter {
                 HomeChapterContent(store: store, chapter: chapter)
             } else {
