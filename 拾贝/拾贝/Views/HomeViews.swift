@@ -51,7 +51,7 @@ struct HomeView: View {
             if let chapter = store.activeHomeChapter {
                 HomeChapterContent(store: store, chapter: chapter)
             } else {
-                EmptyHomeContent()
+                EmptyHomeContent(store: store)
             }
         }
         .task(id: store.activeHomeChapter?.id) {
@@ -61,12 +61,14 @@ struct HomeView: View {
 }
 
 private struct EmptyHomeContent: View {
+    @ObservedObject var store: AppStore
+
     var body: some View {
         VStack(spacing: 10) {
             Spacer()
-            Text("每天捡起一枚知识贝壳")
+            Text("home.empty.title")
                 .font(.system(size: 24, weight: .bold))
-            Text("点击底部 + 添加复习内容\n支持文章/视频链接或粘贴文字")
+            Text("home.empty.subtitle")
                 .font(.system(size: 15))
                 .foregroundStyle(ShiBeiTheme.muted)
                 .multilineTextAlignment(.center)
@@ -98,31 +100,31 @@ private struct HomeChapterContent: View {
 
     private var statusText: String {
         if chapter.status.isFailed {
-            return "生成失败"
+            return store.localized("home.status.failed")
         }
         if chapter.status.isProcessing {
-            return chapter.visibleStatusText
+            return chapter.visibleStatusText(language: store.appLanguage)
         }
         if isReviewCompleted {
-            return "本章已完成"
+            return store.localized("home.status.completed")
         }
-        return "当前章节"
+        return store.localized("home.status.current")
     }
 
     private var primaryButtonTitle: String {
         if chapter.status.isFailed || chapter.status.isProcessing {
-            return "查看章节"
+            return store.localized("home.action.view_chapter")
         }
         if chapter.reviewSession?.status == .active {
-            return "继续复习"
+            return store.localized("home.action.continue_review")
         }
-        return "开始复习"
+        return store.localized("home.action.start_review")
     }
 
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 4) {
-                Text("已掌握知识点")
+                Text("home.mastered_points")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(ShiBeiTheme.textSoft)
                 Text("\(store.reviewedKnowledgePointCount)")
@@ -141,7 +143,7 @@ private struct HomeChapterContent: View {
                         .lineLimit(2)
                     VStack(spacing: 8) {
                         HStack {
-                            Text("已复习 \(progress)/\(total) 个知识点")
+                            Text(store.localizedFormat("home.progress", progress, total))
                                 .foregroundStyle(ShiBeiTheme.muted)
                             Spacer()
                             Text("\(Int((Double(progress) / Double(total)) * 100))%")
@@ -185,10 +187,10 @@ struct AddKnowledgeView: View {
     }
 
     var body: some View {
-        AppScaffold(store: store, title: "添加知识") {
+        AppScaffold(store: store, title: store.localized("add.title")) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    Text("在此处粘贴您想学习的内容。")
+                    Text("add.intro")
                         .font(.system(size: 15))
                         .foregroundStyle(ShiBeiTheme.muted)
 
@@ -198,7 +200,7 @@ struct AddKnowledgeView: View {
                                 .frame(width: 34, height: 34)
                                 .background(ShiBeiTheme.yellowPale)
                                 .clipShape(Circle())
-                            Text("输入内容")
+                            Text("add.input_title")
                                 .font(.system(size: 17, weight: .semibold))
                         }
                         TextEditor(text: $input)
@@ -210,7 +212,7 @@ struct AddKnowledgeView: View {
                             .scrollContentBackground(.hidden)
                             .overlay(alignment: .topLeading) {
                                 if input.isEmpty {
-                                    Text("粘贴公众号链接/文字")
+                                    Text("add.placeholder")
                                         .foregroundStyle(ShiBeiTheme.faint)
                                         .padding(.top, 8)
                                         .padding(.leading, 5)
@@ -227,7 +229,7 @@ struct AddKnowledgeView: View {
                         if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             HStack(spacing: 6) {
                                 Image(systemName: chapterInput.sourceType == .text ? "doc.text" : "link")
-                                Text(chapterInput.displayText)
+                                Text(chapterInput.displayText(language: store.appLanguage))
                             }
                             .font(.system(size: 13, weight: .medium))
                             .foregroundStyle(ShiBeiTheme.textSoft)
@@ -235,7 +237,7 @@ struct AddKnowledgeView: View {
                     }
 
                     PrimaryButton(
-                        title: store.isWritingChapter ? "正在生成" : "开始生成",
+                        title: store.isWritingChapter ? store.localized("add.generating") : store.localized("add.generate"),
                         systemImage: store.isWritingChapter ? "hourglass" : "sparkle",
                         disabled: !chapterInput.canSubmit || store.isWritingChapter
                     ) {
@@ -252,13 +254,13 @@ struct AddKnowledgeView: View {
                     }
 
                     if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !chapterInput.canSubmit {
-                        Text("正文至少需要 24 个字；链接需要以 http:// 或 https:// 开头。")
+                        Text("add.invalid_input")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(ShiBeiTheme.error)
                             .frame(maxWidth: .infinity, alignment: .center)
                     }
 
-                    Button("填入示例内容") {
+                    Button(store.localized("add.sample_button")) {
                         dismissInput()
                         input = sampleArticleText
                     }
@@ -266,7 +268,7 @@ struct AddKnowledgeView: View {
                     .foregroundStyle(ShiBeiTheme.muted)
                     .frame(maxWidth: .infinity)
 
-                    Text("视频和播客的分析功能正在开发中")
+                    Text("add.video_podcast_note")
                         .font(.system(size: 12))
                         .foregroundStyle(ShiBeiTheme.faint)
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -282,7 +284,7 @@ struct AddKnowledgeView: View {
                         Button {
                             dismissInput()
                         } label: {
-                            Label("收起键盘", systemImage: "keyboard.chevron.compact.down")
+                            Label(store.localized("add.dismiss_keyboard"), systemImage: "keyboard.chevron.compact.down")
                                 .font(.system(size: 15, weight: .semibold))
                                 .foregroundStyle(ShiBeiTheme.text)
                                 .padding(.horizontal, 14)

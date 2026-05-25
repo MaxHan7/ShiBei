@@ -7,34 +7,52 @@ struct ProfileView: View {
     @State private var isDeletingData = false
 
     var body: some View {
-        AppScaffold(store: store, title: "我的") {
+        AppScaffold(store: store, title: store.localized("profile.title")) {
             ScrollView {
                 VStack(spacing: 16) {
                     SBCard {
-                        Text("云端同步")
+                        Text("profile.cloud_sync.title")
                             .font(.system(size: 20, weight: .bold))
-                        Text("拾贝会把你的章节、通知和复习进度保存到云端，不需要注册或登录账号。")
+                        Text("profile.cloud_sync.body")
                             .foregroundStyle(ShiBeiTheme.muted)
                     }
                     SBCard {
-                        SettingsButtonRow(index: 1, title: "账号信息") {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("profile.language")
+                                .font(.system(size: 18, weight: .bold))
+                            Text("profile.language.body")
+                                .font(.system(size: 13))
+                                .foregroundStyle(ShiBeiTheme.muted)
+                            Picker("profile.language", selection: Binding(
+                                get: { store.appLanguage },
+                                set: { store.setAppLanguage($0) }
+                            )) {
+                                ForEach(AppLanguage.allCases) { language in
+                                    Text(language.displayName).tag(language)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                        }
+                    }
+                    SBCard {
+                        SettingsButtonRow(index: 1, title: store.localized("profile.account_info")) {
                             presentedInfo = .account
                         }
-                        SettingsButtonRow(index: 2, title: "通知权限") {
+                        SettingsButtonRow(index: 2, title: store.localized("profile.notification_permission")) {
                             presentedInfo = .notifications
                         }
-                        SettingsButtonRow(index: 3, title: "隐私说明") {
+                        SettingsButtonRow(index: 3, title: store.localized("profile.privacy")) {
                             presentedInfo = .privacy
                         }
-                        SettingsButtonRow(index: 4, title: "关于拾贝") {
+                        SettingsButtonRow(index: 4, title: store.localized("profile.about")) {
                             presentedInfo = .about
                         }
                     }
                     SBCard {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("数据管理")
+                            Text("profile.data_management.title")
                                 .font(.system(size: 18, weight: .bold))
-                            Text("删除后，当前匿名设备下的章节、通知、复习记录和反馈都会从云端移除。")
+                            Text("profile.data_management.body")
                                 .font(.system(size: 13))
                                 .foregroundStyle(ShiBeiTheme.muted)
                         }
@@ -43,7 +61,7 @@ struct ProfileView: View {
                         } label: {
                             HStack {
                                 Image(systemName: isDeletingData ? "hourglass" : "trash")
-                                Text(isDeletingData ? "正在删除..." : "删除我的数据")
+                                Text(isDeletingData ? store.localized("profile.deleting") : store.localized("profile.delete_my_data"))
                             }
                             .font(.system(size: 16, weight: .medium))
                             .frame(maxWidth: .infinity, minHeight: 56)
@@ -62,12 +80,12 @@ struct ProfileView: View {
             }
         }
         .sheet(item: $presentedInfo) { info in
-            ProfileInfoSheetView(info: info)
+            ProfileInfoSheetView(info: info, language: store.appLanguage)
                 .presentationDetents([.medium, .large])
         }
-        .alert("删除我的数据？", isPresented: $showingDeleteDataConfirmation) {
-            Button("取消", role: .cancel) {}
-            Button("删除数据", role: .destructive) {
+        .alert(store.localized("profile.delete_data.alert.title"), isPresented: $showingDeleteDataConfirmation) {
+            Button(store.localized("global.cancel"), role: .cancel) {}
+            Button(store.localized("profile.delete_data.alert.action"), role: .destructive) {
                 Task {
                     isDeletingData = true
                     _ = await store.deleteMyDeviceData()
@@ -75,7 +93,7 @@ struct ProfileView: View {
                 }
             }
         } message: {
-            Text("删除后，当前匿名设备下的章节、通知、复习记录和反馈都会被移除。这个操作无法撤销。")
+            Text(store.localized("profile.delete_data.alert.message"))
         }
     }
 }
@@ -321,41 +339,41 @@ private enum ProfileInfoSheet: String, Identifiable {
 
     var id: String { rawValue }
 
-    var title: String {
+    func title(language: AppLanguage) -> String {
         switch self {
         case .account:
-            "账号信息"
+            L10n.string("profile.account_info", language: language)
         case .notifications:
-            "通知权限"
+            L10n.string("profile.notification_permission", language: language)
         case .privacy:
-            "隐私说明"
+            L10n.string("profile.privacy", language: language)
         case .about:
-            "关于拾贝"
+            L10n.string("profile.about", language: language)
         }
     }
 
-    var paragraphs: [String] {
+    func paragraphs(language: AppLanguage) -> [String] {
         switch self {
         case .account:
             [
-                "当前版本使用匿名设备身份保存数据，不需要注册或登录账号。",
-                "匿名设备身份只用于区分你的章节、通知、复习记录和题目反馈。后续如果提供账号系统，会再提供数据迁移方案。"
+                L10n.string("profile.info.account.p1", language: language),
+                L10n.string("profile.info.account.p2", language: language)
             ]
         case .notifications:
             [
-                "拾贝会在内容生成完成或失败时发送系统通知，帮助你回到对应章节继续复习。",
-                "如果你没有开启系统通知，仍然可以在 App 内通知页查看生成结果。成功通知打开后会自动归档，失败通知会保留到你处理或手动移除。"
+                L10n.string("profile.info.notifications.p1", language: language),
+                L10n.string("profile.info.notifications.p2", language: language)
             ]
         case .privacy:
             [
-                "你提交的文字、文章链接和生成结果会发送到拾贝云端，用于提取知识点、生成题目和保存复习进度。",
-                "生成过程中，内容可能会被发送给第三方 AI 模型服务处理。拾贝不会把你的内容公开展示给其他用户。",
-                "服务器会保存章节、题目、通知、复习记录和题目反馈。你可以在“我的”页删除当前匿名设备下的数据。"
+                L10n.string("profile.info.privacy.p1", language: language),
+                L10n.string("profile.info.privacy.p2", language: language),
+                L10n.string("profile.info.privacy.p3", language: language)
             ]
         case .about:
             [
-                "拾贝是一款把文章、链接和碎片知识转化为复习题的 iOS App。",
-                "当前版本重点打磨真实内容生成、复习和来源解释，让你更轻地把读过的内容变成可回顾的知识。"
+                L10n.string("profile.info.about.p1", language: language),
+                L10n.string("profile.info.about.p2", language: language)
             ]
         }
     }
@@ -363,13 +381,14 @@ private enum ProfileInfoSheet: String, Identifiable {
 
 private struct ProfileInfoSheetView: View {
     let info: ProfileInfoSheet
+    let language: AppLanguage
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    ForEach(info.paragraphs, id: \.self) { paragraph in
+                    ForEach(info.paragraphs(language: language), id: \.self) { paragraph in
                         Text(paragraph)
                             .font(.system(size: 16))
                             .lineSpacing(5)
@@ -380,11 +399,11 @@ private struct ProfileInfoSheetView: View {
                 .padding(24)
             }
             .background(ShiBeiTheme.surface)
-            .navigationTitle(info.title)
+            .navigationTitle(info.title(language: language))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("完成") {
+                    Button(L10n.string("global.done", language: language)) {
                         dismiss()
                     }
                 }

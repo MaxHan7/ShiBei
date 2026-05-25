@@ -1,0 +1,822 @@
+{
+  "sourceLanguage" : "zh-Hans",
+  "strings" : {
+    "add.dismiss_keyboard" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hide keyboard" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "收起键盘" } }
+      }
+    },
+    "add.generate" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start generating" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "开始生成" } }
+      }
+    },
+    "add.generating" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Generating" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在生成" } }
+      }
+    },
+    "add.input.article" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Will generate from a web article" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "将作为网页文章生成" } }
+      }
+    },
+    "add.input.text" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Will generate from pasted text" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "将作为粘贴文字生成" } }
+      }
+    },
+    "add.input.video" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Video links will be attempted and may fail gracefully" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "视频链接会尝试生成，失败时展示原因" } }
+      }
+    },
+    "add.input_title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Content" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "输入内容" } }
+      }
+    },
+    "add.intro" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Paste what you want to study here." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在此处粘贴您想学习的内容。" } }
+      }
+    },
+    "add.invalid_input" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Text needs at least 24 characters. Links must start with http:// or https://." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正文至少需要 24 个字；链接需要以 http:// 或 https:// 开头。" } }
+      }
+    },
+    "add.placeholder" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Paste a WeChat link or text" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "粘贴公众号链接/文字" } }
+      }
+    },
+    "add.sample_button" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fill sample content" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "填入示例内容" } }
+      }
+    },
+    "add.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Knowledge" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "添加知识" } }
+      }
+    },
+    "add.video_podcast_note" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Video and podcast analysis is in development." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "视频和播客的分析功能正在开发中" } }
+      }
+    },
+    "article_core.fallback" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This chapter has reviewable material. Use the knowledge points and questions to quickly revisit the article's main thread." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "本章已整理出可复习内容，可以通过知识点和题目快速回顾文章主线。" } }
+      }
+    },
+    "article_core.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Article Core" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "文章核心" } }
+      }
+    },
+    "chapter.counts" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%d points · %d questions" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%d 个知识点 · %d 道题" } }
+      }
+    },
+    "chapter.knowledge_points" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Knowledge Points" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "本章知识点" } }
+      }
+    },
+    "chapter.refresh_status" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Refresh status" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "刷新状态" } }
+      }
+    },
+    "chapter.regenerate" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Regenerate" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重新生成" } }
+      }
+    },
+    "chapter.source_line" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Source: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "来源：%@" } }
+      }
+    },
+    "chapter.status_line" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Status: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "状态：%@" } }
+      }
+    },
+    "chapter.view_all_knowledge_points" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View all %d knowledge points" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "查看全部 %d 个知识点" } }
+      }
+    },
+    "chapter.view_all_points" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View all %d" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "查看全部 %d 个" } }
+      }
+    },
+    "chapter.view_extracted_source" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View extracted text and original link" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "查看提取正文和原链接" } }
+      }
+    },
+    "chapter.view_input" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View input content" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "查看输入内容" } }
+      }
+    },
+    "chapter_detail.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Chapter Details" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "章节详情" } }
+      }
+    },
+    "chapters.empty.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No chapters yet" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "还没有章节" } }
+      }
+    },
+    "chapters.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All Chapters" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "全部章节" } }
+      }
+    },
+    "delete_chapter.alert.action" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete chapter" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除章节" } }
+      }
+    },
+    "delete_chapter.alert.message" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This will remove the chapter's review progress, feedback, and notifications." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除后，本章节的复习进度、反馈记录和通知都会一起移除。" } }
+      }
+    },
+    "delete_chapter.alert.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete this chapter?" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除这个章节？" } }
+      }
+    },
+    "explanation.common_misconception" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Common Misconception" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "常见误区" } }
+      }
+    },
+    "explanation.correct_understanding" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Correct Understanding" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正确理解" } }
+      }
+    },
+    "explanation.report_problem" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Report a problem" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "题目有问题" } }
+      }
+    },
+    "explanation.source_snippet" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Source Snippet" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "来源片段" } }
+      }
+    },
+    "explanation.view_full_source" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View full source" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "查看完整来源" } }
+      }
+    },
+    "explanation.view_summary" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View summary" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "查看总结" } }
+      }
+    },
+    "feedback.answer_wrong" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Answer is wrong" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "答案不准" } }
+      }
+    },
+    "feedback.received" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Received" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已收到" } }
+      }
+    },
+    "feedback.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "What's wrong with this question?" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "这道题哪里有问题？" } }
+      }
+    },
+    "feedback.too_easy" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Too easy" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "太简单" } }
+      }
+    },
+    "feedback.unclear" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Question is unclear" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "题目看不懂" } }
+      }
+    },
+    "feedback.unrelated_to_source" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Not supported by source" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "和来源无关" } }
+      }
+    },
+    "global.back" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Back" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "返回" } }
+      }
+    },
+    "global.cancel" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "取消" } }
+      }
+    },
+    "global.delete" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除" } }
+      }
+    },
+    "global.done" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "完成" } }
+      }
+    },
+    "global.knowledge_points" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Points" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "知识点" } }
+      }
+    },
+    "global.questions" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Questions" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "题目" } }
+      }
+    },
+    "global.remove" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "移除" } }
+      }
+    },
+    "global.retry" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Retry" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重试" } }
+      }
+    },
+    "global.submitting" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Submitting" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在提交" } }
+      }
+    },
+    "home.action.continue_review" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue review" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "继续复习" } }
+      }
+    },
+    "home.action.start_review" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start review" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "开始复习" } }
+      }
+    },
+    "home.action.view_chapter" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View chapter" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "查看章节" } }
+      }
+    },
+    "home.empty.subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tap + to add review content\nSupports article links and pasted text" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "点击底部 + 添加复习内容\n支持文章/视频链接或粘贴文字" } }
+      }
+    },
+    "home.empty.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pick up one shell of knowledge a day" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "每天捡起一枚知识贝壳" } }
+      }
+    },
+    "home.mastered_points" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reviewed points" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已掌握知识点" } }
+      }
+    },
+    "home.progress" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reviewed %d/%d points" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已复习 %d/%d 个知识点" } }
+      }
+    },
+    "home.status.completed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review completed" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "本章已完成" } }
+      }
+    },
+    "home.status.current" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current chapter" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "当前章节" } }
+      }
+    },
+    "home.status.failed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Generation failed" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "生成失败" } }
+      }
+    },
+    "notification_education.action" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enable notifications" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "开启通知" } }
+      }
+    },
+    "notification_education.body" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "ShiBei can notify you when chapter generation succeeds or fails, so you can return to the exact chapter even after leaving the app." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "拾贝会在章节生成完成或失败时提醒你。开启后，即使暂时离开 App，也能从系统通知回到对应章节。" } }
+      }
+    },
+    "notification_education.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Get notified when it's ready" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "生成完成后提醒你" } }
+      }
+    },
+    "notifications.clear_read" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clear read" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "清空已读" } }
+      }
+    },
+    "notifications.dismiss_hint" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Don't show again" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "不再提示" } }
+      }
+    },
+    "notifications.empty" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No notifications" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "暂时没有通知" } }
+      }
+    },
+    "notifications.read" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Read" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已读" } }
+      }
+    },
+    "notifications.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Notifications" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "通知" } }
+      }
+    },
+    "profile.about" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "About ShiBei" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关于拾贝" } }
+      }
+    },
+    "profile.account_info" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Account information" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "账号信息" } }
+      }
+    },
+    "profile.cloud_sync.body" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "ShiBei saves your chapters, notifications, and review progress in the cloud without requiring an account." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "拾贝会把你的章节、通知和复习进度保存到云端，不需要注册或登录账号。" } }
+      }
+    },
+    "profile.cloud_sync.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cloud Sync" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "云端同步" } }
+      }
+    },
+    "profile.data_management.body" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This removes chapters, notifications, review records, and feedback under this anonymous device from the cloud." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除后，当前匿名设备下的章节、通知、复习记录和反馈都会从云端移除。" } }
+      }
+    },
+    "profile.data_management.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Data Management" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "数据管理" } }
+      }
+    },
+    "profile.delete_data.alert.action" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete data" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除数据" } }
+      }
+    },
+    "profile.delete_data.alert.message" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This removes chapters, notifications, review records, and feedback under this anonymous device. This cannot be undone." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除后，当前匿名设备下的章节、通知、复习记录和反馈都会被移除。这个操作无法撤销。" } }
+      }
+    },
+    "profile.delete_data.alert.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete my data?" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除我的数据？" } }
+      }
+    },
+    "profile.delete_my_data" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete my data" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除我的数据" } }
+      }
+    },
+    "profile.deleting" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Deleting..." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在删除..." } }
+      }
+    },
+    "profile.info.about.p1" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "ShiBei turns articles, links, and scattered knowledge into review questions." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "拾贝是一款把文章、链接和碎片知识转化为复习题的 iOS App。" } }
+      }
+    },
+    "profile.info.about.p2" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This version focuses on real content generation, review, and source-based explanations." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "当前版本重点打磨真实内容生成、复习和来源解释，让你更轻地把读过的内容变成可回顾的知识。" } }
+      }
+    },
+    "profile.info.account.p1" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This version stores data with an anonymous device identity. No account or sign-in is required." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "当前版本使用匿名设备身份保存数据，不需要注册或登录账号。" } }
+      }
+    },
+    "profile.info.account.p2" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The anonymous identity only separates your chapters, notifications, review records, and feedback. If account support is added later, data migration will be handled then." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "匿名设备身份只用于区分你的章节、通知、复习记录和题目反馈。后续如果提供账号系统，会再提供数据迁移方案。" } }
+      }
+    },
+    "profile.info.notifications.p1" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "ShiBei sends system notifications when content generation succeeds or fails, so you can return to the chapter." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "拾贝会在内容生成完成或失败时发送系统通知，帮助你回到对应章节继续复习。" } }
+      }
+    },
+    "profile.info.notifications.p2" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "If system notifications are off, in-app notifications still show results. Success notifications archive after opening; failure notifications remain until handled or removed." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "如果你没有开启系统通知，仍然可以在 App 内通知页查看生成结果。成功通知打开后会自动归档，失败通知会保留到你处理或手动移除。" } }
+      }
+    },
+    "profile.info.privacy.p1" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Text, article links, and generated results you submit are sent to ShiBei Cloud to extract points, generate questions, and save review progress." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "你提交的文字、文章链接和生成结果会发送到拾贝云端，用于提取知识点、生成题目和保存复习进度。" } }
+      }
+    },
+    "profile.info.privacy.p2" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "During generation, content may be sent to third-party AI model services. ShiBei does not publicly show your content to other users." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "生成过程中，内容可能会被发送给第三方 AI 模型服务处理。拾贝不会把你的内容公开展示给其他用户。" } }
+      }
+    },
+    "profile.info.privacy.p3" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The server stores chapters, questions, notifications, review records, and question feedback. You can delete data for this anonymous device from Profile." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "服务器会保存章节、题目、通知、复习记录和题目反馈。你可以在“我的”页删除当前匿名设备下的数据。" } }
+      }
+    },
+    "profile.language" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Language" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "语言" } }
+      }
+    },
+    "profile.language.body" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Switch fixed app interface text. Generated content stays in the language of your source." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "切换 App 固定界面文案，已生成内容保持原文语言。" } }
+      }
+    },
+    "profile.notification_permission" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Notification permissions" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "通知权限" } }
+      }
+    },
+    "profile.privacy" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Privacy" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "隐私说明" } }
+      }
+    },
+    "profile.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Profile" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "我的" } }
+      }
+    },
+    "review.close" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Close review" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关闭复习" } }
+      }
+    },
+    "review.correct_answer" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Correct answer" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正确答案" } }
+      }
+    },
+    "review.forgot" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Forgot" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "忘记了" } }
+      }
+    },
+    "review.in_progress" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reviewing" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "复习中" } }
+      }
+    },
+    "review.point_prefix" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Point: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "知识点：%@" } }
+      }
+    },
+    "review_status.accessibility" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review status: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "复习状态：%@" } }
+      }
+    },
+    "review_status.completed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Completed" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已完成" } }
+      }
+    },
+    "review_status.in_progress" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "In progress" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "复习中" } }
+      }
+    },
+    "review_status.waiting" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "To review" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "待复习" } }
+      }
+    },
+    "source.article_link" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Web article" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "网页文章" } }
+      }
+    },
+    "source.open_original" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open original link" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开原文链接" } }
+      }
+    },
+    "source.text" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pasted text" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "粘贴文字" } }
+      }
+    },
+    "source.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Source" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "来源内容" } }
+      }
+    },
+    "source.video_link" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Video link" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "视频链接" } }
+      }
+    },
+    "source.wechat_article" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "WeChat article" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "公众号文章" } }
+      }
+    },
+    "status.completed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Generated" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已生成" } }
+      }
+    },
+    "status.extracting_content" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Extracting content" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在提取正文" } }
+      }
+    },
+    "status.failed_extract_article" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Article extraction failed" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "文章正文提取失败" } }
+      }
+    },
+    "status.failed_extract_video" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Video text extraction is not available yet" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "当前暂未接入视频文本提取" } }
+      }
+    },
+    "status.failed_points" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Could not extract reviewable points" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "暂时没能提取出可复习知识点" } }
+      }
+    },
+    "status.failed_questions" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Could not generate reviewable questions" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "暂时没能生成可复习题目" } }
+      }
+    },
+    "status.generating_points" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Generating points" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在生成知识点" } }
+      }
+    },
+    "status.generating_questions" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Generating questions" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在生成题目" } }
+      }
+    },
+    "status.quality_checking" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Checking question quality" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在检查题目质量" } }
+      }
+    },
+    "status.submitted" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Submitted" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已提交" } }
+      }
+    },
+    "summary.back_to_chapters" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Back to chapters" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "回到章节" } }
+      }
+    },
+    "summary.completed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Chapter review completed" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "本章复习完成" } }
+      }
+    },
+    "summary.next_chapter" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Next chapter" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "继续下一章" } }
+      }
+    },
+    "summary.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Chapter Summary" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "章节总结" } }
+      }
+    },
+    "tab.add" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "添加" } }
+      }
+    },
+    "tab.chapters" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Chapters" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "章节" } }
+      }
+    },
+    "tab.home" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Home" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "首页" } }
+      }
+    },
+    "tab.notifications" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Alerts" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "通知" } }
+      }
+    },
+    "tab.profile" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Profile" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "我的" } }
+      }
+    },
+    "time.days_ago" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%d days ago" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%d 天前" } }
+      }
+    },
+    "time.hours_ago" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%d hours ago" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%d 小时前" } }
+      }
+    },
+    "time.just_now" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Just now" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "刚刚" } }
+      }
+    },
+    "time.minutes_ago" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%d min ago" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%d 分钟前" } }
+      }
+    },
+    "toast.submitted.action" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Got it" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "知道了" } }
+      }
+    },
+    "toast.submitted.body" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "We'll notify you when it's done" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "完成后会通知你" } }
+      }
+    },
+    "toast.submitted.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Submitted and generating" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已提交，正在生成" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

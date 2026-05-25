@@ -96,7 +96,7 @@ struct TopBar<Trailing: View>: View {
                             .font(.system(size: 20, weight: .semibold))
                             .frame(width: 42, height: 42)
                     }
-                    .accessibilityLabel("返回")
+                    .accessibilityLabel(Text("global.back"))
                 }
                 Spacer()
                 trailing
@@ -249,6 +249,7 @@ struct KnowledgePointRow: View {
 }
 
 struct SubmittedToast: View {
+    let language: AppLanguage
     let close: () -> Void
 
     var body: some View {
@@ -264,11 +265,11 @@ struct SubmittedToast: View {
                     .frame(width: 56, height: 56)
                     .background(ShiBeiTheme.yellow)
                     .clipShape(Circle())
-                Text("已提交，正在生成")
+                Text("toast.submitted.title")
                     .font(.system(size: 22, weight: .bold))
-                Text("完成后会通知你")
+                Text("toast.submitted.body")
                     .foregroundStyle(ShiBeiTheme.muted)
-                PrimaryButton(title: "知道了", action: close)
+                PrimaryButton(title: L10n.string("toast.submitted.action", language: language), action: close)
             }
             .padding(24)
             .frame(width: 330)

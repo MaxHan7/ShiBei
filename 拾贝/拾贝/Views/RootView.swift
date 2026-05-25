@@ -11,29 +11,30 @@ struct RootView: View {
                 tabRoot
             }
             if store.showingSubmittedToast {
-                SubmittedToast {
+                SubmittedToast(language: store.appLanguage) {
                     store.showingSubmittedToast = false
                 }
                 .transition(.opacity)
             }
         }
+        .environment(\.locale, Locale(identifier: store.appLanguage.localeIdentifier))
         .animation(.easeInOut(duration: 0.18), value: store.showingSubmittedToast)
-        .alert("删除这个章节？", isPresented: $store.showingDeleteConfirmation) {
-            Button("取消", role: .cancel) {}
-            Button("删除章节", role: .destructive) {
+        .alert(store.localized("delete_chapter.alert.title"), isPresented: $store.showingDeleteConfirmation) {
+            Button(store.localized("global.cancel"), role: .cancel) {}
+            Button(store.localized("delete_chapter.alert.action"), role: .destructive) {
                 Task {
                     await store.deleteSelectedChapter()
                 }
             }
         } message: {
-            Text("删除后，本章节的复习进度、反馈记录和通知都会一起移除。")
+            Text(store.localized("delete_chapter.alert.message"))
         }
         .sheet(item: $store.feedbackSheetContext) { _ in
             FeedbackSheet(store: store)
                 .presentationDetents([.height(340)])
         }
         .sheet(isPresented: $store.showingNotificationEducation) {
-            NotificationEducationSheet {
+            NotificationEducationSheet(language: store.appLanguage) {
                 Task {
                     await store.finishNotificationEducation()
                 }
@@ -102,7 +103,7 @@ struct RootView: View {
 
     private func tabLabel(for tab: AppTab) -> some View {
         Label {
-            Text(tab.title)
+            Text(tab.title(language: store.appLanguage))
         } icon: {
             Image(store.selectedTab == tab ? tab.filledAssetName : tab.outlineAssetName)
                 .renderingMode(.template)
@@ -113,7 +114,7 @@ struct RootView: View {
     private var addTabLabel: some View {
         Image("AddTabIcon")
             .renderingMode(.original)
-            .accessibilityLabel("添加知识")
+            .accessibilityLabel(store.localized("add.title"))
     }
 
     @ViewBuilder
@@ -195,6 +196,7 @@ struct RootView: View {
 }
 
 private struct NotificationEducationSheet: View {
+    let language: AppLanguage
     let continueAction: () -> Void
 
     var body: some View {
@@ -205,14 +207,14 @@ private struct NotificationEducationSheet: View {
                 .foregroundStyle(ShiBeiTheme.text)
                 .background(ShiBeiTheme.yellow)
                 .clipShape(Circle())
-            Text("生成完成后提醒你")
+            Text("notification_education.title")
                 .font(.system(size: 22, weight: .bold))
-            Text("拾贝会在章节生成完成或失败时提醒你。开启后，即使暂时离开 App，也能从系统通知回到对应章节。")
+            Text("notification_education.body")
                 .font(.system(size: 15))
                 .foregroundStyle(ShiBeiTheme.muted)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
-            PrimaryButton(title: "开启通知", systemImage: "arrow.right", action: continueAction)
+            PrimaryButton(title: L10n.string("notification_education.action", language: language), systemImage: "arrow.right", action: continueAction)
         }
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -21,6 +21,7 @@ final class AppStore: ObservableObject {
     @Published var dataSourceMessage = "Mock 数据已就绪"
     @Published var cloudAPIBaseURLString: String
     @Published var anonymousDeviceId: String
+    @Published var appLanguage: AppLanguage = .zhHans
     @Published var isLoadingLocalAPI = false
     @Published var isWritingChapter = false
     @Published var isSubmittingReview = false
@@ -33,6 +34,7 @@ final class AppStore: ObservableObject {
     private let localAPIReviewService: LocalAPIReviewService
     private let localAPINotificationService: LocalAPINotificationService
     private let cloudAPIBaseURLKey = "cloudAPIBaseURLString"
+    private let appLanguageKey = "appLanguage"
     private let deviceIdentityStore: DeviceIdentityStore
     private var generationPollTasks: [String: Task<Void, Never>] = [:]
     private var notificationObservers: [NSObjectProtocol] = []
@@ -62,6 +64,10 @@ final class AppStore: ObservableObject {
         localAPIReviewService = LocalAPIReviewService(apiClient: self.apiClient)
         localAPINotificationService = LocalAPINotificationService(apiClient: self.apiClient)
         anonymousDeviceId = deviceId
+        if let savedLanguage = UserDefaults.standard.string(forKey: appLanguageKey),
+           let language = AppLanguage(rawValue: savedLanguage) {
+            appLanguage = language
+        }
         #if DEBUG
         cloudAPIBaseURLString = UserDefaults.standard.string(forKey: cloudAPIBaseURLKey) ?? ""
         dataMode = .mock
@@ -72,6 +78,23 @@ final class AppStore: ObservableObject {
         dataSourceMessage = "正在连接拾贝云端"
         #endif
         installPushNotificationObservers()
+    }
+
+    func setAppLanguage(_ language: AppLanguage) {
+        appLanguage = language
+        UserDefaults.standard.set(language.rawValue, forKey: appLanguageKey)
+    }
+
+    func localized(_ key: String) -> String {
+        L10n.string(key, language: appLanguage)
+    }
+
+    func localizedFormat(_ key: String, _ arguments: CVarArg...) -> String {
+        String(
+            format: L10n.string(key, language: appLanguage),
+            locale: Locale(identifier: appLanguage.localeIdentifier),
+            arguments: arguments
+        )
     }
 
     deinit {

@@ -9,12 +9,12 @@ struct ReviewView: View {
         AppScaffold(store: store, title: "", showsTopBar: false, showsTabBar: false) {
             if let question = store.currentQuestion(), let chapter = store.selectedChapter, let session = chapter.reviewSession {
                 VStack(spacing: 0) {
-                    ReviewTopBar(store: store, session: session)
+                    ReviewTopBar(store: store, chapter: chapter, session: session)
                     ScrollView {
                         VStack(spacing: 30) {
-                            ProgressBar(progress: reviewProgress(chapter: chapter, session: session))
+                            ProgressBar(progress: ReviewProgressSnapshot(chapter: chapter, session: session).ratio)
                             SBCard {
-                                StatusPill(text: "知识点：\(question.pointTitle)")
+                                StatusPill(text: store.localizedFormat("review.point_prefix", question.pointTitle))
                                 Text(question.stem)
                                     .font(.system(size: 23, weight: .bold))
                                     .lineSpacing(4)
@@ -47,7 +47,7 @@ struct ReviewView: View {
                                             }
                                         }
                                     } label: {
-                                        Text("忘记了")
+                                        Text("review.forgot")
                                             .font(.system(size: 15, weight: .medium))
                                             .foregroundStyle(ShiBeiTheme.muted)
                                             .frame(maxWidth: .infinity, minHeight: 44)
@@ -70,15 +70,16 @@ struct ReviewView: View {
         }
     }
 
-    private func reviewProgress(chapter: Chapter, session: ReviewSession) -> Double {
-        let required = max(1, chapter.knowledgePoints.count)
-        return Double(session.masteredThisRoundPointIds.count) / Double(required)
-    }
 }
 
 private struct ReviewTopBar: View {
     @ObservedObject var store: AppStore
+    let chapter: Chapter
     let session: ReviewSession
+
+    private var progress: ReviewProgressSnapshot {
+        ReviewProgressSnapshot(chapter: chapter, session: session)
+    }
 
     var body: some View {
         HStack {
@@ -89,12 +90,12 @@ private struct ReviewTopBar: View {
                     .font(.system(size: 18, weight: .bold))
                     .frame(width: 42, height: 42)
             }
-            .accessibilityLabel("关闭复习")
+            .accessibilityLabel("review.close")
             Spacer()
             VStack(spacing: 4) {
-                Text("复习中")
+                Text("review.in_progress")
                     .font(.system(size: 20, weight: .bold))
-                Text("\(min(session.currentQueueIndex + 1, max(1, session.queue.count))) / \(max(1, session.queue.count))")
+                Text("\(progress.completed) / \(progress.total)")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(ShiBeiTheme.muted)
             }
@@ -103,6 +104,33 @@ private struct ReviewTopBar: View {
         }
         .padding(.horizontal, 18)
         .frame(height: 66)
+    }
+}
+
+private struct ReviewProgressSnapshot {
+    let completed: Int
+    let total: Int
+
+    var ratio: Double {
+        guard total > 0 else { return 0 }
+        return Double(completed) / Double(total)
+    }
+
+    init(chapter: Chapter, session: ReviewSession) {
+        let reviewableQuestionIds = Set(chapter.reviewableQuestions.map(\.id))
+        let queuePointIds = Set(session.queue.compactMap { item -> String? in
+            guard !session.skippedPointIds.contains(item.pointId),
+                  reviewableQuestionIds.contains(item.questionId) else {
+                return nil
+            }
+            return item.pointId
+        })
+        let fallbackPointIds = Set(chapter.reviewableQuestions.map(\.knowledgePointId))
+            .subtracting(session.skippedPointIds)
+        let requiredPointIds = queuePointIds.isEmpty ? fallbackPointIds : queuePointIds
+
+        total = max(1, requiredPointIds.count)
+        completed = requiredPointIds.filter { session.masteredThisRoundPointIds.contains($0) }.count
     }
 }
 
@@ -159,7 +187,9 @@ struct ExplanationView: View {
         AppScaffold(store: store, title: "", showsTopBar: false, showsTabBar: false) {
             if let question {
                 VStack(spacing: 0) {
-                    ReviewTopBar(store: store, session: store.selectedChapter?.reviewSession ?? emptySession)
+                    if let chapter = store.selectedChapter {
+                        ReviewTopBar(store: store, chapter: chapter, session: chapter.reviewSession ?? emptySession)
+                    }
                     ScrollView {
                         VStack(spacing: 18) {
                             VStack(spacing: 10) {
@@ -168,17 +198,17 @@ struct ExplanationView: View {
                                     .frame(width: 76, height: 76)
                                     .background(ShiBeiTheme.yellow)
                                     .clipShape(Circle())
-                                Text("正确答案")
+                                Text("review.correct_answer")
                                     .foregroundStyle(ShiBeiTheme.muted)
                             }
-                            ExplanationCard(title: "正确理解", systemImage: "asterisk", text: question.correctUnderstanding)
-                            ExplanationCard(title: "常见误区", systemImage: "exclamationmark", text: "• \(question.commonMisconception)")
-                            ExplanationCard(title: "来源片段", systemImage: "text.quote", text: question.sourceText, warm: true)
+                            ExplanationCard(title: store.localized("explanation.correct_understanding"), systemImage: "asterisk", text: question.correctUnderstanding)
+                            ExplanationCard(title: store.localized("explanation.common_misconception"), systemImage: "exclamationmark", text: "• \(question.commonMisconception)")
+                            ExplanationCard(title: store.localized("explanation.source_snippet"), systemImage: "text.quote", text: question.sourceText, warm: true)
                             VStack(spacing: 12) {
                                 Button {
                                     store.openSource(returnTo: .explanation, focusText: question.sourceText)
                                 } label: {
-                                    Label("查看完整来源", systemImage: "link")
+                                    Label(store.localized("explanation.view_full_source"), systemImage: "link")
                                         .font(.system(size: 15, weight: .semibold))
                                         .padding(.horizontal, 18)
                                         .padding(.vertical, 11)
@@ -186,7 +216,7 @@ struct ExplanationView: View {
                                         .clipShape(Capsule())
                                 }
 
-                                Button("题目有问题") {
+                                Button(store.localized("explanation.report_problem")) {
                                     store.selectedFeedbackQuestionId = question.id
                                     store.feedbackSheetContext = FeedbackSheetContext(questionId: question.id)
                                 }
@@ -220,7 +250,7 @@ struct ExplanationView: View {
     }
 
     private var continueTitle: String {
-        store.selectedChapter?.reviewSession?.status == .completed ? "查看总结" : "继续复习"
+        store.selectedChapter?.reviewSession?.status == .completed ? store.localized("explanation.view_summary") : store.localized("home.action.continue_review")
     }
 }
 
@@ -269,7 +299,7 @@ struct FeedbackSheet: View {
     var body: some View {
         VStack(spacing: 18) {
             if store.latestFeedbackMessage.isEmpty {
-                Text("这道题哪里有问题？")
+                Text("feedback.title")
                     .font(.system(size: 22, weight: .bold))
                 ForEach(FeedbackType.allCases) { type in
                     Button {
@@ -278,7 +308,7 @@ struct FeedbackSheet: View {
                         }
                     } label: {
                         HStack {
-                            Text(type.label)
+                            Text(type.label(language: store.appLanguage))
                             Spacer()
                             Image(systemName: "arrow.right")
                         }
@@ -295,11 +325,11 @@ struct FeedbackSheet: View {
                     .frame(width: 56, height: 56)
                     .background(ShiBeiTheme.yellow)
                     .clipShape(Circle())
-                Text("已收到")
+                Text("feedback.received")
                     .font(.system(size: 22, weight: .bold))
                 Text(store.latestFeedbackMessage)
                     .foregroundStyle(ShiBeiTheme.muted)
-                PrimaryButton(title: "继续复习") {
+                PrimaryButton(title: store.localized("home.action.continue_review")) {
                     dismiss()
                     store.continueAfterFeedback()
                 }
@@ -314,7 +344,7 @@ struct SummaryView: View {
     @ObservedObject var store: AppStore
 
     var body: some View {
-        AppScaffold(store: store, title: "章节总结", showsTabBar: false, leadingAction: { store.showSelectedChapterDetail() }) {
+        AppScaffold(store: store, title: store.localized("summary.title"), showsTabBar: false, leadingAction: { store.showSelectedChapterDetail() }) {
             if let chapter = store.selectedChapter {
                 ScrollView {
                     VStack(spacing: 22) {
@@ -324,21 +354,21 @@ struct SummaryView: View {
                                 .frame(width: 56, height: 56)
                                 .background(ShiBeiTheme.yellow)
                                 .clipShape(Circle())
-                            Text("本章复习完成")
+                            Text("summary.completed")
                                 .foregroundStyle(ShiBeiTheme.textSoft)
                         }
                         SBCard {
-                            StatusPill(text: "当前章节")
+                            StatusPill(text: store.localized("home.status.current"))
                             Text(chapter.title)
                                 .font(.system(size: 16))
-                            Text(chapter.sourceType.label)
+                            Text(chapter.sourceType.label(language: store.appLanguage))
                                 .foregroundStyle(ShiBeiTheme.muted)
                             HStack {
                                 VStack {
                                     Text("\(chapter.knowledgePoints.count)")
                                         .font(.system(size: 28, weight: .bold))
                                         .foregroundStyle(ShiBeiTheme.primary)
-                                    Text("知识点")
+                                    Text("global.knowledge_points")
                                         .foregroundStyle(ShiBeiTheme.muted)
                                 }
                                 Spacer()
@@ -346,27 +376,27 @@ struct SummaryView: View {
                                     Text("\(chapter.questions.count)")
                                         .font(.system(size: 28, weight: .bold))
                                         .foregroundStyle(ShiBeiTheme.primary)
-                                    Text("题目")
+                                    Text("global.questions")
                                         .foregroundStyle(ShiBeiTheme.muted)
                                 }
                             }
                         }
-                        ArticleCoreCard(chapter: chapter)
+                        ArticleCoreCard(chapter: chapter, language: store.appLanguage)
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("本章知识点")
+                            Text("chapter.knowledge_points")
                                 .font(.system(size: 18, weight: .bold))
                             ForEach(Array(chapter.knowledgePoints.prefix(4).enumerated()), id: \.element.id) { index, point in
                                 KnowledgePointRow(index: index, point: point)
                             }
                         }
                         if let next = store.nextReviewableChapter(after: chapter.id) {
-                            PrimaryButton(title: "继续下一章", systemImage: "arrow.right") {
+                            PrimaryButton(title: store.localized("summary.next_chapter"), systemImage: "arrow.right") {
                                 Task {
                                     await store.startOrResumeReview(for: next)
                                 }
                             }
                         }
-                        Button("回到章节") {
+                        Button(store.localized("summary.back_to_chapters")) {
                             store.selectedTab = .chapters
                             store.route = .chapters
                         }
@@ -382,11 +412,12 @@ struct SummaryView: View {
 
 struct ArticleCoreCard: View {
     let chapter: Chapter
+    var language: AppLanguage = .zhHans
 
     var body: some View {
         SBCard(padding: 20) {
             VStack(alignment: .leading, spacing: 12) {
-                Text("文章核心")
+                Text("article_core.title")
                     .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(ShiBeiTheme.text)
                 Text(articleCoreText)
@@ -422,7 +453,7 @@ struct ArticleCoreCard: View {
             return claims.joined(separator: " ")
         }
 
-        return "本章已整理出可复习内容，可以通过知识点和题目快速回顾文章主线。"
+        return L10n.string("article_core.fallback", language: language)
     }
 
     private func clippedSummary(_ text: String) -> String {

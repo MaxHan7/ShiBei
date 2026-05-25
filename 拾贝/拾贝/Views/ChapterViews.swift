@@ -4,14 +4,14 @@ struct ChaptersView: View {
     @ObservedObject var store: AppStore
 
     var body: some View {
-        AppScaffold(store: store, title: "全部章节") {
+        AppScaffold(store: store, title: store.localized("chapters.title")) {
             ScrollView {
                 if store.chapters.isEmpty {
                     VStack(spacing: 10) {
                         Spacer(minLength: 260)
-                        Text("还没有章节")
+                        Text("chapters.empty.title")
                             .font(.system(size: 24, weight: .bold))
-                        Text("点击底部 + 添加复习内容\n支持文章/视频链接或粘贴文字")
+                        Text("home.empty.subtitle")
                             .font(.system(size: 15))
                             .foregroundStyle(ShiBeiTheme.muted)
                             .multilineTextAlignment(.center)
@@ -22,7 +22,7 @@ struct ChaptersView: View {
                             Button {
                                 store.selectChapter(chapter)
                             } label: {
-                                ChapterListCard(chapter: chapter)
+                                ChapterListCard(chapter: chapter, language: store.appLanguage)
                             }
                             .buttonStyle(.plain)
                         }
@@ -37,17 +37,18 @@ struct ChaptersView: View {
 
 private struct ChapterListCard: View {
     let chapter: Chapter
+    let language: AppLanguage
 
     var body: some View {
         SBCard {
             HStack(alignment: .top) {
-                StatusPill(text: chapter.visibleStatusText, isDanger: chapter.status.isFailed)
+                StatusPill(text: chapter.visibleStatusText(language: language), isDanger: chapter.status.isFailed)
                 Spacer()
                 VStack(alignment: .trailing, spacing: 6) {
                     if let reviewStatus = ChapterReviewDisplayStatus(chapter: chapter) {
-                        ReviewStatusChip(status: reviewStatus)
+                        ReviewStatusChip(status: reviewStatus, language: language)
                     }
-                    Text(chapter.createdAt.relativeLabel)
+                    Text(chapter.createdAt.relativeLabel(language: language))
                         .font(.system(size: 14))
                         .foregroundStyle(ShiBeiTheme.muted)
                 }
@@ -57,9 +58,9 @@ private struct ChapterListCard: View {
                 .foregroundStyle(ShiBeiTheme.text)
                 .lineLimit(2)
             HStack {
-                Text(chapter.sourceType.label)
+                Text(chapter.sourceType.label(language: language))
                 Spacer()
-                Text("\(chapter.knowledgePoints.count) 个知识点 · \(chapter.questions.count) 道题")
+                Text(L10n.format("chapter.counts", language: language, chapter.knowledgePoints.count, chapter.questions.count))
             }
             .font(.system(size: 14))
             .foregroundStyle(ShiBeiTheme.muted)
@@ -89,14 +90,14 @@ private enum ChapterReviewDisplayStatus {
         }
     }
 
-    var text: String {
+    func text(language: AppLanguage) -> String {
         switch self {
         case .waiting:
-            "待复习"
+            L10n.string("review_status.waiting", language: language)
         case .inProgress:
-            "复习中"
+            L10n.string("review_status.in_progress", language: language)
         case .completed:
-            "已完成"
+            L10n.string("review_status.completed", language: language)
         }
     }
 
@@ -125,16 +126,17 @@ private enum ChapterReviewDisplayStatus {
 
 private struct ReviewStatusChip: View {
     let status: ChapterReviewDisplayStatus
+    let language: AppLanguage
 
     var body: some View {
-        Text(status.text)
+        Text(status.text(language: language))
             .font(.system(size: 13, weight: .semibold))
             .foregroundStyle(status.foreground)
             .padding(.horizontal, 10)
             .padding(.vertical, 4)
             .background(status.background)
             .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
-            .accessibilityLabel("复习状态：\(status.text)")
+            .accessibilityLabel(L10n.format("review_status.accessibility", language: language, status.text(language: language)))
     }
 }
 
@@ -142,12 +144,12 @@ struct NotificationsView: View {
     @ObservedObject var store: AppStore
 
     var body: some View {
-        AppScaffold(store: store, title: "通知") {
+        AppScaffold(store: store, title: store.localized("notifications.title")) {
             ScrollView {
                 if store.visibleNotifications.isEmpty {
                     VStack {
                         Spacer(minLength: 280)
-                        Text("暂时没有通知")
+                        Text("notifications.empty")
                             .font(.system(size: 24, weight: .bold))
                     }
                 } else {
@@ -160,7 +162,7 @@ struct NotificationsView: View {
                                         await store.clearReadNotifications()
                                     }
                                 } label: {
-                                    Label("清空已读", systemImage: "checkmark.circle")
+                                    Label(store.localized("notifications.clear_read"), systemImage: "checkmark.circle")
                                         .font(.system(size: 14, weight: .semibold))
                                 }
                                 .foregroundStyle(ShiBeiTheme.primary)
@@ -183,7 +185,7 @@ struct NotificationsView: View {
                                         StatusPill(text: notification.title, isDanger: notification.type == .generationFailed)
                                         Spacer()
                                         if notification.read {
-                                            Text("已读")
+                                            Text("notifications.read")
                                                 .font(.system(size: 12, weight: .semibold))
                                                 .foregroundStyle(ShiBeiTheme.muted.opacity(0.72))
                                         }
@@ -203,7 +205,7 @@ struct NotificationsView: View {
                                         await store.dismissNotification(notification)
                                     }
                                 } label: {
-                                    Label("移除", systemImage: "trash")
+                                    Label(store.localized("global.remove"), systemImage: "trash")
                                 }
                             }
                         }
@@ -222,10 +224,10 @@ struct ChapterDetailView: View {
     var body: some View {
         AppScaffold(
             store: store,
-            title: "章节详情",
+            title: store.localized("chapter_detail.title"),
             leadingAction: { store.returnFromChapterDetail() },
             trailing: {
-                Button("删除") {
+                Button(store.localized("global.delete")) {
                     store.showingDeleteConfirmation = true
                 }
                 .font(.system(size: 14, weight: .medium))
@@ -239,19 +241,19 @@ struct ChapterDetailView: View {
                             .font(.system(size: 25, weight: .bold))
                             .lineSpacing(2)
                         sourceLines(for: chapter)
-                        Text("\(chapter.knowledgePoints.count) 个知识点 · \(chapter.questions.count) 道题")
+                        Text(store.localizedFormat("chapter.counts", chapter.knowledgePoints.count, chapter.questions.count))
                             .foregroundStyle(ShiBeiTheme.muted)
-                        Text("状态：\(chapter.visibleStatusText)")
+                        Text(store.localizedFormat("chapter.status_line", chapter.visibleStatusText(language: store.appLanguage)))
                             .foregroundStyle(ShiBeiTheme.muted)
 
-                        ArticleCoreCard(chapter: chapter)
+                        ArticleCoreCard(chapter: chapter, language: store.appLanguage)
 
                         if chapter.status.isFailed {
                             FailedChapterCard(store: store, chapter: chapter)
                         } else if chapter.status.isProcessing {
                             ProcessingCard(store: store, chapter: chapter)
                         } else {
-                            PrimaryButton(title: "开始复习") {
+                            PrimaryButton(title: store.localized("home.action.start_review")) {
                                 Task {
                                     await store.startOrResumeReview(for: chapter)
                                 }
@@ -259,13 +261,13 @@ struct ChapterDetailView: View {
                         }
 
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("本章知识点")
+                            Text("chapter.knowledge_points")
                                 .font(.system(size: 18, weight: .bold))
                             ForEach(Array(chapter.knowledgePoints.prefix(6).enumerated()), id: \.element.id) { index, point in
                                 KnowledgePointRow(index: index, point: point)
                             }
                             if chapter.knowledgePoints.count > 6 {
-                                Button("查看全部 \(chapter.knowledgePoints.count) 个") {
+                                Button(store.localizedFormat("chapter.view_all_points", chapter.knowledgePoints.count)) {
                                     store.route = .knowledgeList
                                 }
                                 .font(.system(size: 14, weight: .semibold))
@@ -289,7 +291,7 @@ struct ChapterDetailView: View {
     private func sourceLines(for chapter: Chapter) -> some View {
         HStack {
             Image(systemName: "doc.text")
-            Text("来源：\(chapter.sourceType.label)")
+            Text(store.localizedFormat("chapter.source_line", chapter.sourceType.label(language: store.appLanguage)))
         }
         .font(.system(size: 14))
         .foregroundStyle(ShiBeiTheme.muted)
@@ -308,7 +310,7 @@ struct ChapterDetailView: View {
         } label: {
             HStack {
                 Image(systemName: "link")
-                Text(chapter.source.url.isEmpty ? "查看输入内容" : "查看提取正文和原链接")
+                Text(chapter.source.url.isEmpty ? store.localized("chapter.view_input") : store.localized("chapter.view_extracted_source"))
             }
             .font(.system(size: 14))
             .foregroundStyle(ShiBeiTheme.primary)
@@ -328,7 +330,7 @@ private struct FailedChapterCard: View {
                     .frame(width: 56, height: 56)
                     .background(ShiBeiTheme.yellow)
                     .clipShape(Circle())
-                Text(chapter.visibleStatusText)
+                Text(chapter.visibleStatusText(language: store.appLanguage))
                     .font(.system(size: 20, weight: .bold))
                     .foregroundStyle(ShiBeiTheme.error)
                 Text(chapter.failureReason)
@@ -336,7 +338,7 @@ private struct FailedChapterCard: View {
                     .foregroundStyle(ShiBeiTheme.muted)
                     .multilineTextAlignment(.center)
                 PrimaryButton(
-                    title: store.isWritingChapter ? "正在提交" : chapter.status == .failedExtractVideo || chapter.status == .failedExtractArticle ? "重试" : "重新生成",
+                    title: store.isWritingChapter ? store.localized("global.submitting") : chapter.status == .failedExtractVideo || chapter.status == .failedExtractArticle ? store.localized("global.retry") : store.localized("chapter.regenerate"),
                     disabled: store.isWritingChapter
                 ) {
                     Task {
@@ -344,11 +346,11 @@ private struct FailedChapterCard: View {
                     }
                 }
                 if !chapter.knowledgePoints.isEmpty {
-                    SecondaryButton(title: "查看全部 \(chapter.knowledgePoints.count) 个知识点") {
+                    SecondaryButton(title: store.localizedFormat("chapter.view_all_knowledge_points", chapter.knowledgePoints.count)) {
                         store.route = .knowledgeList
                     }
                 }
-                Button("不再提示") {
+                Button(store.localized("notifications.dismiss_hint")) {
                     Task {
                         await store.dismissFailureNotification()
                     }
@@ -370,9 +372,9 @@ private struct ProcessingCard: View {
             VStack(spacing: 14) {
                 ProgressView()
                     .tint(ShiBeiTheme.primary)
-                Text(chapter.visibleStatusText)
+                Text(chapter.visibleStatusText(language: store.appLanguage))
                     .font(.system(size: 18, weight: .bold))
-                SecondaryButton(title: "刷新状态", systemImage: "arrow.clockwise") {
+                SecondaryButton(title: store.localized("chapter.refresh_status"), systemImage: "arrow.clockwise") {
                     Task {
                         await store.refreshSelectedChapterFromAPI()
                     }
@@ -390,7 +392,7 @@ struct KnowledgeListView: View {
     @ObservedObject var store: AppStore
 
     var body: some View {
-        AppScaffold(store: store, title: "本章知识点", leadingAction: { store.route = .chapterDetail }) {
+        AppScaffold(store: store, title: store.localized("chapter.knowledge_points"), leadingAction: { store.route = .chapterDetail }) {
             ScrollView {
                 if let chapter = store.selectedChapter {
                     VStack(spacing: 12) {
@@ -410,7 +412,7 @@ struct SourceView: View {
     @ObservedObject var store: AppStore
 
     var body: some View {
-        AppScaffold(store: store, title: "来源内容", leadingAction: { store.returnFromSource() }) {
+        AppScaffold(store: store, title: store.localized("source.title"), leadingAction: { store.returnFromSource() }) {
             ScrollViewReader { proxy in
                 ScrollView {
                 if let chapter = store.selectedChapter {
@@ -419,18 +421,18 @@ struct SourceView: View {
                     let focusedBlockId = SourceTextBlock.bestMatch(in: sourceBlocks, focusText: store.sourceFocusText)
                     VStack(spacing: 18) {
                         SBCard {
-                            StatusPill(text: chapter.sourceType.label)
+                            StatusPill(text: chapter.sourceType.label(language: store.appLanguage))
                             Text(chapter.source.title)
                                 .font(.system(size: 16))
                             if !chapter.source.accountOrDomain.isEmpty {
-                                Text("来源：\(chapter.source.accountOrDomain)")
+                                Text(store.localizedFormat("chapter.source_line", chapter.source.accountOrDomain))
                                     .foregroundStyle(ShiBeiTheme.muted)
                             }
                             if !chapter.source.url.isEmpty {
                                 Text(chapter.source.url)
                                     .font(.system(size: 14))
                                     .foregroundStyle(ShiBeiTheme.muted)
-                                Link("打开原文链接", destination: URL(string: chapter.source.url) ?? URL(string: "https://example.com")!)
+                                Link(store.localized("source.open_original"), destination: URL(string: chapter.source.url) ?? URL(string: "https://example.com")!)
                                     .font(.system(size: 16, weight: .medium))
                                     .frame(maxWidth: .infinity, minHeight: 56)
                                     .foregroundStyle(.white)
@@ -579,11 +581,15 @@ private struct SourceTextBlockView: View {
 
 extension String {
     var relativeLabel: String {
+        relativeLabel(language: .zhHans)
+    }
+
+    func relativeLabel(language: AppLanguage) -> String {
         guard let date = ISO8601DateFormatter().date(from: self) else { return "" }
         let interval = Date().timeIntervalSince(date)
-        if interval < 60 { return "刚刚" }
-        if interval < 3600 { return "\(Int(interval / 60)) 分钟前" }
-        if interval < 86400 { return "\(Int(interval / 3600)) 小时前" }
-        return "\(Int(interval / 86400)) 天前"
+        if interval < 60 { return L10n.string("time.just_now", language: language) }
+        if interval < 3600 { return L10n.format("time.minutes_ago", language: language, Int(interval / 60)) }
+        if interval < 86400 { return L10n.format("time.hours_ago", language: language, Int(interval / 3600)) }
+        return L10n.format("time.days_ago", language: language, Int(interval / 86400))
     }
 }
