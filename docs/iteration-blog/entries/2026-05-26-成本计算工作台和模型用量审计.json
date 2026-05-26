@@ -1,0 +1,28 @@
+{
+  "date": "2026-05-26",
+  "title": "成本计算工作台和模型用量审计",
+  "phase": "服务端成本治理",
+  "problem": "模型选择和定价策略需要知道单篇章节的真实 token 成本，但成本数据不能进入 iOS App 主接口或用户章节数据。",
+  "changes": [
+    "在模型调用层记录 provider usage、估算 token、实际成本和误差率。",
+    "新增独立 HTML 成本计算工作台，通过 /api/cost-runs 查看单篇章节成本，不保存章节、不创建通知。",
+    "App 主接口序列化时剥离 generationRunId、modelUsage 和 costSummary，保证成本调试与 iOS 分发隔离。"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/2026-05-26-成本计算工作台和模型用量审计.svg",
+      "caption": "独立成本工作台把模型成本审计从 App 主流程中隔离出来"
+    }
+  ],
+  "result": "现在可以用内部页面对比单篇生成的估算成本和真实 usage 成本，同时保持正常 App 分发接口干净。",
+  "next": "用成本工作台跑真实样本，沉淀不同模型的质量和成本对比表。",
+  "commits": [
+    "7016972",
+    "9adc5ec",
+    "41002f6",
+    "69490e5",
+    "304df0e",
+    "ffc6f24",
+    "bfcb080"
+  ]
+}

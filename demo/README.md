@@ -21,6 +21,14 @@ npm.cmd run dev
 http://127.0.0.1:5173/index.html
 ```
 
+内部成本计算工作台：
+
+```text
+http://127.0.0.1:5173/cost-calculator.html
+```
+
+成本工作台只调用 `POST /api/cost-runs`，用于查看单篇章节的模型 usage、估算成本、实际成本和误差率；它不保存章节、不创建通知、不进入复习队列，也不作为 iOS App 功能。生产环境默认关闭，需要显式设置 `ENABLE_COST_WORKBENCH=1` 才开放。
+
 如果直接用 `file:///.../demo/index.html` 打开，也可以访问页面；但真实生成需要后端运行在 `http://127.0.0.1:5173`。
 
 建议测试路径：
@@ -63,6 +71,7 @@ POST /api/generate
 除了 Demo 主要使用的 `/api/generate` 和 `/api/regenerate`，后端还保留了一组内存版章节/通知接口，用于提前对齐未来 iOS Service 层的数据形状：
 
 ```text
+POST /api/cost-runs
 POST /api/chapters
 GET /api/chapters
 GET /api/chapters/:id
@@ -73,7 +82,7 @@ POST /api/notifications/:id/read
 POST /api/notifications/:id/dismiss
 ```
 
-这些接口暂不接数据库、不做账号和鉴权，数据重启后会丢失。真实 iOS MVP 后续需要接账号、数据库、异步生成任务和 APNs 推送。
+`/api/cost-runs` 是内部成本工作台接口，不属于 iOS 主接口。其余章节、通知和复习接口暂不接数据库、不做账号和鉴权，数据重启后会丢失。真实 iOS MVP 后续需要接账号、数据库、异步生成任务和 APNs 推送。
 
 ## 当前限制
 
@@ -82,6 +91,7 @@ POST /api/notifications/:id/dismiss
 - 没有账号系统，数据只保存在本地浏览器或本地内存。
 - 没有数据库，后端内存 API 重启后数据会丢失。
 - 没有真实系统推送，通知页只是本地产品流模拟。
+- 成本工作台是内部调试工具，结果不会发给 iOS 主接口。
 - 文章链接提取是轻量方案；公众号抓取依赖 Playwright 和平台限制，不能保证成功。
 - 视频链接目前只识别并返回友好失败，不提取字幕或转写。
 - 复习记录和掌握分只用于 Demo 当前本地会话，不支持跨设备同步。

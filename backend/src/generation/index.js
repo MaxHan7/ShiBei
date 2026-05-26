@@ -6,12 +6,14 @@ import { generateChapterSummary } from "./generateChapterSummary.js";
 import { generateQuestions, targetQuestionCountForPoint } from "./generateQuestions.js";
 import { evaluateQuestions } from "./evaluateQuestions.js";
 import { judgeQuestionQuality } from "./judgeQuestionQuality.js";
+import { createGenerationRunId, createModelUsageRecorder, summarizeModelUsage } from "./modelCost.js";
 import { STATUS_TEXT } from "./types.js";
 
 export async function generateReviewChapter(input, options = {}) {
   const onStage = typeof options.onStage === "function" ? options.onStage : null;
   const summaryGenerator = typeof options.summaryGenerator === "function" ? options.summaryGenerator : generateChapterSummary;
   const meta = createGenerationMeta();
+  const modelUsageRecorder = createModelUsageRecorder({ runId: meta.generationRunId, calls: meta.modelUsage });
   const rawText = String(input.rawText || "").trim();
 
   if (input?.sourceType !== "text") {
@@ -62,7 +64,8 @@ export async function generateReviewChapter(input, options = {}) {
     } else {
       extracted = await extractKnowledgeCandidates({
         cleanedText: cleaned.cleanedText,
-        chunks
+        chunks,
+        modelUsageRecorder
       });
       const filterResult = filterKnowledgePoints(extracted.candidates, cleaned.cleanedText);
       knowledgePoints = filterResult.kept;
@@ -90,7 +93,8 @@ export async function generateReviewChapter(input, options = {}) {
       knowledgePoints,
       cleanedText: cleaned.cleanedText,
       meta,
-      onStage
+      onStage,
+      modelUsageRecorder
     });
     const qualifiedQuestions = questionBuild.qualifiedQuestions;
     const uncoveredPoints = questionBuild.pointDiagnostics.filter((point) => !point.status.startsWith("covered"));
@@ -124,7 +128,8 @@ export async function generateReviewChapter(input, options = {}) {
       summaryGenerator,
       cleanedText: cleaned.cleanedText,
       title: extracted.chapterTitle,
-      meta
+      meta,
+      modelUsageRecorder
     });
     markStage(meta, "completed");
     return {
@@ -176,9 +181,9 @@ export async function generateReviewChapter(input, options = {}) {
   }
 }
 
-export async function generateCoreSummarySafely({ summaryGenerator, cleanedText, title, meta }) {
+export async function generateCoreSummarySafely({ summaryGenerator, cleanedText, title, meta, modelUsageRecorder = null }) {
   try {
-    return await summaryGenerator({ cleanedText, title });
+    return await summaryGenerator({ cleanedText, title, modelUsageRecorder });
   } catch (error) {
     if (meta && typeof meta === "object") {
       meta.coreSummaryError = error instanceof Error ? error.message : "文章核心总结生成失败";
@@ -187,10 +192,20 @@ export async function generateCoreSummarySafely({ summaryGenerator, cleanedText,
   }
 }
 
-async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta, onStage }) {
-  const generatedQuestions = withStableIds(await generateQuestions({ knowledgePoints }), "q");
+async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta, onStage, modelUsageRecorder = null }) {
+  const generatedQuestions = withStableIds(await generateQuestions({
+    knowledgePoints,
+    stage: "questions_initial",
+    modelUsageRecorder
+  }), "q");
   markStage(meta, "quality_checking", onStage);
-  const firstEvaluation = await evaluateWithJudge({ questions: generatedQuestions, knowledgePoints, cleanedText });
+  const firstEvaluation = await evaluateWithJudge({
+    questions: generatedQuestions,
+    knowledgePoints,
+    cleanedText,
+    stage: "judge_initial",
+    modelUsageRecorder
+  });
 
   const rewriteCandidates = firstEvaluation.evaluatedQuestions.filter((question) => question.qualityAction === "rewrite");
   const rewrittenEvaluations = [];
@@ -207,13 +222,17 @@ async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta, on
       const rewritten = await generateQuestions({
         knowledgePoints: [point],
         rewrite: true,
-        rewriteContext: question.qualityIssues.join(", ")
+        rewriteContext: question.qualityIssues.join(", "),
+        stage: "question_rewrite",
+        modelUsageRecorder
       });
       const rewrittenWithId = withStableIds(rewritten, `${question.id}-rewrite-${index + 1}`);
       const rewriteEvaluation = await evaluateWithJudge({
         questions: rewrittenWithId,
         knowledgePoints,
-        cleanedText
+        cleanedText,
+        stage: "judge_rewrite",
+        modelUsageRecorder
       });
       rewrittenEvaluations.push(...rewriteEvaluation.evaluatedQuestions);
       firstEvaluation.judgeUnavailable ||= rewriteEvaluation.judgeUnavailable;
@@ -242,13 +261,17 @@ async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta, on
         knowledgePoints: [point],
         rewrite: true,
         targetQuestionCountOverride: request.missingCount,
-        rewriteContext: `supplement_for_multi_question_review; ${request.reason}; ${summarizePointIssues(point.id, beforeSupplement)}`
+        rewriteContext: `supplement_for_multi_question_review; ${request.reason}; ${summarizePointIssues(point.id, beforeSupplement)}`,
+        stage: "question_supplement",
+        modelUsageRecorder
       });
       const rewrittenWithId = withStableIds(rewritten, `supplement-${point.id}-${index + 1}`);
       const supplementEvaluation = await evaluateWithJudge({
         questions: rewrittenWithId,
         knowledgePoints,
-        cleanedText
+        cleanedText,
+        stage: "judge_supplement",
+        modelUsageRecorder
       });
       supplementEvaluations.push(...supplementEvaluation.evaluatedQuestions);
       firstEvaluation.judgeUnavailable ||= supplementEvaluation.judgeUnavailable;
@@ -471,8 +494,8 @@ function overlapRatio(a, b) {
   return hits / Math.max(1, new Set([...shorter]).size);
 }
 
-async function evaluateWithJudge({ questions, knowledgePoints, cleanedText }) {
-  const judge = await judgeQuestionQuality({ questions, knowledgePoints });
+async function evaluateWithJudge({ questions, knowledgePoints, cleanedText, stage = "judge_initial", modelUsageRecorder = null }) {
+  const judge = await judgeQuestionQuality({ questions, knowledgePoints, stage, modelUsageRecorder });
   return {
     evaluatedQuestions: evaluateQuestions({
       questions,
@@ -778,10 +801,13 @@ function buildChapter({
 }
 
 function createGenerationMeta() {
+  const now = new Date().toISOString();
   return {
-    startedAt: new Date().toISOString(),
+    generationRunId: createGenerationRunId(),
+    startedAt: now,
     currentStage: "submitted",
-    stages: [{ status: "submitted", at: new Date().toISOString() }]
+    stages: [{ status: "submitted", at: now }],
+    modelUsage: []
   };
 }
 
@@ -794,9 +820,14 @@ function markStage(meta, status, onStage = null) {
 }
 
 function finishMeta(meta, extra = {}) {
+  const modelUsage = Array.isArray(meta.modelUsage) ? meta.modelUsage : [];
+  const qualifiedQuestionCount = Number(extra.qualifiedQuestionCount) || 0;
+  const costSummary = summarizeModelUsage(modelUsage, { qualifiedQuestionCount });
   return {
     ...meta,
     finishedAt: new Date().toISOString(),
-    ...extra
+    ...extra,
+    modelUsage,
+    costSummary
   };
 }

@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import "./env.js";
 import { generateReviewChapter } from "./generation/index.js";
 import { extractSourceContent } from "./sources/extractSourceContent.js";
 import { STATUS_TEXT } from "./generation/types.js";
@@ -151,6 +152,31 @@ async function handleCreateQualityRun(req, res) {
       id: runId,
       status: "generation_failed",
       message: error instanceof Error ? error.message : "质量工作台生成失败。"
+    });
+  }
+}
+
+async function handleCreateCostRun(req, res) {
+  if (!costWorkbenchEnabled()) {
+    sendJson(res, 404, {
+      errorCode: "cost_workbench_disabled",
+      message: "成本工作台未开启。"
+    });
+    return;
+  }
+
+  const body = await readBody(req);
+  try {
+    const result = await generateFromInput(body);
+    sendJson(res, result.status === "completed" ? 200 : 422, buildCostRunResponse(result));
+  } catch (error) {
+    const status = error?.code || error?.status || "failed_questions";
+    const message = error instanceof Error ? error.message : "成本计算生成失败，请稍后重试。";
+    const statusCode = message.includes("OPENAI_API_KEY") || message.includes("DEEPSEEK_API_KEY") ? 500 : 422;
+    sendJson(res, statusCode, {
+      status,
+      errorCode: status,
+      message
     });
   }
 }
@@ -504,6 +530,40 @@ function createQualityRunId() {
   const mi = String(now.getMinutes()).padStart(2, "0");
   const ss = String(now.getSeconds()).padStart(2, "0");
   return `quality-workbench-${yyyy}-${mm}-${dd}-${hh}${mi}${ss}`;
+}
+
+function costWorkbenchEnabled() {
+  if (process.env.ENABLE_COST_WORKBENCH === "1") return true;
+  if (process.env.ENABLE_COST_WORKBENCH === "0") return false;
+  return process.env.NODE_ENV !== "production";
+}
+
+function buildCostRunResponse(result = {}) {
+  const chapter = result.chapter || {};
+  const generationMeta = chapter.generationMeta || {};
+  const modelUsage = Array.isArray(generationMeta.modelUsage) ? generationMeta.modelUsage : [];
+  const costSummary = generationMeta.costSummary || {
+    callCount: modelUsage.length,
+    currencies: [],
+    totalsByCurrency: {},
+    byStage: [],
+    reportText: ""
+  };
+
+  return {
+    status: result.status || chapter.status || "unknown",
+    displayStatusText: result.displayStatusText || chapter.displayStatusText || "",
+    message: result.message || chapter.failureReason || "",
+    chapterTitle: chapter.title || "",
+    questionCount: Array.isArray(chapter.questions) ? chapter.questions.length : 0,
+    knowledgePointCount: Array.isArray(chapter.knowledgePoints) ? chapter.knowledgePoints.length : 0,
+    qualitySummary: chapter.qualitySummary || null,
+    generationRunId: generationMeta.generationRunId || "",
+    modelUsage,
+    costSummary,
+    reportText: costSummary.reportText || "",
+    generatedAt: new Date().toISOString()
+  };
 }
 
 function readPositiveInt(value, fallback) {
@@ -971,14 +1031,15 @@ function serializeChaptersForClient(chapters = []) {
 
 function normalizeGenerationMeta(generationMeta) {
   if (!generationMeta || typeof generationMeta !== "object" || Array.isArray(generationMeta)) return null;
+  const { generationRunId, modelUsage, costSummary, ...clientMeta } = generationMeta;
   return {
-    ...generationMeta,
-    currentStage: generationMeta.currentStage ? toStringValue(generationMeta.currentStage) : null,
-    qualifiedQuestionCount: generationMeta.qualifiedQuestionCount === undefined || generationMeta.qualifiedQuestionCount === null
+    ...clientMeta,
+    currentStage: clientMeta.currentStage ? toStringValue(clientMeta.currentStage) : null,
+    qualifiedQuestionCount: clientMeta.qualifiedQuestionCount === undefined || clientMeta.qualifiedQuestionCount === null
       ? null
-      : toIntegerValue(generationMeta.qualifiedQuestionCount, 0),
-    failedStage: generationMeta.failedStage ? toStringValue(generationMeta.failedStage) : null,
-    failureReason: generationMeta.failureReason ? toStringValue(generationMeta.failureReason) : null
+      : toIntegerValue(clientMeta.qualifiedQuestionCount, 0),
+    failedStage: clientMeta.failedStage ? toStringValue(clientMeta.failedStage) : null,
+    failureReason: clientMeta.failureReason ? toStringValue(clientMeta.failureReason) : null
   };
 }
 
@@ -1752,6 +1813,11 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "POST" && req.url === "/api/cost-runs") {
+    await handleCreateCostRun(req, res);
+    return;
+  }
+
   const qualityRunExportMatch = req.url?.match(/^\/api\/quality-runs\/([^/]+)\/export\.csv$/);
   if (qualityRunExportMatch && req.method === "GET") {
     await handleExportQualityRun(req, res, decodeURIComponent(qualityRunExportMatch[1]));
@@ -2004,4 +2070,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   startServer();
 }
 
-export { createReviewSessionForChapter, recordSessionAttempt, serializeChapterForClient, startOrResumeReviewSession };
+export {
+  buildCostRunResponse,
+  costWorkbenchEnabled,
+  createReviewSessionForChapter,
+  recordSessionAttempt,
+  serializeChapterForClient,
+  startOrResumeReviewSession
+};

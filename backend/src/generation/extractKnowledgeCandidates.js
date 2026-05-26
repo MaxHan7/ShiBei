@@ -1,7 +1,7 @@
 import { callOpenAIJson } from "./openaiClient.js";
 import { knowledgePointSchema, knowledgePointSystemPrompt } from "./prompts/knowledgePoints.js";
 
-export async function extractKnowledgeCandidates({ cleanedText, chunks }) {
+export async function extractKnowledgeCandidates({ cleanedText, chunks, modelUsageRecorder = null }) {
   const chunkText = chunks
     .map((chunk) => `【${chunk.id}｜${chunk.chunkType}｜${chunk.sourceRole || "body"}】${chunk.text}`)
     .join("\n\n");
@@ -10,7 +10,10 @@ export async function extractKnowledgeCandidates({ cleanedText, chunks }) {
     system: knowledgePointSystemPrompt,
     user: `请从以下内容中提取可复习知识点。\n\n${chunkText || cleanedText}`,
     schemaName: "knowledge_points",
-    schema: knowledgePointSchema
+    schema: knowledgePointSchema,
+    stage: "knowledge_points",
+    modelUsageRecorder,
+    estimatedOutputTokens: 1800
   });
 
   return {

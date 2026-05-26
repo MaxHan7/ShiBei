@@ -6,7 +6,9 @@ export async function generateQuestions({
   knowledgePoints,
   rewrite = false,
   rewriteContext = "",
-  targetQuestionCountOverride = null
+  targetQuestionCountOverride = null,
+  stage = "",
+  modelUsageRecorder = null
 }) {
   const points = knowledgePoints.map((point) => ({
     id: point.id,
@@ -29,7 +31,10 @@ export async function generateQuestions({
     system: questionSystemPrompt,
     user: buildUserPrompt({ points, rewrite, rewriteContext }),
     schemaName: "generated_questions",
-    schema: questionSchema
+    schema: questionSchema,
+    stage: stage || (rewrite ? "question_rewrite" : "questions_initial"),
+    modelUsageRecorder,
+    estimatedOutputTokens: estimateQuestionOutputTokens(points)
   });
 
   return (result.questions || []).map((question, index) => normalizeAnswerPosition({
@@ -45,6 +50,11 @@ export async function generateQuestions({
     sourceSnippet: question.sourceSnippet?.trim() || "",
     difficulty: question.difficulty || "medium"
   }, index));
+}
+
+function estimateQuestionOutputTokens(points) {
+  const targetCount = points.reduce((sum, point) => sum + (Number(point.targetQuestionCount) || 1), 0);
+  return Math.max(700, targetCount * 520);
 }
 
 function fallbackPointId(points, index) {

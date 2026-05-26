@@ -1,12 +1,15 @@
 import { callOpenAIJson } from "./openaiClient.js";
 import { chapterSummarySchema, chapterSummarySystemPrompt } from "./prompts/chapterSummary.js";
 
-export async function generateChapterSummary({ cleanedText, title = "" }) {
+export async function generateChapterSummary({ cleanedText, title = "", modelUsageRecorder = null }) {
   const result = await callOpenAIJson({
     system: chapterSummarySystemPrompt,
     user: buildUserPrompt({ cleanedText, title }),
     schemaName: "chapter_core_summary",
-    schema: chapterSummarySchema
+    schema: chapterSummarySchema,
+    stage: "chapter_summary",
+    modelUsageRecorder,
+    estimatedOutputTokens: 180
   });
 
   return normalizeCoreSummary(result.coreSummary);

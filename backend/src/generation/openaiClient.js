@@ -2,9 +2,17 @@ const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const DEEPSEEK_CHAT_URL = "https://api.deepseek.com/chat/completions";
 const MODEL_REQUEST_TIMEOUT_MS = readPositiveInt(process.env.MODEL_REQUEST_TIMEOUT_MS, 90_000);
 
-export async function callOpenAIJson({ system, user, schemaName, schema }) {
+export async function callOpenAIJson({
+  system,
+  user,
+  schemaName,
+  schema,
+  stage,
+  modelUsageRecorder,
+  estimatedOutputTokens
+}) {
   if (process.env.DEEPSEEK_API_KEY || process.env.AI_PROVIDER === "deepseek") {
-    return callDeepSeekJson({ system, user, schemaName, schema });
+    return callDeepSeekJson({ system, user, schemaName, schema, stage, modelUsageRecorder, estimatedOutputTokens });
   }
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -13,6 +21,12 @@ export async function callOpenAIJson({ system, user, schemaName, schema }) {
   }
 
   const model = process.env.OPENAI_MODEL || "gpt-4.1-mini";
+  const requestText = [
+    system,
+    user,
+    schemaName,
+    JSON.stringify(schema)
+  ].join("\n\n");
   const response = await fetchWithTimeout(OPENAI_RESPONSES_URL, {
     method: "POST",
     headers: {
@@ -37,6 +51,16 @@ export async function callOpenAIJson({ system, user, schemaName, schema }) {
   }, "OpenAI");
 
   const payload = await response.json().catch(() => null);
+  recordModelUsage(modelUsageRecorder, {
+    provider: "openai",
+    model,
+    stage,
+    requestText,
+    estimatedOutputTokens,
+    usage: payload?.usage,
+    error: response.ok ? null : payload?.error?.message || `OpenAI 请求失败：${response.status}`
+  });
+
   if (!response.ok) {
     const message = payload?.error?.message || `OpenAI 请求失败：${response.status}`;
     throw new Error(message);
@@ -50,13 +74,23 @@ export async function callOpenAIJson({ system, user, schemaName, schema }) {
   }
 }
 
-async function callDeepSeekJson({ system, user, schemaName, schema }) {
+async function callDeepSeekJson({
+  system,
+  user,
+  schemaName,
+  schema,
+  stage,
+  modelUsageRecorder,
+  estimatedOutputTokens
+}) {
   const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
     throw new Error("缺少 DEEPSEEK_API_KEY。请先在启动后端前设置环境变量。");
   }
 
   const model = process.env.DEEPSEEK_MODEL || "deepseek-v4-flash";
+  const systemMessage = `${system}\n\n你必须只输出一个 JSON 对象，不要输出 Markdown、代码块或解释文字。JSON 必须符合这个 schema 名称：${schemaName}。\n\nJSON Schema:\n${JSON.stringify(schema)}`;
+  const requestText = [systemMessage, user].join("\n\n");
   const response = await fetchWithTimeout(DEEPSEEK_CHAT_URL, {
     method: "POST",
     headers: {
@@ -68,7 +102,7 @@ async function callDeepSeekJson({ system, user, schemaName, schema }) {
       messages: [
         {
           role: "system",
-          content: `${system}\n\n你必须只输出一个 JSON 对象，不要输出 Markdown、代码块或解释文字。JSON 必须符合这个 schema 名称：${schemaName}。\n\nJSON Schema:\n${JSON.stringify(schema)}`
+          content: systemMessage
         },
         { role: "user", content: user }
       ],
@@ -79,6 +113,16 @@ async function callDeepSeekJson({ system, user, schemaName, schema }) {
   }, "DeepSeek");
 
   const payload = await response.json().catch(() => null);
+  recordModelUsage(modelUsageRecorder, {
+    provider: "deepseek",
+    model,
+    stage,
+    requestText,
+    estimatedOutputTokens,
+    usage: payload?.usage,
+    error: response.ok ? null : payload?.error?.message || `DeepSeek 请求失败：${response.status}`
+  });
+
   if (!response.ok) {
     const message = payload?.error?.message || `DeepSeek 请求失败：${response.status}`;
     throw new Error(message);
@@ -92,6 +136,11 @@ async function callDeepSeekJson({ system, user, schemaName, schema }) {
   } catch {
     throw new Error("模型返回内容不是可解析 JSON，请重试。");
   }
+}
+
+function recordModelUsage(modelUsageRecorder, record) {
+  if (!modelUsageRecorder || typeof modelUsageRecorder.record !== "function") return;
+  modelUsageRecorder.record(record);
 }
 
 function extractResponseText(payload) {

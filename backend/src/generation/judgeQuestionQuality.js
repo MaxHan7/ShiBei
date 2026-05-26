@@ -58,7 +58,12 @@ const judgeSystemPrompt = `你是拾贝的题目质量审查员。请按 PRD 的
 
 请只输出 JSON。`;
 
-export async function judgeQuestionQuality({ questions, knowledgePoints }) {
+export async function judgeQuestionQuality({
+  questions,
+  knowledgePoints,
+  stage = "judge_initial",
+  modelUsageRecorder = null
+}) {
   if (!questions.length) return { results: [], judgeUnavailable: false };
 
   try {
@@ -66,7 +71,10 @@ export async function judgeQuestionQuality({ questions, knowledgePoints }) {
       system: judgeSystemPrompt,
       user: JSON.stringify({ knowledgePoints, questions }, null, 2),
       schemaName: "question_quality_judge",
-      schema: judgeSchema
+      schema: judgeSchema,
+      stage,
+      modelUsageRecorder,
+      estimatedOutputTokens: Math.max(350, questions.length * 140)
     });
 
     return {
