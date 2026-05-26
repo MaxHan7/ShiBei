@@ -134,3 +134,55 @@ export async function sendGenerationNotification({ token, notification, chapter 
     request.end(JSON.stringify(payload));
   });
 }
+
+export async function sendDiagnosticNotification({ token }) {
+  if (!isAPNSConfigured()) return { skipped: true, reason: "apns_not_configured" };
+  if (!token?.token || token.platform !== "ios") return { skipped: true, reason: "unsupported_token" };
+
+  const config = apnsConfig();
+  const environment = token.environment === "sandbox" ? "sandbox" : "production";
+  const client = http2.connect(apnsHost(environment));
+  const payload = {
+    aps: {
+      alert: {
+        title: "拾贝通知测试",
+        body: "如果你看到这条通知，系统推送已经连通。"
+      },
+      sound: "default"
+    },
+    type: "push_diagnostic"
+  };
+
+  return new Promise((resolve) => {
+    const request = client.request({
+      ":method": "POST",
+      ":path": `/3/device/${token.token}`,
+      authorization: `bearer ${makeAuthToken()}`,
+      "apns-topic": config.bundleId,
+      "apns-push-type": "alert",
+      "apns-priority": "10"
+    });
+
+    let body = "";
+    request.setEncoding("utf8");
+    request.on("data", (chunk) => {
+      body += chunk;
+    });
+    request.on("response", (headers) => {
+      request.on("end", () => {
+        client.close();
+        const status = Number(headers[":status"] || 0);
+        resolve({
+          ok: status >= 200 && status < 300,
+          status,
+          body
+        });
+      });
+    });
+    request.on("error", (error) => {
+      client.close();
+      resolve({ ok: false, status: 0, body: error instanceof Error ? error.message : "apns_request_failed" });
+    });
+    request.end(JSON.stringify(payload));
+  });
+}
