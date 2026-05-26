@@ -246,6 +246,31 @@ final class AppStore: ObservableObject {
         }
     }
 
+    var favoriteKnowledgePointDisplayItems: [FavoriteKnowledgePointDisplayItem] {
+        var groups: [String: FavoriteKnowledgePointDisplayItem] = [:]
+        var orderedKeys: [String] = []
+
+        for record in favoriteQuestions {
+            guard let question = question(for: record.questionId, in: record.chapterId) else { continue }
+            let key = "\(record.chapterId)::\(question.knowledgePointId)"
+            if var item = groups[key] {
+                item.records.append(record)
+                item.questions.append(question)
+                groups[key] = item
+            } else {
+                orderedKeys.append(key)
+                groups[key] = FavoriteKnowledgePointDisplayItem(
+                    id: key,
+                    pointTitle: question.pointTitle,
+                    records: [record],
+                    questions: [question]
+                )
+            }
+        }
+
+        return orderedKeys.compactMap { groups[$0] }
+    }
+
     var isFavoriteReviewActive: Bool {
         route == .review && favoriteReviewActive
     }
@@ -340,7 +365,11 @@ final class AppStore: ObservableObject {
     }
 
     func startFavoriteReview(from recordId: String? = nil) {
-        let records = favoriteQuestions.filter { record in
+        startFavoriteReview(records: favoriteQuestions, from: recordId)
+    }
+
+    func startFavoriteReview(records inputRecords: [FavoriteQuestionRecord], from recordId: String? = nil) {
+        let records = inputRecords.filter { record in
             question(for: record.questionId, in: record.chapterId) != nil
         }
         guard !records.isEmpty else {

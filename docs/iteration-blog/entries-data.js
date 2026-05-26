@@ -385,6 +385,29 @@ window.iterationEntries = [
   },
   {
     "date": "2026-05-25",
+    "title": "系统通知从“配置好了”变成“可诊断”",
+    "phase": "TestFlight 发布准备",
+    "problem": "真机已经请求通知权限，Railway 也显示 APNs 配置完成，但生成结束后用户仍收不到系统通知。原有链路只能知道“配置是否存在”，无法判断设备 token 是否上传、环境是否匹配、APNs 是否返回错误。",
+    "changes": [
+      "iOS 在首次授权、回到前台、提交云端生成前后主动同步 APNs token，减少 token 未上传或过期导致的漏发。",
+      "后端新增 push-status 诊断接口，按匿名设备展示 token 尾号、sandbox/production 环境和最近通知的 APNs 发送结果。",
+      "通知记录补充 pushAttemptedAt、pushSentAt、pushDeliveryStatus、pushDeliveryError 和 pushAttemptCount，方便定位 BadDeviceToken、BadEnvironmentKeyInToken 等问题。",
+      "启动加载页承接云端首次同步时间，避免刚打开 App 时短暂显示空首页。"
+    ],
+    "screenshots": [
+      {
+        "src": "assets/2026-05-25-apns-notification-diagnostics.svg",
+        "caption": "把通知链路拆成权限、token、云端发送和点击归档四个可检查节点"
+      }
+    ],
+    "result": "通知问题不再只靠猜：可以逐步确认 App 是否上传 token、后端是否尝试发送、Apple 返回了什么错误。TestFlight 前的通知闭环更接近可验收状态。",
+    "next": "部署 Railway 后用新版 TestFlight 真机回归：授权通知、提交生成、后台等待通知、点击进入章节详情，并检查 push-status 诊断结果。",
+    "commits": [
+      "fa12d54"
+    ]
+  },
+  {
+    "date": "2026-05-25",
     "title": "收藏题目入口收敛到章节页",
     "phase": "SwiftUI 体验打磨",
     "problem": "收藏题目如果作为单独题集卡片，页面只有一个入口时信息密度很低；收藏页再放“开始复习”按钮，也会和点击单题进入复习的心智冲突。",
@@ -404,41 +427,6 @@ window.iterationEntries = [
     "commits": [
       "3e3f0c8"
     ]
-  },
-  {
-    "date": "2026-05-25",
-    "title": "出题系统 V9：恢复多题型强化",
-    "phase": "核心出题系统",
-    "problem": "实际使用中题目质量已经及格，但 PRD 里的每个知识点 1-3 道题、不同题型强化记忆被后处理压成了每个知识点最多 1 道题。",
-    "changes": [
-      "把最终入池选择器从一点一题改为最多 3 题，优先保留 multiple_choice、true_false、scenario_judgment 等不同题型。",
-      "补题逻辑从没有 pass 才补，改为未达到目标题数或题型覆盖不足时补。",
-      "保留质量底线：结构坏、答案不唯一、来源不支撑的题仍然 blocked；轻微风险题以低置信入池。"
-    ],
-    "screenshots": [
-      {
-        "src": "assets/2026-05-25-出题系统-v9-恢复多题型强化.svg",
-        "caption": "V9 恢复每个知识点多题型强化记忆"
-      }
-    ],
-    "result": "出题系统重新回到多角度记忆强化目标，同时保留来源支撑和答案唯一性的质量底线。",
-    "next": "用质量工作台观察每知识点平均题数、3 题覆盖率、题型分布和低置信题人工可用率。",
-    "commits": []
-  },
-  {
-    "date": "2026-05-25",
-    "title": "复习完成反馈长期化",
-    "phase": "SwiftUI 体验打磨",
-    "problem": "用户完成一章后再次复习，首页已掌握知识点和章节列表状态会被新一轮 ReviewSession 拉回未完成，完成反馈被撤销。",
-    "changes": [
-      "把 masteredPoints 定义为长期累计成果，不再跟随当前复习轮次清零。",
-      "章节卡片用待复习、复习中、已完成表达复习状态，去掉已完成章节上价值不大的“已生成”标签。",
-      "生成中和生成失败标签统一放在章节卡片左上角，保持任务状态位置一致。"
-    ],
-    "screenshots": [],
-    "result": "用户二刷不会失去已完成反馈，首页已掌握数量和章节列表状态更符合长期学习心智。",
-    "next": "继续用真机回归章节复习、二刷、失败章节和生成中章节的列表状态。",
-    "commits": []
   },
   {
     "date": "2026-05-25",
@@ -478,25 +466,94 @@ window.iterationEntries = [
   },
   {
     "date": "2026-05-25",
-    "title": "系统通知从“配置好了”变成“可诊断”",
-    "phase": "TestFlight 发布准备",
-    "problem": "真机已经请求通知权限，Railway 也显示 APNs 配置完成，但生成结束后用户仍收不到系统通知。原有链路只能知道“配置是否存在”，无法判断设备 token 是否上传、环境是否匹配、APNs 是否返回错误。",
+    "title": "出题系统 V9：恢复多题型强化",
+    "phase": "核心出题系统",
+    "problem": "实际使用中题目质量已经及格，但 PRD 里的每个知识点 1-3 道题、不同题型强化记忆被后处理压成了每个知识点最多 1 道题。",
     "changes": [
-      "iOS 在首次授权、回到前台、提交云端生成前后主动同步 APNs token，减少 token 未上传或过期导致的漏发。",
-      "后端新增 push-status 诊断接口，按匿名设备展示 token 尾号、sandbox/production 环境和最近通知的 APNs 发送结果。",
-      "通知记录补充 pushAttemptedAt、pushSentAt、pushDeliveryStatus、pushDeliveryError 和 pushAttemptCount，方便定位 BadDeviceToken、BadEnvironmentKeyInToken 等问题。",
-      "启动加载页承接云端首次同步时间，避免刚打开 App 时短暂显示空首页。"
+      "把最终入池选择器从一点一题改为最多 3 题，优先保留 multiple_choice、true_false、scenario_judgment 等不同题型。",
+      "补题逻辑从没有 pass 才补，改为未达到目标题数或题型覆盖不足时补。",
+      "保留质量底线：结构坏、答案不唯一、来源不支撑的题仍然 blocked；轻微风险题以低置信入池。"
     ],
     "screenshots": [
       {
-        "src": "assets/2026-05-25-apns-notification-diagnostics.svg",
-        "caption": "把通知链路拆成权限、token、云端发送和点击归档四个可检查节点"
+        "src": "assets/2026-05-25-出题系统-v9-恢复多题型强化.svg",
+        "caption": "V9 恢复每个知识点多题型强化记忆"
       }
     ],
-    "result": "通知问题不再只靠猜：可以逐步确认 App 是否上传 token、后端是否尝试发送、Apple 返回了什么错误。TestFlight 前的通知闭环更接近可验收状态。",
-    "next": "部署 Railway 后用新版 TestFlight 真机回归：授权通知、提交生成、后台等待通知、点击进入章节详情，并检查 push-status 诊断结果。",
+    "result": "出题系统重新回到多角度记忆强化目标，同时保留来源支撑和答案唯一性的质量底线。",
+    "next": "用质量工作台观察每知识点平均题数、3 题覆盖率、题型分布和低置信题人工可用率。",
+    "commits": []
+  },
+  {
+    "date": "2026-05-25",
+    "title": "复习完成反馈长期化",
+    "phase": "SwiftUI 体验打磨",
+    "problem": "用户完成一章后再次复习，首页已掌握知识点和章节列表状态会被新一轮 ReviewSession 拉回未完成，完成反馈被撤销。",
+    "changes": [
+      "把 masteredPoints 定义为长期累计成果，不再跟随当前复习轮次清零。",
+      "章节卡片用待复习、复习中、已完成表达复习状态，去掉已完成章节上价值不大的“已生成”标签。",
+      "生成中和生成失败标签统一放在章节卡片左上角，保持任务状态位置一致。"
+    ],
+    "screenshots": [],
+    "result": "用户二刷不会失去已完成反馈，首页已掌握数量和章节列表状态更符合长期学习心智。",
+    "next": "继续用真机回归章节复习、二刷、失败章节和生成中章节的列表状态。",
+    "commits": []
+  },
+  {
+    "date": "2026-05-26",
+    "title": "成本计算工作台和模型用量审计",
+    "phase": "服务端成本治理",
+    "problem": "模型选择和定价策略需要知道单篇章节的真实 token 成本，但成本数据不能进入 iOS App 主接口或用户章节数据。",
+    "changes": [
+      "在模型调用层记录 provider usage、估算 token、实际成本和误差率。",
+      "新增独立 HTML 成本计算工作台，通过 /api/cost-runs 查看单篇章节成本，不保存章节、不创建通知。",
+      "App 主接口序列化时剥离 generationRunId、modelUsage 和 costSummary，保证成本调试与 iOS 分发隔离。"
+    ],
+    "screenshots": [
+      {
+        "src": "assets/2026-05-26-成本计算工作台和模型用量审计.svg",
+        "caption": "独立成本工作台把模型成本审计从 App 主流程中隔离出来"
+      }
+    ],
+    "result": "现在可以用内部页面对比单篇生成的估算成本和真实 usage 成本，同时保持正常 App 分发接口干净。",
+    "next": "用成本工作台跑真实样本，沉淀不同模型的质量和成本对比表。",
     "commits": [
-      "fa12d54"
+      "7016972",
+      "9adc5ec",
+      "41002f6",
+      "69490e5",
+      "304df0e",
+      "ffc6f24",
+      "bfcb080"
+    ]
+  },
+  {
+    "date": "2026-05-26",
+    "title": "收藏题目卡片和章节详情减负",
+    "phase": "SwiftUI 体验打磨",
+    "problem": "收藏题目数量变多后，列表卡片如果同时展示知识点、题干和来源，会显得拥挤；章节详情页的“已生成”状态也没有行动价值。",
+    "changes": [
+      "收藏页仍按题目收藏，但列表按知识点聚合展示，主文字只显示知识点。",
+      "每个知识点卡片用小字展示已收藏题数，点击后复习该知识点下的收藏题。",
+      "章节详情页删除完成章节的“状态：已生成”，只在生成中和失败时展示状态。"
+    ],
+    "screenshots": [
+      {
+        "src": "assets/2026-05-26-收藏题目卡片和章节详情减负.svg",
+        "caption": "收藏题目按知识点聚合，章节详情去掉无意义生成状态"
+      }
+    ],
+    "result": "收藏页更像一个快速定位高价值理解的入口，章节详情页标题区域也更干净。",
+    "next": "继续用真机和 TestFlight 检查收藏复习流、章节详情和生成状态的整体一致性。",
+    "commits": [
+      "c30566b",
+      "7016972",
+      "9adc5ec",
+      "41002f6",
+      "69490e5",
+      "304df0e",
+      "ffc6f24",
+      "bfcb080"
     ]
   }
 ];

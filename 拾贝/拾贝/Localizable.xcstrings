@@ -1508,13 +1508,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld saved questions"
+            "value" : "%lld saved"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已收藏 %lld 道高价值题"
+            "value" : "已收藏 %lld 题"
           }
         }
       }

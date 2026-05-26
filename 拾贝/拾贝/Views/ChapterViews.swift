@@ -101,7 +101,7 @@ private struct FavoriteQuestionsContent: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if store.favoriteDisplayItems.isEmpty {
+            if store.favoriteKnowledgePointDisplayItems.isEmpty {
                 Text(store.localized("favorites.empty_title"))
                     .font(.system(size: 22, weight: .bold))
                     .foregroundStyle(ShiBeiTheme.muted)
@@ -109,11 +109,11 @@ private struct FavoriteQuestionsContent: View {
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 10) {
-                        ForEach(store.favoriteDisplayItems) { item in
+                        ForEach(store.favoriteKnowledgePointDisplayItems) { item in
                             Button {
-                                store.startFavoriteReview(from: item.record.id)
+                                store.startFavoriteReview(records: item.records)
                             } label: {
-                                FavoriteQuestionPreviewCard(item: item, language: store.appLanguage)
+                                FavoriteKnowledgePointPreviewCard(item: item, language: store.appLanguage)
                             }
                             .buttonStyle(.plain)
                         }
@@ -327,34 +327,39 @@ struct FavoriteQuestionsView: View {
     }
 }
 
-private struct FavoriteQuestionPreviewCard: View {
-    let item: FavoriteQuestionDisplayItem
+private struct FavoriteKnowledgePointPreviewCard: View {
+    let item: FavoriteKnowledgePointDisplayItem
     let language: AppLanguage
 
     var body: some View {
-        SBCard(padding: 16) {
-            VStack(alignment: .leading, spacing: 11) {
-                HStack(spacing: 8) {
-                    Circle()
-                        .fill(ShiBeiTheme.yellow)
-                        .frame(width: 6, height: 6)
-                    Text(item.question.pointTitle)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(ShiBeiTheme.muted)
-                        .lineLimit(1)
-                    Spacer(minLength: 8)
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(ShiBeiTheme.faint)
+        SBCard(padding: 18) {
+            HStack(alignment: .center, spacing: 12) {
+                Circle()
+                    .fill(ShiBeiTheme.yellow)
+                    .frame(width: 6, height: 6)
+                    .padding(.top, 2)
+
+                VStack(alignment: .leading, spacing: 7) {
+                    Text(item.pointTitle)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(ShiBeiTheme.text)
+                        .lineSpacing(3)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Text(String(
+                        format: L10n.string("favorites.card_subtitle", language: language),
+                        locale: Locale(identifier: language.localeIdentifier),
+                        item.questionCount
+                    ))
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(ShiBeiTheme.muted)
                 }
 
-                Text(item.question.stem)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(ShiBeiTheme.text)
-                    .lineSpacing(3)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(ShiBeiTheme.faint)
             }
         }
     }
@@ -388,8 +393,10 @@ struct ChapterDetailView: View {
                         sourceLines(for: chapter)
                         Text(store.localizedFormat("chapter.counts", chapter.knowledgePoints.count, chapter.questions.count))
                             .foregroundStyle(ShiBeiTheme.muted)
-                        Text(store.localizedFormat("chapter.status_line", chapter.visibleStatusText(language: store.appLanguage)))
-                            .foregroundStyle(ShiBeiTheme.muted)
+                        if chapter.status.isProcessing || chapter.status.isFailed {
+                            Text(store.localizedFormat("chapter.status_line", chapter.visibleStatusText(language: store.appLanguage)))
+                                .foregroundStyle(ShiBeiTheme.muted)
+                        }
 
                         ArticleCoreCard(chapter: chapter, language: store.appLanguage)
 

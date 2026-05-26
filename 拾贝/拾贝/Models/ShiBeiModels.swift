@@ -225,6 +225,17 @@ struct FavoriteQuestionDisplayItem: Identifiable, Hashable {
     var chapterTitle: String
 }
 
+struct FavoriteKnowledgePointDisplayItem: Identifiable, Hashable {
+    var id: String
+    var pointTitle: String
+    var records: [FavoriteQuestionRecord]
+    var questions: [ReviewQuestion]
+
+    var questionCount: Int {
+        records.count
+    }
+}
+
 struct ReviewSession: Codable, Identifiable, Hashable {
     var schemaVersion: Int
     var id: String
