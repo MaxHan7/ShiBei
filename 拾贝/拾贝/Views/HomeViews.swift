@@ -221,10 +221,6 @@ struct AddKnowledgeView: View {
         AppScaffold(store: store, title: store.localized("add.title")) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    Text(store.localized("add.intro"))
-                        .font(.system(size: 15))
-                        .foregroundStyle(ShiBeiTheme.muted)
-
                     SBCard {
                         HStack(spacing: 12) {
                             Image(systemName: "pencil")

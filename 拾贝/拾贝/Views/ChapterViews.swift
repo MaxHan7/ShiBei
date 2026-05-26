@@ -333,11 +333,11 @@ private struct FavoriteKnowledgePointPreviewCard: View {
 
     var body: some View {
         SBCard(padding: 18) {
-            HStack(alignment: .center, spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
                 Circle()
                     .fill(ShiBeiTheme.yellow)
                     .frame(width: 6, height: 6)
-                    .padding(.top, 2)
+                    .padding(.top, 7)
 
                 VStack(alignment: .leading, spacing: 7) {
                     Text(item.pointTitle)
