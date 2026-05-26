@@ -71,8 +71,8 @@ struct ProfileView: View {
                         .tint(ShiBeiTheme.error)
                         .disabled(isDeletingData)
                     }
-                    PushDiagnosticsCard(store: store)
                     #if DEBUG
+                    PushDiagnosticsCard(store: store)
                     DataSourceCard(store: store)
                     MockScenarioCard(store: store)
                     #endif
