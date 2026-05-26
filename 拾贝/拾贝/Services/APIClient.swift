@@ -113,10 +113,6 @@ struct APIClient {
         try await get("/api/devices/push-status")
     }
 
-    func sendPushTest() async throws -> PushTestResponse {
-        try await send("/api/devices/push-test", method: "POST", body: EmptyRequest(), acceptsFailureBody: true)
-    }
-
     private func get<Response: Decodable>(_ path: String) async throws -> Response {
         let url = baseURL.appending(path: path)
         var request = URLRequest(url: url)
@@ -304,21 +300,6 @@ struct PushStatusResponse: Codable {
     var pushTokenCount: Int
     var pushTokens: [Token]
     var recentNotifications: [RecentNotification]
-}
-
-struct PushTestResponse: Codable {
-    struct Result: Codable {
-        var tokenTail: String
-        var environment: PushTokenEnvironment
-        var ok: Bool
-        var skipped: Bool
-        var status: Int
-        var body: String
-    }
-
-    var ok: Bool
-    var tokenCount: Int?
-    var results: [Result]
 }
 
 struct ChapterCreateRequest: Codable {

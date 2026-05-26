@@ -41,7 +41,7 @@ import {
   upsertNotification as upsertDatabaseNotification,
   upsertPushToken as upsertDatabasePushToken
 } from "./db.js";
-import { apnsConfigurationSummary, isAPNSConfigured, sendDiagnosticNotification, sendGenerationNotification } from "./apns.js";
+import { apnsConfigurationSummary, isAPNSConfigured, sendGenerationNotification } from "./apns.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const projectRoot = resolve(__dirname, "..", "..");
@@ -1115,18 +1115,6 @@ function serializeNotificationPushDiagnostics(notification = {}) {
   };
 }
 
-function serializeDiagnosticPushResult(token, result) {
-  const normalized = normalizePushToken(token);
-  return {
-    tokenTail: normalized.token ? normalized.token.slice(-8) : "",
-    environment: normalized.environment,
-    ok: Boolean(result?.ok),
-    skipped: Boolean(result?.skipped),
-    status: result?.status || 0,
-    body: result?.body || result?.reason || ""
-  };
-}
-
 async function sendStoredPushNotifications(deviceId, notification, chapter) {
   if (!notification || notification.dismissed) return { skipped: true, reason: "notification_unavailable" };
   if (!isAPNSConfigured()) {
@@ -1212,22 +1200,6 @@ async function sendPendingStoredPushNotifications(deviceId) {
     sent += toIntegerValue(result?.sentCount, 0);
   }
   return { attempted: pending.length, sent };
-}
-
-async function sendStoredDiagnosticPushNotification(deviceId) {
-  if (!isAPNSConfigured()) return { ok: false, skipped: true, reason: "apns_not_configured", results: [] };
-  const tokens = await listStoredPushTokens(deviceId);
-  if (tokens.length === 0) return { ok: false, skipped: true, reason: "no_tokens", results: [] };
-
-  const results = await Promise.all(tokens.map(async (token) => {
-    const result = await sendDiagnosticNotification({ token });
-    return serializeDiagnosticPushResult(token, result);
-  }));
-  return {
-    ok: results.some((result) => result.ok),
-    tokenCount: tokens.length,
-    results
-  };
 }
 
 function normalizeReviewSession(session = {}, chapter = {}) {
@@ -1890,16 +1862,6 @@ const server = createServer(async (req, res) => {
       recentNotifications: sortByCreatedAtDesc(notifications)
         .slice(0, 10)
         .map(serializeNotificationPushDiagnostics)
-    });
-    return;
-  }
-
-  if (req.method === "POST" && req.url === "/api/devices/push-test") {
-    const result = await sendStoredDiagnosticPushNotification(deviceId);
-    sendJson(res, 200, {
-      ok: result.ok,
-      apns: apnsConfigurationSummary(),
-      ...result
     });
     return;
   }

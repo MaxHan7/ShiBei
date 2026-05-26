@@ -130,18 +130,6 @@ private struct PushDiagnosticsCard: View {
                 }
                 .disabled(store.isLoadingPushDiagnostics)
 
-                SecondaryButton(
-                    title: store.isSendingPushTest ? "发送中" : "发送测试通知",
-                    systemImage: store.isSendingPushTest ? "hourglass" : "paperplane"
-                ) {
-                    Task {
-                        await store.sendPushTestNotification()
-                    }
-                }
-                .disabled(store.isSendingPushTest)
-            }
-
-            HStack(spacing: 10) {
                 Button {
                     UIPasteboard.general.string = store.pushDiagnosticCopyText
                     copied = true

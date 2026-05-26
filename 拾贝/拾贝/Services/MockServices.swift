@@ -34,7 +34,6 @@ final class AppStore: ObservableObject {
     @Published var isWritingChapter = false
     @Published var isSubmittingReview = false
     @Published var isLoadingPushDiagnostics = false
-    @Published var isSendingPushTest = false
     @Published var pushDiagnosticSummary = ""
 
     let chapterService: any ChapterServicing
@@ -497,29 +496,6 @@ final class AppStore: ObservableObject {
         }
     }
 
-    func sendPushTestNotification() async {
-        guard let client = apiClient(for: .cloudAPI) ?? activeAPIClient else {
-            pushDiagnosticSummary = "云端地址无效，无法发送测试通知。"
-            return
-        }
-        isSendingPushTest = true
-        defer { isSendingPushTest = false }
-        await syncPushTokenIfAuthorized()
-        do {
-            let response = try await client.sendPushTest()
-            let results = response.results.map { result in
-                let state = result.ok ? "成功" : (result.skipped ? "跳过" : "失败")
-                let detail = result.body.isEmpty ? "" : "，返回：\(result.body)"
-                return "\(state)(\(result.environment.rawValue), *\(result.tokenTail))\(detail)"
-            }.joined(separator: "；")
-            pushDiagnosticSummary = response.ok
-                ? "测试通知已发送。\(results)"
-                : "测试通知发送失败。\(results.isEmpty ? "没有可用 token" : results)"
-        } catch {
-            pushDiagnosticSummary = "测试通知发送失败：\(userFacingErrorMessage(error))"
-        }
-    }
-
     var pushDiagnosticCopyText: String {
         """
         deviceId: \(anonymousDeviceId)
@@ -546,8 +522,6 @@ final class AppStore: ObservableObject {
             let delivery = latest.pushDeliveryStatus.isEmpty ? "未尝试" : latest.pushDeliveryStatus
             let error = latest.pushDeliveryError.isEmpty ? "" : "，错误：\(latest.pushDeliveryError)"
             latestText = "最近通知：\(delivery)\(error)"
-        } else if !latestTokenUpdatedAt.isEmpty {
-            latestText = "当前 token 注册后还没有生成通知推送记录，可发送测试通知验证当前链路"
         } else {
             latestText = "最近没有通知记录"
         }
