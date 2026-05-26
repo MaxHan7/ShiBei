@@ -5,11 +5,14 @@
   <text x="150" y="220" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="44" font-weight="900">成本计算工作台和模型用量审计</text>
   <rect x="150" y="286" width="420" height="250" rx="28" fill="#fffaf4" stroke="#eadfcd"/>
   <text x="188" y="346" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="800">问题</text>
-  <text x="188" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">模型选择和定价策略需要知道单篇章节的真实 token 成本，但成本数据不</text>
-  <text x="188" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">能进入 iOS App 主接口或用户章节数据。</text>
+  <text x="188" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">要做模型选择与定价，需要看到‘单篇章节生成’在各阶段的真实 token/</text>
+  <text x="188" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">成本（含估算误差），但这些成本调试数据又不能进入 iOS App 的主接</text>
+  <text x="188" y="462" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">口或章节数据，否则会污染用户数据契约、增加分发风险。今天的问题是：如何把</text>
+  <text x="188" y="496" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">成本观测从用户主流程中剥离出来，同时仍能把每次生成的用量、估算与误差留成</text>
   <rect x="630" y="286" width="420" height="250" rx="28" fill="#fffaf4" stroke="#eadfcd"/>
   <text x="668" y="346" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="800">效果</text>
-  <text x="668" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">现在可以用内部页面对比单篇生成的估算成本和真实 usage 成本，同时保持正</text>
-  <text x="668" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">常 App 分发接口干净。</text>
+  <text x="668" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">现在可以用成本工作台对单篇生成做端到端审计：既能看到分阶段估算成本与真实 u</text>
+  <text x="668" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">sage 的差异，也能把每次运行的 JSON 留存为证据；同时 iOS 侧保</text>
+  <text x="668" y="462" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">持数据契约干净，不需要携带成本调试字段进入用户流程。</text>
   <text x="150" y="612" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">2026-05-26</text>
 </svg>

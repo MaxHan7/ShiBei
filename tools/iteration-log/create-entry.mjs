@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
@@ -51,7 +51,7 @@ const entry = {
 
 writeFileSync(entryPath, `${JSON.stringify(entry, null, 2)}\n`);
 writeFileSync(path.join(assetsDir, assetName), renderSummarySvg(entry));
-updateManifest(filename);
+syncBlogManifests();
 
 console.log(`Created ${path.relative(repoRoot, entryPath)}`);
 console.log(`Created docs/iteration-blog/assets/${assetName}`);
@@ -98,12 +98,11 @@ function parseArgs(argv) {
 
 function updateManifest(file) {
   const manifestPath = path.join(entriesDir, "index.json");
-  const manifest = existsSync(manifestPath)
-    ? JSON.parse(readFileSync(manifestPath, "utf8"))
-    : { files: [] };
-  const files = new Set(Array.isArray(manifest.files) ? manifest.files : []);
-  files.add(file);
-  const sorted = [...files].sort();
+  const files = readdirSync(entriesDir)
+    .filter((name) => name.endsWith(".json") && name !== "index.json")
+    .sort();
+  if (file && !files.includes(file)) files.push(file);
+  const sorted = [...new Set(files)].sort();
   writeFileSync(manifestPath, `${JSON.stringify({ files: sorted }, null, 2)}\n`);
 }
 
@@ -182,4 +181,21 @@ function escapeXml(value) {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+}
+
+function syncBlogManifests() {
+  updateManifest(filename);
+  updateEntriesData();
+}
+
+function updateEntriesData() {
+  const manifestPath = path.join(entriesDir, "index.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const files = Array.isArray(manifest.files) ? manifest.files : [];
+  const entries = files.map((file) => {
+    const fullPath = path.join(entriesDir, file);
+    return JSON.parse(readFileSync(fullPath, "utf8"));
+  });
+  const target = path.join(blogRoot, "entries-data.js");
+  writeFileSync(target, `window.iterationEntries = ${JSON.stringify(entries, null, 2)};\n`);
 }
