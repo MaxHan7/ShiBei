@@ -8,6 +8,7 @@ final class AppStore: ObservableObject {
     @Published var selectedChapterId: String?
     @Published var route: AppRoute = .home
     @Published var chapterDetailReturnRoute: AppRoute = .chapters
+    @Published var knowledgeListReturnRoute: AppRoute = .chapterDetail
     @Published var showingSubmittedToast = false
     @Published var showingNotificationEducation = false
     @Published var hasShownNotificationEducation = false
@@ -104,6 +105,16 @@ final class AppStore: ObservableObject {
             locale: Locale(identifier: appLanguage.localeIdentifier),
             arguments: arguments
         )
+    }
+
+    func reviewPrimaryActionTitle(for chapter: Chapter) -> String {
+        if chapter.status.isFailed || chapter.status.isProcessing {
+            return localized("home.action.view_chapter")
+        }
+        if chapter.reviewSession?.status == .active {
+            return localized("home.action.continue_review")
+        }
+        return localized("home.action.start_review")
     }
 
     var localizedDataSourceMessage: String {
@@ -510,6 +521,16 @@ final class AppStore: ObservableObject {
         chapterSection = .chapters
         selectedTab = .chapters
         route = .chapterDetail
+    }
+
+    func openKnowledgeList(returnTo route: AppRoute = .chapterDetail) {
+        knowledgeListReturnRoute = route
+        selectedTab = .chapters
+        self.route = .knowledgeList
+    }
+
+    func returnFromKnowledgeList() {
+        route = knowledgeListReturnRoute
     }
 
     func exitReviewToHome() {

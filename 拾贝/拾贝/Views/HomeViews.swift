@@ -85,11 +85,46 @@ private struct HomeChapterContent: View {
     let chapter: Chapter
 
     private var progress: Int {
-        chapter.lifetimeMasteredPointCount
+        questionProgress.completed
     }
 
     private var total: Int {
-        max(1, chapter.knowledgePoints.count)
+        questionProgress.total
+    }
+
+    private var questionProgress: (completed: Int, total: Int) {
+        let reviewableQuestionIds = Set(chapter.reviewableQuestions.map(\.id))
+        let totalQuestions = max(1, reviewableQuestionIds.count)
+
+        guard let session = chapter.reviewSession else {
+            return chapter.hasCompletedReviewOnce ? (totalQuestions, totalQuestions) : (0, totalQuestions)
+        }
+
+        let mainQueueItemIds = session.queue.compactMap { item -> String? in
+            guard !session.skippedPointIds.contains(item.pointId),
+                  reviewableQuestionIds.contains(item.questionId) else {
+                return nil
+            }
+            return item.id
+        }
+
+        if !mainQueueItemIds.isEmpty {
+            let completedIds = Set(session.completedQueueItemIds)
+            let completed = mainQueueItemIds.filter { completedIds.contains($0) }.count
+            return (min(completed, mainQueueItemIds.count), max(1, mainQueueItemIds.count))
+        }
+
+        if session.status == .completed || chapter.hasCompletedReviewOnce {
+            return (totalQuestions, totalQuestions)
+        }
+
+        let answeredQuestionIds = Set(session.attempts.compactMap { attempt -> String? in
+            guard !attempt.invalidatedByFeedback, reviewableQuestionIds.contains(attempt.questionId) else {
+                return nil
+            }
+            return attempt.questionId
+        })
+        return (min(answeredQuestionIds.count, totalQuestions), totalQuestions)
     }
 
     private var isReviewCompleted: Bool {
@@ -110,13 +145,7 @@ private struct HomeChapterContent: View {
     }
 
     private var primaryButtonTitle: String {
-        if chapter.status.isFailed || chapter.status.isProcessing {
-            return store.localized("home.action.view_chapter")
-        }
-        if chapter.reviewSession?.status == .active {
-            return store.localized("home.action.continue_review")
-        }
-        return store.localized("home.action.start_review")
+        store.reviewPrimaryActionTitle(for: chapter)
     }
 
     var body: some View {

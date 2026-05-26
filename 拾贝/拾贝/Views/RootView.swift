@@ -38,6 +38,8 @@ struct RootView: View {
         .sheet(item: $store.feedbackSheetContext) { _ in
             FeedbackSheet(store: store)
                 .presentationDetents([.height(340)])
+                .presentationBackground(ShiBeiTheme.card)
+                .presentationDragIndicator(.hidden)
         }
         .sheet(isPresented: $store.showingNotificationEducation) {
             NotificationEducationSheet(language: store.appLanguage) {

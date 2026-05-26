@@ -108,7 +108,7 @@ private struct FavoriteQuestionsContent: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 14) {
+                    VStack(alignment: .leading, spacing: 10) {
                         ForEach(store.favoriteDisplayItems) { item in
                             Button {
                                 store.startFavoriteReview(from: item.record.id)
@@ -332,26 +332,29 @@ private struct FavoriteQuestionPreviewCard: View {
     let language: AppLanguage
 
     var body: some View {
-        SBCard(padding: 18) {
-            HStack(alignment: .top, spacing: 12) {
-                Circle()
-                    .fill(ShiBeiTheme.yellow)
-                    .frame(width: 8, height: 8)
-                    .padding(.top, 6)
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(L10n.format("favorites.knowledge_point_label", language: language, item.question.pointTitle))
+        SBCard(padding: 16) {
+            VStack(alignment: .leading, spacing: 11) {
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(ShiBeiTheme.yellow)
+                        .frame(width: 6, height: 6)
+                    Text(item.question.pointTitle)
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(ShiBeiTheme.muted)
                         .lineLimit(1)
-                    Text(item.question.stem)
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(ShiBeiTheme.text)
-                        .lineLimit(3)
-                    Text(L10n.format("favorites.source_chapter_label", language: language, item.chapterTitle))
-                        .font(.system(size: 13))
-                        .foregroundStyle(ShiBeiTheme.muted)
-                        .lineLimit(1)
+                    Spacer(minLength: 8)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(ShiBeiTheme.faint)
                 }
+
+                Text(item.question.stem)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(ShiBeiTheme.text)
+                    .lineSpacing(3)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
@@ -395,7 +398,7 @@ struct ChapterDetailView: View {
                         } else if chapter.status.isProcessing {
                             ProcessingCard(store: store, chapter: chapter)
                         } else {
-                            PrimaryButton(title: store.localized("home.action.start_review")) {
+                            PrimaryButton(title: store.reviewPrimaryActionTitle(for: chapter)) {
                                 Task {
                                     await store.startOrResumeReview(for: chapter)
                                 }
@@ -409,9 +412,9 @@ struct ChapterDetailView: View {
                             ForEach(Array(chapter.knowledgePoints.prefix(6).enumerated()), id: \.element.id) { index, point in
                                 KnowledgePointRow(index: index, point: point)
                             }
-                            if chapter.knowledgePoints.count > 6 {
+                            if !chapter.knowledgePoints.isEmpty {
                                 Button(store.localizedFormat("chapter.view_all_points", chapter.knowledgePoints.count)) {
-                                    store.route = .knowledgeList
+                                    store.openKnowledgeList(returnTo: .chapterDetail)
                                 }
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundStyle(ShiBeiTheme.primary)
@@ -491,7 +494,7 @@ private struct FailedChapterCard: View {
                 }
                 if !chapter.knowledgePoints.isEmpty {
                     SecondaryButton(title: store.localizedFormat("chapter.view_all_knowledge_points", chapter.knowledgePoints.count)) {
-                        store.route = .knowledgeList
+                        store.openKnowledgeList(returnTo: .chapterDetail)
                     }
                 }
                 Button(store.localized("notifications.dismiss_hint")) {
@@ -536,7 +539,7 @@ struct KnowledgeListView: View {
     @ObservedObject var store: AppStore
 
     var body: some View {
-        AppScaffold(store: store, title: store.localized("chapter.knowledge_points"), leadingAction: { store.route = .chapterDetail }) {
+        AppScaffold(store: store, title: store.localized("chapter.knowledge_points"), leadingAction: { store.returnFromKnowledgeList() }) {
             ScrollView {
                 if let chapter = store.selectedChapter {
                     VStack(spacing: 12) {

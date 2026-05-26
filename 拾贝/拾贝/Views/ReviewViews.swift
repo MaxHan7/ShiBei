@@ -479,45 +479,68 @@ struct FeedbackSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: 0) {
             if store.latestFeedbackMessage.isEmpty {
-                Text(store.localized("feedback.title"))
-                    .font(.system(size: 22, weight: .bold))
-                ForEach(FeedbackType.allCases) { type in
-                    Button {
-                        Task {
-                            await store.submitFeedback(type)
-                        }
-                    } label: {
-                        HStack {
-                            Text(type.label(language: store.appLanguage))
-                            Spacer()
-                            Image(systemName: "arrow.right")
-                        }
-                        .font(.system(size: 16))
+                VStack(alignment: .leading, spacing: 18) {
+                    Text(store.localized("feedback.title"))
+                        .font(.system(size: 22, weight: .bold))
                         .foregroundStyle(ShiBeiTheme.text)
-                        .frame(minHeight: 44)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    VStack(spacing: 0) {
+                        ForEach(Array(FeedbackType.allCases.enumerated()), id: \.element.id) { index, type in
+                            Button {
+                                Task {
+                                    await store.submitFeedback(type)
+                                }
+                            } label: {
+                                HStack(spacing: 12) {
+                                    Text(type.label(language: store.appLanguage))
+                                    Spacer(minLength: 16)
+                                    Image(systemName: "arrow.right")
+                                        .font(.system(size: 14, weight: .semibold))
+                                }
+                                .font(.system(size: 16))
+                                .foregroundStyle(ShiBeiTheme.text)
+                                .frame(minHeight: 50)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(store.isSubmittingReview)
+
+                            if index < FeedbackType.allCases.count - 1 {
+                                Divider()
+                            }
+                        }
                     }
-                    .disabled(store.isSubmittingReview)
-                    Divider()
                 }
+                .padding(.horizontal, 24)
+                .padding(.top, 26)
             } else {
-                Image(systemName: "checkmark")
-                    .font(.system(size: 28, weight: .bold))
-                    .frame(width: 56, height: 56)
-                    .background(ShiBeiTheme.yellow)
-                    .clipShape(Circle())
-                Text(store.localized("feedback.received"))
-                    .font(.system(size: 22, weight: .bold))
-                Text(store.localizedLatestFeedbackMessage)
-                    .foregroundStyle(ShiBeiTheme.muted)
-                PrimaryButton(title: store.localized("home.action.continue_review")) {
-                    dismiss()
-                    store.continueAfterFeedback()
+                VStack(spacing: 18) {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 28, weight: .bold))
+                        .frame(width: 56, height: 56)
+                        .background(ShiBeiTheme.yellow)
+                        .clipShape(Circle())
+                    Text(store.localized("feedback.received"))
+                        .font(.system(size: 22, weight: .bold))
+                        .foregroundStyle(ShiBeiTheme.text)
+                    Text(store.localizedLatestFeedbackMessage)
+                        .font(.system(size: 15))
+                        .foregroundStyle(ShiBeiTheme.muted)
+                        .multilineTextAlignment(.center)
+                    PrimaryButton(title: store.localized("home.action.continue_review")) {
+                        dismiss()
+                        store.continueAfterFeedback()
+                    }
                 }
+                .padding(.horizontal, 24)
+                .padding(.top, 34)
             }
+            Spacer(minLength: 0)
         }
-        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(ShiBeiTheme.card)
     }
 }
@@ -568,8 +591,16 @@ struct SummaryView: View {
                             Text(store.localized("chapter.knowledge_points"))
                                 .font(.system(size: 18, weight: .bold))
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                            ForEach(Array(chapter.knowledgePoints.prefix(4).enumerated()), id: \.element.id) { index, point in
+                            ForEach(Array(chapter.knowledgePoints.prefix(6).enumerated()), id: \.element.id) { index, point in
                                 KnowledgePointRow(index: index, point: point)
+                            }
+                            if !chapter.knowledgePoints.isEmpty {
+                                Button(store.localizedFormat("chapter.view_all_points", chapter.knowledgePoints.count)) {
+                                    store.openKnowledgeList(returnTo: .summary)
+                                }
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(ShiBeiTheme.primary)
+                                .frame(maxWidth: .infinity)
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
