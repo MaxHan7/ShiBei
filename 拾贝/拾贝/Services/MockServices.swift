@@ -33,6 +33,8 @@ final class AppStore: ObservableObject {
     @Published var isLoadingLocalAPI = false
     @Published var isWritingChapter = false
     @Published var isSubmittingReview = false
+    @Published var isLoadingPushDiagnostics = false
+    @Published var pushDiagnosticSummary = ""
 
     let chapterService: any ChapterServicing
     let reviewService: any ReviewServicing
@@ -476,6 +478,50 @@ final class AppStore: ObservableObject {
         } catch {
             dataSourceMessage = "通知 token 同步失败：\(userFacingErrorMessage(error))"
         }
+    }
+
+    func loadPushDiagnostics() async {
+        guard let client = apiClient(for: .cloudAPI) ?? activeAPIClient else {
+            pushDiagnosticSummary = "云端地址无效，无法读取通知诊断。"
+            return
+        }
+        isLoadingPushDiagnostics = true
+        defer { isLoadingPushDiagnostics = false }
+        await syncPushTokenIfAuthorized()
+        do {
+            let status = try await client.fetchPushStatus()
+            pushDiagnosticSummary = pushDiagnosticText(from: status)
+        } catch {
+            pushDiagnosticSummary = "通知诊断读取失败：\(userFacingErrorMessage(error))"
+        }
+    }
+
+    var pushDiagnosticCopyText: String {
+        """
+        deviceId: \(anonymousDeviceId)
+        cloud: \(cloudAPIBaseURLString.isEmpty ? APIClient.productionBaseURL.absoluteString : cloudAPIBaseURLString)
+        dataMode: \(dataMode.rawValue)
+        message: \(pushDiagnosticSummary)
+        """
+    }
+
+    private func pushDiagnosticText(from status: PushStatusResponse) -> String {
+        let apns = status.apns.configured ? "APNs 已配置" : "APNs 未配置"
+        let environment = status.apns.environment ?? "unknown"
+        let tokenEnvironments = status.pushTokens.map { $0.environment.rawValue }.joined(separator: ", ")
+        let tokens = status.pushTokenCount == 0
+            ? "没有设备 token"
+            : "设备 token \(status.pushTokenCount) 个，环境：\(tokenEnvironments)"
+        let latest = status.recentNotifications.first
+        let latestText: String
+        if let latest {
+            let delivery = latest.pushDeliveryStatus.isEmpty ? "未尝试" : latest.pushDeliveryStatus
+            let error = latest.pushDeliveryError.isEmpty ? "" : "，错误：\(latest.pushDeliveryError)"
+            latestText = "最近通知：\(delivery)\(error)"
+        } else {
+            latestText = "最近没有通知记录"
+        }
+        return "\(apns)，云端环境：\(environment)。\(tokens)。\(latestText)。"
     }
 
     private func openRemoteNotification(userInfo: [AnyHashable: Any]) async {

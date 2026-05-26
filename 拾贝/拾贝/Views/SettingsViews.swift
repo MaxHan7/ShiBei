@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ProfileView: View {
     @ObservedObject var store: AppStore
@@ -70,6 +71,7 @@ struct ProfileView: View {
                         .tint(ShiBeiTheme.error)
                         .disabled(isDeletingData)
                     }
+                    PushDiagnosticsCard(store: store)
                     #if DEBUG
                     DataSourceCard(store: store)
                     MockScenarioCard(store: store)
@@ -94,6 +96,51 @@ struct ProfileView: View {
             }
         } message: {
             Text(store.localized("profile.delete_data.alert.message"))
+        }
+    }
+}
+
+private struct PushDiagnosticsCard: View {
+    @ObservedObject var store: AppStore
+    @State private var copied = false
+
+    var body: some View {
+        SBCard {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("通知诊断")
+                    .font(.system(size: 18, weight: .bold))
+                Text("用于排查生成完成后没有收到系统通知的问题。")
+                    .font(.system(size: 13))
+                    .foregroundStyle(ShiBeiTheme.muted)
+                Text(store.pushDiagnosticSummary.isEmpty ? "尚未读取通知诊断。" : store.pushDiagnosticSummary)
+                    .font(.system(size: 13))
+                    .foregroundStyle(ShiBeiTheme.muted)
+                    .lineSpacing(4)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            HStack(spacing: 10) {
+                SecondaryButton(
+                    title: store.isLoadingPushDiagnostics ? "读取中" : "读取通知诊断",
+                    systemImage: store.isLoadingPushDiagnostics ? "hourglass" : "bell.badge"
+                ) {
+                    Task {
+                        await store.loadPushDiagnostics()
+                    }
+                }
+                .disabled(store.isLoadingPushDiagnostics)
+
+                Button {
+                    UIPasteboard.general.string = store.pushDiagnosticCopyText
+                    copied = true
+                } label: {
+                    Label(copied ? "已复制" : "复制诊断信息", systemImage: copied ? "checkmark" : "doc.on.doc")
+                        .font(.system(size: 16, weight: .medium))
+                        .frame(maxWidth: .infinity, minHeight: 56)
+                        .foregroundStyle(ShiBeiTheme.textSoft)
+                }
+                .buttonStyle(.plain)
+            }
         }
     }
 }
