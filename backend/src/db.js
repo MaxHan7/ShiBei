@@ -261,21 +261,27 @@ export async function deleteFavoriteQuestion(deviceId, favoriteId) {
 
 export async function upsertPushToken(deviceId, pushToken) {
   await ensureDevice(deviceId);
-  await pool.query(
-    `INSERT INTO device_push_tokens (device_id, token, platform, environment, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, NOW(), NOW())
-     ON CONFLICT (device_id, token)
-     DO UPDATE SET
-       platform = EXCLUDED.platform,
-       environment = EXCLUDED.environment,
-       updated_at = NOW()`,
-    [
-      deviceId,
-      pushToken.token,
-      pushToken.platform || "ios",
-      pushToken.environment || "production"
-    ]
-  );
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("DELETE FROM device_push_tokens WHERE device_id = $1", [deviceId]);
+    await client.query(
+      `INSERT INTO device_push_tokens (device_id, token, platform, environment, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, NOW(), NOW())`,
+      [
+        deviceId,
+        pushToken.token,
+        pushToken.platform || "ios",
+        pushToken.environment || "production"
+      ]
+    );
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 export async function listPushTokens(deviceId) {

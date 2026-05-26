@@ -241,11 +241,15 @@ enum PushTokenEnvironment: String, Codable {
     case production
 
     static var current: PushTokenEnvironment {
-        #if DEBUG
-        .sandbox
-        #else
-        .production
-        #endif
+        let value = Bundle.main.object(forInfoDictionaryKey: "ShiBeiAPNSEnvironment") as? String
+        switch value?.lowercased() {
+        case "development", "sandbox":
+            return .sandbox
+        case "production":
+            return .production
+        default:
+            return .production
+        }
     }
 }
 

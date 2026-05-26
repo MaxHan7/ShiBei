@@ -635,9 +635,7 @@ async function upsertStoredPushToken(deviceId, pushToken) {
     return record;
   }
   const memory = getMemory(deviceId);
-  const existingIndex = memory.pushTokens.findIndex((item) => item.token === record.token);
-  if (existingIndex >= 0) memory.pushTokens.splice(existingIndex, 1, record);
-  else memory.pushTokens.unshift(record);
+  memory.pushTokens = [record];
   return record;
 }
 

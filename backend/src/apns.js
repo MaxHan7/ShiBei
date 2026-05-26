@@ -85,7 +85,7 @@ export async function sendGenerationNotification({ token, notification, chapter 
   if (!token?.token || token.platform !== "ios") return { skipped: true, reason: "unsupported_token" };
 
   const config = apnsConfig();
-  const environment = token.environment === "sandbox" ? "sandbox" : config.environment;
+  const environment = token.environment === "sandbox" ? "sandbox" : "production";
   const client = http2.connect(apnsHost(environment));
   const payload = {
     aps: {
