@@ -1,0 +1,22 @@
+{
+  "date": "2026-05-27",
+  "title": "章节生成任务队列化：Web 提交、Worker 领取执行",
+  "phase": "基础设施 / 生产化准备",
+  "problem": "章节生成目前与 Web/API 进程的 HTTP 生命周期强耦合：一次提交会占用长时间请求/进程资源，遇到重启或超时就丢失进度；同时 Railway 云端原型也无法用单进程既承载 API 又跑长任务。需要把生成变成可领取、可追踪、可恢复的后台任务，让‘长内容→可复习知识’的主路径在云端也能稳定跑通。",
+  "changes": [
+    "后端：引入 PostgreSQL generation job 队列；创建章节时写入 status=submitted 的 job，Web 立即 202 返回 submitted chapter，避免模型调用绑在 HTTP 生命周期上。",
+    "Worker：新增 backend/src/worker.js 轮询 claim job（可配置并发/轮询间隔/锁时长/优雅退出），调用 generationJobRunner 执行任务并回写 job 状态。",
+    "生成执行：抽出 backend/src/generationJobRunner.js 统一处理 create/regenerate 两类任务；在执行中持续写入 chapter.currentStage 与 generationMeta.stages，并对超时/可重试错误做归类，失败时回填失败章节与通知。",
+    "部署文档：补充 Railway 云端原型的双服务形态（Web/API + Worker）及验证要点；明确只启动 Web 会导致任务仅提交不执行。",
+    "Supporting：成本计算工作台补上复制/下载本次成本 JSON 的出口，方便把一次生成的用量、质量摘要与外部评审/回归记录对齐。"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/2026-05-27-章节生成任务队列化-web-提交-worker-领取执行.svg",
+      "caption": "2026-05-27 迭代摘要"
+    }
+  ],
+  "result": "在启用 DATABASE_URL 时，POST /api/chapters 会生成 submitted chapter 并写入 generation job；启动 worker 后可领取并执行 job，章节会随 stage 更新并在结束时落库通知。未配置数据库时仍保持旧路径：Web 进程内直接生成，保证本地演示与调试不被阻塞。",
+  "next": "把队列化带来的‘可观测性’补齐：在成本/质量工作台展示 job 队列与重试轨迹（耗时、锁超时、失败原因分布），并用质量测试集回归队列化前后生成结果的一致性与成本波动。",
+  "commits": []
+}

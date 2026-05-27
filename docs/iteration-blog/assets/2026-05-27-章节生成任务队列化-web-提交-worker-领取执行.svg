@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <rect x="92" y="82" width="1016" height="596" rx="42" fill="#fff" stroke="#fbf3e4" stroke-width="3"/>
+  <text x="150" y="154" fill="#e09859" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24" font-weight="800">基础设施 / 生产化准备</text>
+  <text x="150" y="220" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="44" font-weight="900">章节生成任务队列化：Web 提交、Worker 领取执行</text>
+  <rect x="150" y="286" width="420" height="250" rx="28" fill="#fffaf4" stroke="#eadfcd"/>
+  <text x="188" y="346" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="800">问题</text>
+  <text x="188" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">章节生成目前与 Web/API 进程的 HTTP 生命周期强耦合：一次提</text>
+  <text x="188" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">交会占用长时间请求/进程资源，遇到重启或超时就丢失进度；同时 Railw</text>
+  <text x="188" y="462" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">ay 云端原型也无法用单进程既承载 API 又跑长任务。需要把生成变成可</text>
+  <text x="188" y="496" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">领取、可追踪、可恢复的后台任务，让‘长内容→可复习知识’的主路径在云端也</text>
+  <rect x="630" y="286" width="420" height="250" rx="28" fill="#fffaf4" stroke="#eadfcd"/>
+  <text x="668" y="346" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="800">效果</text>
+  <text x="668" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">在启用 DATABASE_URL 时，POST /api/chapters </text>
+  <text x="668" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">会生成 submitted chapter 并写入 generation j</text>
+  <text x="668" y="462" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">ob；启动 worker 后可领取并执行 job，章节会随 stage 更新</text>
+  <text x="668" y="496" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">并在结束时落库通知。未配置数据库时仍保持旧路径：Web 进程内直接生成，保证</text>
+  <text x="150" y="612" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">2026-05-27</text>
+</svg>
