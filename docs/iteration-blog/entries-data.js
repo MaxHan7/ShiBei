@@ -553,5 +553,70 @@ window.iterationEntries = [
     "result": "在启用 DATABASE_URL 时，POST /api/chapters 会生成 submitted chapter 并写入 generation job；启动 worker 后可领取并执行 job，章节会随 stage 更新并在结束时落库通知。未配置数据库时仍保持旧路径：Web 进程内直接生成，保证本地演示与调试不被阻塞。",
     "next": "把队列化带来的‘可观测性’补齐：在成本/质量工作台展示 job 队列与重试轨迹（耗时、锁超时、失败原因分布），并用质量测试集回归队列化前后生成结果的一致性与成本波动。",
     "commits": []
+  },
+  {
+    "date": "2026-05-28",
+    "title": "SwiftUI 色彩体系标准化",
+    "phase": "iOS 设计系统",
+    "problem": "随着页面和状态越来越多，颜色虽然集中在 ShiBeiTheme，但源头仍是代码里的 RGB，后续换品牌色、状态色或预留暗色模式都不够稳。",
+    "changes": [
+      "新增 Shibei 系列 Asset Catalog Color Sets，把背景、卡片、文字、品牌色、状态色和来源色放进资产色。",
+      "重构 ShiBeiTheme 为 SwiftUI 语义接口，页面继续使用 surface、card、primary、yellow、dangerBackground 等 token。",
+      "清理 Review、Chapter 等 View 层硬编码 Color(red:)，答题反馈、来源片段、复习状态 chip 都改用语义色。"
+    ],
+    "screenshots": [
+      {
+        "src": "assets/2026-05-28-swiftui-色彩体系标准化.svg",
+        "caption": "SwiftUI 颜色从集中 RGB 升级为资产色与语义 token"
+      }
+    ],
+    "result": "色彩源头从代码 RGB 升级为资产色 + 语义 token，后续统一调色和暗色适配成本明显降低，同时当前视觉基本不变。",
+    "next": "继续把字体、间距和状态组件沉淀为更完整的 iOS 设计系统约束。",
+    "commits": []
+  },
+  {
+    "date": "2026-05-29",
+    "title": "单篇出题实验基线：把来源最小证据/复用变成可审查数据",
+    "phase": "质量验证",
+    "problem": "单篇文章出题在‘来源上下文过长、复用泛化、证据块不清晰’上很容易失真；如果不能把这些问题量化并可复现，就无法判断 prompt/规则改动是否真正提高了题目的可复习性与可信度。",
+    "changes": [
+      "单篇文章实验 runner：文章链接→脱敏 JSON + 审查 CSV + 分析草稿，按 runId 固化目录结构，支持多轮对比。",
+      "质量报告补齐来源诊断：sourceMinimality/证据块ID/复用次数/重叠率等字段，让审题能定位到具体证据块。",
+      "质量工作台引入 AI 预标注与统计：先给 accept/fixable/reject 与责任阶段提示，降低人工逐题扫雷成本。",
+      "补齐与最小证据/来源切分/成本核算相关的测试与校验，避免指标在重构中漂移。",
+      "沉淀 UMr6ia1QubqOMw3aBUGbOw 单篇素材的多轮基线产物与索引，形成同一素材不同策略的对照基座。"
+    ],
+    "screenshots": [
+      {
+        "src": "assets/2026-05-29-单篇出题实验基线-把来源最小证据-复用变成可审查数据.svg",
+        "caption": "2026-05-29 迭代摘要"
+      }
+    ],
+    "result": "现在可以用同一篇文章快速跑出一套可复现的‘生成→审查→统计’证据链：脱敏 JSON 用于回放、CSV 用于逐题标注、分析草稿用于汇总‘来源最小证据/复用/重叠’的主要风险点，从而把质量讨论从主观争论推进到数据对照。",
+    "next": "把单篇实验里暴露的‘来源最小证据/复用阈值’固化成 selection policy（可配置阈值 + 失败原因可解释），并把证据块标识接入前端审题视图，形成闭环。",
+    "commits": []
+  },
+  {
+    "date": "2026-05-30",
+    "title": "认知动作练习蓝图：让每个知识点的多题形成递进练习",
+    "phase": "质量验证",
+    "problem": "在单篇实验中，“每知识点凑满 3 题”已经能做到，但主要瓶颈转向两点：①同一知识点的多题经常只是换壳重复，用户复习时缺少“记住→分清→会用”的递进；②低置信题的主要失败不再是题干本身，而是解释、常见误区与干扰项缺乏同一证据块的边界支撑。为把直觉式改 prompt 变成可复现的质量迭代，需要建立一个明确的契约：练习蓝图→按蓝图出题→按蓝图验收与筛选。",
+    "changes": [
+      "为知识点引入 practiceBlueprint（核心理解/边界辨析/场景迁移）作为“多题应覆盖哪些认知动作”的结构化输入，并为每题补充 blueprintItemId/memoryAngle/blueprintGoal。",
+      "generateQuestions 支持按蓝图补题（supplement）与更精细的目标题量决策（基于 testability/importance/structureRole/angles），避免只靠固定 1-3 题规则凑数。",
+      "evaluateQuestions 把来源上下文选择升级为“证据块/锚点/回退”的候选排序：加入来源精准度、最小证据、重叠与复用惩罚、证据角色/块 ID 等诊断字段，为解释页回溯提供可审查数据。",
+      "新增 pedagogical rubric：对每题输出认知动作匹配、核心回忆/边界辨析/场景迁移适配分、证据学习价值与重复练习风险等指标，并把 primaryBlockingReason/confidenceTier/repairHint 暴露到审查数据。",
+      "single-article 实验报告与质量工作台扩展：汇总 memoryAngle 覆盖、来源精准/最小化均值、证据块复用与每点证据块覆盖；CSV 增列蓝图与来源诊断列，支持人工校准。",
+      "同步 iOS API 数据契约与人工标注模板：新增 sourcePrecision/sourceMinimality/证据块相关字段与低置信可修复标签，确保客户端兼容与人工评审口径一致。"
+    ],
+    "screenshots": [
+      {
+        "src": "assets/2026-05-30-认知动作练习蓝图-让每个知识点的多题形成递进练习.svg",
+        "caption": "2026-05-30 迭代摘要"
+      }
+    ],
+    "result": "在 UMr6ia1QubqOMw3aBUGbOw 基准上，v7（cognitive blueprint alignment）保持 7 个知识点、21 题入池（每点 3 题），平均来源精准度 5、最小证据均值约 4.7，低置信比例降到 66.7%，且段落/证据块复用 Top 已压到每块 2 题；v8（pedagogical rubric calibration）引入更严格的教学诊断后，低置信比例升至 90.5%，但同时给出了“哪里不教人”的可定位标签（如 core_recall_too_literal、boundary_not_teaching_real_confusion、explanation_not_tied_to_answer），说明系统从“看起来没问题”进入“能指出可修复缺陷”的阶段。",
+    "next": "基于 v8 低置信样本做人工 accept/fixable/reject 校准：调整 rubric 阈值与权重，并把高频可修复标签（misconception_not_grounded、explanation_not_tied_to_answer、core_recall_too_literal）转成可执行的 rewrite/supplement 指令；同时把 duplicatePracticeRisk 与证据块覆盖纳入入池选择器，验证低置信 accept+fixable 是否能稳定 >80%。",
+    "commits": []
   }
 ];

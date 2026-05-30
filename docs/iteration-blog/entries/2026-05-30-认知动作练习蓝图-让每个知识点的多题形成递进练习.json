@@ -1,0 +1,23 @@
+{
+  "date": "2026-05-30",
+  "title": "认知动作练习蓝图：让每个知识点的多题形成递进练习",
+  "phase": "质量验证",
+  "problem": "在单篇实验中，“每知识点凑满 3 题”已经能做到，但主要瓶颈转向两点：①同一知识点的多题经常只是换壳重复，用户复习时缺少“记住→分清→会用”的递进；②低置信题的主要失败不再是题干本身，而是解释、常见误区与干扰项缺乏同一证据块的边界支撑。为把直觉式改 prompt 变成可复现的质量迭代，需要建立一个明确的契约：练习蓝图→按蓝图出题→按蓝图验收与筛选。",
+  "changes": [
+    "为知识点引入 practiceBlueprint（核心理解/边界辨析/场景迁移）作为“多题应覆盖哪些认知动作”的结构化输入，并为每题补充 blueprintItemId/memoryAngle/blueprintGoal。",
+    "generateQuestions 支持按蓝图补题（supplement）与更精细的目标题量决策（基于 testability/importance/structureRole/angles），避免只靠固定 1-3 题规则凑数。",
+    "evaluateQuestions 把来源上下文选择升级为“证据块/锚点/回退”的候选排序：加入来源精准度、最小证据、重叠与复用惩罚、证据角色/块 ID 等诊断字段，为解释页回溯提供可审查数据。",
+    "新增 pedagogical rubric：对每题输出认知动作匹配、核心回忆/边界辨析/场景迁移适配分、证据学习价值与重复练习风险等指标，并把 primaryBlockingReason/confidenceTier/repairHint 暴露到审查数据。",
+    "single-article 实验报告与质量工作台扩展：汇总 memoryAngle 覆盖、来源精准/最小化均值、证据块复用与每点证据块覆盖；CSV 增列蓝图与来源诊断列，支持人工校准。",
+    "同步 iOS API 数据契约与人工标注模板：新增 sourcePrecision/sourceMinimality/证据块相关字段与低置信可修复标签，确保客户端兼容与人工评审口径一致。"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/2026-05-30-认知动作练习蓝图-让每个知识点的多题形成递进练习.svg",
+      "caption": "2026-05-30 迭代摘要"
+    }
+  ],
+  "result": "在 UMr6ia1QubqOMw3aBUGbOw 基准上，v7（cognitive blueprint alignment）保持 7 个知识点、21 题入池（每点 3 题），平均来源精准度 5、最小证据均值约 4.7，低置信比例降到 66.7%，且段落/证据块复用 Top 已压到每块 2 题；v8（pedagogical rubric calibration）引入更严格的教学诊断后，低置信比例升至 90.5%，但同时给出了“哪里不教人”的可定位标签（如 core_recall_too_literal、boundary_not_teaching_real_confusion、explanation_not_tied_to_answer），说明系统从“看起来没问题”进入“能指出可修复缺陷”的阶段。",
+  "next": "基于 v8 低置信样本做人工 accept/fixable/reject 校准：调整 rubric 阈值与权重，并把高频可修复标签（misconception_not_grounded、explanation_not_tied_to_answer、core_recall_too_literal）转成可执行的 rewrite/supplement 指令；同时把 duplicatePracticeRisk 与证据块覆盖纳入入池选择器，验证低置信 accept+fixable 是否能稳定 >80%。",
+  "commits": []
+}
