@@ -5,10 +5,10 @@ export function buildArticleStructureMap({ cleanedText = "", sourceBlocks = null
     ? sourceBlocks
     : buildSourceBlocks(cleanedText);
   const structureBlocks = selectStructureSourceBlocks(blocks);
-  const candidateNodes = structureBlocks
+  const evidenceNodes = structureBlocks
     .filter((block) => isLikelyStructureNode(block))
     .map((block, index) => ({
-      id: `asn-${index + 1}`,
+      id: `ase-${index + 1}`,
       title: titleForBlock(block),
       role: articleNodeRoleForBlock(block),
       claim: block.text.slice(0, 180),
@@ -16,17 +16,19 @@ export function buildArticleStructureMap({ cleanedText = "", sourceBlocks = null
       evidenceBlockIds: [block.blockId].filter(Boolean),
       sourceOrder: sourceOrderForBlock(block, index)
     }));
-  const nodes = candidateNodes.length ? candidateNodes : fallbackNodes(structureBlocks);
+  const nodes = evidenceNodes.length ? buildMainlineNodes(evidenceNodes) : fallbackNodes(structureBlocks);
 
   return normalizeArticleStructureMap({
     topic: inferTopic(cleanedText, nodes),
     centralClaim: nodes[0]?.claim || "",
     nodes,
+    evidenceNodes,
     learningPath: nodes.map((node) => node.title)
   });
 }
 
 export function normalizeArticleStructureMap(input = {}) {
+  const evidenceNodes = normalizeStructureNodes(input.evidenceNodes || [], "ase");
   const nodes = (Array.isArray(input.nodes) ? input.nodes : [])
     .map((node, index) => ({
       id: String(node.id || `asn-${index + 1}`),
@@ -37,6 +39,10 @@ export function normalizeArticleStructureMap(input = {}) {
       evidenceBlockIds: Array.isArray(node.evidenceBlockIds)
         ? node.evidenceBlockIds.map(String).filter(Boolean)
         : [],
+      evidenceNodeIds: Array.isArray(node.evidenceNodeIds)
+        ? node.evidenceNodeIds.map(String).filter(Boolean)
+        : [],
+      evidenceText: String(node.evidenceText || "").trim(),
       sourceOrder: Number.isFinite(Number(node.sourceOrder)) ? Number(node.sourceOrder) : index
     }))
     .filter((node) => node.title && node.claim);
@@ -45,6 +51,7 @@ export function normalizeArticleStructureMap(input = {}) {
     topic: String(input.topic || nodes[0]?.title || "文章主题").trim(),
     centralClaim: String(input.centralClaim || nodes[0]?.claim || "").trim(),
     nodes,
+    evidenceNodes,
     learningPath: Array.isArray(input.learningPath)
       ? input.learningPath.map(String).filter(Boolean)
       : nodes.map((node) => node.title)
@@ -53,11 +60,13 @@ export function normalizeArticleStructureMap(input = {}) {
 
 export function bindKnowledgePointsToStructure(points = [], structureMap = {}) {
   const nodes = Array.isArray(structureMap.nodes) ? structureMap.nodes : [];
+  const evidenceNodes = Array.isArray(structureMap.evidenceNodes) ? structureMap.evidenceNodes : [];
   return points.map((point) => {
+    const evidenceMatches = selectBestEvidenceNodeIdsForPoint(point, evidenceNodes);
     const best = nodes
       .map((node) => ({
         node,
-        score: scorePointNodeMatch(point, node)
+        score: scorePointNodeMatch(point, node) + scoreEvidenceCoverage(node, evidenceMatches)
       }))
       .sort((a, b) => b.score - a.score || a.node.sourceOrder - b.node.sourceOrder)[0];
 
@@ -78,11 +87,27 @@ export function bindKnowledgePointsToStructure(points = [], structureMap = {}) {
       structureNodeId: best.node.id,
       roleInArticle: best.node.role,
       whyWorthReviewing: point.coverageReason || best.node.whyItMatters,
-      sourceEvidenceIds: best.node.evidenceBlockIds,
+      sourceEvidenceIds: selectPointEvidenceIds(point, best.node, evidenceNodes, evidenceMatches),
       claimFidelityScore: Math.min(5, Math.max(1, Math.round(best.score))),
-      structureBindingReason: "keyword_and_evidence_match"
+      structureBindingReason: evidenceMatches.length ? "source_evidence_match" : "keyword_and_evidence_match"
     };
   });
+}
+
+function normalizeStructureNodes(nodes = [], prefix = "asn") {
+  return (Array.isArray(nodes) ? nodes : [])
+    .map((node, index) => ({
+      id: String(node.id || `${prefix}-${index + 1}`),
+      title: String(node.title || `结构证据 ${index + 1}`).trim(),
+      role: normalizeStructureRole(node.role),
+      claim: String(node.claim || "").trim(),
+      whyItMatters: String(node.whyItMatters || "").trim(),
+      evidenceBlockIds: Array.isArray(node.evidenceBlockIds)
+        ? node.evidenceBlockIds.map(String).filter(Boolean)
+        : [],
+      sourceOrder: Number.isFinite(Number(node.sourceOrder)) ? Number(node.sourceOrder) : index
+    }))
+    .filter((node) => node.title && node.claim);
 }
 
 function selectStructureSourceBlocks(blocks = []) {
@@ -103,8 +128,81 @@ function selectStructureSourceBlocks(blocks = []) {
     .map((group) => group.sort((a, b) => structureBlockScore(b) - structureBlockScore(a))[0])
     .filter(Boolean)
     .sort((a, b) => structureBlockScore(b) - structureBlockScore(a) || sourceOrderForBlock(a, 0) - sourceOrderForBlock(b, 0))
-    .slice(0, 24)
+    .slice(0, 36)
     .sort((a, b) => sourceOrderForBlock(a, 0) - sourceOrderForBlock(b, 0));
+}
+
+function buildMainlineNodes(evidenceNodes = []) {
+  const groups = new Map();
+  for (const node of evidenceNodes) {
+    const key = mainlineKeyForEvidenceNode(node);
+    const current = groups.get(key) || {
+      key,
+      nodes: []
+    };
+    current.nodes.push(node);
+    groups.set(key, current);
+  }
+
+  return [...groups.values()]
+    .map((group, index) => mainlineNodeFromGroup(group, index))
+    .sort((a, b) => a.sourceOrder - b.sourceOrder)
+    .map((node, index) => ({ ...node, id: `asn-${index + 1}` }));
+}
+
+function mainlineNodeFromGroup(group, index) {
+  const nodes = [...group.nodes].sort((a, b) => a.sourceOrder - b.sourceOrder);
+  const role = mainlineRoleForKey(group.key, nodes);
+  const evidenceText = nodes.map((node) => node.claim).join("\n");
+  return {
+    id: `asn-${index + 1}`,
+    title: mainlineTitleForKey(group.key, nodes),
+    role,
+    claim: summarizeMainlineClaim(nodes),
+    whyItMatters: whyItMattersForRole(role),
+    evidenceBlockIds: [...new Set(nodes.flatMap((node) => node.evidenceBlockIds || []))],
+    evidenceNodeIds: nodes.map((node) => node.id),
+    evidenceText,
+    sourceOrder: nodes[0]?.sourceOrder ?? index
+  };
+}
+
+function mainlineKeyForEvidenceNode(node) {
+  const text = String([node.title, node.claim].filter(Boolean).join(" "));
+  if (/很多团队会在这里混淆|hook、CI|规则文档|prompt 管的是|CLAUDE\.md|hook 管的是|CI|最终裁判|事前屏障/.test(text)) return "tool_responsibility_split";
+  if (/hook是什么|AI agent 的某个固定节点|生命周期中的特定点触发|handler|decision/.test(text)) return "hook_definition";
+  if (/prompt.*hook|hook.*prompt|请求模型记住|让系统执行|每次都必须发生|不要只写在 prompt/.test(text)) return "prompt_hook_boundary";
+  if (/产品经理为什么|Demo的感知|demo 阶段|vibe coding 的好处|工程流/.test(text)) return "pm_demo_reason";
+  if (/什么时候需要 hook|什么时候应该用hook|真正该上 hook|第一个信号|第二个信号|第三个信号|第四个信号|变长|复用/.test(text)) return "when_to_use_hook";
+  if (/刚开始用 Claude Code|高频场景|第一类|第二类|第三类|第四类|PostToolUse|PreToolUse|SessionStart|Stop/.test(text)) return "practical_hook_scenarios";
+  if (/工程直觉|AI 产品经理需要补上|负责起飞|负责别偏航|demo 越容易生成|工程边界越不能消失|每次都该做|写在最后|不知道 hook/.test(text)) return "pm_engineering_intuition";
+  return `local_${Math.floor(Number(node.sourceOrder || 0) / 4)}`;
+}
+
+function mainlineTitleForKey(key, nodes) {
+  const titles = {
+    hook_definition: "Hook 的定义与运行机制",
+    prompt_hook_boundary: "Prompt 与 Hook 的本质边界",
+    pm_demo_reason: "产品经理在 Demo 阶段容易忽略 Hook 的原因",
+    when_to_use_hook: "需要引入 Hook 的判断信号",
+    practical_hook_scenarios: "Claude Code 中最实用的 Hook 场景",
+    tool_responsibility_split: "Prompt、CLAUDE.md、Hook 与 CI 的分工",
+    pm_engineering_intuition: "产品经理需要补上的工程直觉"
+  };
+  return titles[key] || titleForBlock({ text: nodes[0]?.claim || nodes[0]?.title || "文章结构节点" });
+}
+
+function mainlineRoleForKey(key, nodes) {
+  if (key === "hook_definition") return "definition";
+  if (key === "prompt_hook_boundary" || key === "tool_responsibility_split") return "contrast";
+  if (key === "pm_demo_reason" || key === "when_to_use_hook" || key === "practical_hook_scenarios") return "method";
+  if (key === "pm_engineering_intuition") return "boundary";
+  return nodes[0]?.role || "mechanism";
+}
+
+function summarizeMainlineClaim(nodes) {
+  const selected = nodes.slice(0, 4).map((node) => node.claim).filter(Boolean);
+  return selected.join("\n").slice(0, 360);
 }
 
 function isLikelyStructureNode(block) {
@@ -112,7 +210,7 @@ function isLikelyStructureNode(block) {
   if (text.length < 18) return false;
   if (isIntroAnecdoteBlock(block)) return false;
   if (/写在最后|总结|最后/.test(text)) return true;
-  if (/是什么|区别|为什么|怎么|如何|什么时候|场景|边界|例子|案例|方法|标准|信号|分工/.test(text)) return true;
+  if (/是什么|区别|为什么|怎么|如何|什么时候|场景|边界|例子|案例|方法|标准|信号|分工|CLAUDE\.md|CI/.test(text)) return true;
   return ["definition", "mechanism", "contrast", "method", "boundary", "example"].includes(block.evidenceRole);
 }
 
@@ -143,7 +241,7 @@ function structureBlockScore(block) {
   const text = String(block.text || "");
   const cueScore = [
     /是什么|定义/.test(text) ? 4 : 0,
-    /区别|对比|分工|不是.*而是/.test(text) ? 4 : 0,
+    /区别|对比|分工|不是.*而是|CLAUDE\.md|CI/.test(text) ? 4 : 0,
     /判断标准|信号|什么时候|适合/.test(text) ? 4 : 0,
     /第一类|第二类|第三类|第四类|步骤|方法/.test(text) ? 3 : 0,
     /风险|边界|拦截|不能|必须/.test(text) ? 3 : 0,
@@ -218,16 +316,70 @@ function scorePointNodeMatch(point = {}, node = {}) {
   ].filter(Boolean).join(" ");
   const nodeText = normalizeForMatch([
     node.title,
-    node.claim
+    node.claim,
+    node.evidenceText
   ].filter(Boolean).join(" "));
   if (!pointText || !nodeText) return 0;
-  const sourceScore = scoreSourceQuoteMatch(point.sourceQuote, node.claim);
+  const sourceScore = scoreSourceQuoteMatch(point.sourceQuote, [node.claim, node.evidenceText].filter(Boolean).join("\n"));
   const keywords = extractMatchKeywords(pointText);
   const hits = keywords.filter((keyword) => nodeText.includes(normalizeForMatch(keyword)));
   const hitScore = hits.reduce((sum, keyword) => sum + keywordWeight(keyword), 0);
   if (!sourceScore && hits.length < 2) return Math.min(1, hitScore);
   if (!sourceScore && !hasSpecificHit(hits)) return Math.min(2, hitScore);
   return Math.min(5, sourceScore + hitScore);
+}
+
+function selectPointEvidenceIds(point = {}, node = {}, evidenceNodes = [], preferredEvidenceMatches = []) {
+  const evidenceNodeIds = new Set(node.evidenceNodeIds || []);
+  const candidates = (Array.isArray(evidenceNodes) ? evidenceNodes : [])
+    .filter((item) => evidenceNodeIds.has(item.id))
+    .map((item) => ({
+      node: item,
+      score: scorePointNodeMatch(point, {
+        title: item.title,
+        claim: item.claim,
+        evidenceText: item.claim
+      })
+    }))
+    .sort((a, b) => b.score - a.score || a.node.sourceOrder - b.node.sourceOrder);
+
+  const preferredIds = new Set(preferredEvidenceMatches.map((item) => item.id));
+  const preferred = candidates
+    .filter((item) => preferredIds.has(item.node.id))
+    .slice(0, 4)
+    .flatMap((item) => item.node.evidenceBlockIds || []);
+  if (preferred.length) return [...new Set(preferred)];
+
+  const confident = candidates
+    .filter((item) => item.score >= 2)
+    .slice(0, 4)
+    .flatMap((item) => item.node.evidenceBlockIds || []);
+  if (confident.length) return [...new Set(confident)];
+  return [...new Set(node.evidenceBlockIds || [])].slice(0, 4);
+}
+
+function selectBestEvidenceNodeIdsForPoint(point = {}, evidenceNodes = []) {
+  return (Array.isArray(evidenceNodes) ? evidenceNodes : [])
+    .map((node) => ({
+      id: node.id,
+      score: scorePointNodeMatch(point, {
+        title: node.title,
+        claim: node.claim,
+        evidenceText: node.claim
+      })
+    }))
+    .filter((item) => item.score >= 3)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+}
+
+function scoreEvidenceCoverage(node = {}, evidenceMatches = []) {
+  if (!evidenceMatches.length) return 0;
+  const ids = new Set(node.evidenceNodeIds || []);
+  const matched = evidenceMatches.filter((item) => ids.has(item.id));
+  if (!matched.length) return 0;
+  const best = Math.max(...matched.map((item) => item.score));
+  return best + Math.min(3, matched.length * 0.75);
 }
 
 function normalizeForMatch(value = "") {
@@ -259,6 +411,7 @@ function scoreSourceQuoteMatch(sourceQuote = "", nodeClaim = "") {
   const quote = normalizeForMatch(sourceQuote);
   const claim = normalizeForMatch(nodeClaim);
   if (!quote || !claim || quote.length < 8) return 0;
+  if (claim.length >= 12 && quote.includes(claim)) return 5;
   if (claim.includes(quote)) return 5;
   const prefix = quote.slice(0, Math.min(24, quote.length));
   const suffix = quote.slice(-Math.min(24, quote.length));

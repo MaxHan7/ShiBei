@@ -96,6 +96,89 @@ test("buildArticleStructureMap skips intro anecdotes as structure anchors", () =
   assert.equal(map.nodes.some((node) => /四个信号/.test(node.claim)), true);
 });
 
+test("buildArticleStructureMap groups mainline nodes separately from evidence nodes", () => {
+  const cleanedText = [
+    "hook是什么",
+    "在 Claude Code 的语境里，hook 可以先理解成一句话：在 AI agent 的某个固定节点，自动执行你定义好的命令。",
+    "官方文档的说法更工程化：hooks 会在 Claude Code 生命周期中的特定点触发。",
+    "这和“把规则写进 prompt”最大的区别在于：prompt 是请求模型记住；hook 是让系统执行。",
+    "一个判断标准：如果某件事“每次都必须发生”，就不要只写在 prompt 里。",
+    "真正该上 hook 的时刻，通常有四个信号。",
+    "第一个信号，是 AI 开始碰危险动作。",
+    "第二个信号，是同样的提醒你已经说了三遍。",
+    "第一类，是改完之后自动整理。PostToolUse 可以匹配 Edit 或 Write。",
+    "第二类，是执行前拦截风险。PreToolUse 可以检查危险命令。",
+    "prompt 管的是“这次希望 AI 怎么思考”。",
+    "CLAUDE.md 或项目规则文档管的是“长期背景”。",
+    "hook 管的是“事件发生时必须执行的动作”。",
+    "CI 是最后的裁判。"
+  ].join("\n\n");
+
+  const map = buildArticleStructureMap({ cleanedText });
+  const signalNode = map.nodes.find((node) => node.title === "需要引入 Hook 的判断信号");
+  const responsibilityNode = map.nodes.find((node) => node.title === "Prompt、CLAUDE.md、Hook 与 CI 的分工");
+
+  assert.equal(map.evidenceNodes.length > map.nodes.length, true);
+  assert.equal(Boolean(signalNode), true);
+  assert.equal(signalNode.evidenceNodeIds.length >= 2, true);
+  assert.equal(Boolean(responsibilityNode), true);
+  assert.equal(responsibilityNode.evidenceBlockIds.length >= 3, true);
+});
+
+test("bindKnowledgePointsToStructure uses source evidence before generic prompt keywords", () => {
+  const cleanedText = [
+    "hook是什么",
+    "在 Claude Code 的语境里，hook 可以先理解成一句话：在 AI agent 的某个固定节点，自动执行你定义好的命令。",
+    "这和“把规则写进 prompt”最大的区别在于：prompt 是请求模型记住；hook 是让系统执行。",
+    "一个判断标准：如果某件事“每次都必须发生”，就不要只写在 prompt 里。",
+    "第一类，是改完之后自动整理。PostToolUse 可以匹配 Edit 或 Write。",
+    "第二类，是执行前拦截风险。PreToolUse 可以检查危险命令。",
+    "第三类，是会话开始时注入上下文。SessionStart 可以把项目规则带进来。",
+    "hook、CI、规则文档、prompt，到底谁管什么。",
+    "prompt 管的是“这次希望 AI 怎么思考”。",
+    "CLAUDE.md 或项目规则文档管的是“长期背景”。",
+    "hook 管的是“事件发生时必须执行的动作”。",
+    "CI 管的是“进入主干前的最终裁判”。",
+    "最后的判断：vibe coding 负责起飞，hook 负责别偏航。",
+    "但 demo 越容易生成，工程边界越不能消失。",
+    "hook 的意义不在于炫技，而在于把“每次都该做”的事从聊天里拿出来，放到流程里。"
+  ].join("\n\n");
+  const structureMap = buildArticleStructureMap({ cleanedText });
+  const points = [
+    {
+      id: "kp-practical",
+      title: "四类最实用的 hook 场景",
+      keyClaim: "Hook 可以用于自动整理、风险拦截、上下文注入和结束验收。",
+      sourceQuote: "第一类，是改完之后自动整理。PostToolUse 可以匹配 Edit 或 Write。\n\n第二类，是执行前拦截风险。PreToolUse 可以检查危险命令。\n\n第三类，是会话开始时注入上下文。SessionStart 可以把项目规则带进来。",
+      importanceScore: 4,
+      testabilityScore: 5
+    },
+    {
+      id: "kp-split",
+      title: "prompt、CLAUDE.md、hook、CI 的分工",
+      keyClaim: "prompt 管本次意图，CLAUDE.md 管长期背景，hook 管事件动作，CI 管最终裁判。",
+      sourceQuote: "prompt 管的是“这次希望 AI 怎么思考”。CLAUDE.md 或项目规则文档管的是“长期背景”。hook 管的是“事件发生时必须执行的动作”。CI 管的是“进入主干前的最终裁判”。",
+      importanceScore: 5,
+      testabilityScore: 5
+    },
+    {
+      id: "kp-vibe",
+      title: "Vibe coding 负责起飞，Hook 负责别偏航",
+      keyClaim: "自然语言能让 demo 快速起飞，但工程边界仍要沉淀进流程。",
+      sourceQuote: "最后的判断：vibe coding 负责起飞，hook 负责别偏航。但 demo 越容易生成，工程边界越不能消失。hook 的意义不在于炫技，而在于把“每次都该做”的事从聊天里拿出来，放到流程里。",
+      importanceScore: 5,
+      testabilityScore: 5
+    }
+  ];
+
+  const bound = bindKnowledgePointsToStructure(points, structureMap);
+
+  assert.equal(bound[0].structureNodeId, structureMap.nodes.find((node) => node.title === "Claude Code 中最实用的 Hook 场景")?.id);
+  assert.equal(bound[1].structureNodeId, structureMap.nodes.find((node) => node.title === "Prompt、CLAUDE.md、Hook 与 CI 的分工")?.id);
+  assert.equal(bound[2].structureNodeId, structureMap.nodes.find((node) => node.title === "产品经理需要补上的工程直觉")?.id);
+  assert.equal(bound.every((point) => point.structureBindingReason === "source_evidence_match"), true);
+});
+
 test("bindKnowledgePointsToStructure prefers source evidence over generic early keywords", () => {
   const structureMap = normalizeArticleStructureMap({
     nodes: [

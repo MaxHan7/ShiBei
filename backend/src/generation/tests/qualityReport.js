@@ -817,6 +817,22 @@ function structureCoverageSummary(chapters = []) {
   const nodeMap = new Map();
   for (const result of chapters) {
     const nodes = result.generationDebug?.articleStructureMap?.nodes || [];
+    const evidenceNodes = result.generationDebug?.articleStructureMap?.evidenceNodes || [];
+    for (const node of evidenceNodes) {
+      if (!node?.id) continue;
+      const current = nodeMap.get(node.id) || {
+        nodeId: node.id,
+        title: node.title || "",
+        role: node.role || "",
+        sourceOrder: node.sourceOrder ?? 0,
+        knowledgePointCount: 0,
+        questionCount: 0,
+        nodeType: "evidence",
+        evidenceBlockIds: Array.isArray(node.evidenceBlockIds) ? node.evidenceBlockIds : []
+      };
+      current.evidenceBlockIds = Array.isArray(node.evidenceBlockIds) ? node.evidenceBlockIds : current.evidenceBlockIds || [];
+      nodeMap.set(node.id, current);
+    }
     for (const node of nodes) {
       if (!node?.id) continue;
       const current = nodeMap.get(node.id) || {
@@ -825,8 +841,10 @@ function structureCoverageSummary(chapters = []) {
         role: node.role || "",
         sourceOrder: node.sourceOrder ?? 0,
         knowledgePointCount: 0,
-        questionCount: 0
+        questionCount: 0,
+        nodeType: "mainline"
       };
+      current.nodeType = "mainline";
       nodeMap.set(node.id, current);
     }
     const points = result.chapter?.knowledgePoints || result.generationDebug?.knowledgePoints || [];
@@ -839,7 +857,8 @@ function structureCoverageSummary(chapters = []) {
         role: point.roleInArticle || point.structureRole || "",
         sourceOrder: 0,
         knowledgePointCount: 0,
-        questionCount: 0
+        questionCount: 0,
+        nodeType: "mainline"
       };
       current.knowledgePointCount += 1;
       nodeMap.set(nodeId, current);
@@ -864,20 +883,37 @@ function structureCoverageSummary(chapters = []) {
         role: question.roleInArticle || "",
         sourceOrder: 0,
         knowledgePointCount: 0,
-        questionCount: 0
+        questionCount: 0,
+        nodeType: "mainline"
       };
       current.questionCount += 1;
       nodeMap.set(nodeId, current);
+      const sourceBlockId = question.sourceBlockId || question.sourceContextSelection?.sourceBlockId || "";
+      if (sourceBlockId) {
+        for (const evidenceNode of nodeMap.values()) {
+          if (evidenceNode.nodeType !== "evidence") continue;
+          if (!Array.isArray(evidenceNode.evidenceBlockIds) || !evidenceNode.evidenceBlockIds.includes(sourceBlockId)) continue;
+          evidenceNode.questionCount += 1;
+          nodeMap.set(evidenceNode.nodeId, evidenceNode);
+        }
+      }
     }
   }
 
   const nodes = [...nodeMap.values()].sort((a, b) => a.sourceOrder - b.sourceOrder || a.nodeId.localeCompare(b.nodeId));
+  const mainlineNodes = nodes.filter((node) => node.nodeType !== "evidence");
+  const evidenceNodes = nodes.filter((node) => node.nodeType === "evidence");
   return {
-    structureNodeCount: nodes.length,
-    coveredStructureNodeCount: nodes.filter((node) => node.knowledgePointCount > 0).length,
-    questionedStructureNodeCount: nodes.filter((node) => node.questionCount > 0).length,
-    uncoveredStructureNodes: nodes
+    structureNodeCount: mainlineNodes.length,
+    evidenceNodeCount: evidenceNodes.length,
+    coveredStructureNodeCount: mainlineNodes.filter((node) => node.knowledgePointCount > 0).length,
+    questionedStructureNodeCount: mainlineNodes.filter((node) => node.questionCount > 0).length,
+    uncoveredStructureNodes: mainlineNodes
       .filter((node) => node.knowledgePointCount === 0)
+      .map((node) => ({ nodeId: node.nodeId, title: node.title, role: node.role }))
+      .slice(0, 8),
+    uncoveredEvidenceNodes: evidenceNodes
+      .filter((node) => node.questionCount === 0)
       .map((node) => ({ nodeId: node.nodeId, title: node.title, role: node.role }))
       .slice(0, 8),
     nodes

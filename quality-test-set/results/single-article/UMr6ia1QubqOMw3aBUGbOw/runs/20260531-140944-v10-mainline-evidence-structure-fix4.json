@@ -1,0 +1,321 @@
+{
+  "generatedAt": "2026-05-31T14:10:06.340Z",
+  "articleUrl": "https://mp.weixin.qq.com/s/UMr6ia1QubqOMw3aBUGbOw",
+  "slug": "UMr6ia1QubqOMw3aBUGbOw",
+  "label": "v10-mainline-evidence-structure-fix4",
+  "source": {
+    "title": "和AI产品经理聊天，她说\"我用Vibe coding做Demo\"，我问她：怎么用hook？她说我一般用claude code",
+    "account": "老杨",
+    "url": "https://mp.weixin.qq.com/s/UMr6ia1QubqOMw3aBUGbOw",
+    "type": "article_link",
+    "rawTextLength": 4352
+  },
+  "config": {
+    "experimentType": "single_article",
+    "label": "v10-mainline-evidence-structure-fix4"
+  },
+  "summary": {
+    "sampleCount": 1,
+    "successCount": 0,
+    "failureCount": 1,
+    "successRate": 0,
+    "knowledgePointCount": 0,
+    "qualifiedQuestionCount": 0,
+    "averageQuestionsPerPoint": 0,
+    "questionCountDistribution": {},
+    "questionTypeCoverage": {},
+    "memoryAngleCoverage": {},
+    "confidenceTierFrequency": {},
+    "averageSourcePrecisionScore": 0,
+    "averageSourceMinimalityScore": 0,
+    "sourceReuseTop": [],
+    "sourceOverlapTop": [],
+    "sourceBlockReuseTop": [],
+    "sourceBlockCoverageByPoint": [],
+    "threeQuestionPointRate": 0,
+    "lowConfidenceQuestionCount": 0,
+    "lowConfidenceQuestionRate": 0,
+    "coveredKnowledgePointCount": 0,
+    "uncoveredKnowledgePointCount": 0,
+    "questionCoverageRate": 0,
+    "averageQualityScore": 0,
+    "seriousIssueCount": 0,
+    "issueFrequency": {
+      "模型返回内容不是可解析 JSON，请重试。": 1
+    },
+    "machineIssueCategoryFrequency": {
+      "structure_invalid": 1
+    },
+    "trustReasonFrequency": {},
+    "averageBlueprintAlignmentScore": 0,
+    "averageMemoryAngleFitScore": 0,
+    "averageCognitiveActionFitScore": 0,
+    "averagePracticeProgressionScore": 0,
+    "averageEvidenceLearningValueScore": 0,
+    "averageSourceCoverageScore": 0,
+    "averageClaimFidelityScore": 0,
+    "duplicatePracticeRiskCount": 0,
+    "structureCoverage": {
+      "structureNodeCount": 0,
+      "evidenceNodeCount": 0,
+      "coveredStructureNodeCount": 0,
+      "questionedStructureNodeCount": 0,
+      "uncoveredStructureNodes": [],
+      "uncoveredEvidenceNodes": [],
+      "nodes": []
+    },
+    "blockingReasonFrequency": {}
+  },
+  "reviewRows": [
+    {
+      "sample": "UMr6ia1QubqOMw3aBUGbOw.article",
+      "sampleTitle": "和AI产品经理聊天，她说\"我用Vibe coding做Demo\"，我问她：怎么用hook？她说我一般用claude code",
+      "sampleTopic": "single_article",
+      "status": "failed_questions",
+      "questionId": "",
+      "knowledgePoint": "",
+      "knowledgePointId": "",
+      "knowledgeStructureRole": "",
+      "structureNodeId": "",
+      "roleInArticle": "",
+      "sourceEvidenceIds": "",
+      "requiredEvidenceIds": "",
+      "whyWorthReviewing": "",
+      "pointClaimFidelityScore": "",
+      "knowledgeImportanceScore": "",
+      "knowledgeCoverageReason": "",
+      "practiceBlueprint": "",
+      "questionType": "",
+      "stem": "",
+      "options": "",
+      "correctOptionId": "",
+      "correctAnswerText": "",
+      "correctUnderstanding": "",
+      "commonMisconception": "",
+      "sourceSnippet": "",
+      "memoryAngle": "",
+      "blueprintItemId": "",
+      "blueprintGoal": "",
+      "memoryAngleFitScore": "",
+      "blueprintAlignmentScore": "",
+      "pedagogyDiagnostics": "",
+      "cognitiveActionFitScore": "",
+      "coreRecallFitScore": "",
+      "boundaryDiscriminationFitScore": "",
+      "scenarioTransferFitScore": "",
+      "practiceProgressionScore": "",
+      "practiceDuplicateRiskScore": "",
+      "evidenceLearningValueScore": "",
+      "sourceReuseLearningReason": "",
+      "typeDiversityReason": "",
+      "confidenceLevel": "",
+      "confidenceTier": "",
+      "retainedBy": "",
+      "sourceContextScore": "",
+      "sourcePrecisionScore": "",
+      "sourceCoverageScore": "",
+      "claimFidelityScore": "",
+      "learningEffectivenessScore": "",
+      "sourceSpecificityScore": "",
+      "sourceMinimalityScore": "",
+      "sourceEvidenceRole": "",
+      "sourceBlockId": "",
+      "sourceEvidenceDiversityScore": "",
+      "sourceReuseReason": "",
+      "sourceOverlapRatio": "",
+      "sourceOverlapGroupId": "",
+      "sourceReuseCount": "",
+      "sourceContextSelection": "",
+      "trustDiagnostics": "",
+      "confidenceReasons": "",
+      "blockingReasons": "",
+      "primaryBlockingReason": "",
+      "repairHint": "",
+      "machineAverageScore": "",
+      "machineIssues": "模型返回内容不是可解析 JSON，请重试。",
+      "machineIssueCategory": "structure_invalid",
+      "human_status": "",
+      "primary_issue": "",
+      "secondary_issue": "",
+      "source_support": "",
+      "source_precision": "",
+      "source_coverage": "",
+      "claim_fidelity": "",
+      "source_minimality": "",
+      "source_evidence_role": "",
+      "source_block_id": "",
+      "source_evidence_diversity": "",
+      "source_reuse_reason": "",
+      "source_overlap_ratio": "",
+      "source_overlap_group": "",
+      "cognitive_action_fit": "",
+      "practice_progression": "",
+      "duplicate_practice": "",
+      "misconception_realism": "",
+      "distractor_learning_value": "",
+      "evidence_learning_value": "",
+      "answer_uniqueness": "",
+      "understanding_depth": "",
+      "clarity": "",
+      "distractor_quality": "",
+      "explanation_faithfulness": "",
+      "review_value": "",
+      "blame_stage": "",
+      "option_issue": "",
+      "training_label_eligible": "",
+      "human_verified": "",
+      "review_decision": "",
+      "notes": ""
+    }
+  ],
+  "result": {
+    "file": "UMr6ia1QubqOMw3aBUGbOw.article",
+    "sampleSet": "single_article",
+    "sampleMeta": {
+      "title": "和AI产品经理聊天，她说\"我用Vibe coding做Demo\"，我问她：怎么用hook？她说我一般用claude code",
+      "sourceType": "article_link",
+      "topic": "single_article",
+      "difficulty": "unknown",
+      "structureType": "unknown",
+      "expectedFocus": [],
+      "reviewPriority": "diagnostic"
+    },
+    "startedAt": "2026-05-31T14:10:06.340Z",
+    "status": "failed_questions",
+    "chapter": {
+      "title": "和AI产品经理聊天，她说\"我用Vibe coding做Demo\"，我问她：怎么用hook？她说我一般用claude code",
+      "sourceType": "text",
+      "status": "failed_questions",
+      "displayStatusText": "题目生成失败",
+      "failureReason": "模型返回内容不是可解析 JSON，请重试。",
+      "source": {
+        "type": "article_link",
+        "title": "和AI产品经理聊天，她说\"我用Vibe coding做Demo\"，我问她：怎么用hook？她说我一般用claude code",
+        "url": "https://mp.weixin.qq.com/s/UMr6ia1QubqOMw3aBUGbOw",
+        "account": "老杨",
+        "rawText": "[redacted: full source text omitted]",
+        "cleanedText": "[redacted: full source text omitted]",
+        "rawTextLength": 4352,
+        "cleanedTextLength": 4352
+      },
+      "knowledgePoints": [],
+      "filteredKnowledgePoints": [],
+      "questions": [],
+      "coreSummary": "",
+      "qualitySummary": null,
+      "generationMeta": {
+        "generationRunId": "chapter_20260531140947_21ehbn",
+        "startedAt": "2026-05-31T14:09:47.666Z",
+        "currentStage": "failed_questions",
+        "stages": [
+          {
+            "status": "submitted",
+            "at": "2026-05-31T14:09:47.666Z"
+          },
+          {
+            "status": "generating_points",
+            "displayStatusText": "正在生成知识点",
+            "at": "2026-05-31T14:09:47.673Z"
+          },
+          {
+            "status": "failed_questions",
+            "displayStatusText": "题目生成失败",
+            "at": "2026-05-31T14:10:06.339Z"
+          }
+        ],
+        "modelUsage": [
+          {
+            "runId": "chapter_20260531140947_21ehbn",
+            "stage": "knowledge_points",
+            "provider": "deepseek",
+            "model": "deepseek-v4-flash",
+            "price": {
+              "inputPerMillion": 1,
+              "cachedInputPerMillion": 0.02,
+              "outputPerMillion": 2,
+              "perCallFee": 0,
+              "currency": "CNY",
+              "priceSourceUrl": "https://api-docs.deepseek.com/zh-cn/quick_start/pricing",
+              "checkedAt": "2026-05-26"
+            },
+            "estimated": {
+              "inputTokens": 4189,
+              "cachedInputTokens": 0,
+              "uncachedInputTokens": 4189,
+              "outputTokens": 2400,
+              "totalTokens": 0,
+              "cost": 0.008989,
+              "currency": "CNY"
+            },
+            "actual": {
+              "inputTokens": 3795,
+              "cachedInputTokens": 3712,
+              "uncachedInputTokens": 83,
+              "outputTokens": 2277,
+              "totalTokens": 6072,
+              "cost": 0.00471124,
+              "currency": "CNY"
+            },
+            "diff": {
+              "costDelta": 0.00427776,
+              "costErrorRate": 90.8
+            },
+            "recordedAt": "2026-05-31T14:10:06.329Z",
+            "error": "模型返回内容不是可解析 JSON",
+            "parseError": "Expected ',' or ']' after array element in JSON at position 764 (line 16 column 15)",
+            "rawResponsePreview": "{\n  \"chapterTitle\": \"AI Coding与Hook的工程思维\",\n  \"candidates\": [\n    {\n      \"title\": \"hook vs prompt：机制 vs 请求\",\n      \"knowledgeType\": \"comparison\",\n      \"summary\": \"prompt 是请求模型记住规则，依赖模型自觉；hook 是系统在特定节点自动执行确定性流程，靠机制保障。对于必须发生的事，hook 比 prompt 可靠。\",\n      \"keyClaim\": \"prompt 靠模型自觉，hook 靠机制执行，因此必须发生的事应放入 hook 而非仅写在 prompt 里。\",\n      \"sourceQuote\": \"这和“把规则写进 prompt”最大的区别在于：prompt 是请求模型记住；hook 是让系统执行。你可以反复对 AI 说“改完代码记得格式化”，也可以在 PostToolUse 里规定，只要它编辑了文件，就自动跑 formatter。前者靠模型自觉，后者靠机制。\",\n      \"testabilityReason\": \"可以通过场景判断题测试：用户是否理解两者本质区别及适用场景。\",\n      \"structureRole\": \"main_claim\",\n      \"importanceScore\": 5,\n      \"coverageReason\": \"这是文章核心对比，贯穿全文，区分了 AI coding 两个层级，是重要知识边界。\",\n      \"questionAngles\": [\n        \"prompt 和 hook 在确保 AI 行为可靠上的根本区别是什么？\",\n        \"为什么说\"改完代码记得格式化\"写在 prompt 里不如放在 PostToolUse hook 中？\"\n      ],\n      \"testabilityScore\": 5\n    },\n    {\n      \"title\": \"需要引入 hook 的四个信号\",\n      \"knowledgeType\": \"step\",\n      \"summary\": \"hook 不是一开始就需要，当出现四个信号时应引入：AI 碰危险动作、同样提醒重复多遍、demo 要交给别人继续改、AI session 变长。\",\n      \"keyClaim\": \"当 AI 开始碰危险动作、重复提醒、需要协作、session 变长时，应及时使用 hook 来保证可控性。\",\n      \"sourceQuote\": \"真正该上 hook 的时刻，通常有四个信号。第一个信号，是 AI 开始碰危险动作。第二个信号，是同样的提醒你已经说了三遍。第三个信号，是 demo 要交给别人继续改。第四个信号，是 AI session 变长了。\",\n      \"testabilityReason\": \"可以通过案例分析题测试：给定场景判断是否应引入 hook。\",\n      \"structureRole\": \"method_step\",\n      \"importanceScore\": 5,\n      \"coverageReason\": \"文章核心实用方法，指导何时从 vibe coding 过渡到工程化。\",\n      \"questionAngles\": [\n        \"列举四个需要引入 hook 的信号。\",\n        \"如果 AI 反复忘记格式化代码，应该使用 hook 还是继续修改 prompt？为什么？\"\n      ],\n      \"testabilityScore\": 5\n    },\n    {\n      \"title\": \"最实用的三类 hook 场景\",\n      \"knowledgeType\": \"step\",\n      \"summary\": \"高频实用 hook 场景：改完后自动格式化（PostToolUse）、执行前拦截风险（PreToolUse）、会话开始时注入上下文（SessionStart）、结束前验收（Stop hook）。\",\n      \"keyClaim\": \"PostToolUse 用于自动整理代码，PreToolUse 用于拦截危险命令，SessionStart 用于注入项目上下文，Stop hook 用于验收完成状态。\",\n      \"sourceQuote\": \"第一类，是改完之后自动整理。第二类，是执行前拦截风险。第三类，是会话开始时注入上下文。第四类，是结束前验收。\",\n      \"testabilityReason\": \"可以出匹配题或场景应用题：为特定需求选择正确的 hook 事件。\",\n      \"structureRole\": \"method_step\",\n      \"importanceScore\": 4,\n      \"coverageReason\": \"提供了具体的 hook 使用模式，是实操指导。\",\n      \"questionAngles\": [\n        \"如果需要保证 AI 每次修改代码后都自动运行格式化工具，应该使用哪个 hook 事件？\",\n        \"阻止 AI 执行 `rm -rf /` 命令适合用哪种 hook？\"\n      ],\n      \"testabilityScore\": 4\n    },\n    {\n      \"title\": \"prompt、项目规则、hook、CI 的分工\",\n      \"knowledgeType\": \"concept\",\n      \"summary\": \"prompt 管思考方式，项目规则管长期背景，hook 管事件发生时必须执行的动作，CI 管进入主干前的最终裁判。它们不能相互替代。\",\n      \"keyClaim\": \"prompt、CLAUDE.md、hook、CI 各有其职责，不应混淆，hook 不能替代 CI，CI 也不能替代 hook。\",\n      \"sourceQuote\": \"prompt 管的是“这次希望 AI 怎么思考”。CLAUDE.md 或项目规则文档管的是“长期背景”。hook 管的是“事件发生时必须执行的动作”。CI 管的是“进入主干前的最终裁判”。hook 是把问题尽早挡住，CI 是把漏网之鱼拦在合并前。\",\n      \"testabilityReason\": \"可以出判断题或分类题：将具体职责分配给对应工具。\",\n      \"structureRole\": \"supporting_reason\",\n      \"importanceScore\": 4,\n      \"coverageReason\": \"澄清了常见混淆点，帮助建立工程认知体系。\",\n      \"questionAngles\": [\n        \"hook 和 CI 在保障代码质量上各负责什么环节？\",\n        \"项目架构和命名约定应该写在 prompt 里还是 CLAUDE.md 里？为什么？\"\n      ],\n      \"testabilityScore\": 4\n    },\n    {\n      \"title\": \"产品经理常见误区：误以为自然语言指挥等于工程流\",\n      \"knowledgeType\": \"counterexample\",\n      \"summary\": \"产品经理可能因 vibe coding 太顺而误以为会用自然语言指挥 AI 就等于掌握了工程流，忽略了将重复动作自动化、限制不可接受行为、进行验收检查等工程实践。\",\n      \"keyClaim\": \"vibe coding 的流畅性容易让人忽视工程化所需的机制：拦住不可接受行为、自动化重复动作、完成最低限度的检查。\",\n      \"sourceQuote\": \"但也正因为它太顺，很多人会误以为“会用自然语言指挥 Claude Code”就等于“掌握了 AI 工程流”。忽略了：你有没有把不可接受的行为拦住，有没有把重复动作自动化，有没有在 AI 结束前逼它完成最低限度的检查。\",\n      \"testabilityReason\": \"可以出辨析题：判断一个产品经理是否真正掌握了 AI 工程流，需要具备哪些意识。\",\n      \"structureRole\": \"boundary\",\n      \"importanceScore\": 5,\n      \"coverageReason\": \"直击核心误区，对产品经理读者有重要警示意义。\",\n      \"questionAngles\": [\n        \"产品经理使用 AI coding 时容易忽略哪些工程问题？\",\n        \"为什么说“会用自然语言指挥 Claude Code”不等于“掌握了 AI 工程流”？\"\n      ],\n      \"testabilityScore\": 5\n    },\n    {\n      \"title\": \"hook 的价值：把“每次都该做”的事从聊天里拿出来\",\n      \"knowledgeType\": \"judgment\",\n      \"summary\": \"hook 的本质不是炫技，而是将重复性、确定性、必须执行的动作从对话中剥离，放入自动化流程，从而让 AI 协作更可靠，适用于从 demo 走向可维护工程。\",\n      \"keyClaim\": \"hook 的意义在于把“每次都该做”的事"
+          }
+        ],
+        "finishedAt": "2026-05-31T14:10:06.340Z",
+        "failedStage": "generating_points",
+        "failureReason": "模型返回内容不是可解析 JSON，请重试。",
+        "candidateCount": 0,
+        "keptKnowledgePointCount": 0,
+        "filteredKnowledgePointCount": 0,
+        "totalGenerated": 0,
+        "rewrittenCount": 0,
+        "supplementCount": 0,
+        "generationErrorCount": 0,
+        "discardedCount": 0,
+        "qualifiedQuestionCount": 0,
+        "costSummary": {
+          "callCount": 1,
+          "currencies": [
+            "CNY"
+          ],
+          "totalsByCurrency": {
+            "CNY": {
+              "currency": "CNY",
+              "callCount": 1,
+              "totalEstimatedCost": 0.008989,
+              "totalActualCost": 0.00471124,
+              "costDelta": 0.00427776,
+              "costErrorRate": 90.8,
+              "actualCostPerQualifiedQuestion": null
+            }
+          },
+          "byStage": [
+            {
+              "stage": "knowledge_points",
+              "currency": "CNY",
+              "callCount": 1,
+              "estimatedCost": 0.008989,
+              "actualCost": 0.00471124,
+              "costDelta": 0.00427776,
+              "costErrorRate": 90.8
+            }
+          ],
+          "reportText": "调用次数：1\n\n阶段 | 模型 | 估算成本 | 实际成本 | 误差\n--- | --- | ---: | ---: | ---:\nknowledge_points | deepseek-v4-flash | ¥0.008989 | ¥0.004711 | +90.80%\n\n合计（CNY）：估算 ¥0.008989，实际 ¥0.004711，误差 +90.80%"
+        }
+      }
+    },
+    "generationDebug": {
+      "knowledgePoints": [],
+      "filteredKnowledgePoints": [],
+      "evaluatedQuestions": [],
+      "pointDiagnostics": [],
+      "generationErrors": []
+    },
+    "message": "模型返回内容不是可解析 JSON，请重试。"
+  }
+}
