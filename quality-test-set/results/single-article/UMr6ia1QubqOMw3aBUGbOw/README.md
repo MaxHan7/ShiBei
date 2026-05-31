@@ -161,6 +161,81 @@ v15 验证了两个事实：
 - 评分器对 `source_coverage_incomplete` 不只标低置信，还输出“题目应收窄到哪个判断点”的 repair hint。
 - 成功标准：动态覆盖率不低于 v15，低摩擦分保持 4.5+，同时 `source_coverage_incomplete` 明显下降。
 
+### v16：Structured Lean Prompt
+
+| 字段 | 内容 |
+| --- | --- |
+| 实验标签 | `v16-structured-lean-prompt` / `v16-structured-lean-prompt-length-restored` |
+| 运行时间 | 2026-05-31 21:00 / 21:03 |
+| JSON | `runs/20260531-210028-v16-structured-lean-prompt.json` / `runs/20260531-210336-v16-structured-lean-prompt-length-restored.json` |
+| CSV | `reviews/20260531-210028-v16-structured-lean-prompt.csv` / `reviews/20260531-210336-v16-structured-lean-prompt-length-restored.csv` |
+| Analysis | `analysis/20260531-210028-v16-structured-lean-prompt.md` / `analysis/20260531-210336-v16-structured-lean-prompt-length-restored.md` |
+
+#### 实验假设
+
+v15 的 prompt 已经比 v13 前的复杂版本轻很多，但 system prompt 和 user prompt 仍重复讲题型、来源、解释和干扰项规则。v16 只做 **结构重排 + 去重**，不继续加新规则：把系统 prompt 改成 5 个短区块，让模型先抓住“可信、轻量、来源支撑、宁少勿凑”的主任务；user prompt 只保留本次 run 的动态信息。
+
+#### Prompt 改动
+
+- `questionSystemPrompt` 重排为 5 个短区块：角色任务、好题标准、题量策略、题型契约、输出字段。
+- `buildUserPrompt()` 删除重复的完整题型规则、`sourceSnippet` 规则、解释规则和干扰项规则，只保留任务模式、`targetQuestionCount`、`memoryAngle` 简要目标和知识点 JSON。
+- `rewriteGuidance()` 保持 issue-specific 注入；来源覆盖不足时新增一句：优先收窄题目判断范围，而不是扩大来源片段。
+- 首轮 v16 去重后出现高摩擦题，因此第二次只恢复 v15 已验证有效的长度护栏：题干推荐 15-45 个中文字符，选项推荐 8-24 个中文字符。
+
+#### 确定性规则改动
+
+- 不改 `questionSchema`。
+- 不改 iOS、HTML、ReviewSession、收藏功能。
+- 不恢复 article structure / source block / practice blueprint 到生产 prompt。
+- 只补充单测，保证 prompt 不再重复输出完整题型规则，同时仍保留温和目标、轻量题卡、答案唯一、来源忠实和三种题型契约。
+
+#### 指标结果
+
+| 指标 | v15 | v16 结构版 | v16 恢复长度护栏 |
+| --- | ---: | ---: | ---: |
+| 保留知识点 | 7 | 8 | 9 |
+| 入池题数 | 9 | 15 | 19 |
+| 动态预期题数 | 16 | 16 | 22 |
+| 动态覆盖率 | 56.3% | 93.8% | 86.4% |
+| 覆盖知识点 | 7 / 7 | 8 / 8 | 9 / 9 |
+| 低置信题比例 | 88.9% | 73.3% | 89.5% |
+| 高置信题 | 1 | 4 | 2 |
+| 平均来源精准度 | 4.9 | 5.0 | 4.8 |
+| 平均来源最小化 | 4.6 | 4.9 | 4.8 |
+| 平均低摩擦题卡分 | 5.0 | 4.7 | 5.0 |
+| 平均可见阅读负担 | 83.6 | 118.7 | 82.7 |
+| 高摩擦题数 | 0 | 2 | 0 |
+| 重复练习风险题 | 0 | 4 | 6 |
+| `source_coverage_incomplete` | 6 | 8 | 9 |
+| `answer_not_unique` 阻断 | 1 | 2 | 4 |
+
+#### 有效结果
+
+- **prompt 去重后覆盖能力明显恢复。** v16 结构版入池题从 9 到 15，且覆盖 8 / 8 个知识点；说明减少重复规则没有让模型失去任务理解，反而释放了一部分生成能力。
+- **长度护栏不能删。** 纯结构版出现 2 道高摩擦题，平均阅读负担升到 118.7；恢复短题干/短选项提醒后，低摩擦分回到 5.0，高摩擦题回到 0。
+- **结构化 prompt 更利于稳定传达主任务。** v16 最终版在不恢复复杂 blueprint 的情况下达到 19 道入池题，说明“短区块 + 动态 user prompt”比“重复规则堆叠”更清晰。
+
+#### 新问题
+
+- **数量恢复伴随质量噪声上升。** v16 最终版低置信比例 89.5%，高于结构版；高置信题只有 2 道，说明更多题并不天然等于更好。
+- **来源覆盖问题没有被 prompt 重排解决。** `source_coverage_incomplete` 从 v15 的 6 次升到 9 次；题目仍容易把判断范围扩到来源片段不能完整支撑的地方。
+- **重复风险回来了。** 重复练习风险从 v15 的 0 升到 6，说明 user prompt 去掉细规则后，模型更愿意生成更多相近判断。
+- **答案唯一性问题上升。** `answer_not_unique` 阻断从 1 升到 4，这是不能靠放宽规则解决的底线问题。
+
+#### 第一性原理结论
+
+v16 的结论不是“结构重排全面成功”，而是更具体：
+
+1. **prompt 去重是正确方向。** 重复规则确实会增加注意力噪音；短区块 prompt 能让模型保持覆盖能力。
+2. **少数产品护栏必须保留。** 题卡轻量不是模型自然会做的事，长度护栏删掉后立刻退化。
+3. **下一步不应该继续加 prompt 规则。** 当前主要问题已经不是模型不知道规则，而是入池选择和评分没有足够抑制：来源覆盖不完整、重复练习风险、答案不唯一。
+
+因此 v16 最终候选采用“结构化 lean prompt + 恢复长度护栏”。下一轮如果继续优化，优先做确定性选择/评分侧收敛：
+
+- 对 `source_coverage_incomplete` 和 `claim_overextended` 做更严格的收窄或重写，不要让题目判断超过来源证据。
+- 对同一知识点的相似判断加入选择器惩罚，避免为了覆盖率恢复重复题。
+- 对 `answer_not_unique` 保持强阻断，必要时在 rewrite 中要求缩小判断范围，而不是增加解释。
+
 ## 基准信息
 
 | 字段 | 内容 |

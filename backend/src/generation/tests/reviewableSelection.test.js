@@ -5,6 +5,7 @@ import { evaluateQuestions } from "../evaluateQuestions.js";
 import { buildUserPrompt, targetQuestionCountDecisionForPoint, targetQuestionCountForPoint } from "../generateQuestions.js";
 import { selectQualifiedQuestionsByPoint } from "../index.js";
 import { buildPracticeBlueprintForPoint, pedagogyDiagnosticsForQuestion } from "../practiceBlueprint.js";
+import { questionSystemPrompt } from "../prompts/questions.js";
 
 const point = {
   id: "kp-1",
@@ -1034,11 +1035,22 @@ test("question prompt stays lean and does not force article structure binding fi
   assert.equal(prompt.includes("题目必须服务该结构节点"), false);
   assert.equal(prompt.includes("真实混淆对象是什么"), false);
   assert.equal(prompt.includes("新场景变量是什么"), false);
-  assert.match(prompt, /轻量复习要求/);
-  assert.match(prompt, /不要改写来源片段/);
+  assert.equal(prompt.includes("multiple_choice：固定 4 个选项"), false);
+  assert.equal(prompt.includes("sourceSnippet 优先逐字来自"), false);
+  assert.match(prompt, /题型格式、来源、解释、轻量题卡和输出字段按 system prompt 执行/);
   assert.match(prompt, /换壳重复/);
-  assert.match(prompt, /温和目标/);
-  assert.match(prompt, /优先生成 targetQuestionCount 道不同角度候选题/);
+  assert.match(prompt, /targetQuestionCount >= 2/);
+});
+
+test("system prompt keeps core contracts after structural deduplication", () => {
+  assert.match(questionSystemPrompt, /targetQuestionCount 是温和目标/);
+  assert.match(questionSystemPrompt, /题干只放必要判断条件/);
+  assert.match(questionSystemPrompt, /推荐题干 15-45 个中文字符/);
+  assert.match(questionSystemPrompt, /答案唯一/);
+  assert.match(questionSystemPrompt, /sourceSnippet 必须逐字来自原文或知识点 sourceQuote/);
+  assert.equal(questionSystemPrompt.includes("multiple_choice：A/B/C/D 四个选项"), true);
+  assert.equal(questionSystemPrompt.includes("scenario_judgment：A/B/C/D 四个行动方案"), true);
+  assert.equal(questionSystemPrompt.includes("true_false：只用于简单成立/不成立判断"), true);
 });
 
 test("friction rewrite prompt explicitly asks to compress the visible question card", () => {
@@ -1056,6 +1068,22 @@ test("friction rewrite prompt explicitly asks to compress the visible question c
   assert.match(prompt, /15-45/);
   assert.match(prompt, /8-24/);
   assert.match(prompt, /把背景、证据链和解释移到/);
+});
+
+test("source coverage rewrite prompt asks to narrow the question claim instead of expanding evidence", () => {
+  const prompt = buildUserPrompt({
+    points: [{
+      ...highValuePoint,
+      preferredQuestionType: "multiple_choice",
+      targetQuestionCount: 1
+    }],
+    rewrite: true,
+    rewriteContext: "source_coverage_incomplete; claim_overextended"
+  });
+
+  assert.match(prompt, /来源覆盖修复/);
+  assert.match(prompt, /收窄题目判断范围/);
+  assert.match(prompt, /不要为了覆盖原题而扩大 sourceSnippet/);
 });
 
 test("heavy question cards are marked for rewrite instead of being treated as high confidence", () => {

@@ -102,25 +102,14 @@ ${rewriteGuidance(rewriteContext)}
     : "";
 
   return `${supplementInstruction || rewriteInstruction}
-请把 targetQuestionCount 当作温和目标：优先生成 targetQuestionCount 道不同角度候选题，而不是只保守生成 1 道。
-每个知识点至少返回 1 道结构完整题；只有在来源无法支撑、答案会不唯一、或只能生成换壳重复题时，才少于 targetQuestionCount。
-如果 targetQuestionCount >= 2，优先覆盖 core_understanding + misconception_boundary 或 scenario_application；如果 targetQuestionCount = 3，再补第三个自然角度。
-memoryAngle 用来说明题目练习意图：
-- core_understanding：抓住核心主张，不考原文复述、关键词识别或“原文提到了什么”。
-- misconception_boundary：分清真实混淆和边界，错误选项必须是同一语境里的真实误区。
-- scenario_application：把原文原则迁移到一个新场景，不能只是把原文句子换壳。
-轻量复习要求：题干只放用户做判断所需的最少信息。题干保留关键变量，选项保留可比较的判断对象；复杂背景、来源证据和完整解释放进 explanation / correctUnderstanding / sourceSnippet。
-preferredQuestionType 是推荐题型：优先使用它；如果另一种题型更自然、更能考理解，也可以改用其它允许题型。
-如果使用 true_false，只能使用两个选项：A 成立，B 不成立。
-如果使用 multiple_choice，必须使用 A/B/C/D 四个选项。
-如果使用 scenario_judgment，必须使用 A/B/C/D 四个选项；题干描述具体使用场景，四个选项分别是四种行动方案、判断方式或处理策略，禁止使用“成立 / 不成立”。
-正确答案位置要自然分散，不要固定放在 B。后端仍会重新排列选项，你只需要保证 correctOptionId 指向你认为正确的选项。
-sourceSnippet 优先逐字来自该知识点 sourceQuote，不要改写来源片段；如果不确定怎么截取，直接把完整 sourceQuote 作为 sourceSnippet。
-每道题的 3 个错误选项必须来自不同常见误解：错因要接近真实用户会犯的理解偏差，而不是随便编无关选项。
-解释必须只解释来源中能支持的判断；如果要解释其它选项为什么错，必须能从来源、正确理解或常见误区中推出。
-commonMisconception 必须描述一个真实、具体、贴近题目的误解；不要写“没有理解原文”“理解片面”这类泛泛说法。
-如果 sourceQuote 很短，优先生成直接理解题或边界判断题；不要编造 sourceQuote 没有支撑的复杂业务细节。
-优先参考 questionAngles 设计不同考察角度；如果没有 questionAngles，就根据 keyClaim 和 sourceQuote 选择最值得复习的角度。
+任务：
+- 按每个知识点的 targetQuestionCount 尝试生成不同角度候选题；每个知识点至少 1 道。
+- targetQuestionCount >= 2 时，优先覆盖 core_understanding + misconception_boundary 或 scenario_application；targetQuestionCount = 3 时，再补第三个自然角度。
+- 优先参考 questionAngles；如果没有 questionAngles，就根据 keyClaim、sourceQuote 和 preferredQuestionType 选择最值得复习的角度。
+- 如果会变成换壳重复、来源无法支撑或答案不唯一，可以少于 targetQuestionCount。
+- 题型格式、来源、解释、轻量题卡和输出字段按 system prompt 执行。
+
+知识点输入：
 ${JSON.stringify(points, null, 2)}`;
 }
 
@@ -203,6 +192,9 @@ function rewriteGuidance(context = "") {
   }
   if (/source|来源/.test(issues)) {
     guidance.push("来源修复：sourceSnippet 优先逐字截取自当前知识点 sourceQuote；如果无法稳定截取，直接使用完整 sourceQuote。不要拼接、改写或概括。");
+  }
+  if (/source_coverage|sourceCoverage|coverage|覆盖|claim_overextended/.test(issues)) {
+    guidance.push("来源覆盖修复：优先收窄题目判断范围，只考当前 sourceQuote 能完整支撑的一个判断点；不要为了覆盖原题而扩大 sourceSnippet。");
   }
   if (/question_type|题型/.test(issues)) {
     guidance.push("题型提示：preferredQuestionType 只是推荐题型。优先使用它；如果当前题型更自然，也可以保留，但选项结构必须合法。");
