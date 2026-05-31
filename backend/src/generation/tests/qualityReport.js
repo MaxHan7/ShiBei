@@ -8,6 +8,7 @@ export const ISSUE_CATEGORIES = [
   "coverage_gap",
   "low_confidence_bad",
   "source_context_bad",
+  "review_friction_high",
   "structure_invalid",
   "generation_failed",
   "other"
@@ -118,6 +119,24 @@ export function summarize(results) {
   const evidenceLearningValueScores = allQuestions
     .map((question) => Number(question.evidenceLearningValueScore))
     .filter(Number.isFinite);
+  const reviewFrictionScores = allQuestions
+    .map((question) => Number(question.reviewFrictionScore ?? question.trustDiagnostics?.reviewFrictionScore))
+    .filter(Number.isFinite);
+  const visibleReadingLoads = allQuestions
+    .map((question) => Number(question.visibleReadingLoad ?? question.trustDiagnostics?.visibleReadingLoad))
+    .filter(Number.isFinite);
+  const highFrictionQuestionCount = allQuestions.filter((question) => (
+    Number(question.reviewFrictionScore ?? question.trustDiagnostics?.reviewFrictionScore ?? 5) < 4
+  )).length;
+  const mandatoryFrictionRewriteCount = allQuestions.filter((question) => {
+    const score = Number(question.reviewFrictionScore ?? question.trustDiagnostics?.reviewFrictionScore ?? 5);
+    const load = Number(question.visibleReadingLoad ?? question.trustDiagnostics?.visibleReadingLoad ?? 0);
+    const stemLength = Number(question.stemLength ?? question.trustDiagnostics?.stemLength ?? 0);
+    const maxOptionLength = Number(question.maxOptionLength ?? question.trustDiagnostics?.maxOptionLength ?? 0);
+    const scenarioStemTooLong = question.type === "scenario_judgment" && stemLength > 110;
+    return score <= 2 || load > 220 || scenarioStemTooLong || maxOptionLength > 60;
+  }).length;
+  const heavyQuestionTop = heavyQuestionSummary(allQuestions);
   const duplicatePracticeRiskCount = allQuestions
     .filter((question) => Number(question.practiceDuplicateRiskScore || 0) >= 4).length;
   const cognitiveActionIssueFrequency = countValues(allQuestions
@@ -208,6 +227,15 @@ export function summarize(results) {
     averageEvidenceLearningValueScore: evidenceLearningValueScores.length
       ? Math.round((evidenceLearningValueScores.reduce((sum, score) => sum + score, 0) / evidenceLearningValueScores.length) * 10) / 10
       : 0,
+    averageReviewFrictionScore: reviewFrictionScores.length
+      ? Math.round((reviewFrictionScores.reduce((sum, score) => sum + score, 0) / reviewFrictionScores.length) * 10) / 10
+      : 0,
+    averageVisibleReadingLoad: visibleReadingLoads.length
+      ? Math.round((visibleReadingLoads.reduce((sum, value) => sum + value, 0) / visibleReadingLoads.length) * 10) / 10
+      : 0,
+    highFrictionQuestionCount,
+    mandatoryFrictionRewriteCount,
+    heavyQuestionTop,
     averageSourceCoverageScore: sourceCoverageScores.length
       ? Math.round((sourceCoverageScores.reduce((sum, score) => sum + score, 0) / sourceCoverageScores.length) * 10) / 10
       : 0,
@@ -260,6 +288,7 @@ export function categorizeMachineIssue(issue) {
   if (/knowledge.*point|missing_knowledge|知识点/.test(value)) return "knowledge_point_off_target";
   if (/coverage|uncovered|no_qualified|no_questions|无题|覆盖/.test(value)) return "coverage_gap";
   if (/low_confidence|confidence/.test(value)) return "low_confidence_bad";
+  if (/review_friction|friction|question_card_too_heavy|option_too_explanatory|低摩擦|题卡|阅读负担/.test(value)) return "review_friction_high";
   if (/context|snippet|上下文|片段/.test(value)) return "source_context_bad";
   if (/options|structure|schema|json|结构/.test(value)) return "structure_invalid";
   if (/failed|error|timeout|生成失败|超时/.test(value)) return "generation_failed";
@@ -521,6 +550,11 @@ function questionToReviewRow({ result, question, status }) {
     practiceProgressionScore: question.practiceProgressionScore ?? "",
     practiceDuplicateRiskScore: question.practiceDuplicateRiskScore ?? "",
     evidenceLearningValueScore: question.evidenceLearningValueScore ?? "",
+    reviewFrictionScore: question.reviewFrictionScore ?? question.trustDiagnostics?.reviewFrictionScore ?? "",
+    visibleReadingLoad: question.visibleReadingLoad ?? question.trustDiagnostics?.visibleReadingLoad ?? "",
+    stemLength: question.stemLength ?? question.trustDiagnostics?.stemLength ?? "",
+    maxOptionLength: question.maxOptionLength ?? question.trustDiagnostics?.maxOptionLength ?? "",
+    reviewFrictionReasons: formatList(question.reviewFrictionReasons || question.trustDiagnostics?.reviewFrictionReasons || []),
     sourceReuseLearningReason: question.sourceReuseLearningReason || "",
     typeDiversityReason: question.typeDiversityReason || "",
     confidenceLevel: question.confidenceLevel || "",
@@ -569,6 +603,9 @@ function questionToReviewRow({ result, question, status }) {
     misconception_realism: "",
     distractor_learning_value: "",
     evidence_learning_value: "",
+    review_friction: "",
+    visible_reading_load: "",
+    question_card_weight: "",
     answer_uniqueness: "",
     understanding_depth: "",
     clarity: "",
@@ -635,6 +672,11 @@ function emptyReviewRow(result) {
     practiceProgressionScore: "",
     practiceDuplicateRiskScore: "",
     evidenceLearningValueScore: "",
+    reviewFrictionScore: "",
+    visibleReadingLoad: "",
+    stemLength: "",
+    maxOptionLength: "",
+    reviewFrictionReasons: "",
     sourceReuseLearningReason: "",
     typeDiversityReason: "",
     confidenceLevel: "",
@@ -684,6 +726,9 @@ function emptyReviewRow(result) {
     misconception_realism: "",
     distractor_learning_value: "",
     evidence_learning_value: "",
+    review_friction: "",
+    visible_reading_load: "",
+    question_card_weight: "",
     answer_uniqueness: "",
     understanding_depth: "",
     clarity: "",
@@ -742,7 +787,9 @@ function formatTrustDiagnostics(diagnostics) {
     `sourceCoverage:${diagnostics.sourceCoverageScore ?? ""}`,
     `claimFidelity:${diagnostics.claimFidelityScore ?? ""}`,
     `cognitive:${diagnostics.cognitiveActionFitScore ?? ""}`,
-    `evidenceLearning:${diagnostics.evidenceLearningValueScore ?? ""}`
+    `evidenceLearning:${diagnostics.evidenceLearningValueScore ?? ""}`,
+    `reviewFriction:${diagnostics.reviewFrictionScore ?? ""}`,
+    `visibleLoad:${diagnostics.visibleReadingLoad ?? ""}`
   ].join(" | ");
 }
 
@@ -773,6 +820,28 @@ function formatSourceContextSelection(selection) {
     `fallback:${selection.fallback ? "yes" : "no"}`,
     selection.fallbackReason ? `reason:${selection.fallbackReason}` : ""
   ].filter(Boolean).join(" | ");
+}
+
+function heavyQuestionSummary(questions = []) {
+  return questions
+    .map((question) => ({
+      questionId: question.id || "",
+      knowledgePointId: question.knowledgePointId || question.pointId || "",
+      memoryAngle: question.memoryAngle || "",
+      reviewFrictionScore: Number(question.reviewFrictionScore ?? question.trustDiagnostics?.reviewFrictionScore ?? 0),
+      visibleReadingLoad: Number(question.visibleReadingLoad ?? question.trustDiagnostics?.visibleReadingLoad ?? 0),
+      stemLength: Number(question.stemLength ?? question.trustDiagnostics?.stemLength ?? 0),
+      maxOptionLength: Number(question.maxOptionLength ?? question.trustDiagnostics?.maxOptionLength ?? 0),
+      reviewFrictionReasons: question.reviewFrictionReasons || question.trustDiagnostics?.reviewFrictionReasons || [],
+      stem: question.stem || ""
+    }))
+    .filter((item) => item.visibleReadingLoad || item.stemLength || item.maxOptionLength)
+    .sort((a, b) => (
+      b.visibleReadingLoad - a.visibleReadingLoad
+      || a.reviewFrictionScore - b.reviewFrictionScore
+      || b.maxOptionLength - a.maxOptionLength
+    ))
+    .slice(0, 5);
 }
 
 function sourceReuseSummary(questions = []) {

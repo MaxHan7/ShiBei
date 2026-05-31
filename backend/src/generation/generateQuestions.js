@@ -1,6 +1,5 @@
 import { callOpenAIJson } from "./openaiClient.js";
 import { expectedQuestionType } from "./evaluateQuestions.js";
-import { buildPracticeBlueprintForPoint } from "./practiceBlueprint.js";
 import { questionSchema, questionSystemPrompt } from "./prompts/questions.js";
 
 export async function generateQuestions({
@@ -22,7 +21,7 @@ export async function generateQuestions({
       : (rewrite ? 1 : targetQuestionCountForPoint(point));
     const practiceBlueprint = Array.isArray(point.practiceBlueprint) && point.practiceBlueprint.length
       ? point.practiceBlueprint.slice(0, targetQuestionCount)
-      : buildPracticeBlueprintForPoint(point, { targetCount: targetQuestionCount, preferredQuestionType });
+      : [];
     return {
       id: point.id,
       title: point.title,
@@ -34,11 +33,8 @@ export async function generateQuestions({
       testabilityScore: point.testabilityScore,
       structureRole: point.structureRole || "",
       importanceScore: point.importanceScore,
-      structureNodeId: point.structureNodeId || "",
       roleInArticle: point.roleInArticle || point.structureRole || "",
       whyWorthReviewing: point.whyWorthReviewing || point.coverageReason || "",
-      sourceEvidenceIds: Array.isArray(point.sourceEvidenceIds) ? point.sourceEvidenceIds : [],
-      claimFidelityScore: point.claimFidelityScore ?? null,
       expectedCognitiveActions: Array.isArray(point.expectedCognitiveActions)
         ? point.expectedCognitiveActions
         : practiceBlueprint.map((item) => item.memoryAngle).filter(Boolean),
@@ -92,14 +88,11 @@ function fallbackPointId(points, index) {
 export function buildUserPrompt({ points, rewrite, rewriteContext, supplement, supplementContext }) {
   const rewriteCount = points[0]?.targetQuestionCount || 1;
   const supplementInstruction = supplement
-    ? `这是补题任务，不是重写失败题。请只为给定知识点补充最多 ${rewriteCount} 道新题，用来补齐缺失的认知动作。
+    ? `这是补题任务。请只为给定知识点补充最多 ${rewriteCount} 道新题。
 已有题目和缺口：${supplementContext || "当前知识点还没有达到目标入池数量"}
 要求：
-- 只补当前缺失的 practiceBlueprint.id 和对应 memoryAngle，不要为了数量凑换壳题。
 - 不要复用已有题干、选项结构、正确理解、相同场景或同一判断。
-- 题型服务于认知动作：如果推荐题型不自然，可以换成更自然的题型，但必须仍然完成该 blueprintGoal。
-- 如果缺失认知动作无法被来源可靠支撑，可以少补题，但不要编造来源或误区。
-- 本文中的术语必须按文章语境理解；例如 hook 指 AI agent / Claude Code lifecycle hook，不是 React Hook。`
+- 如果补不出可靠新角度，可以少补题；不要编造来源或误区。`
     : "";
   const rewriteInstruction = rewrite
     ? `上一题没有通过质量检查。请只为给定知识点重写 ${rewriteCount} 道题。
@@ -109,33 +102,24 @@ ${rewriteGuidance(rewriteContext)}
     : "";
 
   return `${supplementInstruction || rewriteInstruction}
-你会收到每个知识点的 practiceBlueprint。它是本知识点的练习蓝图，比“题型多样”更重要。
-请为每个知识点生成最多 targetQuestionCount 道候选题，并尽量逐项覆盖 practiceBlueprint 中的练习目标。targetQuestionCount 是当前题量上限，不是必须凑满的数量。
-每个知识点至少返回 1 道结构完整题，不要跳过任何知识点。
-当 targetQuestionCount 为 2 或 3 时，不要生成同质题：优先覆盖 practiceBlueprint 的不同 blueprintItemId 和 memoryAngle，再尽量使用不同题型；如果只能换壳重复，就少出题。
-每道题必须输出 memoryAngle：core_understanding 表示核心理解，misconception_boundary 表示误区/边界辨析，scenario_application 表示场景迁移。同一知识点多题时优先覆盖不同 memoryAngle。
-每道题必须输出 blueprintItemId 和 blueprintGoal：blueprintItemId 必须来自对应知识点 practiceBlueprint.id；blueprintGoal 用一句话说明这道题服务哪个练习目标。
-认知动作要求：
-- core_understanding：考核心主张，不考原文复述、关键词识别或“原文提到了什么”。
-- misconception_boundary：考真实混淆和边界，错误选项必须体现同一语境里的真实误区。
-- scenario_application：考新场景迁移，不能只是把原文句子换一个壳。
-边界辨析题在生成前先在内部完成这四步，再写成题目：真实混淆对象是什么；用户为什么会混淆；正确边界是什么；每个错误选项对应什么误区。最终 JSON 里不要额外输出这四步，但 commonMisconception 和 explanation 必须体现它们。
-场景迁移题在生成前先在内部完成这四步，再写成题目：新场景变量是什么；它对应原文哪个原则；为什么可以迁移；为什么不是原文例子的换壳。最终 JSON 里不要额外输出这四步，但题干、正确理解和 explanation 必须体现它们。
-每个知识点都可能带有 structureNodeId、roleInArticle、sourceEvidenceIds 和 whyWorthReviewing。
-题目必须服务该结构节点，不能把局部证据扩张成原文没有说的更强主张。
-如果题目同时比较多个概念，正确理解和来源片段必须覆盖这些关键概念；证据不足时请缩窄题目，不要硬做复合题。
+请为每个知识点生成最多 targetQuestionCount 道候选题。targetQuestionCount 是上限，不是必须凑满的数量。
+每个知识点至少返回 1 道结构完整题；如果只能生成换壳重复题，就少出题。
+memoryAngle 用来说明题目练习意图：
+- core_understanding：抓住核心主张，不考原文复述、关键词识别或“原文提到了什么”。
+- misconception_boundary：分清真实混淆和边界，错误选项必须是同一语境里的真实误区。
+- scenario_application：把原文原则迁移到一个新场景，不能只是把原文句子换壳。
+轻量复习要求：题干只放用户做判断所需的最少信息。题干保留关键变量，选项保留可比较的判断对象；复杂背景、来源证据和完整解释放进 explanation / correctUnderstanding / sourceSnippet。
 preferredQuestionType 是推荐题型：优先使用它；如果另一种题型更自然、更能考理解，也可以改用其它允许题型。
 如果使用 true_false，只能使用两个选项：A 成立，B 不成立。
 如果使用 multiple_choice，必须使用 A/B/C/D 四个选项。
 如果使用 scenario_judgment，必须使用 A/B/C/D 四个选项；题干描述具体使用场景，四个选项分别是四种行动方案、判断方式或处理策略，禁止使用“成立 / 不成立”。
 正确答案位置要自然分散，不要固定放在 B。后端仍会重新排列选项，你只需要保证 correctOptionId 指向你认为正确的选项。
 sourceSnippet 优先逐字来自该知识点 sourceQuote，不要改写来源片段；如果不确定怎么截取，直接把完整 sourceQuote 作为 sourceSnippet。
-题目必须考理解、边界、场景、误区或迁移应用，不要问“原文提到了什么”。
 每道题的 3 个错误选项必须来自不同常见误解：错因要接近真实用户会犯的理解偏差，而不是随便编无关选项。
 解释必须只解释来源中能支持的判断；如果要解释其它选项为什么错，必须能从来源、正确理解或常见误区中推出。
 commonMisconception 必须描述一个真实、具体、贴近题目的误解；不要写“没有理解原文”“理解片面”这类泛泛说法。
 如果 sourceQuote 很短，优先生成直接理解题或边界判断题；不要编造 sourceQuote 没有支撑的复杂业务细节。
-优先参考 questionAngles 设计不同考察角度；如果没有 questionAngles，就根据 keyClaim 和 sourceQuote 自行选择最值得复习的角度。
+优先参考 questionAngles 设计不同考察角度；如果没有 questionAngles，就根据 keyClaim 和 sourceQuote 选择最值得复习的角度。
 ${JSON.stringify(points, null, 2)}`;
 }
 
@@ -171,17 +155,26 @@ export function targetQuestionCountDecisionForPoint(point = {}) {
     };
   }
 
-  if (testabilityScore === 3 && angleCount === 0 && !["main_claim", "method_step", "supporting_reason"].includes(role)) {
+  const highValueRole = ["main_claim", "method_step", "supporting_reason", "boundary"].includes(role);
+  if (importanceScore >= 5 && testabilityScore >= 5 && angleCount >= 2) {
+    return {
+      count: 3,
+      reason: "high_value_multi_angle",
+      factors
+    };
+  }
+
+  if ((importanceScore >= 4 && testabilityScore >= 4) || (testabilityScore >= 4 && highValueRole)) {
     return {
       count: 2,
-      reason: "limited_angles",
+      reason: "valuable_two_angle_target",
       factors
     };
   }
 
   return {
-    count: 3,
-    reason: "default_three_question_target",
+    count: 1,
+    reason: "lean_default_single_question_target",
     factors
   };
 }

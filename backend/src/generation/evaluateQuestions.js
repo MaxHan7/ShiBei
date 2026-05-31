@@ -10,11 +10,12 @@ export function evaluateQuestions({ questions, knowledgePoints, cleanedText = ""
   return questions.map((question) => {
     const point = pointMap.get(question.knowledgePointId);
     const normalizedQuestion = normalizeQuestionSourceSnippet(question, point, cleanedText, sourceContextUsage);
+    const reviewFriction = reviewFrictionDiagnostics(normalizedQuestion);
     const typeValidation = validateQuestionType(question, point);
     const sourceValidation = validateSourceSnippet(normalizedQuestion, point, cleanedText);
     const scores = scoreQuestion(normalizedQuestion, point, seenStems, sourceValidation);
     const averageScore = average(Object.values(scores));
-    const ruleIssues = collectIssues(normalizedQuestion, scores, point, typeValidation, sourceValidation);
+    const ruleIssues = collectIssues(normalizedQuestion, scores, point, typeValidation, sourceValidation, reviewFriction);
     const ruleAction = decideAction(scores, averageScore, ruleIssues);
     const judge = judgeMap.get(normalizedQuestion.id) || null;
     const qualityIssues = mergeIssues(ruleIssues, judge?.seriousIssues);
@@ -29,7 +30,8 @@ export function evaluateQuestions({ questions, knowledgePoints, cleanedText = ""
       qualityIssues,
       ruleAction,
       judge,
-      pedagogy
+      pedagogy,
+      reviewFriction
     });
     const action = mergeActions(ruleAction, judge?.qualityAction, qualityIssues);
     seenStems.add(normalize(normalizedQuestion.stem));
@@ -61,6 +63,11 @@ export function evaluateQuestions({ questions, knowledgePoints, cleanedText = ""
       primaryBlockingReason: trust.primaryBlockingReason,
       confidenceTier: trust.confidenceTier,
       repairHint: trust.repairHint,
+      reviewFrictionScore: trust.reviewFrictionScore,
+      visibleReadingLoad: trust.visibleReadingLoad,
+      stemLength: trust.stemLength,
+      maxOptionLength: trust.maxOptionLength,
+      reviewFrictionReasons: trust.reviewFrictionReasons,
       ...(judge ? { judgeQualityAction: judge.qualityAction, judgeReason: judge.reason } : {})
     };
   });
@@ -1055,7 +1062,18 @@ function scoreQuestionContextSupport(text, question, point) {
   };
 }
 
-function buildTrustDiagnostics({ question, point, scores, sourceValidation, typeValidation, qualityIssues, ruleAction, judge, pedagogy = {} }) {
+function buildTrustDiagnostics({
+  question,
+  point,
+  scores,
+  sourceValidation,
+  typeValidation,
+  qualityIssues,
+  ruleAction,
+  judge,
+  pedagogy = {},
+  reviewFriction = reviewFrictionDiagnostics(question)
+}) {
   const answerGroundingScore = scoreTextGrounding(question.sourceSnippet, [
     correctOptionText(question),
     question.correctUnderstanding
@@ -1106,6 +1124,9 @@ function buildTrustDiagnostics({ question, point, scores, sourceValidation, type
   if (judge?.qualityAction === "rewrite" || ruleAction === "rewrite") confidenceReasons.push("judge_rewrite");
   if (scores.distractorQuality < 4) confidenceReasons.push(distractorReason(question));
   if (scores.answerUniqueness < 4) confidenceReasons.push("answer_not_unique");
+  if (reviewFriction.reviewFrictionScore < 4) {
+    confidenceReasons.push(...reviewFriction.reviewFrictionReasons);
+  }
 
   if ([
     "missing_knowledge_point",
@@ -1131,7 +1152,8 @@ function buildTrustDiagnostics({ question, point, scores, sourceValidation, type
     sourcePrecisionScore,
     answerGroundingScore,
     explanationFaithfulnessScore,
-    scores
+    scores,
+    reviewFrictionScore: reviewFriction.reviewFrictionScore
   });
 
   return {
@@ -1149,6 +1171,11 @@ function buildTrustDiagnostics({ question, point, scores, sourceValidation, type
       scenarioApplicationScore: pedagogy.scenarioApplicationScore ?? null,
       cognitiveActionIssue: pedagogy.cognitiveActionIssue || "",
       evidenceLearningValueScore: pedagogy.evidenceLearningValueScore ?? null,
+      reviewFrictionScore: reviewFriction.reviewFrictionScore,
+      visibleReadingLoad: reviewFriction.visibleReadingLoad,
+      stemLength: reviewFriction.stemLength,
+      maxOptionLength: reviewFriction.maxOptionLength,
+      reviewFrictionReasons: reviewFriction.reviewFrictionReasons,
       pedagogyWarnings: pedagogy.pedagogyDiagnostics?.warnings || [],
       pedagogyReasons: pedagogy.pedagogyDiagnostics?.reasons || []
     },
@@ -1158,7 +1185,12 @@ function buildTrustDiagnostics({ question, point, scores, sourceValidation, type
     confidenceTier,
     repairHint: repairHintForReason(primaryBlockingReason, confidenceReasons),
     sourceCoverageScore,
-    claimFidelityScore
+    claimFidelityScore,
+    reviewFrictionScore: reviewFriction.reviewFrictionScore,
+    visibleReadingLoad: reviewFriction.visibleReadingLoad,
+    stemLength: reviewFriction.stemLength,
+    maxOptionLength: reviewFriction.maxOptionLength,
+    reviewFrictionReasons: reviewFriction.reviewFrictionReasons
   };
 }
 
@@ -1168,7 +1200,8 @@ function confidenceTierForQuestion({
   sourcePrecisionScore,
   answerGroundingScore,
   explanationFaithfulnessScore,
-  scores
+  scores,
+  reviewFrictionScore
 }) {
   if ((blockingReasons || []).length) return "should_block";
   if (!(confidenceReasons || []).length) return "high_confidence";
@@ -1193,6 +1226,11 @@ function confidenceTierForQuestion({
     || confidenceReasons.includes("scenario_transfer_too_literal")
     || confidenceReasons.includes("source_coverage_incomplete")
     || confidenceReasons.includes("claim_overextended")
+    || confidenceReasons.includes("question_card_too_heavy")
+    || confidenceReasons.includes("stem_too_long")
+    || confidenceReasons.includes("scenario_background_too_long")
+    || confidenceReasons.includes("option_too_explanatory")
+    || Number(reviewFrictionScore || 0) <= 3
     || confidenceReasons.some((reason) => String(reason).startsWith("distractors_"))
     || confidenceReasons.includes("judge_rewrite")
   ) {
@@ -1222,8 +1260,69 @@ function repairHintForReason(primaryBlockingReason, confidenceReasons = []) {
   if (confidenceReasons.includes("weak_evidence_learning_value")) return "重新选择更像学习导航的最小充分证据";
   if (confidenceReasons.includes("source_coverage_incomplete")) return "补充覆盖全部关键概念的来源证据，或把题目收窄到当前来源能支撑的范围";
   if (confidenceReasons.includes("claim_overextended")) return "收窄题目主张，避免把原文局部判断扩张成更强因果或普遍规律";
+  if (confidenceReasons.includes("question_card_too_heavy")) return "压缩题卡可见阅读负担，只保留做判断所需的题干变量和短选项";
+  if (confidenceReasons.includes("scenario_background_too_long")) return "把场景压成一个角色、一个冲突或一个决策点，删除不参与判断的背景";
+  if (confidenceReasons.includes("stem_too_long")) return "缩短题干，把背景和证据链移到解释页";
+  if (confidenceReasons.includes("option_too_explanatory")) return "把选项改成短判断对象，不在选项里写解释段落";
   if (confidenceReasons.some((reason) => String(reason).startsWith("distractors_"))) return "重写干扰项，让错误选项来自同一语境并能教学边界";
   return "";
+}
+
+function reviewFrictionDiagnostics(question = {}) {
+  const stemLength = visibleLength(question.stem);
+  const optionLengths = Array.isArray(question.options)
+    ? question.options.map((option) => visibleLength(option.text))
+    : [];
+  const maxOptionLength = optionLengths.length ? Math.max(...optionLengths) : 0;
+  const averageOptionLength = optionLengths.length
+    ? optionLengths.reduce((sum, length) => sum + length, 0) / optionLengths.length
+    : 0;
+  const visibleReadingLoad = stemLength + optionLengths.reduce((sum, length) => sum + length, 0);
+  const reasons = [];
+  let score = 5;
+
+  if (visibleReadingLoad > 220) {
+    score -= 2;
+    reasons.push("question_card_too_heavy");
+  } else if (visibleReadingLoad > 170) {
+    score -= 1;
+    reasons.push("question_card_too_heavy");
+  }
+
+  if (question.type === "scenario_judgment") {
+    if (stemLength > 110) {
+      score -= 2;
+      reasons.push("scenario_background_too_long");
+    } else if (stemLength > 80) {
+      score -= 1;
+      reasons.push("scenario_background_too_long");
+    }
+  } else if (stemLength > 90) {
+    score -= 1;
+    reasons.push("stem_too_long");
+  }
+
+  if (maxOptionLength > 60) {
+    score -= 2;
+    reasons.push("option_too_explanatory");
+  } else if (maxOptionLength > 45) {
+    score -= 1;
+    reasons.push("option_too_explanatory");
+  }
+
+  if (averageOptionLength > 42) {
+    score -= 1;
+    reasons.push("option_too_explanatory");
+  }
+
+  return {
+    stemLength,
+    optionLengths,
+    maxOptionLength,
+    visibleReadingLoad,
+    reviewFrictionScore: clamp(score),
+    reviewFrictionReasons: [...new Set(reasons)]
+  };
 }
 
 function scoreSourceCoverage(question = {}) {
@@ -1571,7 +1670,7 @@ function scoreReviewValue(question, point) {
   return 3;
 }
 
-function collectIssues(question, scores, point, typeValidation, sourceValidation) {
+function collectIssues(question, scores, point, typeValidation, sourceValidation, reviewFriction = reviewFrictionDiagnostics(question)) {
   const issues = [];
   for (const key of QUALITY_DIMENSIONS) {
     if (scores[key] <= 2) issues.push(`${key}_low`);
@@ -1587,6 +1686,8 @@ function collectIssues(question, scores, point, typeValidation, sourceValidation
     issues.push("scenario_judgment_binary_options");
   }
   if (isSourceRepeatingStem(question)) issues.push("source_repetition_stem");
+  if (reviewFriction.reviewFrictionScore <= 2) issues.push("review_friction_mandatory_rewrite");
+  else if (reviewFriction.reviewFrictionScore < 4) issues.push("review_friction_high");
   return [...new Set(issues)];
 }
 
@@ -1594,6 +1695,7 @@ function decideAction(scores, averageScore, issues) {
   if (issues.includes("missing_knowledge_point") || issues.includes("missing_source_snippet")) return "discard";
   if (issues.includes("source_snippet_not_found") || issues.includes("source_snippet_missing_source")) return "discard";
   if (issues.includes("source_snippet_unsupported_question_context")) return "discard";
+  if (issues.includes("review_friction_mandatory_rewrite") || issues.includes("review_friction_high")) return "rewrite";
   if (issues.includes("scenario_judgment_binary_options")) return "rewrite";
   if (issues.includes("non_binary_question_requires_four_options") || issues.includes("true_false_requires_two_options")) return "rewrite";
   if (scores.sourceSupport < 4 || scores.answerUniqueness < 4 || scores.clarity < 4 || scores.distractorQuality < 4) {
@@ -1638,6 +1740,10 @@ function overlapRatio(a, b) {
 
 function normalize(value) {
   return String(value || "").replace(/\s+/g, "");
+}
+
+function visibleLength(value) {
+  return [...normalize(value)].length;
 }
 
 function isBinaryJudgmentOptions(question) {

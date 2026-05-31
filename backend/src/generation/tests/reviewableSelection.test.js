@@ -738,7 +738,7 @@ test("keeps one reviewable question for each covered knowledge point", () => {
   assert.deepEqual(selected.map((item) => item.knowledgePointId), points.map((item) => item.id));
 });
 
-test("defaults normal reviewable knowledge points to three target questions", () => {
+test("uses lean dynamic targets instead of defaulting every reviewable point to three questions", () => {
   const decision = targetQuestionCountDecisionForPoint({
     ...point,
     testabilityScore: 4,
@@ -746,9 +746,9 @@ test("defaults normal reviewable knowledge points to three target questions", ()
     questionAngles: []
   });
 
-  assert.equal(targetQuestionCountForPoint(point), 3);
-  assert.equal(decision.count, 3);
-  assert.equal(decision.reason, "default_three_question_target");
+  assert.equal(targetQuestionCountForPoint(point), 2);
+  assert.equal(decision.count, 1);
+  assert.equal(decision.reason, "lean_default_single_question_target");
 });
 
 test("builds a three-step practice blueprint for high-value knowledge points", () => {
@@ -971,7 +971,7 @@ test("pedagogy diagnostics labels literal core recall with the v11 action issue"
   assert.equal(literalCore.pedagogyDiagnostics.reasons.includes("core_claim_too_literal"), true);
 });
 
-test("question prompt includes article structure binding fields", () => {
+test("question prompt stays lean and does not force article structure binding fields", () => {
   const prompt = buildUserPrompt({
     points: [
       {
@@ -998,11 +998,51 @@ test("question prompt includes article structure binding fields", () => {
     supplement: false
   });
 
-  assert.match(prompt, /structureNodeId/);
-  assert.match(prompt, /sourceEvidenceIds/);
-  assert.match(prompt, /题目必须服务该结构节点/);
-  assert.match(prompt, /真实混淆对象是什么/);
-  assert.match(prompt, /新场景变量是什么/);
+  assert.equal(prompt.includes("题目必须服务该结构节点"), false);
+  assert.equal(prompt.includes("真实混淆对象是什么"), false);
+  assert.equal(prompt.includes("新场景变量是什么"), false);
+  assert.match(prompt, /轻量复习要求/);
+  assert.match(prompt, /不要改写来源片段/);
+  assert.match(prompt, /换壳重复/);
+});
+
+test("heavy question cards are marked for rewrite instead of being treated as high confidence", () => {
+  const frictionPoint = {
+    id: "kp-1",
+    title: "轻量复习题卡",
+    keyClaim: "题卡只放必要判断条件，复杂背景放在解释和来源里。",
+    sourceQuote: "轻量复习要求题卡只呈现必要判断条件，复杂背景应放到解释和来源里。",
+    testabilityScore: 5,
+    importanceScore: 5
+  };
+  const evaluated = evaluateQuestions({
+    questions: [question({
+      type: "scenario_judgment",
+      stem: "一个产品经理正在设计一个移动端碎片时间复习产品，他既想让用户在公交车上快速判断，又担心题目不够严谨，于是把文章背景、项目上下文、用户画像、团队争论、完整证据链和多个限制条件都塞进题干，下面哪种处理方式更符合轻量复习题卡的原则？",
+      options: [
+        { id: "A", text: "保留关键判断变量，把复杂背景、证据链和完整解释放到答后解释与来源里" },
+        { id: "B", text: "把所有背景继续放在题干中，因为题干越完整越能保证用户不会误解" },
+        { id: "C", text: "删除所有上下文，只留下一个没有判断边界的口号式问题" },
+        { id: "D", text: "把每个选项都写成一段解释，让用户在选项里读完整分析" }
+      ],
+      correctOptionId: "A",
+      correctUnderstanding: "轻量复习题卡应该保留必要判断条件，把复杂背景放到解释和来源里。",
+      commonMisconception: "误以为题干越长、背景越完整，复习质量就越高。",
+      explanation: "来源强调题卡只呈现必要判断条件，因此复杂背景应移到答后解释和来源里。",
+      sourceSnippet: "轻量复习要求题卡只呈现必要判断条件，复杂背景应放到解释和来源里。",
+      memoryAngle: "scenario_application"
+    })],
+    knowledgePoints: [frictionPoint],
+    cleanedText: "轻量复习要求题卡只呈现必要判断条件，复杂背景应放到解释和来源里。"
+  });
+
+  assert.equal(evaluated[0].qualityAction, "rewrite");
+  assert.equal(evaluated[0].confidenceTier, "needs_rewrite");
+  assert.equal(evaluated[0].blockingReasons.length, 0);
+  assert.equal(evaluated[0].reviewFrictionScore < 4, true);
+  assert.equal(evaluated[0].qualityIssues.includes("review_friction_mandatory_rewrite"), true);
+  assert.equal(evaluated[0].confidenceReasons.includes("scenario_background_too_long"), true);
+  assert.match(evaluated[0].repairHint, /场景|题卡|背景/);
 });
 
 test("composite question is low confidence when source covers only one concept", () => {
@@ -1077,7 +1117,7 @@ test("records a lower target reason for clearly low-testability points", () => {
   assert.equal(decision.factors.includes("testability:2"), true);
 });
 
-test("supplement prompt asks for missing angles instead of rewriting a failed question", () => {
+test("supplement prompt is a concise best-effort supplement, not a failed-question rewrite", () => {
   const prompt = buildUserPrompt({
     points: [{
       ...highValuePoint,
@@ -1088,8 +1128,8 @@ test("supplement prompt asks for missing angles instead of rewriting a failed qu
     supplementContext: "missing_question_types:true_false|scenario_judgment; existing_reviewable_questions:multiple_choice:已有题"
   });
 
-  assert.equal(prompt.includes("这是补题任务，不是重写失败题"), true);
+  assert.equal(prompt.includes("这是补题任务"), true);
   assert.equal(prompt.includes("上一题没有通过质量检查"), false);
   assert.equal(prompt.includes("missing_question_types:true_false|scenario_judgment"), true);
-  assert.equal(prompt.includes("hook 指 AI agent / Claude Code lifecycle hook，不是 React Hook"), true);
+  assert.equal(prompt.includes("不要编造来源或误区"), true);
 });

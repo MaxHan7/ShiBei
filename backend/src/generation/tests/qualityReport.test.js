@@ -80,6 +80,12 @@ test("summarizes machine report and expands review rows for manual scoring", () 
         sourceCoverageScore: 5,
         claimFidelityScore: 4,
         learningEffectivenessScore: 4,
+        evidenceLearningValueScore: 4,
+        reviewFrictionScore: 3,
+        visibleReadingLoad: 182,
+        stemLength: 38,
+        maxOptionLength: 52,
+        reviewFrictionReasons: ["question_card_too_heavy", "option_too_explanatory"],
         confidenceLevel: "low",
         retainedBy: "best_effort_quality_fallback",
         sourceContextScore: 123,
@@ -89,7 +95,13 @@ test("summarizes machine report and expands review rows for manual scoring", () 
           contextRelevanceScore: 5,
           misconceptionSupportScore: 3,
           sourceCoverageScore: 5,
-          claimFidelityScore: 4
+          claimFidelityScore: 4,
+          evidenceLearningValueScore: 4,
+          reviewFrictionScore: 3,
+          visibleReadingLoad: 182,
+          stemLength: 38,
+          maxOptionLength: 52,
+          reviewFrictionReasons: ["question_card_too_heavy", "option_too_explanatory"]
         },
         confidenceReasons: ["weak_explanation_faithfulness"],
         blockingReasons: [],
@@ -142,6 +154,12 @@ test("summarizes machine report and expands review rows for manual scoring", () 
   assert.equal(machineSummary.recoverableBlockedCount, 1);
   assert.equal(machineSummary.averageSourceCoverageScore, 5);
   assert.equal(machineSummary.averageClaimFidelityScore, 4);
+  assert.equal(machineSummary.averageEvidenceLearningValueScore, 4);
+  assert.equal(machineSummary.averageReviewFrictionScore, 3);
+  assert.equal(machineSummary.averageVisibleReadingLoad, 182);
+  assert.equal(machineSummary.highFrictionQuestionCount, 1);
+  assert.equal(machineSummary.mandatoryFrictionRewriteCount, 0);
+  assert.equal(machineSummary.heavyQuestionTop[0].questionId, "q-1");
   assert.equal(machineSummary.structureCoverage.structureNodeCount, 1);
   assert.equal(machineSummary.structureCoverage.coveredStructureNodeCount, 1);
   assert.deepEqual(machineSummary.questionCountDistribution, { "1": 1 });
@@ -162,6 +180,12 @@ test("summarizes machine report and expands review rows for manual scoring", () 
   assert.equal(rows[0].sourceCoverageScore, 5);
   assert.equal(rows[0].claimFidelityScore, 4);
   assert.equal(rows[0].learningEffectivenessScore, 4);
+  assert.equal(rows[0].evidenceLearningValueScore, 4);
+  assert.equal(rows[0].reviewFrictionScore, 3);
+  assert.equal(rows[0].visibleReadingLoad, 182);
+  assert.equal(rows[0].stemLength, 38);
+  assert.equal(rows[0].maxOptionLength, 52);
+  assert.equal(rows[0].reviewFrictionReasons, "question_card_too_heavy|option_too_explanatory");
   assert.equal(rows[0].knowledgeImportanceScore, 5);
   assert.equal(rows[0].knowledgeCoverageReason, "这是可迁移的方法原则。");
   assert.equal(rows[0].expectedQuestionCount, 2);

@@ -1,15 +1,11 @@
 import { cleanContent } from "./cleanContent.js";
 import { chunkContent } from "./chunkContent.js";
-import {
-  bindKnowledgePointsToStructure,
-  buildArticleStructureMap
-} from "./articleStructure.js";
 import { extractKnowledgeCandidates } from "./extractKnowledgeCandidates.js";
 import { filterKnowledgePoints } from "./filterKnowledgePoints.js";
 import { generateChapterSummary } from "./generateChapterSummary.js";
 import { generateQuestions, targetQuestionCountDecisionForPoint, targetQuestionCountForPoint } from "./generateQuestions.js";
-import { evaluateQuestions, expectedQuestionType } from "./evaluateQuestions.js";
-import { buildPracticeBlueprintForPoint, typeDiversityReasonForSelection } from "./practiceBlueprint.js";
+import { evaluateQuestions } from "./evaluateQuestions.js";
+import { typeDiversityReasonForSelection } from "./practiceBlueprint.js";
 import { judgeQuestionQuality } from "./judgeQuestionQuality.js";
 import { createGenerationRunId, createModelUsageRecorder, summarizeModelUsage } from "./modelCost.js";
 import { STATUS_TEXT } from "./types.js";
@@ -56,7 +52,6 @@ export async function generateReviewChapter(input, options = {}) {
     }
 
     const chunks = chunkContent(cleaned.cleanedText);
-    const articleStructureMap = buildArticleStructureMap({ cleanedText: cleaned.cleanedText });
     let extracted;
     let knowledgePoints;
     let filteredKnowledgePoints = [];
@@ -77,16 +72,8 @@ export async function generateReviewChapter(input, options = {}) {
       knowledgePoints = filterResult.kept;
       filteredKnowledgePoints = filterResult.filtered;
     }
-    knowledgePoints = enrichKnowledgePointsWithPracticeBlueprint(
-      bindKnowledgePointsToStructure(
-        orderKnowledgePointsBySource(knowledgePoints, cleaned.cleanedText),
-        articleStructureMap
-      )
-    );
-    filteredKnowledgePoints = bindKnowledgePointsToStructure(
-      orderKnowledgePointsBySource(filteredKnowledgePoints, cleaned.cleanedText),
-      articleStructureMap
-    );
+    knowledgePoints = orderKnowledgePointsBySource(knowledgePoints, cleaned.cleanedText);
+    filteredKnowledgePoints = orderKnowledgePointsBySource(filteredKnowledgePoints, cleaned.cleanedText);
 
     if (!knowledgePoints.length) {
       return failure({
@@ -160,7 +147,7 @@ export async function generateReviewChapter(input, options = {}) {
         coreSummary,
         qualitySummary,
         generationMeta: finishMeta(meta, {
-          articleStructureNodeCount: articleStructureMap.nodes.length,
+          articleStructureNodeCount: 0,
           chunkCount: chunks.length,
           candidateCount: extracted.candidates.length,
           keptKnowledgePointCount: knowledgePoints.length,
@@ -178,7 +165,7 @@ export async function generateReviewChapter(input, options = {}) {
         message: ""
       }),
       generationDebug: {
-        articleStructureMap,
+        articleStructureMap: null,
         knowledgePoints,
         filteredKnowledgePoints,
         evaluatedQuestions: questionBuild.evaluatedQuestions,
@@ -225,7 +212,6 @@ async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta, on
 
   const rewriteCandidates = firstEvaluation.evaluatedQuestions.filter((question) => question.qualityAction === "rewrite");
   const rewrittenEvaluations = [];
-  const supplementEvaluations = [];
   const generationErrors = [];
 
   if (rewriteCandidates.length) markStage(meta, "auto_regenerating_questions", onStage);
@@ -262,49 +248,9 @@ async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta, on
     }
   }
 
-  const beforeSupplement = [
-    ...firstEvaluation.evaluatedQuestions,
-    ...rewrittenEvaluations
-  ];
-  const pointsNeedingSupplement = knowledgePoints
-    .map((point) => supplementRequestForPoint(point, beforeSupplement))
-    .filter(Boolean);
-  for (let index = 0; index < pointsNeedingSupplement.length; index += 1) {
-    const request = pointsNeedingSupplement[index];
-    const point = request.point;
-    try {
-      const rewritten = await generateQuestions({
-        knowledgePoints: [point],
-        supplement: true,
-        targetQuestionCountOverride: request.missingCount,
-        supplementContext: `supplement_for_multi_question_review; ${request.reason}; ${summarizePointIssues(point.id, beforeSupplement)}`,
-        stage: "question_supplement",
-        modelUsageRecorder
-      });
-      const rewrittenWithId = withStableIds(rewritten, `supplement-${point.id}-${index + 1}`);
-      const supplementEvaluation = await evaluateWithJudge({
-        questions: rewrittenWithId,
-        knowledgePoints,
-        cleanedText,
-        stage: "judge_supplement",
-        modelUsageRecorder
-      });
-      supplementEvaluations.push(...supplementEvaluation.evaluatedQuestions);
-      firstEvaluation.judgeUnavailable ||= supplementEvaluation.judgeUnavailable;
-    } catch (error) {
-      generationErrors.push({
-        stage: "supplement_question",
-        pointId: point.id,
-        questionId: "",
-        message: error instanceof Error ? error.message : "题目补充生成失败"
-      });
-    }
-  }
-
   const evaluatedQuestions = [
     ...firstEvaluation.evaluatedQuestions,
-    ...rewrittenEvaluations,
-    ...supplementEvaluations
+    ...rewrittenEvaluations
   ];
   const qualifiedQuestions = orderQuestionsBySource(
     selectQualifiedQuestionsByPoint(knowledgePoints, evaluatedQuestions),
@@ -319,9 +265,9 @@ async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta, on
     generationErrors,
     judgeUnavailable: firstEvaluation.judgeUnavailable,
     generationMeta: {
-      totalGenerated: generatedQuestions.length + rewrittenEvaluations.length + supplementEvaluations.length,
-      rewrittenCount: rewriteCandidates.length + pointsNeedingSupplement.length,
-      supplementCount: pointsNeedingSupplement.length,
+      totalGenerated: generatedQuestions.length + rewrittenEvaluations.length,
+      rewrittenCount: rewriteCandidates.length,
+      supplementCount: 0,
       generationErrorCount: generationErrors.length,
       discardedCount
     }
@@ -548,59 +494,6 @@ function dedupeSimilarQuestions(questions) {
     selected.push(question);
   }
   return selected;
-}
-
-function supplementRequestForPoint(point, evaluatedQuestions) {
-  const selected = selectQualifiedQuestionsByPoint([point], evaluatedQuestions);
-  const targetCount = targetQuestionCountForPoint(point);
-  if (selected.length >= targetCount) return null;
-  return {
-    point,
-    missingCount: targetCount - selected.length,
-    reason: supplementReason({ point, selected, targetCount })
-  };
-}
-
-function supplementReason({ point, selected, targetCount }) {
-  const selectedTypes = new Set(selected.map((question) => question.type));
-  const selectedAngles = new Set(selected.map((question) => question.memoryAngle).filter(Boolean));
-  const selectedBlueprintIds = new Set(selected.map((question) => question.blueprintItemId).filter(Boolean));
-  const blueprint = Array.isArray(point.practiceBlueprint) ? point.practiceBlueprint.slice(0, targetCount) : [];
-  const missingTypes = ["multiple_choice", "true_false", "scenario_judgment"]
-    .filter((type) => !selectedTypes.has(type))
-    .slice(0, Math.max(1, targetCount - selected.length));
-  const expectedAngles = blueprint.length
-    ? blueprint.map((item) => item.memoryAngle).filter(Boolean)
-    : ["core_understanding", "misconception_boundary", "scenario_application"].slice(0, targetCount);
-  const missingAngles = expectedAngles
-    .filter((angle) => !selectedAngles.has(angle))
-    .slice(0, Math.max(1, targetCount - selected.length));
-  const missingBlueprintIds = blueprint
-    .filter((item) => item.id && !selectedBlueprintIds.has(item.id))
-    .map((item) => item.id)
-    .slice(0, Math.max(1, targetCount - selected.length));
-  const selectedSummaries = selected.map((question) => `${question.type}:${question.stem}`).slice(0, 5);
-  return [
-    `target_question_count:${targetCount}`,
-    `current_reviewable_count:${selected.length}`,
-    missingBlueprintIds.length ? `missing_blueprint_ids:${missingBlueprintIds.join("|")}` : "",
-    missingTypes.length ? `missing_question_types:${missingTypes.join("|")}` : "",
-    missingAngles.length ? `missing_memory_angles:${missingAngles.join("|")}` : "",
-    point.questionAngles?.length ? `question_angles:${point.questionAngles.join("|")}` : "",
-    selectedSummaries.length ? `existing_reviewable_questions:${selectedSummaries.join(" || ")}` : ""
-  ].filter(Boolean).join("; ");
-}
-
-function summarizePointIssues(pointId, evaluatedQuestions) {
-  const issues = evaluatedQuestions
-    .filter((question) => question.knowledgePointId === pointId)
-    .flatMap((question) => [
-      ...(question.qualityIssues || []),
-      question.ruleQualityAction && question.ruleQualityAction !== "pass" ? `rule_${question.ruleQualityAction}` : "",
-      question.judgeQualityAction && question.judgeQualityAction !== "pass" ? `judge_${question.judgeQualityAction}` : "",
-      question.judgeReason ? `judge_reason:${question.judgeReason}` : ""
-    ].filter(Boolean));
-  return [...new Set(issues)].join(", ") || "no_passed_question";
 }
 
 function buildPointDiagnostics(knowledgePoints, evaluatedQuestions, selectedQuestions = []) {
@@ -836,27 +729,18 @@ function toClientQuestion(question) {
     practiceProgressionScore: question.practiceProgressionScore ?? null,
     practiceDuplicateRiskScore: question.practiceDuplicateRiskScore ?? null,
     evidenceLearningValueScore: question.evidenceLearningValueScore ?? null,
+    reviewFrictionScore: question.reviewFrictionScore ?? question.trustDiagnostics?.reviewFrictionScore ?? null,
+    visibleReadingLoad: question.visibleReadingLoad ?? question.trustDiagnostics?.visibleReadingLoad ?? null,
+    stemLength: question.stemLength ?? question.trustDiagnostics?.stemLength ?? null,
+    maxOptionLength: question.maxOptionLength ?? question.trustDiagnostics?.maxOptionLength ?? null,
+    reviewFrictionReasons: Array.isArray(question.reviewFrictionReasons)
+      ? question.reviewFrictionReasons
+      : (Array.isArray(question.trustDiagnostics?.reviewFrictionReasons) ? question.trustDiagnostics.reviewFrictionReasons : []),
     sourceReuseLearningReason: question.sourceReuseLearningReason || "",
     typeDiversityReason: question.typeDiversityReason || "",
     retainedBy: question.retainedBy || "quality_pass",
     isNew: true
   };
-}
-
-function enrichKnowledgePointsWithPracticeBlueprint(points = []) {
-  return points.map((point) => {
-    const targetCount = targetQuestionCountForPoint(point);
-    const practiceBlueprint = Array.isArray(point.practiceBlueprint) && point.practiceBlueprint.length
-      ? point.practiceBlueprint.slice(0, targetCount)
-      : buildPracticeBlueprintForPoint(point, {
-        targetCount,
-        preferredQuestionType: expectedQuestionType(point)
-      });
-    return {
-      ...point,
-      practiceBlueprint
-    };
-  });
 }
 
 function orderKnowledgePointsBySource(points, cleanedText) {
@@ -996,6 +880,15 @@ function summarizeQuality(evaluatedQuestions, judgeUnavailable, selectedQuestion
   const averageSourcePrecisionScore = sourcePrecisionScores.length
     ? Math.round((sourcePrecisionScores.reduce((sum, score) => sum + score, 0) / sourcePrecisionScores.length) * 10) / 10
     : 0;
+  const reviewFrictionScores = selectedQuestions
+    .map((question) => Number(question.reviewFrictionScore ?? question.trustDiagnostics?.reviewFrictionScore))
+    .filter(Number.isFinite);
+  const visibleReadingLoads = selectedQuestions
+    .map((question) => Number(question.visibleReadingLoad ?? question.trustDiagnostics?.visibleReadingLoad))
+    .filter(Number.isFinite);
+  const highFrictionQuestionCount = selectedQuestions.filter((question) => (
+    Number(question.reviewFrictionScore ?? question.trustDiagnostics?.reviewFrictionScore ?? 5) < 4
+  )).length;
 
   return {
     totalGenerated: evaluatedQuestions.length,
@@ -1020,6 +913,13 @@ function summarizeQuality(evaluatedQuestions, judgeUnavailable, selectedQuestion
     memoryAngleCoverage,
     confidenceTierCoverage,
     averageSourcePrecisionScore,
+    averageReviewFrictionScore: reviewFrictionScores.length
+      ? Math.round((reviewFrictionScores.reduce((sum, score) => sum + score, 0) / reviewFrictionScores.length) * 10) / 10
+      : 0,
+    averageVisibleReadingLoad: visibleReadingLoads.length
+      ? Math.round((visibleReadingLoads.reduce((sum, value) => sum + value, 0) / visibleReadingLoads.length) * 10) / 10
+      : 0,
+    highFrictionQuestionCount,
     lowConfidenceQuestionCount,
     uncoveredPointCount,
     seriousIssueCount,

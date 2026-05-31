@@ -229,6 +229,10 @@ export function renderSingleArticleAnalysis({ report, paths }) {
     `- 平均认知动作匹配：${summary.averageCognitiveActionFitScore ?? 0}`,
     `- 平均练习递进：${summary.averagePracticeProgressionScore ?? 0}`,
     `- 平均证据学习价值：${summary.averageEvidenceLearningValueScore ?? 0}`,
+    `- 平均低摩擦题卡分：${summary.averageReviewFrictionScore ?? 0}`,
+    `- 平均可见阅读负担：${summary.averageVisibleReadingLoad ?? 0}`,
+    `- 高摩擦题数：${summary.highFrictionQuestionCount ?? 0}`,
+    `- 强制重写级高摩擦题数：${summary.mandatoryFrictionRewriteCount ?? 0}`,
     `- 重复练习风险题：${summary.duplicatePracticeRiskCount ?? 0}`,
     `- 未覆盖知识点：${summary.uncoveredKnowledgePointCount ?? 0}`,
     "",
@@ -255,6 +259,10 @@ export function renderSingleArticleAnalysis({ report, paths }) {
     "## 每知识点证据块覆盖",
     "",
     ...sourceBlockCoverageLines(summary.sourceBlockCoverageByPoint),
+    "",
+    "## 高摩擦题 Top 5",
+    "",
+    ...heavyQuestionLines(summary.heavyQuestionTop),
     "",
     "## 实验记录草稿",
     "",
@@ -294,6 +302,13 @@ function sourceBlockCoverageLines(items = []) {
   return items
     .slice(0, 12)
     .map((item) => `- ${item.knowledgePointId}: ${item.questionCount} 题 / ${item.sourceBlockCount} 个证据块 / ${item.evidenceRoleCount} 种角色`);
+}
+
+function heavyQuestionLines(items = []) {
+  if (!items.length) return ["- 暂无"];
+  return items.map((item) => (
+    `- ${item.questionId}: load ${item.visibleReadingLoad}, stem ${item.stemLength}, option ${item.maxOptionLength}, friction ${item.reviewFrictionScore}, reasons ${(item.reviewFrictionReasons || []).join("|") || "-"}`
+  ));
 }
 
 function relativeOrSelf(filePath) {
