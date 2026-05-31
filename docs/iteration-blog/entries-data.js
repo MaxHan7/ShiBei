@@ -618,5 +618,34 @@ window.iterationEntries = [
     "result": "在 UMr6ia1QubqOMw3aBUGbOw 基准上，v7（cognitive blueprint alignment）保持 7 个知识点、21 题入池（每点 3 题），平均来源精准度 5、最小证据均值约 4.7，低置信比例降到 66.7%，且段落/证据块复用 Top 已压到每块 2 题；v8（pedagogical rubric calibration）引入更严格的教学诊断后，低置信比例升至 90.5%，但同时给出了“哪里不教人”的可定位标签（如 core_recall_too_literal、boundary_not_teaching_real_confusion、explanation_not_tied_to_answer），说明系统从“看起来没问题”进入“能指出可修复缺陷”的阶段。",
     "next": "基于 v8 低置信样本做人工 accept/fixable/reject 校准：调整 rubric 阈值与权重，并把高频可修复标签（misconception_not_grounded、explanation_not_tied_to_answer、core_recall_too_literal）转成可执行的 rewrite/supplement 指令；同时把 duplicatePracticeRisk 与证据块覆盖纳入入池选择器，验证低置信 accept+fixable 是否能稳定 >80%。",
     "commits": []
+  },
+  {
+    "date": "2026-05-31",
+    "title": "为出题系统建立 lean baseline 与低摩擦护栏",
+    "phase": "质量验证",
+    "problem": "当出题系统持续叠加“文章结构/认知动作/题量补齐”等实验规则后，复习端最关键的体验（题卡是否轻、是否可快速判断对错、是否能被来源完整支撑）反而变得不稳定：同一篇基准文章会出现知识点 0 覆盖、题干/场景过长导致高摩擦、以及大量需要重写的半支撑题。今天的目标不是继续加功能，而是先把“可复习”的质量底线固化成可回归的 lean baseline，并用护栏把最伤用户复习流程的高摩擦题卡稳定压下去。",
+    "changes": [
+      "出题管线回退到 lean baseline：把题量从“必须补齐到 3 题”降级为“温和覆盖下限”，避免模型过度保守导致知识点被过滤到 0 覆盖。",
+      "加入低摩擦题卡 rewrite 护栏：对场景背景、题干与选项负担设置触发条件，把“题卡太重/背景太长”从偶发问题变成稳定可控的质量约束。",
+      "更新质量评估与筛选：在 evaluate/selection 中把摩擦、来源覆盖不完整等原因显式化，确保低置信不是“黑箱扣分”，而能指导下一轮修复方向。",
+      "用单篇基准实验固化证据：记录 v14（lean baseline reset）与 v15（lean floor + friction guardrail）的 runs JSON、人工审查 CSV 与分析摘要，形成可横向对比的质量表。"
+    ],
+    "screenshots": [
+      {
+        "src": "assets/2026-05-31-为出题系统建立-lean-baseline-与低摩擦护栏.svg",
+        "caption": "2026-05-31 迭代摘要"
+      }
+    ],
+    "result": "在基准文章（UMr6ia1QubqOMw3aBUGbOw）上，v15 相比 v14 的可复习体验指标出现明确改善：入池题数 7→9、未覆盖知识点 1→0；平均可见阅读负担 151.6→83.6，高摩擦题 3→0，重复练习风险 2→0。与此同时，v15 的低置信题比例上升到 88.9%，主要由 source_coverage_incomplete 触发，暴露出当前主要矛盾已从“题量/题卡长度”转移为“题目判断范围是否主动收窄到来源能完整支撑的范围”。",
+    "next": "推进 v16：source coverage aware question narrowing —— 在出题前把每个知识点的最小证据块转成“安全可考察的判断范围”，要求单题只考一个判断点，并让评分器输出可执行的收窄/修复提示；成功标准是维持 v15 的低摩擦分（4.5+）与覆盖率，同时显著降低 source_coverage_incomplete。",
+    "commits": [
+      "9cb7a0f",
+      "0e5ada6",
+      "70fa138",
+      "403ad1b",
+      "1bb7eb6",
+      "c04ecc3",
+      "4bf45ad"
+    ]
   }
 ];
