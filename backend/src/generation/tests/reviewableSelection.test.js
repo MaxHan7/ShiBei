@@ -603,7 +603,7 @@ test("locates source context from title and key claim when the source quote is n
   assert.equal(evaluated[0].sourceContextSelection.fallback, true);
   assert.equal(evaluated[0].sourcePrecisionScore >= 4, true);
   assert.equal(selected.length, 1);
-  assert.equal(selected[0].confidenceTier, "high_confidence");
+  assert.equal(selected[0].confidenceTier, "review_warning");
   assert.equal(selected[0].confidenceLevel, "high");
 });
 
@@ -637,7 +637,7 @@ test("does not retain a question when no source context supports its answer", ()
   assert.equal(selected.length, 0);
 });
 
-test("adds trust diagnostics and confidence reasons for weak but reviewable questions", () => {
+test("adds trust diagnostics without inventing weak reasons for sufficient explanatory context", () => {
   const weakPoint = {
     ...point,
     sourceQuote: "HTML 原型让沟通媒介更丰富。"
@@ -667,9 +667,9 @@ test("adds trust diagnostics and confidence reasons for weak but reviewable ques
   const selected = selectQualifiedQuestionsByPoint([weakPoint], evaluated);
 
   assert.equal(evaluated[0].trustDiagnostics.answerGroundingScore >= 1, true);
-  assert.equal(evaluated[0].confidenceReasons.some((reason) => reason.startsWith("explanation_")), true);
+  assert.equal(evaluated[0].trustDiagnostics.sourceExplanatoryCoverageScore >= 4, true);
   assert.equal(selected.length, 1);
-  assert.equal(selected[0].confidenceLevel, "low");
+  assert.equal(selected[0].confidenceLevel, "high");
 });
 
 test("keeps weak explanation faithfulness as low confidence when the source still supports the answer", () => {
@@ -1084,7 +1084,8 @@ test("system prompt keeps core contracts after structural deduplication", () => 
   assert.match(questionSystemPrompt, /题干只放必要判断条件/);
   assert.match(questionSystemPrompt, /推荐题干 15-45 个中文字符/);
   assert.match(questionSystemPrompt, /答案唯一/);
-  assert.match(questionSystemPrompt, /sourceSnippet 必须逐字来自原文或知识点 sourceQuote/);
+  assert.match(questionSystemPrompt, /sourceSnippet 是答后解释用的原文上下文/);
+  assert.match(questionSystemPrompt, /reviewableClaimId/);
   assert.equal(questionSystemPrompt.includes("multiple_choice：A/B/C/D 四个选项"), true);
   assert.equal(questionSystemPrompt.includes("scenario_judgment：A/B/C/D 四个行动方案"), true);
   assert.equal(questionSystemPrompt.includes("true_false：只用于简单成立/不成立判断"), true);
@@ -1120,7 +1121,7 @@ test("source coverage rewrite prompt asks to narrow the question claim instead o
 
   assert.match(prompt, /来源覆盖修复/);
   assert.match(prompt, /收窄题目判断范围/);
-  assert.match(prompt, /不要为了覆盖原题而扩大 sourceSnippet/);
+  assert.match(prompt, /围绕一个 reviewableClaim/);
 });
 
 test("heavy question cards are marked for rewrite instead of being treated as high confidence", () => {

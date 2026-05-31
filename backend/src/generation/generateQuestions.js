@@ -1,6 +1,7 @@
 import { callOpenAIJson } from "./openaiClient.js";
 import { expectedQuestionType } from "./evaluateQuestions.js";
 import { questionSchema, questionSystemPrompt } from "./prompts/questions.js";
+import { attachReviewableClaimsToKnowledgePoints } from "./reviewableClaims.js";
 
 export async function generateQuestions({
   knowledgePoints,
@@ -12,7 +13,7 @@ export async function generateQuestions({
   stage = "",
   modelUsageRecorder = null
 }) {
-  const points = knowledgePoints.map((point) => {
+  const points = attachReviewableClaimsToKnowledgePoints(knowledgePoints).map((point) => {
     const preferredQuestionType = expectedQuestionType(point);
     const targetQuestionCount = targetQuestionCountOverride !== null
       && targetQuestionCountOverride !== undefined
@@ -40,7 +41,18 @@ export async function generateQuestions({
         : practiceBlueprint.map((item) => item.memoryAngle).filter(Boolean),
       preferredQuestionType,
       targetQuestionCount,
-      practiceBlueprint
+      practiceBlueprint,
+      reviewableClaims: (point.reviewableClaims || []).slice(0, targetQuestionCount).map((claim) => ({
+        id: claim.id,
+        claim: claim.claim,
+        evidenceText: claim.evidenceText,
+        evidenceContextText: claim.evidenceContextText,
+        allowedQuestionScope: claim.allowedQuestionScope,
+        prohibitedExtensions: claim.prohibitedExtensions,
+        memoryAngle: claim.memoryAngle,
+        evidenceRole: claim.evidenceRole,
+        blueprintItemId: claim.blueprintItemId
+      }))
     };
   });
 
@@ -66,6 +78,7 @@ export async function generateQuestions({
     correctUnderstanding: question.correctUnderstanding?.trim() || "",
     commonMisconception: question.commonMisconception?.trim() || "",
     sourceSnippet: question.sourceSnippet?.trim() || "",
+    reviewableClaimId: question.reviewableClaimId?.trim() || "",
     memoryAngle: normalizeMemoryAngle(question.memoryAngle, question),
     blueprintItemId: question.blueprintItemId?.trim() || "",
     blueprintGoal: question.blueprintGoal?.trim() || "",
@@ -104,6 +117,9 @@ ${rewriteGuidance(rewriteContext)}
   return `${supplementInstruction || rewriteInstruction}
 任务：
 - 按每个知识点的 targetQuestionCount 尝试生成不同角度候选题；每个知识点至少 1 道。
+- 题目必须围绕 reviewableClaims 里的单个可考判断生成；每个 reviewableClaim 最多 1 道题。
+- sourceSnippet 使用对应 reviewableClaim.evidenceContextText 中足以解释答案的原文上下文，可以是 2-5 句或一个短段落；不要为了追求短而漏掉解释所需概念。
+- 题干、正确答案、commonMisconception 和 explanation 都不能超出 allowedQuestionScope / prohibitedExtensions。
 - targetQuestionCount >= 2 时，优先覆盖 core_understanding + misconception_boundary 或 scenario_application；targetQuestionCount = 3 时，再补第三个自然角度。
 - 优先参考 questionAngles；如果没有 questionAngles，就根据 keyClaim、sourceQuote 和 preferredQuestionType 选择最值得复习的角度。
 - 如果会变成换壳重复、来源无法支撑或答案不唯一，可以少于 targetQuestionCount。
@@ -191,10 +207,10 @@ function rewriteGuidance(context = "") {
     guidance.push("题卡压缩修复：题干优先控制在 15-45 个中文字符，只保留一个判断点；选项优先控制在 8-24 个中文字符。把背景、证据链和解释移到 explanation / correctUnderstanding / sourceSnippet。");
   }
   if (/source|来源/.test(issues)) {
-    guidance.push("来源修复：sourceSnippet 优先逐字截取自当前知识点 sourceQuote；如果无法稳定截取，直接使用完整 sourceQuote。不要拼接、改写或概括。");
+    guidance.push("来源修复：sourceSnippet 使用 reviewableClaim.evidenceContextText 中足以解释答案的原文上下文，允许 2-5 句或一个短段落；不要改写或概括。");
   }
   if (/source_coverage|sourceCoverage|coverage|覆盖|claim_overextended/.test(issues)) {
-    guidance.push("来源覆盖修复：优先收窄题目判断范围，只考当前 sourceQuote 能完整支撑的一个判断点；不要为了覆盖原题而扩大 sourceSnippet。");
+    guidance.push("来源覆盖修复：先让题目只围绕一个 reviewableClaim，再选择能覆盖 claim、正确答案和解释的 evidenceContextText；如果仍覆盖不了，收窄题目判断范围。");
   }
   if (/question_type|题型/.test(issues)) {
     guidance.push("题型提示：preferredQuestionType 只是推荐题型。优先使用它；如果当前题型更自然，也可以保留，但选项结构必须合法。");

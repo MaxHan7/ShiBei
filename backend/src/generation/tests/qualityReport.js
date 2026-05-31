@@ -151,6 +151,18 @@ export function summarize(results) {
   const claimFidelityScores = allQuestions
     .map((question) => Number(question.claimFidelityScore || question.trustDiagnostics?.claimFidelityScore))
     .filter(Number.isFinite);
+  const sourceExplanatoryCoverageScores = allQuestions
+    .map((question) => Number(question.sourceExplanatoryCoverageScore || question.trustDiagnostics?.sourceExplanatoryCoverageScore))
+    .filter(Number.isFinite);
+  const claimCoverageScores = allQuestions
+    .map((question) => Number(question.claimCoverageScore || question.trustDiagnostics?.claimCoverageScore))
+    .filter(Number.isFinite);
+  const misconceptionGroundingScores = allQuestions
+    .map((question) => Number(question.misconceptionGroundingScore || question.trustDiagnostics?.misconceptionGroundingScore))
+    .filter(Number.isFinite);
+  const explanationAnswerBindingScores = allQuestions
+    .map((question) => Number(question.explanationAnswerBindingScore || question.trustDiagnostics?.explanationAnswerBindingScore))
+    .filter(Number.isFinite);
   const structureCoverage = structureCoverageSummary(chapters);
   const blockingReasonFrequency = countValues(
     chapters.flatMap((result) => [
@@ -250,6 +262,18 @@ export function summarize(results) {
       : 0,
     averageClaimFidelityScore: claimFidelityScores.length
       ? Math.round((claimFidelityScores.reduce((sum, score) => sum + score, 0) / claimFidelityScores.length) * 10) / 10
+      : 0,
+    averageSourceExplanatoryCoverageScore: sourceExplanatoryCoverageScores.length
+      ? Math.round((sourceExplanatoryCoverageScores.reduce((sum, score) => sum + score, 0) / sourceExplanatoryCoverageScores.length) * 10) / 10
+      : 0,
+    averageClaimCoverageScore: claimCoverageScores.length
+      ? Math.round((claimCoverageScores.reduce((sum, score) => sum + score, 0) / claimCoverageScores.length) * 10) / 10
+      : 0,
+    averageMisconceptionGroundingScore: misconceptionGroundingScores.length
+      ? Math.round((misconceptionGroundingScores.reduce((sum, score) => sum + score, 0) / misconceptionGroundingScores.length) * 10) / 10
+      : 0,
+    averageExplanationAnswerBindingScore: explanationAnswerBindingScores.length
+      ? Math.round((explanationAnswerBindingScores.reduce((sum, score) => sum + score, 0) / explanationAnswerBindingScores.length) * 10) / 10
       : 0,
     duplicatePracticeRiskCount,
     cognitiveActionIssueFrequency,
@@ -544,6 +568,7 @@ function questionToReviewRow({ result, question, status }) {
     correctUnderstanding: question.correctUnderstanding || "",
     commonMisconception: question.commonMisconception || "",
     sourceSnippet: question.sourceSnippet || question.source_snippet || "",
+    reviewableClaimId: question.reviewableClaimId || "",
     memoryAngle: question.memoryAngle || "",
     blueprintItemId: question.blueprintItemId || "",
     blueprintGoal: question.blueprintGoal || "",
@@ -574,6 +599,10 @@ function questionToReviewRow({ result, question, status }) {
     sourcePrecisionScore: question.sourcePrecisionScore ?? question.trustDiagnostics?.sourcePrecisionScore ?? "",
     sourceCoverageScore: question.sourceCoverageScore ?? question.trustDiagnostics?.sourceCoverageScore ?? "",
     claimFidelityScore: question.claimFidelityScore ?? question.trustDiagnostics?.claimFidelityScore ?? "",
+    sourceExplanatoryCoverageScore: question.sourceExplanatoryCoverageScore ?? question.trustDiagnostics?.sourceExplanatoryCoverageScore ?? "",
+    claimCoverageScore: question.claimCoverageScore ?? question.trustDiagnostics?.claimCoverageScore ?? "",
+    misconceptionGroundingScore: question.misconceptionGroundingScore ?? question.trustDiagnostics?.misconceptionGroundingScore ?? "",
+    explanationAnswerBindingScore: question.explanationAnswerBindingScore ?? question.trustDiagnostics?.explanationAnswerBindingScore ?? "",
     learningEffectivenessScore: question.learningEffectivenessScore ?? question.cognitiveActionFitScore ?? "",
     sourceSpecificityScore: question.sourceSpecificityScore ?? "",
     sourceMinimalityScore: question.sourceMinimalityScore ?? question.sourceContextSelection?.sourceMinimalityScore ?? "",
@@ -666,6 +695,7 @@ function emptyReviewRow(result) {
     correctUnderstanding: "",
     commonMisconception: "",
     sourceSnippet: "",
+    reviewableClaimId: "",
     memoryAngle: "",
     blueprintItemId: "",
     blueprintGoal: "",
@@ -696,6 +726,10 @@ function emptyReviewRow(result) {
     sourcePrecisionScore: "",
     sourceCoverageScore: "",
     claimFidelityScore: "",
+    sourceExplanatoryCoverageScore: "",
+    claimCoverageScore: "",
+    misconceptionGroundingScore: "",
+    explanationAnswerBindingScore: "",
     learningEffectivenessScore: "",
     sourceSpecificityScore: "",
     sourceMinimalityScore: "",
@@ -795,7 +829,11 @@ function formatTrustDiagnostics(diagnostics) {
     `context:${diagnostics.contextRelevanceScore ?? ""}`,
     `misconception:${diagnostics.misconceptionSupportScore ?? ""}`,
     `sourceCoverage:${diagnostics.sourceCoverageScore ?? ""}`,
+    `sourceExplanatory:${diagnostics.sourceExplanatoryCoverageScore ?? ""}`,
     `claimFidelity:${diagnostics.claimFidelityScore ?? ""}`,
+    `claimCoverage:${diagnostics.claimCoverageScore ?? ""}`,
+    `misconceptionGrounding:${diagnostics.misconceptionGroundingScore ?? ""}`,
+    `explanationBinding:${diagnostics.explanationAnswerBindingScore ?? ""}`,
     `cognitive:${diagnostics.cognitiveActionFitScore ?? ""}`,
     `evidenceLearning:${diagnostics.evidenceLearningValueScore ?? ""}`,
     `reviewFriction:${diagnostics.reviewFrictionScore ?? ""}`,
@@ -858,9 +896,13 @@ function sourceReuseSummary(questions = []) {
   const groups = new Map();
   for (const question of questions) {
     const selection = question.sourceContextSelection || {};
-    const key = Number.isFinite(Number(selection.paragraphIndex))
-      ? `paragraph:${selection.paragraphIndex}`
-      : compactSourceKey(question.sourceSnippet);
+    const paragraphIndex = selection.paragraphIndex;
+    const paragraphNumber = paragraphIndex === null || paragraphIndex === undefined || paragraphIndex === ""
+      ? NaN
+      : Number(paragraphIndex);
+    const key = Number.isFinite(paragraphNumber)
+      ? `paragraph:${paragraphNumber}`
+      : (question.sourceBlockId || selection.sourceBlockId || question.reviewableClaimId || compactSourceKey(question.sourceSnippet));
     const current = groups.get(key) || {
       key,
       count: 0,

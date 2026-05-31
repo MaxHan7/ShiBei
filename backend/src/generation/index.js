@@ -6,6 +6,7 @@ import { generateChapterSummary } from "./generateChapterSummary.js";
 import { generateQuestions, targetQuestionCountDecisionForPoint, targetQuestionCountForPoint } from "./generateQuestions.js";
 import { evaluateQuestions } from "./evaluateQuestions.js";
 import { typeDiversityReasonForSelection } from "./practiceBlueprint.js";
+import { attachReviewableClaimsToKnowledgePoints } from "./reviewableClaims.js";
 import { judgeQuestionQuality } from "./judgeQuestionQuality.js";
 import { createGenerationRunId, createModelUsageRecorder, summarizeModelUsage } from "./modelCost.js";
 import { STATUS_TEXT } from "./types.js";
@@ -72,7 +73,10 @@ export async function generateReviewChapter(input, options = {}) {
       knowledgePoints = filterResult.kept;
       filteredKnowledgePoints = filterResult.filtered;
     }
-    knowledgePoints = orderKnowledgePointsBySource(knowledgePoints, cleaned.cleanedText);
+    knowledgePoints = attachReviewableClaimsToKnowledgePoints(
+      orderKnowledgePointsBySource(knowledgePoints, cleaned.cleanedText),
+      cleaned.cleanedText
+    );
     filteredKnowledgePoints = orderKnowledgePointsBySource(filteredKnowledgePoints, cleaned.cleanedText);
 
     if (!knowledgePoints.length) {
@@ -340,6 +344,7 @@ function canAddQuestionToSelection(selected, question) {
     && overlapRatio(compactText(item.correctUnderstanding), compactText(question.correctUnderstanding)) > 0.5)) return false;
   if (question.memoryAngle && question.sourceBlockId && selected.some((item) => item.memoryAngle === question.memoryAngle
     && item.sourceBlockId === question.sourceBlockId)) return false;
+  if (question.reviewableClaimId && selected.some((item) => item.reviewableClaimId === question.reviewableClaimId)) return false;
   return true;
 }
 
@@ -704,6 +709,11 @@ function toClientQuestion(question) {
     confidenceReasons: question.confidenceReasons || [],
     blockingReasons: question.blockingReasons || [],
     sourceContextSelection: question.sourceContextSelection || null,
+    reviewableClaimId: question.reviewableClaimId || "",
+    sourceExplanatoryCoverageScore: question.sourceExplanatoryCoverageScore ?? question.trustDiagnostics?.sourceExplanatoryCoverageScore ?? null,
+    claimCoverageScore: question.claimCoverageScore ?? question.trustDiagnostics?.claimCoverageScore ?? null,
+    misconceptionGroundingScore: question.misconceptionGroundingScore ?? question.trustDiagnostics?.misconceptionGroundingScore ?? null,
+    explanationAnswerBindingScore: question.explanationAnswerBindingScore ?? question.trustDiagnostics?.explanationAnswerBindingScore ?? null,
     sourcePrecisionScore: question.sourcePrecisionScore ?? question.trustDiagnostics?.sourcePrecisionScore ?? null,
     sourceSpecificityScore: question.sourceSpecificityScore ?? null,
     sourceMinimalityScore: question.sourceMinimalityScore ?? null,
@@ -891,6 +901,15 @@ function summarizeQuality(evaluatedQuestions, judgeUnavailable, selectedQuestion
   const highFrictionQuestionCount = selectedQuestions.filter((question) => (
     Number(question.reviewFrictionScore ?? question.trustDiagnostics?.reviewFrictionScore ?? 5) < 4
   )).length;
+  const sourceExplanatoryCoverageScores = selectedQuestions
+    .map((question) => Number(question.sourceExplanatoryCoverageScore ?? question.trustDiagnostics?.sourceExplanatoryCoverageScore))
+    .filter(Number.isFinite);
+  const misconceptionGroundingScores = selectedQuestions
+    .map((question) => Number(question.misconceptionGroundingScore ?? question.trustDiagnostics?.misconceptionGroundingScore))
+    .filter(Number.isFinite);
+  const explanationAnswerBindingScores = selectedQuestions
+    .map((question) => Number(question.explanationAnswerBindingScore ?? question.trustDiagnostics?.explanationAnswerBindingScore))
+    .filter(Number.isFinite);
 
   return {
     totalGenerated: evaluatedQuestions.length,
@@ -917,6 +936,15 @@ function summarizeQuality(evaluatedQuestions, judgeUnavailable, selectedQuestion
     averageSourcePrecisionScore,
     averageReviewFrictionScore: reviewFrictionScores.length
       ? Math.round((reviewFrictionScores.reduce((sum, score) => sum + score, 0) / reviewFrictionScores.length) * 10) / 10
+      : 0,
+    averageSourceExplanatoryCoverageScore: sourceExplanatoryCoverageScores.length
+      ? Math.round((sourceExplanatoryCoverageScores.reduce((sum, score) => sum + score, 0) / sourceExplanatoryCoverageScores.length) * 10) / 10
+      : 0,
+    averageMisconceptionGroundingScore: misconceptionGroundingScores.length
+      ? Math.round((misconceptionGroundingScores.reduce((sum, score) => sum + score, 0) / misconceptionGroundingScores.length) * 10) / 10
+      : 0,
+    averageExplanationAnswerBindingScore: explanationAnswerBindingScores.length
+      ? Math.round((explanationAnswerBindingScores.reduce((sum, score) => sum + score, 0) / explanationAnswerBindingScores.length) * 10) / 10
       : 0,
     averageVisibleReadingLoad: visibleReadingLoads.length
       ? Math.round((visibleReadingLoads.reduce((sum, value) => sum + value, 0) / visibleReadingLoads.length) * 10) / 10
