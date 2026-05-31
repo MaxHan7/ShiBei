@@ -971,6 +971,39 @@ test("pedagogy diagnostics labels literal core recall with the v11 action issue"
   assert.equal(literalCore.pedagogyDiagnostics.reasons.includes("core_claim_too_literal"), true);
 });
 
+test("definition-style core question is not discarded as shallow when it asks for the concept essence", () => {
+  const hookPoint = {
+    ...highValuePoint,
+    title: "hook 的定义",
+    keyClaim: "hook 是靠系统机制自动执行确定性动作，而不是请求模型记住。",
+    sourceQuote: "prompt 是请求模型记住；hook 是让系统执行。",
+    knowledgeType: "concept"
+  };
+  const evaluated = evaluateQuestions({
+    questions: [question({
+      stem: "根据原文，hook 的本质是什么？",
+      options: [
+        { id: "A", text: "请求模型记住一个规则" },
+        { id: "B", text: "靠系统机制自动执行动作" },
+        { id: "C", text: "把提示词写得更完整" },
+        { id: "D", text: "让模型自己判断是否执行" }
+      ],
+      correctOptionId: "B",
+      correctUnderstanding: "hook 的本质是让系统执行确定性动作，而不是依赖模型记住提示。",
+      commonMisconception: "误以为 hook 只是更强的 prompt，仍然靠模型自觉遵守。",
+      explanation: "来源直接对比了 prompt 和 hook：prompt 是请求模型记住，hook 是让系统执行。",
+      sourceSnippet: "prompt 是请求模型记住；hook 是让系统执行。",
+      memoryAngle: "core_understanding"
+    })],
+    knowledgePoints: [hookPoint],
+    cleanedText: "prompt 是请求模型记住；hook 是让系统执行。"
+  });
+
+  assert.notEqual(evaluated[0].qualityAction, "discard");
+  assert.equal(evaluated[0].qualityIssues.includes("understandingDepth_low"), false);
+  assert.equal(evaluated[0].coreUnderstandingScore >= 4, true);
+});
+
 test("question prompt stays lean and does not force article structure binding fields", () => {
   const prompt = buildUserPrompt({
     points: [
@@ -1004,6 +1037,25 @@ test("question prompt stays lean and does not force article structure binding fi
   assert.match(prompt, /轻量复习要求/);
   assert.match(prompt, /不要改写来源片段/);
   assert.match(prompt, /换壳重复/);
+  assert.match(prompt, /温和目标/);
+  assert.match(prompt, /优先生成 targetQuestionCount 道不同角度候选题/);
+});
+
+test("friction rewrite prompt explicitly asks to compress the visible question card", () => {
+  const prompt = buildUserPrompt({
+    points: [{
+      ...highValuePoint,
+      preferredQuestionType: "scenario_judgment",
+      targetQuestionCount: 1
+    }],
+    rewrite: true,
+    rewriteContext: "review_friction_mandatory_rewrite; question_card_too_heavy; scenario_background_too_long"
+  });
+
+  assert.match(prompt, /题卡压缩修复/);
+  assert.match(prompt, /15-45/);
+  assert.match(prompt, /8-24/);
+  assert.match(prompt, /把背景、证据链和解释移到/);
 });
 
 test("heavy question cards are marked for rewrite instead of being treated as high confidence", () => {

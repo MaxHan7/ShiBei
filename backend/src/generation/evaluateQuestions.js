@@ -1637,6 +1637,7 @@ function scoreAnswerUniqueness(question) {
 function scoreUnderstandingDepth(question) {
   const text = `${question.stem}${question.correctUnderstanding}`;
   if (/场景|适合|边界|误区|为什么|区别|对比|应用|做法|条件|判断|迁移|取舍/.test(text)) return 5;
+  if (/本质|核心|主张|关键|意味着|不是.*而是|区别是什么|主要作用|真正.*区别/.test(text)) return 4;
   if (/以下哪种|哪种理解|是否成立|成立/.test(text)) return 4;
   if (/原文|提到|关键词|填空|作者认为|文中说/.test(text)) return 2;
   return 3;

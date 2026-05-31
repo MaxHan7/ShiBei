@@ -102,8 +102,9 @@ ${rewriteGuidance(rewriteContext)}
     : "";
 
   return `${supplementInstruction || rewriteInstruction}
-请为每个知识点生成最多 targetQuestionCount 道候选题。targetQuestionCount 是上限，不是必须凑满的数量。
-每个知识点至少返回 1 道结构完整题；如果只能生成换壳重复题，就少出题。
+请把 targetQuestionCount 当作温和目标：优先生成 targetQuestionCount 道不同角度候选题，而不是只保守生成 1 道。
+每个知识点至少返回 1 道结构完整题；只有在来源无法支撑、答案会不唯一、或只能生成换壳重复题时，才少于 targetQuestionCount。
+如果 targetQuestionCount >= 2，优先覆盖 core_understanding + misconception_boundary 或 scenario_application；如果 targetQuestionCount = 3，再补第三个自然角度。
 memoryAngle 用来说明题目练习意图：
 - core_understanding：抓住核心主张，不考原文复述、关键词识别或“原文提到了什么”。
 - misconception_boundary：分清真实混淆和边界，错误选项必须是同一语境里的真实误区。
@@ -196,6 +197,9 @@ function rewriteGuidance(context = "") {
   }
   if (/understandingDepth|理解|source_repetition|原文/.test(issues)) {
     guidance.push("理解深度修复：把题干改成应用场景、边界判断、误区辨析或行动选择，不要问原文复述。");
+  }
+  if (/review_friction|friction|question_card_too_heavy|stem_too_long|scenario_background_too_long|option_too_explanatory|题卡|阅读负担|过长/.test(issues)) {
+    guidance.push("题卡压缩修复：题干优先控制在 15-45 个中文字符，只保留一个判断点；选项优先控制在 8-24 个中文字符。把背景、证据链和解释移到 explanation / correctUnderstanding / sourceSnippet。");
   }
   if (/source|来源/.test(issues)) {
     guidance.push("来源修复：sourceSnippet 优先逐字截取自当前知识点 sourceQuote；如果无法稳定截取，直接使用完整 sourceQuote。不要拼接、改写或概括。");
