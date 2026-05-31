@@ -1005,6 +1005,43 @@ test("definition-style core question is not discarded as shallow when it asks fo
   assert.equal(evaluated[0].coreUnderstandingScore >= 4, true);
 });
 
+test("pedagogy warnings do not pollute actionable low-confidence metrics", () => {
+  const hookPoint = {
+    id: "kp-1",
+    title: "Hook 的本质",
+    keyClaim: "Hook 是在固定节点自动执行动作的控制器，不是只靠模型记住的提示词。",
+    sourceQuote: "Hook 是在固定节点自动执行动作的控制器，不是只靠模型记住的提示词。",
+    testabilityScore: 5,
+    importanceScore: 5
+  };
+  const evaluated = evaluateQuestions({
+    questions: [question({
+      stem: "根据原文，哪项是 Hook 的核心本质？",
+      options: [
+        { id: "A", text: "在固定节点自动执行动作的控制器" },
+        { id: "B", text: "让模型记住规则的提示词" },
+        { id: "C", text: "最终发布前的 CI 检查" },
+        { id: "D", text: "普通聊天窗口" }
+      ],
+      correctOptionId: "A",
+      correctUnderstanding: "Hook 是在固定节点自动执行动作的控制器。",
+      commonMisconception: "误以为 Hook 只是提示词，让模型自己记住规则。",
+      explanation: "来源说明 Hook 是在固定节点自动执行动作的控制器，不是只靠模型记住的提示词。",
+      sourceSnippet: "Hook 是在固定节点自动执行动作的控制器，不是只靠模型记住的提示词。",
+      memoryAngle: "core_understanding"
+    })],
+    knowledgePoints: [hookPoint],
+    cleanedText: "Hook 是在固定节点自动执行动作的控制器，不是只靠模型记住的提示词。"
+  });
+
+  assert.equal(evaluated[0].confidenceReasons.includes("core_claim_too_literal"), true);
+  assert.equal(evaluated[0].confidenceTier, "review_warning");
+
+  const selected = selectQualifiedQuestionsByPoint([hookPoint], evaluated);
+  assert.equal(selected[0].confidenceLevel, "high");
+  assert.equal(selected[0].confidenceTier, "review_warning");
+});
+
 test("question prompt stays lean and does not force article structure binding fields", () => {
   const prompt = buildUserPrompt({
     points: [

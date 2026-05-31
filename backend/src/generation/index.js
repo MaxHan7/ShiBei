@@ -436,8 +436,10 @@ function markConfidence(question, confidenceLevel, retainedBy = null) {
 function confidenceLevelForQuestion(question) {
   const issues = new Set(question.qualityIssues || []);
   if (question.confidenceTier === "high_confidence") return "high";
+  if (question.confidenceTier === "review_warning") return "high";
+  if (question.confidenceTier === "needs_rewrite") return "low";
+  if (question.confidenceTier === "should_block") return "low";
   if ((question.blockingReasons || []).length) return "low";
-  if ((question.confidenceReasons || []).length) return "low";
   if (issues.has("question_type_mismatch") && Number(question.cognitiveActionFitScore || 0) < 3) return "low";
   return "high";
 }

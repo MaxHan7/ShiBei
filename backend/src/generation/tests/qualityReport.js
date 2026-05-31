@@ -45,6 +45,9 @@ export function summarize(results) {
     results.flatMap((result) => allMachineIssues(result).map(categorizeMachineIssue))
   );
   const lowConfidenceCount = allQuestions.filter((question) => question.confidenceLevel === "low").length;
+  const needsRewriteCount = allQuestions.filter((question) => question.confidenceTier === "needs_rewrite").length;
+  const reviewWarningCount = allQuestions.filter((question) => question.confidenceTier === "review_warning").length;
+  const highConfidenceCount = allQuestions.filter((question) => question.confidenceTier === "high_confidence").length;
   const pointDiagnostics = chapters.flatMap((result) => result.generationDebug?.pointDiagnostics || []);
   const questionCountDistribution = countValues(pointDiagnostics.map((point) => String(point.qualifiedQuestionCount || 0)));
   const averageQuestionsPerPoint = pointDiagnostics.length
@@ -187,6 +190,12 @@ export function summarize(results) {
     threeQuestionPointRate,
     lowConfidenceQuestionCount: lowConfidenceCount,
     lowConfidenceQuestionRate: percent(lowConfidenceCount, allQuestions.length),
+    needsRewriteQuestionCount: needsRewriteCount,
+    needsRewriteQuestionRate: percent(needsRewriteCount, allQuestions.length),
+    reviewWarningQuestionCount: reviewWarningCount,
+    reviewWarningQuestionRate: percent(reviewWarningCount, allQuestions.length),
+    highConfidenceQuestionCount: highConfidenceCount,
+    highConfidenceQuestionRate: percent(highConfidenceCount, allQuestions.length),
     coveredKnowledgePointCount: chapters.reduce((sum, result) => {
       const diagnostics = result.generationDebug?.pointDiagnostics || [];
       return sum + diagnostics.filter((point) => point.status?.startsWith("covered")).length;
@@ -411,12 +420,13 @@ export function renderManualReport({ machineReport, manualSummary, resultFile, r
     `- 动态覆盖率：${machineReport.summary?.dynamicCoverageRate ?? 0}%`,
     `- 平均每知识点题数：${machineReport.summary?.averageQuestionsPerPoint ?? 0}`,
     `- 3 题知识点比例：${machineReport.summary?.threeQuestionPointRate ?? 0}%`,
-    `- 低置信题比例：${machineReport.summary?.lowConfidenceQuestionRate ?? 0}%`,
+    `- 需重写题比例：${machineReport.summary?.needsRewriteQuestionRate ?? machineReport.summary?.lowConfidenceQuestionRate ?? 0}%`,
+    `- 可复习提醒题比例：${machineReport.summary?.reviewWarningQuestionRate ?? 0}%`,
     `- 人工审查题数：${manualSummary.reviewedQuestionCount}`,
     `- 人工可用率：${manualSummary.acceptRate}%`,
     `- 严重问题比例：${manualSummary.severeIssueRate}%`,
     `- 机器高分但人工拒绝：${manualSummary.highScoreRejectedCount}`,
-    `- 低置信人工 accept/fixable/reject：${manualSummary.lowConfidenceAcceptedCount}/${manualSummary.lowConfidenceFixableCount}/${manualSummary.lowConfidenceRejectedCount}`,
+    `- 需重写题人工 accept/fixable/reject：${manualSummary.lowConfidenceAcceptedCount}/${manualSummary.lowConfidenceFixableCount}/${manualSummary.lowConfidenceRejectedCount}`,
     `- 人工来源精准度均分：${manualSummary.averageSourcePrecision}`,
     `- 人工最小证据均分：${manualSummary.averageSourceMinimality}`,
     "",
@@ -1110,6 +1120,6 @@ function recommendNextSteps(manualSummary) {
   return [
     `- 优先处理 \`${topIssue}\`，下一轮只围绕这个问题改 prompt 或质量规则。`,
     "- 保持同一批 baseline 样本不变，改完后重新跑机器报告并复查人工可用率。",
-    "- 如果机器高分但人工拒绝数量较高，优先修质量评分器；如果低置信题 reject 率高，优先收紧入池规则。"
+    "- 如果机器高分但人工拒绝数量较高，优先修质量评分器；如果需重写题 reject 率高，优先收紧入池规则。"
   ];
 }

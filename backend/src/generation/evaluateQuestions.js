@@ -1150,6 +1150,8 @@ function buildTrustDiagnostics({
     blockingReasons: uniqueBlockingReasons,
     confidenceReasons: uniqueConfidenceReasons,
     sourcePrecisionScore,
+    sourceCoverageScore,
+    claimFidelityScore,
     answerGroundingScore,
     explanationFaithfulnessScore,
     scores,
@@ -1198,6 +1200,8 @@ function confidenceTierForQuestion({
   blockingReasons,
   confidenceReasons,
   sourcePrecisionScore,
+  sourceCoverageScore,
+  claimFidelityScore,
   answerGroundingScore,
   explanationFaithfulnessScore,
   scores,
@@ -1212,31 +1216,40 @@ function confidenceTierForQuestion({
   ) {
     return "should_block";
   }
-  if (
-    confidenceReasons.includes("answer_grounding_weak")
-    || confidenceReasons.includes("explanation_overextends_source")
-    || confidenceReasons.includes("explanation_not_tied_to_answer")
-    || confidenceReasons.includes("type_does_not_serve_cognitive_action")
-    || confidenceReasons.includes("cognitive_action_weak")
-    || confidenceReasons.includes("core_claim_too_literal")
-    || confidenceReasons.includes("boundary_confusion_not_real")
-    || confidenceReasons.includes("scenario_is_restatement")
-    || confidenceReasons.includes("core_recall_too_literal")
-    || confidenceReasons.includes("boundary_not_teaching_real_confusion")
-    || confidenceReasons.includes("scenario_transfer_too_literal")
-    || confidenceReasons.includes("source_coverage_incomplete")
-    || confidenceReasons.includes("claim_overextended")
-    || confidenceReasons.includes("question_card_too_heavy")
-    || confidenceReasons.includes("stem_too_long")
-    || confidenceReasons.includes("scenario_background_too_long")
-    || confidenceReasons.includes("option_too_explanatory")
-    || Number(reviewFrictionScore || 0) <= 3
-    || confidenceReasons.some((reason) => String(reason).startsWith("distractors_"))
-    || confidenceReasons.includes("judge_rewrite")
-  ) {
+  if (hasActionableRewriteReason(confidenceReasons, {
+    sourceCoverageScore,
+    claimFidelityScore,
+    reviewFrictionScore
+  })) {
     return "needs_rewrite";
   }
-  return "safe_low_confidence";
+  return "review_warning";
+}
+
+function hasActionableRewriteReason(confidenceReasons = [], {
+  sourceCoverageScore = 5,
+  claimFidelityScore = 5,
+  reviewFrictionScore = 5
+} = {}) {
+  const reasons = new Set(confidenceReasons || []);
+  const reliabilityReasons = [
+    "answer_grounding_weak",
+    "explanation_overextends_source",
+    "explanation_not_tied_to_answer",
+    "judge_rewrite"
+  ];
+  if (reliabilityReasons.some((reason) => reasons.has(reason))) return true;
+  if (reasons.has("source_coverage_incomplete") && Number(sourceCoverageScore || 0) <= 2) return true;
+  if (reasons.has("claim_overextended") && Number(claimFidelityScore || 0) <= 3) return true;
+  if (Number(reviewFrictionScore || 0) <= 3) return true;
+  if (reasons.has("question_card_too_heavy")
+    || reasons.has("stem_too_long")
+    || reasons.has("scenario_background_too_long")
+    || reasons.has("option_too_explanatory")) {
+    return true;
+  }
+  if ([...reasons].some((reason) => String(reason).startsWith("distractors_"))) return true;
+  return false;
 }
 
 function repairHintForReason(primaryBlockingReason, confidenceReasons = []) {
