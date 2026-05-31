@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 
-import { buildCostRunResponse, costWorkbenchEnabled, serializeChapterForClient } from "../server.js";
+import { buildCostRunResponse, costWorkbenchEnabled, saveCostRunResponse, serializeChapterForClient } from "../server.js";
 
 test("cost workbench is disabled in production unless explicitly enabled", () => {
   const originalNodeEnv = process.env.NODE_ENV;
@@ -51,6 +54,37 @@ test("builds a cost run response with model usage and cost summary", () => {
   assert.equal(response.generationRunId, "chapter_123");
   assert.equal(response.modelUsage.length, 1);
   assert.equal(response.reportText, "成本报告");
+});
+
+test("saves cost run response as latest and per-run JSON", async () => {
+  const root = await mkdtemp(join(tmpdir(), "shibei-cost-runs-"));
+  try {
+    const response = buildCostRunResponse({
+      status: "completed",
+      chapter: {
+        title: "测试章节",
+        questions: [{ id: "q-1" }],
+        knowledgePoints: [{ id: "kp-1" }],
+        generationMeta: {
+          generationRunId: "chapter_test_run",
+          modelUsage: [{ stage: "knowledge_points" }],
+          costSummary: { callCount: 1, currencies: [], totalsByCurrency: {}, reportText: "" }
+        }
+      }
+    });
+
+    const storage = await saveCostRunResponse(response, { root });
+    assert.equal(storage.latestPath.endsWith("latest.json"), true);
+    assert.equal(storage.runPath.endsWith("chapter_test_run.json"), true);
+
+    const latest = JSON.parse(await readFile(join(root, "latest.json"), "utf8"));
+    const run = JSON.parse(await readFile(join(root, "chapter_test_run.json"), "utf8"));
+    assert.equal(latest.generationRunId, "chapter_test_run");
+    assert.equal(run.chapterTitle, "测试章节");
+    assert.deepEqual(latest.costRunStorage, storage);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
 
 test("app chapter serialization strips cost-only generation metadata", () => {

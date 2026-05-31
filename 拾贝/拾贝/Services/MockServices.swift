@@ -25,7 +25,7 @@ final class AppStore: ObservableObject {
     @Published var favoriteReviewActive = false
     @Published var sourceFocusText: String?
     @Published var dataMode: AppDataMode = .mock
-    @Published var dataSourceMessage = "Mock 数据已就绪"
+    @Published var dataSourceMessage = ""
     @Published var cloudAPIBaseURLString: String
     @Published var anonymousDeviceId: String
     @Published var appLanguage: AppLanguage = .zhHans
@@ -49,6 +49,7 @@ final class AppStore: ObservableObject {
     private let deviceIdentityStore: DeviceIdentityStore
     private var generationPollTasks: [String: Task<Void, Never>] = [:]
     private var notificationObservers: [NSObjectProtocol] = []
+    private var latestFeedbackWasSevere = false
 
     init(
         chapterService: any ChapterServicing = MockChapterService(),
@@ -83,11 +84,11 @@ final class AppStore: ObservableObject {
         #if DEBUG
         cloudAPIBaseURLString = UserDefaults.standard.string(forKey: cloudAPIBaseURLKey) ?? ""
         dataMode = .mock
-        dataSourceMessage = "Mock 数据已就绪"
+        dataSourceMessage = localized("debug.message.mock_ready")
         #else
         cloudAPIBaseURLString = APIClient.productionBaseURL.absoluteString
         dataMode = .cloudAPI
-        dataSourceMessage = "正在连接拾贝云端"
+        dataSourceMessage = localized("debug.message.connecting_cloud")
         #endif
         installPushNotificationObservers()
     }
@@ -95,6 +96,10 @@ final class AppStore: ObservableObject {
     func setAppLanguage(_ language: AppLanguage) {
         appLanguage = language
         UserDefaults.standard.set(language.rawValue, forKey: appLanguageKey)
+        dataSourceMessage = dataMode == .mock ? localized("debug.message.mock_ready") : localized("debug.message.sync_complete")
+        Task {
+            await syncPushTokenIfAuthorized()
+        }
     }
 
     func localized(_ key: String) -> String {
@@ -120,54 +125,11 @@ final class AppStore: ObservableObject {
     }
 
     var localizedDataSourceMessage: String {
-        localizedDataSourceMessage(dataSourceMessage)
-    }
-
-    private func localizedDataSourceMessage(_ message: String) -> String {
-        switch message {
-        case "Mock 数据已就绪":
-            localized("debug.message.mock_ready")
-        case "正在连接拾贝云端":
-            localized("debug.message.connecting_cloud")
-        case "当前使用 Mock 数据生成。":
-            localized("debug.message.using_mock_generation")
-        case "请填写 Railway 云端 API 地址":
-            localized("debug.message.enter_cloud_url")
-        case "Railway 云端地址已保存":
-            localized("debug.message.cloud_url_saved")
-        case "已重置匿名设备身份，请重新读取云端 API。":
-            localized("debug.message.device_reset")
-        case "本机测试数据已删除":
-            localized("debug.message.local_data_deleted")
-        case "你的数据已删除":
-            localized("debug.message.my_data_deleted")
-        case "云端记录已失效，请重新提交内容":
-            localized("debug.message.cloud_record_expired")
-        default:
-            if appLanguage == .zhHans {
-                message
-            } else if message.hasPrefix("已切换到 ") {
-                localized("debug.message.mock_scenario_applied")
-            } else if message.contains("失败") || message.contains("无法") || message.contains("不可用") {
-                localized("debug.message.operation_failed")
-            } else if message.contains("已读取") || message.contains("已刷新") || message.contains("已重新同步") {
-                localized("debug.message.sync_complete")
-            } else if message.contains("正在") {
-                localized("debug.message.working")
-            } else {
-                message
-            }
-        }
+        dataSourceMessage
     }
 
     var localizedLatestFeedbackMessage: String {
-        if latestFeedbackMessage.isEmpty {
-            ""
-        } else if latestFeedbackMessage.contains("移除") {
-            localized("feedback.message.removed")
-        } else {
-            localized("feedback.message.received")
-        }
+        latestFeedbackMessage
     }
 
     deinit {
@@ -314,7 +276,7 @@ final class AppStore: ObservableObject {
                     _ = try await client.deleteFavoriteQuestion(id: existing.id)
                 } catch {
                     favoriteQuestions = previous
-                    dataSourceMessage = "取消收藏失败：\(userFacingErrorMessage(error))"
+                    dataSourceMessage = localizedFormat("debug.message.favorite_remove_failed", userFacingErrorMessage(error))
                 }
             }
         } else {
@@ -339,7 +301,7 @@ final class AppStore: ObservableObject {
                     favoriteQuestions.insert(saved, at: 0)
                 } catch {
                     favoriteQuestions = previous
-                    dataSourceMessage = "收藏失败：\(userFacingErrorMessage(error))"
+                    dataSourceMessage = localizedFormat("debug.message.favorite_add_failed", userFacingErrorMessage(error))
                 }
             }
         }
@@ -478,9 +440,11 @@ final class AppStore: ObservableObject {
             object: nil,
             queue: .main
         ) { [weak self] notification in
-            let message = notification.userInfo?["message"] as? String ?? "系统通知注册失败"
+            let rawMessage = notification.userInfo?["message"] as? String
             Task { @MainActor in
-                self?.dataSourceMessage = "通知注册失败：\(message)"
+                guard let self else { return }
+                let message = rawMessage ?? self.localized("push.message.registration_failed")
+                self.dataSourceMessage = self.localizedFormat("push.message.registration_failed_with_error", message)
             }
         })
         notificationObservers.append(center.addObserver(
@@ -496,22 +460,22 @@ final class AppStore: ObservableObject {
 
     private func registerPushToken(_ token: String) async {
         guard let client = apiClient(for: .cloudAPI) ?? activeAPIClient else {
-            dataSourceMessage = "通知 token 暂时无法同步到云端"
+            dataSourceMessage = localized("push.message.token_sync_unavailable")
             return
         }
         do {
-            let response = try await client.registerPushToken(token, environment: .current)
+            let response = try await client.registerPushToken(token, environment: .current, preferredLanguage: appLanguage)
             dataSourceMessage = response.apnsConfigured == false
-                ? "通知权限已开启，云端推送配置待完成"
-                : "通知权限已开启"
+                ? localized("push.message.enabled_pending_config")
+                : localized("push.message.enabled")
         } catch {
-            dataSourceMessage = "通知 token 同步失败：\(userFacingErrorMessage(error))"
+            dataSourceMessage = localizedFormat("push.message.token_sync_failed", userFacingErrorMessage(error))
         }
     }
 
     func loadPushDiagnostics() async {
         guard let client = apiClient(for: .cloudAPI) ?? activeAPIClient else {
-            pushDiagnosticSummary = "云端地址无效，无法读取通知诊断。"
+            pushDiagnosticSummary = localized("push.diagnostic.invalid_cloud")
             return
         }
         isLoadingPushDiagnostics = true
@@ -521,7 +485,7 @@ final class AppStore: ObservableObject {
             let status = try await client.fetchPushStatus()
             pushDiagnosticSummary = pushDiagnosticText(from: status)
         } catch {
-            pushDiagnosticSummary = "通知诊断读取失败：\(userFacingErrorMessage(error))"
+            pushDiagnosticSummary = localizedFormat("push.diagnostic.failed", userFacingErrorMessage(error))
         }
     }
 
@@ -535,12 +499,12 @@ final class AppStore: ObservableObject {
     }
 
     private func pushDiagnosticText(from status: PushStatusResponse) -> String {
-        let apns = status.apns.configured ? "APNs 已配置" : "APNs 未配置"
+        let apns = status.apns.configured ? localized("push.diagnostic.apns_configured") : localized("push.diagnostic.apns_unconfigured")
         let environment = status.apns.environment ?? "unknown"
         let tokenEnvironments = status.pushTokens.map { $0.environment.rawValue }.joined(separator: ", ")
         let tokens = status.pushTokenCount == 0
-            ? "没有设备 token"
-            : "设备 token \(status.pushTokenCount) 个，环境：\(tokenEnvironments)"
+            ? localized("push.diagnostic.no_tokens")
+            : localizedFormat("push.diagnostic.token_count", status.pushTokenCount, tokenEnvironments)
         let latestTokenUpdatedAt = status.pushTokens.map(\.updatedAt).max() ?? ""
         let currentTokenNotifications = latestTokenUpdatedAt.isEmpty
             ? status.recentNotifications
@@ -548,13 +512,30 @@ final class AppStore: ObservableObject {
         let latest = currentTokenNotifications.first
         let latestText: String
         if let latest {
-            let delivery = latest.pushDeliveryStatus.isEmpty ? "未尝试" : latest.pushDeliveryStatus
-            let error = latest.pushDeliveryError.isEmpty ? "" : "，错误：\(latest.pushDeliveryError)"
-            latestText = "最近通知：\(delivery)\(error)"
+            let delivery = localizedPushDeliveryStatus(latest.pushDeliveryStatus)
+            let error = latest.pushDeliveryError.isEmpty ? "" : localizedFormat("push.diagnostic.latest_error_suffix", latest.pushDeliveryError)
+            latestText = localizedFormat("push.diagnostic.latest", delivery, error)
         } else {
-            latestText = "最近没有通知记录"
+            latestText = localized("push.diagnostic.latest_none")
         }
-        return "\(apns)，云端环境：\(environment)。\(tokens)。\(latestText)。"
+        return localizedFormat("push.diagnostic.summary", apns, environment, tokens, latestText)
+    }
+
+    private func localizedPushDeliveryStatus(_ status: String) -> String {
+        switch status {
+        case "sent":
+            localized("push.diagnostic.delivery_sent")
+        case "failed":
+            localized("push.diagnostic.delivery_failed")
+        case "no_tokens":
+            localized("push.diagnostic.delivery_no_tokens")
+        case "apns_not_configured":
+            localized("push.diagnostic.delivery_apns_not_configured")
+        case "":
+            localized("push.diagnostic.delivery_not_attempted")
+        default:
+            status
+        }
     }
 
     private func openRemoteNotification(userInfo: [AnyHashable: Any]) async {
@@ -577,7 +558,7 @@ final class AppStore: ObservableObject {
                 upsertChapter(try await fetchedChapter)
                 notifications = try await fetchedNotifications
             } catch {
-                dataSourceMessage = "打开通知失败：\(userFacingErrorMessage(error))"
+                dataSourceMessage = localizedFormat("push.message.open_failed", userFacingErrorMessage(error))
             }
         }
 
@@ -588,7 +569,7 @@ final class AppStore: ObservableObject {
                 : try await service.markRead(id: notificationId)
             upsertNotification(updated)
         } catch {
-            dataSourceMessage = "同步通知状态失败：\(userFacingErrorMessage(error))"
+            dataSourceMessage = localizedFormat("push.message.sync_status_failed", userFacingErrorMessage(error))
         }
     }
 
@@ -691,10 +672,10 @@ final class AppStore: ObservableObject {
                 : try await notificationService.markRead(id: notification.id)
             upsertNotification(updated)
             dataSourceMessage = notification.type == .generationCompleted
-                ? "\(dataMode.apiLabel) 已归档通知"
-                : "\(dataMode.apiLabel) 已标记通知为已读"
+                ? localizedFormat("notifications.message.archived", dataMode.apiLabel(language: appLanguage))
+                : localizedFormat("notifications.message.marked_read", dataMode.apiLabel(language: appLanguage))
         } catch {
-            dataSourceMessage = "更新通知失败：\(userFacingErrorMessage(error))"
+            dataSourceMessage = localizedFormat("notifications.message.update_failed", userFacingErrorMessage(error))
         }
     }
 
@@ -711,9 +692,9 @@ final class AppStore: ObservableObject {
                 }
                 let updated = try await notificationService.dismiss(id: notification.id)
                 upsertNotification(updated)
-                dataSourceMessage = "\(dataMode.apiLabel) 已移除通知"
+                dataSourceMessage = localizedFormat("notifications.message.removed", dataMode.apiLabel(language: appLanguage))
             } catch {
-                dataSourceMessage = "移除通知失败：\(userFacingErrorMessage(error))"
+                dataSourceMessage = localizedFormat("notifications.message.remove_failed", userFacingErrorMessage(error))
             }
         }
     }
@@ -740,7 +721,7 @@ final class AppStore: ObservableObject {
             let created: ChapterCreationResult
             switch targetMode {
             case .mock:
-                dataSourceMessage = "当前使用 Mock 数据生成。"
+                dataSourceMessage = localized("debug.message.using_mock_generation")
                 created = chapterService.createChapter(from: parsedInput)
             case .localAPI, .cloudAPI:
                 guard let client = apiClient(for: targetMode) else {
@@ -753,13 +734,13 @@ final class AppStore: ObservableObject {
                 if targetMode == .cloudAPI {
                     await syncPushTokenIfAuthorized()
                 }
-                dataSourceMessage = "正在提交到\(targetMode.apiLabel)..."
+                dataSourceMessage = localizedFormat("debug.message.submit_to_api", targetMode.apiLabel(language: appLanguage))
                 let chapterService = LocalAPIChapterService(apiClient: client)
                 created = try await chapterService.createChapter(from: parsedInput)
                 if targetMode == .cloudAPI {
                     await syncPushTokenIfAuthorized()
                 }
-                dataSourceMessage = "\(targetMode.apiLabel)已接收，正在生成章节..."
+                dataSourceMessage = localizedFormat("debug.message.accepted_generating", targetMode.apiLabel(language: appLanguage))
                 #if DEBUG
                 print("[ShiBei] AppStore.createChapter accepted chapter=\(created.chapter.id), status=\(created.chapter.status.rawValue)")
                 #endif
@@ -774,7 +755,7 @@ final class AppStore: ObservableObject {
             }
             return true
         } catch {
-            dataSourceMessage = "\(targetMode.apiLabel)提交失败：\(userFacingErrorMessage(error))"
+            dataSourceMessage = localizedFormat("debug.message.submit_failed", targetMode.apiLabel(language: appLanguage), userFacingErrorMessage(error))
             #if DEBUG
             print("[ShiBei] AppStore.createChapter failed target=\(targetMode.rawValue), error=\(error.localizedDescription)")
             #endif
@@ -806,9 +787,9 @@ final class AppStore: ObservableObject {
             if granted {
                 await syncPushTokenIfAuthorized()
             }
-            dataSourceMessage = granted ? "通知已开启，生成完成后会提醒你" : "你可以在 App 内通知页查看生成结果"
+            dataSourceMessage = granted ? localized("push.message.enabled_generation") : localized("push.message.denied_in_app")
         } catch {
-            dataSourceMessage = "通知权限请求失败：\(userFacingErrorMessage(error))"
+            dataSourceMessage = localizedFormat("push.message.permission_failed", userFacingErrorMessage(error))
         }
     }
 
@@ -857,6 +838,7 @@ final class AppStore: ObservableObject {
         feedbackSheetContext = nil
         selectedFeedbackQuestionId = nil
         latestFeedbackMessage = ""
+        latestFeedbackWasSevere = false
         lastAnsweredQuestion = nil
         favoriteReviewQuestionIds = []
         favoriteReviewRecords = []
@@ -864,7 +846,7 @@ final class AppStore: ObservableObject {
         favoriteReviewActive = false
         chapterSection = .chapters
         dataMode = .mock
-        dataSourceMessage = "已切换到 \(scenario.title)"
+        dataSourceMessage = localized("debug.message.mock_scenario_applied")
         isWritingChapter = false
         isSubmittingReview = false
         cancelGenerationPolling()
@@ -879,13 +861,14 @@ final class AppStore: ObservableObject {
         route = .home
         chapterDetailReturnRoute = .chapters
         dataMode = .mock
-        dataSourceMessage = "Mock 数据已就绪"
+        dataSourceMessage = localized("debug.message.mock_ready")
         showingSubmittedToast = false
         showingNotificationEducation = false
         showingDeleteConfirmation = false
         feedbackSheetContext = nil
         selectedFeedbackQuestionId = nil
         latestFeedbackMessage = ""
+        latestFeedbackWasSevere = false
         lastAnsweredQuestion = nil
         favoriteReviewQuestionIds = []
         favoriteReviewRecords = []
@@ -909,12 +892,12 @@ final class AppStore: ObservableObject {
         let normalized = value.trimmingCharacters(in: .whitespacesAndNewlines)
         cloudAPIBaseURLString = normalized
         UserDefaults.standard.set(normalized, forKey: cloudAPIBaseURLKey)
-        dataSourceMessage = normalized.isEmpty ? "请填写 Railway 云端 API 地址" : "Railway 云端地址已保存"
+        dataSourceMessage = normalized.isEmpty ? localized("debug.message.enter_cloud_url") : localized("debug.message.cloud_url_saved")
     }
 
     func resetAnonymousDeviceIdentity() {
         anonymousDeviceId = deviceIdentityStore.resetDeviceId()
-        dataSourceMessage = "已重置匿名设备身份，请重新读取云端 API。"
+        dataSourceMessage = localized("debug.message.device_reset")
         if dataMode != .mock {
             chapters = []
             notifications = []
@@ -926,7 +909,7 @@ final class AppStore: ObservableObject {
 
     private func loadAPIReadOnly(mode: AppDataMode) async {
         isLoadingLocalAPI = true
-        dataSourceMessage = "正在读取\(mode.apiLabel)..."
+        dataSourceMessage = localizedFormat("debug.message.reading_api", mode.apiLabel(language: appLanguage))
         guard let client = apiClient(for: mode) else {
             dataMode = .mock
             dataSourceMessage = missingAPIMessage(for: mode)
@@ -940,9 +923,9 @@ final class AppStore: ObservableObject {
             selectedTab = .home
             route = .home
             dataMode = mode
-            dataSourceMessage = "已从\(mode.apiLabel)读取 \(chapters.count) 个章节、\(notifications.count) 条通知"
+            dataSourceMessage = localizedFormat("debug.message.read_api_success", mode.apiLabel(language: appLanguage), chapters.count, notifications.count)
         } catch {
-            dataSourceMessage = "\(mode.apiLabel)读取失败：\(userFacingErrorMessage(error))"
+            dataSourceMessage = localizedFormat("debug.message.read_api_failed", mode.apiLabel(language: appLanguage), userFacingErrorMessage(error))
         }
         isLoadingLocalAPI = false
     }
@@ -956,7 +939,7 @@ final class AppStore: ObservableObject {
             case .mock:
                 clearCurrentStateForCloudSubmission()
                 persistFavoriteQuestions()
-                dataSourceMessage = "本机测试数据已删除"
+                dataSourceMessage = localized("debug.message.local_data_deleted")
             case .localAPI, .cloudAPI:
                 guard let client = activeAPIClient else {
                     dataSourceMessage = missingAPIMessage(for: dataMode)
@@ -964,7 +947,7 @@ final class AppStore: ObservableObject {
                 }
                 _ = try await client.deleteDeviceData()
                 clearCurrentStateForCloudSubmission()
-                dataSourceMessage = "你的数据已删除"
+                dataSourceMessage = localized("debug.message.my_data_deleted")
             }
             selectedTab = .home
             route = .home
@@ -974,6 +957,7 @@ final class AppStore: ObservableObject {
             feedbackSheetContext = nil
             selectedFeedbackQuestionId = nil
             latestFeedbackMessage = ""
+            latestFeedbackWasSevere = false
             lastAnsweredQuestion = nil
             favoriteReviewQuestionIds = []
             favoriteReviewRecords = []
@@ -982,7 +966,7 @@ final class AppStore: ObservableObject {
             chapterSection = .chapters
             return true
         } catch {
-            dataSourceMessage = "删除数据失败：\(userFacingErrorMessage(error))"
+            dataSourceMessage = localizedFormat("debug.message.delete_data_failed", userFacingErrorMessage(error))
             return false
         }
     }
@@ -1002,9 +986,9 @@ final class AppStore: ObservableObject {
                     dataSourceMessage = missingAPIMessage(for: dataMode)
                     return
                 }
-                dataSourceMessage = "正在请求\(dataMode.apiLabel)重新生成..."
+                dataSourceMessage = localizedFormat("debug.message.request_regenerate", dataMode.apiLabel(language: appLanguage))
                 result = try await chapterService.regenerateChapter(chapter)
-                dataSourceMessage = "\(dataMode.apiLabel)已重新生成：\(result.chapter.visibleStatusText)"
+                dataSourceMessage = localizedFormat("debug.message.regenerated", dataMode.apiLabel(language: appLanguage), result.chapter.visibleStatusText(language: appLanguage))
             }
             upsertChapter(result.chapter)
             if dataMode != .mock, result.chapter.status.isProcessing {
@@ -1018,7 +1002,7 @@ final class AppStore: ObservableObject {
             route = .home
             showingSubmittedToast = true
         } catch {
-            dataSourceMessage = "重新生成失败：\(userFacingErrorMessage(error))"
+            dataSourceMessage = localizedFormat("debug.message.regenerate_failed", userFacingErrorMessage(error))
         }
     }
 
@@ -1038,19 +1022,19 @@ final class AppStore: ObservableObject {
                     dataSourceMessage = missingAPIMessage(for: dataMode)
                     return
                 }
-                dataSourceMessage = "正在请求\(dataMode.apiLabel)删除章节..."
+                dataSourceMessage = localizedFormat("debug.message.request_delete", dataMode.apiLabel(language: appLanguage))
                 _ = try await chapterService.deleteChapter(selectedChapterId)
                 chapters.removeAll { $0.id == selectedChapterId }
                 notifications.removeAll { $0.chapterId == selectedChapterId }
                 favoriteQuestions.removeAll { $0.chapterId == selectedChapterId }
                 generationPollTasks[selectedChapterId]?.cancel()
                 generationPollTasks[selectedChapterId] = nil
-                dataSourceMessage = "\(dataMode.apiLabel)已删除章节"
+                dataSourceMessage = localizedFormat("debug.message.deleted_chapter", dataMode.apiLabel(language: appLanguage))
             }
             self.selectedChapterId = activeHomeChapter?.id ?? chapters.first?.id
             returnFromChapterDetail()
         } catch {
-            dataSourceMessage = "删除失败：\(userFacingErrorMessage(error))"
+            dataSourceMessage = localizedFormat("debug.message.delete_failed", userFacingErrorMessage(error))
         }
     }
 
@@ -1072,9 +1056,9 @@ final class AppStore: ObservableObject {
                 }
                 let updated = try await notificationService.dismiss(id: notification.id)
                 upsertNotification(updated)
-                dataSourceMessage = "\(dataMode.apiLabel)已隐藏失败通知"
+                dataSourceMessage = localizedFormat("notifications.message.failure_hidden", dataMode.apiLabel(language: appLanguage))
             } catch {
-                dataSourceMessage = "隐藏通知失败：\(userFacingErrorMessage(error))"
+                dataSourceMessage = localizedFormat("notifications.message.failure_hide_failed", userFacingErrorMessage(error))
             }
         }
         returnFromChapterDetail()
@@ -1101,14 +1085,14 @@ final class AppStore: ObservableObject {
                     dataSourceMessage = missingAPIMessage(for: dataMode)
                     return
                 }
-                dataSourceMessage = "正在恢复\(dataMode.apiLabel)复习会话..."
+                dataSourceMessage = localizedFormat("debug.message.restore_review_session", dataMode.apiLabel(language: appLanguage))
                 let response = try await reviewService.startOrResumeSession(for: target)
                 upsertChapter(response.chapter)
-                dataSourceMessage = "\(dataMode.apiLabel)复习会话已就绪"
+                dataSourceMessage = localizedFormat("debug.message.review_session_ready", dataMode.apiLabel(language: appLanguage))
             }
             route = .review
         } catch {
-            dataSourceMessage = "开始复习失败：\(userFacingErrorMessage(error))"
+            dataSourceMessage = localizedFormat("debug.message.start_review_failed", userFacingErrorMessage(error))
         }
     }
 
@@ -1128,10 +1112,10 @@ final class AppStore: ObservableObject {
                     dataSourceMessage = missingAPIMessage(for: dataMode)
                     return
                 }
-                dataSourceMessage = "正在提交答题..."
+                dataSourceMessage = localized("debug.message.submitting_answer")
                 let response = try await reviewService.submitAttempt(chapter: chapter, session: session, question: question, answer: answer, result: result)
                 updated = AttemptSubmissionResult(chapter: response.chapter, session: response.reviewSession, attempt: response.attempt)
-                dataSourceMessage = "答题已同步到\(dataMode.apiLabel)"
+                dataSourceMessage = localizedFormat("debug.message.answer_synced", dataMode.apiLabel(language: appLanguage))
             }
             upsertChapter(updated.chapter)
             if updated.session.status == .completed {
@@ -1142,7 +1126,7 @@ final class AppStore: ObservableObject {
                 route = .explanation
             }
         } catch {
-            dataSourceMessage = "答题提交失败：\(userFacingErrorMessage(error))"
+            dataSourceMessage = localizedFormat("debug.message.answer_submit_failed", userFacingErrorMessage(error))
         }
     }
 
@@ -1180,7 +1164,7 @@ final class AppStore: ObservableObject {
             return
         }
         if reviewService.currentQuestion(in: chapter) == nil {
-            dataSourceMessage = "复习队列暂时没有可继续的题目，请返回章节后重试。"
+            dataSourceMessage = localized("debug.message.review_queue_empty")
         } else {
             route = .review
         }
@@ -1209,29 +1193,32 @@ final class AppStore: ObservableObject {
             case .mock:
                 let result = reviewService.submitFeedback(chapter: chapter, session: session, questionId: questionId, type: type)
                 upsertChapter(result.chapter)
-                latestFeedbackMessage = result.message
+                latestFeedbackWasSevere = type.isSevere
+                latestFeedbackMessage = type.isSevere ? localized("feedback.message.removed") : localized("feedback.message.received")
             case .localAPI, .cloudAPI:
                 guard let reviewService = activeReviewService else {
                     dataSourceMessage = missingAPIMessage(for: dataMode)
                     return
                 }
-                dataSourceMessage = "正在提交题目反馈..."
+                dataSourceMessage = localized("debug.message.submitting_feedback")
                 let response = try await reviewService.submitFeedback(questionId: questionId, type: type)
                 upsertChapter(response.chapter)
-                latestFeedbackMessage = response.feedback.feedbackType.isSevere ? "已收到，这道题已从本次复习移除" : "已收到，后续会减少出现"
-                dataSourceMessage = "题目反馈已同步到\(dataMode.apiLabel)"
+                latestFeedbackWasSevere = response.feedback.feedbackType.isSevere
+                latestFeedbackMessage = response.feedback.feedbackType.isSevere ? localized("feedback.message.removed") : localized("feedback.message.received")
+                dataSourceMessage = localizedFormat("debug.message.feedback_synced", dataMode.apiLabel(language: appLanguage))
             }
         } catch {
-            dataSourceMessage = "题目反馈提交失败：\(userFacingErrorMessage(error))"
+            dataSourceMessage = localizedFormat("debug.message.feedback_submit_failed", userFacingErrorMessage(error))
         }
     }
 
     func continueAfterFeedback() {
         feedbackSheetContext = nil
-        if latestFeedbackMessage.contains("移除") {
+        if latestFeedbackWasSevere {
             nextQuestion()
         }
         latestFeedbackMessage = ""
+        latestFeedbackWasSevere = false
         selectedFeedbackQuestionId = nil
     }
 
@@ -1279,7 +1266,7 @@ final class AppStore: ObservableObject {
             if let latestNotifications = try? await client.fetchNotifications() {
                 notifications = latestNotifications
             }
-            dataSourceMessage = "\(dataMode.apiLabel)已刷新章节：\(chapter.visibleStatusText)"
+            dataSourceMessage = localizedFormat("debug.message.chapter_refreshed", dataMode.apiLabel(language: appLanguage), chapter.visibleStatusText(language: appLanguage))
         } catch {
             await handleMissingOrFailedAPIChapter(error, chapterId: selectedChapterId, mode: dataMode)
         }
@@ -1341,7 +1328,7 @@ final class AppStore: ObservableObject {
     private func startGenerationPolling(for chapterId: String, mode: AppDataMode) {
         guard let client = apiClient(for: mode) else { return }
         generationPollTasks[chapterId]?.cancel()
-        let modeLabel = mode.apiLabel
+        let modeLabel = mode.apiLabel(language: appLanguage)
         generationPollTasks[chapterId] = Task { [weak self, client, mode, modeLabel] in
             for _ in 0..<240 {
                 do {
@@ -1360,9 +1347,9 @@ final class AppStore: ObservableObject {
                             self.notifications = latestNotifications
                         }
                         if chapter.status.isProcessing {
-                            self.dataSourceMessage = "\(modeLabel)正在生成：\(chapter.visibleStatusText)"
+                            self.dataSourceMessage = self.localizedFormat("debug.message.generation_in_progress", modeLabel, chapter.visibleStatusText(language: self.appLanguage))
                         } else {
-                            self.dataSourceMessage = "\(modeLabel)生成结束：\(chapter.visibleStatusText)"
+                            self.dataSourceMessage = self.localizedFormat("debug.message.generation_finished", modeLabel, chapter.visibleStatusText(language: self.appLanguage))
                             self.generationPollTasks[chapterId] = nil
                         }
                     }
@@ -1399,7 +1386,7 @@ final class AppStore: ObservableObject {
             await refreshAPIStateAfterMissingChapter(chapterId: chapterId, mode: mode)
             return
         }
-        dataSourceMessage = "刷新生成状态失败：\(userFacingErrorMessage(error))"
+        dataSourceMessage = localizedFormat("debug.message.refresh_generation_failed", userFacingErrorMessage(error))
     }
 
     private func refreshAPIStateAfterMissingChapter(chapterId: String, mode: AppDataMode) async {
@@ -1414,24 +1401,24 @@ final class AppStore: ObservableObject {
             dataMode = mode
             if latestChapters.contains(where: { $0.id == chapterId }) {
                 selectedChapterId = chapterId
-                dataSourceMessage = "\(mode.apiLabel)已重新同步章节状态"
+                dataSourceMessage = localizedFormat("debug.message.resynced_chapter", mode.apiLabel(language: appLanguage))
                 return
             }
             if latestChapters.isEmpty {
                 selectedChapterId = nil
                 selectedTab = .home
                 route = .home
-                dataSourceMessage = "\(mode.apiLabel)当前没有章节"
+                dataSourceMessage = localizedFormat("debug.message.no_chapters", mode.apiLabel(language: appLanguage))
                 return
             }
             if let staleChapter {
                 upsertChapter(expiredCloudChapter(from: staleChapter))
                 selectedChapterId = chapterId
-                dataSourceMessage = "云端记录已失效，请重新提交内容"
+                dataSourceMessage = localized("debug.message.cloud_record_expired")
             }
         } catch {
             markChapterAsCloudExpired(chapterId)
-            dataSourceMessage = "云端记录已失效，请重新提交内容"
+            dataSourceMessage = localized("debug.message.cloud_record_expired")
         }
     }
 
@@ -1439,19 +1426,19 @@ final class AppStore: ObservableObject {
         updateChapter(chapterId) { chapter in
             chapter = expiredCloudChapter(from: chapter)
         }
-        dataSourceMessage = "云端记录已失效，请重新提交内容"
+        dataSourceMessage = localized("debug.message.cloud_record_expired")
     }
 
     private func expiredCloudChapter(from chapter: Chapter) -> Chapter {
         var expired = chapter
         expired.status = .failedQuestions
-        expired.displayStatusText = "云端记录已失效"
-        expired.failureReason = "这条生成记录已经失效，请重新提交内容。"
+        expired.displayStatusText = localized("debug.message.cloud_record_expired_status")
+        expired.failureReason = localized("debug.message.cloud_record_expired_reason")
         expired.generationMeta = GenerationMeta(
             currentStage: ChapterStatus.failedQuestions.rawValue,
             qualifiedQuestionCount: chapter.generationMeta?.qualifiedQuestionCount,
             failedStage: ChapterStatus.failedQuestions.rawValue,
-            failureReason: "云端记录已失效，请重新提交内容"
+            failureReason: localized("debug.message.cloud_record_expired")
         )
         expired.updatedAt = Date.nowISO8601
         return expired
@@ -1465,34 +1452,34 @@ final class AppStore: ObservableObject {
     private func missingAPIMessage(for mode: AppDataMode) -> String {
         switch mode {
         case .mock:
-            "当前使用本机测试数据。"
+            localized("debug.message.local_mock")
         case .localAPI:
-            "本地服务暂时不可用。"
+            localized("debug.message.local_unavailable")
         case .cloudAPI:
-            "暂时无法连接拾贝云端，请稍后再试。"
+            localized("debug.message.cloud_unavailable")
         }
     }
 
     private func userFacingErrorMessage(_ error: Error) -> String {
         if case APIClientError.decoding = error {
-            return "服务返回内容暂时无法读取，请稍后再试。"
+            return localized("error.decode_failed")
         }
         if case APIClientError.httpStatus(let statusCode) = error {
-            if statusCode == 404 { return "内容不存在或已被删除。" }
-            if statusCode == 422 { return "当前内容暂时不能完成这个操作。" }
-            if statusCode >= 500 { return "服务暂时繁忙，请稍后再试。" }
+            if statusCode == 404 { return localized("error.not_found") }
+            if statusCode == 422 { return localized("error.unprocessable") }
+            if statusCode >= 500 { return localized("error.server_busy") }
         }
         if case APIClientError.invalidResponse = error {
-            return "服务响应异常，请稍后再试。"
+            return localized("error.invalid_response")
         }
         if case APIClientError.serverMessage(let message) = error {
             return message
         }
         let nsError = error as NSError
         if nsError.domain == NSURLErrorDomain {
-            return "网络连接失败，请检查网络后重试。"
+            return localized("error.network_failed")
         }
-        return "操作失败，请稍后再试。"
+        return localized("error.generic_failed")
     }
 
     private func updateChapter(_ id: String, mutate: (inout Chapter) -> Void) {
@@ -1719,8 +1706,8 @@ final class MockChapterService: ChapterServicing {
             id: "notification-\(UUID().uuidString)",
             chapterId: chapter.id,
             type: .generationCompleted,
-            title: "生成完成",
-            body: "\(chapter.title) 已生成，可以开始复习",
+            title: "generation_completed",
+            body: chapter.title,
             read: false,
             dismissed: false,
             createdAt: Date.nowISO8601
@@ -1734,8 +1721,8 @@ final class MockChapterService: ChapterServicing {
             id: "notification-\(UUID().uuidString)",
             chapterId: regenerated.id,
             type: .generationCompleted,
-            title: "生成完成",
-            body: "\(regenerated.title) 已生成，可以开始复习",
+            title: "generation_completed",
+            body: regenerated.title,
             read: false,
             dismissed: false,
             createdAt: Date.nowISO8601
@@ -1868,7 +1855,7 @@ final class MockReviewService: ReviewServicing {
         var chapter = chapter
         var session = session
         guard let question = chapter.questions.first(where: { $0.id == questionId }) else {
-            return FeedbackSubmissionResult(chapter: chapter, message: "没有找到这道题")
+            return FeedbackSubmissionResult(chapter: chapter, message: "question_not_found")
         }
 
         let severe = type.isSevere
@@ -1922,7 +1909,7 @@ final class MockReviewService: ReviewServicing {
         chapter.feedbackRecords.append(feedback)
         chapter.reviewSession = session
         updateLifetimeMasteredPoints(for: &chapter, session: session)
-        let message = severe ? "已收到，这道题已从本次复习移除" : "已收到，后续会减少出现"
+        let message = severe ? "feedback_removed" : "feedback_received"
         return FeedbackSubmissionResult(chapter: chapter, message: message)
     }
 
@@ -2252,8 +2239,8 @@ enum MockNotificationFactory {
             id: "notification-\(chapter.id)",
             chapterId: chapter.id,
             type: .generationFailed,
-            title: "生成失败",
-            body: "题目暂时没有通过质量检查，点击查看处理建议",
+            title: "generation_failed",
+            body: chapter.title,
             read: false,
             dismissed: false,
             createdAt: Date.nowISO8601

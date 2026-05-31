@@ -88,7 +88,15 @@ QUALITY_OUTPUT_BASENAME=2026-05-18-source-context npm --prefix backend run quali
 
 `reviewRows` 同时包含对应知识点的结构字段：`knowledgeStructureRole`、`knowledgeImportanceScore`、`knowledgeCoverageReason`。本轮以后需要同时检查题目质量和知识点是否符合“主线 + 可用方法型”：是否覆盖文章主线、是否可迁移、是否过碎。
 
-`reviewRows` 也会包含题目可信度诊断：`trustDiagnostics`、`confidenceReasons`、`blockingReasons`。它们用于回答“机器为什么认为这题高置信、低置信或不可入池”，重点辅助人工定位来源支撑、解释一致性和上下文定位问题；这些字段不能替代人工金标。
+`reviewRows` 也会包含题目可信度诊断：`trustDiagnostics`、`confidenceReasons`、`blockingReasons`、`confidenceTier`。它们用于回答“机器为什么认为这题高置信、低置信或不可入池”，重点辅助人工定位来源支撑、解释一致性和上下文定位问题；这些字段不能替代人工金标。
+
+来源评分拆成三层：
+
+- `source_support`：来源是否能支撑正确答案和解释。
+- `source_precision`：来源是否精准、克制、适合作为解释页回看片段。
+- `source_minimality`：来源是否是“最小充分证据”。一个大段来源可能能支撑答案，但如果本题只需要其中 1-2 句，仍应扣分。
+
+机器结果会额外输出 `sourceMinimalityScore`、`sourceEvidenceRole`、`sourceBlockId`、`sourceEvidenceDiversityScore`、`sourceReuseReason`、`sourceOverlapRatio`、`sourceOverlapGroupId`。这些字段用于发现“很多题共用同一大段来源 / 同一证据块”的问题，人工审查时要区分“能支撑答案”和“能帮助用户快速回到原文关键节点”。
 
 ## 人工审查流程
 
@@ -178,6 +186,26 @@ results/<run>.json
 results/<run>.manual-review.csv
 results/<run>.manual-analysis.md
 ```
+
+单篇固定基准使用结构化目录，避免报告膨胀：
+
+```text
+results/single-article/<slug>/README.md
+results/single-article/<slug>/runs/<run>.json
+results/single-article/<slug>/reviews/<run>.csv
+results/single-article/<slug>/analysis/<run>.md
+```
+
+单篇实验运行命令：
+
+```bash
+QUALITY_ARTICLE_URL=<article-url> \
+QUALITY_EXPERIMENT_SLUG=<stable-slug> \
+QUALITY_EXPERIMENT_LABEL=<short-label> \
+npm --prefix backend run quality:single
+```
+
+`README.md` 只写实验假设、prompt/规则改动、关键指标、结论和下一轮问题；完整脱敏数据留在 `runs/`，人工审查表留在 `reviews/`。
 
 只有当同一批 baseline 的人工可用率不下降，且 P0 问题没有变多，才保留本轮改动。
 

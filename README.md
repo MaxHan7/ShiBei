@@ -20,9 +20,14 @@
 2. `docs/macbook-xcode-migration-handoff-zh.md`：项目交接总说明。
 3. `docs/ios-api-data-contract-zh.md`：iOS 数据模型和 API 契约。
 4. `docs/xcode-first-sprint-plan-zh.md`：Xcode 第一轮开发准备计划。
-5. `tasks/prd-ai-knowledge-review-ios.md`：完整 PRD。
-6. `demo/README.md`：HTML Demo 运行方式。
-7. `quality-test-set/README.md`：题目质量测试集说明。
+5. `docs/railway-cloud-prototype-zh.md`：Railway 云端原型部署和验证说明。
+6. `docs/production-readiness-review-zh.md`：生产就绪度风险台账和整改路线图。
+7. `docs/production-hardening-plan-zh.md`：P0 生产化分阶段推进计划。
+8. `docs/production-hardening-stage-0-baseline-zh.md`：P0 阶段 0 接口和状态基线。
+9. `docs/production-hardening-stage-1-queue-plan-zh.md`：P0 阶段 1 生成任务队列化实施计划。
+10. `tasks/prd-ai-knowledge-review-ios.md`：完整 PRD。
+11. `demo/README.md`：HTML Demo 运行方式。
+12. `quality-test-set/README.md`：题目质量测试集说明。
 
 ## 当前目录结构
 

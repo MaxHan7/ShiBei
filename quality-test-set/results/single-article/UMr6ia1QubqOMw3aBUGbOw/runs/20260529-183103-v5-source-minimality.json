@@ -1,0 +1,316 @@
+{
+  "generatedAt": "2026-05-29T18:42:02.518Z",
+  "articleUrl": "https://mp.weixin.qq.com/s/UMr6ia1QubqOMw3aBUGbOw",
+  "slug": "UMr6ia1QubqOMw3aBUGbOw",
+  "label": "v5-source-minimality",
+  "source": {
+    "title": "和AI产品经理聊天，她说\"我用Vibe coding做Demo\"，我问她：怎么用hook？她说我一般用claude code",
+    "account": "MetaTown",
+    "url": "https://mp.weixin.qq.com/s/UMr6ia1QubqOMw3aBUGbOw",
+    "type": "article_link",
+    "rawTextLength": 3927
+  },
+  "config": {
+    "experimentType": "single_article",
+    "label": "v5-source-minimality"
+  },
+  "summary": {
+    "sampleCount": 1,
+    "successCount": 0,
+    "failureCount": 1,
+    "successRate": 0,
+    "knowledgePointCount": 0,
+    "qualifiedQuestionCount": 0,
+    "averageQuestionsPerPoint": 0,
+    "questionCountDistribution": {},
+    "questionTypeCoverage": {},
+    "memoryAngleCoverage": {},
+    "confidenceTierFrequency": {},
+    "averageSourcePrecisionScore": 0,
+    "averageSourceMinimalityScore": 0,
+    "sourceReuseTop": [],
+    "sourceOverlapTop": [],
+    "threeQuestionPointRate": 0,
+    "lowConfidenceQuestionCount": 0,
+    "lowConfidenceQuestionRate": 0,
+    "coveredKnowledgePointCount": 0,
+    "uncoveredKnowledgePointCount": 0,
+    "questionCoverageRate": 0,
+    "averageQualityScore": 0,
+    "seriousIssueCount": 0,
+    "issueFrequency": {
+      "模型返回内容不是可解析 JSON，请重试。": 1
+    },
+    "machineIssueCategoryFrequency": {
+      "structure_invalid": 1
+    },
+    "trustReasonFrequency": {},
+    "blockingReasonFrequency": {}
+  },
+  "reviewRows": [
+    {
+      "sample": "UMr6ia1QubqOMw3aBUGbOw.article",
+      "sampleTitle": "和AI产品经理聊天，她说\"我用Vibe coding做Demo\"，我问她：怎么用hook？她说我一般用claude code",
+      "sampleTopic": "single_article",
+      "status": "failed_questions",
+      "questionId": "",
+      "knowledgePoint": "",
+      "knowledgePointId": "",
+      "knowledgeStructureRole": "",
+      "knowledgeImportanceScore": "",
+      "knowledgeCoverageReason": "",
+      "questionType": "",
+      "stem": "",
+      "options": "",
+      "correctOptionId": "",
+      "correctAnswerText": "",
+      "correctUnderstanding": "",
+      "commonMisconception": "",
+      "sourceSnippet": "",
+      "memoryAngle": "",
+      "confidenceLevel": "",
+      "confidenceTier": "",
+      "retainedBy": "",
+      "sourceContextScore": "",
+      "sourcePrecisionScore": "",
+      "sourceSpecificityScore": "",
+      "sourceMinimalityScore": "",
+      "sourceEvidenceRole": "",
+      "sourceOverlapRatio": "",
+      "sourceOverlapGroupId": "",
+      "sourceReuseCount": "",
+      "sourceContextSelection": "",
+      "trustDiagnostics": "",
+      "confidenceReasons": "",
+      "blockingReasons": "",
+      "primaryBlockingReason": "",
+      "repairHint": "",
+      "machineAverageScore": "",
+      "machineIssues": "模型返回内容不是可解析 JSON，请重试。",
+      "machineIssueCategory": "structure_invalid",
+      "human_status": "",
+      "primary_issue": "",
+      "secondary_issue": "",
+      "source_support": "",
+      "source_precision": "",
+      "source_minimality": "",
+      "source_evidence_role": "",
+      "source_overlap_ratio": "",
+      "source_overlap_group": "",
+      "answer_uniqueness": "",
+      "understanding_depth": "",
+      "clarity": "",
+      "distractor_quality": "",
+      "explanation_faithfulness": "",
+      "review_value": "",
+      "blame_stage": "",
+      "option_issue": "",
+      "training_label_eligible": "",
+      "human_verified": "",
+      "review_decision": "",
+      "notes": ""
+    }
+  ],
+  "result": {
+    "file": "UMr6ia1QubqOMw3aBUGbOw.article",
+    "sampleSet": "single_article",
+    "sampleMeta": {
+      "title": "和AI产品经理聊天，她说\"我用Vibe coding做Demo\"，我问她：怎么用hook？她说我一般用claude code",
+      "sourceType": "article_link",
+      "topic": "single_article",
+      "difficulty": "unknown",
+      "structureType": "unknown",
+      "expectedFocus": [],
+      "reviewPriority": "diagnostic"
+    },
+    "startedAt": "2026-05-29T18:42:02.518Z",
+    "status": "failed_questions",
+    "chapter": {
+      "title": "和AI产品经理聊天，她说\"我用Vibe coding做Demo\"，我问她：怎么用hook？她说我一般用claude code",
+      "sourceType": "text",
+      "status": "failed_questions",
+      "displayStatusText": "题目生成失败",
+      "failureReason": "模型返回内容不是可解析 JSON，请重试。",
+      "source": {
+        "type": "article_link",
+        "title": "和AI产品经理聊天，她说\"我用Vibe coding做Demo\"，我问她：怎么用hook？她说我一般用claude code",
+        "url": "https://mp.weixin.qq.com/s/UMr6ia1QubqOMw3aBUGbOw",
+        "account": "MetaTown",
+        "rawText": "[redacted: full source text omitted]",
+        "cleanedText": "[redacted: full source text omitted]",
+        "rawTextLength": 3927,
+        "cleanedTextLength": 3927
+      },
+      "knowledgePoints": [],
+      "filteredKnowledgePoints": [],
+      "questions": [],
+      "coreSummary": "",
+      "qualitySummary": null,
+      "generationMeta": {
+        "generationRunId": "chapter_20260529183111_p877ux",
+        "startedAt": "2026-05-29T18:31:10.999Z",
+        "currentStage": "failed_questions",
+        "stages": [
+          {
+            "status": "submitted",
+            "at": "2026-05-29T18:31:10.999Z"
+          },
+          {
+            "status": "generating_points",
+            "displayStatusText": "正在生成知识点",
+            "at": "2026-05-29T18:31:11.007Z"
+          },
+          {
+            "status": "generating_questions",
+            "displayStatusText": "正在生成题目",
+            "at": "2026-05-29T18:31:29.363Z"
+          },
+          {
+            "status": "failed_questions",
+            "displayStatusText": "题目生成失败",
+            "at": "2026-05-29T18:42:02.517Z"
+          }
+        ],
+        "modelUsage": [
+          {
+            "runId": "chapter_20260529183111_p877ux",
+            "stage": "knowledge_points",
+            "provider": "deepseek",
+            "model": "deepseek-v4-flash",
+            "price": {
+              "inputPerMillion": 1,
+              "cachedInputPerMillion": 0.02,
+              "outputPerMillion": 2,
+              "perCallFee": 0,
+              "currency": "CNY",
+              "priceSourceUrl": "https://api-docs.deepseek.com/zh-cn/quick_start/pricing",
+              "checkedAt": "2026-05-26"
+            },
+            "estimated": {
+              "inputTokens": 3761,
+              "cachedInputTokens": 0,
+              "uncachedInputTokens": 3761,
+              "outputTokens": 2400,
+              "totalTokens": 0,
+              "cost": 0.008561,
+              "currency": "CNY"
+            },
+            "actual": {
+              "inputTokens": 3343,
+              "cachedInputTokens": 3328,
+              "uncachedInputTokens": 15,
+              "outputTokens": 2238,
+              "totalTokens": 5581,
+              "cost": 0.00455756,
+              "currency": "CNY"
+            },
+            "diff": {
+              "costDelta": 0.00400344,
+              "costErrorRate": 87.84
+            },
+            "recordedAt": "2026-05-29T18:31:29.339Z"
+          },
+          {
+            "runId": "chapter_20260529183111_p877ux",
+            "stage": "questions_initial",
+            "provider": "deepseek",
+            "model": "deepseek-v4-flash",
+            "price": {
+              "inputPerMillion": 1,
+              "cachedInputPerMillion": 0.02,
+              "outputPerMillion": 2,
+              "perCallFee": 0,
+              "currency": "CNY",
+              "priceSourceUrl": "https://api-docs.deepseek.com/zh-cn/quick_start/pricing",
+              "checkedAt": "2026-05-26"
+            },
+            "estimated": {
+              "inputTokens": 3261,
+              "cachedInputTokens": 0,
+              "uncachedInputTokens": 3261,
+              "outputTokens": 10920,
+              "totalTokens": 0,
+              "cost": 0.025101,
+              "currency": "CNY"
+            },
+            "actual": {
+              "inputTokens": 2835,
+              "cachedInputTokens": 640,
+              "uncachedInputTokens": 2195,
+              "outputTokens": 4316,
+              "totalTokens": 7151,
+              "cost": 0.0108398,
+              "currency": "CNY"
+            },
+            "diff": {
+              "costDelta": 0.0142612,
+              "costErrorRate": 131.56
+            },
+            "recordedAt": "2026-05-29T18:42:02.505Z",
+            "error": "模型返回内容不是可解析 JSON",
+            "parseError": "no_json_object",
+            "rawResponsePreview": "{\n  \"questions\": [\n    {\n      \"knowledgePointId\": \"kp-1\",\n      \"type\": \"multiple_choice\",\n      \"stem\": \"在 Claude Code 语境中，hook 的本质是什么？\",\n      \"options\": [\n        {\"id\": \"A\", \"text\": \"一个在固定节点自动执行命令、HTTP 请求或工具调用的控制器\"},\n        {\"id\": \"B\", \"text\": \"另一种用于引导模型思考的提示词技术\"},\n        {\"id\": \"C\", \"text\": \"一种让模型自己学会遵守规则的自适应机制\"},\n        {\"id\": \"D\", \"text\": \"专门用于在会话结束时检查代码质量的工具\"}\n      ],\n      \"correctOptionId\": \"A\",\n      \"explanation\": \"Hook 不是提示词，而是在固定节点自动触发的控制器。\",\n      \"correctUnderstanding\": \"Hook 是系统自动执行的控制器，独立于模型思考过程。\",\n      \"commonMisconception\": \"容易误以为 hook 只是另一种提示词或模型自觉遵守的规则。\",\n      \"sourceSnippet\": \"在 Claude Code 的语境里，hook 可以先理解成一句话：在 AI agent 的某个固定节点，自动执行你定义好的命令、HTTP 请求、提示词或工具调用。\",\n      \"memoryAngle\": \"core_understanding\",\n      \"difficulty\": \"easy\"\n    },\n    {\n      \"knowledgePointId\": \"kp-1\",\n      \"type\": \"scenario_judgment\",\n      \"stem\": \"产品经理希望每次 AI 改完代码后自动运行 linter 并格式化。以下哪种做法最符合 hook 的设计理念？\",\n      \"options\": [\n        {\"id\": \"A\", \"text\": \"在 prompt 中写“请务必在改完代码后运行 linter 并格式化”\"},\n        {\"id\": \"B\", \"text\": \"在 CLAUDE.md 中说明项目要求每次提交前格式化\"},\n        {\"id\": \"C\", \"text\": \"在 PreToolUse 事件中配置一个 hook，每次工具调用前检查代码格式\"},\n        {\"id\": \"D\", \"text\": \"在 PostToolUse 事件中配置一个 hook，匹配 Edit 或 Write 后自动执行格式化命令\"}\n      ],\n      \"correctOptionId\": \"D\",\n      \"explanation\": \"PostToolUse 在每次工具使用后触发，适合执行格式化等确认性动作。\",\n      \"correctUnderstanding\": \"Hook 是事件驱动的自动化，PostToolUse 匹配 Edit/Write 后执行格式化。\",\n      \"commonMisconception\": \"容易误以为在 prompt 中强调或写在项目文档里就能自动执行，或混淆 PreToolUse 与 PostToolUse 的用途。\",\n      \"sourceSnippet\": \"第一类，是改完之后自动整理。PostToolUse 可以匹配 Edit 或 Write。\",\n      \"memoryAngle\": \"scenario_application\",\n      \"difficulty\": \"medium\"\n    },\n    {\n      \"knowledgePointId\": \"kp-1\",\n      \"type\": \"multiple_choice\",\n      \"stem\": \"以下关于 hook 与 prompt 的区别，哪一项描述最准确？\",\n      \"options\": [\n        {\"id\": \"A\", \"text\": \"Hook 可以替代 prompt，prompt 不再需要\"},\n        {\"id\": \"B\", \"text\": \"Prompt 是请求模型执行，hook 是系统自动执行\"},\n        {\"id\": \"C\", \"text\": \"Hook 只在会话开始前触发，prompt 在整个会话中生效\"},\n        {\"id\": \"D\", \"text\": \"两者本质相同，只是名称不同\"}\n      ],\n      \"correctOptionId\": \"B\",\n      \"explanation\": \"Prompt 是告诉模型怎么做，hook 是系统层自动执行的确定性动作。\",\n      \"correctUnderstanding\": \"Prompt 依赖模型自觉，hook 依赖机制强制执行。\",\n      \"commonMisconception\": \"容易混淆两者的触发机制和依赖主体。\",\n      \"sourceSnippet\": \"在 Claude Code 的语境里，hook 可以先理解成一句话：在 AI agent 的某个固定节点，自动执行你定义好的命令、HTTP 请求、提示词或工具调用。\",\n      \"memoryAngle\": \"misconception_boundary\",\n      \"difficulty\": \"medium\"\n    },\n    {\n      \"knowledgePointId\": \"kp-2\",\n      \"type\": \"true_false\",\n      \"stem\": \"如果某件事每次都必须发生，只写在 prompt 里就足够了。\",\n      \"options\": [\n        {\"id\": \"A\", \"text\": \"成立\"},\n        {\"id\": \"B\", \"text\": \"不成立\"}\n      ],\n      \"correctOptionId\": \"B\",\n      \"explanation\": \"Prompt 是请求模型记住，hook 是系统执行。每次都需要的动作应使用 hook 来保证。\",\n      \"correctUnderstanding\": \"对于确定性、必须执行的操作，hook 比 prompt 更可靠。\",\n      \"commonMisconception\": \"误以为 prompt 能完全约束模型行为，忽视模型可能忘记或忽略。\",\n      \"sourceSnippet\": \"一个判断标准：如果某件事“每次都必须发生”，就不要只写在 prompt 里。\",\n      \"memoryAngle\": \"core_understanding\",\n      \"difficulty\": \"easy\"\n    },\n    {\n      \"knowledgePointId\": \"kp-2\",\n      \"type\": \"scenario_judgment\",\n      \"stem\": \"你在团队中使用 Claude Code，每次 AI 修改代码后都需要自动运行测试并将结果记录到日志。以下哪种处理方式最合理？\",\n      \"options\": [\n        {\"id\": \"A\", \"text\": \"在 prompt 中强调“每次改完代码必须运行测试并记录日志”\"},\n        {\"id\": \"B\", \"text\": \"在 CLAUDE.md 中写清楚要求，让 AI 每次工作前阅读\"},\n        {\"id\": \"C\", \"text\": \"在 PostToolUse 事件中创建一个 hook，匹配 Edit/Write 后自动运行测试并记录\"},\n        {\"id\": \"D\", \"text\": \"信任 AI 会自觉执行，因为这是团队规则\"}\n      ],\n      \"correctOptionId\": \"C\",\n      \"explanation\": \"每次必须发生的动作应使用 hook 确保执行，而不是依赖 prompt 或文档。\",\n      \"correctUnderstanding\": \"Hook 适合确定性、可自动化的重复动作，是系统级保障。\",\n      \"commonMisconception\": \"误认为 prompt 或文档足以保证每次执行，忽视模型的不确定性。\",\n      \"sourceSnippet\": \"一个判断标准：如果某件事“每次都必须发生”，就不要只写在 prompt 里。\",\n      \"memoryAngle\": \"scenario_application\",\n      \"difficulty\": \"medium\"\n    },\n    {\n      \"knowledgePointId\": \"kp-2\",\n      \"type\": \"multiple_choice\",\n      \"stem\": \"以下哪种场景最说明“不应该只写在 prompt 里”的判断原则？\",\n      \"options\": [\n        {\"id\": "
+          }
+        ],
+        "finishedAt": "2026-05-29T18:42:02.518Z",
+        "failedStage": "generating_questions",
+        "failureReason": "模型返回内容不是可解析 JSON，请重试。",
+        "candidateCount": 0,
+        "keptKnowledgePointCount": 0,
+        "filteredKnowledgePointCount": 0,
+        "totalGenerated": 0,
+        "rewrittenCount": 0,
+        "supplementCount": 0,
+        "generationErrorCount": 0,
+        "discardedCount": 0,
+        "qualifiedQuestionCount": 0,
+        "costSummary": {
+          "callCount": 2,
+          "currencies": [
+            "CNY"
+          ],
+          "totalsByCurrency": {
+            "CNY": {
+              "currency": "CNY",
+              "callCount": 2,
+              "totalEstimatedCost": 0.033662,
+              "totalActualCost": 0.01539736,
+              "costDelta": 0.01826464,
+              "costErrorRate": 118.62,
+              "actualCostPerQualifiedQuestion": null
+            }
+          },
+          "byStage": [
+            {
+              "stage": "knowledge_points",
+              "currency": "CNY",
+              "callCount": 1,
+              "estimatedCost": 0.008561,
+              "actualCost": 0.00455756,
+              "costDelta": 0.00400344,
+              "costErrorRate": 87.84
+            },
+            {
+              "stage": "questions_initial",
+              "currency": "CNY",
+              "callCount": 1,
+              "estimatedCost": 0.025101,
+              "actualCost": 0.0108398,
+              "costDelta": 0.0142612,
+              "costErrorRate": 131.56
+            }
+          ],
+          "reportText": "调用次数：2\n\n阶段 | 模型 | 估算成本 | 实际成本 | 误差\n--- | --- | ---: | ---: | ---:\nknowledge_points | deepseek-v4-flash | ¥0.008561 | ¥0.004558 | +87.84%\nquestions_initial | deepseek-v4-flash | ¥0.025101 | ¥0.010840 | +131.56%\n\n合计（CNY）：估算 ¥0.033662，实际 ¥0.015397，误差 +118.62%"
+        }
+      }
+    },
+    "generationDebug": {
+      "knowledgePoints": [],
+      "filteredKnowledgePoints": [],
+      "evaluatedQuestions": [],
+      "pointDiagnostics": [],
+      "generationErrors": []
+    },
+    "message": "模型返回内容不是可解析 JSON，请重试。"
+  }
+}

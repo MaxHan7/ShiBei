@@ -71,13 +71,23 @@ function apnsHost(environment) {
   return environment === "sandbox" ? "https://api.sandbox.push.apple.com" : "https://api.push.apple.com";
 }
 
-function notificationBody(notification, chapter) {
-  if (notification.type === "generation_failed") {
-    return chapter?.failureReason
-      ? `${chapter.title} 生成失败，点击查看原因。`
-      : `${chapter?.title || "内容"} 生成失败，点击查看原因。`;
+function notificationTitle(notification, language) {
+  if (language === "en") {
+    return notification.type === "generation_failed" ? "Generation failed" : "Generation complete";
   }
-  return `${chapter?.title || "内容"} 已生成，可以开始复习。`;
+  return notification.type === "generation_failed" ? "生成失败" : "生成完成";
+}
+
+function notificationBody(notification, chapter, language) {
+  const title = chapter?.title || (language === "en" ? "Content" : "内容");
+  if (notification.type === "generation_failed") {
+    return language === "en"
+      ? `${title} could not be generated. Tap to see why.`
+      : `${title} 生成失败，点击查看原因。`;
+  }
+  return language === "en"
+    ? `${title} is ready. You can start reviewing.`
+    : `${title} 已生成，可以开始复习。`;
 }
 
 export async function sendGenerationNotification({ token, notification, chapter }) {
@@ -86,12 +96,13 @@ export async function sendGenerationNotification({ token, notification, chapter 
 
   const config = apnsConfig();
   const environment = token.environment === "sandbox" ? "sandbox" : "production";
+  const language = token.preferredLanguage === "en" ? "en" : "zh-Hans";
   const client = http2.connect(apnsHost(environment));
   const payload = {
     aps: {
       alert: {
-        title: notification.type === "generation_failed" ? "生成失败" : "生成完成",
-        body: notificationBody(notification, chapter)
+        title: notificationTitle(notification, language),
+        body: notificationBody(notification, chapter, language)
       },
       sound: "default",
       "thread-id": chapter?.id || notification.chapterId

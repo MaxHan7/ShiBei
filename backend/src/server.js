@@ -1,11 +1,19 @@
 import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import "./env.js";
-import { generateReviewChapter } from "./generation/index.js";
-import { extractSourceContent } from "./sources/extractSourceContent.js";
 import { STATUS_TEXT } from "./generation/types.js";
+import {
+  createGenerationNotification,
+  createRegeneratingChapter,
+  createSubmittedChapter,
+  failedSourceResult,
+  generateFromInput,
+  generationTimeoutError,
+  regenerateFromChapter,
+  withTimeout
+} from "./chapterGeneration.js";
 import {
   applyAnnotation,
   autoLabelReviewRows,
@@ -25,9 +33,11 @@ import {
   deleteDeviceData as deleteDatabaseDeviceData,
   deleteFavoriteQuestion as deleteDatabaseFavoriteQuestion,
   deleteNotificationsForChapter,
+  enqueueGenerationJob,
   ensureDevice,
   getFavoriteQuestion as getDatabaseFavoriteQuestion,
   getChapter as getDatabaseChapter,
+  getGenerationQueueSummary,
   getNotification as getDatabaseNotification,
   hasDatabase,
   initDatabase,
@@ -47,6 +57,7 @@ import { apnsConfigurationSummary, isAPNSConfigured, sendGenerationNotification 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const projectRoot = resolve(__dirname, "..", "..");
 const demoRoot = resolve(projectRoot, "demo");
+const costRunRoot = resolve(projectRoot, ".tmp", "cost-runs");
 const host = process.env.HOST || "0.0.0.0";
 const port = Number(process.env.PORT || 5173);
 const startedAt = new Date().toISOString();
@@ -113,13 +124,23 @@ async function handleCreateChapter(req, res) {
   const body = await readBody(req);
   const deviceId = getDeviceId(req);
   const submittedChapter = await upsertMemoryChapter(deviceId, createSubmittedChapter(body));
+  if (hasDatabase) {
+    await enqueueGenerationJob(deviceId, {
+      id: createId("generation"),
+      chapterId: submittedChapter.id,
+      status: "submitted",
+      currentStage: "submitted",
+      jobType: "create_chapter",
+      payload: { body }
+    });
+  }
   sendJson(res, 202, {
     status: submittedChapter.status,
     chapter: serializeChapterForClient(submittedChapter),
     notification: null,
     message: "已提交，正在生成。"
   });
-  void runChapterGeneration(deviceId, submittedChapter.id, body);
+  if (!hasDatabase) void runChapterGeneration(deviceId, submittedChapter.id, body);
 }
 
 async function handleCreateQualityRun(req, res) {
@@ -168,15 +189,26 @@ async function handleCreateCostRun(req, res) {
   const body = await readBody(req);
   try {
     const result = await generateFromInput(body);
-    sendJson(res, result.status === "completed" ? 200 : 422, buildCostRunResponse(result));
+    const responseBody = buildCostRunResponse(result);
+    const storage = await saveCostRunResponse(responseBody);
+    sendJson(res, result.status === "completed" ? 200 : 422, {
+      ...responseBody,
+      costRunStorage: storage
+    });
   } catch (error) {
     const status = error?.code || error?.status || "failed_questions";
     const message = error instanceof Error ? error.message : "成本计算生成失败，请稍后重试。";
     const statusCode = message.includes("OPENAI_API_KEY") || message.includes("DEEPSEEK_API_KEY") ? 500 : 422;
-    sendJson(res, statusCode, {
+    const responseBody = {
       status,
       errorCode: status,
-      message
+      message,
+      generatedAt: new Date().toISOString()
+    };
+    const storage = await saveCostRunResponse(responseBody);
+    sendJson(res, statusCode, {
+      ...responseBody,
+      costRunStorage: storage
     });
   }
 }
@@ -310,52 +342,6 @@ async function runChapterGeneration(deviceId, chapterId, body) {
   }
 }
 
-function createSubmittedChapter(body = {}) {
-  const now = new Date().toISOString();
-  const sourceType = body.sourceType || "text";
-  const title = body.sourceTitle
-    || body.sourceUrl
-    || body.rawText?.slice?.(0, 24)
-    || "未命名章节";
-  const rawInput = body.rawText || body.sourceUrl || "";
-  return {
-    id: createId("chapter"),
-    title,
-    status: "submitted",
-    displayStatusText: STATUS_TEXT.submitted,
-    failureReason: "",
-    source: {
-      type: sourceType,
-      title,
-      url: body.sourceUrl || "",
-      account: body.sourceAccount || "",
-      accountOrDomain: body.sourceAccount || "",
-      rawInput,
-      rawText: rawInput,
-      extractedText: "",
-      cleanedText: ""
-    },
-    sourceType,
-    sourceText: rawInput,
-    knowledgePoints: [],
-    filteredKnowledgePoints: [],
-    questions: [],
-    qualitySummary: null,
-    generationMeta: {
-      currentStage: "submitted",
-      stages: [{ status: "submitted", displayStatusText: STATUS_TEXT.submitted, at: now }]
-    },
-    reviewSession: null,
-    masteredPoints: 0,
-    removedQuestionIds: [],
-    downgradedQuestionIds: [],
-    feedbackRecords: [],
-    dismissedFromNotifications: false,
-    createdAt: now,
-    updatedAt: now
-  };
-}
-
 async function handleRegenerateChapter(req, res, chapterId) {
   const deviceId = getDeviceId(req);
   const existing = await getStoredChapter(deviceId, chapterId);
@@ -364,13 +350,23 @@ async function handleRegenerateChapter(req, res, chapterId) {
     return;
   }
   const submittedChapter = await upsertMemoryChapter(deviceId, createRegeneratingChapter(existing));
+  if (hasDatabase) {
+    await enqueueGenerationJob(deviceId, {
+      id: createId("generation"),
+      chapterId: existing.id,
+      status: "submitted",
+      currentStage: "submitted",
+      jobType: "regenerate_chapter",
+      payload: { chapterId: existing.id }
+    });
+  }
   sendJson(res, 202, {
     status: submittedChapter.status,
     chapter: serializeChapterForClient(submittedChapter),
     notification: null,
     message: "已提交，正在重新生成。"
   });
-  void runChapterRegeneration(deviceId, existing);
+  if (!hasDatabase) void runChapterRegeneration(deviceId, existing);
 }
 
 async function runChapterRegeneration(deviceId, existing) {
@@ -434,89 +430,6 @@ async function runChapterRegeneration(deviceId, existing) {
   }
 }
 
-function createRegeneratingChapter(existing) {
-  return {
-    ...existing,
-    status: "submitted",
-    displayStatusText: STATUS_TEXT.submitted,
-    failureReason: "",
-    reviewSession: null,
-    generationMeta: {
-      ...(existing.generationMeta || {}),
-      currentStage: "submitted",
-      stages: [
-        ...((existing.generationMeta?.stages || []).slice(-8)),
-        { status: "submitted", displayStatusText: STATUS_TEXT.submitted, at: new Date().toISOString() }
-      ]
-    },
-    updatedAt: new Date().toISOString()
-  };
-}
-
-async function generateFromInput(body, options = {}) {
-  const source = await extractSourceContent({
-    sourceType: body.sourceType,
-    rawText: body.rawText,
-    sourceTitle: body.sourceTitle,
-    sourceUrl: body.sourceUrl,
-    sourceAccount: body.sourceAccount
-  });
-  options.onStage?.("generating_points");
-  return generateReviewChapter({
-    sourceType: "text",
-    rawText: source.rawText,
-    sourceTitle: source.sourceTitle,
-    sourceUrl: source.sourceUrl,
-    sourceAccount: source.sourceAccount,
-    originalSourceType: source.sourceType
-  }, options);
-}
-
-async function regenerateFromChapter(chapter, options = {}) {
-  return generateReviewChapter({
-    sourceType: "text",
-    rawText: chapter.source?.cleanedText || chapter.source?.rawText || chapter.sourceText || "",
-    sourceTitle: chapter.source?.title || chapter.title,
-    sourceUrl: chapter.source?.url || "",
-    sourceAccount: chapter.source?.account || "",
-    originalSourceType: chapter.source?.type || chapter.sourceType || "text",
-    knowledgePoints: chapter.knowledgePoints || []
-  }, options);
-}
-
-function failedSourceResult({ status, message, body }) {
-  return {
-    status,
-    displayStatusText: STATUS_TEXT[status] || "题目生成失败",
-    errorCode: status,
-    message,
-    chapter: {
-      title: body?.sourceTitle || body?.sourceUrl || body?.rawText?.slice?.(0, 24) || "未生成章节",
-      status,
-      displayStatusText: STATUS_TEXT[status] || "题目生成失败",
-      failureReason: message,
-      source: {
-        type: body?.sourceType || "text",
-        title: body?.sourceTitle || body?.sourceUrl || "未生成章节",
-        url: body?.sourceUrl || "",
-        account: body?.sourceAccount || "",
-        rawText: body?.rawText || body?.sourceUrl || "",
-        cleanedText: body?.rawText || ""
-      },
-      knowledgePoints: [],
-      filteredKnowledgePoints: [],
-      questions: [],
-      qualitySummary: null,
-      generationMeta: {
-        currentStage: status,
-        failedStage: status,
-        failureReason: message,
-        stages: [{ status, displayStatusText: STATUS_TEXT[status] || status, at: new Date().toISOString() }]
-      }
-    }
-  };
-}
-
 function createId(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
@@ -566,24 +479,42 @@ function buildCostRunResponse(result = {}) {
   };
 }
 
+async function saveCostRunResponse(responseBody, { root = costRunRoot } = {}) {
+  await mkdir(root, { recursive: true });
+  const runId = sanitizeCostRunFileName(responseBody.generationRunId || responseBody.generatedAt || `cost-run-${Date.now()}`);
+  const runFileName = `${runId}.json`;
+  const runPath = join(root, runFileName);
+  const latestPath = join(root, "latest.json");
+  const storage = {
+    latestPath: relativeProjectPath(latestPath),
+    runPath: relativeProjectPath(runPath)
+  };
+  const payload = {
+    ...responseBody,
+    costRunStorage: storage
+  };
+  const serialized = `${JSON.stringify(payload, null, 2)}\n`;
+  await writeFile(runPath, serialized, "utf8");
+  await writeFile(latestPath, serialized, "utf8");
+  return storage;
+}
+
+function sanitizeCostRunFileName(value) {
+  return String(value || "cost-run")
+    .replace(/[^A-Za-z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 120) || "cost-run";
+}
+
+function relativeProjectPath(filePath) {
+  return normalize(filePath).startsWith(normalize(projectRoot))
+    ? normalize(filePath).slice(normalize(projectRoot).length + 1)
+    : normalize(filePath);
+}
+
 function readPositiveInt(value, fallback) {
   const number = Number(value);
   return Number.isFinite(number) && number > 0 ? number : fallback;
-}
-
-function generationTimeoutError() {
-  const error = new Error("生成超时，请稍后重试。");
-  error.code = "failed_questions";
-  error.status = "failed_questions";
-  return error;
-}
-
-function withTimeout(promise, timeoutMs, makeError) {
-  let timeout;
-  return new Promise((resolve, reject) => {
-    timeout = setTimeout(() => reject(makeError()), timeoutMs);
-    Promise.resolve(promise).then(resolve, reject).finally(() => clearTimeout(timeout));
-  });
 }
 
 function generationRunKey(deviceId, chapterId) {
@@ -898,6 +829,7 @@ function normalizeQuestions(questions, chapterId, knowledgePoints = []) {
       commonMisconception: toStringValue(question.commonMisconception || question.common_misconception || ""),
       sourceSnippet,
       sourceQuote: toStringValue(question.sourceQuote || sourceSnippet),
+      memoryAngle: toStringValue(question.memoryAngle || ""),
       sourceOrder: toIntegerValue(question.sourceOrder ?? question.source_order ?? point?.sourceOrder, index),
       sourceStartOffset: nullableInteger(question.sourceStartOffset ?? question.source_start_offset ?? point?.sourceStartOffset),
       sourceEndOffset: nullableInteger(question.sourceEndOffset ?? question.source_end_offset ?? point?.sourceEndOffset),
@@ -907,6 +839,18 @@ function normalizeQuestions(questions, chapterId, knowledgePoints = []) {
       trustDiagnostics: normalizeTrustDiagnostics(question.trustDiagnostics),
       confidenceReasons: Array.isArray(question.confidenceReasons) ? question.confidenceReasons.map((reason) => toStringValue(reason)).filter(Boolean) : [],
       blockingReasons: Array.isArray(question.blockingReasons) ? question.blockingReasons.map((reason) => toStringValue(reason)).filter(Boolean) : [],
+      confidenceTier: toStringValue(question.confidenceTier || ""),
+      sourceContextSelection: question.sourceContextSelection && typeof question.sourceContextSelection === "object" ? question.sourceContextSelection : null,
+      sourcePrecisionScore: nullableNumber(question.sourcePrecisionScore ?? question.trustDiagnostics?.sourcePrecisionScore),
+      sourceSpecificityScore: nullableNumber(question.sourceSpecificityScore),
+      sourceMinimalityScore: nullableNumber(question.sourceMinimalityScore),
+      sourceEvidenceRole: toStringValue(question.sourceEvidenceRole || ""),
+      sourceBlockId: toStringValue(question.sourceBlockId || question.sourceContextSelection?.sourceBlockId || ""),
+      sourceEvidenceDiversityScore: nullableNumber(question.sourceEvidenceDiversityScore ?? question.sourceContextSelection?.sourceEvidenceDiversityScore),
+      sourceReuseReason: toStringValue(question.sourceReuseReason || question.sourceContextSelection?.sourceReuseReason || ""),
+      sourceOverlapGroupId: toStringValue(question.sourceOverlapGroupId || ""),
+      sourceOverlapRatio: nullableNumber(question.sourceOverlapRatio),
+      sourceReuseCount: toIntegerValue(question.sourceReuseCount ?? question.sourceContextSelection?.reuseCount, 0),
       confidenceLevel: question.confidenceLevel === "low" ? "low" : "high",
       retainedBy: toStringValue(question.retainedBy || (question.confidenceLevel === "low" ? "best_effort_quality_fallback" : "quality_pass")),
       shortExplanation: toStringValue(question.shortExplanation || question.explanation || ""),
@@ -925,7 +869,8 @@ function normalizeTrustDiagnostics(value) {
     answerGroundingScore: nullableNumber(value.answerGroundingScore),
     explanationFaithfulnessScore: nullableNumber(value.explanationFaithfulnessScore),
     contextRelevanceScore: nullableNumber(value.contextRelevanceScore),
-    misconceptionSupportScore: nullableNumber(value.misconceptionSupportScore)
+    misconceptionSupportScore: nullableNumber(value.misconceptionSupportScore),
+    sourcePrecisionScore: nullableNumber(value.sourcePrecisionScore)
   };
 }
 
@@ -1113,26 +1058,13 @@ async function upsertMemoryChapter(deviceId, chapter) {
 }
 
 async function createMemoryNotification(deviceId, chapter) {
-  if (!chapter?.id || chapter.dismissedFromNotifications) return null;
-  const failed = String(chapter.status || "").startsWith("failed_");
-  if (!failed) {
-    await deleteStoredNotificationsForChapter(deviceId, chapter.id, "generation_failed");
-  }
-  const type = failed ? "generation_failed" : "generation_completed";
-  await deleteStoredNotificationsForChapter(deviceId, chapter.id, type);
-  const notification = {
-    id: createId("notification"),
-    chapterId: chapter.id,
-    type,
-    title: failed ? "生成失败" : "生成完成",
-    body: failed ? `${chapter.title} 暂时不能复习，点击查看原因` : `${chapter.title} 已生成，可以开始复习`,
-    read: false,
-    dismissed: false,
-    createdAt: new Date().toISOString()
-  };
-  const saved = await upsertStoredNotification(deviceId, notification);
-  void sendStoredPushNotifications(deviceId, saved, chapter);
-  return saved;
+  return createGenerationNotification({
+    deviceId,
+    chapter,
+    deleteNotificationsForChapter: deleteStoredNotificationsForChapter,
+    upsertNotification: upsertStoredNotification,
+    sendPushNotifications: sendStoredPushNotifications
+  });
 }
 
 function normalizePushToken(pushToken = {}) {
@@ -1141,9 +1073,14 @@ function normalizePushToken(pushToken = {}) {
     token: toStringValue(pushToken.token || pushToken.deviceToken || "").replace(/[^a-fA-F0-9]/g, "").toLowerCase(),
     platform: pushToken.platform === "ios" ? "ios" : "ios",
     environment: pushToken.environment === "sandbox" ? "sandbox" : "production",
+    preferredLanguage: normalizePreferredLanguage(pushToken.preferredLanguage || pushToken.preferred_language),
     createdAt: toStringValue(pushToken.createdAt || pushToken.created_at || now),
     updatedAt: toStringValue(pushToken.updatedAt || pushToken.updated_at || now)
   };
+}
+
+function normalizePreferredLanguage(value = "") {
+  return value === "en" ? "en" : "zh-Hans";
 }
 
 function serializePushTokenForDiagnostics(token = {}) {
@@ -1153,6 +1090,7 @@ function serializePushTokenForDiagnostics(token = {}) {
     tokenTail: tail,
     platform: normalized.platform,
     environment: normalized.environment,
+    preferredLanguage: normalized.preferredLanguage,
     createdAt: normalized.createdAt,
     updatedAt: normalized.updatedAt
   };
@@ -1790,12 +1728,14 @@ const server = createServer(async (req, res) => {
   if (req.method === "GET" && req.url === "/api/health") {
     const database = await checkDatabase();
     const count = hasDatabase ? await chapterCount() : Array.from(memoryByDeviceId.values()).reduce((sum, item) => sum + item.chapters.length, 0);
+    const queue = hasDatabase ? await getGenerationQueueSummary() : null;
     sendJson(res, 200, {
       ok: true,
       service: "shibei-api",
       startedAt,
       storage: hasDatabase ? "postgres" : "memory",
       database,
+      queue,
       apns: apnsConfigurationSummary(),
       chapterCount: count,
       memoryChapterCount: count
@@ -1906,7 +1846,8 @@ const server = createServer(async (req, res) => {
       ok: true,
       pushToken: {
         platform: pushToken.platform,
-        environment: pushToken.environment
+        environment: pushToken.environment,
+        preferredLanguage: pushToken.preferredLanguage
       },
       apnsConfigured: isAPNSConfigured(),
       apns: apnsConfigurationSummary(),
@@ -2075,6 +2016,7 @@ export {
   costWorkbenchEnabled,
   createReviewSessionForChapter,
   recordSessionAttempt,
+  saveCostRunResponse,
   serializeChapterForClient,
   startOrResumeReviewSession
 };

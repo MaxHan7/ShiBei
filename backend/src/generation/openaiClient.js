@@ -51,7 +51,7 @@ export async function callOpenAIJson({
   }, "OpenAI");
 
   const payload = await response.json().catch(() => null);
-  recordModelUsage(modelUsageRecorder, {
+  const usageRecord = recordModelUsage(modelUsageRecorder, {
     provider: "openai",
     model,
     stage,
@@ -69,7 +69,8 @@ export async function callOpenAIJson({
   const text = extractResponseText(payload);
   try {
     return parseModelJson(text);
-  } catch {
+  } catch (error) {
+    annotateModelParseFailure(usageRecord, text, error);
     throw new Error("模型返回内容不是可解析 JSON，请重试。");
   }
 }
@@ -113,7 +114,7 @@ async function callDeepSeekJson({
   }, "DeepSeek");
 
   const payload = await response.json().catch(() => null);
-  recordModelUsage(modelUsageRecorder, {
+  const usageRecord = recordModelUsage(modelUsageRecorder, {
     provider: "deepseek",
     model,
     stage,
@@ -133,14 +134,22 @@ async function callDeepSeekJson({
 
   try {
     return parseModelJson(text);
-  } catch {
+  } catch (error) {
+    annotateModelParseFailure(usageRecord, text, error);
     throw new Error("模型返回内容不是可解析 JSON，请重试。");
   }
 }
 
 function recordModelUsage(modelUsageRecorder, record) {
-  if (!modelUsageRecorder || typeof modelUsageRecorder.record !== "function") return;
-  modelUsageRecorder.record(record);
+  if (!modelUsageRecorder || typeof modelUsageRecorder.record !== "function") return null;
+  return modelUsageRecorder.record(record);
+}
+
+function annotateModelParseFailure(record, text, error) {
+  if (!record || typeof record !== "object") return;
+  record.error = "模型返回内容不是可解析 JSON";
+  record.parseError = error instanceof Error ? error.message : String(error || "parse_failed");
+  record.rawResponsePreview = String(text || "").slice(0, 4000);
 }
 
 function extractResponseText(payload) {
@@ -187,13 +196,25 @@ function stripCodeFence(text) {
 
 export function parseModelJson(text) {
   const normalized = stripCodeFence(text);
-  try {
-    return JSON.parse(normalized);
-  } catch {
-    const extracted = extractFirstJsonObject(normalized);
-    if (!extracted) throw new Error("no_json_object");
-    return JSON.parse(extracted);
+  const extracted = extractFirstJsonObject(normalized);
+  const candidates = [
+    normalized,
+    extracted,
+    repairJsonLikeText(normalized),
+    repairJsonLikeText(extracted)
+  ].filter(Boolean);
+
+  let lastError = null;
+  for (const candidate of [...new Set(candidates)]) {
+    try {
+      return JSON.parse(candidate);
+    } catch (error) {
+      lastError = error;
+    }
   }
+
+  if (!extracted) throw new Error("no_json_object");
+  throw lastError || new Error("invalid_json");
 }
 
 function extractFirstJsonObject(text) {
@@ -229,4 +250,50 @@ function extractFirstJsonObject(text) {
   }
 
   return "";
+}
+
+function repairJsonLikeText(text) {
+  const value = String(text || "").trim();
+  if (!value) return "";
+  return escapeControlCharsInStrings(value)
+    .replace(/,\s*([}\]])/g, "$1");
+}
+
+function escapeControlCharsInStrings(text) {
+  let result = "";
+  let inString = false;
+  let escaped = false;
+
+  for (const char of String(text || "")) {
+    if (!inString) {
+      result += char;
+      if (char === "\"") inString = true;
+      continue;
+    }
+
+    if (escaped) {
+      result += char;
+      escaped = false;
+      continue;
+    }
+
+    if (char === "\\") {
+      result += char;
+      escaped = true;
+      continue;
+    }
+
+    if (char === "\"") {
+      result += char;
+      inString = false;
+      continue;
+    }
+
+    if (char === "\n") result += "\\n";
+    else if (char === "\r") result += "\\r";
+    else if (char === "\t") result += "\\t";
+    else result += char;
+  }
+
+  return result;
 }

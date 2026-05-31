@@ -74,7 +74,7 @@ export async function judgeQuestionQuality({
       schema: judgeSchema,
       stage,
       modelUsageRecorder,
-      estimatedOutputTokens: Math.max(350, questions.length * 140)
+      estimatedOutputTokens: estimateJudgeOutputTokens(stage, questions.length)
     });
 
     return {
@@ -88,6 +88,13 @@ export async function judgeQuestionQuality({
       judgeError: error.message
     };
   }
+}
+
+function estimateJudgeOutputTokens(stage, questionCount) {
+  const count = Math.max(1, Number(questionCount) || 1);
+  if (stage === "judge_supplement") return Math.max(800, count * 220);
+  if (stage === "judge_rewrite") return Math.max(600, count * 190);
+  return Math.max(500, count * 165);
 }
 
 function normalizeJudgeResults(results) {

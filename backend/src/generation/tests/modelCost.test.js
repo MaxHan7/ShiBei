@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   buildModelUsageRecord,
   createModelUsageRecorder,
+  estimateCachedInputTokensFromHistory,
   estimateTokenCount,
   normalizeProviderUsage,
   summarizeModelUsage
@@ -103,6 +104,55 @@ test("summarizes model usage by currency and renders comparison report", () => {
   assert.equal(summary.totalsByCurrency.USD.actualCostPerQualifiedQuestion, 0.00133);
   assert.match(summary.reportText, /knowledge_points/);
   assert.match(summary.reportText, /每道入池题实际成本/);
+});
+
+test("estimates cached input tokens from repeated request prefixes", () => {
+  const sharedPrefix = "系统 prompt 和 JSON schema\n".repeat(80);
+  const previousRequests = [{
+    provider: "deepseek",
+    model: "deepseek-v4-flash",
+    requestText: `${sharedPrefix}\n第一次用户正文`
+  }];
+
+  const cached = estimateCachedInputTokensFromHistory({
+    provider: "deepseek",
+    model: "deepseek-v4-flash",
+    requestText: `${sharedPrefix}\n第二次用户正文`,
+    inputTokens: 1200,
+    previousRequests
+  });
+
+  assert.equal(cached > 0, true);
+  assert.equal(cached <= 1200, true);
+
+  const recorder = createModelUsageRecorder({ runId: "chapter_cache_test", calls: [] });
+  recorder.record({
+    stage: "question_supplement",
+    provider: "deepseek",
+    model: "deepseek-v4-flash",
+    requestText: `${sharedPrefix}\n第一次用户正文`,
+    estimatedOutputTokens: 100
+  });
+  recorder.record({
+    stage: "question_supplement",
+    provider: "deepseek",
+    model: "deepseek-v4-flash",
+    requestText: `${sharedPrefix}\n第二次用户正文`,
+    estimatedOutputTokens: 100
+  });
+
+  assert.equal(recorder.calls[0].estimated.cachedInputTokens, 0);
+  assert.equal(recorder.calls[1].estimated.cachedInputTokens > 0, true);
+  assert.equal(recorder.calls[1].estimated.cost < recorder.calls[0].estimated.cost, true);
+});
+
+test("does not estimate cache for short or unrelated prefixes", () => {
+  assert.equal(estimateCachedInputTokensFromHistory({
+    provider: "deepseek",
+    model: "deepseek-v4-flash",
+    requestText: "短 prompt B",
+    previousRequests: [{ provider: "deepseek", model: "deepseek-v4-flash", requestText: "短 prompt A" }]
+  }), 0);
 });
 
 test("estimates mixed Chinese and English text tokens deterministically", () => {

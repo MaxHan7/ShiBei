@@ -1,0 +1,208 @@
+sample,sampleTitle,sampleTopic,status,questionId,knowledgePoint,knowledgePointId,knowledgeStructureRole,knowledgeImportanceScore,knowledgeCoverageReason,questionType,stem,options,correctOptionId,correctAnswerText,correctUnderstanding,commonMisconception,sourceSnippet,memoryAngle,confidenceLevel,confidenceTier,retainedBy,sourceContextScore,sourcePrecisionScore,sourceSpecificityScore,sourceMinimalityScore,sourceEvidenceRole,sourceOverlapRatio,sourceOverlapGroupId,sourceReuseCount,sourceContextSelection,trustDiagnostics,confidenceReasons,blockingReasons,primaryBlockingReason,repairHint,machineAverageScore,machineIssues,machineIssueCategory,human_status,primary_issue,secondary_issue,source_support,source_precision,source_minimality,source_evidence_role,source_overlap_ratio,source_overlap_group,answer_uniqueness,understanding_depth,clarity,distractor_quality,explanation_faithfulness,review_value,blame_stage,option_issue,training_label_eligible,human_verified,review_decision,notes
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-1","hook 的定义与本质","kp-1","main_claim","5","核心概念，全文基础。","multiple_choice","关于 hook 的本质，以下哪项理解最准确？","A. hook 只能在 Claude Code 中使用，其他工具不支持。 | B. hook 是 AI agent 在特定节点自动执行预定义动作的机制，不依赖模型自觉。 | C. hook 是一种在 AI 对话中自动执行的提示词，用于引导模型思考。 | D. hook 与 prompt 完全等价，只是写法不同。","B","hook 是 AI agent 在特定节点自动执行预定义动作的机制，不依赖模型自觉。","hook 是系统执行层机制，在固定节点自动触发。","将 hook 等同于 prompt 或仅视为提示词变体。","AI coding 先改变的是“从想法到可运行页面”的速度
+
+hook是什么？不是另一个提示词，它是一个控制器
+
+在 Claude Code 的语境里，hook 可以先理解成一句话：在 AI agent 的某个固定节点，自动执行你定义好的命令、HTTP 请求、提示词或工具调用。
+
+官方文档的说法更工程化：hooks 会在 Claude Code 生命周期中的特定点触发；事件发生后，系统把相关 JSON 上下文传给你的 hook handler，handler 可以检查输入、执行动作，并在必要时返回一个 decision。翻译成人话就是：AI 正要做一件事、刚做完一件事、会话刚开始、准备结束时，你都可以插一段确定性的流程。
+
+这和“把规则写进 prompt”最大的区别在于：prompt 是请求模型记住；hook 是让系统执行。你可以反复对 AI 说“改完代码记得格式化”，也可以在 PostToolUse 里规定，只要它编辑了文件，就自动跑 formatter。前者靠模型自觉，后者靠机制。","core_understanding","high","high_confidence","quality_pass","","4","4","3","example","0","","0","method:same_section_relevance | paragraph:4 | score:435 | relevance:63 | precision:4 | specificity:4 | minimality:3 | role:example | overlap:0 | overlapGroup: | reuse:0 | candidates:2 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:5 | context:5 | misconception:4","","","","","4.5","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-2","hook 的定义与本质","kp-1","main_claim","5","核心概念，全文基础。","multiple_choice","有人认为“只要在 prompt 中详细描述，就能实现与 hook 相同的控制效果”，这种看法：","A. 正确，因为 prompt 可以包含所有指令。 | B. 错误，因为 prompt 依赖模型自觉，而 hook 是强制执行的机制。 | C. 正确，但只在 Claude Code 中成立。 | D. 错误，因为 prompt 和 hook 功能相同只是写法不同。","B","错误，因为 prompt 依赖模型自觉，而 hook 是强制执行的机制。","prompt 和 hook 不可相互替代。","认为 prompt 可以完全替代 hook。","但问题是，demo 只要“这次能跑”；工程要的是每次的行为可控。hook 就卡在这两个世界中间。
+
+AI coding 先改变的是“从想法到可运行页面”的速度
+
+hook是什么？不是另一个提示词，它是一个控制器
+
+在 Claude Code 的语境里，hook 可以先理解成一句话：在 AI agent 的某个固定节点，自动执行你定义好的命令、HTTP 请求、提示词或工具调用。
+
+官方文档的说法更工程化：hooks 会在 Claude Code 生命周期中的特定点触发；事件发生后，系统把相关 JSON 上下文传给你的 hook handler，handler 可以检查输入、执行动作，并在必要时返回一个 decision。翻译成人话就是：AI 正要做一件事、刚做完一件事、会话刚开始、准备结束时，你都可以插一段确定性的流程。
+
+这和“把规则写进 prompt”最大的区别在于：prompt 是请求模型记住；hook 是让系统执行。你可以反复对 AI 说“改完代码记得格式化”，也可以在 PostToolUse 里规定，只要它编辑了文件，就自动跑 formatter。前者靠模型自觉，后者靠机制。","misconception_boundary","low","safe_low_confidence","quality_pass_low_confidence","","2","4","2","example","1","same_section_relevance","1","method:same_section_relevance | paragraph:4 | score:280 | relevance:32 | precision:2 | specificity:4 | minimality:2 | role:example | overlap:1 | overlapGroup:same_section_relevance | reuse:1 | candidates:2 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:4 | context:5 | misconception:4","weak_context_relevance;source_context_backfilled","","","换用更贴近题干和正确答案的原文段落","4.5","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-3","hook 的定义与本质","kp-1","main_claim","5","核心概念，全文基础。","multiple_choice","你正在开发一个 AI 辅助编码工具，希望每次 AI 修改文件后自动运行格式化工具。以下哪种方案最合适？","A. 在 prompt 中强调“每次修改后请格式化”。 | B. 使用 CI 流程在代码提交后格式化。 | C. 使用 hook 中的 PostToolUse 节点自动触发格式化。 | D. 在项目文档 CLAUDE.md 中写入格式化要求。","C","使用 hook 中的 PostToolUse 节点自动触发格式化。","hook 适合确定性、必须执行的动作。","习惯用 prompt 或文档来约束，但 hook 更可靠。","hook是什么？不是另一个提示词，它是一个控制器
+
+在 Claude Code 的语境里，hook 可以先理解成一句话：在 AI agent 的某个固定节点，自动执行你定义好的命令、HTTP 请求、提示词或工具调用。
+
+官方文档的说法更工程化：hooks 会在 Claude Code 生命周期中的特定点触发；事件发生后，系统把相关 JSON 上下文传给你的 hook handler，handler 可以检查输入、执行动作，并在必要时返回一个 decision。翻译成人话就是：AI 正要做一件事、刚做完一件事、会话刚开始、准备结束时，你都可以插一段确定性的流程。
+
+这和“把规则写进 prompt”最大的区别在于：prompt 是请求模型记住；hook 是让系统执行。你可以反复对 AI 说“改完代码记得格式化”，也可以在 PostToolUse 里规定，只要它编辑了文件，就自动跑 formatter。前者靠模型自觉，后者靠机制。
+
+一个判断标准：如果某件事“每次都必须发生”，就不要只写在 prompt 里。","scenario_application","low","safe_low_confidence","quality_pass_low_confidence","","2","4","2","example","0.97","same_section_relevance","0","method:same_section_relevance | paragraph:5 | score:300 | relevance:36 | precision:2 | specificity:4 | minimality:2 | role:example | overlap:0.97 | overlapGroup:same_section_relevance | reuse:0 | candidates:2 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:5 | context:5 | misconception:4","weak_context_relevance;source_context_backfilled","","","换用更贴近题干和正确答案的原文段落","4.8","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-4","判断是否应使用 hook 的标准","kp-6","method_step","5","核心判断原则，适用性强。","scenario_judgment","你的团队使用 AI 编程助手，要求每次生成代码后必须进行安全扫描且不能遗漏。你决定将这个规则写入 prompt，但同事建议用 hook。以下哪种理解正确？","A. 写入 prompt 更灵活，AI 会尽力遵守。 | B. 安全扫描应放在 CI 中，hook 和 prompt 都不合适。 | C. 使用 hook 更可靠，因为它强制在每次生成后触发安全扫描。 | D. 两者效果一样，都是让 AI 执行扫描。","C","使用 hook 更可靠，因为它强制在每次生成后触发安全扫描。","hook 确保每次发生，prompt 可能被忽略。","认为 prompt 足够控制。","你可以反复对 AI 说“改完代码记得格式化”，也可以在 PostToolUse 里规定，只要它编辑了文件，就自动跑 formatter。前者靠模型自觉，后者靠机制。
+
+一个判断标准：如果某件事“每次都必须发生”，就不要只写在 prompt 里。
+
+把它放进 hook，才是从 AI 协作走向工程协作。","core_understanding","low","needs_rewrite","best_effort_quality_fallback","","5","4","5","example","0.94","same_section_relevance","0","method:source_quote_anchor_expanded | paragraph:9 | score:185 | relevance:13 | precision:5 | specificity:4 | minimality:5 | role:example | overlap:0.94 | overlapGroup:same_section_relevance | reuse:0 | candidates:2 | anchor:yes | fallback:no","answer:4 | explanation:5 | context:5 | misconception:3","judge_rewrite;weak_distractors","","","","4.3","distractorQuality_low","weak_distractors","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-4-rewrite-1-1","判断是否应使用 hook 的标准","kp-6","method_step","5","核心判断原则，适用性强。","scenario_judgment","你在开发一个AI客服系统，要求每次用户咨询时，系统都必须先确认用户是否已阅读免责声明。以下哪种实现方式最符合“重复性、确定性任务应通过机制而非提示词实现”的原则？","A. 在系统提示词中明确要求模型在每次回复前先确认用户是否已阅读免责声明 | B. 编写一个hook（拦截器），在用户请求时自动检查是否已确认，若未确认则暂停回答并提示用户 | C. 让模型根据对话上下文自主判断何时需要提醒用户确认免责声明 | D. 在用户界面上增加一个免责声明确认复选框，但AI的回复仍然仅由prompt控制，不额外处理确认状态","B","编写一个hook（拦截器），在用户请求时自动检查是否已确认，若未确认则暂停回答并提示用户","重复性、确定性任务应通过编程机制（如hook、规则引擎）实现，而非依赖可能不稳定的提示词。","误以为在prompt中反复强调就能保证模型每次执行，或者认为可以通过用户界面控件解决而忽略后端逻辑。","官方文档的说法更工程化：hooks 会在 Claude Code 生命周期中的特定点触发；事件发生后，系统把相关 JSON 上下文传给你的 hook handler，handler 可以检查输入、执行动作，并在必要时返回一个 decision。翻译成人话就是：AI 正要做一件事、刚做完一件事、会话刚开始、准备结束时，你都可以插一段确定性的流程。
+
+这和“把规则写进 prompt”最大的区别在于：prompt 是请求模型记住；hook 是让系统执行。你可以反复对 AI 说“改完代码记得格式化”，也可以在 PostToolUse 里规定，只要它编辑了文件，就自动跑 formatter。前者靠模型自觉，后者靠机制。
+
+一个判断标准：如果某件事“每次都必须发生”，就不要只写在 prompt 里。
+
+把它放进 hook，才是从 AI 协作走向工程协作。","scenario_application","high","high_confidence","quality_pass","","5","4","3","example","0","","0","method:same_section_relevance | paragraph:10 | score:195 | relevance:15 | precision:5 | specificity:4 | minimality:3 | role:example | overlap:0 | overlapGroup: | reuse:0 | candidates:1 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:4 | explanation:5 | context:5 | misconception:5","","","","","4.7","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-5","判断是否应使用 hook 的标准","kp-6","method_step","5","核心判断原则，适用性强。","scenario_judgment","公司规定 AI 编程时必须遵守编码规范，该规范内容较多且会更新。你需要在每次 session 开始时加载最新规范。以下哪种做法最合理？","A. 让开发者在每次启动时手动粘贴规范。 | B. 在 prompt 中详细列出所有规范。 | C. 使用 SessionStart hook 自动加载外部规范文件。 | D. 将规范写在 CLAUDE.md 中作为项目规则。","C","使用 SessionStart hook 自动加载外部规范文件。","hook 适合自动执行确定性动作，如加载文件。","认为 prompt 或项目文档足以应对动态规则。","官方文档的说法更工程化：hooks 会在 Claude Code 生命周期中的特定点触发；事件发生后，系统把相关 JSON 上下文传给你的 hook handler，handler 可以检查输入、执行动作，并在必要时返回一个 decision。翻译成人话就是：AI 正要做一件事、刚做完一件事、会话刚开始、准备结束时，你都可以插一段确定性的流程。
+
+这和“把规则写进 prompt”最大的区别在于：prompt 是请求模型记住；hook 是让系统执行。你可以反复对 AI 说“改完代码记得格式化”，也可以在 PostToolUse 里规定，只要它编辑了文件，就自动跑 formatter。前者靠模型自觉，后者靠机制。
+
+一个判断标准：如果某件事“每次都必须发生”，就不要只写在 prompt 里。","misconception_boundary","high","high_confidence","quality_pass","","5","5","3","example","1","same_section_relevance","0","method:same_section_relevance | paragraph:7 | score:220 | relevance:20 | precision:5 | specificity:5 | minimality:3 | role:example | overlap:1 | overlapGroup:same_section_relevance | reuse:0 | candidates:2 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:5 | context:5 | misconception:4","","","","","4.8","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-7","产品经理忽略 hook 的原因","kp-5","boundary","4","点明用户常见误区，增强理解。","multiple_choice","产品经理在制作 AI 产品 demo 时，通常不会使用 hook 来控制 AI 行为，主要原因是什么？","A. 因为产品经理认为 hook 太复杂。 | B. 因为产品经理不熟悉代码。 | C. 因为 demo 阶段的目标是快速展示可能性，而非工程化交付。 | D. 因为 hook 在 demo 阶段不起作用。","C","因为 demo 阶段的目标是快速展示可能性，而非工程化交付。","demo 阶段不需要严格的控制，所以 hook 感知不明显。","归因于技术能力不足。","产品经理为什么会忽略 hook：因为Demo的感知不明显
+
+之后我就思考一个问题，为什么hook的作用这么打，但是一个习惯Vibe coding的产品经理感受不明显呢？
+
+一个产品经理用 AI 做 demo，最自然的目标不是工程化可交付的版本，所以在用于产品演示的阶段，不需要严格的控制。你描述页面、描述交互、描述业务流程，AI 生成代码，你看一眼哪里不对，再用自然语言补充一下，就可以修改。
+
+这就是 vibe coding 的好处：它把产品经理过去需要画原型、写 PRD、等前端排期的过程，压缩成一段连续对话。Demo 成了对话的副产品。
+
+但也正因为它太顺，很多人会误以为“会用自然语言指挥 Claude Code”就等于“掌握了 AI 工程流”。忽略了：你有没有把不可接受的行为拦住，有没有把重复动作自动化，有没有在 AI 结束前逼它完成最低限度的检查。
+
+demo 阶段代码短、数据假、风险小、只有你一个人盯着。等它进入团队项目、真实仓库、客户演示、老板要复用、销售要拿去给下一个客户讲时，就会出现不一样的问题。
+
+什么时候需要 hook：不是一开始，而是从“可运行”走向“可复用”时","core_understanding","low","safe_low_confidence","quality_pass_low_confidence","","4","4","3","contrast","0.58","same_section_relevance","0","method:same_section_relevance | paragraph:16 | score:775 | relevance:131 | precision:4 | specificity:4 | minimality:3 | role:contrast | overlap:0.58 | overlapGroup:same_section_relevance | reuse:0 | candidates:2 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:5 | context:5 | misconception:2","weak_misconception_support","","","","4.5","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-8","产品经理忽略 hook 的原因","kp-5","boundary","4","点明用户常见误区，增强理解。","multiple_choice","以下关于产品经理在 demo 阶段使用 AI 工具的描述，哪一项是正确的？","A. 产品经理使用 hook 会降低 demo 的创新性。 | B. 产品经理不使用 hook 会导致 demo 无法成功。 | C. 产品经理在 demo 阶段忽略 hook 是合理的，因为重点是快速验证想法。 | D. 产品经理应该一开始就使用 hook 确保演示稳定。","C","产品经理在 demo 阶段忽略 hook 是合理的，因为重点是快速验证想法。","demo 阶段合理忽略 hook。","认为任何阶段都必须工程化。","产品经理为什么会忽略 hook：因为Demo的感知不明显
+
+之后我就思考一个问题，为什么hook的作用这么打，但是一个习惯Vibe coding的产品经理感受不明显呢？
+
+一个产品经理用 AI 做 demo，最自然的目标不是工程化可交付的版本，所以在用于产品演示的阶段，不需要严格的控制。你描述页面、描述交互、描述业务流程，AI 生成代码，你看一眼哪里不对，再用自然语言补充一下，就可以修改。
+
+这就是 vibe coding 的好处：它把产品经理过去需要画原型、写 PRD、等前端排期的过程，压缩成一段连续对话。Demo 成了对话的副产品。
+
+但也正因为它太顺，很多人会误以为“会用自然语言指挥 Claude Code”就等于“掌握了 AI 工程流”。忽略了：你有没有把不可接受的行为拦住，有没有把重复动作自动化，有没有在 AI 结束前逼它完成最低限度的检查。
+
+demo 阶段代码短、数据假、风险小、只有你一个人盯着。等它进入团队项目、真实仓库、客户演示、老板要复用、销售要拿去给下一个客户讲时，就会出现不一样的问题。","misconception_boundary","low","safe_low_confidence","quality_pass_low_confidence","","2","4","2","contrast","1","same_section_relevance","1","method:same_section_relevance | paragraph:16 | score:285 | relevance:33 | precision:2 | specificity:4 | minimality:2 | role:contrast | overlap:1 | overlapGroup:same_section_relevance | reuse:1 | candidates:2 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:5 | context:5 | misconception:4","weak_context_relevance;source_context_backfilled","","","换用更贴近题干和正确答案的原文段落","4.5","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","supplement-kp-5-1-1","产品经理忽略 hook 的原因","kp-5","boundary","4","点明用户常见误区，增强理解。","true_false","在产品经理制作AI产品demo并用于向客户演示的场景下，产品经理需要像开发阶段一样使用hook来保证AI行为完全可控。","A. 成立 | B. 不成立","B","不成立","演示场景下，产品经理不需要使用hook，因为demo更注重展示产品理念，而非精确控制。","认为向客户演示必须精确控制AI行为，因此需要hook。","产品经理为什么会忽略 hook：因为Demo的感知不明显
+
+之后我就思考一个问题，为什么hook的作用这么打，但是一个习惯Vibe coding的产品经理感受不明显呢？
+
+一个产品经理用 AI 做 demo，最自然的目标不是工程化可交付的版本，所以在用于产品演示的阶段，不需要严格的控制。你描述页面、描述交互、描述业务流程，AI 生成代码，你看一眼哪里不对，再用自然语言补充一下，就可以修改。
+
+这就是 vibe coding 的好处：它把产品经理过去需要画原型、写 PRD、等前端排期的过程，压缩成一段连续对话。Demo 成了对话的副产品。
+
+但也正因为它太顺，很多人会误以为“会用自然语言指挥 Claude Code”就等于“掌握了 AI 工程流”。忽略了：你有没有把不可接受的行为拦住，有没有把重复动作自动化，有没有在 AI 结束前逼它完成最低限度的检查。
+
+demo 阶段代码短、数据假、风险小、只有你一个人盯着。等它进入团队项目、真实仓库、客户演示、老板要复用、销售要拿去给下一个客户讲时，就会出现不一样的问题。
+
+什么时候需要 hook：不是一开始，而是从“可运行”走向“可复用”时","scenario_application","low","safe_low_confidence","quality_pass_low_confidence","","4","4","3","example","0","","0","method:same_section_relevance | paragraph:16 | score:285 | relevance:33 | precision:4 | specificity:4 | minimality:3 | role:example | overlap:0 | overlapGroup: | reuse:0 | candidates:2 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:5 | context:5 | misconception:5","question_type_mismatch","","","","4.8","question_type_mismatch","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-10","何时使用 hook 的四个信号","kp-2","method_step","5","实用方法，直接指导实践。","scenario_judgment","你的团队在使用 AI 编程工具时，发现 AI 有时会执行删除文件的操作，这让你担心数据安全。根据四个信号理论，此时最应该做什么？","A. 禁用 AI 的 Bash 能力。 | B. 立即引入 hook，在 PreToolUse 阶段拦截危险操作。 | C. 在 prompt 中强调不要删除文件。 | D. 等待更多信号再处理。","B","立即引入 hook，在 PreToolUse 阶段拦截危险操作。","危险动作是引入 hook 的强烈信号。","仅提示或等待。","demo 阶段代码短、数据假、风险小、只有你一个人盯着。等它进入团队项目、真实仓库、客户演示、老板要复用、销售要拿去给下一个客户讲时，就会出现不一样的问题。
+
+什么时候需要 hook：不是一开始，而是从“可运行”走向“可复用”时
+
+那什么时候应该用hook呢？一个 20 分钟的概念 demo，不需要先搭一套复杂 hook。那会把 AI coding 的速度优势抵消掉。真正该上 hook 的时刻，通常有四个信号。
+
+第一个信号，是 AI 开始碰危险动作。比如它要跑 shell 命令、删文件、移动目录、改配置、提交代码、访问密钥或调用生产接口。这时 PreToolUse 很有价值。你可以让 hook 检查命令，遇到高风险模式就阻止，或者至少升级到人工确认。","core_understanding","low","safe_low_confidence","quality_pass_low_confidence","","5","5","4","example","0.61","same_section_relevance","0","method:keyword_relevance_fallback | paragraph:18 | score:260 | relevance:28 | precision:5 | specificity:5 | minimality:4 | role:example | overlap:0.61 | overlapGroup:same_section_relevance | reuse:0 | candidates:1 | anchor:yes | fallback:yes | reason:source_quote_not_found","answer:5 | explanation:5 | context:5 | misconception:2","weak_misconception_support","","","","4.5","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-11","何时使用 hook 的四个信号","kp-2","method_step","5","实用方法，直接指导实践。","scenario_judgment","你发现 AI 重复犯同样的错误，你已经三次提醒它不要使用特定库，但它依然会用。以下哪个做法最符合四个信号理论？","A. 继续在 prompt 中强调，因为 AI 会学习。 | B. 降低 AI 的自主性。 | C. 使用 hook 自动阻止该库的导入，而不是靠提醒。 | D. 禁用 AI 访问外部库。","C","使用 hook 自动阻止该库的导入，而不是靠提醒。","重复提醒是信号，应使用机制而非提示。","依靠重复提示。","那什么时候应该用hook呢？一个 20 分钟的概念 demo，不需要先搭一套复杂 hook。那会把 AI coding 的速度优势抵消掉。真正该上 hook 的时刻，通常有四个信号。
+
+第一个信号，是 AI 开始碰危险动作。比如它要跑 shell 命令、删文件、移动目录、改配置、提交代码、访问密钥或调用生产接口。这时 PreToolUse 很有价值。你可以让 hook 检查命令，遇到高风险模式就阻止，或者至少升级到人工确认。
+
+第二个信号，是同样的提醒你已经说了三遍。“改完记得格式化”“别动这个目录”“跑一下测试”“生成的文件放到 docs/assets 下面”“HTML 不要加 JS”。这些话如果每次都要重复，说明它不该继续待在聊天里，而应该变成项目级规则。
+
+第三个信号，是 demo 要交给别人继续改。一个人临时做出来的东西，可以靠记忆维持秩序；一旦团队协作，秩序就要落到仓库里。hook 可以把 lint、format、测试、截图校验、文件命名、敏感词扫描这些动作固定下来，让下一个接手的人不用猜你的习惯。","misconception_boundary","low","safe_low_confidence","quality_pass_low_confidence","","2","4","2","example","0.81","same_section_relevance","0","method:keyword_relevance_fallback | paragraph:20 | score:225 | relevance:21 | precision:2 | specificity:4 | minimality:2 | role:example | overlap:0.81 | overlapGroup:same_section_relevance | reuse:0 | candidates:1 | anchor:yes | fallback:yes | reason:source_quote_not_found","answer:5 | explanation:5 | context:5 | misconception:3","weak_context_relevance;source_context_backfilled","","","换用更贴近题干和正确答案的原文段落","4.8","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","supplement-kp-2-2-1","何时使用 hook 的四个信号","kp-2","method_step","5","实用方法，直接指导实践。","multiple_choice","以下哪个场景最符合应引入 hook 的四个信号之一？","A. AI 开始执行删除项目文件的命令 | B. 团队更换了另一个 AI 编程工具 | C. AI 在一次会话中频繁询问是否继续 | D. AI 生成的代码缩进风格与团队不一致","A","AI 开始执行删除项目文件的命令","当 AI 开始执行删除文件等危险操作时，是引入 hook 的第一信号。","误以为 AI 询问是否继续或代码风格不一致是需要 hook 的信号，但实际上是危险动作、重复提醒、交接或 session 变长才是信号。","但也正因为它太顺，很多人会误以为“会用自然语言指挥 Claude Code”就等于“掌握了 AI 工程流”。忽略了：你有没有把不可接受的行为拦住，有没有把重复动作自动化，有没有在 AI 结束前逼它完成最低限度的检查。
+
+demo 阶段代码短、数据假、风险小、只有你一个人盯着。等它进入团队项目、真实仓库、客户演示、老板要复用、销售要拿去给下一个客户讲时，就会出现不一样的问题。
+
+什么时候需要 hook：不是一开始，而是从“可运行”走向“可复用”时
+
+那什么时候应该用hook呢？一个 20 分钟的概念 demo，不需要先搭一套复杂 hook。那会把 AI coding 的速度优势抵消掉。真正该上 hook 的时刻，通常有四个信号。
+
+第一个信号，是 AI 开始碰危险动作。比如它要跑 shell 命令、删文件、移动目录、改配置、提交代码、访问密钥或调用生产接口。这时 PreToolUse 很有价值。你可以让 hook 检查命令，遇到高风险模式就阻止，或者至少升级到人工确认。","scenario_application","low","safe_low_confidence","quality_pass_low_confidence","","4","4","3","example","0","","0","method:keyword_relevance_fallback | paragraph:16 | score:250 | relevance:26 | precision:4 | specificity:4 | minimality:3 | role:example | overlap:0 | overlapGroup: | reuse:0 | candidates:1 | anchor:yes | fallback:yes | reason:source_quote_not_found","answer:5 | explanation:5 | context:5 | misconception:5","question_type_mismatch","","","","4.8","question_type_mismatch","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-14","实用的 hook 场景","kp-3","method_step","5","操作指南，高实用价值。","scenario_judgment","你需要在每次 AI 执行危险命令前进行安全检查，以下哪种做法符合最佳实践？","A. 使用 PreToolUse hook 在命令执行前拦截并校验。 | B. 在 prompt 中要求 AI 对所有命令进行自我审查。 | C. 使用 PostToolUse hook 在命令执行后检查日志。 | D. 使用 Stop hook 在 session 结束时回顾命令。","A","使用 PreToolUse hook 在命令执行前拦截并校验。","PreToolUse 用于执行前风险控制。","用事后检查代替事前拦截。","如果你刚开始用 Claude Code，不需要把文档里所有事件都学完。先记住几个高频场景就够了。
+
+第一类，是改完之后自动整理。PostToolUse 可以匹配 Edit 或 Write。只要 AI 写了文件，就自动跑 prettier、eslint、ruff、black、go fmt，或者你项目里的格式化命令。这个场景最适合从 demo 升级到可维护代码，因为它不打断创作速度，却能减少“看起来能跑、实际很脏”的尾巴。
+
+第二类，是执行前拦截风险。PreToolUse 可以在 Bash 或其他工具调用前触发。你可以拦 `rm -rf`、拦生产数据库命令、拦对 `.env` 的读取、拦把密钥写进日志。这里 hook 像门禁，不负责写代码，但负责让 AI 别一脚踩进坑里。
+
+第三类，是会话开始时注入上下文。SessionStart 适合加载项目规则、最近 issue、分支状态、架构约束、依赖版本。很多人把上下文全塞进一段超长 prompt，结果每次都要手动复制。hook 可以把这些“开工前必须知道”的东西自动补上。","misconception_boundary","low","safe_low_confidence","quality_pass_low_confidence","","2","4","2","example","1","same_section_relevance","1","method:same_section_relevance | paragraph:26 | score:315 | relevance:39 | precision:2 | specificity:4 | minimality:2 | role:example | overlap:1 | overlapGroup:same_section_relevance | reuse:1 | candidates:1 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:5 | context:5 | misconception:3","weak_context_relevance;source_context_backfilled","","","换用更贴近题干和正确答案的原文段落","4.8","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-15","实用的 hook 场景","kp-3","method_step","5","操作指南，高实用价值。","scenario_judgment","你想确保 AI 在每次 session 开始时都了解当前项目的编码规范和架构文档，应该使用哪个 hook？","A. SessionStart | B. PostToolUse | C. Stop | D. PreToolUse","A","SessionStart","SessionStart 注入上下文。","误用其他 hook。","几个最实用的 hook 场景
+
+如果你刚开始用 Claude Code，不需要把文档里所有事件都学完。先记住几个高频场景就够了。
+
+第一类，是改完之后自动整理。PostToolUse 可以匹配 Edit 或 Write。只要 AI 写了文件，就自动跑 prettier、eslint、ruff、black、go fmt，或者你项目里的格式化命令。这个场景最适合从 demo 升级到可维护代码，因为它不打断创作速度，却能减少“看起来能跑、实际很脏”的尾巴。
+
+第二类，是执行前拦截风险。PreToolUse 可以在 Bash 或其他工具调用前触发。你可以拦 `rm -rf`、拦生产数据库命令、拦对 `.env` 的读取、拦把密钥写进日志。这里 hook 像门禁，不负责写代码，但负责让 AI 别一脚踩进坑里。
+
+第三类，是会话开始时注入上下文。SessionStart 适合加载项目规则、最近 issue、分支状态、架构约束、依赖版本。很多人把上下文全塞进一段超长 prompt，结果每次都要手动复制。hook 可以把这些“开工前必须知道”的东西自动补上。","scenario_application","low","needs_rewrite","best_effort_quality_fallback","","2","4","2","example","1","same_section_relevance","0","method:same_section_relevance | paragraph:25 | score:300 | relevance:36 | precision:2 | specificity:4 | minimality:2 | role:example | overlap:1 | overlapGroup:same_section_relevance | reuse:0 | candidates:1 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:5 | context:5 | misconception:3","weak_context_relevance;source_context_backfilled;judge_rewrite;weak_distractors","","","换用更贴近题干和正确答案的原文段落","4.2","distractorQuality_low","weak_distractors","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","supplement-kp-3-3-1","实用的 hook 场景","kp-3","method_step","5","操作指南，高实用价值。","multiple_choice","关于 Claude Code 的 lifecycle hook，以下哪个说法正确描述了 PreToolUse hook 的主要职责？","A. 在工具调用后格式化输出结果 | B. 在工具调用前执行安全检查或拦截风险 | C. 在 agent 即将停止时进行最终验收 | D. 在每次会话开始时注入系统上下文","B","在工具调用前执行安全检查或拦截风险","PreToolUse 是执行前拦截风险的钩子。","容易混淆 PostToolUse 和 PreToolUse 的职责，或误以为 PreToolUse 用于输出格式化。","如果你刚开始用 Claude Code，不需要把文档里所有事件都学完。先记住几个高频场景就够了。
+
+第一类，是改完之后自动整理。PostToolUse 可以匹配 Edit 或 Write。只要 AI 写了文件，就自动跑 prettier、eslint、ruff、black、go fmt，或者你项目里的格式化命令。这个场景最适合从 demo 升级到可维护代码，因为它不打断创作速度，却能减少“看起来能跑、实际很脏”的尾巴。
+
+第二类，是执行前拦截风险。PreToolUse 可以在 Bash 或其他工具调用前触发。你可以拦 `rm -rf`、拦生产数据库命令、拦对 `.env` 的读取、拦把密钥写进日志。这里 hook 像门禁，不负责写代码，但负责让 AI 别一脚踩进坑里。
+
+第三类，是会话开始时注入上下文。SessionStart 适合加载项目规则、最近 issue、分支状态、架构约束、依赖版本。很多人把上下文全塞进一段超长 prompt，结果每次都要手动复制。hook 可以把这些“开工前必须知道”的东西自动补上。","core_understanding","low","safe_low_confidence","quality_pass_low_confidence","","4","4","3","example","0","","0","method:same_section_relevance | paragraph:27 | score:715 | relevance:119 | precision:4 | specificity:4 | minimality:3 | role:example | overlap:0 | overlapGroup: | reuse:0 | candidates:1 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:5 | context:5 | misconception:4","question_type_mismatch","","","","4.5","question_type_mismatch","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-16","prompt、CLAUDE.md、hook、CI 的分工","kp-4","main_claim","4","帮助用户建立完整体系认知。","multiple_choice","以下关于 prompt、CLAUDE.md、hook、CI 的分工描述，哪一项是正确的？","A. hook 用于事件触发时必须执行的动作，CI 用于合并前最终裁判。 | B. hook 用于表达 AI 的思考方式。 | C. prompt 用于长期背景，CLAUDE.md 用于意图表达。 | D. CI 可以替代 hook，因为都是自动化。","A","hook 用于事件触发时必须执行的动作，CI 用于合并前最终裁判。","四者有明确分工。","混淆功能。","hook、CI、规则文档、prompt，到底谁管什么
+
+很多团队会在这里混淆。其实分工很清楚。
+
+prompt 管的是“这次希望 AI 怎么思考”。比如你让它先读代码、再给方案、最后实施。它适合表达意图和偏好。
+
+CLAUDE.md 或项目规则文档管的是“长期背景”。比如项目架构、命名约定、不要碰的目录、常用命令、发布流程。它适合让 AI 在每次工作前理解环境。
+
+hook 管的是“事件发生时必须执行的动作”。比如改完文件就格式化，跑危险命令前先检查，session 结束前确认测试。它适合确定性、可自动化、可阻断的规则。
+
+CI 管的是“进入主干前的最终裁判”。它不关心你是人写的还是 AI 写的，只关心代码能不能通过团队统一门槛。hook 不能替代 CI，CI 也不能替代 hook。hook 是把问题尽早挡住，CI 是把漏网之鱼拦在合并前。","core_understanding","low","needs_rewrite","quality_pass_low_confidence","","5","5","3","example","0.63","same_section_relevance","0","method:same_section_relevance | paragraph:36 | score:690 | relevance:114 | precision:5 | specificity:5 | minimality:3 | role:example | overlap:0.63 | overlapGroup:same_section_relevance | reuse:0 | candidates:2 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:3 | context:5 | misconception:3","weak_explanation_faithfulness","","","收窄解释，只解释来源中能支撑的判断","4.5","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-17","prompt、CLAUDE.md、hook、CI 的分工","kp-4","main_claim","4","帮助用户建立完整体系认知。","multiple_choice","有人认为“只要在 CLAUDE.md 中写清楚规则，就可以替代 hook 的功能”，这种观点错在哪里？","A. CLAUDE.md 只能用于单个会话，hook 可以跨会话。 | B. CLAUDE.md 是给人类看的，AI 不读。 | C. hook 比 CLAUDE.md 更简单。 | D. CLAUDE.md 提供背景信息，但不强制执行，而 hook 强制动作。","D","CLAUDE.md 提供背景信息，但不强制执行，而 hook 强制动作。","背景和强制不同。","认为文档即控制。","prompt 管的是“这次希望 AI 怎么思考”。比如你让它先读代码、再给方案、最后实施。它适合表达意图和偏好。
+
+CLAUDE.md 或项目规则文档管的是“长期背景”。比如项目架构、命名约定、不要碰的目录、常用命令、发布流程。它适合让 AI 在每次工作前理解环境。
+
+hook 管的是“事件发生时必须执行的动作”。比如改完文件就格式化，跑危险命令前先检查，session 结束前确认测试。它适合确定性、可自动化、可阻断的规则。
+
+CI 管的是“进入主干前的最终裁判”。它不关心你是人写的还是 AI 写的，只关心代码能不能通过团队统一门槛。hook 不能替代 CI，CI 也不能替代 hook。hook 是把问题尽早挡住，CI 是把漏网之鱼拦在合并前。","misconception_boundary","high","high_confidence","quality_pass","","5","4","3","example","1","same_section_relevance","0","method:same_section_relevance | paragraph:34 | score:200 | relevance:16 | precision:5 | specificity:4 | minimality:3 | role:example | overlap:1 | overlapGroup:same_section_relevance | reuse:0 | candidates:1 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:4 | context:5 | misconception:3","","","","","4.5","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-18","prompt、CLAUDE.md、hook、CI 的分工","kp-4","main_claim","4","帮助用户建立完整体系认知。","multiple_choice","你需要在 AI 提交代码前确保所有测试通过，且如果测试失败则阻止提交。以下哪个方案最合适？","A. 在 prompt 中要求 AI 在提交前运行测试。 | B. 依赖 CI 在合并前检测，因为 CI 更可靠。 | C. 在 CLAUDE.md 中写入测试要求。 | D. 使用 hook 在 Stop 阶段检测测试结果并阻断失败提交。","D","使用 hook 在 Stop 阶段检测测试结果并阻断失败提交。","hook 用于流程中强制检查，CI 用于合并前最终裁判。","认为 CI 可替代所有环节。","prompt 管的是“这次希望 AI 怎么思考”。比如你让它先读代码、再给方案、最后实施。它适合表达意图和偏好。
+
+CLAUDE.md 或项目规则文档管的是“长期背景”。比如项目架构、命名约定、不要碰的目录、常用命令、发布流程。它适合让 AI 在每次工作前理解环境。
+
+hook 管的是“事件发生时必须执行的动作”。比如改完文件就格式化，跑危险命令前先检查，session 结束前确认测试。它适合确定性、可自动化、可阻断的规则。
+
+CI 管的是“进入主干前的最终裁判”。它不关心你是人写的还是 AI 写的，只关心代码能不能通过团队统一门槛。hook 不能替代 CI，CI 也不能替代 hook。hook 是把问题尽早挡住，CI 是把漏网之鱼拦在合并前。","scenario_application","high","high_confidence","quality_pass","","5","5","3","example","1","same_section_relevance","0","method:same_section_relevance | paragraph:35 | score:285 | relevance:33 | precision:5 | specificity:5 | minimality:3 | role:example | overlap:1 | overlapGroup:same_section_relevance | reuse:0 | candidates:2 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:5 | context:5 | misconception:3","","","","","4.5","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-19","vibe coding 与 hook 的关系","kp-7","main_claim","5","总结全文核心观点。","multiple_choice","关于 vibe coding 和 hook 的关系，以下理解最准确的是？","A. vibe coding 快速产生想法，hook 确保工程化可靠。 | B. hook 是 vibe coding 的升级版。 | C. vibe coding 可以完全替代 hook，因为 AI 足够智能。 | D. 两者互斥，只能二选一。","A","vibe coding 快速产生想法，hook 确保工程化可靠。","互补关系。","认为互相替代。","最后的判断：vibe coding 负责起飞，hook 负责别偏航
+
+vibe coding 的价值，是把“我有个想法”直接推到“我能点一下”。这对产品经理、创业者、运营、设计师都很重要。过去你要等排期，现在你可以先把想法变成一个会动的东西。
+
+但 demo 越容易生成，工程边界越不能消失。因为 AI 不会天然知道你的仓库红线、团队习惯、客户数据边界和验收标准。你可以把这些都写进 prompt，但 prompt 不是制度；你可以每次人工盯着，但人工盯久了就会漏。
+
+hook 的意义不在于炫技，而在于把“每次都该做”的事从聊天里拿出来，放到流程里。
+
+所以，当有人说“我都用 Claude Code，不知道 hook 是什么”，这不是一个笑话，而是一个分界线：她已经进入 AI coding 的第一层，用自然语言把 demo 做出来；下一层，是把 demo 放进真实工程时，知道哪些地方必须加机制。
+
+AI coding 让产品经理可以亲手造出设计出的软件，而hook则可以让这个软件再下一次、下一个人、下一个环境里能够继续的可靠使用。","core_understanding","low","safe_low_confidence","quality_pass_low_confidence","","4","4","3","example","0.6","same_section_relevance","0","method:same_section_relevance | paragraph:50 | score:305 | relevance:37 | precision:4 | specificity:4 | minimality:3 | role:example | overlap:0.6 | overlapGroup:same_section_relevance | reuse:0 | candidates:2 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:5 | context:5 | misconception:2","weak_misconception_support","","","","4.5","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-20","vibe coding 与 hook 的关系","kp-7","main_claim","5","总结全文核心观点。","multiple_choice","有人认为“既然有了 vibe coding，就不需要 hook 了”，这种观点的主要问题是什么？","A. 这种观点正确，因为 AI 会自己优化。 | B. vibe coding 生成 demo 容易，但工程化需要 hook 来保证可复现和可靠。 | C. hook 是 vibe coding 的前提。 | D. vibe coding 只能用于简单项目。","B","vibe coding 生成 demo 容易，但工程化需要 hook 来保证可复现和可靠。","工程边界需要 hook。","忽视工程化需求。","最后的判断：vibe coding 负责起飞，hook 负责别偏航
+
+vibe coding 的价值，是把“我有个想法”直接推到“我能点一下”。这对产品经理、创业者、运营、设计师都很重要。过去你要等排期，现在你可以先把想法变成一个会动的东西。
+
+但 demo 越容易生成，工程边界越不能消失。因为 AI 不会天然知道你的仓库红线、团队习惯、客户数据边界和验收标准。你可以把这些都写进 prompt，但 prompt 不是制度；你可以每次人工盯着，但人工盯久了就会漏。
+
+hook 的意义不在于炫技，而在于把“每次都该做”的事从聊天里拿出来，放到流程里。
+
+所以，当有人说“我都用 Claude Code，不知道 hook 是什么”，这不是一个笑话，而是一个分界线：她已经进入 AI coding 的第一层，用自然语言把 demo 做出来；下一层，是把 demo 放进真实工程时，知道哪些地方必须加机制。
+
+AI coding 让产品经理可以亲手造出设计出的软件，而hook则可以让这个软件再下一次、下一个人、下一个环境里能够继续的可靠使用。","misconception_boundary","low","safe_low_confidence","quality_pass_low_confidence","","2","4","2","example","1","same_section_relevance","1","method:same_section_relevance | paragraph:50 | score:350 | relevance:46 | precision:2 | specificity:4 | minimality:2 | role:example | overlap:1 | overlapGroup:same_section_relevance | reuse:1 | candidates:2 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:5 | context:5 | misconception:3","weak_context_relevance;source_context_backfilled","","","换用更贴近题干和正确答案的原文段落","4.8","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed","q-21","vibe coding 与 hook 的关系","kp-7","main_claim","5","总结全文核心观点。","multiple_choice","某团队重用 vibe coding 快速做了产品原型，现在要进入正式开发。他们应该最关注以下哪一项？","A. 继续用 vibe coding 的方式开发。 | B. 完全放弃 AI，改用人写。 | C. 增加 hook 来固化重复性检查，确保生产稳定性。 | D. 只增加单元测试。","C","增加 hook 来固化重复性检查，确保生产稳定性。","hook 是工程化的关键。","延续 vibe coding 方式。","hook 的意义不在于炫技，而在于把“每次都该做”的事从聊天里拿出来，放到流程里。
+
+所以，当有人说“我都用 Claude Code，不知道 hook 是什么”，这不是一个笑话，而是一个分界线：她已经进入 AI coding 的第一层，用自然语言把 demo 做出来；下一层，是把 demo 放进真实工程时，知道哪些地方必须加机制。","scenario_application","low","needs_rewrite","quality_pass_low_confidence","","4","3","4","example","1","same_section_relevance","2","method:source_quote_anchor_expanded | paragraph:50 | score:160 | relevance:8 | precision:4 | specificity:3 | minimality:4 | role:example | overlap:1 | overlapGroup:same_section_relevance | reuse:2 | candidates:2 | anchor:yes | fallback:no","answer:3 | explanation:4 | context:5 | misconception:3","weak_source_support","","","保留为低置信，人工重点检查来源是否足够支撑答案","4.3","","other","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed:rejected","q-4","判断是否应使用 hook 的标准","kp-6","method_step","5","核心判断原则，适用性强。","scenario_judgment","你的团队使用 AI 编程助手，要求每次生成代码后必须进行安全扫描且不能遗漏。你决定将这个规则写入 prompt，但同事建议用 hook。以下哪种理解正确？","A. 写入 prompt 更灵活，AI 会尽力遵守。 | B. 安全扫描应放在 CI 中，hook 和 prompt 都不合适。 | C. 使用 hook 更可靠，因为它强制在每次生成后触发安全扫描。 | D. 两者效果一样，都是让 AI 执行扫描。","C","使用 hook 更可靠，因为它强制在每次生成后触发安全扫描。","hook 确保每次发生，prompt 可能被忽略。","认为 prompt 足够控制。","你可以反复对 AI 说“改完代码记得格式化”，也可以在 PostToolUse 里规定，只要它编辑了文件，就自动跑 formatter。前者靠模型自觉，后者靠机制。
+
+一个判断标准：如果某件事“每次都必须发生”，就不要只写在 prompt 里。
+
+把它放进 hook，才是从 AI 协作走向工程协作。","core_understanding","","needs_rewrite","","273","5","4","5","example","0.94","same_section_relevance","0","method:source_quote_anchor_expanded | paragraph:9 | score:185 | relevance:13 | precision:5 | specificity:4 | minimality:5 | role:example | overlap:0.94 | overlapGroup:same_section_relevance | reuse:0 | candidates:2 | anchor:yes | fallback:no","answer:4 | explanation:5 | context:5 | misconception:3","judge_rewrite;weak_distractors","","","","4.3","distractorQuality_low","weak_distractors","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed:rejected","q-13","实用的 hook 场景","kp-3","method_step","5","操作指南，高实用价值。","scenario_judgment","你希望每次 AI 修改文件后自动进行代码格式化，应该使用哪个 hook 类型？","A. SessionStart | B. PostToolUse | C. Stop | D. PreToolUse","B","PostToolUse","PostToolUse 适合动作后处理。","混淆 Pre 和 Post。","如果你刚开始用 Claude Code，不需要把文档里所有事件都学完。先记住几个高频场景就够了。
+
+第一类，是改完之后自动整理。PostToolUse 可以匹配 Edit 或 Write。只要 AI 写了文件，就自动跑 prettier、eslint、ruff、black、go fmt，或者你项目里的格式化命令。这个场景最适合从 demo 升级到可维护代码，因为它不打断创作速度，却能减少“看起来能跑、实际很脏”的尾巴。
+
+第二类，是执行前拦截风险。PreToolUse 可以在 Bash 或其他工具调用前触发。你可以拦 `rm -rf`、拦生产数据库命令、拦对 `.env` 的读取、拦把密钥写进日志。这里 hook 像门禁，不负责写代码，但负责让 AI 别一脚踩进坑里。
+
+第三类，是会话开始时注入上下文。SessionStart 适合加载项目规则、最近 issue、分支状态、架构约束、依赖版本。很多人把上下文全塞进一段超长 prompt，结果每次都要手动复制。hook 可以把这些“开工前必须知道”的东西自动补上。","core_understanding","","should_block","","255","2","4","2","example","0.76","same_section_relevance","0","method:same_section_relevance | paragraph:26 | score:215 | relevance:19 | precision:2 | specificity:4 | minimality:2 | role:example | overlap:0.76 | overlapGroup:same_section_relevance | reuse:0 | candidates:1 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:3 | explanation:5 | context:5 | misconception:3","weak_source_support;weak_context_relevance;source_context_backfilled;judge_rewrite;weak_distractors;answer_not_unique","answer_not_unique","answer_not_unique","重写选项，确保只有一个答案能被来源和正确理解同时支撑","4.2","distractorQuality_low","weak_distractors","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed:rejected","q-15","实用的 hook 场景","kp-3","method_step","5","操作指南，高实用价值。","scenario_judgment","你想确保 AI 在每次 session 开始时都了解当前项目的编码规范和架构文档，应该使用哪个 hook？","A. SessionStart | B. PostToolUse | C. Stop | D. PreToolUse","A","SessionStart","SessionStart 注入上下文。","误用其他 hook。","几个最实用的 hook 场景
+
+如果你刚开始用 Claude Code，不需要把文档里所有事件都学完。先记住几个高频场景就够了。
+
+第一类，是改完之后自动整理。PostToolUse 可以匹配 Edit 或 Write。只要 AI 写了文件，就自动跑 prettier、eslint、ruff、black、go fmt，或者你项目里的格式化命令。这个场景最适合从 demo 升级到可维护代码，因为它不打断创作速度，却能减少“看起来能跑、实际很脏”的尾巴。
+
+第二类，是执行前拦截风险。PreToolUse 可以在 Bash 或其他工具调用前触发。你可以拦 `rm -rf`、拦生产数据库命令、拦对 `.env` 的读取、拦把密钥写进日志。这里 hook 像门禁，不负责写代码，但负责让 AI 别一脚踩进坑里。
+
+第三类，是会话开始时注入上下文。SessionStart 适合加载项目规则、最近 issue、分支状态、架构约束、依赖版本。很多人把上下文全塞进一段超长 prompt，结果每次都要手动复制。hook 可以把这些“开工前必须知道”的东西自动补上。","scenario_application","","needs_rewrite","","332","2","4","2","example","1","same_section_relevance","0","method:same_section_relevance | paragraph:25 | score:300 | relevance:36 | precision:2 | specificity:4 | minimality:2 | role:example | overlap:1 | overlapGroup:same_section_relevance | reuse:0 | candidates:1 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:5 | context:5 | misconception:3","weak_context_relevance;source_context_backfilled;judge_rewrite;weak_distractors","","","换用更贴近题干和正确答案的原文段落","4.2","distractorQuality_low","weak_distractors","","","","","","","","","","","","","","","","","","","","",""
+"UMr6ia1QubqOMw3aBUGbOw.article","和AI产品经理聊天，她说""我用Vibe coding做Demo""，我问她：怎么用hook？她说我一般用claude code","single_article","completed:rejected","q-13-rewrite-2-1","实用的 hook 场景","kp-3","method_step","5","操作指南，高实用价值。","scenario_judgment","你正在配置一个AI编程助手的钩子系统，需要在每次工具调用结果返回后自动格式化代码，应该使用哪个hook？","A. Stop | B. SessionStart | C. PreToolUse | D. PostToolUse","D","PostToolUse","PostToolUse钩子适用于在工具调用后对结果进行格式化、整理等后处理操作。","容易误以为PreToolUse或Stop也能处理后格式化，但PreToolUse是调用前拦截，Stop是结束前验收，均不适合此场景。","如果你刚开始用 Claude Code，不需要把文档里所有事件都学完。先记住几个高频场景就够了。
+
+第一类，是改完之后自动整理。PostToolUse 可以匹配 Edit 或 Write。只要 AI 写了文件，就自动跑 prettier、eslint、ruff、black、go fmt，或者你项目里的格式化命令。这个场景最适合从 demo 升级到可维护代码，因为它不打断创作速度，却能减少“看起来能跑、实际很脏”的尾巴。
+
+第二类，是执行前拦截风险。PreToolUse 可以在 Bash 或其他工具调用前触发。你可以拦 `rm -rf`、拦生产数据库命令、拦对 `.env` 的读取、拦把密钥写进日志。这里 hook 像门禁，不负责写代码，但负责让 AI 别一脚踩进坑里。
+
+第三类，是会话开始时注入上下文。SessionStart 适合加载项目规则、最近 issue、分支状态、架构约束、依赖版本。很多人把上下文全塞进一段超长 prompt，结果每次都要手动复制。hook 可以把这些“开工前必须知道”的东西自动补上。","scenario_application","","should_block","","385","4","4","3","example","0","","0","method:same_section_relevance | paragraph:26 | score:295 | relevance:35 | precision:4 | specificity:4 | minimality:3 | role:example | overlap:0 | overlapGroup: | reuse:0 | candidates:2 | anchor:yes | fallback:yes | reason:anchor_context_weak","answer:5 | explanation:5 | context:5 | misconception:5","judge_rewrite;weak_distractors;answer_not_unique","answer_not_unique","answer_not_unique","重写选项，确保只有一个答案能被来源和正确理解同时支撑","3.8","distractorQuality_low","weak_distractors","","","","","","","","","","","","","","","","","","","","",""

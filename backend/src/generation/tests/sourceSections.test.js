@@ -109,6 +109,46 @@ test("filters low-value structure roles and low-importance cases", () => {
   assert.equal(result.filtered.find((point) => point.id === "case").filterReasons[0], "low_importance_case");
 });
 
+test("repairs discontinuous source quotes by locating a relevant body paragraph", () => {
+  const body = [
+    "Prompt 负责告诉 AI 怎么思考，CLAUDE.md 负责沉淀项目长期规则。",
+    "Hook 管事件发生时必须执行的动作，CI 管进入主干前的最终裁判。四者不能互相替代。"
+  ].join("\n");
+  const result = filterKnowledgePoints([
+    candidate({
+      id: "boundary",
+      title: "Hook、Prompt、CLAUDE.md、CI 的分工边界",
+      structureRole: "main_claim",
+      importanceScore: 4,
+      keyClaim: "Prompt、CLAUDE.md、hook 和 CI 有清晰分工，不能相互替代。",
+      summary: "Prompt 管思考方式，CLAUDE.md 管长期背景，hook 管事件动作，CI 管最终门槛。",
+      sourceQuote: "Prompt 管思考。CLAUDE.md 管背景。Hook 管动作。CI 管最终裁判。"
+    })
+  ], body);
+
+  assert.equal(result.kept.length, 1);
+  assert.equal(result.kept[0].sourceQuoteWasRepaired, true);
+  assert.equal(result.kept[0].sourceQuote.includes("CI 管进入主干前的最终裁判"), true);
+  assert.equal(result.filtered.length, 0);
+});
+
+test("does not repair unsupported knowledge points with unrelated source text", () => {
+  const result = filterKnowledgePoints([
+    candidate({
+      id: "unsupported",
+      title: "Hook、Prompt、CLAUDE.md、CI 的分工边界",
+      structureRole: "main_claim",
+      importanceScore: 4,
+      keyClaim: "Prompt、CLAUDE.md、hook 和 CI 有清晰分工，不能相互替代。",
+      summary: "Prompt 管思考方式，CLAUDE.md 管长期背景，hook 管事件动作，CI 管最终门槛。",
+      sourceQuote: "Prompt 管思考。CLAUDE.md 管背景。Hook 管动作。CI 管最终裁判。"
+    })
+  ], "这段正文只讨论产品定价、用户访谈和市场定位，没有任何工程工具分工。");
+
+  assert.equal(result.kept.length, 0);
+  assert.equal(result.filtered[0].filterReasons.includes("source_not_supported"), true);
+});
+
 test("trims short overlong candidate sets by mainline priority without dropping the core claim", () => {
   const body = Array.from({ length: 10 }, (_, index) => `短文第${index + 1}点说明AI计划价值。`).join("\n");
   const candidates = [

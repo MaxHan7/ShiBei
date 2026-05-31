@@ -214,10 +214,18 @@ unrelated_to_source
     "answerGroundingScore": 5,
     "explanationFaithfulnessScore": 4,
     "contextRelevanceScore": 5,
-    "misconceptionSupportScore": 3
+    "misconceptionSupportScore": 3,
+    "sourcePrecisionScore": 5
   },
   "confidenceReasons": [],
   "blockingReasons": [],
+  "sourceEvidenceRole": "mechanism",
+  "sourceBlockId": "p12-s0-1",
+  "sourceEvidenceDiversityScore": 4,
+  "sourceReuseReason": "",
+  "sourceMinimalityScore": 5,
+  "sourceOverlapGroupId": "",
+  "sourceOverlapRatio": 0,
   "confidenceLevel": "high"
 }
 ```
@@ -230,21 +238,45 @@ unrelated_to_source
 - `explanationFaithfulnessScore`：解释是否忠实于来源和正确答案。
 - `contextRelevanceScore`：来源片段是否是帮助理解题目的有效上下文。
 - `misconceptionSupportScore`：常见误区是否与题目和来源相关。
+- `sourcePrecisionScore`：来源片段是否精准、克制、适合作为解释页回看片段。
 
 `confidenceReasons` 记录低置信原因，例如 `weak_source_support`、`weak_explanation_faithfulness`、`weak_context_relevance`、`question_type_mismatch`、`judge_rewrite`。`blockingReasons` 记录不可入池原因，例如 `answer_not_unique`、`structure_invalid`、`weak_source_support`。
+
+v7 以后，部分低置信原因会被拆成更具体的可修复标签，例如：
+
+- `answer_grounding_weak`：答案和来源的支撑关系偏弱。
+- `explanation_overextends_source`：解释延伸超过来源证据。
+- `explanation_not_tied_to_answer`：解释没有紧扣正确答案。
+- `misconception_too_generic`：常见误区太泛，不像真实混淆。
+- `misconception_not_grounded`：常见误区没有被题干、选项或来源边界支撑。
+
+来源片段 v4 字段用于质量工作台和后续调试，iOS 用户侧第一版可以忽略：
+
+- `sourceEvidenceRole`：来源证据角色，例如 `definition`、`mechanism`、`contrast`、`example`、`boundary`、`method`。
+- `sourceBlockId`：后端从原文切出的证据块 ID，用于诊断多题是否复用同一原文节点；iOS 正式页面不需要展示。
+- `sourceEvidenceDiversityScore`：同一知识点多题是否使用了不同证据块 / 证据角色的机器评分，1-5 分。
+- `sourceReuseReason`：如果复用同一证据块，记录原因或诊断说明；为空表示未发现需要说明的复用。
+- `sourceMinimalityScore`：来源是否接近“最小充分证据”的机器评分，1-5 分。
+- `sourceOverlapGroupId` / `sourceOverlapRatio`：用于诊断多题是否复用同一语义大段来源。
 
 `sourceOrder`、`sourceStartOffset`、`sourceEndOffset` 用于保持章节内顺序和来源定位。`sourceOrder` 表示知识点或题目在原文中的相对顺序；offset 是基于清洗后正文的字符位置，旧章节可能为空。iOS 展示知识点、题目和首次复习队列时应优先按 `sourceOrder` 排序，保证用户沿文章脉络复习。
 
 出题策略：
 
-- 每个可复习知识点尽量至少对应 1 道题；理想情况下每个高价值知识点入池 3 道题，用理解、辨析、应用等不同题型或角度强化记忆。
-- 后端最终入池最多保留 3 道题。优先保留不同题型的 `multiple_choice`、`true_false`、`scenario_judgment`；题型不齐时保留不同题干和不同考察角度的题。
+- 每个可复习知识点尽量至少对应 1 道题；理想情况下每个高价值知识点入池 3 道递进复习题，用不同认知动作强化记忆。
+- 多题目标不是机械换题型，而是覆盖不同 `memoryAngle`：核心回忆、边界辨析、场景迁移。
+- v7 后端会为知识点生成内部 `practiceBlueprint`，每道题可带 `blueprintItemId`、`blueprintGoal`、`memoryAngleFitScore`、`blueprintAlignmentScore`、`typeDiversityReason`。这些字段用于质量工作台和实验报告，iOS 正式页面可以忽略。
+- v8 后端会增加教学质量审查字段：`pedagogyDiagnostics`、`cognitiveActionFitScore`、`practiceProgressionScore`、`practiceDuplicateRiskScore`、`evidenceLearningValueScore`、`sourceReuseLearningReason`。这些字段用于判断题目是否真的完成“核心回忆 / 边界辨析 / 场景迁移”、同知识点多题是否递进、来源是否有学习导航价值；iOS 正式页面继续忽略。
+- 后端最终入池最多保留 3 道题。选择器优先保留来源支撑、答案唯一、解释忠实的题；其次优先覆盖不同 `memoryAngle`；再次才考虑不同题型的 `multiple_choice`、`true_false`、`scenario_judgment`。
 - 普通知识点可以少于 3 道题，生成不齐不导致章节失败；只有最终 0 道可复习题时才返回 `failed_no_qualified_questions`。
 - 题目入池后按对应知识点在原文中的位置排序；首次复习按文章内容先后推进，帮助用户像重新走一遍文章主线一样主动回忆。
-- 后端推荐题型，但题型不匹配不是硬失败；题型不匹配但结构完整的题可作为低置信题入池。
+- 后端推荐题型，但题型不匹配不是硬失败；v8 以后题型只作为 `type_fit_warning` 诊断，真正影响质量的是题目是否完成对应认知动作。
+- 如果一个知识点 3 道题都是同一题型，后端应通过质量诊断记录原因。只要 3 道题覆盖了不同 `memoryAngle`，同题型可以接受；如果只是换壳重复，即使题型不同也不应全部入池。
+- 边界、分工、机制对比类知识点应优先生成工具选择、边界辨析、场景归因或错误方案诊断题。干扰项必须来自真实混淆对象；解释应说明其它选项为什么不合适。
+- `correctUnderstanding` 和 `commonMisconception` 必须忠实于来源证据。若解释、误区或干扰项存在轻度来源风险，题目可以低置信入池；若答案不唯一、来源完全不支撑或解释明显幻觉，则不能入池。
 - 文章开头的导读、金句摘录、编辑摘要只用于理解主题，不能作为知识点 `sourceQuote` 或题目来源锚点。若观点只在导读区出现、正文没有展开，后端会按 `lead_summary_source` 过滤该知识点；若正文有展开，必须锚定正文段落。
-- `sourceSnippet` 是 iOS 解释页用户可见的原文上下文段落，不再是最短证据句。后端以知识点 `sourceQuote` 为锚点在 `cleanedText` 中定位，优先返回包含锚点的完整段落；段落过短时扩展相邻句，段落过长时按句子边界裁剪到约 150-500 字。
-- 后端选择 `sourceSnippet` 时会参考题干、正确理解、常见误区和知识点主张的关键词，优先选择能解释该题上下文的原文段落，而不是机械截取前后固定字数。
+- `sourceSnippet` 是 iOS 解释页用户可见的原文最小充分证据。后端以知识点 `sourceQuote`、题干、正确理解、常见误区和知识点主张为线索，在 `cleanedText` 中定位最能解释本题的原文句子窗口。
+- 后端选择 `sourceSnippet` 时优先返回 1-3 句足以支撑答案和解释的原文；如果最小证据不足以理解题目，才扩展相邻句，并通过 `sourceContextSelection` 记录扩展原因。完整上下文由“查看完整来源”页面承担。
 - `sourceSnippet` 必须来自原文；如果无法可靠定位，后端只回退到知识点 `sourceQuote`，并将题目标记为低置信。
 - `qualitySummary` 可能包含 `averageQuestionsPerPoint`、`questionCountDistribution`、`questionTypeCoverage` 等统计，用于质量工作台和调试；iOS 正式页面可以忽略这些字段。
 

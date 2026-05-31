@@ -50,11 +50,46 @@ export function summarize(results) {
     ? Math.round((pointDiagnostics.reduce((sum, point) => sum + (point.qualifiedQuestionCount || 0), 0) / pointDiagnostics.length) * 10) / 10
     : 0;
   const questionTypeCoverage = countValues(allQuestions.map((question) => question.type || "unknown"));
+  const memoryAngleCoverage = countValues(allQuestions.map((question) => question.memoryAngle || "unknown"));
+  const confidenceTierFrequency = countValues(allQuestions.map((question) => question.confidenceTier || "unknown"));
+  const sourcePrecisionScores = allQuestions
+    .map((question) => Number(question.sourcePrecisionScore || question.trustDiagnostics?.sourcePrecisionScore))
+    .filter(Number.isFinite);
+  const averageSourcePrecisionScore = sourcePrecisionScores.length
+    ? Math.round((sourcePrecisionScores.reduce((sum, score) => sum + score, 0) / sourcePrecisionScores.length) * 10) / 10
+    : 0;
+  const sourceMinimalityScores = allQuestions
+    .map((question) => Number(question.sourceMinimalityScore || question.sourceContextSelection?.sourceMinimalityScore))
+    .filter(Number.isFinite);
+  const averageSourceMinimalityScore = sourceMinimalityScores.length
+    ? Math.round((sourceMinimalityScores.reduce((sum, score) => sum + score, 0) / sourceMinimalityScores.length) * 10) / 10
+    : 0;
+  const sourceReuseTop = sourceReuseSummary(allQuestions);
+  const sourceOverlapTop = sourceOverlapSummary(allQuestions);
+  const sourceBlockReuseTop = sourceBlockReuseSummary(allQuestions);
+  const sourceBlockCoverageByPoint = sourceBlockCoverageSummary(allQuestions);
   const threeQuestionPointRate = percent(
     pointDiagnostics.filter((point) => (point.qualifiedQuestionCount || 0) >= 3).length,
     pointDiagnostics.length
   );
   const trustReasonFrequency = countValues(allQuestions.flatMap((question) => question.confidenceReasons || []));
+  const blueprintAlignmentScores = allQuestions
+    .map((question) => Number(question.blueprintAlignmentScore))
+    .filter(Number.isFinite);
+  const memoryAngleFitScores = allQuestions
+    .map((question) => Number(question.memoryAngleFitScore))
+    .filter(Number.isFinite);
+  const cognitiveActionFitScores = allQuestions
+    .map((question) => Number(question.cognitiveActionFitScore))
+    .filter(Number.isFinite);
+  const practiceProgressionScores = allQuestions
+    .map((question) => Number(question.practiceProgressionScore))
+    .filter(Number.isFinite);
+  const evidenceLearningValueScores = allQuestions
+    .map((question) => Number(question.evidenceLearningValueScore))
+    .filter(Number.isFinite);
+  const duplicatePracticeRiskCount = allQuestions
+    .filter((question) => Number(question.practiceDuplicateRiskScore || 0) >= 4).length;
   const blockingReasonFrequency = countValues(
     chapters.flatMap((result) => [
       ...(result.chapter?.questions || []),
@@ -76,6 +111,14 @@ export function summarize(results) {
     averageQuestionsPerPoint,
     questionCountDistribution,
     questionTypeCoverage,
+    memoryAngleCoverage,
+    confidenceTierFrequency,
+    averageSourcePrecisionScore,
+    averageSourceMinimalityScore,
+    sourceReuseTop,
+    sourceOverlapTop,
+    sourceBlockReuseTop,
+    sourceBlockCoverageByPoint,
     threeQuestionPointRate,
     lowConfidenceQuestionCount: lowConfidenceCount,
     lowConfidenceQuestionRate: percent(lowConfidenceCount, allQuestions.length),
@@ -95,6 +138,22 @@ export function summarize(results) {
     issueFrequency,
     machineIssueCategoryFrequency,
     trustReasonFrequency,
+    averageBlueprintAlignmentScore: blueprintAlignmentScores.length
+      ? Math.round((blueprintAlignmentScores.reduce((sum, score) => sum + score, 0) / blueprintAlignmentScores.length) * 10) / 10
+      : 0,
+    averageMemoryAngleFitScore: memoryAngleFitScores.length
+      ? Math.round((memoryAngleFitScores.reduce((sum, score) => sum + score, 0) / memoryAngleFitScores.length) * 10) / 10
+      : 0,
+    averageCognitiveActionFitScore: cognitiveActionFitScores.length
+      ? Math.round((cognitiveActionFitScores.reduce((sum, score) => sum + score, 0) / cognitiveActionFitScores.length) * 10) / 10
+      : 0,
+    averagePracticeProgressionScore: practiceProgressionScores.length
+      ? Math.round((practiceProgressionScores.reduce((sum, score) => sum + score, 0) / practiceProgressionScores.length) * 10) / 10
+      : 0,
+    averageEvidenceLearningValueScore: evidenceLearningValueScores.length
+      ? Math.round((evidenceLearningValueScores.reduce((sum, score) => sum + score, 0) / evidenceLearningValueScores.length) * 10) / 10
+      : 0,
+    duplicatePracticeRiskCount,
     blockingReasonFrequency
   };
 }
@@ -204,6 +263,8 @@ export function analyzeManualReview({ machineReport, csvText }) {
     const machine = machineByQuestion.get(row.question_id || row.questionId);
     return machine?.confidenceLevel === "low";
   });
+  const sourcePrecisionScores = reviewedRows.map((row) => Number(row.source_precision || row.human_source_precision)).filter(Number.isFinite);
+  const sourceMinimalityScores = reviewedRows.map((row) => Number(row.source_minimality || row.human_source_minimality)).filter(Number.isFinite);
 
   return {
     reviewedQuestionCount: reviewedRows.length,
@@ -216,9 +277,21 @@ export function analyzeManualReview({ machineReport, csvText }) {
     primaryIssueFrequency: primaryIssues,
     highScoreRejectedCount: highScoreRejected.length,
     lowConfidenceReviewedCount: lowConfidenceReviewed.length,
+    lowConfidenceAcceptedCount: lowConfidenceReviewed.filter((row) => (
+      normalizeStatus(row.human_status || row.usable || row.humanUsable) === "accept"
+    )).length,
+    lowConfidenceFixableCount: lowConfidenceReviewed.filter((row) => (
+      normalizeStatus(row.human_status || row.usable || row.humanUsable) === "fixable"
+    )).length,
     lowConfidenceRejectedCount: lowConfidenceReviewed.filter((row) => (
       normalizeStatus(row.human_status || row.usable || row.humanUsable) === "reject"
-    )).length
+    )).length,
+    averageSourcePrecision: sourcePrecisionScores.length
+      ? Math.round((sourcePrecisionScores.reduce((sum, score) => sum + score, 0) / sourcePrecisionScores.length) * 10) / 10
+      : 0,
+    averageSourceMinimality: sourceMinimalityScores.length
+      ? Math.round((sourceMinimalityScores.reduce((sum, score) => sum + score, 0) / sourceMinimalityScores.length) * 10) / 10
+      : 0
   };
 }
 
@@ -249,6 +322,9 @@ export function renderManualReport({ machineReport, manualSummary, resultFile, r
     `- 人工可用率：${manualSummary.acceptRate}%`,
     `- 严重问题比例：${manualSummary.severeIssueRate}%`,
     `- 机器高分但人工拒绝：${manualSummary.highScoreRejectedCount}`,
+    `- 低置信人工 accept/fixable/reject：${manualSummary.lowConfidenceAcceptedCount}/${manualSummary.lowConfidenceFixableCount}/${manualSummary.lowConfidenceRejectedCount}`,
+    `- 人工来源精准度均分：${manualSummary.averageSourcePrecision}`,
+    `- 人工最小证据均分：${manualSummary.averageSourceMinimality}`,
     "",
     "## 人工问题分布",
     "",
@@ -340,6 +416,7 @@ function questionToReviewRow({ result, question, status }) {
     knowledgeStructureRole: point?.structureRole || "",
     knowledgeImportanceScore: point?.importanceScore ?? "",
     knowledgeCoverageReason: point?.coverageReason || "",
+    practiceBlueprint: formatPracticeBlueprint(point?.practiceBlueprint),
     questionType: question.type,
     stem: question.stem,
     options: formatOptions(question.options),
@@ -348,12 +425,41 @@ function questionToReviewRow({ result, question, status }) {
     correctUnderstanding: question.correctUnderstanding || "",
     commonMisconception: question.commonMisconception || "",
     sourceSnippet: question.sourceSnippet || question.source_snippet || "",
+    memoryAngle: question.memoryAngle || "",
+    blueprintItemId: question.blueprintItemId || "",
+    blueprintGoal: question.blueprintGoal || "",
+    memoryAngleFitScore: question.memoryAngleFitScore ?? "",
+    blueprintAlignmentScore: question.blueprintAlignmentScore ?? "",
+    pedagogyDiagnostics: formatObject(question.pedagogyDiagnostics),
+    cognitiveActionFitScore: question.cognitiveActionFitScore ?? "",
+    coreRecallFitScore: question.coreRecallFitScore ?? "",
+    boundaryDiscriminationFitScore: question.boundaryDiscriminationFitScore ?? "",
+    scenarioTransferFitScore: question.scenarioTransferFitScore ?? "",
+    practiceProgressionScore: question.practiceProgressionScore ?? "",
+    practiceDuplicateRiskScore: question.practiceDuplicateRiskScore ?? "",
+    evidenceLearningValueScore: question.evidenceLearningValueScore ?? "",
+    sourceReuseLearningReason: question.sourceReuseLearningReason || "",
+    typeDiversityReason: question.typeDiversityReason || "",
     confidenceLevel: question.confidenceLevel || "",
+    confidenceTier: question.confidenceTier || "",
     retainedBy: question.retainedBy || "",
     sourceContextScore: question.sourceContextScore ?? "",
+    sourcePrecisionScore: question.sourcePrecisionScore ?? question.trustDiagnostics?.sourcePrecisionScore ?? "",
+    sourceSpecificityScore: question.sourceSpecificityScore ?? "",
+    sourceMinimalityScore: question.sourceMinimalityScore ?? question.sourceContextSelection?.sourceMinimalityScore ?? "",
+    sourceEvidenceRole: question.sourceEvidenceRole || question.sourceContextSelection?.sourceEvidenceRole || "",
+    sourceBlockId: question.sourceBlockId || question.sourceContextSelection?.sourceBlockId || "",
+    sourceEvidenceDiversityScore: question.sourceEvidenceDiversityScore ?? question.sourceContextSelection?.sourceEvidenceDiversityScore ?? "",
+    sourceReuseReason: question.sourceReuseReason || question.sourceContextSelection?.sourceReuseReason || "",
+    sourceOverlapRatio: question.sourceOverlapRatio ?? question.sourceContextSelection?.sourceOverlapRatio ?? "",
+    sourceOverlapGroupId: question.sourceOverlapGroupId || question.sourceContextSelection?.sourceOverlapGroupId || "",
+    sourceReuseCount: question.sourceReuseCount ?? question.sourceContextSelection?.reuseCount ?? "",
+    sourceContextSelection: formatSourceContextSelection(question.sourceContextSelection),
     trustDiagnostics: formatTrustDiagnostics(question.trustDiagnostics),
     confidenceReasons: (question.confidenceReasons || []).join(";"),
     blockingReasons: (question.blockingReasons || []).join(";"),
+    primaryBlockingReason: question.primaryBlockingReason || "",
+    repairHint: question.repairHint || "",
     machineAverageScore: question.qualityScore?.average ?? "",
     machineIssues: (question.qualityIssues || []).join(";"),
     machineIssueCategory: categorizeMachineIssue((question.qualityIssues || [])[0] || ""),
@@ -361,6 +467,20 @@ function questionToReviewRow({ result, question, status }) {
     primary_issue: "",
     secondary_issue: "",
     source_support: "",
+    source_precision: "",
+    source_minimality: "",
+    source_evidence_role: "",
+    source_block_id: "",
+    source_evidence_diversity: "",
+    source_reuse_reason: "",
+    source_overlap_ratio: "",
+    source_overlap_group: "",
+    cognitive_action_fit: "",
+    practice_progression: "",
+    duplicate_practice: "",
+    misconception_realism: "",
+    distractor_learning_value: "",
+    evidence_learning_value: "",
     answer_uniqueness: "",
     understanding_depth: "",
     clarity: "",
@@ -388,6 +508,7 @@ function emptyReviewRow(result) {
     knowledgeStructureRole: "",
     knowledgeImportanceScore: "",
     knowledgeCoverageReason: "",
+    practiceBlueprint: "",
     questionType: "",
     stem: "",
     options: "",
@@ -396,12 +517,42 @@ function emptyReviewRow(result) {
     correctUnderstanding: "",
     commonMisconception: "",
     sourceSnippet: "",
+    memoryAngle: "",
+    blueprintItemId: "",
+    blueprintGoal: "",
+    memoryAngleFitScore: "",
+    blueprintAlignmentScore: "",
+    pedagogyDiagnostics: "",
+    cognitiveActionFitScore: "",
+    coreRecallFitScore: "",
+    boundaryDiscriminationFitScore: "",
+    scenarioTransferFitScore: "",
+    practiceProgressionScore: "",
+    practiceDuplicateRiskScore: "",
+    evidenceLearningValueScore: "",
+    sourceReuseLearningReason: "",
+    typeDiversityReason: "",
     confidenceLevel: "",
+    confidenceTier: "",
     retainedBy: "",
     sourceContextScore: "",
+    sourcePrecisionScore: "",
+    sourceSpecificityScore: "",
+    sourceMinimalityScore: "",
+    sourceEvidenceRole: "",
+    sourceBlockId: "",
+    sourceEvidenceDiversityScore: "",
+    sourceReuseReason: "",
+    sourceOverlapRatio: "",
+    sourceOverlapGroupId: "",
+    sourceReuseCount: "",
+    sourceContextSelection: "",
     trustDiagnostics: "",
+    pedagogyDiagnostics: "",
     confidenceReasons: "",
     blockingReasons: "",
+    primaryBlockingReason: "",
+    repairHint: "",
     machineAverageScore: "",
     machineIssues: result.message || "no_questions",
     machineIssueCategory: categorizeMachineIssue(result.message || "no_questions"),
@@ -409,6 +560,20 @@ function emptyReviewRow(result) {
     primary_issue: "",
     secondary_issue: "",
     source_support: "",
+    source_precision: "",
+    source_minimality: "",
+    source_evidence_role: "",
+    source_block_id: "",
+    source_evidence_diversity: "",
+    source_reuse_reason: "",
+    source_overlap_ratio: "",
+    source_overlap_group: "",
+    cognitive_action_fit: "",
+    practice_progression: "",
+    duplicate_practice: "",
+    misconception_realism: "",
+    distractor_learning_value: "",
+    evidence_learning_value: "",
     answer_uniqueness: "",
     understanding_depth: "",
     clarity: "",
@@ -429,6 +594,16 @@ function findQuestionKnowledgePoint(chapter, question) {
   return (chapter?.knowledgePoints || []).find((point) => point.id === pointId) || null;
 }
 
+function formatPracticeBlueprint(blueprint) {
+  if (!Array.isArray(blueprint) || !blueprint.length) return "";
+  return blueprint.map((item) => [
+    item.id,
+    item.memoryAngle,
+    item.preferredQuestionType,
+    item.goal
+  ].filter(Boolean).join(":")).join(" | ");
+}
+
 function formatOptions(options = []) {
   return options.map((option) => `${option.id}. ${option.text}`).join(" | ");
 }
@@ -443,8 +618,160 @@ function formatTrustDiagnostics(diagnostics) {
     `answer:${diagnostics.answerGroundingScore ?? ""}`,
     `explanation:${diagnostics.explanationFaithfulnessScore ?? ""}`,
     `context:${diagnostics.contextRelevanceScore ?? ""}`,
-    `misconception:${diagnostics.misconceptionSupportScore ?? ""}`
+    `misconception:${diagnostics.misconceptionSupportScore ?? ""}`,
+    `cognitive:${diagnostics.cognitiveActionFitScore ?? ""}`,
+    `evidenceLearning:${diagnostics.evidenceLearningValueScore ?? ""}`
   ].join(" | ");
+}
+
+function formatObject(value) {
+  if (!value || typeof value !== "object") return "";
+  return JSON.stringify(value);
+}
+
+function formatSourceContextSelection(selection) {
+  if (!selection || typeof selection !== "object") return "";
+  return [
+    `method:${selection.method || ""}`,
+    `paragraph:${selection.paragraphIndex ?? ""}`,
+    `score:${selection.score ?? ""}`,
+    `relevance:${selection.relevanceScore ?? ""}`,
+    `precision:${selection.sourcePrecisionScore ?? ""}`,
+    `specificity:${selection.specificityScore ?? ""}`,
+    `minimality:${selection.sourceMinimalityScore ?? ""}`,
+    `role:${selection.sourceEvidenceRole ?? ""}`,
+    `block:${selection.sourceBlockId ?? ""}`,
+    `diversity:${selection.sourceEvidenceDiversityScore ?? ""}`,
+    `reuseReason:${selection.sourceReuseReason ?? ""}`,
+    `overlap:${selection.sourceOverlapRatio ?? ""}`,
+    `overlapGroup:${selection.sourceOverlapGroupId ?? ""}`,
+    `reuse:${selection.reuseCount ?? ""}`,
+    `candidates:${selection.candidateCount ?? ""}`,
+    `anchor:${selection.anchorMatched ? "yes" : "no"}`,
+    `fallback:${selection.fallback ? "yes" : "no"}`,
+    selection.fallbackReason ? `reason:${selection.fallbackReason}` : ""
+  ].filter(Boolean).join(" | ");
+}
+
+function sourceReuseSummary(questions = []) {
+  const groups = new Map();
+  for (const question of questions) {
+    const selection = question.sourceContextSelection || {};
+    const key = Number.isFinite(Number(selection.paragraphIndex))
+      ? `paragraph:${selection.paragraphIndex}`
+      : compactSourceKey(question.sourceSnippet);
+    const current = groups.get(key) || {
+      key,
+      count: 0,
+      questionIds: [],
+      stems: [],
+      method: selection.method || "",
+      paragraphIndex: selection.paragraphIndex ?? ""
+    };
+    current.count += 1;
+    current.questionIds.push(question.id);
+    current.stems.push(question.stem);
+    groups.set(key, current);
+  }
+  return [...groups.values()]
+    .filter((item) => item.count > 1)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
+    .map((item) => ({
+      key: item.key,
+      count: item.count,
+      method: item.method,
+      paragraphIndex: item.paragraphIndex,
+      questionIds: item.questionIds
+    }));
+}
+
+function sourceOverlapSummary(questions = []) {
+  const groups = new Map();
+  for (const question of questions) {
+    const groupId = question.sourceOverlapGroupId || question.sourceContextSelection?.sourceOverlapGroupId;
+    const ratio = Number(question.sourceOverlapRatio ?? question.sourceContextSelection?.sourceOverlapRatio ?? 0);
+    if (!groupId || ratio < 0.7) continue;
+    const current = groups.get(groupId) || {
+      key: groupId,
+      count: 0,
+      maxOverlapRatio: 0,
+      questionIds: []
+    };
+    current.count += 1;
+    current.maxOverlapRatio = Math.max(current.maxOverlapRatio, Math.round(ratio * 100) / 100);
+    if (question.id) current.questionIds.push(question.id);
+    groups.set(groupId, current);
+  }
+  return [...groups.values()]
+    .sort((a, b) => b.count - a.count || b.maxOverlapRatio - a.maxOverlapRatio)
+    .slice(0, 5);
+}
+
+function sourceBlockReuseSummary(questions = []) {
+  const groups = new Map();
+  for (const question of questions) {
+    const blockId = question.sourceBlockId || question.sourceContextSelection?.sourceBlockId;
+    if (!blockId) continue;
+    const current = groups.get(blockId) || {
+      key: blockId,
+      count: 0,
+      evidenceRole: question.sourceEvidenceRole || question.sourceContextSelection?.sourceEvidenceRole || "",
+      paragraphIndex: question.sourceContextSelection?.paragraphIndex ?? "",
+      questionIds: [],
+      knowledgePointIds: new Set()
+    };
+    current.count += 1;
+    if (question.id) current.questionIds.push(question.id);
+    if (question.knowledgePointId || question.pointId) current.knowledgePointIds.add(question.knowledgePointId || question.pointId);
+    groups.set(blockId, current);
+  }
+  return [...groups.values()]
+    .filter((item) => item.count > 1)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
+    .map((item) => ({
+      key: item.key,
+      count: item.count,
+      evidenceRole: item.evidenceRole,
+      paragraphIndex: item.paragraphIndex,
+      questionIds: item.questionIds,
+      knowledgePointCount: item.knowledgePointIds.size
+    }));
+}
+
+function sourceBlockCoverageSummary(questions = []) {
+  const groups = new Map();
+  for (const question of questions) {
+    const pointId = question.knowledgePointId || question.pointId || "";
+    if (!pointId) continue;
+    const current = groups.get(pointId) || {
+      knowledgePointId: pointId,
+      questionCount: 0,
+      sourceBlockIds: new Set(),
+      evidenceRoles: new Set()
+    };
+    current.questionCount += 1;
+    const blockId = question.sourceBlockId || question.sourceContextSelection?.sourceBlockId;
+    const role = question.sourceEvidenceRole || question.sourceContextSelection?.sourceEvidenceRole;
+    if (blockId) current.sourceBlockIds.add(blockId);
+    if (role) current.evidenceRoles.add(role);
+    groups.set(pointId, current);
+  }
+  return [...groups.values()]
+    .map((item) => ({
+      knowledgePointId: item.knowledgePointId,
+      questionCount: item.questionCount,
+      sourceBlockCount: item.sourceBlockIds.size,
+      evidenceRoleCount: item.evidenceRoles.size,
+      sourceBlockIds: [...item.sourceBlockIds],
+      evidenceRoles: [...item.evidenceRoles]
+    }))
+    .sort((a, b) => b.questionCount - a.questionCount || a.knowledgePointId.localeCompare(b.knowledgePointId));
+}
+
+function compactSourceKey(value) {
+  return `snippet:${String(value || "").replace(/\s+/g, " ").trim().slice(0, 80)}`;
 }
 
 function normalizeStatus(value) {

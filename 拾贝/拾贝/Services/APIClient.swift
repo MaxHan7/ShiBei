@@ -104,8 +104,8 @@ struct APIClient {
         try await send("/api/device-data", method: "DELETE", body: EmptyRequest(), acceptsFailureBody: false)
     }
 
-    func registerPushToken(_ token: String, environment: PushTokenEnvironment) async throws -> PushTokenRegistrationResponse {
-        let request = PushTokenRequest(token: token, environment: environment)
+    func registerPushToken(_ token: String, environment: PushTokenEnvironment, preferredLanguage: AppLanguage) async throws -> PushTokenRegistrationResponse {
+        let request = PushTokenRequest(token: token, environment: environment, preferredLanguage: preferredLanguage.rawValue)
         return try await send("/api/devices/push-token", method: "POST", body: request, acceptsFailureBody: false)
     }
 
@@ -191,15 +191,15 @@ struct APIClient {
     private static func describeDecodingError(_ error: DecodingError) -> String {
         switch error {
         case .typeMismatch(let type, let context):
-            "字段 \(codingPathDescription(context.codingPath)) 类型不匹配，期望 \(type)。"
+            "Field \(codingPathDescription(context.codingPath)) type mismatch. Expected \(type)."
         case .valueNotFound(let type, let context):
-            "字段 \(codingPathDescription(context.codingPath)) 缺少值，期望 \(type)。"
+            "Field \(codingPathDescription(context.codingPath)) is missing a value. Expected \(type)."
         case .keyNotFound(let key, let context):
-            "字段 \(codingPathDescription(context.codingPath + [key])) 缺失。"
+            "Field \(codingPathDescription(context.codingPath + [key])) is missing."
         case .dataCorrupted(let context):
-            "字段 \(codingPathDescription(context.codingPath)) 数据损坏：\(context.debugDescription)"
+            "Field \(codingPathDescription(context.codingPath)) data corrupted: \(context.debugDescription)"
         @unknown default:
-            "API 返回数据无法解析。"
+            "API response could not be decoded."
         }
     }
 
@@ -223,13 +223,13 @@ enum APIClientError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidResponse:
-            "API 返回格式不正确。"
+            "Invalid API response."
         case .httpStatus(let statusCode):
-            "API 请求失败：HTTP \(statusCode)。"
+            "API request failed: HTTP \(statusCode)."
         case .serverMessage(let message):
             message
         case .decoding(let message):
-            "API 返回格式不兼容：\(message)"
+            "API response is incompatible: \(message)"
         }
     }
 }
@@ -257,6 +257,7 @@ struct PushTokenRequest: Codable {
     var token: String
     var platform: String = "ios"
     var environment: PushTokenEnvironment
+    var preferredLanguage: String
 }
 
 struct PushTokenRegistrationResponse: Codable {

@@ -107,12 +107,12 @@ private struct PushDiagnosticsCard: View {
     var body: some View {
         SBCard {
             VStack(alignment: .leading, spacing: 8) {
-                Text("通知诊断")
+                Text(store.localized("profile.push_diagnostics.title"))
                     .font(.system(size: 18, weight: .bold))
-                Text("用于排查生成完成后没有收到系统通知的问题。")
+                Text(store.localized("profile.push_diagnostics.body"))
                     .font(.system(size: 13))
                     .foregroundStyle(ShiBeiTheme.muted)
-                Text(store.pushDiagnosticSummary.isEmpty ? "尚未读取通知诊断。" : store.pushDiagnosticSummary)
+                Text(store.pushDiagnosticSummary.isEmpty ? store.localized("profile.push_diagnostics.empty") : store.pushDiagnosticSummary)
                     .font(.system(size: 13))
                     .foregroundStyle(ShiBeiTheme.muted)
                     .lineSpacing(4)
@@ -121,7 +121,7 @@ private struct PushDiagnosticsCard: View {
 
             HStack(spacing: 10) {
                 SecondaryButton(
-                    title: store.isLoadingPushDiagnostics ? "读取中" : "读取通知诊断",
+                    title: store.isLoadingPushDiagnostics ? store.localized("profile.push_diagnostics.loading") : store.localized("profile.push_diagnostics.action"),
                     systemImage: store.isLoadingPushDiagnostics ? "hourglass" : "bell.badge"
                 ) {
                     Task {
@@ -134,7 +134,7 @@ private struct PushDiagnosticsCard: View {
                     UIPasteboard.general.string = store.pushDiagnosticCopyText
                     copied = true
                 } label: {
-                    Label(copied ? "已复制" : "复制诊断信息", systemImage: copied ? "checkmark" : "doc.on.doc")
+                    Label(copied ? store.localized("profile.push_diagnostics.copied") : store.localized("profile.push_diagnostics.copy"), systemImage: copied ? "checkmark" : "doc.on.doc")
                         .font(.system(size: 16, weight: .medium))
                         .frame(maxWidth: .infinity, minHeight: 56)
                         .foregroundStyle(ShiBeiTheme.textSoft)

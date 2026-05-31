@@ -1,19 +1,31 @@
 import SwiftUI
 
 enum ShiBeiTheme {
-    static let surface = Color(red: 1.0, green: 0.980, blue: 0.957)
-    static let card = Color.white
-    static let line = Color(red: 0.984, green: 0.953, blue: 0.894)
-    static let lineSoft = Color(red: 0.918, green: 0.886, blue: 0.827)
-    static let text = Color(red: 0.122, green: 0.106, blue: 0.071)
-    static let textSoft = Color(red: 0.302, green: 0.275, blue: 0.208)
-    static let muted = Color(red: 0.369, green: 0.369, blue: 0.369)
-    static let faint = Color(red: 0.659, green: 0.635, blue: 0.620)
-    static let primary = Color(red: 0.878, green: 0.596, blue: 0.349)
-    static let yellow = Color(red: 0.988, green: 0.827, blue: 0.302)
-    static let yellowPale = Color(red: 1.0, green: 0.937, blue: 0.737)
-    static let error = Color(red: 0.729, green: 0.102, blue: 0.102)
-    static let success = Color(red: 0.125, green: 0.788, blue: 0.396)
+    static let surface = Color("ShibeiSurface")
+    static let card = Color("ShibeiCard")
+    static let line = Color("ShibeiLine")
+    static let lineSoft = Color("ShibeiLineSoft")
+    static let text = Color("ShibeiTextPrimary")
+    static let textSoft = Color("ShibeiTextSecondary")
+    static let muted = Color("ShibeiTextMuted")
+    static let faint = Color("ShibeiTextFaint")
+    static let primary = Color("ShibeiBrandPrimary")
+    static let yellow = Color("ShibeiAccentYellow")
+    static let yellowPale = Color("ShibeiAccentYellowPale")
+    static let error = Color("ShibeiDanger")
+    static let success = Color("ShibeiSuccess")
+    static let onPrimary = Color("ShibeiOnPrimary")
+    static let dangerBackground = Color("ShibeiDangerBackground")
+    static let successBackground = Color("ShibeiSuccessBackground")
+    static let sourceBackground = Color("ShibeiSourceBackground")
+    static let inputFocusBackground = Color("ShibeiInputFocusBackground")
+    static let reviewWaitingBackground = Color("ShibeiReviewWaitingBackground")
+    static let reviewInProgressBackground = Color("ShibeiReviewInProgressBackground")
+    static let reviewCompletedBackground = Color("ShibeiReviewCompletedBackground")
+    static let reviewCompletedText = Color("ShibeiReviewCompletedText")
+    static let answerWrongText = Color("ShibeiAnswerWrongText")
+    static let shadow = Color("ShibeiShadow")
+    static let scrim = Color("ShibeiScrim")
     static let radius: CGFloat = 15
 }
 
@@ -124,7 +136,7 @@ struct SBCard<Content: View>: View {
                 .stroke(ShiBeiTheme.line, lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: ShiBeiTheme.radius, style: .continuous))
-        .shadow(color: .black.opacity(0.05), radius: 15, y: 10)
+        .shadow(color: ShiBeiTheme.shadow.opacity(0.05), radius: 15, y: 10)
     }
 }
 
@@ -139,7 +151,7 @@ struct StatusPill: View {
             .foregroundStyle(isDanger ? ShiBeiTheme.error : ShiBeiTheme.textSoft)
             .padding(.horizontal, 12)
             .padding(.vertical, 4)
-            .background(isDanger ? Color(red: 1, green: 0.941, blue: 0.933) : ShiBeiTheme.yellowPale)
+            .background(isDanger ? ShiBeiTheme.dangerBackground : ShiBeiTheme.yellowPale)
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }
@@ -160,10 +172,10 @@ struct PrimaryButton: View {
             }
             .font(.system(size: 16, weight: .medium))
             .frame(maxWidth: .infinity, minHeight: 56)
-            .foregroundStyle(.white)
+            .foregroundStyle(ShiBeiTheme.onPrimary)
             .background(disabled ? ShiBeiTheme.primary.opacity(0.45) : ShiBeiTheme.primary)
             .clipShape(RoundedRectangle(cornerRadius: ShiBeiTheme.radius, style: .continuous))
-            .shadow(color: .black.opacity(disabled ? 0 : 0.10), radius: 8, y: 4)
+            .shadow(color: ShiBeiTheme.shadow.opacity(disabled ? 0 : 0.10), radius: 8, y: 4)
         }
         .disabled(disabled)
     }
@@ -253,7 +265,7 @@ struct KnowledgePointRow: View {
                 .stroke(ShiBeiTheme.line, lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: ShiBeiTheme.radius, style: .continuous))
-        .shadow(color: .black.opacity(0.04), radius: 10, y: 5)
+        .shadow(color: ShiBeiTheme.shadow.opacity(0.04), radius: 10, y: 5)
     }
 }
 
@@ -266,7 +278,7 @@ struct SubmittedToast: View {
             Rectangle()
                 .fill(.ultraThinMaterial)
                 .ignoresSafeArea()
-            Color.black.opacity(0.16)
+            ShiBeiTheme.scrim.opacity(0.16)
                 .ignoresSafeArea()
             VStack(spacing: 16) {
                 Image(systemName: "checkmark")
@@ -284,7 +296,7 @@ struct SubmittedToast: View {
             .frame(width: 330)
             .background(ShiBeiTheme.card)
             .clipShape(RoundedRectangle(cornerRadius: ShiBeiTheme.radius, style: .continuous))
-            .shadow(color: .black.opacity(0.18), radius: 18, y: 8)
+            .shadow(color: ShiBeiTheme.shadow.opacity(0.18), radius: 18, y: 8)
         }
     }
 }

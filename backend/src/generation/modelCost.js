@@ -26,7 +26,7 @@ const MODEL_PRICES = [
 ];
 
 const DEFAULT_ESTIMATED_OUTPUT_TOKENS = {
-  knowledge_points: 1800,
+  knowledge_points: 2400,
   questions_initial: 2400,
   judge_initial: 900,
   question_rewrite: 800,
@@ -43,11 +43,18 @@ export function createGenerationRunId(prefix = "chapter") {
 }
 
 export function createModelUsageRecorder({ runId, calls = [] }) {
+  const requestHistory = [];
   return {
     calls,
     record(call) {
-      const record = buildModelUsageRecord({ runId, ...call });
+      const record = buildModelUsageRecord({ runId, previousRequests: requestHistory, ...call });
       calls.push(record);
+      requestHistory.push({
+        provider: call.provider,
+        model: call.model,
+        stage: call.stage,
+        requestText: call.requestText || ""
+      });
       return record;
     }
   };
@@ -60,14 +67,22 @@ export function buildModelUsageRecord({
   model,
   requestText = "",
   estimatedOutputTokens = null,
+  previousRequests = [],
   usage = null,
   error = null
 }) {
   const price = findModelPrice(provider, model);
   const estimatedInputTokens = estimateTokenCount(requestText);
+  const estimatedCachedInputTokens = estimateCachedInputTokensFromHistory({
+    provider,
+    model,
+    requestText,
+    inputTokens: estimatedInputTokens,
+    previousRequests
+  });
   const estimated = buildCostBlock({
     inputTokens: estimatedInputTokens,
-    cachedInputTokens: 0,
+    cachedInputTokens: estimatedCachedInputTokens,
     outputTokens: normalizeEstimatedOutputTokens(stage, estimatedOutputTokens),
     price
   });
@@ -182,6 +197,39 @@ export function estimateTokenCount(value) {
 
   tokens += estimateLatinBuffer(latinBuffer);
   return Math.max(1, Math.ceil(tokens));
+}
+
+export function estimateCachedInputTokensFromHistory({
+  provider,
+  model,
+  requestText = "",
+  inputTokens = null,
+  previousRequests = []
+}) {
+  const text = String(requestText || "");
+  const normalizedProvider = String(provider || "").toLowerCase();
+  const normalizedModel = String(model || "").toLowerCase();
+  const price = findModelPrice(normalizedProvider, normalizedModel);
+  if (!text || !price || !Number.isFinite(price.cachedInputPerMillion)) return 0;
+
+  const eligible = Array.isArray(previousRequests)
+    ? previousRequests.filter((request) => (
+      String(request.provider || "").toLowerCase() === normalizedProvider
+        && String(request.model || "").toLowerCase() === normalizedModel
+        && request.requestText
+    ))
+    : [];
+  if (!eligible.length) return 0;
+
+  const longestPrefix = eligible.reduce((best, request) => {
+    const length = commonPrefixLength(text, String(request.requestText || ""));
+    return Math.max(best, length);
+  }, 0);
+  if (longestPrefix < 256) return 0;
+
+  const prefixTokens = estimateTokenCount(text.slice(0, longestPrefix));
+  const normalizedInput = Math.max(0, toNumber(inputTokens) || estimateTokenCount(text));
+  return Math.min(normalizedInput, prefixTokens);
 }
 
 export function findModelPrice(provider, model) {
@@ -307,6 +355,13 @@ function normalizeEstimatedOutputTokens(stage, explicitValue) {
 function estimateLatinBuffer(buffer) {
   if (!buffer) return 0;
   return Math.max(1, Math.ceil(buffer.length / 4));
+}
+
+function commonPrefixLength(left, right) {
+  const max = Math.min(left.length, right.length);
+  let index = 0;
+  while (index < max && left[index] === right[index]) index += 1;
+  return index;
 }
 
 function sumCosts(values) {

@@ -1,10 +1,15 @@
 import { cleanContent } from "./cleanContent.js";
 import { chunkContent } from "./chunkContent.js";
+import {
+  bindKnowledgePointsToStructure,
+  buildArticleStructureMap
+} from "./articleStructure.js";
 import { extractKnowledgeCandidates } from "./extractKnowledgeCandidates.js";
 import { filterKnowledgePoints } from "./filterKnowledgePoints.js";
 import { generateChapterSummary } from "./generateChapterSummary.js";
-import { generateQuestions, targetQuestionCountForPoint } from "./generateQuestions.js";
-import { evaluateQuestions } from "./evaluateQuestions.js";
+import { generateQuestions, targetQuestionCountDecisionForPoint, targetQuestionCountForPoint } from "./generateQuestions.js";
+import { evaluateQuestions, expectedQuestionType } from "./evaluateQuestions.js";
+import { buildPracticeBlueprintForPoint, typeDiversityReasonForSelection } from "./practiceBlueprint.js";
 import { judgeQuestionQuality } from "./judgeQuestionQuality.js";
 import { createGenerationRunId, createModelUsageRecorder, summarizeModelUsage } from "./modelCost.js";
 import { STATUS_TEXT } from "./types.js";
@@ -51,6 +56,7 @@ export async function generateReviewChapter(input, options = {}) {
     }
 
     const chunks = chunkContent(cleaned.cleanedText);
+    const articleStructureMap = buildArticleStructureMap({ cleanedText: cleaned.cleanedText });
     let extracted;
     let knowledgePoints;
     let filteredKnowledgePoints = [];
@@ -71,8 +77,16 @@ export async function generateReviewChapter(input, options = {}) {
       knowledgePoints = filterResult.kept;
       filteredKnowledgePoints = filterResult.filtered;
     }
-    knowledgePoints = orderKnowledgePointsBySource(knowledgePoints, cleaned.cleanedText);
-    filteredKnowledgePoints = orderKnowledgePointsBySource(filteredKnowledgePoints, cleaned.cleanedText);
+    knowledgePoints = enrichKnowledgePointsWithPracticeBlueprint(
+      bindKnowledgePointsToStructure(
+        orderKnowledgePointsBySource(knowledgePoints, cleaned.cleanedText),
+        articleStructureMap
+      )
+    );
+    filteredKnowledgePoints = bindKnowledgePointsToStructure(
+      orderKnowledgePointsBySource(filteredKnowledgePoints, cleaned.cleanedText),
+      articleStructureMap
+    );
 
     if (!knowledgePoints.length) {
       return failure({
@@ -146,6 +160,7 @@ export async function generateReviewChapter(input, options = {}) {
         coreSummary,
         qualitySummary,
         generationMeta: finishMeta(meta, {
+          articleStructureNodeCount: articleStructureMap.nodes.length,
           chunkCount: chunks.length,
           candidateCount: extracted.candidates.length,
           keptKnowledgePointCount: knowledgePoints.length,
@@ -163,6 +178,7 @@ export async function generateReviewChapter(input, options = {}) {
         message: ""
       }),
       generationDebug: {
+        articleStructureMap,
         knowledgePoints,
         filteredKnowledgePoints,
         evaluatedQuestions: questionBuild.evaluatedQuestions,
@@ -259,9 +275,9 @@ async function createQualifiedQuestions({ knowledgePoints, cleanedText, meta, on
     try {
       const rewritten = await generateQuestions({
         knowledgePoints: [point],
-        rewrite: true,
+        supplement: true,
         targetQuestionCountOverride: request.missingCount,
-        rewriteContext: `supplement_for_multi_question_review; ${request.reason}; ${summarizePointIssues(point.id, beforeSupplement)}`,
+        supplementContext: `supplement_for_multi_question_review; ${request.reason}; ${summarizePointIssues(point.id, beforeSupplement)}`,
         stage: "question_supplement",
         modelUsageRecorder
       });
@@ -322,11 +338,11 @@ export function selectQualifiedQuestionsByPoint(knowledgePoints, evaluatedQuesti
     const rewritten = evaluatedQuestions
       .filter((question) => question.knowledgePointId === point.id && question.qualityAction === "rewrite" && isReviewableQuestion(question))
       .sort(compareQuestionQuality);
-    const chosen = selectDiverseQuestions({
+    const chosen = annotateSelectionDiagnostics(selectDiverseQuestions({
       passed: dedupeSimilarQuestions(passed),
       rewritten: dedupeSimilarQuestions(rewritten),
       targetCount
-    });
+    }));
     selected.push(...chosen);
   }
   return selected;
@@ -354,13 +370,99 @@ function selectDiverseQuestions({ passed, rewritten, targetCount }) {
 }
 
 function addDiverseQuestions({ selected, candidates, targetCount, mark }) {
-  const diverseTypeCandidates = candidates.filter((question) => !selected.some((item) => item.type === question.type));
-  for (const question of [...diverseTypeCandidates, ...candidates]) {
-    if (selected.length >= targetCount) break;
-    if (selected.some((item) => item.id === question.id)) continue;
-    if (selected.some((item) => overlapRatio(compactText(item.stem), compactText(question.stem)) > 0.72)) continue;
-    selected.push(mark(question));
+  const phases = [
+    (question) => question.blueprintItemId && !selected.some((item) => item.blueprintItemId === question.blueprintItemId),
+    (question) => question.memoryAngle && !selected.some((item) => item.memoryAngle === question.memoryAngle),
+    (question) => !selected.some((item) => item.type === question.type),
+    () => true
+  ];
+  for (const phase of phases) {
+    for (const question of candidates) {
+      if (selected.length >= targetCount) break;
+      if (!phase(question)) continue;
+      if (!canAddQuestionToSelection(selected, question)) continue;
+      selected.push(mark(question));
+    }
   }
+}
+
+function canAddQuestionToSelection(selected, question) {
+  if (selected.some((item) => item.id === question.id)) return false;
+  if (selected.some((item) => overlapRatio(compactText(item.stem), compactText(question.stem)) > 0.72)) return false;
+  if (question.memoryAngle && selected.some((item) => item.memoryAngle === question.memoryAngle
+    && overlapRatio(compactText(item.correctUnderstanding), compactText(question.correctUnderstanding)) > 0.68)) return false;
+  return true;
+}
+
+function annotateSelectionDiagnostics(selected) {
+  const typeDiversityReason = typeDiversityReasonForSelection(selected);
+  const practiceProgressionScore = scorePracticeProgression(selected);
+  return selected.map((question) => ({
+    ...question,
+    typeDiversityReason: question.typeDiversityReason || typeDiversityReason,
+    practiceProgressionScore: question.practiceProgressionScore ?? practiceProgressionScore,
+    practiceDuplicateRiskScore: Math.max(
+      Number(question.practiceDuplicateRiskScore || 1),
+      scoreDuplicatePracticeRisk(question, selected)
+    ),
+    evidenceLearningValueScore: adjustedEvidenceLearningValue(question, selected),
+    sourceReuseLearningReason: question.sourceReuseLearningReason || sourceReuseLearningReason(question, selected),
+    pedagogyDiagnostics: {
+      ...(question.pedagogyDiagnostics || {}),
+      selection: {
+        practiceProgressionScore,
+        practiceDuplicateRiskScore: scoreDuplicatePracticeRisk(question, selected),
+        sourceReuseLearningReason: sourceReuseLearningReason(question, selected),
+        selectedMemoryAngles: [...new Set(selected.map((item) => item.memoryAngle).filter(Boolean))],
+        selectedSourceBlockIds: [...new Set(selected.map((item) => item.sourceBlockId).filter(Boolean))]
+      }
+    }
+  }));
+}
+
+function scorePracticeProgression(selected = []) {
+  const angles = new Set(selected.map((question) => question.memoryAngle).filter(Boolean));
+  if (selected.length >= 3 && angles.size >= 3) return 5;
+  if (selected.length >= 2 && angles.size >= 2) return 4;
+  if (selected.length <= 1) return 3;
+  return 2;
+}
+
+function scoreDuplicatePracticeRisk(question, selected = []) {
+  const peers = selected.filter((item) => item.id !== question.id);
+  if (!peers.length) return 1;
+  const stem = compactText(question.stem);
+  const understanding = compactText(question.correctUnderstanding);
+  const hasHighTextOverlap = peers.some((item) => (
+    overlapRatio(compactText(item.stem), stem) > 0.68
+    || overlapRatio(compactText(item.correctUnderstanding), understanding) > 0.62
+  ));
+  if (hasHighTextOverlap) return 5;
+  const sameAngleSameSource = peers.some((item) => (
+    item.memoryAngle && item.memoryAngle === question.memoryAngle
+    && item.sourceBlockId && item.sourceBlockId === question.sourceBlockId
+  ));
+  if (sameAngleSameSource) return 4;
+  const sameSourceCount = selected.filter((item) => item.sourceBlockId && item.sourceBlockId === question.sourceBlockId).length;
+  if (sameSourceCount >= 3) return 3;
+  return 1;
+}
+
+function adjustedEvidenceLearningValue(question, selected = []) {
+  const base = Number(question.evidenceLearningValueScore || 3);
+  const sameSourceCount = selected.filter((item) => item.sourceBlockId && item.sourceBlockId === question.sourceBlockId).length;
+  const adjustment = sameSourceCount >= 3 ? -1 : sameSourceCount === 2 ? -0.4 : 0;
+  return Math.max(1, Math.min(5, Math.round((base + adjustment) * 10) / 10));
+}
+
+function sourceReuseLearningReason(question, selected = []) {
+  if (!question.sourceBlockId) return "";
+  const sameSource = selected.filter((item) => item.sourceBlockId === question.sourceBlockId);
+  if (sameSource.length <= 1) return "";
+  const sameAngle = sameSource.some((item) => item.id !== question.id && item.memoryAngle === question.memoryAngle);
+  if (sameAngle) return "same_angle_reuses_source_block";
+  if (sameSource.length >= selected.length && selected.length >= 3) return "same_point_all_questions_share_one_source_block";
+  return "source_block_reused_for_different_cognitive_actions";
 }
 
 function markConfidence(question, confidenceLevel, retainedBy = null) {
@@ -373,18 +475,30 @@ function markConfidence(question, confidenceLevel, retainedBy = null) {
 
 function confidenceLevelForQuestion(question) {
   const issues = new Set(question.qualityIssues || []);
+  if (question.confidenceTier === "high_confidence") return "high";
   if ((question.blockingReasons || []).length) return "low";
   if ((question.confidenceReasons || []).length) return "low";
-  if (issues.has("question_type_mismatch") || question.sourceSnippetWasBackfilled) return "low";
+  if (issues.has("question_type_mismatch") && Number(question.cognitiveActionFitScore || 0) < 3) return "low";
   return "high";
 }
 
 function compareQuestionQuality(a, b) {
-  return (b.qualityScore?.average || 0) - (a.qualityScore?.average || 0);
+  const bScore = (b.qualityScore?.average || 0)
+    + (Number(b.memoryAngleFitScore || 0) * 0.08)
+    + (Number(b.blueprintAlignmentScore || 0) * 0.08)
+    + (Number(b.cognitiveActionFitScore || 0) * 0.1)
+    + (Number(b.evidenceLearningValueScore || 0) * 0.04);
+  const aScore = (a.qualityScore?.average || 0)
+    + (Number(a.memoryAngleFitScore || 0) * 0.08)
+    + (Number(a.blueprintAlignmentScore || 0) * 0.08)
+    + (Number(a.cognitiveActionFitScore || 0) * 0.1)
+    + (Number(a.evidenceLearningValueScore || 0) * 0.04);
+  return bScore - aScore;
 }
 
 function isReviewableQuestion(question) {
   if (!question || question.qualityAction === "discard") return false;
+  if (question.confidenceTier === "should_block") return false;
   if ((question.blockingReasons || []).length) return false;
   const issues = new Set(question.qualityIssues || []);
   const blockingIssues = [
@@ -431,14 +545,21 @@ function supplementRequestForPoint(point, evaluatedQuestions) {
 
 function supplementReason({ point, selected, targetCount }) {
   const selectedTypes = new Set(selected.map((question) => question.type));
+  const selectedAngles = new Set(selected.map((question) => question.memoryAngle).filter(Boolean));
   const missingTypes = ["multiple_choice", "true_false", "scenario_judgment"]
     .filter((type) => !selectedTypes.has(type))
     .slice(0, Math.max(1, targetCount - selected.length));
+  const missingAngles = ["core_understanding", "misconception_boundary", "scenario_application"]
+    .filter((angle) => !selectedAngles.has(angle))
+    .slice(0, Math.max(1, targetCount - selected.length));
+  const selectedSummaries = selected.map((question) => `${question.type}:${question.stem}`).slice(0, 5);
   return [
     `target_question_count:${targetCount}`,
     `current_reviewable_count:${selected.length}`,
     missingTypes.length ? `missing_question_types:${missingTypes.join("|")}` : "",
-    point.questionAngles?.length ? `question_angles:${point.questionAngles.join("|")}` : ""
+    missingAngles.length ? `missing_memory_angles:${missingAngles.join("|")}` : "",
+    point.questionAngles?.length ? `question_angles:${point.questionAngles.join("|")}` : "",
+    selectedSummaries.length ? `existing_reviewable_questions:${selectedSummaries.join(" || ")}` : ""
   ].filter(Boolean).join("; ");
 }
 
@@ -458,15 +579,27 @@ function buildPointDiagnostics(knowledgePoints, evaluatedQuestions, selectedQues
   return knowledgePoints.map((point) => {
     const related = evaluatedQuestions.filter((question) => question.knowledgePointId === point.id);
     const selected = selectedQuestions.filter((question) => question.knowledgePointId === point.id);
+    const targetDecision = targetQuestionCountDecisionForPoint(point);
     return {
       pointId: point.id,
       title: point.title,
       testabilityScore: point.testabilityScore,
-      targetQuestionCount: targetQuestionCountForPoint(point),
+      targetQuestionCount: targetDecision.count,
+      targetQuestionCountReason: targetDecision.reason,
+      targetQuestionCountFactors: targetDecision.factors,
+      practiceBlueprint: point.practiceBlueprint || [],
       candidateQuestionCount: related.length,
       qualifiedQuestionCount: selected.length,
       selectedQuestionTypes: [...new Set(selected.map((question) => question.type))],
+      selectedMemoryAngles: [...new Set(selected.map((question) => question.memoryAngle).filter(Boolean))],
+      memoryAngleDiversityCount: new Set(selected.map((question) => question.memoryAngle).filter(Boolean)).size,
+      typeDiversityReason: typeDiversityReasonForSelection(selected),
+      averageCognitiveActionFitScore: averageSelectedScore(selected, "cognitiveActionFitScore"),
+      averagePracticeProgressionScore: averageSelectedScore(selected, "practiceProgressionScore"),
+      duplicatePracticeRiskCount: selected.filter((question) => Number(question.practiceDuplicateRiskScore || 0) >= 4).length,
+      sourceReuseLearningReasons: [...new Set(selected.map((question) => question.sourceReuseLearningReason).filter(Boolean))],
       confidenceLevels: [...new Set(selected.map((question) => question.confidenceLevel))],
+      confidenceTiers: [...new Set(selected.map((question) => question.confidenceTier).filter(Boolean))],
       confidenceLevel: selected[0]?.confidenceLevel || null,
       status: selected.length ? (selected.every((question) => question.confidenceLevel === "low") ? "covered_low_confidence" : "covered") : "no_reviewable_question",
       failureReasons: selected.length ? [] : [...new Set(related.flatMap((question) => [
@@ -477,6 +610,11 @@ function buildPointDiagnostics(knowledgePoints, evaluatedQuestions, selectedQues
       ].filter(Boolean)))]
     };
   });
+}
+
+function averageSelectedScore(selected, key) {
+  const values = selected.map((question) => Number(question[key])).filter(Number.isFinite);
+  return values.length ? Math.round((values.reduce((sum, value) => sum + value, 0) / values.length) * 10) / 10 : null;
 }
 
 function compactText(value) {
@@ -547,10 +685,55 @@ function toClientQuestion(question) {
     trustDiagnostics: question.trustDiagnostics,
     confidenceReasons: question.confidenceReasons || [],
     blockingReasons: question.blockingReasons || [],
+    sourceContextSelection: question.sourceContextSelection || null,
+    sourcePrecisionScore: question.sourcePrecisionScore ?? question.trustDiagnostics?.sourcePrecisionScore ?? null,
+    sourceSpecificityScore: question.sourceSpecificityScore ?? null,
+    sourceMinimalityScore: question.sourceMinimalityScore ?? null,
+    sourceEvidenceRole: question.sourceEvidenceRole || "",
+    sourceBlockId: question.sourceBlockId || question.sourceContextSelection?.sourceBlockId || "",
+    sourceEvidenceDiversityScore: question.sourceEvidenceDiversityScore ?? question.sourceContextSelection?.sourceEvidenceDiversityScore ?? null,
+    sourceReuseReason: question.sourceReuseReason || question.sourceContextSelection?.sourceReuseReason || "",
+    sourceOverlapGroupId: question.sourceOverlapGroupId || "",
+    sourceOverlapRatio: question.sourceOverlapRatio ?? 0,
+    sourceReuseCount: question.sourceReuseCount ?? 0,
+    primaryBlockingReason: question.primaryBlockingReason || "",
+    repairHint: question.repairHint || "",
+    confidenceTier: question.confidenceTier || "",
     confidenceLevel: question.confidenceLevel || "high",
+    memoryAngle: question.memoryAngle || "",
+    blueprintItemId: question.blueprintItemId || "",
+    blueprintGoal: question.blueprintGoal || "",
+    memoryAngleFitScore: question.memoryAngleFitScore ?? null,
+    blueprintAlignmentScore: question.blueprintAlignmentScore ?? null,
+    pedagogyDiagnostics: question.pedagogyDiagnostics || null,
+    cognitiveActionFitScore: question.cognitiveActionFitScore ?? null,
+    coreRecallFitScore: question.coreRecallFitScore ?? null,
+    boundaryDiscriminationFitScore: question.boundaryDiscriminationFitScore ?? null,
+    scenarioTransferFitScore: question.scenarioTransferFitScore ?? null,
+    practiceProgressionScore: question.practiceProgressionScore ?? null,
+    practiceDuplicateRiskScore: question.practiceDuplicateRiskScore ?? null,
+    evidenceLearningValueScore: question.evidenceLearningValueScore ?? null,
+    sourceReuseLearningReason: question.sourceReuseLearningReason || "",
+    typeDiversityReason: question.typeDiversityReason || "",
     retainedBy: question.retainedBy || "quality_pass",
     isNew: true
   };
+}
+
+function enrichKnowledgePointsWithPracticeBlueprint(points = []) {
+  return points.map((point) => {
+    const targetCount = targetQuestionCountForPoint(point);
+    const practiceBlueprint = Array.isArray(point.practiceBlueprint) && point.practiceBlueprint.length
+      ? point.practiceBlueprint.slice(0, targetCount)
+      : buildPracticeBlueprintForPoint(point, {
+        targetCount,
+        preferredQuestionType: expectedQuestionType(point)
+      });
+    return {
+      ...point,
+      practiceBlueprint
+    };
+  });
 }
 
 function orderKnowledgePointsBySource(points, cleanedText) {
@@ -672,6 +855,14 @@ function summarizeQuality(evaluatedQuestions, judgeUnavailable, selectedQuestion
     ? Math.round((retainedPerPoint.reduce((sum, count) => sum + count, 0) / retainedPerPoint.length) * 10) / 10
     : 0;
   const questionTypeCoverage = countValues(selectedQuestions.map((question) => question.type || "unknown"));
+  const memoryAngleCoverage = countValues(selectedQuestions.map((question) => question.memoryAngle || "unknown"));
+  const confidenceTierCoverage = countValues(selectedQuestions.map((question) => question.confidenceTier || "unknown"));
+  const sourcePrecisionScores = selectedQuestions
+    .map((question) => Number(question.sourcePrecisionScore || question.trustDiagnostics?.sourcePrecisionScore))
+    .filter(Number.isFinite);
+  const averageSourcePrecisionScore = sourcePrecisionScores.length
+    ? Math.round((sourcePrecisionScores.reduce((sum, score) => sum + score, 0) / sourcePrecisionScores.length) * 10) / 10
+    : 0;
 
   return {
     totalGenerated: evaluatedQuestions.length,
@@ -685,6 +876,9 @@ function summarizeQuality(evaluatedQuestions, judgeUnavailable, selectedQuestion
     averageQuestionsPerPoint,
     questionCountDistribution,
     questionTypeCoverage,
+    memoryAngleCoverage,
+    confidenceTierCoverage,
+    averageSourcePrecisionScore,
     lowConfidenceQuestionCount,
     uncoveredPointCount,
     seriousIssueCount,

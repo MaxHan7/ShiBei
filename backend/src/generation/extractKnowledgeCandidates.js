@@ -13,7 +13,7 @@ export async function extractKnowledgeCandidates({ cleanedText, chunks, modelUsa
     schema: knowledgePointSchema,
     stage: "knowledge_points",
     modelUsageRecorder,
-    estimatedOutputTokens: 1800
+    estimatedOutputTokens: 2400
   });
 
   return {

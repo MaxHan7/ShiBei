@@ -318,7 +318,7 @@ struct AddKnowledgeView: View {
                                 .frame(height: 44)
                                 .background(ShiBeiTheme.card)
                                 .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
-                                .shadow(color: .black.opacity(0.08), radius: 10, y: 4)
+                                .shadow(color: ShiBeiTheme.shadow.opacity(0.08), radius: 10, y: 4)
                         }
                         .buttonStyle(.plain)
                     }

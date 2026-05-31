@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { createModelUsageRecorder } from "../modelCost.js";
-import { callOpenAIJson } from "../openaiClient.js";
+import { callOpenAIJson, parseModelJson } from "../openaiClient.js";
 
 test("records OpenAI usage while preserving parsed JSON return shape", async () => {
   const originalFetch = globalThis.fetch;
@@ -82,6 +82,65 @@ test("records DeepSeek usage while preserving parsed JSON return shape", async (
     assert.equal(recorder.calls[0].provider, "deepseek");
     assert.equal(recorder.calls[0].actual.cachedInputTokens, 40);
     assert.equal(recorder.calls[0].actual.currency, "CNY");
+  } finally {
+    globalThis.fetch = originalFetch;
+    restoreEnv("DEEPSEEK_API_KEY", originalDeepSeekKey);
+    restoreEnv("AI_PROVIDER", originalProvider);
+  }
+});
+
+test("repairs common model JSON formatting issues", () => {
+  assert.deepEqual(parseModelJson(`{
+    "ok": true,
+    "items": ["a", "b",],
+  }`), {
+    ok: true,
+    items: ["a", "b"]
+  });
+
+  assert.deepEqual(parseModelJson(`说明文字
+  {
+    "ok": true,
+    "note": "第一行
+第二行"
+  }`), {
+    ok: true,
+    note: "第一行\n第二行"
+  });
+});
+
+test("annotates model usage when returned JSON cannot be parsed", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalDeepSeekKey = process.env.DEEPSEEK_API_KEY;
+  const originalProvider = process.env.AI_PROVIDER;
+  const recorder = createModelUsageRecorder({ runId: "chapter_bad_json", calls: [] });
+
+  process.env.DEEPSEEK_API_KEY = "test-key";
+  process.env.AI_PROVIDER = "deepseek";
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    choices: [{ message: { content: "{\"ok\": true" } }],
+    usage: {
+      prompt_tokens: 100,
+      prompt_cache_hit_tokens: 0,
+      completion_tokens: 10,
+      total_tokens: 110
+    }
+  }), { status: 200, headers: { "content-type": "application/json" } });
+
+  try {
+    await assert.rejects(() => callOpenAIJson({
+      system: "system",
+      user: "user",
+      schemaName: "mock_schema",
+      schema: { type: "object", properties: { ok: { type: "boolean" } }, required: ["ok"] },
+      stage: "knowledge_points",
+      modelUsageRecorder: recorder,
+      estimatedOutputTokens: 10
+    }), /模型返回内容不是可解析 JSON/);
+
+    assert.equal(recorder.calls.length, 1);
+    assert.equal(recorder.calls[0].error, "模型返回内容不是可解析 JSON");
+    assert.equal(recorder.calls[0].rawResponsePreview, "{\"ok\": true");
   } finally {
     globalThis.fetch = originalFetch;
     restoreEnv("DEEPSEEK_API_KEY", originalDeepSeekKey);

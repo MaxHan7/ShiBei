@@ -142,6 +142,36 @@ extension ChapterInput {
     }
 }
 
+extension NotificationType {
+    func title(language: AppLanguage) -> String {
+        switch self {
+        case .generationCompleted:
+            L10n.string("notifications.type.completed.title", language: language)
+        case .generationFailed:
+            L10n.string("notifications.type.failed.title", language: language)
+        }
+    }
+
+    func body(language: AppLanguage) -> String {
+        switch self {
+        case .generationCompleted:
+            L10n.string("notifications.type.completed.body", language: language)
+        case .generationFailed:
+            L10n.string("notifications.type.failed.body", language: language)
+        }
+    }
+}
+
+extension NotificationItem {
+    func localizedTitle(language: AppLanguage) -> String {
+        type.title(language: language)
+    }
+
+    func localizedBody(language: AppLanguage) -> String {
+        type.body(language: language)
+    }
+}
+
 extension MockScenario {
     func title(language: AppLanguage) -> String {
         switch self {

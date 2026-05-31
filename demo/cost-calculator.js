@@ -90,8 +90,13 @@ function renderResult(result) {
           <div>
             <h2>${escapeHtml(result.chapterTitle || "未命名章节")}</h2>
             <p>Run ID：${escapeHtml(result.generationRunId || "-")}</p>
+            ${result.costRunStorage?.latestPath ? `<p>已保存：${escapeHtml(result.costRunStorage.latestPath)}</p>` : ""}
           </div>
-          ${result.qualitySummary ? `<span class="cost-chip">机器均分 ${escapeHtml(String(result.qualitySummary.averageQualityScore ?? "-"))}</span>` : ""}
+          <div class="cost-section-actions">
+            ${result.qualitySummary ? `<span class="cost-chip">机器均分 ${escapeHtml(String(result.qualitySummary.averageQualityScore ?? "-"))}</span>` : ""}
+            <button class="cost-icon-button" data-action="copy-json" type="button">复制 JSON</button>
+            <button class="cost-icon-button" data-action="download-json" type="button">下载 JSON</button>
+          </div>
         </div>
         <div class="cost-table-wrap">
           <table class="cost-table">
@@ -284,6 +289,8 @@ app.addEventListener("input", (event) => {
 app.addEventListener("click", (event) => {
   const action = event.target?.dataset?.action;
   if (action === "run") runCost();
+  if (action === "copy-json") copyResultJson();
+  if (action === "download-json") downloadResultJson();
   if (action === "clear") {
     state.input = "";
     state.sourceTitle = "";
@@ -300,4 +307,58 @@ function updateRunButton() {
   const button = app.querySelector("[data-action='run']");
   if (!button) return;
   button.disabled = state.isRunning || state.input.trim().length < 24;
+}
+
+async function copyResultJson() {
+  if (!state.result) return;
+  const json = JSON.stringify(state.result, null, 2);
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(json);
+    } else {
+      copyTextFallback(json);
+    }
+    state.message = "已复制本次成本 JSON。";
+  } catch {
+    copyTextFallback(json);
+    state.message = "已复制本次成本 JSON。";
+  }
+  state.error = "";
+  render();
+}
+
+function downloadResultJson() {
+  if (!state.result) return;
+  const json = `${JSON.stringify(state.result, null, 2)}\n`;
+  const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${safeFileName(state.result.generationRunId || "cost-run")}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  state.error = "";
+  state.message = "已下载本次成本 JSON。";
+  render();
+}
+
+function copyTextFallback(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
+}
+
+function safeFileName(value) {
+  return String(value || "cost-run")
+    .replace(/[^A-Za-z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 120) || "cost-run";
 }

@@ -1,0 +1,4 @@
+tester_id,source_platform,source_post,handle_or_contact,persona,invite_keyword,screening_status,iphone_user,accepted_data_notice,test_entry_sent_at,first_add_completed,generation_completed,review_completed,question_feedback_submitted,next_day_reopened,generation_wait_feedback,question_quality_feedback,trust_feedback,dropoff_point,notes,follow_up_status
+T001,xiaohongshu,,,"AI/product/design/operator knowledge worker",内测,pending,,,,,,,,,,,,,,
+T002,xiaohongshu,,,"PKM/second-brain power user",第二大脑,pending,,,,,,,,,,,,,,
+T003,reddit,,,"flashcard/review habit user",beta,pending,,,,,,,,,,,,,,

@@ -51,6 +51,13 @@ APNS_ENV=production
 
 Railway 会自动注入 `PORT`，后端会监听 `0.0.0.0:$PORT`。本地开发仍可继续使用 `npm --prefix backend run dev`。
 
+生成任务队列化后，Railway 项目需要两个服务共享同一个 PostgreSQL 和模型 Key：
+
+- Web/API 服务：继续使用 `npm start`，负责接收请求、创建章节、写入 generation job。
+- Worker 服务：使用 `npm run worker`，负责从 PostgreSQL 领取 generation job 并执行模型生成。
+
+如果只启动 Web/API 服务，`POST /api/chapters` 会返回 `submitted`，但有 PostgreSQL 时不会在 Web 进程内执行生成；必须同时启动 Worker 服务。
+
 如果部署日志里出现 Playwright/Chromium 缺失，请确认 Railway 使用的是最新提交，并且 build command 是根目录的 `npm run build`。
 
 ## 部署后验证

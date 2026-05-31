@@ -1,0 +1,404 @@
+# 拾贝出题质量长期迭代路线图
+
+> 本文档记录出题系统当前最重要的长期问题、根因判断、改进顺序和验收标准。  
+> 单轮实验报告回答“这一轮发生了什么”；本文档回答“接下来几轮一定不能忘什么”。
+
+## 当前阶段判断
+
+截至 2026-05-29，出题系统已经从“题量不足、知识点无题”推进到“覆盖率基本恢复，但可信度和来源导航价值需要继续校准”的阶段。
+
+在 `UMr6ia1QubqOMw3aBUGbOw` 单篇基准上，最新已记录结果显示：
+
+- 7 个知识点全部保留。
+- 21 道题入池，平均每知识点 3.0 道题。
+- 7 / 7 个知识点达到 3 道题。
+- 低置信题为 16 道，低置信比例 76.2%。
+- 平均来源精准度达到 5.0。
+- 平均来源最小化达到 4.6。
+- 来源段落复用 Top 从 5 题降到 2 题。
+
+这说明：**题量覆盖和来源证据块分配已经基本达标。当前主要矛盾转移到低置信题质量：解释、误区和干扰项是否真正被来源证据支撑。**
+
+因此当前最近主线调整为：**PRD 认知动作对齐 + 低置信人工校准 + 解释一致性 / 误区支撑专项**。后续不再把“每点 3 题”当作最高目标，而是把“每个知识点的多题是否形成核心回忆、边界辨析、场景迁移的递进练习”作为第一验收口径。
+
+## 第一性原理
+
+拾贝题目系统不是为了“生成更多题”，而是为了帮助用户把一篇文章真正记进脑子里。
+
+一道题进入复习池，至少要满足四个条件：
+
+1. **知识点值得复习**：它属于文章主线、方法、边界、关键误区或高价值案例。
+2. **题目能促发理解**：不是简单复述，而是让用户辨析、迁移或回忆关键判断。
+3. **答案唯一且解释忠实**：用户答错后能相信解释，而不是怀疑系统在编。
+4. **来源片段精准有用**：解释页能把用户带回原文中最相关的位置，而不是贴一大段泛泛上下文。
+
+后续所有改动都要回到这四条判断，避免只追求指标好看。
+
+## 当前根因排序
+
+### P0：低置信题比例偏高，解释和误区支撑需要人工校准
+
+**现象**
+
+sourceBlocks 之后，题量、来源精准度和来源最小化都变好，但低置信比例一度回升到 76.2%。v7 加入 `practiceBlueprint` 后，低置信比例降到 66.7%，但仍偏高。主要机器原因已经从笼统的 `weak_misconception_support`、`weak_explanation_faithfulness`，拆成 `misconception_not_grounded`、`explanation_overextends_source`、`answer_grounding_weak` 等更可修复的问题。
+
+**根因**
+
+来源定位更严格以后，系统开始暴露另一层问题：题目和答案能被来源支撑，不代表解释、常见误区、干扰项也都被同一证据块充分支撑。
+
+这会造成两类问题：
+
+- 题目本身可复习，但解释里多讲了一步原文没有直接支撑的推论。
+- 常见误区是模型“合理想象”出来的，而不是来自原文或真实混淆。
+- 干扰项和误区之间没有清楚的来源证据边界。
+
+**改进方向**
+
+- 人工抽查本轮低置信题，确认哪些 low 实际可接受。
+- 将解释一致性拆成：答案解释、误区解释、干扰项解释三个层面。
+- 若 `misconception_not_grounded` 高频成立，要求常见误区必须来自题干、选项或原文证据，不允许泛泛补写。
+- 若 `explanation_overextends_source` 高频成立，收窄解释生成规则，只解释来源中能支持的判断。
+
+**验收标准**
+
+- 低置信题人工 accept + fixable 比例稳定高于 80%。
+- `explanation_overextends_source` / `explanation_not_tied_to_answer` 人工 reject 率下降。
+- `misconception_not_grounded` 不再成为最高频低置信原因。
+- 高置信题的解释忠实人工均分高于 4。
+
+### P1：部分知识点 source block 覆盖仍不够分散
+
+**现象**
+
+sourceBlocks 已经让来源段落复用 Top 降到 2 题，但仍有少数知识点 3 道题只使用 1 个 source block，例如本轮 `kp-2`、`kp-6`。
+
+**根因**
+
+这可能是合理的：原文确实只有一个最能支撑该知识点的证据块。也可能说明 block 选择仍偏窄，没有把同一小节里的不同句子窗口分配给不同题。
+
+**改进方向**
+
+- 对每轮 `sourceBlockCoverageByPoint` 中 `questionCount=3` 且 `sourceBlockCount=1` 的知识点做人工抽查。
+- 合理复用时记录 `sourceReuseReason`。
+- 不合理复用时继续细化 sentence window 或 evidence role 判定。
+
+**验收标准**
+
+- 同一知识点 3 题至少覆盖 2 个 source block，除非有明确复用原因。
+- source block 复用 Top 5 中，单块复用不超过 3 题。
+
+### P1：单知识点内部认知动作和题型多样性不足
+
+**现象**
+
+全章题型分布看起来变丰富，但单个知识点内部仍可能 3 道都是同一题型。v6 中多个知识点已经覆盖不同 `memoryAngle`，但仍存在 3 道全是 `scenario_judgment` 或 3 道全是 `multiple_choice` 的情况。
+
+例如：
+
+- 一个知识点 3 道全是选择题。
+- 一个知识点 3 道全是场景判断。
+- 一个知识点 3 道全是真假判断。
+
+**根因**
+
+v7 已经把 `memoryAngle` 升级为 `practiceBlueprint` 里的练习目标。选择器开始优先覆盖不同蓝图项，再考虑题型多样。当前剩余问题不再是“有没有标 memoryAngle”，而是人工判断这些题是否真的形成“记住 -> 分清 -> 会用”的递进，而不是只在字段上对齐。
+
+PRD 里的“每知识点 1-3 道题”真正意图不是数量，而是：
+
+- 第一题帮助用户取回核心判断。
+- 第二题帮助用户辨析误区或边界。
+- 第三题帮助用户迁移到具体场景。
+
+如果 3 道题都是同一题型，但分别完成了核心回忆、边界辨析和场景迁移，可以暂时接受；如果 3 道题只是换壳重复，即使题型不同也不应全部入池。
+
+**改进方向**
+
+- 继续把 `practiceBlueprint` 作为正式认知动作契约：
+  - `core_understanding`：核心理解 / 主动回忆。
+  - `misconception_boundary`：误区和边界辨析。
+  - `scenario_application`：场景迁移。
+- 每个知识点最多 3 题时，先覆盖不同认知动作，再考虑题型多样。
+- 如果题型无法多样，必须记录 `typeDiversityReason`，说明为什么同题型更自然。
+- 每道题记录 `blueprintItemId`、`blueprintGoal`、`memoryAngleFitScore` 和 `blueprintAlignmentScore`。
+- 同一知识点内相似题干、相似正确理解、相似来源段落需要去重或降级。
+
+**验收标准**
+
+- 每个 3 题知识点至少覆盖 2 个不同认知动作。
+- 高价值知识点优先覆盖 3 个不同认知动作。
+- 单知识点 3 道题全部同题型时，必须有 `typeDiversityReason`。
+- 人工审查时，3 道题应让用户感觉是在从“记住 -> 分清 -> 会用”递进，而不是重复刷同一判断。
+
+### P1：知识点提取还不是完全文章结构驱动
+
+**现象**
+
+当前知识点已经升级为“主线 + 可用方法型”，但仍可能出现：
+
+- 某些文章主线节点被漏掉。
+- 模型提取到了但 sourceQuote 不稳定。
+- 细节性、好出题但不关键的点进入复习池。
+
+**根因**
+
+知识点提取仍主要依赖模型一次性产出候选，再由后处理过滤。它还没有显式先建立“文章结构图”，再从结构图中选择复习点。
+
+这会导致候选质量受模型即时判断影响较大。
+
+**改进方向**
+
+- 下一阶段考虑两阶段知识点：
+  1. 先生成文章结构骨架：主题、主张、论证链、方法步骤、边界、案例。
+  2. 再从结构骨架中选择复习知识点。
+- 对每个知识点记录它在文章结构中的位置：
+  - `sectionRole`
+  - `argumentPosition`
+  - `dependsOn`
+  - `supports`
+- 保持动态数量，不硬编码每篇 5-8 个，但必须解释为什么保留/过滤。
+
+**验收标准**
+
+- 人工审查“漏掉核心知识点”的比例下降。
+- 每个保留知识点都能映射到文章结构节点。
+- 被过滤知识点有清楚的 `coverageReason`，而不是只靠低可考性。
+
+### P2：复杂分工/边界类知识点缺少专门出题模板
+
+**现象**
+
+涉及工具分工、边界判断、机制对比的知识点，容易出现：
+
+- 干扰项弱。
+- 题目太浅。
+- 常见误区支撑弱。
+- 场景题问法重复。
+
+例如 Hook / CI / Prompt / CLAUDE.md 的分工类知识点，不适合只用普通选择题模板。
+
+**根因**
+
+当前出题 prompt 有通用题型，但没有为“边界/分工/对比”这类知识点设计专门模板。
+
+这类知识点真正的学习价值在于：
+
+- 什么场景该用 A，不该用 B。
+- A 和 B 的责任边界是什么。
+- 用户容易把哪两个概念混掉。
+
+**改进方向**
+
+- 为 `structureRole = boundary` 或知识点含分工/对比关系时，优先生成：
+  - 场景归因题。
+  - 工具选择题。
+  - 边界辨析题。
+  - 错误方案诊断题。
+- 干扰项必须来自真实混淆对象，而不是随便凑选项。
+- 解释必须明确说明为什么其它工具不合适。
+
+**验收标准**
+
+- 分工/边界类知识点的 `distractor_quality` 人工均分高于 4。
+- 这类题的 fixable/reject 率下降。
+- 不再出现“题干太简单，没有思考点”的高频反馈。
+
+## 长期执行顺序
+
+| 阶段 | 目标 | 主要动作 | 成功标准 |
+| --- | --- | --- | --- |
+| 1 | 校准低置信 | 人工标注低置信题；拆分低置信等级 | 知道哪些 low 真的可用 |
+| 2 | 修来源精准度 | source_precision、source_minimality、overlap 诊断 | 解释页来源是最小充分证据 |
+| 3 | 修单点多样性 | 增加 memoryAngle；单点内去重 | 每点 3 题不再同质 |
+| 4 | 修知识点结构 | 引入文章结构骨架，再选复习点 | 核心主线漏点下降 |
+| 5 | 修复杂边界题 | 增加分工/边界类题模板 | 干扰项和思考价值提升 |
+
+## 每轮实验必须记录的指标
+
+以后每轮出题实验都需要记录：
+
+- 保留知识点数。
+- 被过滤知识点数和原因。
+- 入池题总数。
+- 每知识点题数分布。
+- 每知识点 memory angle 分布。
+- 低置信题数。
+- 低置信人工 accept / fixable / reject。
+- source support 平均分。
+- source precision 平均分。
+- source minimality 平均分。
+- explanation faithfulness 平均分。
+- distractor quality 平均分。
+- 同一来源段落复用次数 Top 5。
+- 同一来源文本重叠 Top 5。
+- 主要 reject / fixable 原因 Top 5。
+
+## 不要做的事
+
+- 不要为了降低低置信数量而重新收紧到“少题但看起来安全”。
+- 不要为了每点 3 题放行答案不唯一、来源完全不支撑或结构坏题。
+- 不要只靠 prompt 要求“来源更准”；用户可见来源必须由后端从原文确定性选择。
+- 不要只看全章题型分布，必须看单知识点内部多样性。
+- 不要把 AI 预标当成人工金标；训练级数据必须经过人工确认。
+
+## 2026-05-29 第一批落地
+
+本轮已经先把五阶段路线图里的前三个“诊断基础设施”落地，目标是让下一轮测试能看见更细的失败原因，而不是只看到 `low` 或 `blocked`。
+
+### 低置信题校准
+
+- `confidenceLevel=low` 之外新增 `confidenceTier`：
+  - `high_confidence`：规则和 judge 都没有明显风险。
+  - `safe_low_confidence`：可复习，但有轻度诊断风险。
+  - `needs_rewrite`：结构可用，但来源、解释、干扰项或 judge 建议重写。
+  - `should_block`：结构坏、答案不唯一、来源完全找不到等不可复习问题。
+- 质量工作台、CSV 和报告都保留该字段，便于后续统计人工 `accept / fixable / reject` 和机器分层之间的偏差。
+
+### 来源精准度 v3
+
+- 新增 `source_precision` 人工评分维度，和 `source_support` 分开。
+- 来源选择器增加：
+  - `sourcePrecisionScore`
+  - `sourceSpecificityScore`
+  - `sourceReuseCount`
+  - `sourceContextSelection`
+- 同一来源段复用不再直接阻断题目，而是进入报告诊断；质量报告输出来源复用 Top 5。
+- 精准回填的来源不再自动把题目标为低置信，避免把“后端正确定位原文”误当成质量风险。
+
+### 单知识点多样性
+
+- 题目 schema 和 prompt 新增 `memoryAngle`：
+  - `core_understanding`
+  - `misconception_boundary`
+  - `scenario_application`
+- 入池选择器优先覆盖不同 `memoryAngle`，再覆盖不同题型。
+- 硬去重只保留“题干近重复”作为底线；来源复用和解释相近先诊断，不直接牺牲覆盖率。
+
+## 第一批落地后的复测目标（已完成）
+
+第一批落地后已复跑 `UMr6ia1QubqOMw3aBUGbOw`，当时重点观察：
+
+1. `confidenceTier` 是否能把人工 reject 题集中到 `needs_rewrite / should_block`。
+2. `source_precision` 人工均分是否高于 4。
+3. 来源复用 Top 5 是否能解释“为什么同一段被多题使用”。
+4. 每个 3 题知识点是否至少覆盖 2 个 `memoryAngle`。
+5. 如果低置信比例仍高，优先检查人工 reject 的第一原因，而不是继续放宽或收紧规则。
+6. 人工抽查低置信题，看 source precision 是否提升。
+
+## 2026-05-29 第二批落地：来源片段 v4
+
+本轮围绕“来源不是大段证明，而是解释页学习导航”做了来源片段 v4。
+
+### 已完成
+
+- `sourceSnippet` 从“完整段落上下文”升级为“最小充分证据优先”。
+- 长段落会按题干、正确答案、正确理解、知识点标题和 keyClaim 定位，再按句子边界裁剪。
+- 用户可见来源必须能在清洗后原文中定位；只存在于模型 `sourceQuote` 的拼接/省略引用不再算有效。
+- 质量报告和工作台新增：
+  - `sourceMinimalityScore`
+  - `sourceEvidenceRole`
+  - `sourceOverlapRatio`
+  - `sourceOverlapGroupId`
+- overlap group 增加 70% 阈值，避免把弱相似误报为同一来源复用。
+
+### 本轮结果
+
+在固定单篇基准 `UMr6ia1QubqOMw3aBUGbOw` 上：
+
+- 7 个知识点全部覆盖。
+- 20 道题入池，平均每知识点 2.9 道。
+- 6 / 7 个知识点达到 3 题。
+- 平均来源精准度 4.9。
+- 平均来源最小化 4.5。
+- 低置信比例 55%。
+
+### 新暴露的问题
+
+- 同一小节内仍会集中复用来源，例如 `paragraph:18` 被 5 道题使用。
+- `sourceOverlapTop` 显示仍有 4 道题高度重叠，说明“裁短”不等于“按题意分配不同证据块”。
+- 低置信比例回升，说明严格来源验证让弱来源/弱解释暴露得更诚实，下一步需要人工确认这些 low 题是否可接受。
+
+## 下一轮最近目标
+
+下一轮建议继续复跑 `UMr6ia1QubqOMw3aBUGbOw`，重点做 sourceBlocks 和证据块分配：
+
+1. 把正文切成 `sourceBlocks`，记录 block 的 section、paragraph、sentence window 和 evidence role。
+2. 每个知识点绑定 primary evidence 和 supporting evidence。
+3. 同一知识点多题优先使用不同 source block / evidence role。
+4. 报告新增同一知识点内来源块覆盖分布。
+5. 人工审查本轮 `paragraph:18` 和 `source-7` 相关题，判断它们是合理复用还是题目同质。
+
+## 2026-05-29 第三批落地：sourceBlocks 证据块分配
+
+本轮已经实现 sourceBlocks，并用固定单篇基准完成复测。
+
+### 已完成
+
+- 从原文确定性切出 section heading、paragraph、sentence window。
+- 每个 block 记录 `sourceBlockId`、`paragraphIndex`、`sentenceStart`、`sentenceEnd`、`evidenceRole`。
+- 题目来源选择优先匹配题目意图对应的 evidence role。
+- 同一知识点内复用同一 block / role 会被扣分，并记录 `sourceEvidenceDiversityScore`、`sourceReuseReason`。
+- 质量报告新增 `sourceBlockReuseTop` 与 `sourceBlockCoverageByPoint`。
+
+### 本轮结果
+
+- 7 个知识点全部覆盖。
+- 21 道题入池，平均每知识点 3.0 道。
+- 7 / 7 个知识点达到 3 题。
+- 平均来源精准度 5.0。
+- 平均来源最小化 4.6。
+- 来源段落复用 Top 降到 2 题。
+- source block 复用 Top 降到 2 题。
+- 低置信比例回升到 76.2%。
+
+### 新暴露的问题
+
+- 低置信主要集中在解释忠实、误区支撑和弱来源支撑。
+- 少数知识点仍然 3 题只使用 1 个 source block，需要人工判断是否合理复用。
+- 题型仍偏选择题和场景判断，true/false 入池较少。
+
+## 下一轮最近目标
+
+下一轮建议继续复跑 `UMr6ia1QubqOMw3aBUGbOw`，重点做低置信人工校准和解释一致性：
+
+1. 生成一个临时 HTML 审查页，优先展示本轮 16 道低置信题。
+2. 人工标注 `weak_explanation_faithfulness`、`weak_misconception_support` 是否真实影响复习。
+3. 对 `kp-2`、`kp-6` 检查 3 题共用 1 个 source block 是否合理。
+4. 如果低置信 reject 主要来自解释/误区，下一轮改解释和误区生成规则。
+5. 如果 reject 主要来自选项，下一轮进入复杂边界/分工题选项模板专项。
+
+## 2026-05-30 第四批落地：认知蓝图与教学评分 v8
+
+v7 已经证明“练习蓝图”比“题型多样”更贴近 PRD：题量稳定，且同一知识点可以围绕核心回忆、边界辨析、场景迁移形成递进。v8 的重点是把评分系统从格式检查升级为教学质量审查器。
+
+### 已完成
+
+- `question_type_mismatch` 不再作为核心质量风险；题型只是手段，认知动作才是目标。
+- 新增教学评分字段：
+  - `cognitiveActionFitScore`
+  - `coreRecallFitScore`
+  - `boundaryDiscriminationFitScore`
+  - `scenarioTransferFitScore`
+  - `practiceProgressionScore`
+  - `practiceDuplicateRiskScore`
+  - `evidenceLearningValueScore`
+- 同一知识点多题会记录是否形成“记住 -> 分清 -> 会用”的递进。
+- 同一知识点多题若复用同一 source block，会记录 `sourceReuseLearningReason`，用于判断是合理复用还是题目同质。
+- 干扰项和误区问题拆细为更可修复的诊断，例如 `distractors_too_obvious`、`distractors_not_same_context`、`misconception_too_generic`、`misconception_not_reflected_in_options`。
+
+### 当前判断
+
+下一轮实验不应只看“低置信比例是否下降”。更重要的是：
+
+1. 机器低置信是否和人工 reject 对齐。
+2. 同一知识点 3 道题是否真的形成递进。
+3. 来源片段是否帮助用户回到关键原文节点，而不是只证明答案。
+4. 干扰项是否能训练边界，而不是凑数。
+
+### 下一轮最近目标
+
+继续以 `UMr6ia1QubqOMw3aBUGbOw` 复测，实验标签 `v8-pedagogical-rubric-calibration`。复测后重点比较 v7 / v8：
+
+- `question_type_mismatch` 是否退出主要低置信原因。
+- 低置信原因是否更集中到教学质量问题，而不是题型或格式问题。
+- `practiceDuplicateRiskScore >= 4` 的题是否确实重复。
+- `evidenceLearningValueScore` 是否能捕捉“来源能支撑但学习导航价值不高”的题。

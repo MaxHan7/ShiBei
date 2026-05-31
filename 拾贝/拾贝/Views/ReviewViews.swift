@@ -329,13 +329,13 @@ private struct OptionButton: View {
             HStack(alignment: .top, spacing: 12) {
                 Text(isCorrect ? "✓" : option.id)
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(isCorrect ? .white : ShiBeiTheme.primary)
+                    .foregroundStyle(isCorrect ? ShiBeiTheme.onPrimary : ShiBeiTheme.primary)
                     .frame(width: 26, height: 26)
                     .background(isCorrect ? ShiBeiTheme.success : .clear)
                     .clipShape(Circle())
                 Text(option.text)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(isWrong ? Color(red: 0.545, green: 0.102, blue: 0.071) : ShiBeiTheme.text)
+                    .foregroundStyle(isWrong ? ShiBeiTheme.answerWrongText : ShiBeiTheme.text)
                     .multilineTextAlignment(.leading)
                     .lineSpacing(3)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -343,13 +343,13 @@ private struct OptionButton: View {
             }
             .padding(16)
             .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading)
-            .background(isCorrect ? Color(red: 0.914, green: 0.973, blue: 0.937) : isWrong ? Color(red: 1, green: 0.941, blue: 0.933) : .white)
+            .background(isCorrect ? ShiBeiTheme.successBackground : isWrong ? ShiBeiTheme.dangerBackground : ShiBeiTheme.card)
             .overlay(
                 RoundedRectangle(cornerRadius: ShiBeiTheme.radius, style: .continuous)
-                    .stroke(isCorrect ? ShiBeiTheme.success.opacity(0.35) : isWrong ? Color.red.opacity(0.35) : ShiBeiTheme.line, lineWidth: 1)
+                    .stroke(isCorrect ? ShiBeiTheme.success.opacity(0.35) : isWrong ? ShiBeiTheme.error.opacity(0.35) : ShiBeiTheme.line, lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: ShiBeiTheme.radius, style: .continuous))
-            .shadow(color: .black.opacity(0.04), radius: 10, y: 5)
+            .shadow(color: ShiBeiTheme.shadow.opacity(0.04), radius: 10, y: 5)
         }
         .disabled(correctOptionId != nil)
     }
@@ -459,7 +459,7 @@ private struct ExplanationCard: View {
                 }
             }
         }
-        .background(warm ? Color(red: 1, green: 0.969, blue: 0.910) : .clear)
+        .background(warm ? ShiBeiTheme.sourceBackground : .clear)
     }
 
     private var paragraphs: [String] {

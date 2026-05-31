@@ -6,8 +6,8 @@ export function filterKnowledgePoints(candidates, cleanedText) {
   const seen = new Set();
 
   for (const candidate of candidates || []) {
-    const reasons = filterReasons(candidate, cleanedText, seen);
-    const normalized = normalizePoint(candidate);
+    const normalized = repairPointSourceQuote(normalizePoint(candidate), cleanedText);
+    const reasons = filterReasons(normalized, cleanedText, seen);
     if (!reasons.length) {
       kept.push(normalized);
       seen.add(fingerprint(normalized));
@@ -51,7 +51,7 @@ function normalizePoint(candidate = {}) {
 }
 
 function filterReasons(candidate, cleanedText, seen) {
-  const point = normalizePoint(candidate);
+  const point = candidate.sourceQuote === undefined ? normalizePoint(candidate) : candidate;
   const reasons = [];
 
   if (!point.title || !point.summary || !point.keyClaim) reasons.push("incomplete_fields");
@@ -69,6 +69,80 @@ function filterReasons(candidate, cleanedText, seen) {
   if (seen.has(fingerprint(point))) reasons.push("duplicate");
 
   return [...new Set(reasons)];
+}
+
+function repairPointSourceQuote(point, cleanedText) {
+  if (!point.sourceQuote || sourceExists(cleanedText, point.sourceQuote)) return point;
+  const replacement = findBestSourceQuote(point, cleanedText);
+  if (!replacement) return point;
+  return {
+    ...point,
+    originalSourceQuote: point.sourceQuote,
+    sourceQuote: replacement,
+    sourceQuoteWasRepaired: true
+  };
+}
+
+function findBestSourceQuote(point, cleanedText) {
+  const paragraphs = String(cleanedText || "")
+    .split(/\n+/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+  if (!paragraphs.length) return "";
+  const keywords = extractPointKeywords(point);
+  const windows = [];
+  for (let index = 0; index < paragraphs.length; index += 1) {
+    for (let size = 1; size <= 4 && index + size <= paragraphs.length; size += 1) {
+      const text = paragraphs.slice(index, index + size).join("\n\n");
+      if (text.length < 18 || text.length > 650) continue;
+      windows.push({
+        text,
+        score: scorePointSourceWindow(text, keywords)
+      });
+    }
+  }
+  windows.sort((a, b) => b.score - a.score || sourceQuoteLengthScore(b.text) - sourceQuoteLengthScore(a.text));
+  const best = windows[0];
+  return best && best.score >= 4 ? best.text : "";
+}
+
+function extractPointKeywords(point) {
+  const source = [
+    point.title,
+    point.summary,
+    point.keyClaim,
+    ...(Array.isArray(point.questionAngles) ? point.questionAngles : [])
+  ].filter(Boolean).join(" ");
+  const normalized = source
+    .replace(/[，。！？；：、,.!?;:()[\]{}"'“”‘’|/\\-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const latin = normalized.split(/\s+/).filter((word) => /[A-Za-z0-9]/.test(word) && word.length >= 2);
+  const chineseRuns = normalized.split(/\s+/).filter((word) => /[\u4e00-\u9fff]/.test(word));
+  const grams = [];
+  for (const run of chineseRuns) {
+    const chars = [...run].filter((char) => /[\u4e00-\u9fff]/.test(char));
+    for (let index = 0; index <= chars.length - 2; index += 1) {
+      grams.push(chars.slice(index, index + 2).join(""));
+    }
+    for (let index = 0; index <= chars.length - 4; index += 1) {
+      grams.push(chars.slice(index, index + 4).join(""));
+    }
+  }
+  const stopWords = new Set(["这个", "一种", "需要", "不能", "不是", "因为", "所以", "文章", "原文", "知识", "来源", "问题"]);
+  return [...new Set([...latin, ...grams].map(normalize).filter((keyword) => keyword.length >= 2 && !stopWords.has(keyword)))].slice(0, 80);
+}
+
+function scorePointSourceWindow(text, keywords) {
+  const body = normalize(text);
+  return keywords.reduce((sum, keyword) => sum + (body.includes(keyword) ? 1 : 0), 0);
+}
+
+function sourceQuoteLengthScore(text) {
+  const length = String(text || "").length;
+  if (length >= 80 && length <= 420) return 10;
+  if (length > 420) return 4;
+  return 1;
 }
 
 function sourceExists(cleanedText, sourceQuote) {

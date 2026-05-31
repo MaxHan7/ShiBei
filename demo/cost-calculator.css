@@ -261,6 +261,26 @@
   font-weight: 850;
 }
 
+.cost-section-actions {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cost-icon-button {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid #cfd8c8;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #276457;
+  font-size: 13px;
+  font-weight: 850;
+}
+
 .cost-table-wrap {
   width: 100%;
   overflow-x: auto;

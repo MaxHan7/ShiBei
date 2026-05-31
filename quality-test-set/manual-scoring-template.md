@@ -31,6 +31,13 @@
 每题按 1-5 分评分：
 
 - `source_support`：来源片段是否能支持正确答案和解释。
+- `source_precision`：来源片段是否是最精准、最小且最适合解释本题的原文位置；它和 `source_support` 分开评分，来源能支撑但太泛、太长或多题复用时应扣分。
+- `source_minimality`：来源是否是“最小充分证据”。如果能用 1-2 句解释题目，却展示了一整段泛泛上下文，应扣分。
+- `source_evidence_role`：来源证据角色，例如 `definition`、`mechanism`、`contrast`、`example`、`boundary`、`method`。用于判断题目意图和来源角色是否匹配。
+- `source_block_id`：后端切出的原文证据块 ID，用于判断同一知识点的多道题是否都回到同一个原文节点。
+- `source_evidence_diversity`：同一知识点内来源证据块和证据角色是否足够分散。3 道题都复用同一块时应扣分，除非原文只有一个可支撑块。
+- `source_reuse_reason`：机器记录的复用原因，例如同知识点复用同一证据块、同语义文本重叠等。人工可据此判断复用是否合理。
+- `source_overlap_ratio` / `source_overlap_group`：用于发现多题复用同一语义大段。重叠高不一定错误，但需要人工判断是否题目重复或来源不够精准。
 - `answer_uniqueness`：是否只有一个最合理答案。
 - `understanding_depth`：是否考理解、边界、场景、迁移或误区。
 - `clarity`：题干、选项、解释是否清楚。
@@ -46,6 +53,18 @@
 - `training_label_eligible`：是否适合进入后续训练级数据。
 - `trust_diagnostics`：机器可信度诊断摘要，用来辅助定位问题，不等同于人工评分。
 - `confidence_reasons`：机器认为该题低置信的原因。
+- `source_reuse_count`：同一原文段落在本章前面已被多少题使用，用来发现“很多题共用同一大段来源”的问题。
+- `source_minimality_score`：机器对“最小充分证据”的估计分，只用于辅助排序，不等同人工评分。
+- `memory_angle`：题目认知动作，第一版固定为核心回忆、边界辨析、场景迁移。评分时不要只看题型，要看它是否真的完成了对应认知动作。
+- `memory_angle_fit`：题目是否真的符合声明的 `memory_angle`。例如场景迁移题必须提供新场景，而不是原文换皮。
+- `blueprint_alignment`：题目是否符合该知识点的练习蓝图。多题应形成“记住 -> 分清 -> 会用”的递进，而不是三道同质题。
+- `cognitive_action_fit`：人工判断这道题是否完成对应认知动作。题型不重要，重要的是它是否真的让用户回忆核心、分清边界或迁移应用。
+- `practice_progression`：同一知识点下多道题是否形成递进练习，而不是平行重复。
+- `duplicate_practice`：同一知识点内是否重复考同一判断。重复高时即使来源支撑、答案唯一，也不应算高质量。
+- `evidence_learning_value`：来源片段是否帮助用户回到原文关键节点理解答案，而不只是“能证明答案”。
+- `is_duplicate_practice`：是否与同知识点其它题重复考同一判断。即使题型不同，只要认知动作重复也应标记。
+- `misconception_realism`：常见误区是否来自真实混淆对象、错误选项或原文边界，而不是模型泛泛想象。
+- `distractor_learning_value`：干扰项是否能帮助用户分清边界；明显凑数或一眼排除应低分。
 - `blocking_reasons`：机器认为该题不可入池的原因。
 
 ## 可信度诊断口径

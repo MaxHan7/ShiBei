@@ -111,7 +111,7 @@ private struct FavoriteQuestionsContent: View {
                     VStack(alignment: .leading, spacing: 10) {
                         ForEach(store.favoriteKnowledgePointDisplayItems) { item in
                             Button {
-                                store.startFavoriteReview(records: item.records)
+                                store.startFavoriteReview(from: item.records.first?.id)
                             } label: {
                                 FavoriteKnowledgePointPreviewCard(item: item, language: store.appLanguage)
                             }
@@ -203,18 +203,18 @@ private enum ChapterReviewDisplayStatus {
         case .inProgress:
             ShiBeiTheme.primary
         case .completed:
-            Color(red: 0.13, green: 0.48, blue: 0.29)
+            ShiBeiTheme.reviewCompletedText
         }
     }
 
     var background: Color {
         switch self {
         case .waiting:
-            Color(red: 0.965, green: 0.949, blue: 0.918)
+            ShiBeiTheme.reviewWaitingBackground
         case .inProgress:
-            ShiBeiTheme.yellowPale
+            ShiBeiTheme.reviewInProgressBackground
         case .completed:
-            Color(red: 0.914, green: 0.969, blue: 0.925)
+            ShiBeiTheme.reviewCompletedBackground
         }
     }
 }
@@ -277,7 +277,7 @@ struct NotificationsView: View {
                                                 .frame(width: 8, height: 8)
                                                 .accessibilityHidden(true)
                                         }
-                                        StatusPill(text: notification.title, isDanger: notification.type == .generationFailed)
+                                        StatusPill(text: notification.localizedTitle(language: store.appLanguage), isDanger: notification.type == .generationFailed)
                                         Spacer()
                                         if notification.read {
                                             Text(store.localized("notifications.read"))
@@ -285,10 +285,10 @@ struct NotificationsView: View {
                                                 .foregroundStyle(ShiBeiTheme.muted.opacity(0.72))
                                         }
                                     }
-                                    Text(store.chapters.first(where: { $0.id == notification.chapterId })?.title ?? notification.body)
+                                    Text(store.chapters.first(where: { $0.id == notification.chapterId })?.title ?? notification.localizedTitle(language: store.appLanguage))
                                         .font(.system(size: 16, weight: notification.read ? .regular : .semibold))
                                         .foregroundStyle(notification.read ? ShiBeiTheme.muted : ShiBeiTheme.text)
-                                    Text(notification.body)
+                                    Text(notification.localizedBody(language: store.appLanguage))
                                         .font(.system(size: 14))
                                         .foregroundStyle(ShiBeiTheme.muted)
                                 }
@@ -590,7 +590,7 @@ struct SourceView: View {
                                 Link(store.localized("source.open_original"), destination: URL(string: chapter.source.url) ?? URL(string: "https://example.com")!)
                                     .font(.system(size: 16, weight: .medium))
                                     .frame(maxWidth: .infinity, minHeight: 56)
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(ShiBeiTheme.onPrimary)
                                     .background(ShiBeiTheme.primary)
                                     .clipShape(RoundedRectangle(cornerRadius: ShiBeiTheme.radius, style: .continuous))
                             }
@@ -725,7 +725,7 @@ private struct SourceTextBlockView: View {
             .padding(isFocused ? 12 : 0)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(isFocused ? Color(red: 1, green: 0.961, blue: 0.843) : .clear)
+                    .fill(isFocused ? ShiBeiTheme.inputFocusBackground : .clear)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)

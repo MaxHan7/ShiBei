@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { evaluateQuestions } from "../evaluateQuestions.js";
+import { buildUserPrompt, targetQuestionCountDecisionForPoint, targetQuestionCountForPoint } from "../generateQuestions.js";
 import { selectQualifiedQuestionsByPoint } from "../index.js";
+import { buildPracticeBlueprintForPoint, pedagogyDiagnosticsForQuestion } from "../practiceBlueprint.js";
 
 const point = {
   id: "kp-1",
@@ -17,6 +19,13 @@ const highValuePoint = {
   testabilityScore: 5,
   knowledgeType: "method",
   questionAngles: ["理解核心判断", "辨析常见误区", "迁移到具体场景"]
+};
+
+const lowTargetPoint = {
+  ...point,
+  testabilityScore: 2,
+  importanceScore: 2,
+  questionAngles: []
 };
 
 function question(overrides = {}) {
@@ -51,7 +60,7 @@ function question(overrides = {}) {
   };
 }
 
-function typedQuestion({ id, type, stem, qualityAction = "pass", average = 4.5 }) {
+function typedQuestion({ id, type, stem, qualityAction = "pass", average = 4.5, ...overrides }) {
   const base = question({
     id,
     type,
@@ -60,7 +69,8 @@ function typedQuestion({ id, type, stem, qualityAction = "pass", average = 4.5 }
     qualityScore: {
       ...question().qualityScore,
       average
-    }
+    },
+    ...overrides
   });
   if (type === "true_false") {
     return {
@@ -76,7 +86,7 @@ function typedQuestion({ id, type, stem, qualityAction = "pass", average = 4.5 }
 }
 
 test("selects the highest-scoring pass question first", () => {
-  const selected = selectQualifiedQuestionsByPoint([point], [
+  const selected = selectQualifiedQuestionsByPoint([lowTargetPoint], [
     question({ id: "rewrite-high", qualityAction: "rewrite", qualityScore: { ...question().qualityScore, average: 4.9 } }),
     question({ id: "pass-low", qualityAction: "pass", qualityScore: { ...question().qualityScore, average: 4.1 } }),
     question({ id: "pass-high", qualityAction: "pass", qualityScore: { ...question().qualityScore, average: 4.8 } })
@@ -134,7 +144,7 @@ test("does not keep near-duplicate questions just to reach three per point", () 
 });
 
 test("retains the best rewrite question as low confidence when no pass question exists", () => {
-  const selected = selectQualifiedQuestionsByPoint([point], [
+  const selected = selectQualifiedQuestionsByPoint([lowTargetPoint], [
     question({ id: "rewrite-low", qualityAction: "rewrite", qualityScore: { ...question().qualityScore, average: 3.4 } }),
     question({ id: "rewrite-high", qualityAction: "rewrite", qualityScore: { ...question().qualityScore, average: 4.2 } })
   ]);
@@ -146,7 +156,7 @@ test("retains the best rewrite question as low confidence when no pass question 
 });
 
 test("does not retain discard questions", () => {
-  const selected = selectQualifiedQuestionsByPoint([point], [
+  const selected = selectQualifiedQuestionsByPoint([lowTargetPoint], [
     question({ id: "discarded", qualityAction: "discard", qualityScore: { ...question().qualityScore, average: 4.9 } })
   ]);
 
@@ -154,7 +164,7 @@ test("does not retain discard questions", () => {
 });
 
 test("does not retain structurally invalid rewrite questions", () => {
-  const selected = selectQualifiedQuestionsByPoint([point], [
+  const selected = selectQualifiedQuestionsByPoint([lowTargetPoint], [
     question({
       id: "bad-options",
       qualityAction: "rewrite",
@@ -171,7 +181,7 @@ test("does not retain structurally invalid rewrite questions", () => {
   assert.equal(selected.length, 0);
 });
 
-test("retains question type mismatch as low confidence instead of blocking coverage", () => {
+test("retains question type mismatch without treating type as the core quality signal", () => {
   const evaluated = evaluateQuestions({
     questions: [
       question({
@@ -186,9 +196,9 @@ test("retains question type mismatch as low confidence instead of blocking cover
   const selected = selectQualifiedQuestionsByPoint([point], evaluated);
 
   assert.equal(evaluated[0].qualityIssues.includes("question_type_mismatch"), true);
+  assert.equal((evaluated[0].confidenceReasons || []).includes("question_type_mismatch"), false);
   assert.equal(selected.length, 1);
   assert.equal(selected[0].id, "type-mismatch");
-  assert.equal(selected[0].confidenceLevel, "low");
 });
 
 test("expands source snippet to the original paragraph context", () => {
@@ -234,7 +244,186 @@ test("keeps long source context sentence-bounded and near the anchor", () => {
   assert.equal(/[。！？!?]$/.test(evaluated[0].sourceSnippet), true);
 });
 
-test("preserves paragraph breaks when source context spans original paragraphs", () => {
+test("selects minimal evidence sentences for hook definition, lifecycle, contrast, and formatter examples", () => {
+  const cleanedText = [
+    "hook 可以先理解成一句话：在 AI agent 的某个固定节点，自动执行你定义好的命令、HTTP 请求、提示词或工具调用。",
+    "官方文档的说法更工程化：hooks 会在 Claude Code 生命周期中的特定点触发；事件发生后，系统把相关 JSON 上下文传给你的 hook handler。",
+    "prompt 是请求模型记住；hook 是让系统执行。",
+    "比如在 PostToolUse 里规定，只要它编辑了文件，就自动跑 formatter。"
+  ].join("");
+  const hookPoints = [
+    {
+      ...point,
+      id: "kp-hook-definition",
+      title: "hook 的定义",
+      sourceQuote: "hook 可以先理解成一句话：在 AI agent 的某个固定节点，自动执行你定义好的命令、HTTP 请求、提示词或工具调用。"
+    },
+    {
+      ...point,
+      id: "kp-hook-lifecycle",
+      title: "hook 的生命周期触发",
+      sourceQuote: "hooks 会在 Claude Code 生命周期中的特定点触发"
+    },
+    {
+      ...point,
+      id: "kp-hook-contrast",
+      title: "prompt 与 hook 的区别",
+      sourceQuote: "prompt 是请求模型记住；hook 是让系统执行。"
+    },
+    {
+      ...point,
+      id: "kp-hook-example",
+      title: "PostToolUse formatter 示例",
+      sourceQuote: "在 PostToolUse 里规定，只要它编辑了文件，就自动跑 formatter。"
+    }
+  ];
+  const evaluated = evaluateQuestions({
+    questions: [
+      question({
+        id: "q-hook-definition",
+        knowledgePointId: "kp-hook-definition",
+        stem: "hook 在 Claude Code 语境里首先应该被理解为什么？",
+        correctUnderstanding: "hook 是在 AI agent 的固定节点自动执行命令、HTTP 请求、提示词或工具调用的机制。",
+        options: [
+          { id: "A", text: "在固定节点自动执行命令或工具调用的机制" },
+          { id: "B", text: "只用于 React 组件复用的函数" },
+          { id: "C", text: "让模型凭记忆遵守规则的提示词" },
+          { id: "D", text: "只记录聊天内容的日志系统" }
+        ]
+      }),
+      question({
+        id: "q-hook-lifecycle",
+        knowledgePointId: "kp-hook-lifecycle",
+        stem: "官方文档强调 hook 会在什么位置触发？",
+        correctUnderstanding: "hook 会在 Claude Code 生命周期中的特定点触发，并接收相关 JSON 上下文。",
+        options: [
+          { id: "A", text: "Claude Code 生命周期中的特定点" },
+          { id: "B", text: "用户完成整篇文章阅读之后" },
+          { id: "C", text: "只在前端组件渲染时" },
+          { id: "D", text: "只在 App Store 审核时" }
+        ]
+      }),
+      question({
+        id: "q-hook-contrast",
+        knowledgePointId: "kp-hook-contrast",
+        stem: "prompt 和 hook 的关键差别是什么？",
+        correctUnderstanding: "prompt 是请求模型记住规则，而 hook 是让系统执行确定性流程。",
+        options: [
+          { id: "A", text: "prompt 请求模型记住，hook 让系统执行" },
+          { id: "B", text: "prompt 更确定，hook 只能靠模型自觉" },
+          { id: "C", text: "二者完全相同" },
+          { id: "D", text: "hook 只负责改变按钮颜色" }
+        ]
+      }),
+      question({
+        id: "q-hook-example",
+        knowledgePointId: "kp-hook-example",
+        stem: "PostToolUse 自动跑 formatter 的例子说明了什么？",
+        correctUnderstanding: "它说明 hook 可以在 AI 编辑文件后自动执行格式化这类确定性流程。",
+        options: [
+          { id: "A", text: "hook 可以在编辑文件后自动跑 formatter" },
+          { id: "B", text: "formatter 只能由用户手动执行" },
+          { id: "C", text: "PostToolUse 与文件编辑无关" },
+          { id: "D", text: "hook 的目标是替代所有测试" }
+        ]
+      })
+    ],
+    knowledgePoints: hookPoints,
+    cleanedText
+  });
+
+  assert.equal(evaluated[0].sourceSnippet.includes("在 AI agent 的某个固定节点"), true);
+  assert.equal(evaluated[1].sourceSnippet.includes("生命周期中的特定点触发"), true);
+  assert.equal(evaluated[2].sourceSnippet.includes("prompt 是请求模型记住；hook 是让系统执行"), true);
+  assert.equal(evaluated[3].sourceSnippet.includes("PostToolUse"), true);
+  assert.equal(new Set(evaluated.map((item) => item.sourceSnippet)).size >= 3, true);
+  assert.equal(evaluated.every((item) => Number(item.sourceMinimalityScore) >= 4), true);
+  assert.equal(evaluated.every((item) => cleanedText.includes(item.sourceSnippet.replace(/\n\n/g, ""))), true);
+});
+
+test("records overlap diagnostics when two questions reuse the same minimal evidence", () => {
+  const overlapPoint = {
+    ...point,
+    sourceQuote: "prompt 是请求模型记住；hook 是让系统执行。"
+  };
+  const evaluated = evaluateQuestions({
+    questions: [
+      question({
+        id: "q-overlap-1",
+        stem: "prompt 和 hook 的关键差别是什么？",
+        correctUnderstanding: "prompt 是请求模型记住规则，而 hook 是让系统执行确定性流程。",
+        sourceSnippet: ""
+      }),
+      question({
+        id: "q-overlap-2",
+        stem: "为什么 hook 比提示词更像控制器？",
+        correctUnderstanding: "因为 hook 让系统执行固定流程，而不是只请求模型记住。",
+        sourceSnippet: ""
+      })
+    ],
+    knowledgePoints: [overlapPoint],
+    cleanedText: "prompt 是请求模型记住；hook 是让系统执行。你可以反复对 AI 说改完代码记得格式化，也可以在 PostToolUse 里规定自动跑 formatter。"
+  });
+
+  assert.equal(Number(evaluated[1].sourceOverlapRatio) >= 0.7, true);
+  assert.equal(Boolean(evaluated[1].sourceOverlapGroupId), true);
+});
+
+test("assigns same-point questions to different source blocks when evidence differs", () => {
+  const hookTimingPoint = {
+    ...point,
+    id: "kp-hook-timing",
+    title: "什么时候需要 hook",
+    keyClaim: "hook 应该在项目从可运行走向可复用时引入，而不是 demo 一开始就引入。",
+    sourceQuote: "真正该上 hook 的时刻，通常有四个信号。",
+    questionAngles: ["理解引入时机", "辨析信号", "迁移到 formatter 场景"]
+  };
+  const cleanedText = [
+    "什么时候需要 hook：不是一开始，而是从可运行走向可复用时",
+    "一个 20 分钟的概念 demo，不需要先搭一套复杂 hook。那会把 AI coding 的速度优势抵消掉。",
+    "真正该上 hook 的时刻，通常有四个信号：不可接受的行为需要拦截、重复动作需要自动化、AI 结束前必须完成最低限度检查、团队开始复用这套流程。",
+    "例如你可以在 PostToolUse 里规定，只要 AI 编辑了文件，就自动跑 formatter。这个例子说明 hook 适合把确定性动作固化下来。"
+  ].join("\n");
+
+  const evaluated = evaluateQuestions({
+    questions: [
+      question({
+        id: "q-demo",
+        knowledgePointId: "kp-hook-timing",
+        stem: "为什么 20 分钟概念 demo 不需要一开始就上 hook？",
+        correctUnderstanding: "因为早期 demo 追求速度，复杂 hook 会抵消 AI coding 的速度优势。",
+        commonMisconception: "误以为任何 AI coding 项目都应该先搭 hook。",
+        sourceSnippet: ""
+      }),
+      question({
+        id: "q-signal",
+        knowledgePointId: "kp-hook-timing",
+        stem: "哪些信号说明团队真正该引入 hook？",
+        correctUnderstanding: "当不可接受行为需要拦截、重复动作需要自动化、最低检查需要固化或流程被团队复用时，就应该考虑 hook。",
+        commonMisconception: "误以为只要代码能跑就不需要任何 hook。",
+        sourceSnippet: ""
+      }),
+      question({
+        id: "q-formatter",
+        knowledgePointId: "kp-hook-timing",
+        stem: "PostToolUse 自动跑 formatter 的例子说明了 hook 的什么价值？",
+        correctUnderstanding: "它说明 hook 适合把编辑文件后的格式化这类确定性动作固化为自动流程。",
+        commonMisconception: "误以为 formatter 只能靠人提醒 AI 去执行。",
+        sourceSnippet: ""
+      })
+    ],
+    knowledgePoints: [hookTimingPoint],
+    cleanedText
+  });
+
+  const blockIds = new Set(evaluated.map((item) => item.sourceBlockId).filter(Boolean));
+  assert.equal(blockIds.size >= 2, true);
+  assert.equal(evaluated.every((item) => item.sourceBlockId), true);
+  assert.equal(evaluated.some((item) => item.sourceEvidenceRole === "example"), true);
+  assert.equal(evaluated.every((item) => Number(item.sourceEvidenceDiversityScore) >= 3), true);
+});
+
+test("uses the most relevant source block instead of forcing the anchor paragraph", () => {
   const shortPoint = {
     ...point,
     sourceQuote: "HTML 原型让沟通媒介更丰富。"
@@ -255,9 +444,10 @@ test("preserves paragraph breaks when source context spans original paragraphs",
     ].join("\n")
   });
 
-  assert.equal(evaluated[0].sourceSnippet.includes(shortPoint.sourceQuote), true);
   assert.equal(evaluated[0].sourceSnippet.includes("任务状态和交互反馈"), true);
-  assert.equal(evaluated[0].sourceSnippet.includes("\n\n"), true);
+  assert.equal(evaluated[0].sourceBlockId, "p2-s0-0");
+  assert.equal(evaluated[0].sourceContextSelection.method, "source_block_relevance");
+  assert.equal(evaluated[0].sourcePrecisionScore >= 4, true);
 });
 
 test("chooses the source context that best matches the question keywords", () => {
@@ -282,6 +472,80 @@ test("chooses the source context that best matches the question keywords", () =>
 
   assert.equal(evaluated[0].sourceSnippet.includes("低风险试点"), true);
   assert.equal(evaluated[0].sourceSnippet.includes("建立信任"), true);
+});
+
+test("falls back to a more relevant paragraph in the same section when the source quote paragraph is weak", () => {
+  const sectionPoint = {
+    ...point,
+    title: "Hook 与 CI、Prompt、项目规则的分工",
+    keyClaim: "Prompt、CLAUDE.md、hook 和 CI 各自负责不同层级的约束。",
+    sourceQuote: "很多团队会在这里混淆。其实分工很清楚。"
+  };
+  const evaluated = evaluateQuestions({
+    questions: [
+      question({
+        id: "same-section-context",
+        stem: "在这套 AI coding 工作流里，hook 和 CI 的边界是什么？",
+        correctUnderstanding: "hook 适合在本地执行高频、即时、可自动化的约束；CI 负责最终的跨环境质量门槛。",
+        options: [
+          { id: "A", text: "hook 做即时约束，CI 做最终质量门槛" },
+          { id: "B", text: "hook 可以完全替代 CI" },
+          { id: "C", text: "CI 只负责保存提示词" },
+          { id: "D", text: "Prompt 和 hook 没有分工区别" }
+        ],
+        sourceSnippet: ""
+      })
+    ],
+    knowledgePoints: [sectionPoint],
+    cleanedText: [
+      "很多团队会在这里混淆。其实分工很清楚。这一段只是引出问题，没有解释具体边界，也没有说明任何工具各自应该负责什么。它继续描述团队在工具选择上会犹豫，会把不同层级的规则混在同一个文档里，但仍然没有给出明确分工。作者还说这种混淆会让团队以为只要多写提示词就能解决所有流程问题，结果真正需要自动执行的检查仍然停留在口头提醒里。",
+      "Prompt 负责告诉 AI 怎么思考，CLAUDE.md 负责沉淀项目长期规则，hook 适合在本地执行每次都必须发生的即时约束，CI 则负责最终跨环境质量门槛，防止个人机器上的自动化遗漏生产检查。"
+    ].join("\n")
+  });
+  const selected = selectQualifiedQuestionsByPoint([sectionPoint], evaluated);
+
+  assert.equal(evaluated[0].sourceSnippet.includes("CI 则负责最终跨环境质量门槛"), true);
+  assert.equal(evaluated[0].sourceContextSelection.method, "source_block_relevance");
+  assert.equal(evaluated[0].sourceContextSelection.fallback, true);
+  assert.equal(evaluated[0].blockingReasons.includes("weak_source_support"), false);
+  assert.equal(selected.length, 1);
+});
+
+test("locates source context from title and key claim when the source quote is not a continuous substring", () => {
+  const discontinuousPoint = {
+    ...point,
+    title: "Vibe Coding 与 Hook 的关系",
+    keyClaim: "Vibe coding 负责快速起飞，hook 负责让流程不偏航。",
+    sourceQuote: "vibe coding 负责起飞，hook 负责别偏航。这个引用在正文里不是连续片段。"
+  };
+  const evaluated = evaluateQuestions({
+    questions: [
+      question({
+        id: "keyword-fallback",
+        stem: "如何理解 vibe coding 和 hook 的关系？",
+        correctUnderstanding: "vibe coding 负责快速做出 demo，hook 负责把必要约束自动化，避免流程偏航。",
+        options: [
+          { id: "A", text: "vibe coding 负责快速做 demo，hook 负责自动化约束防偏航" },
+          { id: "B", text: "hook 只负责让页面变得更美观" },
+          { id: "C", text: "vibe coding 可以替代所有工程约束" },
+          { id: "D", text: "二者没有任何关系" }
+        ],
+        sourceSnippet: ""
+      })
+    ],
+    knowledgePoints: [discontinuousPoint],
+    cleanedText: "最后的判断很简单：vibe coding 负责快速起飞，让 PM 先把 demo 和想法跑起来；hook 负责把必须发生的检查、提醒和约束自动化，避免 AI coding 的流程偏航。"
+  });
+  const selected = selectQualifiedQuestionsByPoint([discontinuousPoint], evaluated);
+
+  assert.equal(evaluated[0].sourceSnippet.includes("避免 AI coding 的流程偏航"), true);
+  assert.equal(evaluated[0].sourceContextSelection.method, "source_block_relevance");
+  assert.equal(evaluated[0].sourceContextSelection.fallbackReason, "source_block_keyword_match");
+  assert.equal(evaluated[0].sourceContextSelection.fallback, true);
+  assert.equal(evaluated[0].sourcePrecisionScore >= 4, true);
+  assert.equal(selected.length, 1);
+  assert.equal(selected[0].confidenceTier, "high_confidence");
+  assert.equal(selected[0].confidenceLevel, "high");
 });
 
 test("does not retain a question when no source context supports its answer", () => {
@@ -344,35 +608,37 @@ test("adds trust diagnostics and confidence reasons for weak but reviewable ques
   const selected = selectQualifiedQuestionsByPoint([weakPoint], evaluated);
 
   assert.equal(evaluated[0].trustDiagnostics.answerGroundingScore >= 1, true);
-  assert.equal(evaluated[0].confidenceReasons.includes("weak_explanation_faithfulness"), true);
+  assert.equal(evaluated[0].confidenceReasons.some((reason) => reason.startsWith("explanation_")), true);
   assert.equal(selected.length, 1);
   assert.equal(selected[0].confidenceLevel, "low");
 });
 
-test("blocks questions whose explanation is not faithful to the source context", () => {
+test("keeps weak explanation faithfulness as low confidence when the source still supports the answer", () => {
   const evaluated = evaluateQuestions({
     questions: [
       question({
         id: "bad-explanation",
         sourceSnippet: "",
         stem: "这段来源说明什么？",
-        correctUnderstanding: "这段来源说明拾贝已经拥有成熟账号系统和推荐算法。",
-        explanation: "原文明确说拾贝已经通过账号系统解决了个性化推荐问题。",
+        correctUnderstanding: "这段来源说明题目应当由来源片段支撑。",
+        explanation: "原文说明成熟账号系统和推荐算法已经解决了个性化问题。",
         options: [
-          { id: "A", text: "拾贝已经拥有成熟账号系统和推荐算法" },
-          { id: "B", text: "拾贝只需要改按钮颜色" },
-          { id: "C", text: "拾贝不需要复习流程" },
-          { id: "D", text: "拾贝应该删除所有来源" }
+          { id: "A", text: "题目应当由来源片段支撑" },
+          { id: "B", text: "题目可以不需要来源" },
+          { id: "C", text: "所有选项都应当正确" },
+          { id: "D", text: "解释可以完全脱离原文" }
         ]
       })
     ],
     knowledgePoints: [point],
-    cleanedText: point.sourceQuote
+    cleanedText: `这是一段可以支撑题目的来源片段。题目应当由来源片段支撑，解释不能完全脱离原文。`
   });
   const selected = selectQualifiedQuestionsByPoint([point], evaluated);
 
-  assert.equal(evaluated[0].blockingReasons.includes("weak_explanation_faithfulness"), true);
-  assert.equal(selected.length, 0);
+  assert.equal(evaluated[0].confidenceReasons.some((reason) => reason.startsWith("explanation_")), true);
+  assert.equal(evaluated[0].blockingReasons.includes("weak_explanation_faithfulness"), false);
+  assert.equal(selected.length, 1);
+  assert.equal(selected[0].confidenceLevel, "low");
 });
 
 test("falls back to unsupported source quote as discard when the quote cannot be located", () => {
@@ -412,4 +678,251 @@ test("keeps one reviewable question for each covered knowledge point", () => {
 
   assert.equal(selected.length, 10);
   assert.deepEqual(selected.map((item) => item.knowledgePointId), points.map((item) => item.id));
+});
+
+test("defaults normal reviewable knowledge points to three target questions", () => {
+  const decision = targetQuestionCountDecisionForPoint({
+    ...point,
+    testabilityScore: 4,
+    importanceScore: 3,
+    questionAngles: []
+  });
+
+  assert.equal(targetQuestionCountForPoint(point), 3);
+  assert.equal(decision.count, 3);
+  assert.equal(decision.reason, "default_three_question_target");
+});
+
+test("builds a three-step practice blueprint for high-value knowledge points", () => {
+  const blueprint = buildPracticeBlueprintForPoint(highValuePoint, {
+    targetCount: 3,
+    preferredQuestionType: "multiple_choice"
+  });
+
+  assert.equal(blueprint.length, 3);
+  assert.deepEqual(blueprint.map((item) => item.memoryAngle), [
+    "core_understanding",
+    "misconception_boundary",
+    "scenario_application"
+  ]);
+  assert.equal(blueprint.every((item) => item.id.includes(highValuePoint.id)), true);
+});
+
+test("keeps same-type questions when they cover distinct cognitive actions", () => {
+  const selected = selectQualifiedQuestionsByPoint([highValuePoint], [
+    typedQuestion({
+      id: "core",
+      type: "scenario_judgment",
+      stem: "团队判断这个知识点的核心主张时，哪种说法最准确？",
+      average: 4.8,
+      memoryAngle: "core_understanding",
+      blueprintItemId: "kp-1-core_understanding",
+      sourceBlockId: "block-shared",
+      blueprintAlignmentScore: 5,
+      memoryAngleFitScore: 5,
+      cognitiveActionFitScore: 5,
+      evidenceLearningValueScore: 4.5
+    }),
+    typedQuestion({
+      id: "boundary",
+      type: "scenario_judgment",
+      stem: "团队误用这个知识点时，哪种边界判断最容易出错？",
+      average: 4.7,
+      memoryAngle: "misconception_boundary",
+      blueprintItemId: "kp-1-misconception_boundary",
+      sourceBlockId: "block-shared",
+      blueprintAlignmentScore: 5,
+      memoryAngleFitScore: 5,
+      cognitiveActionFitScore: 5,
+      evidenceLearningValueScore: 4.5
+    }),
+    typedQuestion({
+      id: "scenario",
+      type: "scenario_judgment",
+      stem: "如果团队遇到新项目场景，应该怎样迁移这个知识点？",
+      average: 4.6,
+      memoryAngle: "scenario_application",
+      blueprintItemId: "kp-1-scenario_application",
+      sourceBlockId: "block-shared",
+      blueprintAlignmentScore: 5,
+      memoryAngleFitScore: 5,
+      cognitiveActionFitScore: 5,
+      evidenceLearningValueScore: 4.5
+    })
+  ]);
+
+  assert.equal(selected.length, 3);
+  assert.equal(new Set(selected.map((item) => item.type)).size, 1);
+  assert.equal(new Set(selected.map((item) => item.memoryAngle)).size, 3);
+  assert.equal(selected[0].typeDiversityReason, "same_type_but_distinct_cognitive_actions");
+  assert.equal(selected[0].practiceProgressionScore, 5);
+  assert.equal(selected[0].sourceReuseLearningReason, "same_point_all_questions_share_one_source_block");
+});
+
+test("does not demote type mismatch when the cognitive action is satisfied", () => {
+  const selected = selectQualifiedQuestionsByPoint([lowTargetPoint], [
+    question({
+      id: "type-warning-only",
+      type: "scenario_judgment",
+      qualityIssues: ["question_type_mismatch"],
+      confidenceTier: "high_confidence",
+      confidenceReasons: [],
+      cognitiveActionFitScore: 5
+    })
+  ]);
+
+  assert.equal(selected.length, 1);
+  assert.equal(selected[0].confidenceLevel, "high");
+});
+
+test("pedagogy diagnostics penalize literal scenario transfer and generic boundary practice", () => {
+  const literalScenario = pedagogyDiagnosticsForQuestion({
+    ...question(),
+    memoryAngle: "scenario_application",
+    stem: "原文提到这段话时，哪项说法正确？",
+    options: [
+      { id: "A", text: "原文中的字面说法" },
+      { id: "B", text: "另一个字面说法" },
+      { id: "C", text: "第三个字面说法" },
+      { id: "D", text: "第四个字面说法" }
+    ],
+    correctUnderstanding: "这道题只要求识别原文中的字面说法。",
+    explanation: "答案来自原文这段话本身。",
+    sourceSnippet: "原文提到这段话时，哪项说法正确？"
+  }, highValuePoint, { blueprintPreferredQuestionType: "scenario_judgment" });
+  const genericBoundary = pedagogyDiagnosticsForQuestion({
+    ...question(),
+    memoryAngle: "misconception_boundary",
+    commonMisconception: "理解片面",
+    options: [
+      { id: "A", text: "成立" },
+      { id: "B", text: "不成立" }
+    ]
+  }, highValuePoint, { blueprintPreferredQuestionType: "true_false" });
+
+  assert.equal(literalScenario.scenarioTransferFitScore < 4, true);
+  assert.equal(literalScenario.pedagogyDiagnostics.reasons.includes("scenario_transfer_too_literal"), true);
+  assert.equal(genericBoundary.boundaryDiscriminationFitScore < 4, true);
+  assert.equal(genericBoundary.pedagogyDiagnostics.reasons.includes("boundary_not_teaching_real_confusion"), true);
+});
+
+test("question prompt includes article structure binding fields", () => {
+  const prompt = buildUserPrompt({
+    points: [
+      {
+        id: "kp-1",
+        title: "Hook 与 prompt 的区别",
+        keyClaim: "prompt 是请求，hook 是机制。",
+        sourceQuote: "prompt 是请求模型记住，hook 是让系统执行。",
+        structureNodeId: "asn-2",
+        roleInArticle: "contrast",
+        sourceEvidenceIds: ["p2-s0-0"],
+        expectedCognitiveActions: ["core_understanding", "misconception_boundary"],
+        targetQuestionCount: 3,
+        practiceBlueprint: [
+          {
+            id: "kp-1-core_understanding",
+            memoryAngle: "core_understanding",
+            preferredQuestionType: "multiple_choice",
+            goal: "确认用户能说清 prompt 和 hook 的区别"
+          }
+        ]
+      }
+    ],
+    rewrite: false,
+    supplement: false
+  });
+
+  assert.match(prompt, /structureNodeId/);
+  assert.match(prompt, /sourceEvidenceIds/);
+  assert.match(prompt, /题目必须服务该结构节点/);
+});
+
+test("composite question is low confidence when source covers only one concept", () => {
+  const compositePoint = {
+    id: "kp-1",
+    title: "Prompt、Hook、CI 的分工",
+    keyClaim: "prompt 管本次思考，hook 管事件触发动作，CI 管主干前裁判。",
+    sourceQuote: "hooks 会在 Claude Code 生命周期中的特定点触发。",
+    testabilityScore: 5,
+    importanceScore: 5
+  };
+  const evaluated = evaluateQuestions({
+    questions: [question({
+      stem: "关于 Prompt、Hook 和 CI 的职责划分，哪项正确？",
+      options: [
+        { id: "A", text: "prompt 管本次思考，hook 管事件触发动作，CI 管主干前裁判。" },
+        { id: "B", text: "hook 可以完全替代 CI。" },
+        { id: "C", text: "prompt 是比 hook 更强的控制器。" },
+        { id: "D", text: "CI 只负责提示词记忆。" }
+      ],
+      correctOptionId: "A",
+      correctUnderstanding: "prompt、hook、CI 分别承担不同职责。",
+      commonMisconception: "误以为 hook 能替代 CI。",
+      sourceSnippet: "hooks 会在 Claude Code 生命周期中的特定点触发。",
+      memoryAngle: "misconception_boundary"
+    })],
+    knowledgePoints: [compositePoint],
+    cleanedText: "hooks 会在 Claude Code 生命周期中的特定点触发。"
+  });
+
+  assert.equal(evaluated[0].sourceCoverageScore < 4, true);
+  assert.equal(evaluated[0].confidenceReasons.includes("source_coverage_incomplete"), true);
+});
+
+test("claim fidelity drops when question overstates source claim", () => {
+  const demoPoint = {
+    id: "kp-1",
+    title: "Demo 阶段不需要严格控制",
+    keyClaim: "Demo 阶段的目标不是工程化可交付版本，因此不需要严格控制。",
+    sourceQuote: "用于产品演示的阶段，不需要严格的控制。",
+    testabilityScore: 5,
+    importanceScore: 4
+  };
+  const evaluated = evaluateQuestions({
+    questions: [question({
+      stem: "产品经理忽视 Hook 的主要原因是什么？",
+      options: [
+        { id: "A", text: "Demo 阶段需求不同，不关注工程化控制。" },
+        { id: "B", text: "产品经理不理解技术。" },
+        { id: "C", text: "Hook 只能用于后端。" },
+        { id: "D", text: "AI 不支持 Hook。" }
+      ],
+      correctOptionId: "A",
+      correctUnderstanding: "Demo 阶段不需要严格控制。",
+      commonMisconception: "认为是产品经理能力不足。",
+      sourceSnippet: "用于产品演示的阶段，不需要严格的控制。",
+      memoryAngle: "core_understanding"
+    })],
+    knowledgePoints: [demoPoint],
+    cleanedText: "用于产品演示的阶段，不需要严格的控制。"
+  });
+
+  assert.equal(evaluated[0].claimFidelityScore < 4, true);
+  assert.equal(evaluated[0].confidenceReasons.includes("claim_overextended"), true);
+});
+
+test("records a lower target reason for clearly low-testability points", () => {
+  const decision = targetQuestionCountDecisionForPoint(lowTargetPoint);
+
+  assert.equal(decision.count, 1);
+  assert.equal(decision.reason, "low_testability");
+  assert.equal(decision.factors.includes("testability:2"), true);
+});
+
+test("supplement prompt asks for missing angles instead of rewriting a failed question", () => {
+  const prompt = buildUserPrompt({
+    points: [{
+      ...highValuePoint,
+      preferredQuestionType: "scenario_judgment",
+      targetQuestionCount: 2
+    }],
+    supplement: true,
+    supplementContext: "missing_question_types:true_false|scenario_judgment; existing_reviewable_questions:multiple_choice:已有题"
+  });
+
+  assert.equal(prompt.includes("这是补题任务，不是重写失败题"), true);
+  assert.equal(prompt.includes("上一题没有通过质量检查"), false);
+  assert.equal(prompt.includes("missing_question_types:true_false|scenario_judgment"), true);
+  assert.equal(prompt.includes("hook 指 AI agent / Claude Code lifecycle hook，不是 React Hook"), true);
 });

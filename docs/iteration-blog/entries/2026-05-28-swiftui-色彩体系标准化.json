@@ -1,0 +1,20 @@
+{
+  "date": "2026-05-28",
+  "title": "SwiftUI 色彩体系标准化",
+  "phase": "iOS 设计系统",
+  "problem": "随着页面和状态越来越多，颜色虽然集中在 ShiBeiTheme，但源头仍是代码里的 RGB，后续换品牌色、状态色或预留暗色模式都不够稳。",
+  "changes": [
+    "新增 Shibei 系列 Asset Catalog Color Sets，把背景、卡片、文字、品牌色、状态色和来源色放进资产色。",
+    "重构 ShiBeiTheme 为 SwiftUI 语义接口，页面继续使用 surface、card、primary、yellow、dangerBackground 等 token。",
+    "清理 Review、Chapter 等 View 层硬编码 Color(red:)，答题反馈、来源片段、复习状态 chip 都改用语义色。"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/2026-05-28-swiftui-色彩体系标准化.svg",
+      "caption": "SwiftUI 颜色从集中 RGB 升级为资产色与语义 token"
+    }
+  ],
+  "result": "色彩源头从代码 RGB 升级为资产色 + 语义 token，后续统一调色和暗色适配成本明显降低，同时当前视觉基本不变。",
+  "next": "继续把字体、间距和状态组件沉淀为更完整的 iOS 设计系统约束。",
+  "commits": []
+}
