@@ -1,24 +1,24 @@
 const MEMORY_ANGLE_BLUEPRINTS = {
   core_understanding: {
     label: "核心理解",
-    goal: "让用户能用自己的判断复述这个知识点的核心主张，而不是记住原文词句",
+    goal: "让用户抓住这个知识点的核心主张，并能判断什么说法真正表达了原文意思",
     preferredQuestionType: "multiple_choice",
     sourceEvidenceRole: "definition",
-    avoid: "不要问原文提到了什么，不要只做关键词识别"
+    avoid: "不要问原文提到了什么，不要只做关键词识别、原文填空或字面复述"
   },
   misconception_boundary: {
     label: "边界辨析",
-    goal: "让用户分清这个知识点容易被误解、滥用或混淆的边界",
+    goal: "让用户分清这个知识点真实容易混淆、误用或越界的地方",
     preferredQuestionType: "true_false",
     sourceEvidenceRole: "contrast",
-    avoid: "不要设计一眼排除的错误选项，误区必须贴近真实用户会犯的理解偏差"
+    avoid: "不要设计一眼排除的错误选项，误区必须能在题干、选项或原文边界中被看见"
   },
   scenario_application: {
     label: "场景迁移",
-    goal: "让用户把这个知识点迁移到具体场景中做判断或选择行动",
+    goal: "让用户把这个知识点迁移到新场景中做判断或选择行动",
     preferredQuestionType: "scenario_judgment",
     sourceEvidenceRole: "method",
-    avoid: "不要编造原文没有支撑的复杂业务细节，场景必须能被来源证据解释"
+    avoid: "不要把原文句子换壳成场景题，也不要编造来源无法解释的业务细节"
   }
 };
 
@@ -84,24 +84,27 @@ export function blueprintAlignment(question = {}, point = {}) {
 export function pedagogyDiagnosticsForQuestion(question = {}, point = {}, blueprint = {}) {
   const memoryAngle = question.memoryAngle || blueprint.memoryAngle || "";
   const coreRecallFitScore = scoreCoreRecallFit(question);
+  const coreUnderstandingScore = coreRecallFitScore;
   const boundaryDiscriminationFitScore = scoreBoundaryFit(question);
   const scenarioTransferFitScore = scoreScenarioFit(question);
+  const scenarioApplicationScore = scenarioTransferFitScore;
   const cognitiveActionFitScore = scoreCognitiveActionFit({
     memoryAngle,
-    coreRecallFitScore,
+    coreRecallFitScore: coreUnderstandingScore,
     boundaryDiscriminationFitScore,
-    scenarioTransferFitScore
+    scenarioTransferFitScore: scenarioApplicationScore
   });
   const evidenceLearningValueScore = scoreEvidenceLearningValue(question);
   const reasons = pedagogyReasons({
     question,
     memoryAngle,
-    coreRecallFitScore,
+    coreRecallFitScore: coreUnderstandingScore,
     boundaryDiscriminationFitScore,
-    scenarioTransferFitScore,
+    scenarioTransferFitScore: scenarioApplicationScore,
     cognitiveActionFitScore,
     evidenceLearningValueScore
   });
+  const cognitiveActionIssue = primaryCognitiveActionIssue(reasons);
   const warnings = [];
   const preferredQuestionType = blueprint.preferredQuestionType || blueprint.blueprintPreferredQuestionType || "";
   if (question.type && preferredQuestionType && question.type !== preferredQuestionType) {
@@ -111,18 +114,24 @@ export function pedagogyDiagnosticsForQuestion(question = {}, point = {}, bluepr
   return {
     pedagogyDiagnostics: {
       cognitiveAction: memoryAngle,
-      coreRecallFitScore,
+      coreRecallFitScore: coreUnderstandingScore,
+      coreUnderstandingScore,
       boundaryDiscriminationFitScore,
-      scenarioTransferFitScore,
+      scenarioTransferFitScore: scenarioApplicationScore,
+      scenarioApplicationScore,
       cognitiveActionFitScore,
       evidenceLearningValueScore,
+      cognitiveActionIssue,
       warnings,
       reasons
     },
     cognitiveActionFitScore,
-    coreRecallFitScore,
+    coreRecallFitScore: coreUnderstandingScore,
+    coreUnderstandingScore,
     boundaryDiscriminationFitScore,
-    scenarioTransferFitScore,
+    scenarioTransferFitScore: scenarioApplicationScore,
+    scenarioApplicationScore,
+    cognitiveActionIssue,
     practiceProgressionScore: null,
     practiceDuplicateRiskScore: 1,
     evidenceLearningValueScore,
@@ -197,7 +206,7 @@ function scoreCoreRecallFit(question) {
     question.explanation
   ]);
   if (!text) return 1;
-  if (/原文.*提到|文中.*提到|关键词|哪句|哪一项.*出现|填空/.test(text)) return 2;
+  if (/原文.*提到|文中.*提到|关键词|哪句|哪一项.*出现|填空|根据原文.*哪项/.test(text)) return 2;
   if (/核心|主张|本质|关键|意味着|为什么|不是.*而是|理解|判断/.test(text)) return 5;
   if (/以下哪种|哪项理解|哪种说法/.test(text)) return 4;
   return 3;
@@ -216,6 +225,7 @@ function scoreBoundaryFit(question) {
   const misconception = String(question.commonMisconception || "");
   const options = optionTexts(question);
   const reflectedInOptions = misconception && options && keywordOverlap(misconception, options);
+  if (isGenericMisconception(misconception)) return hasBoundaryCue ? 3 : 2;
   if (hasBoundaryCue && reflectedInOptions) return 5;
   if (hasBoundaryCue && misconception.length >= 18) return 4;
   if (hasBoundaryCue || misconception.length >= 18) return 3;
@@ -233,6 +243,7 @@ function scoreScenarioFit(question) {
   if (!text) return 1;
   const hasScenarioCue = /如果|场景|团队|项目|用户|应该|选择|行动|处理|遇到|迁移|应用|实践|工作流|流程|案例/.test(text);
   const stemSourceOverlap = overlapRatio(compact(stem), compact(question.sourceSnippet || ""));
+  if (/原文.*提到|根据原文|文中.*场景/.test(stem)) return 2;
   if (hasScenarioCue && stemSourceOverlap < 0.55) return 5;
   if (hasScenarioCue) return 4;
   if (/如何|怎么|做法|策略|取舍/.test(text)) return 3;
@@ -271,11 +282,26 @@ function pedagogyReasons({
 }) {
   const reasons = [];
   if (cognitiveActionFitScore < 3) reasons.push("cognitive_action_weak");
-  if (memoryAngle === "core_understanding" && coreRecallFitScore < 4) reasons.push("core_recall_too_literal");
-  if (memoryAngle === "misconception_boundary" && boundaryDiscriminationFitScore < 4) reasons.push("boundary_not_teaching_real_confusion");
-  if (memoryAngle === "scenario_application" && scenarioTransferFitScore < 4) reasons.push("scenario_transfer_too_literal");
+  if (memoryAngle === "core_understanding" && coreRecallFitScore < 4) reasons.push("core_claim_too_literal");
+  if (memoryAngle === "misconception_boundary" && boundaryDiscriminationFitScore < 4) reasons.push("boundary_confusion_not_real");
+  if (memoryAngle === "scenario_application" && scenarioTransferFitScore < 4) reasons.push("scenario_is_restatement");
   if (evidenceLearningValueScore < 3) reasons.push("weak_evidence_learning_value");
   return reasons;
+}
+
+function primaryCognitiveActionIssue(reasons = []) {
+  const priority = [
+    "core_claim_too_literal",
+    "boundary_confusion_not_real",
+    "scenario_is_restatement",
+    "cognitive_action_weak"
+  ];
+  return priority.find((reason) => reasons.includes(reason)) || "";
+}
+
+function isGenericMisconception(value) {
+  return /没有理解|理解片面|忽略.*关键|只是.*表面|不够深入|混淆概念|误解原文|理解错误/.test(String(value || ""))
+    || String(value || "").trim().length < 18;
 }
 
 function optionTexts(question) {

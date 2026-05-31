@@ -389,9 +389,23 @@ function addDiverseQuestions({ selected, candidates, targetCount, mark }) {
 function canAddQuestionToSelection(selected, question) {
   if (selected.some((item) => item.id === question.id)) return false;
   if (selected.some((item) => overlapRatio(compactText(item.stem), compactText(question.stem)) > 0.72)) return false;
+  if (selected.some((item) => isSamePracticeJudgment(item, question))) return false;
   if (question.memoryAngle && selected.some((item) => item.memoryAngle === question.memoryAngle
-    && overlapRatio(compactText(item.correctUnderstanding), compactText(question.correctUnderstanding)) > 0.68)) return false;
+    && overlapRatio(compactText(item.correctUnderstanding), compactText(question.correctUnderstanding)) > 0.5)) return false;
+  if (question.memoryAngle && question.sourceBlockId && selected.some((item) => item.memoryAngle === question.memoryAngle
+    && item.sourceBlockId === question.sourceBlockId)) return false;
   return true;
+}
+
+function isSamePracticeJudgment(a = {}, b = {}) {
+  const understandingOverlap = overlapRatio(compactText(a.correctUnderstanding), compactText(b.correctUnderstanding));
+  if (understandingOverlap > 0.84) return true;
+  if (understandingOverlap <= 0.62) return false;
+  const sameBlueprint = a.blueprintItemId && b.blueprintItemId && a.blueprintItemId === b.blueprintItemId;
+  const sameAngle = a.memoryAngle && b.memoryAngle && a.memoryAngle === b.memoryAngle;
+  const sameSource = a.sourceBlockId && b.sourceBlockId && a.sourceBlockId === b.sourceBlockId;
+  const sameType = a.type && b.type && a.type === b.type;
+  return Boolean(sameBlueprint || sameAngle || (sameSource && sameType));
 }
 
 function annotateSelectionDiagnostics(selected) {
@@ -483,16 +497,20 @@ function confidenceLevelForQuestion(question) {
 }
 
 function compareQuestionQuality(a, b) {
+  const bDuplicatePenalty = Number(b.practiceDuplicateRiskScore || 1) * 0.08;
+  const aDuplicatePenalty = Number(a.practiceDuplicateRiskScore || 1) * 0.08;
   const bScore = (b.qualityScore?.average || 0)
     + (Number(b.memoryAngleFitScore || 0) * 0.08)
     + (Number(b.blueprintAlignmentScore || 0) * 0.08)
     + (Number(b.cognitiveActionFitScore || 0) * 0.1)
-    + (Number(b.evidenceLearningValueScore || 0) * 0.04);
+    + (Number(b.evidenceLearningValueScore || 0) * 0.04)
+    - bDuplicatePenalty;
   const aScore = (a.qualityScore?.average || 0)
     + (Number(a.memoryAngleFitScore || 0) * 0.08)
     + (Number(a.blueprintAlignmentScore || 0) * 0.08)
     + (Number(a.cognitiveActionFitScore || 0) * 0.1)
-    + (Number(a.evidenceLearningValueScore || 0) * 0.04);
+    + (Number(a.evidenceLearningValueScore || 0) * 0.04)
+    - aDuplicatePenalty;
   return bScore - aScore;
 }
 
@@ -546,16 +564,26 @@ function supplementRequestForPoint(point, evaluatedQuestions) {
 function supplementReason({ point, selected, targetCount }) {
   const selectedTypes = new Set(selected.map((question) => question.type));
   const selectedAngles = new Set(selected.map((question) => question.memoryAngle).filter(Boolean));
+  const selectedBlueprintIds = new Set(selected.map((question) => question.blueprintItemId).filter(Boolean));
+  const blueprint = Array.isArray(point.practiceBlueprint) ? point.practiceBlueprint.slice(0, targetCount) : [];
   const missingTypes = ["multiple_choice", "true_false", "scenario_judgment"]
     .filter((type) => !selectedTypes.has(type))
     .slice(0, Math.max(1, targetCount - selected.length));
-  const missingAngles = ["core_understanding", "misconception_boundary", "scenario_application"]
+  const expectedAngles = blueprint.length
+    ? blueprint.map((item) => item.memoryAngle).filter(Boolean)
+    : ["core_understanding", "misconception_boundary", "scenario_application"].slice(0, targetCount);
+  const missingAngles = expectedAngles
     .filter((angle) => !selectedAngles.has(angle))
+    .slice(0, Math.max(1, targetCount - selected.length));
+  const missingBlueprintIds = blueprint
+    .filter((item) => item.id && !selectedBlueprintIds.has(item.id))
+    .map((item) => item.id)
     .slice(0, Math.max(1, targetCount - selected.length));
   const selectedSummaries = selected.map((question) => `${question.type}:${question.stem}`).slice(0, 5);
   return [
     `target_question_count:${targetCount}`,
     `current_reviewable_count:${selected.length}`,
+    missingBlueprintIds.length ? `missing_blueprint_ids:${missingBlueprintIds.join("|")}` : "",
     missingTypes.length ? `missing_question_types:${missingTypes.join("|")}` : "",
     missingAngles.length ? `missing_memory_angles:${missingAngles.join("|")}` : "",
     point.questionAngles?.length ? `question_angles:${point.questionAngles.join("|")}` : "",
@@ -580,6 +608,24 @@ function buildPointDiagnostics(knowledgePoints, evaluatedQuestions, selectedQues
     const related = evaluatedQuestions.filter((question) => question.knowledgePointId === point.id);
     const selected = selectedQuestions.filter((question) => question.knowledgePointId === point.id);
     const targetDecision = targetQuestionCountDecisionForPoint(point);
+    const expectedMemoryAngles = expectedMemoryAnglesForPoint(point, targetDecision.count);
+    const coveredMemoryAngles = [...new Set(selected.map((question) => question.memoryAngle).filter(Boolean))];
+    const missingMemoryAngles = expectedMemoryAngles.filter((angle) => !coveredMemoryAngles.includes(angle));
+    const questionCoverageRate = targetDecision.count
+      ? Math.round((Math.min(selected.length, targetDecision.count) / targetDecision.count) * 1000) / 10
+      : 0;
+    const memoryAngleCoverageRate = expectedMemoryAngles.length
+      ? Math.round(((expectedMemoryAngles.length - missingMemoryAngles.length) / expectedMemoryAngles.length) * 1000) / 10
+      : 0;
+    const selectedIds = new Set(selected.map((question) => question.id));
+    const recoverableBlockedCount = related.filter((question) => (
+      !selectedIds.has(question.id) && isRecoverableQuestion(question)
+    )).length;
+    const dynamicCoverageStatus = dynamicCoverageStatusForPoint({
+      selected,
+      targetCount: targetDecision.count,
+      missingMemoryAngles
+    });
     return {
       pointId: point.id,
       title: point.title,
@@ -593,12 +639,22 @@ function buildPointDiagnostics(knowledgePoints, evaluatedQuestions, selectedQues
       targetQuestionCount: targetDecision.count,
       targetQuestionCountReason: targetDecision.reason,
       targetQuestionCountFactors: targetDecision.factors,
+      expectedQuestionCount: targetDecision.count,
       practiceBlueprint: point.practiceBlueprint || [],
       candidateQuestionCount: related.length,
       qualifiedQuestionCount: selected.length,
+      actualQuestionCount: selected.length,
+      questionCoverageRate,
+      dynamicCoverageRate: questionCoverageRate,
+      expectedMemoryAngles,
+      coveredMemoryAngles,
+      missingMemoryAngles,
+      memoryAngleCoverageRate,
+      recoverableBlockedCount,
+      dynamicCoverageStatus,
       selectedQuestionTypes: [...new Set(selected.map((question) => question.type))],
-      selectedMemoryAngles: [...new Set(selected.map((question) => question.memoryAngle).filter(Boolean))],
-      memoryAngleDiversityCount: new Set(selected.map((question) => question.memoryAngle).filter(Boolean)).size,
+      selectedMemoryAngles: coveredMemoryAngles,
+      memoryAngleDiversityCount: coveredMemoryAngles.length,
       typeDiversityReason: typeDiversityReasonForSelection(selected),
       averageCognitiveActionFitScore: averageSelectedScore(selected, "cognitiveActionFitScore"),
       averagePracticeProgressionScore: averageSelectedScore(selected, "practiceProgressionScore"),
@@ -618,6 +674,58 @@ function buildPointDiagnostics(knowledgePoints, evaluatedQuestions, selectedQues
       ].filter(Boolean)))]
     };
   });
+}
+
+function expectedMemoryAnglesForPoint(point = {}, targetCount = 1) {
+  const blueprint = Array.isArray(point.practiceBlueprint) ? point.practiceBlueprint : [];
+  const fromBlueprint = blueprint.slice(0, targetCount).map((item) => item.memoryAngle).filter(Boolean);
+  if (fromBlueprint.length) return [...new Set(fromBlueprint)];
+  return ["core_understanding", "misconception_boundary", "scenario_application"].slice(0, Math.max(1, targetCount));
+}
+
+function dynamicCoverageStatusForPoint({ selected = [], targetCount = 1, missingMemoryAngles = [] }) {
+  if (!selected.length) return "no_coverage";
+  if (selected.length >= targetCount && !missingMemoryAngles.length) return "full_coverage";
+  if (!missingMemoryAngles.length) return "angle_covered_count_short";
+  if (selected.length >= targetCount) return "count_met_angle_gap";
+  return "partial_coverage";
+}
+
+function isRecoverableQuestion(question = {}) {
+  if (!question) return false;
+  if (isReviewableQuestion(question)) return true;
+  if (question.confidenceTier === "should_block") return false;
+  const hardReasons = new Set([
+    "structure_invalid",
+    "answer_not_unique",
+    "source_not_found",
+    "source_unsupported",
+    "missing_correct_answer",
+    "missing_options",
+    "missing_source_snippet"
+  ]);
+  if ((question.blockingReasons || []).some((reason) => hardReasons.has(reason))) return false;
+  const issues = new Set(question.qualityIssues || []);
+  const hardIssues = [
+    "missing_knowledge_point",
+    "missing_source_snippet",
+    "missing_options",
+    "source_snippet_not_found",
+    "source_snippet_missing",
+    "source_snippet_missing_source",
+    "non_binary_question_requires_four_options",
+    "true_false_requires_two_options",
+    "correct_answer_not_in_options"
+  ];
+  if (hardIssues.some((issue) => issues.has(issue))) return false;
+  if (!question.knowledgePointId || !question.correctOptionId) return false;
+  if (!Array.isArray(question.options) || !question.options.length) return false;
+  const requiredOptionCount = question.type === "true_false" ? 2 : 4;
+  if (question.options.length !== requiredOptionCount) return false;
+  if (!question.options.some((option) => option.id === question.correctOptionId)) return false;
+  if ((question.qualityScore?.sourceSupport || 0) <= 2) return false;
+  if ((question.qualityScore?.answerUniqueness || 0) < 4) return false;
+  return question.qualityAction === "rewrite" || (question.confidenceReasons || []).length > 0;
 }
 
 function averageSelectedScore(selected, key) {
@@ -869,6 +977,16 @@ function summarizeQuality(evaluatedQuestions, judgeUnavailable, selectedQuestion
   const averageQuestionsPerPoint = retainedPerPoint.length
     ? Math.round((retainedPerPoint.reduce((sum, count) => sum + count, 0) / retainedPerPoint.length) * 10) / 10
     : 0;
+  const expectedQuestionCount = pointDiagnostics.reduce((sum, point) => sum + (Number(point.expectedQuestionCount ?? point.targetQuestionCount) || 0), 0);
+  const dynamicCoverageRates = pointDiagnostics
+    .map((point) => Number(point.dynamicCoverageRate ?? point.questionCoverageRate))
+    .filter(Number.isFinite);
+  const averageDynamicCoverageRate = dynamicCoverageRates.length
+    ? Math.round((dynamicCoverageRates.reduce((sum, value) => sum + value, 0) / dynamicCoverageRates.length) * 10) / 10
+    : 0;
+  const missingMemoryAngleFrequency = countValues(pointDiagnostics.flatMap((point) => point.missingMemoryAngles || []));
+  const dynamicCoverageStatusFrequency = countValues(pointDiagnostics.map((point) => point.dynamicCoverageStatus || "unknown"));
+  const recoverableBlockedCount = pointDiagnostics.reduce((sum, point) => sum + (Number(point.recoverableBlockedCount) || 0), 0);
   const questionTypeCoverage = countValues(selectedQuestions.map((question) => question.type || "unknown"));
   const memoryAngleCoverage = countValues(selectedQuestions.map((question) => question.memoryAngle || "unknown"));
   const confidenceTierCoverage = countValues(selectedQuestions.map((question) => question.confidenceTier || "unknown"));
@@ -889,6 +1007,14 @@ function summarizeQuality(evaluatedQuestions, judgeUnavailable, selectedQuestion
     questionCoverageRate,
     retainedQuestionCount: selectedQuestions.length,
     averageQuestionsPerPoint,
+    expectedQuestionCount,
+    dynamicCoverageRate: expectedQuestionCount
+      ? Math.round((selectedQuestions.length / expectedQuestionCount) * 1000) / 10
+      : 0,
+    averageDynamicCoverageRate,
+    missingMemoryAngleFrequency,
+    dynamicCoverageStatusFrequency,
+    recoverableBlockedCount,
     questionCountDistribution,
     questionTypeCoverage,
     memoryAngleCoverage,

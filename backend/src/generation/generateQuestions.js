@@ -92,12 +92,13 @@ function fallbackPointId(points, index) {
 export function buildUserPrompt({ points, rewrite, rewriteContext, supplement, supplementContext }) {
   const rewriteCount = points[0]?.targetQuestionCount || 1;
   const supplementInstruction = supplement
-    ? `这是补题任务，不是重写失败题。请只为给定知识点补充 ${rewriteCount} 道新题，用来补齐缺失的练习蓝图项。
+    ? `这是补题任务，不是重写失败题。请只为给定知识点补充最多 ${rewriteCount} 道新题，用来补齐缺失的认知动作。
 已有题目和缺口：${supplementContext || "当前知识点还没有达到目标入池数量"}
 要求：
-- 不要复用已有题干、选项结构或相同场景。
-- 优先补齐缺失 practiceBlueprint.id 和对应 memoryAngle。
-- 题型服务于练习目标：如果推荐题型不自然，可以换成更自然的题型，但必须仍然完成该 blueprintGoal。
+- 只补当前缺失的 practiceBlueprint.id 和对应 memoryAngle，不要为了数量凑换壳题。
+- 不要复用已有题干、选项结构、正确理解、相同场景或同一判断。
+- 题型服务于认知动作：如果推荐题型不自然，可以换成更自然的题型，但必须仍然完成该 blueprintGoal。
+- 如果缺失认知动作无法被来源可靠支撑，可以少补题，但不要编造来源或误区。
 - 本文中的术语必须按文章语境理解；例如 hook 指 AI agent / Claude Code lifecycle hook，不是 React Hook。`
     : "";
   const rewriteInstruction = rewrite
@@ -109,11 +110,17 @@ ${rewriteGuidance(rewriteContext)}
 
   return `${supplementInstruction || rewriteInstruction}
 你会收到每个知识点的 practiceBlueprint。它是本知识点的练习蓝图，比“题型多样”更重要。
-请为每个知识点生成 targetQuestionCount 道候选题，并尽量逐项覆盖 practiceBlueprint 中的练习目标。targetQuestionCount 是根据该知识点价值动态给出的候选数量，不代表最终入池数量。
+请为每个知识点生成最多 targetQuestionCount 道候选题，并尽量逐项覆盖 practiceBlueprint 中的练习目标。targetQuestionCount 是当前题量上限，不是必须凑满的数量。
 每个知识点至少返回 1 道结构完整题，不要跳过任何知识点。
-当 targetQuestionCount 为 2 或 3 时，不要生成同质题：优先覆盖 practiceBlueprint 的不同 blueprintItemId 和 memoryAngle，再尽量使用不同题型。
+当 targetQuestionCount 为 2 或 3 时，不要生成同质题：优先覆盖 practiceBlueprint 的不同 blueprintItemId 和 memoryAngle，再尽量使用不同题型；如果只能换壳重复，就少出题。
 每道题必须输出 memoryAngle：core_understanding 表示核心理解，misconception_boundary 表示误区/边界辨析，scenario_application 表示场景迁移。同一知识点多题时优先覆盖不同 memoryAngle。
 每道题必须输出 blueprintItemId 和 blueprintGoal：blueprintItemId 必须来自对应知识点 practiceBlueprint.id；blueprintGoal 用一句话说明这道题服务哪个练习目标。
+认知动作要求：
+- core_understanding：考核心主张，不考原文复述、关键词识别或“原文提到了什么”。
+- misconception_boundary：考真实混淆和边界，错误选项必须体现同一语境里的真实误区。
+- scenario_application：考新场景迁移，不能只是把原文句子换一个壳。
+边界辨析题在生成前先在内部完成这四步，再写成题目：真实混淆对象是什么；用户为什么会混淆；正确边界是什么；每个错误选项对应什么误区。最终 JSON 里不要额外输出这四步，但 commonMisconception 和 explanation 必须体现它们。
+场景迁移题在生成前先在内部完成这四步，再写成题目：新场景变量是什么；它对应原文哪个原则；为什么可以迁移；为什么不是原文例子的换壳。最终 JSON 里不要额外输出这四步，但题干、正确理解和 explanation 必须体现它们。
 每个知识点都可能带有 structureNodeId、roleInArticle、sourceEvidenceIds 和 whyWorthReviewing。
 题目必须服务该结构节点，不能把局部证据扩张成原文没有说的更强主张。
 如果题目同时比较多个概念，正确理解和来源片段必须覆盖这些关键概念；证据不足时请缩窄题目，不要硬做复合题。

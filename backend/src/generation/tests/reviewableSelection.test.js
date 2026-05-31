@@ -99,9 +99,30 @@ test("selects the highest-scoring pass question first", () => {
 
 test("retains up to three diverse pass questions for a high-value knowledge point", () => {
   const selected = selectQualifiedQuestionsByPoint([highValuePoint], [
-    typedQuestion({ id: "mc", type: "multiple_choice", stem: "哪种理解最符合这个知识点？", average: 4.6 }),
-    typedQuestion({ id: "tf", type: "true_false", stem: "这个边界判断是否成立？", average: 4.4 }),
-    typedQuestion({ id: "scenario", type: "scenario_judgment", stem: "在具体业务场景中应该怎么应用？", average: 4.8 })
+    typedQuestion({
+      id: "mc",
+      type: "multiple_choice",
+      stem: "哪种理解最符合这个知识点？",
+      correctUnderstanding: "这个知识点的核心主张是要围绕来源里的关键判断做理解。",
+      memoryAngle: "core_understanding",
+      average: 4.6
+    }),
+    typedQuestion({
+      id: "tf",
+      type: "true_false",
+      stem: "这个边界判断是否成立？",
+      correctUnderstanding: "这个知识点的边界在于不能只靠关键词做判断。",
+      memoryAngle: "misconception_boundary",
+      average: 4.4
+    }),
+    typedQuestion({
+      id: "scenario",
+      type: "scenario_judgment",
+      stem: "在具体业务场景中应该怎么应用？",
+      correctUnderstanding: "这个知识点可以迁移到具体业务场景中指导行动选择。",
+      memoryAngle: "scenario_application",
+      average: 4.8
+    })
   ]);
 
   assert.equal(selected.length, 3);
@@ -115,12 +136,28 @@ test("retains up to three diverse pass questions for a high-value knowledge poin
 
 test("uses reviewable rewrite questions as low-confidence supplements", () => {
   const selected = selectQualifiedQuestionsByPoint([highValuePoint], [
-    typedQuestion({ id: "mc", type: "multiple_choice", stem: "哪种理解最符合这个知识点？", average: 4.7 }),
-    typedQuestion({ id: "tf", type: "true_false", stem: "这个边界判断是否成立？", average: 4.4 }),
+    typedQuestion({
+      id: "mc",
+      type: "multiple_choice",
+      stem: "哪种理解最符合这个知识点？",
+      correctUnderstanding: "这个知识点的核心主张是来源片段中的关键判断。",
+      memoryAngle: "core_understanding",
+      average: 4.7
+    }),
+    typedQuestion({
+      id: "tf",
+      type: "true_false",
+      stem: "这个边界判断是否成立？",
+      correctUnderstanding: "这个知识点的边界是不能把关键词记忆当成理解。",
+      memoryAngle: "misconception_boundary",
+      average: 4.4
+    }),
     typedQuestion({
       id: "scenario-rewrite",
       type: "scenario_judgment",
       stem: "如果团队遇到相似场景，应该选择哪种做法？",
+      correctUnderstanding: "这个知识点可以用来指导相似场景下的行动选择。",
+      memoryAngle: "scenario_application",
       qualityAction: "rewrite",
       average: 4.1
     })
@@ -134,9 +171,30 @@ test("uses reviewable rewrite questions as low-confidence supplements", () => {
 
 test("does not keep near-duplicate questions just to reach three per point", () => {
   const selected = selectQualifiedQuestionsByPoint([highValuePoint], [
-    typedQuestion({ id: "mc-1", type: "multiple_choice", stem: "哪种理解最符合这个知识点？", average: 4.8 }),
-    typedQuestion({ id: "mc-2", type: "multiple_choice", stem: "哪种理解最符合这个知识点呢？", average: 4.7 }),
-    typedQuestion({ id: "scenario", type: "scenario_judgment", stem: "在具体业务场景中应该怎么应用？", average: 4.5 })
+    typedQuestion({
+      id: "mc-1",
+      type: "multiple_choice",
+      stem: "哪种理解最符合这个知识点？",
+      correctUnderstanding: "这个知识点的核心主张是要围绕来源里的关键判断做理解。",
+      memoryAngle: "core_understanding",
+      average: 4.8
+    }),
+    typedQuestion({
+      id: "mc-2",
+      type: "multiple_choice",
+      stem: "哪种理解最符合这个知识点呢？",
+      correctUnderstanding: "这个知识点的核心主张是要围绕来源里的关键判断做理解。",
+      memoryAngle: "core_understanding",
+      average: 4.7
+    }),
+    typedQuestion({
+      id: "scenario",
+      type: "scenario_judgment",
+      stem: "在具体业务场景中应该怎么应用？",
+      correctUnderstanding: "这个知识点可以迁移到具体业务场景中指导行动选择。",
+      memoryAngle: "scenario_application",
+      average: 4.5
+    })
   ]);
 
   assert.equal(selected.length, 2);
@@ -718,6 +776,7 @@ test("keeps same-type questions when they cover distinct cognitive actions", () 
       memoryAngle: "core_understanding",
       blueprintItemId: "kp-1-core_understanding",
       sourceBlockId: "block-shared",
+      correctUnderstanding: "核心动作是概括来源中的主要判断。",
       blueprintAlignmentScore: 5,
       memoryAngleFitScore: 5,
       cognitiveActionFitScore: 5,
@@ -731,6 +790,7 @@ test("keeps same-type questions when they cover distinct cognitive actions", () 
       memoryAngle: "misconception_boundary",
       blueprintItemId: "kp-1-misconception_boundary",
       sourceBlockId: "block-shared",
+      correctUnderstanding: "边界动作是识别错误使用方式与真实限制。",
       blueprintAlignmentScore: 5,
       memoryAngleFitScore: 5,
       cognitiveActionFitScore: 5,
@@ -744,6 +804,7 @@ test("keeps same-type questions when they cover distinct cognitive actions", () 
       memoryAngle: "scenario_application",
       blueprintItemId: "kp-1-scenario_application",
       sourceBlockId: "block-shared",
+      correctUnderstanding: "迁移动作是把原则用于新的项目决策。",
       blueprintAlignmentScore: 5,
       memoryAngleFitScore: 5,
       cognitiveActionFitScore: 5,
@@ -775,6 +836,96 @@ test("does not demote type mismatch when the cognitive action is satisfied", () 
   assert.equal(selected[0].confidenceLevel, "high");
 });
 
+test("selection rejects same-judgment duplicates even when question types differ", () => {
+  const selected = selectQualifiedQuestionsByPoint([highValuePoint], [
+    typedQuestion({
+      id: "core-a",
+      type: "multiple_choice",
+      stem: "哪项最能概括这个知识点的核心主张？",
+      correctUnderstanding: "这个知识点强调把核心主张迁移到具体场景中判断。",
+      memoryAngle: "core_understanding",
+      blueprintItemId: "kp-1-core_understanding",
+      sourceBlockId: "block-a",
+      blueprintAlignmentScore: 5,
+      memoryAngleFitScore: 5,
+      cognitiveActionFitScore: 5
+    }),
+    typedQuestion({
+      id: "core-b",
+      type: "scenario_judgment",
+      stem: "遇到具体场景时，哪项最符合这个知识点的核心主张？",
+      correctUnderstanding: "这个知识点强调把核心主张迁移到具体场景中判断。",
+      memoryAngle: "scenario_application",
+      blueprintItemId: "kp-1-scenario_application",
+      sourceBlockId: "block-b",
+      blueprintAlignmentScore: 5,
+      memoryAngleFitScore: 5,
+      cognitiveActionFitScore: 5
+    }),
+    typedQuestion({
+      id: "boundary-c",
+      type: "true_false",
+      stem: "把这个知识点理解成只要记住关键词就够了。",
+      correctUnderstanding: "这个知识点强调不能只记关键词，还要理解判断边界。",
+      memoryAngle: "misconception_boundary",
+      blueprintItemId: "kp-1-misconception_boundary",
+      sourceBlockId: "block-c",
+      blueprintAlignmentScore: 5,
+      memoryAngleFitScore: 5,
+      cognitiveActionFitScore: 5
+    })
+  ]);
+
+  assert.equal(selected.length, 2);
+  assert.equal(selected.some((item) => item.id === "core-a"), true);
+  assert.equal(selected.some((item) => item.id === "core-b"), false);
+  assert.equal(selected.some((item) => item.id === "boundary-c"), true);
+});
+
+test("selection keeps similar claims when they train different cognitive actions", () => {
+  const selected = selectQualifiedQuestionsByPoint([highValuePoint], [
+    typedQuestion({
+      id: "core-a",
+      type: "multiple_choice",
+      stem: "哪项最能概括这个知识点的核心主张？",
+      correctUnderstanding: "这个知识点强调把原则用于项目判断，而不是停留在字面记忆。",
+      memoryAngle: "core_understanding",
+      blueprintItemId: "kp-1-core_understanding",
+      sourceBlockId: "block-a",
+      blueprintAlignmentScore: 5,
+      memoryAngleFitScore: 5,
+      cognitiveActionFitScore: 5
+    }),
+    typedQuestion({
+      id: "scenario-b",
+      type: "scenario_judgment",
+      stem: "一个团队遇到新的项目取舍时，应该如何应用这个原则？",
+      correctUnderstanding: "这个知识点强调把原则用于新的项目取舍，而不是复述原文。",
+      memoryAngle: "scenario_application",
+      blueprintItemId: "kp-1-scenario_application",
+      sourceBlockId: "block-b",
+      blueprintAlignmentScore: 5,
+      memoryAngleFitScore: 5,
+      cognitiveActionFitScore: 5
+    }),
+    typedQuestion({
+      id: "boundary-c",
+      type: "true_false",
+      stem: "把这个知识点理解成只要记住关键词就够了。",
+      correctUnderstanding: "这个知识点强调不能只记关键词，还要理解判断边界。",
+      memoryAngle: "misconception_boundary",
+      blueprintItemId: "kp-1-misconception_boundary",
+      sourceBlockId: "block-c",
+      blueprintAlignmentScore: 5,
+      memoryAngleFitScore: 5,
+      cognitiveActionFitScore: 5
+    })
+  ]);
+
+  assert.equal(selected.length, 3);
+  assert.equal(new Set(selected.map((item) => item.memoryAngle)).size, 3);
+});
+
 test("pedagogy diagnostics penalize literal scenario transfer and generic boundary practice", () => {
   const literalScenario = pedagogyDiagnosticsForQuestion({
     ...question(),
@@ -801,9 +952,23 @@ test("pedagogy diagnostics penalize literal scenario transfer and generic bounda
   }, highValuePoint, { blueprintPreferredQuestionType: "true_false" });
 
   assert.equal(literalScenario.scenarioTransferFitScore < 4, true);
-  assert.equal(literalScenario.pedagogyDiagnostics.reasons.includes("scenario_transfer_too_literal"), true);
+  assert.equal(literalScenario.pedagogyDiagnostics.reasons.includes("scenario_is_restatement"), true);
   assert.equal(genericBoundary.boundaryDiscriminationFitScore < 4, true);
-  assert.equal(genericBoundary.pedagogyDiagnostics.reasons.includes("boundary_not_teaching_real_confusion"), true);
+  assert.equal(genericBoundary.pedagogyDiagnostics.reasons.includes("boundary_confusion_not_real"), true);
+});
+
+test("pedagogy diagnostics labels literal core recall with the v11 action issue", () => {
+  const literalCore = pedagogyDiagnosticsForQuestion({
+    ...question(),
+    memoryAngle: "core_understanding",
+    stem: "根据原文，哪一项说法被提到了？",
+    correctUnderstanding: "这道题只要求识别原文提到的字面内容。",
+    explanation: "答案来自原文提到的字面内容。"
+  }, highValuePoint, { blueprintPreferredQuestionType: "multiple_choice" });
+
+  assert.equal(literalCore.coreUnderstandingScore < 4, true);
+  assert.equal(literalCore.cognitiveActionIssue, "core_claim_too_literal");
+  assert.equal(literalCore.pedagogyDiagnostics.reasons.includes("core_claim_too_literal"), true);
 });
 
 test("question prompt includes article structure binding fields", () => {
@@ -836,6 +1001,8 @@ test("question prompt includes article structure binding fields", () => {
   assert.match(prompt, /structureNodeId/);
   assert.match(prompt, /sourceEvidenceIds/);
   assert.match(prompt, /题目必须服务该结构节点/);
+  assert.match(prompt, /真实混淆对象是什么/);
+  assert.match(prompt, /新场景变量是什么/);
 });
 
 test("composite question is low confidence when source covers only one concept", () => {

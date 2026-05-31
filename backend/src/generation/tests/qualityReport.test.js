@@ -107,9 +107,21 @@ test("summarizes machine report and expands review rows for manual scoring", () 
         }]
       },
       pointDiagnostics: [{
+        pointId: "kp-1",
         status: "covered_low_confidence",
+        targetQuestionCount: 2,
+        expectedQuestionCount: 2,
         qualifiedQuestionCount: 1,
-        selectedQuestionTypes: ["multiple_choice"]
+        actualQuestionCount: 1,
+        questionCoverageRate: 50,
+        dynamicCoverageRate: 50,
+        dynamicCoverageStatus: "partial_coverage",
+        expectedMemoryAngles: ["core_understanding", "misconception_boundary"],
+        coveredMemoryAngles: ["core_understanding"],
+        missingMemoryAngles: ["misconception_boundary"],
+        recoverableBlockedCount: 1,
+        selectedQuestionTypes: ["multiple_choice"],
+        selectedMemoryAngles: ["core_understanding"]
       }],
       evaluatedQuestions: []
     }
@@ -122,6 +134,12 @@ test("summarizes machine report and expands review rows for manual scoring", () 
   assert.equal(machineSummary.lowConfidenceQuestionRate, 100);
   assert.equal(machineSummary.coveredKnowledgePointCount, 1);
   assert.equal(machineSummary.averageQuestionsPerPoint, 1);
+  assert.equal(machineSummary.expectedQuestionCount, 2);
+  assert.equal(machineSummary.dynamicCoverageRate, 50);
+  assert.equal(machineSummary.averageDynamicCoverageRate, 50);
+  assert.deepEqual(machineSummary.dynamicCoverageStatusFrequency, { partial_coverage: 1 });
+  assert.deepEqual(machineSummary.missingMemoryAngleFrequency, { misconception_boundary: 1 });
+  assert.equal(machineSummary.recoverableBlockedCount, 1);
   assert.equal(machineSummary.averageSourceCoverageScore, 5);
   assert.equal(machineSummary.averageClaimFidelityScore, 4);
   assert.equal(machineSummary.structureCoverage.structureNodeCount, 1);
@@ -146,6 +164,14 @@ test("summarizes machine report and expands review rows for manual scoring", () 
   assert.equal(rows[0].learningEffectivenessScore, 4);
   assert.equal(rows[0].knowledgeImportanceScore, 5);
   assert.equal(rows[0].knowledgeCoverageReason, "这是可迁移的方法原则。");
+  assert.equal(rows[0].expectedQuestionCount, 2);
+  assert.equal(rows[0].actualQuestionCount, 1);
+  assert.equal(rows[0].dynamicCoverageRate, 50);
+  assert.equal(rows[0].dynamicCoverageStatus, "partial_coverage");
+  assert.equal(rows[0].expectedMemoryAngles, "core_understanding|misconception_boundary");
+  assert.equal(rows[0].coveredMemoryAngles, "core_understanding");
+  assert.equal(rows[0].missingMemoryAngles, "misconception_boundary");
+  assert.equal(rows[0].recoverableBlockedCount, 1);
 });
 
 test("analyzes manual CSV and renders a markdown report", () => {

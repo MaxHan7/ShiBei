@@ -1144,6 +1144,10 @@ function buildTrustDiagnostics({ question, point, scores, sourceValidation, type
       sourceCoverageScore,
       claimFidelityScore,
       cognitiveActionFitScore: pedagogy.cognitiveActionFitScore ?? null,
+      coreUnderstandingScore: pedagogy.coreUnderstandingScore ?? null,
+      boundaryDiscriminationFitScore: pedagogy.boundaryDiscriminationFitScore ?? null,
+      scenarioApplicationScore: pedagogy.scenarioApplicationScore ?? null,
+      cognitiveActionIssue: pedagogy.cognitiveActionIssue || "",
       evidenceLearningValueScore: pedagogy.evidenceLearningValueScore ?? null,
       pedagogyWarnings: pedagogy.pedagogyDiagnostics?.warnings || [],
       pedagogyReasons: pedagogy.pedagogyDiagnostics?.reasons || []
@@ -1181,6 +1185,9 @@ function confidenceTierForQuestion({
     || confidenceReasons.includes("explanation_not_tied_to_answer")
     || confidenceReasons.includes("type_does_not_serve_cognitive_action")
     || confidenceReasons.includes("cognitive_action_weak")
+    || confidenceReasons.includes("core_claim_too_literal")
+    || confidenceReasons.includes("boundary_confusion_not_real")
+    || confidenceReasons.includes("scenario_is_restatement")
     || confidenceReasons.includes("core_recall_too_literal")
     || confidenceReasons.includes("boundary_not_teaching_real_confusion")
     || confidenceReasons.includes("scenario_transfer_too_literal")
@@ -1206,6 +1213,9 @@ function repairHintForReason(primaryBlockingReason, confidenceReasons = []) {
   if (confidenceReasons.includes("misconception_too_generic")) return "把常见误区改成具体、可被选项体现的真实混淆";
   if (confidenceReasons.includes("misconception_not_grounded")) return "让常见误区来自题干、错误选项或原文边界，而不是泛泛补写";
   if (confidenceReasons.includes("type_does_not_serve_cognitive_action")) return "改题型或题干，让题目真正服务当前练习目标";
+  if (confidenceReasons.includes("core_claim_too_literal")) return "把题目从原文字面识别改成核心主张回忆";
+  if (confidenceReasons.includes("boundary_confusion_not_real")) return "补真实混淆对象，让题目能训练边界辨析";
+  if (confidenceReasons.includes("scenario_is_restatement")) return "把题目改成需要在新场景中迁移判断，而不是复述原文";
   if (confidenceReasons.includes("core_recall_too_literal")) return "把题目从原文字面识别改成核心主张回忆";
   if (confidenceReasons.includes("boundary_not_teaching_real_confusion")) return "补真实混淆对象，让题目能训练边界辨析";
   if (confidenceReasons.includes("scenario_transfer_too_literal")) return "把题目改成需要在新场景中迁移判断，而不是复述原文";

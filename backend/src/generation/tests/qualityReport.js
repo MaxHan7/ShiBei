@@ -49,6 +49,27 @@ export function summarize(results) {
   const averageQuestionsPerPoint = pointDiagnostics.length
     ? Math.round((pointDiagnostics.reduce((sum, point) => sum + (point.qualifiedQuestionCount || 0), 0) / pointDiagnostics.length) * 10) / 10
     : 0;
+  const expectedQuestionCount = pointDiagnostics.reduce((sum, point) => (
+    sum + (Number(point.expectedQuestionCount ?? point.targetQuestionCount) || 0)
+  ), 0);
+  const dynamicCoverageRate = expectedQuestionCount
+    ? Math.round((allQuestions.length / expectedQuestionCount) * 1000) / 10
+    : 0;
+  const dynamicCoverageRates = pointDiagnostics
+    .map((point) => Number(point.dynamicCoverageRate ?? point.questionCoverageRate))
+    .filter(Number.isFinite);
+  const averageDynamicCoverageRate = dynamicCoverageRates.length
+    ? Math.round((dynamicCoverageRates.reduce((sum, value) => sum + value, 0) / dynamicCoverageRates.length) * 10) / 10
+    : 0;
+  const dynamicCoverageStatusFrequency = countValues(pointDiagnostics.map((point) => (
+    point.dynamicCoverageStatus || "unknown"
+  )));
+  const missingMemoryAngleFrequency = countValues(pointDiagnostics.flatMap((point) => (
+    Array.isArray(point.missingMemoryAngles) ? point.missingMemoryAngles : []
+  )));
+  const recoverableBlockedCount = pointDiagnostics.reduce((sum, point) => (
+    sum + (Number(point.recoverableBlockedCount) || 0)
+  ), 0);
   const questionTypeCoverage = countValues(allQuestions.map((question) => question.type || "unknown"));
   const memoryAngleCoverage = countValues(allQuestions.map((question) => question.memoryAngle || "unknown"));
   const confidenceTierFrequency = countValues(allQuestions.map((question) => question.confidenceTier || "unknown"));
@@ -82,6 +103,15 @@ export function summarize(results) {
   const cognitiveActionFitScores = allQuestions
     .map((question) => Number(question.cognitiveActionFitScore))
     .filter(Number.isFinite);
+  const coreUnderstandingScores = allQuestions
+    .map((question) => Number(question.coreUnderstandingScore ?? question.coreRecallFitScore))
+    .filter(Number.isFinite);
+  const boundaryDiscriminationScores = allQuestions
+    .map((question) => Number(question.boundaryDiscriminationFitScore))
+    .filter(Number.isFinite);
+  const scenarioApplicationScores = allQuestions
+    .map((question) => Number(question.scenarioApplicationScore ?? question.scenarioTransferFitScore))
+    .filter(Number.isFinite);
   const practiceProgressionScores = allQuestions
     .map((question) => Number(question.practiceProgressionScore))
     .filter(Number.isFinite);
@@ -90,6 +120,9 @@ export function summarize(results) {
     .filter(Number.isFinite);
   const duplicatePracticeRiskCount = allQuestions
     .filter((question) => Number(question.practiceDuplicateRiskScore || 0) >= 4).length;
+  const cognitiveActionIssueFrequency = countValues(allQuestions
+    .map((question) => question.cognitiveActionIssue || question.pedagogyDiagnostics?.cognitiveActionIssue || "")
+    .filter(Boolean));
   const sourceCoverageScores = allQuestions
     .map((question) => Number(question.sourceCoverageScore || question.trustDiagnostics?.sourceCoverageScore))
     .filter(Number.isFinite);
@@ -115,6 +148,12 @@ export function summarize(results) {
     successRate: percent(completed.length, results.length),
     knowledgePointCount: chapters.reduce((sum, result) => sum + (result.chapter?.knowledgePoints?.length || 0), 0),
     qualifiedQuestionCount: allQuestions.length,
+    expectedQuestionCount,
+    dynamicCoverageRate,
+    averageDynamicCoverageRate,
+    dynamicCoverageStatusFrequency,
+    missingMemoryAngleFrequency,
+    recoverableBlockedCount,
     averageQuestionsPerPoint,
     questionCountDistribution,
     questionTypeCoverage,
@@ -154,6 +193,15 @@ export function summarize(results) {
     averageCognitiveActionFitScore: cognitiveActionFitScores.length
       ? Math.round((cognitiveActionFitScores.reduce((sum, score) => sum + score, 0) / cognitiveActionFitScores.length) * 10) / 10
       : 0,
+    averageCoreUnderstandingScore: coreUnderstandingScores.length
+      ? Math.round((coreUnderstandingScores.reduce((sum, score) => sum + score, 0) / coreUnderstandingScores.length) * 10) / 10
+      : 0,
+    averageBoundaryDiscriminationScore: boundaryDiscriminationScores.length
+      ? Math.round((boundaryDiscriminationScores.reduce((sum, score) => sum + score, 0) / boundaryDiscriminationScores.length) * 10) / 10
+      : 0,
+    averageScenarioApplicationScore: scenarioApplicationScores.length
+      ? Math.round((scenarioApplicationScores.reduce((sum, score) => sum + score, 0) / scenarioApplicationScores.length) * 10) / 10
+      : 0,
     averagePracticeProgressionScore: practiceProgressionScores.length
       ? Math.round((practiceProgressionScores.reduce((sum, score) => sum + score, 0) / practiceProgressionScores.length) * 10) / 10
       : 0,
@@ -167,6 +215,7 @@ export function summarize(results) {
       ? Math.round((claimFidelityScores.reduce((sum, score) => sum + score, 0) / claimFidelityScores.length) * 10) / 10
       : 0,
     duplicatePracticeRiskCount,
+    cognitiveActionIssueFrequency,
     structureCoverage,
     blockingReasonFrequency
   };
@@ -329,6 +378,8 @@ export function renderManualReport({ machineReport, manualSummary, resultFile, r
     `- 样本数：${machineReport.summary?.sampleCount ?? 0}`,
     `- 机器成功率：${machineReport.summary?.successRate ?? 0}%`,
     `- 入池题数：${machineReport.summary?.qualifiedQuestionCount ?? 0}`,
+    `- 动态预期题数：${machineReport.summary?.expectedQuestionCount ?? 0}`,
+    `- 动态覆盖率：${machineReport.summary?.dynamicCoverageRate ?? 0}%`,
     `- 平均每知识点题数：${machineReport.summary?.averageQuestionsPerPoint ?? 0}`,
     `- 3 题知识点比例：${machineReport.summary?.threeQuestionPointRate ?? 0}%`,
     `- 低置信题比例：${machineReport.summary?.lowConfidenceQuestionRate ?? 0}%`,
@@ -419,6 +470,7 @@ function countValues(values) {
 
 function questionToReviewRow({ result, question, status }) {
   const point = findQuestionKnowledgePoint(result.chapter, question);
+  const pointDiagnostics = findQuestionPointDiagnostics(result, question);
   return {
     sample: result.file,
     sampleTitle: result.sampleMeta?.title || "",
@@ -437,6 +489,14 @@ function questionToReviewRow({ result, question, status }) {
     knowledgeImportanceScore: point?.importanceScore ?? "",
     knowledgeCoverageReason: point?.coverageReason || "",
     practiceBlueprint: formatPracticeBlueprint(point?.practiceBlueprint),
+    expectedQuestionCount: pointDiagnostics?.expectedQuestionCount ?? pointDiagnostics?.targetQuestionCount ?? "",
+    actualQuestionCount: pointDiagnostics?.actualQuestionCount ?? pointDiagnostics?.qualifiedQuestionCount ?? "",
+    dynamicCoverageRate: pointDiagnostics?.dynamicCoverageRate ?? pointDiagnostics?.questionCoverageRate ?? "",
+    dynamicCoverageStatus: pointDiagnostics?.dynamicCoverageStatus || "",
+    expectedMemoryAngles: formatList(pointDiagnostics?.expectedMemoryAngles || []),
+    coveredMemoryAngles: formatList(pointDiagnostics?.coveredMemoryAngles || pointDiagnostics?.selectedMemoryAngles || []),
+    missingMemoryAngles: formatList(pointDiagnostics?.missingMemoryAngles || []),
+    recoverableBlockedCount: pointDiagnostics?.recoverableBlockedCount ?? "",
     questionType: question.type,
     stem: question.stem,
     options: formatOptions(question.options),
@@ -452,9 +512,12 @@ function questionToReviewRow({ result, question, status }) {
     blueprintAlignmentScore: question.blueprintAlignmentScore ?? "",
     pedagogyDiagnostics: formatObject(question.pedagogyDiagnostics),
     cognitiveActionFitScore: question.cognitiveActionFitScore ?? "",
+    cognitiveActionIssue: question.cognitiveActionIssue || question.pedagogyDiagnostics?.cognitiveActionIssue || "",
     coreRecallFitScore: question.coreRecallFitScore ?? "",
+    coreUnderstandingScore: question.coreUnderstandingScore ?? question.coreRecallFitScore ?? "",
     boundaryDiscriminationFitScore: question.boundaryDiscriminationFitScore ?? "",
     scenarioTransferFitScore: question.scenarioTransferFitScore ?? "",
+    scenarioApplicationScore: question.scenarioApplicationScore ?? question.scenarioTransferFitScore ?? "",
     practiceProgressionScore: question.practiceProgressionScore ?? "",
     practiceDuplicateRiskScore: question.practiceDuplicateRiskScore ?? "",
     evidenceLearningValueScore: question.evidenceLearningValueScore ?? "",
@@ -540,6 +603,14 @@ function emptyReviewRow(result) {
     knowledgeImportanceScore: "",
     knowledgeCoverageReason: "",
     practiceBlueprint: "",
+    expectedQuestionCount: "",
+    actualQuestionCount: "",
+    dynamicCoverageRate: "",
+    dynamicCoverageStatus: "",
+    expectedMemoryAngles: "",
+    coveredMemoryAngles: "",
+    missingMemoryAngles: "",
+    recoverableBlockedCount: "",
     questionType: "",
     stem: "",
     options: "",
@@ -555,9 +626,12 @@ function emptyReviewRow(result) {
     blueprintAlignmentScore: "",
     pedagogyDiagnostics: "",
     cognitiveActionFitScore: "",
+    cognitiveActionIssue: "",
     coreRecallFitScore: "",
+    coreUnderstandingScore: "",
     boundaryDiscriminationFitScore: "",
     scenarioTransferFitScore: "",
+    scenarioApplicationScore: "",
     practiceProgressionScore: "",
     practiceDuplicateRiskScore: "",
     evidenceLearningValueScore: "",
@@ -628,6 +702,11 @@ function emptyReviewRow(result) {
 function findQuestionKnowledgePoint(chapter, question) {
   const pointId = question.knowledgePointId || question.pointId;
   return (chapter?.knowledgePoints || []).find((point) => point.id === pointId) || null;
+}
+
+function findQuestionPointDiagnostics(result, question) {
+  const pointId = question.knowledgePointId || question.pointId;
+  return (result.generationDebug?.pointDiagnostics || []).find((point) => point.pointId === pointId) || null;
 }
 
 function formatPracticeBlueprint(blueprint) {
