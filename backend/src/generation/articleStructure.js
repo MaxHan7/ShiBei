@@ -4,8 +4,8 @@ export function buildArticleStructureMap({ cleanedText = "", sourceBlocks = null
   const blocks = Array.isArray(sourceBlocks) && sourceBlocks.length
     ? sourceBlocks
     : buildSourceBlocks(cleanedText);
-  const paragraphBlocks = blocks.filter((block) => block.text && block.text.length >= 12);
-  const candidateNodes = paragraphBlocks
+  const structureBlocks = selectStructureSourceBlocks(blocks);
+  const candidateNodes = structureBlocks
     .filter((block) => isLikelyStructureNode(block))
     .map((block, index) => ({
       id: `asn-${index + 1}`,
@@ -14,9 +14,9 @@ export function buildArticleStructureMap({ cleanedText = "", sourceBlocks = null
       claim: block.text.slice(0, 180),
       whyItMatters: whyItMattersForRole(articleNodeRoleForBlock(block)),
       evidenceBlockIds: [block.blockId].filter(Boolean),
-      sourceOrder: index
+      sourceOrder: sourceOrderForBlock(block, index)
     }));
-  const nodes = candidateNodes.length ? candidateNodes : fallbackNodes(paragraphBlocks);
+  const nodes = candidateNodes.length ? candidateNodes : fallbackNodes(structureBlocks);
 
   return normalizeArticleStructureMap({
     topic: inferTopic(cleanedText, nodes),
@@ -85,12 +85,81 @@ export function bindKnowledgePointsToStructure(points = [], structureMap = {}) {
   });
 }
 
+function selectStructureSourceBlocks(blocks = []) {
+  const validBlocks = blocks
+    .filter((block) => block?.text && String(block.text).trim().length >= 18)
+    .filter((block) => !isBoilerplateStructureBlock(block));
+  const grouped = new Map();
+  for (const block of validBlocks) {
+    const key = Number.isFinite(Number(block.paragraphIndex))
+      ? Number(block.paragraphIndex)
+      : `block-${grouped.size}`;
+    const current = grouped.get(key) || [];
+    current.push(block);
+    grouped.set(key, current);
+  }
+
+  return [...grouped.values()]
+    .map((group) => group.sort((a, b) => structureBlockScore(b) - structureBlockScore(a))[0])
+    .filter(Boolean)
+    .sort((a, b) => structureBlockScore(b) - structureBlockScore(a) || sourceOrderForBlock(a, 0) - sourceOrderForBlock(b, 0))
+    .slice(0, 24)
+    .sort((a, b) => sourceOrderForBlock(a, 0) - sourceOrderForBlock(b, 0));
+}
+
 function isLikelyStructureNode(block) {
   const text = String(block.text || "");
   if (text.length < 18) return false;
+  if (isIntroAnecdoteBlock(block)) return false;
   if (/写在最后|总结|最后/.test(text)) return true;
-  if (/是什么|区别|为什么|怎么|如何|什么时候|场景|边界|例子|案例|方法/.test(text)) return true;
+  if (/是什么|区别|为什么|怎么|如何|什么时候|场景|边界|例子|案例|方法|标准|信号|分工/.test(text)) return true;
   return ["definition", "mechanism", "contrast", "method", "boundary", "example"].includes(block.evidenceRole);
+}
+
+function isBoilerplateStructureBlock(block) {
+  const text = String(block.text || "").trim();
+  if (!text) return true;
+  if (/^\[redacted:/.test(text)) return true;
+  if (/^(原创|作者|来源|点击|赞|分享|在看|广告|免责声明)/.test(text)) return true;
+  if (/在小说阅读器|去阅读|继续滑动看下一个|微信扫一扫|MetaTown/.test(text)) return true;
+  return false;
+}
+
+function isIntroAnecdoteBlock(block) {
+  const text = String(block.text || "");
+  return /我最近和.*产品经理|和AI产品经理聊天|她说.*vibe coding|我问了一句|她愣了一下|出现这样的误会/.test(text);
+}
+
+function structureBlockScore(block) {
+  const roleScore = {
+    definition: 8,
+    contrast: 8,
+    mechanism: 7,
+    boundary: 7,
+    method: 7,
+    example: 5,
+    general: 1
+  }[block.evidenceRole] || 1;
+  const text = String(block.text || "");
+  const cueScore = [
+    /是什么|定义/.test(text) ? 4 : 0,
+    /区别|对比|分工|不是.*而是/.test(text) ? 4 : 0,
+    /判断标准|信号|什么时候|适合/.test(text) ? 4 : 0,
+    /第一类|第二类|第三类|第四类|步骤|方法/.test(text) ? 3 : 0,
+    /风险|边界|拦截|不能|必须/.test(text) ? 3 : 0,
+    /比如|例如|案例|场景/.test(text) ? 2 : 0
+  ].reduce((sum, value) => sum + value, 0);
+  const introPenalty = isIntroAnecdoteBlock(block) ? 12 : 0;
+  return roleScore + cueScore - introPenalty;
+}
+
+function sourceOrderForBlock(block, fallbackIndex) {
+  const paragraphIndex = Number(block?.paragraphIndex);
+  const sentenceStart = Number(block?.sentenceStart);
+  if (Number.isFinite(paragraphIndex)) {
+    return paragraphIndex + (Number.isFinite(sentenceStart) ? sentenceStart / 100 : 0);
+  }
+  return fallbackIndex;
 }
 
 function titleForBlock(block) {
@@ -136,27 +205,29 @@ function fallbackNodes(blocks) {
     claim: block.text.slice(0, 180),
     whyItMatters: whyItMattersForRole(block.evidenceRole),
     evidenceBlockIds: [block.blockId].filter(Boolean),
-    sourceOrder: index
+    sourceOrder: sourceOrderForBlock(block, index)
   }));
 }
 
 function scorePointNodeMatch(point = {}, node = {}) {
-  const pointText = normalizeForMatch([
+  const pointText = [
     point.title,
     point.keyClaim,
     point.summary,
     point.sourceQuote
-  ].filter(Boolean).join(" "));
+  ].filter(Boolean).join(" ");
   const nodeText = normalizeForMatch([
     node.title,
     node.claim
   ].filter(Boolean).join(" "));
   if (!pointText || !nodeText) return 0;
+  const sourceScore = scoreSourceQuoteMatch(point.sourceQuote, node.claim);
   const keywords = extractMatchKeywords(pointText);
-  const hits = keywords.filter((keyword) => nodeText.includes(keyword)).length;
-  const sourceHit = point.sourceQuote
-    && normalizeForMatch(node.claim).includes(normalizeForMatch(point.sourceQuote).slice(0, 18));
-  return Math.min(5, hits + (sourceHit ? 2 : 0));
+  const hits = keywords.filter((keyword) => nodeText.includes(normalizeForMatch(keyword)));
+  const hitScore = hits.reduce((sum, keyword) => sum + keywordWeight(keyword), 0);
+  if (!sourceScore && hits.length < 2) return Math.min(1, hitScore);
+  if (!sourceScore && !hasSpecificHit(hits)) return Math.min(2, hitScore);
+  return Math.min(5, sourceScore + hitScore);
 }
 
 function normalizeForMatch(value = "") {
@@ -164,9 +235,83 @@ function normalizeForMatch(value = "") {
 }
 
 function extractMatchKeywords(value = "") {
-  const text = normalizeForMatch(value);
-  const keywords = [];
-  for (let index = 0; index <= text.length - 2; index += 1) keywords.push(text.slice(index, index + 2));
-  for (let index = 0; index <= text.length - 4; index += 1) keywords.push(text.slice(index, index + 4));
-  return [...new Set(keywords)].filter((keyword) => keyword.length >= 2).slice(0, 80);
+  const source = String(value || "");
+  const latinTerms = source.match(/[A-Za-z][A-Za-z0-9._-]{1,}/g) || [];
+  const phraseTerms = source
+    .split(/[，。！？；：、,.!?;:()[\]{}"'“”‘’|/\\\s]+/)
+    .map((item) => item.trim())
+    .filter((item) => item.length >= 3 && item.length <= 18);
+  const cjk = normalizeForMatch(source).replace(/[A-Za-z0-9._-]+/g, "");
+  const cjkTerms = [];
+  for (let size of [6, 5, 4, 3]) {
+    for (let index = 0; index <= cjk.length - size; index += size) {
+      cjkTerms.push(cjk.slice(index, index + size));
+    }
+  }
+  return [...new Set([...latinTerms, ...phraseTerms, ...cjkTerms])]
+    .map((keyword) => keyword.trim())
+    .filter((keyword) => keyword.length >= 2)
+    .filter((keyword) => !isGenericKeyword(keyword))
+    .slice(0, 60);
+}
+
+function scoreSourceQuoteMatch(sourceQuote = "", nodeClaim = "") {
+  const quote = normalizeForMatch(sourceQuote);
+  const claim = normalizeForMatch(nodeClaim);
+  if (!quote || !claim || quote.length < 8) return 0;
+  if (claim.includes(quote)) return 5;
+  const prefix = quote.slice(0, Math.min(24, quote.length));
+  const suffix = quote.slice(-Math.min(24, quote.length));
+  if (prefix.length >= 12 && claim.includes(prefix)) return 4;
+  if (suffix.length >= 12 && claim.includes(suffix)) return 4;
+  const middleStart = Math.max(0, Math.floor((quote.length - 18) / 2));
+  const middle = quote.slice(middleStart, middleStart + 18);
+  return middle.length >= 12 && claim.includes(middle) ? 3 : 0;
+}
+
+function keywordWeight(keyword = "") {
+  if (/[A-Za-z]/.test(keyword)) return 1.4;
+  if (String(keyword).length >= 5) return 1.2;
+  return 0.8;
+}
+
+function hasSpecificHit(hits = []) {
+  return hits.some((keyword) => {
+    const normalized = normalizeForMatch(keyword).toLowerCase();
+    if (!normalized) return false;
+    if (["hook", "claude", "code", "ai"].includes(normalized)) return false;
+    if (/[A-Za-z]/.test(keyword) && normalized.length >= 3) return true;
+    return normalized.length >= 4;
+  });
+}
+
+function isGenericKeyword(keyword = "") {
+  const normalized = normalizeForMatch(keyword).toLowerCase();
+  if (!normalized || normalized.length < 2) return true;
+  return new Set([
+    "产品经理",
+    "一个",
+    "这个",
+    "那个",
+    "使用",
+    "需要",
+    "不是",
+    "因为",
+    "所以",
+    "自然语言",
+    "工程",
+    "阶段",
+    "标准",
+    "原因",
+    "方式",
+    "进行",
+    "可以",
+    "应该",
+    "关键",
+    "核心",
+    "系统",
+    "用户",
+    "题目",
+    "知识点"
+  ]).has(normalized);
 }

@@ -90,6 +90,13 @@ export function summarize(results) {
     .filter(Number.isFinite);
   const duplicatePracticeRiskCount = allQuestions
     .filter((question) => Number(question.practiceDuplicateRiskScore || 0) >= 4).length;
+  const sourceCoverageScores = allQuestions
+    .map((question) => Number(question.sourceCoverageScore || question.trustDiagnostics?.sourceCoverageScore))
+    .filter(Number.isFinite);
+  const claimFidelityScores = allQuestions
+    .map((question) => Number(question.claimFidelityScore || question.trustDiagnostics?.claimFidelityScore))
+    .filter(Number.isFinite);
+  const structureCoverage = structureCoverageSummary(chapters);
   const blockingReasonFrequency = countValues(
     chapters.flatMap((result) => [
       ...(result.chapter?.questions || []),
@@ -153,7 +160,14 @@ export function summarize(results) {
     averageEvidenceLearningValueScore: evidenceLearningValueScores.length
       ? Math.round((evidenceLearningValueScores.reduce((sum, score) => sum + score, 0) / evidenceLearningValueScores.length) * 10) / 10
       : 0,
+    averageSourceCoverageScore: sourceCoverageScores.length
+      ? Math.round((sourceCoverageScores.reduce((sum, score) => sum + score, 0) / sourceCoverageScores.length) * 10) / 10
+      : 0,
+    averageClaimFidelityScore: claimFidelityScores.length
+      ? Math.round((claimFidelityScores.reduce((sum, score) => sum + score, 0) / claimFidelityScores.length) * 10) / 10
+      : 0,
     duplicatePracticeRiskCount,
+    structureCoverage,
     blockingReasonFrequency
   };
 }
@@ -414,6 +428,12 @@ function questionToReviewRow({ result, question, status }) {
     knowledgePoint: question.pointTitle || question.knowledgePointId || "",
     knowledgePointId: question.knowledgePointId || question.pointId || "",
     knowledgeStructureRole: point?.structureRole || "",
+    structureNodeId: question.structureNodeId || point?.structureNodeId || "",
+    roleInArticle: question.roleInArticle || point?.roleInArticle || point?.structureRole || "",
+    sourceEvidenceIds: formatList(question.sourceEvidenceIds || point?.sourceEvidenceIds || []),
+    requiredEvidenceIds: formatList(question.requiredEvidenceIds || []),
+    whyWorthReviewing: point?.whyWorthReviewing || point?.coverageReason || "",
+    pointClaimFidelityScore: point?.claimFidelityScore ?? "",
     knowledgeImportanceScore: point?.importanceScore ?? "",
     knowledgeCoverageReason: point?.coverageReason || "",
     practiceBlueprint: formatPracticeBlueprint(point?.practiceBlueprint),
@@ -445,6 +465,9 @@ function questionToReviewRow({ result, question, status }) {
     retainedBy: question.retainedBy || "",
     sourceContextScore: question.sourceContextScore ?? "",
     sourcePrecisionScore: question.sourcePrecisionScore ?? question.trustDiagnostics?.sourcePrecisionScore ?? "",
+    sourceCoverageScore: question.sourceCoverageScore ?? question.trustDiagnostics?.sourceCoverageScore ?? "",
+    claimFidelityScore: question.claimFidelityScore ?? question.trustDiagnostics?.claimFidelityScore ?? "",
+    learningEffectivenessScore: question.learningEffectivenessScore ?? question.cognitiveActionFitScore ?? "",
     sourceSpecificityScore: question.sourceSpecificityScore ?? "",
     sourceMinimalityScore: question.sourceMinimalityScore ?? question.sourceContextSelection?.sourceMinimalityScore ?? "",
     sourceEvidenceRole: question.sourceEvidenceRole || question.sourceContextSelection?.sourceEvidenceRole || "",
@@ -468,6 +491,8 @@ function questionToReviewRow({ result, question, status }) {
     secondary_issue: "",
     source_support: "",
     source_precision: "",
+    source_coverage: "",
+    claim_fidelity: "",
     source_minimality: "",
     source_evidence_role: "",
     source_block_id: "",
@@ -506,6 +531,12 @@ function emptyReviewRow(result) {
     knowledgePoint: "",
     knowledgePointId: "",
     knowledgeStructureRole: "",
+    structureNodeId: "",
+    roleInArticle: "",
+    sourceEvidenceIds: "",
+    requiredEvidenceIds: "",
+    whyWorthReviewing: "",
+    pointClaimFidelityScore: "",
     knowledgeImportanceScore: "",
     knowledgeCoverageReason: "",
     practiceBlueprint: "",
@@ -537,6 +568,9 @@ function emptyReviewRow(result) {
     retainedBy: "",
     sourceContextScore: "",
     sourcePrecisionScore: "",
+    sourceCoverageScore: "",
+    claimFidelityScore: "",
+    learningEffectivenessScore: "",
     sourceSpecificityScore: "",
     sourceMinimalityScore: "",
     sourceEvidenceRole: "",
@@ -561,6 +595,8 @@ function emptyReviewRow(result) {
     secondary_issue: "",
     source_support: "",
     source_precision: "",
+    source_coverage: "",
+    claim_fidelity: "",
     source_minimality: "",
     source_evidence_role: "",
     source_block_id: "",
@@ -608,6 +644,11 @@ function formatOptions(options = []) {
   return options.map((option) => `${option.id}. ${option.text}`).join(" | ");
 }
 
+function formatList(values = []) {
+  if (!Array.isArray(values)) return String(values || "");
+  return values.map(String).filter(Boolean).join("|");
+}
+
 function correctOptionText(question) {
   return (question.options || []).find((option) => option.id === question.correctOptionId)?.text || "";
 }
@@ -619,6 +660,8 @@ function formatTrustDiagnostics(diagnostics) {
     `explanation:${diagnostics.explanationFaithfulnessScore ?? ""}`,
     `context:${diagnostics.contextRelevanceScore ?? ""}`,
     `misconception:${diagnostics.misconceptionSupportScore ?? ""}`,
+    `sourceCoverage:${diagnostics.sourceCoverageScore ?? ""}`,
+    `claimFidelity:${diagnostics.claimFidelityScore ?? ""}`,
     `cognitive:${diagnostics.cognitiveActionFitScore ?? ""}`,
     `evidenceLearning:${diagnostics.evidenceLearningValueScore ?? ""}`
   ].join(" | ");
@@ -768,6 +811,77 @@ function sourceBlockCoverageSummary(questions = []) {
       evidenceRoles: [...item.evidenceRoles]
     }))
     .sort((a, b) => b.questionCount - a.questionCount || a.knowledgePointId.localeCompare(b.knowledgePointId));
+}
+
+function structureCoverageSummary(chapters = []) {
+  const nodeMap = new Map();
+  for (const result of chapters) {
+    const nodes = result.generationDebug?.articleStructureMap?.nodes || [];
+    for (const node of nodes) {
+      if (!node?.id) continue;
+      const current = nodeMap.get(node.id) || {
+        nodeId: node.id,
+        title: node.title || "",
+        role: node.role || "",
+        sourceOrder: node.sourceOrder ?? 0,
+        knowledgePointCount: 0,
+        questionCount: 0
+      };
+      nodeMap.set(node.id, current);
+    }
+    const points = result.chapter?.knowledgePoints || result.generationDebug?.knowledgePoints || [];
+    for (const point of points) {
+      const nodeId = point.structureNodeId || "";
+      if (!nodeId) continue;
+      const current = nodeMap.get(nodeId) || {
+        nodeId,
+        title: "",
+        role: point.roleInArticle || point.structureRole || "",
+        sourceOrder: 0,
+        knowledgePointCount: 0,
+        questionCount: 0
+      };
+      current.knowledgePointCount += 1;
+      nodeMap.set(nodeId, current);
+    }
+    const questionMap = new Map();
+    for (const question of [
+      ...(result.chapter?.questions || []),
+      ...(result.generationDebug?.evaluatedQuestions || [])
+    ]) {
+      if (!question) continue;
+      const key = question.id || `${question.knowledgePointId || ""}:${question.stem || ""}`;
+      if (!key) continue;
+      questionMap.set(key, question);
+    }
+    const questions = [...questionMap.values()];
+    for (const question of questions) {
+      const nodeId = question.structureNodeId || "";
+      if (!nodeId) continue;
+      const current = nodeMap.get(nodeId) || {
+        nodeId,
+        title: "",
+        role: question.roleInArticle || "",
+        sourceOrder: 0,
+        knowledgePointCount: 0,
+        questionCount: 0
+      };
+      current.questionCount += 1;
+      nodeMap.set(nodeId, current);
+    }
+  }
+
+  const nodes = [...nodeMap.values()].sort((a, b) => a.sourceOrder - b.sourceOrder || a.nodeId.localeCompare(b.nodeId));
+  return {
+    structureNodeCount: nodes.length,
+    coveredStructureNodeCount: nodes.filter((node) => node.knowledgePointCount > 0).length,
+    questionedStructureNodeCount: nodes.filter((node) => node.questionCount > 0).length,
+    uncoveredStructureNodes: nodes
+      .filter((node) => node.knowledgePointCount === 0)
+      .map((node) => ({ nodeId: node.nodeId, title: node.title, role: node.role }))
+      .slice(0, 8),
+    nodes
+  };
 }
 
 function compactSourceKey(value) {

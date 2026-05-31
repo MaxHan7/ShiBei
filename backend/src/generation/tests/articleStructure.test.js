@@ -20,7 +20,10 @@ test("buildArticleStructureMap creates ordered structure nodes from paragraphs",
 
   assert.equal(map.topic.length > 0, true);
   assert.equal(map.nodes.length >= 3, true);
-  assert.deepEqual(map.nodes.map((node) => node.sourceOrder), [0, 1, 2]);
+  assert.deepEqual(
+    map.nodes.map((node) => node.sourceOrder),
+    [...map.nodes].map((node) => node.sourceOrder).sort((a, b) => a - b)
+  );
   assert.equal(map.nodes.some((node) => node.role === "definition"), true);
   assert.equal(map.nodes.some((node) => node.role === "contrast"), true);
   assert.equal(map.nodes.every((node) => node.evidenceBlockIds.length > 0), true);
@@ -74,4 +77,59 @@ test("bindKnowledgePointsToStructure maps point to best structure node", () => {
   assert.equal(bound[0].roleInArticle, "contrast");
   assert.deepEqual(bound[0].sourceEvidenceIds, ["p2-s0-0"]);
   assert.equal(bound[0].claimFidelityScore >= 4, true);
+});
+
+test("buildArticleStructureMap skips intro anecdotes as structure anchors", () => {
+  const cleanedText = [
+    "我最近和一位 AI 产品经理聊她们的工作，她说现在都用 vibe coding 直接做 demo。",
+    "出现这样的误会，这不是她不懂技术，而是 demo 阶段追求的是速度。",
+    "hook 是什么",
+    "hook 是在 AI agent 生命周期特定节点自动触发的控制器。",
+    "什么时候该用 hook",
+    "真正该上 hook 的时刻，通常有四个信号：危险动作、重复提醒、交付他人、session 变长。"
+  ].join("\n\n");
+
+  const map = buildArticleStructureMap({ cleanedText });
+
+  assert.equal(map.nodes.some((node) => /我最近和一位/.test(node.claim)), false);
+  assert.equal(map.nodes.some((node) => /hook 是在 AI agent 生命周期/.test(node.claim)), true);
+  assert.equal(map.nodes.some((node) => /四个信号/.test(node.claim)), true);
+});
+
+test("bindKnowledgePointsToStructure prefers source evidence over generic early keywords", () => {
+  const structureMap = normalizeArticleStructureMap({
+    nodes: [
+      {
+        id: "asn-1",
+        title: "开头场景",
+        role: "background",
+        claim: "我最近和一位 AI 产品经理聊她们的工作，她说现在都用 vibe coding 直接做 demo。",
+        evidenceBlockIds: ["p0-s0-0"],
+        sourceOrder: 0
+      },
+      {
+        id: "asn-2",
+        title: "四个信号",
+        role: "method",
+        claim: "真正该上 hook 的时刻，通常有四个信号。第一个信号，是 AI 开始碰危险动作。第二个信号，是同样的提醒你已经说了三遍。",
+        evidenceBlockIds: ["p20-s0-0"],
+        sourceOrder: 20
+      }
+    ]
+  });
+  const points = [
+    {
+      id: "kp-1",
+      title: "使用 hook 的四个信号：危险动作、重复提醒、交付他人、session 变长",
+      keyClaim: "当 AI 开始碰危险动作、同样提醒反复出现、产物要交给别人或 session 变长时，应考虑 hook。",
+      sourceQuote: "真正该上 hook 的时刻，通常有四个信号。第一个信号，是 AI 开始碰危险动作。第二个信号，是同样的提醒你已经说了三遍。",
+      importanceScore: 5,
+      testabilityScore: 5
+    }
+  ];
+
+  const bound = bindKnowledgePointsToStructure(points, structureMap);
+
+  assert.equal(bound[0].structureNodeId, "asn-2");
+  assert.equal(bound[0].roleInArticle, "method");
 });

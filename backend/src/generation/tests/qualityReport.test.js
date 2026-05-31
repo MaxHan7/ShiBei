@@ -49,6 +49,11 @@ test("summarizes machine report and expands review rows for manual scoring", () 
       knowledgePoints: [{
         id: "kp-1",
         structureRole: "method_step",
+        structureNodeId: "asn-1",
+        roleInArticle: "method",
+        whyWorthReviewing: "这是文章主线中的可迁移方法。",
+        sourceEvidenceIds: ["p1-s0-0"],
+        claimFidelityScore: 5,
         importanceScore: 5,
         coverageReason: "这是可迁移的方法原则。"
       }],
@@ -68,6 +73,13 @@ test("summarizes machine report and expands review rows for manual scoring", () 
         correctUnderstanding: "正确做法能被来源支撑。",
         commonMisconception: "误以为无关做法也可以。",
         sourceSnippet: "来源支撑正确做法。",
+        structureNodeId: "asn-1",
+        roleInArticle: "method",
+        sourceEvidenceIds: ["p1-s0-0"],
+        requiredEvidenceIds: ["p1-s0-0"],
+        sourceCoverageScore: 5,
+        claimFidelityScore: 4,
+        learningEffectivenessScore: 4,
         confidenceLevel: "low",
         retainedBy: "best_effort_quality_fallback",
         sourceContextScore: 123,
@@ -75,7 +87,9 @@ test("summarizes machine report and expands review rows for manual scoring", () 
           answerGroundingScore: 4,
           explanationFaithfulnessScore: 3,
           contextRelevanceScore: 5,
-          misconceptionSupportScore: 3
+          misconceptionSupportScore: 3,
+          sourceCoverageScore: 5,
+          claimFidelityScore: 4
         },
         confidenceReasons: ["weak_explanation_faithfulness"],
         blockingReasons: [],
@@ -84,6 +98,14 @@ test("summarizes machine report and expands review rows for manual scoring", () 
       }]
     },
     generationDebug: {
+      articleStructureMap: {
+        nodes: [{
+          id: "asn-1",
+          title: "方法节点",
+          role: "method",
+          sourceOrder: 0
+        }]
+      },
       pointDiagnostics: [{
         status: "covered_low_confidence",
         qualifiedQuestionCount: 1,
@@ -100,6 +122,10 @@ test("summarizes machine report and expands review rows for manual scoring", () 
   assert.equal(machineSummary.lowConfidenceQuestionRate, 100);
   assert.equal(machineSummary.coveredKnowledgePointCount, 1);
   assert.equal(machineSummary.averageQuestionsPerPoint, 1);
+  assert.equal(machineSummary.averageSourceCoverageScore, 5);
+  assert.equal(machineSummary.averageClaimFidelityScore, 4);
+  assert.equal(machineSummary.structureCoverage.structureNodeCount, 1);
+  assert.equal(machineSummary.structureCoverage.coveredStructureNodeCount, 1);
   assert.deepEqual(machineSummary.questionCountDistribution, { "1": 1 });
   assert.deepEqual(machineSummary.questionTypeCoverage, { multiple_choice: 1 });
   assert.equal(rows[0].correctAnswerText, "正确做法");
@@ -109,6 +135,15 @@ test("summarizes machine report and expands review rows for manual scoring", () 
   assert.equal(rows[0].confidenceReasons, "weak_explanation_faithfulness");
   assert.equal(rows[0].blockingReasons, "");
   assert.equal(rows[0].knowledgeStructureRole, "method_step");
+  assert.equal(rows[0].structureNodeId, "asn-1");
+  assert.equal(rows[0].roleInArticle, "method");
+  assert.equal(rows[0].sourceEvidenceIds, "p1-s0-0");
+  assert.equal(rows[0].requiredEvidenceIds, "p1-s0-0");
+  assert.equal(rows[0].whyWorthReviewing, "这是文章主线中的可迁移方法。");
+  assert.equal(rows[0].pointClaimFidelityScore, 5);
+  assert.equal(rows[0].sourceCoverageScore, 5);
+  assert.equal(rows[0].claimFidelityScore, 4);
+  assert.equal(rows[0].learningEffectivenessScore, 4);
   assert.equal(rows[0].knowledgeImportanceScore, 5);
   assert.equal(rows[0].knowledgeCoverageReason, "这是可迁移的方法原则。");
 });

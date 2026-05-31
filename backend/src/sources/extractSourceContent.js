@@ -111,6 +111,9 @@ async function extractWebArticle(sourceUrl) {
 }
 
 async function extractWechatArticle(sourceUrl) {
+  const staticArticle = await extractWechatArticleFromStaticHtml(sourceUrl).catch(() => null);
+  if (staticArticle) return staticArticle;
+
   let chromium;
   try {
     ({ chromium } = await import("playwright"));
@@ -170,6 +173,42 @@ async function extractWechatArticle(sourceUrl) {
     throw sourceFailure("failed_extract_article", `公众号文章正文提取失败：${error.message}`);
   } finally {
     if (browser) await withTimeout(browser.close(), 5_000, "关闭浏览器超时。").catch(() => {});
+  }
+}
+
+async function extractWechatArticleFromStaticHtml(sourceUrl) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), Math.min(ARTICLE_FETCH_TIMEOUT_MS, WECHAT_EXTRACT_TIMEOUT_MS));
+  try {
+    const response = await fetch(sourceUrl, {
+      headers: {
+        "user-agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36",
+        accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8"
+      },
+      redirect: "follow",
+      signal: controller.signal
+    });
+    if (!response.ok) {
+      throw sourceFailure("failed_extract_article", `公众号文章链接无法访问：HTTP ${response.status}`);
+    }
+    const html = await response.text();
+    const extracted = extractArticleFromHtml(html, sourceUrl);
+    ensureArticleText(extracted.rawText);
+    return {
+      ...extracted,
+      sourceAccount: extracted.sourceAccount === "mp.weixin.qq.com"
+        ? inferWechatAccount(extracted.rawText) || extracted.sourceAccount
+        : extracted.sourceAccount
+    };
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw sourceFailure("failed_extract_article", "公众号文章链接访问超时，请稍后重试或直接粘贴正文。");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -243,6 +282,16 @@ function ensureArticleText(rawText) {
   if (String(rawText || "").trim().length < MIN_ARTICLE_TEXT_LENGTH) {
     throw sourceFailure("failed_extract_article", "文章正文提取失败：可用正文太短，暂时无法生成复习题。");
   }
+}
+
+function inferWechatAccount(rawText) {
+  const lines = String(rawText || "").split(/\n+/).map((line) => line.trim()).filter(Boolean);
+  const metaTownIndex = lines.findIndex((line) => /MetaTown|公众号|原创/.test(line));
+  if (metaTownIndex >= 0) {
+    const candidate = lines.slice(metaTownIndex, metaTownIndex + 4).find((line) => !/原创|公众号|在小说阅读器/.test(line));
+    if (candidate) return candidate;
+  }
+  return "";
 }
 
 function sourceFailure(status, message) {

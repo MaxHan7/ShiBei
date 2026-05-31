@@ -39,6 +39,12 @@ export function evaluateQuestions({ questions, knowledgePoints, cleanedText = ""
       ...blueprint,
       ...pedagogy,
       pointTitle: point?.title || "",
+      structureNodeId: normalizedQuestion.structureNodeId || point?.structureNodeId || "",
+      roleInArticle: normalizedQuestion.roleInArticle || point?.roleInArticle || point?.structureRole || "",
+      requiredEvidenceIds: Array.isArray(normalizedQuestion.requiredEvidenceIds)
+        ? normalizedQuestion.requiredEvidenceIds
+        : (Array.isArray(point?.sourceEvidenceIds) ? point.sourceEvidenceIds : []),
+      sourceEvidenceIds: Array.isArray(point?.sourceEvidenceIds) ? point.sourceEvidenceIds : [],
       qualityScore: {
         ...scores,
         average: round(averageScore),
