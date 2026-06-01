@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "label": "v21-prd-first-clean-prompt",
+    "generatedAt": "2026-06-01T02:02:48.817Z",
+    "jsonPath": "/Users/hanmingyu/Downloads/拾贝/quality-test-set/results/single-article/UMr6ia1QubqOMw3aBUGbOw/runs/20260601-015910-v21-prd-first-clean-prompt.json",
+    "reviewCount": 17
+  },
+  "annotations": [
+    {
+      "question_id": "q-1",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T03:37:54.017Z",
+      "human_status": "fixable",
+      "notes": "正确答案太明显，用户不懂这题也能看出来哪个正确"
+    },
+    {
+      "question_id": "q-3",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T03:38:06.929Z",
+      "notes": "正确答案太明显，用户不懂这题也能看出来哪个正确",
+      "human_status": "fixable"
+    },
+    {
+      "question_id": "q-5",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T03:38:12.599Z",
+      "human_status": "accept"
+    },
+    {
+      "question_id": "q-6",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T03:39:08.051Z",
+      "human_status": "accept"
+    },
+    {
+      "question_id": "q-8",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T03:40:08.984Z",
+      "human_status": "accept"
+    },
+    {
+      "question_id": "q-10",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T03:41:37.385Z",
+      "human_status": "accept"
+    },
+    {
+      "question_id": "q-9",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T03:42:25.415Z",
+      "notes": "正确答案有些太明显"
+    },
+    {
+      "question_id": "q-11",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T03:42:32.823Z",
+      "human_status": "accept"
+    },
+    {
+      "question_id": "q-12",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T03:43:48.971Z",
+      "human_status": "fixable",
+      "notes": "提问的方式不好，问题太简单"
+    },
+    {
+      "question_id": "q-13",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T03:43:49.161Z",
+      "human_status": "accept"
+    },
+    {
+      "question_id": "q-16",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T03:44:26.659Z",
+      "human_status": "accept"
+    },
+    {
+      "question_id": "q-16-rewrite-7-1",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T04:05:36.254Z",
+      "human_status": "accept"
+    },
+    {
+      "question_id": "q-17",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T04:07:01.599Z",
+      "human_status": "accept"
+    },
+    {
+      "question_id": "q-17-rewrite-8-1",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T04:07:22.947Z",
+      "human_status": "accept"
+    },
+    {
+      "question_id": "q-18",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T04:07:44.880Z",
+      "human_status": "accept"
+    },
+    {
+      "question_id": "q-20",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T04:08:22.789Z",
+      "human_status": "fixable",
+      "notes": "干扰项质量太低"
+    },
+    {
+      "question_id": "q-21",
+      "experiment_label": "v21-prd-first-clean-prompt",
+      "updated_at": "2026-06-01T04:08:30.962Z",
+      "notes": "干扰项质量略低",
+      "human_status": "accept"
+    }
+  ]
+}

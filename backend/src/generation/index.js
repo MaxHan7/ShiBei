@@ -465,6 +465,7 @@ function isReviewableQuestion(question) {
   if (question.confidenceTier === "should_block") return false;
   if ((question.blockingReasons || []).length) return false;
   const issues = new Set(question.qualityIssues || []);
+  if ([...issues].some(isFatalExplanationIssue)) return false;
   const blockingIssues = [
     "missing_knowledge_point",
     "missing_source_snippet",
@@ -484,6 +485,11 @@ function isReviewableQuestion(question) {
   if ((question.qualityScore?.sourceSupport || 0) <= 2) return false;
   if ((question.qualityScore?.answerUniqueness || 0) < 4) return false;
   return true;
+}
+
+function isFatalExplanationIssue(issue) {
+  const value = String(issue || "");
+  return /解释/.test(value) && /(矛盾|冲突|不一致|不正确|错误地|解释错误|误认为.*正确|认为.*最佳)/.test(value);
 }
 
 function dedupeSimilarQuestions(questions) {

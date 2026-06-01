@@ -239,6 +239,39 @@ test("does not retain structurally invalid rewrite questions", () => {
   assert.equal(selected.length, 0);
 });
 
+test("does not retain questions when the judge reports explanation-answer conflict", () => {
+  const selected = selectQualifiedQuestionsByPoint([lowTargetPoint], [
+    question({
+      id: "conflicting-explanation",
+      qualityAction: "rewrite",
+      qualityIssues: ["judge_解释中错误地认为B是最佳策略，与正确答案矛盾"],
+      qualityScore: { ...question().qualityScore, average: 4.7 }
+    }),
+    question({
+      id: "clean-fallback",
+      qualityAction: "rewrite",
+      qualityScore: { ...question().qualityScore, average: 4.2 }
+    })
+  ]);
+
+  assert.equal(selected.length, 1);
+  assert.equal(selected[0].id, "clean-fallback");
+});
+
+test("keeps non-fatal explanation quality warnings reviewable", () => {
+  const selected = selectQualifiedQuestionsByPoint([lowTargetPoint], [
+    question({
+      id: "weak-explanation",
+      qualityAction: "rewrite",
+      qualityIssues: ["judge_解释需要更具体地说明错误选项"],
+      qualityScore: { ...question().qualityScore, average: 4.2 }
+    })
+  ]);
+
+  assert.equal(selected.length, 1);
+  assert.equal(selected[0].id, "weak-explanation");
+});
+
 test("retains question type mismatch without treating type as the core quality signal", () => {
   const evaluated = evaluateQuestions({
     questions: [
@@ -264,7 +297,13 @@ test("expands source snippet to the original paragraph context", () => {
     questions: [
       question({
         id: "missing-source",
-        sourceSnippet: ""
+        sourceSnippet: "",
+        options: [
+          { id: "A", text: "根据来源上下文判断题目与原文主张的关系" },
+          { id: "B", text: "根据来源上下文判断引用是否只来自标题" },
+          { id: "C", text: "根据来源上下文判断例子是否覆盖边界" },
+          { id: "D", text: "根据来源上下文判断结论是否需要补证据" }
+        ]
       })
     ],
     knowledgePoints: [point],
@@ -584,9 +623,9 @@ test("locates source context from title and key claim when the source quote is n
         correctUnderstanding: "vibe coding 负责快速做出 demo，hook 负责把必要约束自动化，避免流程偏航。",
         options: [
           { id: "A", text: "vibe coding 负责快速做 demo，hook 负责自动化约束防偏航" },
-          { id: "B", text: "hook 只负责让页面变得更美观" },
-          { id: "C", text: "vibe coding 可以替代所有工程约束" },
-          { id: "D", text: "二者没有任何关系" }
+          { id: "B", text: "把流程约束都写进 prompt，由模型自行遵守" },
+          { id: "C", text: "让 CI 在代码提交后统一发现所有偏航问题" },
+          { id: "D", text: "只靠人工复查每次 AI 生成结果是否合格" }
         ],
         sourceSnippet: ""
       })
@@ -1004,7 +1043,7 @@ test("definition-style core question is not discarded as shallow when it asks fo
   assert.equal(evaluated[0].coreUnderstandingScore >= 4, true);
 });
 
-test("question prompt stays lean and does not force article structure binding fields", () => {
+test("question prompt is PRD-first and does not expose experiment scaffolding as the main task", () => {
   const prompt = buildUserPrompt({
     points: [
       {
@@ -1034,11 +1073,13 @@ test("question prompt stays lean and does not force article structure binding fi
   assert.equal(prompt.includes("题目必须服务该结构节点"), false);
   assert.equal(prompt.includes("真实混淆对象是什么"), false);
   assert.equal(prompt.includes("新场景变量是什么"), false);
-  assert.match(prompt, /轻量复习要求/);
-  assert.match(prompt, /不要改写来源片段/);
-  assert.match(prompt, /换壳重复/);
-  assert.match(prompt, /温和目标/);
-  assert.match(prompt, /优先生成 targetQuestionCount 道不同角度候选题/);
+  assert.equal(prompt.includes("practiceBlueprint"), false);
+  assert.equal(prompt.includes("expectedCognitiveActions"), false);
+  assert.match(prompt, /sourceSnippet 不要改写/);
+  assert.match(prompt, /不要为了凑数量生成换壳重复题/);
+  assert.match(prompt, /题干要直接呈现需要区分/);
+  assert.match(prompt, /targetQuestionCount 是最多尝试题数，不是硬指标/);
+  assert.match(prompt, /知识点：/);
 });
 
 test("friction rewrite prompt explicitly asks to compress the visible question card", () => {
@@ -1053,9 +1094,8 @@ test("friction rewrite prompt explicitly asks to compress the visible question c
   });
 
   assert.match(prompt, /题卡压缩修复/);
-  assert.match(prompt, /15-45/);
-  assert.match(prompt, /8-24/);
-  assert.match(prompt, /把背景、证据链和解释移到/);
+  assert.match(prompt, /只保留做判断所需的信息/);
+  assert.match(prompt, /答后字段/);
 });
 
 test("heavy question cards are marked for rewrite instead of being treated as high confidence", () => {
@@ -1073,9 +1113,9 @@ test("heavy question cards are marked for rewrite instead of being treated as hi
       stem: "一个产品经理正在设计一个移动端碎片时间复习产品，他既想让用户在公交车上快速判断，又担心题目不够严谨，于是把文章背景、项目上下文、用户画像、团队争论、完整证据链和多个限制条件都塞进题干，下面哪种处理方式更符合轻量复习题卡的原则？",
       options: [
         { id: "A", text: "保留关键判断变量，把复杂背景、证据链和完整解释放到答后解释与来源里" },
-        { id: "B", text: "把所有背景继续放在题干中，因为题干越完整越能保证用户不会误解" },
-        { id: "C", text: "删除所有上下文，只留下一个没有判断边界的口号式问题" },
-        { id: "D", text: "把每个选项都写成一段解释，让用户在选项里读完整分析" }
+        { id: "B", text: "把关键判断变量、背景证据链和完整解释全部放进题干" },
+        { id: "C", text: "把判断边界放进选项，让用户在对比选项时补齐背景" },
+        { id: "D", text: "把复杂背景拆进每个选项，让选项承担完整解释功能" }
       ],
       correctOptionId: "A",
       correctUnderstanding: "轻量复习题卡应该保留必要判断条件，把复杂背景放到解释和来源里。",
@@ -1183,5 +1223,5 @@ test("supplement prompt is a concise best-effort supplement, not a failed-questi
   assert.equal(prompt.includes("这是补题任务"), true);
   assert.equal(prompt.includes("上一题没有通过质量检查"), false);
   assert.equal(prompt.includes("missing_question_types:true_false|scenario_judgment"), true);
-  assert.equal(prompt.includes("不要编造来源或误区"), true);
+  assert.equal(prompt.includes("如果只能重复已有题，宁可少补"), true);
 });
