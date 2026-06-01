@@ -1,6 +1,5 @@
 import { QUALITY_DIMENSIONS } from "./types.js";
 import { blueprintAlignment, pedagogyDiagnosticsForQuestion } from "./practiceBlueprint.js";
-import { reviewableClaimForQuestion } from "./reviewableClaims.js";
 
 export function evaluateQuestions({ questions, knowledgePoints, cleanedText = "", judgeResults = [] }) {
   const pointMap = new Map(knowledgePoints.map((point) => [point.id, point]));
@@ -59,10 +58,6 @@ export function evaluateQuestions({ questions, knowledgePoints, cleanedText = ""
       trustDiagnostics: trust.trustDiagnostics,
       sourceCoverageScore: trust.sourceCoverageScore,
       claimFidelityScore: trust.claimFidelityScore,
-      sourceExplanatoryCoverageScore: trust.sourceExplanatoryCoverageScore,
-      claimCoverageScore: trust.claimCoverageScore,
-      misconceptionGroundingScore: trust.misconceptionGroundingScore,
-      explanationAnswerBindingScore: trust.explanationAnswerBindingScore,
       confidenceReasons: trust.confidenceReasons,
       blockingReasons: trust.blockingReasons,
       primaryBlockingReason: trust.primaryBlockingReason,
@@ -80,48 +75,6 @@ export function evaluateQuestions({ questions, knowledgePoints, cleanedText = ""
 
 function normalizeQuestionSourceSnippet(question, point, cleanedText, sourceContextUsage = createSourceContextUsage()) {
   if (!point?.sourceQuote) return question;
-  const claim = reviewableClaimForQuestion(point, question);
-  const claimContext = String(claim?.evidenceContextText || "").trim();
-  if (claimContext) {
-    const claimCandidate = scoreContext(claimContext, claim.evidenceText || point.sourceQuote, question, {
-      ...point,
-      keyClaim: claim.claim || point.keyClaim
-    }, {
-      requireSourceQuote: false,
-      method: "reviewable_claim_context",
-      paragraphIndex: null,
-      sourceEvidenceRole: claim.evidenceRole || "",
-      sourceBlockId: claim.id || ""
-    });
-    if (claimCandidate) {
-      const rankedClaimCandidate = finalizeSourceContextCandidate(
-        applySourceContextRanking(claimCandidate, sourceContextUsage),
-        1,
-        sourceContextUsage
-      );
-      recordSourceContextUsage(rankedClaimCandidate, sourceContextUsage);
-      return {
-        ...question,
-        reviewableClaimId: question.reviewableClaimId || claim.id || "",
-        sourceSnippet: rankedClaimCandidate.text,
-        sourceSnippetAnchor: claim.evidenceText || point.sourceQuote,
-        sourceContextWasExpanded: rankedClaimCandidate.text !== question.sourceSnippet,
-        sourceContextScore: rankedClaimCandidate.score,
-        sourcePrecisionScore: rankedClaimCandidate.selection?.sourcePrecisionScore ?? null,
-        sourceSpecificityScore: rankedClaimCandidate.selection?.specificityScore ?? null,
-        sourceMinimalityScore: rankedClaimCandidate.selection?.sourceMinimalityScore ?? null,
-        sourceEvidenceRole: rankedClaimCandidate.selection?.sourceEvidenceRole || "",
-        sourceBlockId: rankedClaimCandidate.selection?.sourceBlockId || "",
-        sourceEvidenceDiversityScore: rankedClaimCandidate.selection?.sourceEvidenceDiversityScore ?? null,
-        sourceReuseReason: rankedClaimCandidate.selection?.sourceReuseReason || "",
-        sourceOverlapRatio: rankedClaimCandidate.selection?.sourceOverlapRatio ?? 0,
-        sourceOverlapGroupId: rankedClaimCandidate.selection?.sourceOverlapGroupId || "",
-        sourceReuseCount: rankedClaimCandidate.selection?.reuseCount ?? 0,
-        sourceContextSelection: rankedClaimCandidate.selection,
-        sourceSnippetWasBackfilled: question.sourceSnippetWasBackfilled
-      };
-    }
-  }
   const sourceContext = selectSourceContext({ question, point, cleanedText, sourceContextUsage });
   if (sourceContext) {
     recordSourceContextUsage(sourceContext, sourceContextUsage);
@@ -207,13 +160,12 @@ function selectSourceContext({ question, point, cleanedText, sourceContextUsage 
 function shouldPreferBlockContext(block, anchor, fallback) {
   if (!block) return false;
   const blockPrecision = block.selection?.sourcePrecisionScore || 0;
-  const blockCoverage = block.selection?.sourceExplanatoryCoverageScore || 0;
+  const blockMinimality = block.selection?.sourceMinimalityScore || 0;
   const blockRelevance = block.selection?.relevanceScore || 0;
   const bestOtherPrecision = Math.max(anchor?.selection?.sourcePrecisionScore || 0, fallback?.selection?.sourcePrecisionScore || 0);
   const bestOtherRelevance = Math.max(anchor?.selection?.relevanceScore || 0, fallback?.selection?.relevanceScore || 0);
-  const bestOtherCoverage = Math.max(anchor?.selection?.sourceExplanatoryCoverageScore || 0, fallback?.selection?.sourceExplanatoryCoverageScore || 0);
-  if (blockCoverage >= bestOtherCoverage && blockPrecision >= bestOtherPrecision - 1 && blockRelevance >= bestOtherRelevance - 2) return true;
-  return blockPrecision >= 4 && blockCoverage >= 4 && blockRelevance >= 6;
+  if (blockPrecision >= bestOtherPrecision && blockMinimality >= 4 && blockRelevance >= bestOtherRelevance - 2) return true;
+  return blockPrecision >= 4 && blockMinimality >= 4 && blockRelevance >= 8;
 }
 
 function shouldPreferAnchorContext(anchor, fallback) {
@@ -246,11 +198,6 @@ function applySourceContextRanking(candidate, sourceContextUsage) {
   const sourceOverlap = sourceOverlapSummary(candidate.text, sourceContextUsage);
   const specificityScore = scoreSourceSpecificity(candidate.text, candidate.selection?.relevanceScore || 0);
   const sourceMinimalityScore = scoreSourceMinimality(candidate.text, candidate.selection?.relevanceScore || 0, sourceOverlap.ratio);
-  const claim = reviewableClaimForQuestion(candidate.point, candidate.question);
-  const sourceExplanatoryCoverageScore = scoreSourceExplanatoryCoverage({
-    ...candidate.question,
-    sourceSnippet: candidate.text
-  }, claim, candidate.point);
   const sourceEvidenceRole = candidate.selection?.sourceEvidenceRole || inferSourceEvidenceRole(candidate.text, candidate.question, candidate.point);
   const sourceEvidenceDiversityScore = scoreSourceEvidenceDiversity({
     sourceBlockId: candidate.selection?.sourceBlockId,
@@ -281,8 +228,7 @@ function applySourceContextRanking(candidate, sourceContextUsage) {
     score: candidate.score
       + specificityScore * 7
       + sourcePrecisionScore * 8
-      + sourceMinimalityScore * 2
-      + sourceExplanatoryCoverageScore * 12
+      + sourceMinimalityScore * 10
       + sourceEvidenceDiversityScore * 8
       - reusePenalty,
     selection: {
@@ -291,7 +237,6 @@ function applySourceContextRanking(candidate, sourceContextUsage) {
       specificityScore,
       sourcePrecisionScore,
       sourceMinimalityScore,
-      sourceExplanatoryCoverageScore,
       sourceEvidenceRole,
       sourceEvidenceDiversityScore,
       sourceOverlapRatio: sourceOverlap.ratio,
@@ -1129,11 +1074,6 @@ function buildTrustDiagnostics({
   pedagogy = {},
   reviewFriction = reviewFrictionDiagnostics(question)
 }) {
-  const claim = reviewableClaimForQuestion(point, question);
-  const sourceExplanatoryCoverageScore = scoreSourceExplanatoryCoverage(question, claim, point);
-  const claimCoverageScore = scoreClaimCoverage(question, claim, point);
-  const misconceptionGroundingScore = scoreMisconceptionGrounding(question, claim, point);
-  const explanationAnswerBindingScore = scoreExplanationAnswerBinding(question, claim, point);
   const answerGroundingScore = scoreTextGrounding(question.sourceSnippet, [
     correctOptionText(question),
     question.correctUnderstanding
@@ -1151,22 +1091,28 @@ function buildTrustDiagnostics({
     point?.summary
   ]);
   const contextRelevanceScore = scoreContextRelevance(question, sourceValidation);
-  const misconceptionSupportScore = misconceptionGroundingScore;
+  const misconceptionSupportScore = scoreTextGrounding(question.sourceSnippet, [
+    question.commonMisconception
+  ], [
+    question.stem,
+    point?.keyClaim,
+    point?.summary
+  ]);
   const sourcePrecisionScore = clamp(Number(question.sourcePrecisionScore || question.sourceContextSelection?.sourcePrecisionScore || contextRelevanceScore || 1));
-  const sourceCoverageScore = sourceExplanatoryCoverageScore;
-  const claimFidelityScore = Math.max(scoreClaimFidelity(question, point), claimCoverageScore);
+  const sourceCoverageScore = scoreSourceCoverage(question);
+  const claimFidelityScore = scoreClaimFidelity(question, point);
   const confidenceReasons = [];
   const blockingReasons = [];
   const issueSet = new Set(qualityIssues || []);
 
   if (scores.sourceSupport < 4 || answerGroundingScore < 4) confidenceReasons.push("answer_grounding_weak");
-  if (explanationAnswerBindingScore < 3 || explanationFaithfulnessScore < 3) {
-    confidenceReasons.push(explanationReason(question, Math.min(explanationFaithfulnessScore, explanationAnswerBindingScore)));
+  if (explanationFaithfulnessScore < 4) {
+    confidenceReasons.push(explanationReason(question, explanationFaithfulnessScore));
   }
   if (contextRelevanceScore < 4 || sourcePrecisionScore < 4) confidenceReasons.push("weak_context_relevance");
-  if (sourceExplanatoryCoverageScore < 4) confidenceReasons.push("source_coverage_incomplete");
-  if (claimCoverageScore < 4) confidenceReasons.push("claim_overextended");
-  if (misconceptionGroundingScore < 3) confidenceReasons.push(misconceptionReason(question));
+  if (sourceCoverageScore < 4) confidenceReasons.push("source_coverage_incomplete");
+  if (claimFidelityScore < 4) confidenceReasons.push("claim_overextended");
+  if (misconceptionSupportScore < 3) confidenceReasons.push(misconceptionReason(question));
   const cognitiveActionFitScore = Number(pedagogy.cognitiveActionFitScore || 0);
   if (typeValidation && !typeValidation.valid && cognitiveActionFitScore > 0 && cognitiveActionFitScore < 3) {
     confidenceReasons.push("type_does_not_serve_cognitive_action");
@@ -1204,8 +1150,6 @@ function buildTrustDiagnostics({
     blockingReasons: uniqueBlockingReasons,
     confidenceReasons: uniqueConfidenceReasons,
     sourcePrecisionScore,
-    sourceCoverageScore,
-    claimFidelityScore,
     answerGroundingScore,
     explanationFaithfulnessScore,
     scores,
@@ -1220,11 +1164,7 @@ function buildTrustDiagnostics({
       misconceptionSupportScore,
       sourcePrecisionScore,
       sourceCoverageScore,
-      sourceExplanatoryCoverageScore,
       claimFidelityScore,
-      claimCoverageScore,
-      misconceptionGroundingScore,
-      explanationAnswerBindingScore,
       cognitiveActionFitScore: pedagogy.cognitiveActionFitScore ?? null,
       coreUnderstandingScore: pedagogy.coreUnderstandingScore ?? null,
       boundaryDiscriminationFitScore: pedagogy.boundaryDiscriminationFitScore ?? null,
@@ -1246,10 +1186,6 @@ function buildTrustDiagnostics({
     repairHint: repairHintForReason(primaryBlockingReason, confidenceReasons),
     sourceCoverageScore,
     claimFidelityScore,
-    sourceExplanatoryCoverageScore,
-    claimCoverageScore,
-    misconceptionGroundingScore,
-    explanationAnswerBindingScore,
     reviewFrictionScore: reviewFriction.reviewFrictionScore,
     visibleReadingLoad: reviewFriction.visibleReadingLoad,
     stemLength: reviewFriction.stemLength,
@@ -1262,8 +1198,6 @@ function confidenceTierForQuestion({
   blockingReasons,
   confidenceReasons,
   sourcePrecisionScore,
-  sourceCoverageScore,
-  claimFidelityScore,
   answerGroundingScore,
   explanationFaithfulnessScore,
   scores,
@@ -1278,50 +1212,37 @@ function confidenceTierForQuestion({
   ) {
     return "should_block";
   }
-  if (hasActionableRewriteReason(confidenceReasons, {
-    sourceCoverageScore,
-    claimFidelityScore,
-    reviewFrictionScore
-  })) {
+  if (
+    confidenceReasons.includes("answer_grounding_weak")
+    || confidenceReasons.includes("explanation_overextends_source")
+    || confidenceReasons.includes("explanation_not_tied_to_answer")
+    || confidenceReasons.includes("type_does_not_serve_cognitive_action")
+    || confidenceReasons.includes("cognitive_action_weak")
+    || confidenceReasons.includes("core_claim_too_literal")
+    || confidenceReasons.includes("boundary_confusion_not_real")
+    || confidenceReasons.includes("scenario_is_restatement")
+    || confidenceReasons.includes("core_recall_too_literal")
+    || confidenceReasons.includes("boundary_not_teaching_real_confusion")
+    || confidenceReasons.includes("scenario_transfer_too_literal")
+    || confidenceReasons.includes("source_coverage_incomplete")
+    || confidenceReasons.includes("claim_overextended")
+    || confidenceReasons.includes("question_card_too_heavy")
+    || confidenceReasons.includes("stem_too_long")
+    || confidenceReasons.includes("scenario_background_too_long")
+    || confidenceReasons.includes("option_too_explanatory")
+    || Number(reviewFrictionScore || 0) <= 3
+    || confidenceReasons.some((reason) => String(reason).startsWith("distractors_"))
+    || confidenceReasons.includes("judge_rewrite")
+  ) {
     return "needs_rewrite";
   }
-  return "review_warning";
-}
-
-function hasActionableRewriteReason(confidenceReasons = [], {
-  sourceCoverageScore = 5,
-  claimFidelityScore = 5,
-  reviewFrictionScore = 5
-} = {}) {
-  const reasons = new Set(confidenceReasons || []);
-  const reliabilityReasons = [
-    "answer_grounding_weak",
-    "explanation_overextends_source",
-    "explanation_not_tied_to_answer",
-    "judge_rewrite"
-  ];
-  if (reliabilityReasons.some((reason) => reasons.has(reason))) return true;
-  if (reasons.has("source_coverage_incomplete") && Number(sourceCoverageScore || 0) <= 2) return true;
-  if (reasons.has("claim_overextended") && Number(claimFidelityScore || 0) <= 3) return true;
-  if (Number(reviewFrictionScore || 0) <= 3) return true;
-  if (reasons.has("question_card_too_heavy")
-    || reasons.has("stem_too_long")
-    || reasons.has("scenario_background_too_long")
-    || reasons.has("option_too_explanatory")) {
-    return true;
-  }
-  if ([...reasons].some((reason) => String(reason).startsWith("distractors_"))) return true;
-  return false;
+  return "safe_low_confidence";
 }
 
 function repairHintForReason(primaryBlockingReason, confidenceReasons = []) {
   if (primaryBlockingReason === "structure_invalid") return "修复题目结构、选项数量或正确答案字段";
   if (primaryBlockingReason === "answer_not_unique") return "重写选项，确保只有一个答案能被来源和正确理解同时支撑";
   if (primaryBlockingReason === "weak_source_support") return "重新选择能直接支撑正确答案的原文上下文";
-  if (confidenceReasons.includes("question_card_too_heavy")) return "压缩题卡可见阅读负担，只保留做判断所需的题干变量和短选项";
-  if (confidenceReasons.includes("scenario_background_too_long")) return "把场景压成一个角色、一个冲突或一个决策点，删除不参与判断的背景";
-  if (confidenceReasons.includes("stem_too_long")) return "缩短题干，把背景和证据链移到解释页";
-  if (confidenceReasons.includes("option_too_explanatory")) return "把选项改成短判断对象，不在选项里写解释段落";
   if (confidenceReasons.includes("weak_explanation_faithfulness")) return "收窄解释，只解释来源中能支撑的判断";
   if (confidenceReasons.includes("weak_context_relevance")) return "换用更贴近题干和正确答案的原文段落";
   if (confidenceReasons.includes("answer_grounding_weak")) return "保留为低置信，人工重点检查来源是否足够支撑答案";
@@ -1339,6 +1260,10 @@ function repairHintForReason(primaryBlockingReason, confidenceReasons = []) {
   if (confidenceReasons.includes("weak_evidence_learning_value")) return "重新选择更像学习导航的最小充分证据";
   if (confidenceReasons.includes("source_coverage_incomplete")) return "补充覆盖全部关键概念的来源证据，或把题目收窄到当前来源能支撑的范围";
   if (confidenceReasons.includes("claim_overextended")) return "收窄题目主张，避免把原文局部判断扩张成更强因果或普遍规律";
+  if (confidenceReasons.includes("question_card_too_heavy")) return "压缩题卡可见阅读负担，只保留做判断所需的题干变量和短选项";
+  if (confidenceReasons.includes("scenario_background_too_long")) return "把场景压成一个角色、一个冲突或一个决策点，删除不参与判断的背景";
+  if (confidenceReasons.includes("stem_too_long")) return "缩短题干，把背景和证据链移到解释页";
+  if (confidenceReasons.includes("option_too_explanatory")) return "把选项改成短判断对象，不在选项里写解释段落";
   if (confidenceReasons.some((reason) => String(reason).startsWith("distractors_"))) return "重写干扰项，让错误选项来自同一语境并能教学边界";
   return "";
 }
@@ -1415,89 +1340,6 @@ function scoreSourceCoverage(question = {}) {
   if (ratio >= 0.45) return 3;
   if (ratio >= 0.25) return 2;
   return 1;
-}
-
-function scoreSourceExplanatoryCoverage(question = {}, claim = null, point = {}) {
-  const source = String(question.sourceSnippet || "");
-  if (!source) return 1;
-  const claimText = String(claim?.claim || point?.keyClaim || point?.summary || "").trim();
-  const evidenceText = String(claim?.evidenceText || point?.sourceQuote || "").trim();
-  const answerText = correctOptionText(question);
-  const claimScore = scoreTextGrounding(source, [
-    claimText,
-    evidenceText,
-    question.correctUnderstanding
-  ], [
-    question.stem,
-    answerText
-  ]);
-  const answerScore = scoreTextGrounding(source, [
-    answerText,
-    question.correctUnderstanding
-  ], [
-    claimText,
-    point?.title
-  ]);
-  const explanationScore = scoreTextGrounding(source, [
-    question.explanation,
-    question.correctUnderstanding
-  ], [
-    claimText,
-    answerText
-  ]);
-  const score = Math.round(((claimScore * 0.4) + (answerScore * 0.35) + (explanationScore * 0.25)) * 10) / 10;
-  return clamp(score);
-}
-
-function scoreClaimCoverage(question = {}, claim = null, point = {}) {
-  if (!claim) return scoreClaimFidelity(question, point);
-  const source = normalize([
-    claim.claim,
-    claim.evidenceText,
-    claim.evidenceContextText
-  ].filter(Boolean).join(" "));
-  const questionText = normalize([
-    question.stem,
-    question.correctUnderstanding,
-    correctOptionText(question)
-  ].filter(Boolean).join(" "));
-  if (!source || !questionText) return 3;
-  const overlap = overlapRatio(source, questionText);
-  const prohibited = normalize(claim.prohibitedExtensions || "");
-  const overextends = prohibited && keywordOverlap(questionText, prohibited)
-    && !keywordOverlap(question.sourceSnippet || "", prohibited);
-  const base = overlap >= 0.5 ? 5 : overlap >= 0.28 ? 4 : overlap >= 0.16 ? 3 : 2;
-  return clamp(base - (overextends ? 1 : 0));
-}
-
-function scoreMisconceptionGrounding(question = {}, claim = null, point = {}) {
-  const misconception = String(question.commonMisconception || "").trim();
-  if (!misconception) return 1;
-  if (/没有理解|理解片面|忽略.*关键|只是.*表面|不够深入|混淆概念|误解原文|理解错误/.test(misconception) || misconception.length < 14) {
-    return 2;
-  }
-  const wrongOptions = Array.isArray(question.options)
-    ? question.options.filter((option) => option.id !== question.correctOptionId).map((option) => option.text || "").join(" ")
-    : "";
-  if (keywordOverlap(misconception, wrongOptions)) return 5;
-  if (keywordOverlap(misconception, claim?.prohibitedExtensions || "")) return 4;
-  if (keywordOverlap(misconception, [question.sourceSnippet, claim?.evidenceContextText, point?.keyClaim].filter(Boolean).join(" "))) return 4;
-  if (keywordOverlap(misconception, question.stem || "")) return 3;
-  return 2;
-}
-
-function scoreExplanationAnswerBinding(question = {}, claim = null, point = {}) {
-  const explanation = String(question.explanation || "").trim();
-  if (!explanation) return 1;
-  const correct = correctOptionText(question);
-  const correctHit = keywordOverlap(explanation, [correct, question.correctUnderstanding].filter(Boolean).join(" "));
-  const claimHit = keywordOverlap(explanation, [claim?.claim, point?.keyClaim, claim?.evidenceText].filter(Boolean).join(" "));
-  const sourceHit = keywordOverlap(explanation, question.sourceSnippet || claim?.evidenceContextText || "");
-  if (correctHit && claimHit && sourceHit) return 5;
-  if (correctHit && (claimHit || sourceHit)) return 4;
-  if ((claimHit || sourceHit) && keywordOverlap(explanation, question.correctUnderstanding || "")) return 3;
-  if (/因此|所以|说明|意味着|因为/.test(explanation)) return 2;
-  return 3;
 }
 
 function scoreClaimFidelity(question = {}, point = {}) {
