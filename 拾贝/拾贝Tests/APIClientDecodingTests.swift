@@ -78,12 +78,42 @@ final class APIClientDecodingTests: XCTestCase {
         XCTAssertTrue(input.canSubmit)
     }
 
-    func testTreatsNonHTTPURLChapterInputAsText() {
+    func testTreatsNonHTTPURLChapterInputAsInvalidLink() {
         let input = ChapterInput.parse("ftp://example.com/article")
 
         XCTAssertEqual(input.sourceType, .text)
         XCTAssertEqual(input.rawText, "ftp://example.com/article")
         XCTAssertNil(input.sourceUrl)
+        XCTAssertEqual(input.validationError, .invalidLinkFormat)
+        XCTAssertFalse(input.canSubmit)
+    }
+
+    func testTreatsLinkLikeInputsWithoutHTTPSchemeAsInvalidLink() {
+        let values = [
+            "mp.weixin.qq.com/s/abc",
+            "www.example.com/a",
+            "http//example.com/a",
+            "https:/example.com/a"
+        ]
+
+        for value in values {
+            let input = ChapterInput.parse(value)
+
+            XCTAssertEqual(input.sourceType, .text, value)
+            XCTAssertEqual(input.rawText, value, value)
+            XCTAssertNil(input.sourceUrl, value)
+            XCTAssertEqual(input.validationError, .invalidLinkFormat, value)
+            XCTAssertFalse(input.canSubmit, value)
+        }
+    }
+
+    func testParsesShortTextChapterInputAsTextTooShort() {
+        let input = ChapterInput.parse("短文本")
+
+        XCTAssertEqual(input.sourceType, .text)
+        XCTAssertEqual(input.rawText, "短文本")
+        XCTAssertNil(input.sourceUrl)
+        XCTAssertNil(input.validationError)
         XCTAssertFalse(input.canSubmit)
     }
 
@@ -93,6 +123,7 @@ final class APIClientDecodingTests: XCTestCase {
         XCTAssertEqual(input.sourceType, .text)
         XCTAssertEqual(input.rawText, "请学习这篇文章 https://example.com/article")
         XCTAssertNil(input.sourceUrl)
+        XCTAssertNil(input.validationError)
     }
 
     func testDecodesNotificationsResponseShape() throws {

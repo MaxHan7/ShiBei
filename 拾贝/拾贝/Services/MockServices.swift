@@ -709,6 +709,9 @@ final class AppStore: ObservableObject {
 
     func createChapter(from input: String) async -> Bool {
         let parsedInput = ChapterInput.parse(input)
+        guard parsedInput.canSubmit else {
+            return false
+        }
         let targetMode = submissionModeForCreate()
         let shouldReplaceMockState = dataMode == .mock && targetMode == .cloudAPI
         #if DEBUG
@@ -749,7 +752,7 @@ final class AppStore: ObservableObject {
                 clearCurrentStateForCloudSubmission()
             }
             dataMode = targetMode
-            applyCreatedChapter(created)
+            await applyCreatedChapter(created)
             if targetMode != .mock, created.chapter.status.isProcessing {
                 startGenerationPolling(for: created.chapter.id, mode: targetMode)
             }
@@ -763,7 +766,7 @@ final class AppStore: ObservableObject {
         }
     }
 
-    private func applyCreatedChapter(_ created: ChapterCreationResult) {
+    private func applyCreatedChapter(_ created: ChapterCreationResult) async {
         upsertChapter(created.chapter)
         if let notification = created.notification {
             upsertNotification(notification)
@@ -771,11 +774,19 @@ final class AppStore: ObservableObject {
         selectedChapterId = created.chapter.id
         selectedTab = .home
         route = .home
-        if hasShownNotificationEducation {
-            showingSubmittedToast = true
-        } else {
+        if await shouldShowNotificationEducation() {
             showingNotificationEducation = true
+        } else {
+            showingSubmittedToast = true
         }
+    }
+
+    private func shouldShowNotificationEducation() async -> Bool {
+        guard !hasShownNotificationEducation else {
+            return false
+        }
+        let status = await PushNotificationService.authorizationStatus()
+        return status == .notDetermined
     }
 
     func finishNotificationEducation() async {

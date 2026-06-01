@@ -86,7 +86,24 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "将作为网页文章生成"
+            "value": "将作为文章链接生成"
+          }
+        }
+      }
+    },
+    "add.input.invalid_link": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link format is incorrect"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "链接格式不正确"
           }
         }
       }
@@ -172,6 +189,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "正文至少需要 24 个字；链接需要以 http:// 或 https:// 开头。"
+          }
+        }
+      }
+    },
+    "add.invalid_link": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link format is incorrect. Paste the full link starting with http:// or https://."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "链接格式不正确，请粘贴完整链接，需以 http:// 或 https:// 开头。"
+          }
+        }
+      }
+    },
+    "add.invalid_text": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text needs at least 24 characters."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正文至少需要 24 个字。"
           }
         }
       }

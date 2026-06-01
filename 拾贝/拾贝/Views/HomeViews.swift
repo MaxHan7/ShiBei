@@ -212,6 +212,21 @@ struct AddKnowledgeView: View {
         ChapterInput.parse(input)
     }
 
+    private var trimmedInput: String {
+        input.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var inputStatusIcon: String {
+        if chapterInput.validationError == .invalidLinkFormat {
+            return "exclamationmark.triangle"
+        }
+        return chapterInput.sourceType == .text ? "doc.text" : "link"
+    }
+
+    private var inputStatusColor: Color {
+        chapterInput.validationError == .invalidLinkFormat ? ShiBeiTheme.error : ShiBeiTheme.textSoft
+    }
+
     private func dismissInput() {
         isInputFocused = false
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
@@ -253,13 +268,13 @@ struct AddKnowledgeView: View {
                             Text("\(input.count)/5000")
                                 .foregroundStyle(ShiBeiTheme.faint)
                         }
-                        if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        if !trimmedInput.isEmpty {
                             HStack(spacing: 6) {
-                                Image(systemName: chapterInput.sourceType == .text ? "doc.text" : "link")
+                                Image(systemName: inputStatusIcon)
                                 Text(chapterInput.displayText(language: store.appLanguage))
                             }
                             .font(.system(size: 13, weight: .medium))
-                            .foregroundStyle(ShiBeiTheme.textSoft)
+                            .foregroundStyle(inputStatusColor)
                         }
                     }
 
@@ -280,8 +295,8 @@ struct AddKnowledgeView: View {
                         }
                     }
 
-                    if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !chapterInput.canSubmit {
-                        Text(store.localized("add.invalid_input"))
+                    if !trimmedInput.isEmpty && !chapterInput.canSubmit {
+                        Text(chapterInput.validationMessage(language: store.appLanguage))
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(ShiBeiTheme.error)
                             .frame(maxWidth: .infinity, alignment: .center)

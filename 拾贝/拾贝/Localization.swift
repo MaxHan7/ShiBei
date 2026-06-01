@@ -131,14 +131,24 @@ extension FeedbackType {
 
 extension ChapterInput {
     func displayText(language: AppLanguage) -> String {
+        if validationError == .invalidLinkFormat {
+            return L10n.string("add.input.invalid_link", language: language)
+        }
         switch sourceType {
         case .text:
-            L10n.string("add.input.text", language: language)
+            return L10n.string("add.input.text", language: language)
         case .articleLink, .wechatArticle:
-            L10n.string("add.input.article", language: language)
+            return L10n.string("add.input.article", language: language)
         case .videoLink:
-            L10n.string("add.input.video", language: language)
+            return L10n.string("add.input.video", language: language)
         }
+    }
+
+    func validationMessage(language: AppLanguage) -> String {
+        if validationError == .invalidLinkFormat {
+            return L10n.string("add.invalid_link", language: language)
+        }
+        return L10n.string("add.invalid_text", language: language)
     }
 }
 
