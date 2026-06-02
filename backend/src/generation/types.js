@@ -35,7 +35,7 @@ export const GENERATION_STATUSES = [
 ];
 
 export const STATUS_TEXT = {
-  submitted: "已提交，等待处理",
+  submitted: "排队中，等待生成",
   extracting_content: "正在提取正文",
   generating_points: "正在生成知识点",
   generating_questions: "正在生成题目",

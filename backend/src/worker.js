@@ -8,7 +8,7 @@ import {
 import { runGenerationJob } from "./generationJobRunner.js";
 
 const workerId = process.env.GENERATION_WORKER_ID || `worker-${process.pid}-${Date.now()}`;
-const concurrency = readPositiveInt(process.env.GENERATION_WORKER_CONCURRENCY, 1);
+const concurrency = readPositiveInt(process.env.GENERATION_WORKER_CONCURRENCY, 2);
 const pollMs = readPositiveInt(process.env.GENERATION_WORKER_POLL_MS, 1_000);
 const lockMs = readPositiveInt(process.env.GENERATION_JOB_LOCK_MS, 420_000);
 const shutdownTimeoutMs = readPositiveInt(process.env.GENERATION_WORKER_SHUTDOWN_MS, 30_000);

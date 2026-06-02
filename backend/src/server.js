@@ -138,7 +138,7 @@ async function handleCreateChapter(req, res) {
     status: submittedChapter.status,
     chapter: serializeChapterForClient(submittedChapter),
     notification: null,
-    message: "已提交，正在生成。"
+    message: "已排队，正在等待生成。"
   });
   if (!hasDatabase) void runChapterGeneration(deviceId, submittedChapter.id, body);
 }
@@ -364,7 +364,7 @@ async function handleRegenerateChapter(req, res, chapterId) {
     status: submittedChapter.status,
     chapter: serializeChapterForClient(submittedChapter),
     notification: null,
-    message: "已提交，正在重新生成。"
+    message: "已排队，正在等待重新生成。"
   });
   if (!hasDatabase) void runChapterRegeneration(deviceId, existing);
 }
