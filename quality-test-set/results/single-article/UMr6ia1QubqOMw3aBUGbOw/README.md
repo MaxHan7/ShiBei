@@ -2714,3 +2714,67 @@ v28 也不应直接采用。它确实把平均可见阅读量从 109.8 降到 88
 - 被丢弃 / 阻断 / 合并去重原因
 
 只有知道“每个知识点为什么从目标 2-3 题变成 1 题或 0 题”，才能决定是修初始出题 prompt、修 rewrite、修选择器，还是修知识点 target。
+
+## 2026-06-04 Tagged V26 A/A/A Control：固定版本锚点后复测
+
+本轮先把当前 v26 字段标准 prompt 版本固定为 Git commit 和 tag：
+
+- commit：`a28ab87c1aec8d4c37c11339fabbcfeb9d324725`
+- tag：`question-v26-prd-field-standard-lean-prompt`
+- 固定版本规范：`docs/prompt-experiment-versioning-zh.md`
+
+固定版本之后，再用同一篇 Hook 样本跑三次 A/A/A control。三轮报告里的关键指纹一致：
+
+- `gitCommit`: `a28ab87c...`
+- `gitDiffHash`: `e3b0c44298fc...`
+- `questionSystemPromptHash`: `2734e0e1ddbb...`
+- `model`: `deepseek-v4-flash`
+
+其中 `gitDiffHash = e3b0c44298fc...` 是空 diff hash，说明这三轮是在干净代码状态下运行的，不再混入未提交 prompt diff。
+
+### 产物
+
+- JSON：`runs/20260604-093452-v26-tagged-aa-control-r1.json`
+- CSV：`reviews/20260604-093452-v26-tagged-aa-control-r1.csv`
+- 分析：`analysis/20260604-093452-v26-tagged-aa-control-r1.md`
+- JSON：`runs/20260604-093616-v26-tagged-aa-control-r2.json`
+- CSV：`reviews/20260604-093616-v26-tagged-aa-control-r2.csv`
+- 分析：`analysis/20260604-093616-v26-tagged-aa-control-r2.md`
+- JSON：`runs/20260604-093811-v26-tagged-aa-control-r3.json`
+- CSV：`reviews/20260604-093811-v26-tagged-aa-control-r3.csv`
+- 分析：`analysis/20260604-093811-v26-tagged-aa-control-r3.md`
+
+### 对比指标
+
+| 指标 | 原始 v26 | tagged r1 | tagged r2 | tagged r3 |
+| --- | ---: | ---: | ---: | ---: |
+| 保留知识点 | 8 | 7 | 7 | 8 |
+| 目标题数总和 | 21 | 18 | 18 | 21 |
+| 入池题数 | 20 | 6 | 6 | 9 |
+| 覆盖知识点 | 8 | 6 | 6 | 8 |
+| 未覆盖知识点 | 0 | 1 | 1 | 0 |
+| 平均每知识点题数 | 2.5 | 0.9 | 0.9 | 1.1 |
+| 题数分布 | 2题:4 / 3题:4 | 0题:1 / 1题:6 | 0题:1 / 1题:6 | 1题:7 / 2题:1 |
+| `answer_not_unique` 阻断 | 2 | 2 | 2 | 0 |
+| 低置信比例 | 95.0% | 66.7% | 66.7% | 66.7% |
+| 平均低摩擦题卡分 | 5.0 | 4.8 | 5.0 | 5.0 |
+| 平均可见阅读负担 | 109.8 | 124.3 | 86.2 | 115.3 |
+| 平均来源覆盖 | 3.4 | 3.2 | 4.0 | 4.3 |
+
+### 结论
+
+这次 tagged control 进一步确认：
+
+1. 当前代码已经固定为可回滚版本，之后可以用 `git switch -c restore-v26 question-v26-prd-field-standard-lean-prompt` 回到这一版。
+2. V27 / V28 的长度限制 prompt 不在当前运行链路里；三轮是干净 diff 运行。
+3. 但三轮结果仍然稳定低于原始 v26 的 20 道题，说明“题目突然变少”不能继续归因于 V27 / V28 那两句 prompt 残留。
+
+更准确的判断是：**原始 v26 结果缺少完整版本指纹，当前只能证明 tagged v26 代码状态稳定产出 6 / 6 / 9 道，而不能证明原始 v26 的 20 道与当前 tagged v26 是完全同一条链路。**
+
+下一步应做 full-chain trace，而不是继续改 prompt：
+
+- 记录每个知识点的 `targetQuestionCount`。
+- 记录模型每次初始生成实际返回几道题。
+- 记录 rewrite 是否触发、触发原因和返回题数。
+- 记录选择器对每道候选题的保留 / 丢弃 / 去重原因。
+- 将“目标 2-3 题为何最终只剩 0-1 题”的原因定位到生成、评估、rewrite 或选择器中的具体环节。
