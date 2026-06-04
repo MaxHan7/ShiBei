@@ -5,6 +5,7 @@ import { evaluateQuestions } from "../evaluateQuestions.js";
 import { buildUserPrompt, targetQuestionCountDecisionForPoint, targetQuestionCountForPoint } from "../generateQuestions.js";
 import { selectQualifiedQuestionsByPoint } from "../index.js";
 import { buildPracticeBlueprintForPoint, pedagogyDiagnosticsForQuestion } from "../practiceBlueprint.js";
+import { questionSystemPrompt } from "../prompts/questions.js";
 
 const point = {
   id: "kp-1",
@@ -1075,11 +1076,21 @@ test("question prompt is PRD-first and does not expose experiment scaffolding as
   assert.equal(prompt.includes("新场景变量是什么"), false);
   assert.equal(prompt.includes("practiceBlueprint"), false);
   assert.equal(prompt.includes("expectedCognitiveActions"), false);
-  assert.match(prompt, /sourceSnippet 不要改写/);
-  assert.match(prompt, /不要为了凑数量生成换壳重复题/);
-  assert.match(prompt, /题干要直接呈现需要区分/);
-  assert.match(prompt, /targetQuestionCount 是最多尝试题数，不是硬指标/);
+  assert.match(prompt, /任务类型：initial/);
+  assert.match(prompt, /targetQuestionCount 是温和目标/);
+  assert.match(prompt, /preferredQuestionType 只是推荐题型/);
+  assert.equal(prompt.includes("sourceSnippet 不要改写"), false);
+  assert.equal(prompt.includes("题干要直接呈现需要区分"), false);
   assert.match(prompt, /知识点：/);
+});
+
+test("question system prompt keeps the field standard concise and product oriented", () => {
+  assert.match(questionSystemPrompt, /题卡要轻/);
+  assert.match(questionSystemPrompt, /干扰项作为一组形成合理判断空间/);
+  assert.match(questionSystemPrompt, /sourceSnippet 是原文锚点/);
+  assert.match(questionSystemPrompt, /字段职责/);
+  assert.equal(questionSystemPrompt.includes("1-3 句"), false);
+  assert.equal(questionSystemPrompt.includes("必须覆盖三类干扰项"), false);
 });
 
 test("friction rewrite prompt explicitly asks to compress the visible question card", () => {
@@ -1093,7 +1104,7 @@ test("friction rewrite prompt explicitly asks to compress the visible question c
     rewriteContext: "review_friction_mandatory_rewrite; question_card_too_heavy; scenario_background_too_long"
   });
 
-  assert.match(prompt, /题卡压缩修复/);
+  assert.match(prompt, /题卡压缩/);
   assert.match(prompt, /只保留做判断所需的信息/);
   assert.match(prompt, /答后字段/);
 });
@@ -1220,8 +1231,8 @@ test("supplement prompt is a concise best-effort supplement, not a failed-questi
     supplementContext: "missing_question_types:true_false|scenario_judgment; existing_reviewable_questions:multiple_choice:已有题"
   });
 
-  assert.equal(prompt.includes("这是补题任务"), true);
+  assert.equal(prompt.includes("任务类型：supplement"), true);
   assert.equal(prompt.includes("上一题没有通过质量检查"), false);
   assert.equal(prompt.includes("missing_question_types:true_false|scenario_judgment"), true);
-  assert.equal(prompt.includes("如果只能重复已有题，宁可少补"), true);
+  assert.equal(prompt.includes("如果只能重复已有题，少补或不补"), true);
 });

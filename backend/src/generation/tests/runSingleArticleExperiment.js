@@ -1,7 +1,10 @@
 import path from "node:path";
+import crypto from "node:crypto";
+import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { extractSourceContent, isLikelyUrl } from "../../sources/extractSourceContent.js";
 import { generateReviewChapter } from "../index.js";
+import { questionSystemPrompt } from "../prompts/questions.js";
 import {
   buildExperimentPaths,
   buildSingleArticleReport,
@@ -50,6 +53,10 @@ async function main() {
     source,
     output
   });
+  report.config = {
+    ...(report.config || {}),
+    versionFingerprint: buildVersionFingerprint()
+  };
 
   await writeExperimentArtifacts({ report, paths });
   console.log(JSON.stringify({
@@ -58,6 +65,35 @@ async function main() {
     markdownPath: paths.markdownPath,
     summary: report.summary
   }, null, 2));
+}
+
+function buildVersionFingerprint() {
+  return {
+    gitCommit: safeGit("rev-parse HEAD"),
+    gitBranch: safeGit("branch --show-current"),
+    gitStatusShortHash: sha256(safeGit("status --short")),
+    gitDiffHash: sha256(safeGit("diff --no-ext-diff --")),
+    questionSystemPromptHash: sha256(questionSystemPrompt),
+    aiProvider: process.env.AI_PROVIDER || (process.env.DEEPSEEK_API_KEY ? "deepseek" : "openai"),
+    deepseekModel: process.env.DEEPSEEK_MODEL || "deepseek-v4-flash",
+    openaiModel: process.env.OPENAI_MODEL || "gpt-4o-mini"
+  };
+}
+
+function safeGit(args) {
+  try {
+    return execSync(`git ${args}`, {
+      cwd: repoRoot,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"]
+    }).trim();
+  } catch {
+    return "";
+  }
+}
+
+function sha256(value) {
+  return crypto.createHash("sha256").update(String(value || "")).digest("hex");
 }
 
 function requiredEnv(name) {
