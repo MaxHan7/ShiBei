@@ -1,0 +1,65 @@
+{
+  "kind": "dspy_phase_b_distractor_quality_judge_baseline",
+  "generated_at": "2026-06-03T07:25:39.187611",
+  "mode": "few-shot",
+  "model": "deepseek/deepseek-chat",
+  "dataset_path": "quality-test-set/results/dspy/distractors/datasets/dspy-distractor-quality-judge-devtest.v2.jsonl",
+  "fewshot_k": 9,
+  "limit": 1,
+  "summary": {
+    "total": 1,
+    "label_accuracy": 1.0,
+    "issue_exact_accuracy": 0.0,
+    "average_metric_score": 0.8,
+    "confusion_matrix": {
+      "accept": {
+        "accept": 1
+      }
+    },
+    "by_source_phase": {
+      "phase_a_hook": {
+        "total": 1,
+        "label_accuracy": 1.0,
+        "average_metric_score": 0.8
+      }
+    },
+    "by_gold_label": {
+      "accept": {
+        "total": 1,
+        "label_accuracy": 1.0
+      }
+    },
+    "high_risk_errors": [],
+    "hard_failures": [],
+    "over_strict_errors": [],
+    "second_correct_risk_errors": [],
+    "fixable_recall": 0,
+    "invalid_outputs": [],
+    "wrong_predictions": []
+  },
+  "results": [
+    {
+      "index": 1,
+      "sample_id": "judge-positive-hook-q5-option-b-positive",
+      "source_phase": "phase_a_hook",
+      "article_slug": "UMr6ia1QubqOMw3aBUGbOw",
+      "question_id": "q-5",
+      "candidate_distractor": "在Prompt中强调多次",
+      "gold_quality_label": "accept",
+      "predicted_quality_label": "accept",
+      "gold_issue_category": "good_same_context_distractor",
+      "predicted_issue_category": "accepted_distractor",
+      "is_correct_equivalent": "no",
+      "has_multiselect_risk": "no",
+      "same_context": "yes",
+      "learning_value": "high",
+      "fixability": "ready",
+      "score": 0.8,
+      "rationale": "该选项“在Prompt中强调多次”是典型的常见误解，与正确选项“使用Hook在PostToolUse触发格式化”形成鲜明对比，能有效帮助学习者区分“依赖Prompt”与“使用Hook”的本质差异，学习价值高，且无多选风险。[[ ## is_correct_equivalent ## ]]\nno",
+      "review_note": "",
+      "missing_context_fields": [],
+      "hard_fail_reasons": [],
+      "high_risk": false
+    }
+  ]
+}

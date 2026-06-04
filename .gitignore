@@ -4,6 +4,9 @@ backend/node_modules/
 backend/.env
 backend/.env.*
 .tmp/
+.venv-dspy/
+__pycache__/
+*.pyc
 .superpowers/
 .asc/
 ios/

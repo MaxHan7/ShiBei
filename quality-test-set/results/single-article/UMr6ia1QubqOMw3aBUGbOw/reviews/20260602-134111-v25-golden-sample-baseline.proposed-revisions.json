@@ -1,0 +1,343 @@
+{
+  "meta": {
+    "sourceLabel": "v25-golden-sample-baseline",
+    "createdAt": "2026-06-02T14:45:00.000Z",
+    "purpose": "根据用户黄金样本标注生成的第一版候选修订稿",
+    "annotationSource": "/tmp/shibei-golden-sample-annotations.json",
+    "updatedAt": "2026-06-02T15:24:57.999Z",
+    "secondPass": "applied only annotations created after 2026-06-02T14:52:00Z",
+    "round3CurrentAppliedAt": "2026-06-02T15:24:57.999Z",
+    "round3CurrentScope": "Only applies current round annotations exported at 2026-06-02T15:20:12.820Z"
+  },
+  "revisions": [
+    {
+      "targetKey": "question:q-3:stem",
+      "action": "replace_field",
+      "originalText": "根据文章，Hook与Prompt的本质区别是什么？",
+      "proposedText": "Hook 与 Prompt 的本质区别是什么？",
+      "rationale": "去掉模板腔“根据文章”，题干更像真实题卡。"
+    },
+    {
+      "targetKey": "question:q-6:commonMisconception",
+      "action": "replace_field",
+      "originalText": "认为产品经理技术不足或Hook不适用于演示。",
+      "proposedText": "把 Demo 阶段的“能跑起来”，误当成工程化交付所需的可靠控制。",
+      "rationale": "原误区把问题归因到产品经理技术不足，偏离原文；新误区对应“Demo 阶段不需要严格控制”的真实边界。"
+    },
+    {
+      "id": "round3-q7-stem",
+      "roundId": "round-3-current",
+      "targetKey": "question:q-7:stem",
+      "action": "replace_field",
+      "originalText": "哪种 Vibe coding 工作方式最容易让产品经理忽略 Hook？",
+      "proposedText": "什么时候该从 Vibe coding 的 Demo 流程，升级到引入 Hook？",
+      "reason": "原题和 q6 重复，都在问为什么 Demo 阶段容易忽略 Hook。改成判断“什么时候该升级”，更考察核心理解。",
+      "updatedAt": "2026-06-02T15:24:57.999Z"
+    },
+    {
+      "id": "round3-q7-option-a",
+      "roundId": "round-3-current",
+      "targetKey": "question:q-7:option.A",
+      "action": "replace_field",
+      "originalText": "先让 Demo 跑起来，暂时不把重复规则做成强制流程",
+      "proposedText": "开始反复出现格式化、测试或风险拦截这类确定性规则",
+      "reason": "配合新题干，把正确答案改成“从探索进入确定性流程”的判断。",
+      "updatedAt": "2026-06-02T15:24:57.999Z"
+    },
+    {
+      "id": "round3-q7-option-d",
+      "roundId": "round-3-current",
+      "targetKey": "question:q-7:option.D",
+      "action": "replace_field",
+      "originalText": "认为 Prompt 已能稳定强制执行规则",
+      "proposedText": "希望让 AI 的回答风格更像自己",
+      "reason": "避免把干扰项写成接近正确答案；改为和 Hook 无关的“风格一致性”目标。",
+      "updatedAt": "2026-06-02T15:24:57.999Z"
+    },
+    {
+      "id": "round3-q7-common-misconception",
+      "roundId": "round-3-current",
+      "targetKey": "question:q-7:commonMisconception",
+      "action": "replace_field",
+      "originalText": "认为vibe coding也注重规范化。",
+      "proposedText": "把 Hook 当成 Demo 一开始就必须配置的工具，或反过来以为只有上线后才需要。",
+      "reason": "修正原误区写反的问题，改成真正有辨析价值的边界误区。",
+      "updatedAt": "2026-06-02T15:24:57.999Z"
+    },
+    {
+      "targetKey": "question:q-8:commonMisconception",
+      "action": "replace_field",
+      "originalText": "认为继续手动或加强Prompt即可。",
+      "proposedText": "把重复检查继续写进提示词里，误以为模型会每次稳定记住并执行。",
+      "rationale": "原句语义松散；新句点明 Hook 要解决的是“重复、确定、容易忘”的流程问题。"
+    },
+    {
+      "targetKey": "question:q-11:commonMisconception",
+      "action": "replace_field",
+      "originalText": "认为CLAUDE.md足够控制AI行为。",
+      "proposedText": "把 CLAUDE.md 当成强制约束；它能提供长期背景，但不能在危险命令前直接阻断。",
+      "rationale": "增强思考价值：让用户分清长期背景文档和执行前拦截机制。"
+    },
+    {
+      "targetKey": "question:q-12:stem",
+      "action": "replace_field",
+      "originalText": "文章指出以下哪个工具最适合处理“文件修改后自动格式化”这类确定性、可自动化的规则？",
+      "proposedText": "哪种工具最适合处理“文件修改后自动格式化”这类确定性规则？",
+      "rationale": "去掉模板腔“文章指出”，并压缩题干。"
+    },
+    {
+      "targetKey": "question:q-13:stem",
+      "action": "replace_field",
+      "originalText": "自然语言生成 Demo 很快，但可靠性出问题时，产品经理最该补上什么？",
+      "proposedText": "自然语言生成 Demo 很快，但可靠性出问题时，产品经理最该做什么？",
+      "rationale": "采纳用户直接建议，把“补上什么”改成更自然的行动判断。"
+    },
+    {
+      "targetKey": "question:q-13:option.C",
+      "action": "replace_field",
+      "originalText": "放弃使用AI",
+      "proposedText": "继续只靠自然语言补充需求",
+      "rationale": "原错误选项太离谱；新选项是更真实的错误做法。"
+    },
+    {
+      "targetKey": "question:q-13:option.D",
+      "action": "replace_field",
+      "originalText": "责怪工程师",
+      "proposedText": "把问题都交给后续 CI 兜底",
+      "rationale": "原错误选项无学习价值；新选项能考察 Hook、CI 和工程控制的边界。"
+    },
+    {
+      "targetKey": "question:q-14:stem",
+      "action": "replace_field",
+      "originalText": "关于 AI 产品经理的工程直觉，文章最后强调了什么？",
+      "proposedText": "PM 用一句话生成 Demo 越容易，越需要补上哪种判断？",
+      "rationale": "从背诵文章结论改成理解判断：用户需要判断“容易生成 Demo”背后的工程边界。"
+    },
+    {
+      "targetKey": "knowledgePoint:kp-4:coverage",
+      "action": "add_question",
+      "originalText": "实用 Hook 场景：自动格式化与风险拦截（当前无入池题）",
+      "proposedQuestion": {
+        "id": "golden-kp4-q1",
+        "knowledgePointId": "kp-4",
+        "pointTitle": "实用 Hook 场景：自动格式化与风险拦截",
+        "type": "scenario_judgment",
+        "memoryAngle": "scenario_application",
+        "stem": "AI 写完文件后，你希望自动运行 prettier 或 eslint，最适合用哪类 Hook？",
+        "options": [
+          {
+            "id": "A",
+            "text": "PostToolUse"
+          },
+          {
+            "id": "B",
+            "text": "PreToolUse"
+          },
+          {
+            "id": "C",
+            "text": "SessionStart"
+          },
+          {
+            "id": "D",
+            "text": "Notification"
+          }
+        ],
+        "correctOptionId": "A",
+        "correctUnderstanding": "PostToolUse 适合在 AI 写入或编辑文件之后，自动运行格式化、lint 或项目里的格式化命令。",
+        "commonMisconception": "把所有自动化都归到 PreToolUse；但 PreToolUse 更适合执行前拦截风险，PostToolUse 才适合写完文件后的处理。",
+        "explanation": "题目场景发生在 AI 已经写完文件之后，所以应使用 PostToolUse 自动运行 prettier、eslint 等格式化或检查命令。",
+        "sourceSnippet": "PostToolUse 可以匹配 Edit 或 Write。只要 AI 写了文件，就自动跑 prettier、eslint、ruff、black、go fmt，或者你项目里的格式化命令。"
+      },
+      "rationale": "用户指出 kp-4 没有题。这里补一题，覆盖 PostToolUse 的具体应用场景。"
+    },
+    {
+      "targetKey": "question:q-6:stem",
+      "action": "replace_field",
+      "originalText": "根据文章，为什么产品经理容易忽略Hook？",
+      "proposedText": "产品经理用 AI 做 Demo 时，为什么通常不会第一时间引入 Hook？",
+      "rationale": "去掉“根据文章”，并把浅层原因题改成更具体的 Demo 场景判断。"
+    },
+    {
+      "targetKey": "question:q-6:option.A",
+      "action": "replace_field",
+      "originalText": "Hook技术太复杂",
+      "proposedText": "因为 Hook 只能用于上线后的生产环境",
+      "rationale": "原选项只是笼统归因“技术复杂”；新选项是更真实但错误的范围误解。"
+    },
+    {
+      "targetKey": "question:q-6:option.B",
+      "action": "replace_field",
+      "originalText": "Demo阶段不需要严格控制",
+      "proposedText": "因为 Demo 阶段更关注快速试出交互，还没进入强控制阶段",
+      "rationale": "正确选项补清楚：不是完全不需要控制，而是当下目标主要是快速表达和验证。"
+    },
+    {
+      "targetKey": "question:q-6:option.C",
+      "action": "replace_field",
+      "originalText": "产品经理不了解AI",
+      "proposedText": "因为 Prompt 已经能稳定强制执行所有规则",
+      "rationale": "原选项偏人身归因；新选项对应 Prompt 与 Hook 的真实混淆。"
+    },
+    {
+      "id": "round3-q6-option-d",
+      "roundId": "round-3-current",
+      "targetKey": "question:q-6:option.D",
+      "action": "replace_field",
+      "originalText": "因为 CI 会自动处理 Demo 阶段的所有风险",
+      "proposedText": "因为 Hook 会让 Demo 完全失去快速迭代的优势",
+      "reason": "保留“Demo 速度 vs 工程控制”的真实混淆，但避免和题目核心关系过弱。这个选项过度绝对化，因此仍是干扰项。",
+      "updatedAt": "2026-06-02T15:24:57.999Z"
+    },
+    {
+      "targetKey": "question:q-6:correctUnderstanding",
+      "action": "replace_field",
+      "originalText": "忽略Hook的根本原因是处于Demo阶段，对控制需求不强。",
+      "proposedText": "Demo 阶段主要目标是快速表达页面、交互和业务流程；对格式化、危险命令拦截、测试校验这类工程控制的需求还不强。",
+      "rationale": "补清楚“对什么的控制需求不强”，避免抽象空话。"
+    },
+    {
+      "targetKey": "question:q-6:explanation",
+      "action": "replace_field",
+      "originalText": "在产品演示阶段，目标是快速展示功能，不需要严格的工程化控制，因此Hook常被忽略。",
+      "proposedText": "做 Demo 时，产品经理通常先关心页面、交互和业务流程能否跑起来；只有进入更可交付、更可靠的阶段，才更需要 Hook 这类自动化控制。",
+      "rationale": "让解释和新的正确理解保持一致。"
+    },
+    {
+      "id": "round3-q7-option-b",
+      "roundId": "round-3-current",
+      "targetKey": "question:q-7:option.B",
+      "action": "replace_field",
+      "originalText": "先配置拦截危险命令，再开始生成页面",
+      "proposedText": "只是想多试几个页面文案和交互细节",
+      "reason": "真实但不该升级 Hook 的场景，用来区分快速探索和确定性流程。",
+      "updatedAt": "2026-06-02T15:24:57.999Z"
+    },
+    {
+      "id": "round3-q7-option-c",
+      "roundId": "round-3-current",
+      "targetKey": "question:q-7:option.C",
+      "action": "replace_field",
+      "originalText": "追求代码质量",
+      "proposedText": "Demo 还只是在探索业务流程是否说得通",
+      "reason": "替换语义不清的干扰项，让它更贴近产品经理实际场景。",
+      "updatedAt": "2026-06-02T15:24:57.999Z"
+    },
+    {
+      "targetKey": "question:q-8:stem",
+      "action": "replace_field",
+      "originalText": "你的AI项目已经可以运行，但每次调试都需要手动检查代码格式和运行测试。你需要重复使用这个流程。根据文章，此时应该做什么？",
+      "proposedText": "每次调试都要重复格式化和跑测试时，应该怎么处理？",
+      "rationale": "压缩题干，保留判断场景，符合轻量复习体验。"
+    },
+    {
+      "targetKey": "question:q-13:option.A",
+      "action": "replace_field",
+      "originalText": "学习工程化控制，如使用Hook",
+      "proposedText": "补上工程化控制意识，知道何时该用 Hook 等机制",
+      "rationale": "让正确选项和“做什么”题干对齐。"
+    },
+    {
+      "targetKey": "question:q-13:option.B",
+      "action": "replace_field",
+      "originalText": "继续改进提示词",
+      "proposedText": "把问题归因于模型不够聪明，等待更强模型",
+      "rationale": "避免和 C 选项“继续只靠自然语言补充需求”语义重复。"
+    },
+    {
+      "targetKey": "question:q-14:option.A",
+      "action": "replace_field",
+      "originalText": "产品经理不需要了解技术细节",
+      "proposedText": "哪些环节不能只靠自然语言，而要交给工程化控制",
+      "rationale": "新正确选项对应重设计后的题干。"
+    },
+    {
+      "targetKey": "question:q-14:option.B",
+      "action": "replace_field",
+      "originalText": "自然语言驱动代码是AI的最终形态",
+      "proposedText": "怎样让 Demo 看起来更完整、更像正式产品",
+      "rationale": "替换成更真实的浅层优化误区。"
+    },
+    {
+      "targetKey": "question:q-14:option.C",
+      "action": "replace_field",
+      "originalText": "Hook可以解决所有AI问题",
+      "proposedText": "能不能把所有质量问题都留到 CI 阶段处理",
+      "rationale": "保留工程边界混淆，但不再是夸张的 Hook 万能论。"
+    },
+    {
+      "targetKey": "question:q-14:option.D",
+      "action": "replace_field",
+      "originalText": "越容易生成demo，越要知道哪些地方不能只靠一句话",
+      "proposedText": "是否应该避免产品经理接触任何技术细节",
+      "rationale": "原 D 是正确答案；新题正确答案改为 A，因此 D 改成相关但错误的极端理解。"
+    },
+    {
+      "targetKey": "question:q-14:correctOptionId",
+      "action": "set_correct_option",
+      "originalText": "D",
+      "proposedText": "A",
+      "rationale": "新 q14 的正确答案改为 A。"
+    },
+    {
+      "targetKey": "question:q-14:correctUnderstanding",
+      "action": "replace_field",
+      "originalText": "生成demo容易，但需要关注工程化边界和可靠性。",
+      "proposedText": "AI 让 Demo 变得更容易，但产品经理更要判断哪些环节需要 Hook、规则或 CI 这类工程化控制，而不能只靠一句自然语言。",
+      "rationale": "让正确理解服务“理解工程边界”，不是背文章结论。"
+    },
+    {
+      "targetKey": "question:q-14:commonMisconception",
+      "action": "replace_field",
+      "originalText": "认为自然语言足够或Hook万能。",
+      "proposedText": "把“能快速生成 Demo”误当成“已经具备可靠交付能力”。",
+      "rationale": "误区更贴近用户真实可能犯的判断错误。"
+    },
+    {
+      "targetKey": "question:q-14:explanation",
+      "action": "replace_field",
+      "originalText": "文章结尾强调，AI产品经理需要补上工程直觉，知道自然语言不是终点，需要工程化控制。",
+      "proposedText": "这道题考的不是背文章结论，而是判断边界：自然语言能快速生成 Demo，但可靠性、风险拦截和重复规则需要工程化机制兜住。",
+      "rationale": "解释改成帮助用户理解为什么 A 对，而不是复述文章。"
+    },
+    {
+      "id": "round3-q5-option-d",
+      "roundId": "round-3-current",
+      "targetKey": "question:q-5:option.D",
+      "action": "replace_field",
+      "originalText": "放弃格式化",
+      "proposedText": "只等到 CI 阶段再发现格式问题",
+      "reason": "把无意义的极端错误项改成更贴近真实工程流程的干扰项：晚发现问题，而不是在编辑后立刻用 Hook 固化。",
+      "updatedAt": "2026-06-02T15:24:57.999Z"
+    },
+    {
+      "id": "round3-q7-correct-understanding",
+      "roundId": "round-3-current",
+      "targetKey": "question:q-7:correctUnderstanding",
+      "action": "replace_field",
+      "originalText": "随意编码强调快速生成Demo，容易忽略规范化和自动化控制。",
+      "proposedText": "当任务从快速试 Demo 进入重复、确定、可自动化或需要拦截风险的流程时，就该考虑用 Hook 固化规则。",
+      "reason": "和新题干对齐，说明升级到 Hook 的判断边界。",
+      "updatedAt": "2026-06-02T15:24:57.999Z"
+    },
+    {
+      "id": "round3-q7-explanation",
+      "roundId": "round-3-current",
+      "targetKey": "question:q-7:explanation",
+      "action": "replace_field",
+      "originalText": "Vibe coding适合快速Demo，但容易忽略Hook等工程化控制。",
+      "proposedText": "Vibe coding 适合先把 Demo 跑起来；一旦流程开始反复出现格式化、测试、危险命令拦截等确定性规则，Hook 才更适合把这些动作固化下来。",
+      "reason": "解释从“泛泛说容易忽略”改成“何时升级”的判断逻辑。",
+      "updatedAt": "2026-06-02T15:24:57.999Z"
+    },
+    {
+      "id": "round3-q8-option-c",
+      "roundId": "round-3-current",
+      "targetKey": "question:q-8:option.C",
+      "action": "replace_field",
+      "originalText": "写更多的Prompt",
+      "proposedText": "把重复检查继续写进提示词里",
+      "reason": "采用用户建议，让干扰项更具体地对应“继续靠 prompt 记住规则”的误区。",
+      "updatedAt": "2026-06-02T15:24:57.999Z"
+    }
+  ]
+}

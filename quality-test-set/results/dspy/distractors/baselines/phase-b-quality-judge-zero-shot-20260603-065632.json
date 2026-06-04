@@ -1,0 +1,136 @@
+{
+  "kind": "dspy_phase_b_distractor_quality_judge_baseline",
+  "generated_at": "2026-06-03T06:56:36.377711",
+  "mode": "zero-shot",
+  "model": "deepseek/deepseek-chat",
+  "dataset_path": "quality-test-set/results/dspy/distractors/datasets/dspy-distractor-quality-judge-devtest.v1.jsonl",
+  "fewshot_k": 0,
+  "limit": 2,
+  "summary": {
+    "total": 2,
+    "label_accuracy": 0.0,
+    "issue_exact_accuracy": 0.0,
+    "average_metric_score": 0.0,
+    "confusion_matrix": {
+      "accept": {
+        "reject": 2
+      }
+    },
+    "by_source_phase": {
+      "phase_a_hook": {
+        "total": 2,
+        "label_accuracy": 0.0,
+        "average_metric_score": 0.0
+      }
+    },
+    "by_gold_label": {
+      "accept": {
+        "total": 2,
+        "label_accuracy": 0.0
+      }
+    },
+    "high_risk_errors": [
+      {
+        "index": 1,
+        "sample_id": "judge-positive-hook-q5-option-b-positive",
+        "source_phase": "phase_a_hook",
+        "article_slug": "UMr6ia1QubqOMw3aBUGbOw",
+        "question_id": "q-5",
+        "candidate_distractor": "在Prompt中强调多次",
+        "gold_quality_label": "accept",
+        "predicted_quality_label": "reject",
+        "gold_issue_category": "good_same_context_distractor",
+        "predicted_issue_category": "too_obvious",
+        "score": 0.0,
+        "rationale": "“在Prompt中强调多次”是一个过于明显无效的选项，用户很容易识别出它不是正确答案，无法起到有效的干扰作用。",
+        "review_note": "",
+        "high_risk": true
+      },
+      {
+        "index": 2,
+        "sample_id": "judge-positive-hook-q5-option-c-positive",
+        "source_phase": "phase_a_hook",
+        "article_slug": "UMr6ia1QubqOMw3aBUGbOw",
+        "question_id": "q-5",
+        "candidate_distractor": "手动格式化",
+        "gold_quality_label": "accept",
+        "predicted_quality_label": "reject",
+        "gold_issue_category": "good_operational_distractor",
+        "predicted_issue_category": "too_obvious_low_value",
+        "score": 0.0,
+        "rationale": "“手动格式化”是一个过于明显、缺乏迷惑性的错误选项，学生一眼就能看出它不是更好的解决方案，无法有效测试对 Hook 与 Prompt 本质区别的理解。",
+        "review_note": "",
+        "high_risk": true
+      }
+    ],
+    "invalid_outputs": [],
+    "wrong_predictions": [
+      {
+        "index": 1,
+        "sample_id": "judge-positive-hook-q5-option-b-positive",
+        "source_phase": "phase_a_hook",
+        "article_slug": "UMr6ia1QubqOMw3aBUGbOw",
+        "question_id": "q-5",
+        "candidate_distractor": "在Prompt中强调多次",
+        "gold_quality_label": "accept",
+        "predicted_quality_label": "reject",
+        "gold_issue_category": "good_same_context_distractor",
+        "predicted_issue_category": "too_obvious",
+        "score": 0.0,
+        "rationale": "“在Prompt中强调多次”是一个过于明显无效的选项，用户很容易识别出它不是正确答案，无法起到有效的干扰作用。",
+        "review_note": "",
+        "high_risk": true
+      },
+      {
+        "index": 2,
+        "sample_id": "judge-positive-hook-q5-option-c-positive",
+        "source_phase": "phase_a_hook",
+        "article_slug": "UMr6ia1QubqOMw3aBUGbOw",
+        "question_id": "q-5",
+        "candidate_distractor": "手动格式化",
+        "gold_quality_label": "accept",
+        "predicted_quality_label": "reject",
+        "gold_issue_category": "good_operational_distractor",
+        "predicted_issue_category": "too_obvious_low_value",
+        "score": 0.0,
+        "rationale": "“手动格式化”是一个过于明显、缺乏迷惑性的错误选项，学生一眼就能看出它不是更好的解决方案，无法有效测试对 Hook 与 Prompt 本质区别的理解。",
+        "review_note": "",
+        "high_risk": true
+      }
+    ]
+  },
+  "results": [
+    {
+      "index": 1,
+      "sample_id": "judge-positive-hook-q5-option-b-positive",
+      "source_phase": "phase_a_hook",
+      "article_slug": "UMr6ia1QubqOMw3aBUGbOw",
+      "question_id": "q-5",
+      "candidate_distractor": "在Prompt中强调多次",
+      "gold_quality_label": "accept",
+      "predicted_quality_label": "reject",
+      "gold_issue_category": "good_same_context_distractor",
+      "predicted_issue_category": "too_obvious",
+      "score": 0.0,
+      "rationale": "“在Prompt中强调多次”是一个过于明显无效的选项，用户很容易识别出它不是正确答案，无法起到有效的干扰作用。",
+      "review_note": "",
+      "high_risk": true
+    },
+    {
+      "index": 2,
+      "sample_id": "judge-positive-hook-q5-option-c-positive",
+      "source_phase": "phase_a_hook",
+      "article_slug": "UMr6ia1QubqOMw3aBUGbOw",
+      "question_id": "q-5",
+      "candidate_distractor": "手动格式化",
+      "gold_quality_label": "accept",
+      "predicted_quality_label": "reject",
+      "gold_issue_category": "good_operational_distractor",
+      "predicted_issue_category": "too_obvious_low_value",
+      "score": 0.0,
+      "rationale": "“手动格式化”是一个过于明显、缺乏迷惑性的错误选项，学生一眼就能看出它不是更好的解决方案，无法有效测试对 Hook 与 Prompt 本质区别的理解。",
+      "review_note": "",
+      "high_risk": true
+    }
+  ]
+}

@@ -1,0 +1,263 @@
+{
+  "meta": {
+    "kind": "dspy_phase_b_non_hook_distractor_review",
+    "sourceDataset": "quality-test-set/results/dspy/distractors/datasets/phase-b-meta-ai-first-pm-distractor-candidates.v1.jsonl",
+    "articleSlug": "meta-ai-first-pm",
+    "generatedAt": "2026-06-03T03:47:53.606Z",
+    "rowCount": 18
+  },
+  "rows": [
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-1-option-a",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-1",
+      "option_id": "A",
+      "candidate": "PM岗位数量减少了，因为AI替代了信息传递工作",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:39:24.566Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-1-option-c",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-1",
+      "option_id": "C",
+      "candidate": "PM岗位定义没有变化，只是数量减少",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:39:43.915Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-1-option-d",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-1",
+      "option_id": "D",
+      "candidate": "PM岗位完全消失，被AI取代",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:40:18.485Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-3-option-a",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-3",
+      "option_id": "A",
+      "candidate": "专门从事数据搬运的工程师",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "题干都说了是哪类PM，答案说某某工程师错的太明显",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:44:53.637Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-3-option-c",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-3",
+      "option_id": "C",
+      "candidate": "使用AI工具搬运信息的PM",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:41:31.846Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-3-option-d",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-3",
+      "option_id": "D",
+      "candidate": "负责搬运代码的程序员",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:45:01.625Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-4-option-a",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-4",
+      "option_id": "A",
+      "candidate": "产品领导者",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:43:17.511Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-4-option-c",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-4",
+      "option_id": "C",
+      "candidate": "AI专家",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:43:34.998Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-4-option-d",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-4",
+      "option_id": "D",
+      "candidate": "战略PM",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:43:40.279Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-7-option-a",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-7",
+      "option_id": "A",
+      "candidate": "工龄和经验",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:45:13.609Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-7-option-c",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-7",
+      "option_id": "C",
+      "candidate": "代码能力",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:45:15.360Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-7-option-d",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-7",
+      "option_id": "D",
+      "candidate": "沟通能力",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:45:17.528Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-8-option-a",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-8",
+      "option_id": "A",
+      "candidate": "文档写作能力",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:45:28.644Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-8-option-c",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-8",
+      "option_id": "C",
+      "candidate": "项目管理工具使用",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:45:30.695Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-8-option-d",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-8",
+      "option_id": "D",
+      "candidate": "编程技能",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:45:32.444Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-10-rewrite-3-1-option-a",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-10-rewrite-3-1",
+      "option_id": "A",
+      "candidate": "优先考虑A，因为大厂经历证明其管理能力和稳定性。",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:46:38.513Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-10-rewrite-3-1-option-c",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-10-rewrite-3-1",
+      "option_id": "C",
+      "candidate": "两者权重相同，需综合其他因素如薪资期望。",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:46:39.860Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-meta-ai-first-pm-q-10-rewrite-3-1-option-d",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-10-rewrite-3-1",
+      "option_id": "D",
+      "candidate": "都不合适，应寻找既有大厂经历又有AI-native项目的候选人。",
+      "gold_quality_label": null,
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "",
+        "updated_at": "2026-06-03T03:46:41.328Z"
+      }
+    }
+  ]
+}

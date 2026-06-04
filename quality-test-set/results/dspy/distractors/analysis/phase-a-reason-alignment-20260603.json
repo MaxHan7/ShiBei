@@ -1,0 +1,825 @@
+{
+  "meta": {
+    "generatedAt": "2026-06-03T02:07:57.396Z",
+    "totalCompared": 33,
+    "flagged": 13
+  },
+  "flagged": [
+    {
+      "kind": "positive",
+      "sample_id": "positive-hook-q7-option-d-positive-revised",
+      "field_key": "question:q-7:option.D",
+      "question_id": "q-7",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：语义不明",
+      "user_notes": [
+        "这个干扰项语义不明，看不懂是要怎么干扰？",
+        "这是个干扰项，你直接给改成正确选项了"
+      ],
+      "proposed_reasons": [
+        "避免把干扰项写成接近正确答案；改为和 Hook 无关的“风格一致性”目标。"
+      ],
+      "dspy_reason": "帮助用户分清风格一致性和流程强制执行不是一回事。",
+      "originalText": "严格测试",
+      "targetText": "希望让 AI 的回答风格更像自己",
+      "problem_pattern": "good_unrelated_goal_boundary"
+    },
+    {
+      "kind": "positive",
+      "sample_id": "positive-hook-q13-option-c-positive-revised",
+      "field_key": "question:q-13:option.C",
+      "question_id": "q-13",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：价值低",
+      "user_notes": [
+        "错误选项价值低"
+      ],
+      "proposed_reasons": [
+        "原错误选项太离谱；新选项是更真实的错误做法。"
+      ],
+      "dspy_reason": "它保留了用户真实可能犯的错误：继续用自然语言补需求，而不是补上工程规则和控制机制。",
+      "originalText": "放弃使用AI",
+      "targetText": "继续只靠自然语言补充需求",
+      "problem_pattern": "good_prompt_overreliance_boundary"
+    },
+    {
+      "kind": "positive",
+      "sample_id": "positive-hook-q13-option-d-positive-revised",
+      "field_key": "question:q-13:option.D",
+      "question_id": "q-13",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：没有意义",
+      "user_notes": [
+        "没有意义的错误选项"
+      ],
+      "proposed_reasons": [
+        "原错误选项无学习价值；新选项能考察 Hook、CI 和工程控制的边界。"
+      ],
+      "dspy_reason": "它把错误点从情绪归因改成流程问题，更符合学习目标。",
+      "originalText": "责怪工程师",
+      "targetText": "只在出问题后让工程师人工补救",
+      "problem_pattern": "good_late_manual_fix_distractor"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q6-option-d-negative-r1",
+      "field_key": "question:q-6:option.D",
+      "question_id": "q-6",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：关系有点弱",
+      "user_notes": [
+        "原文是说hook在demo 演示阶段没那么重要，干扰项这么写没什么意义",
+        "这个干扰项和本题考察的核心知识点关系有点弱"
+      ],
+      "proposed_reasons": [
+        "保留“Demo 速度 vs 工程控制”的真实混淆，但避免和题目核心关系过弱。这个选项过度绝对化，因此仍是干扰项。"
+      ],
+      "dspy_reason": "原文是说 demo 阶段暂时不优先 Hook，不是 Hook 不能用于演示；改成一个仍然错误但更真实的时机误解。",
+      "originalText": "Hook无法用于演示",
+      "targetText": "Hook无法用于演示",
+      "problem_pattern": "wrong_timing_boundary"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q6-option-d-negative-r3",
+      "field_key": "question:q-6:option.D",
+      "question_id": "q-6",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：关系有点弱",
+      "user_notes": [
+        "原文是说hook在demo 演示阶段没那么重要，干扰项这么写没什么意义",
+        "这个干扰项和本题考察的核心知识点关系有点弱"
+      ],
+      "proposed_reasons": [
+        "保留“Demo 速度 vs 工程控制”的真实混淆，但避免和题目核心关系过弱。这个选项过度绝对化，因此仍是干扰项。"
+      ],
+      "dspy_reason": "上一版“拖慢 Demo 试错”太接近正确答案；这里改成相邻工程机制的错误替代。",
+      "originalText": "Hook无法用于演示",
+      "targetText": "因为 CI 会自动处理 Demo 阶段的所有风险",
+      "problem_pattern": "adjacent_tool_wrong_substitute"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q7-option-d-negative-r1",
+      "field_key": "question:q-7:option.D",
+      "question_id": "q-7",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：语义不明",
+      "user_notes": [
+        "这个干扰项语义不明，看不懂是要怎么干扰？",
+        "这是个干扰项，你直接给改成正确选项了"
+      ],
+      "proposed_reasons": [
+        "避免把干扰项写成接近正确答案；改为和 Hook 无关的“风格一致性”目标。"
+      ],
+      "dspy_reason": "上一版语义略接近正确做法；这里保留“手动处理重复问题”的错误路径。",
+      "originalText": "严格测试",
+      "targetText": "严格测试",
+      "problem_pattern": "manual_repeat_handling_wrong_substitute"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q7-option-d-negative-r2",
+      "field_key": "question:q-7:option.D",
+      "question_id": "q-7",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：语义不明",
+      "user_notes": [
+        "这个干扰项语义不明，看不懂是要怎么干扰？",
+        "这是个干扰项，你直接给改成正确选项了"
+      ],
+      "proposed_reasons": [
+        "避免把干扰项写成接近正确答案；改为和 Hook 无关的“风格一致性”目标。"
+      ],
+      "dspy_reason": "保留为干扰项：这是合理目标，但不是引入 Hook 的原因；不能改成“Prompt 稳定强制执行规则”这种接近正确边界的选项。",
+      "originalText": "严格测试",
+      "targetText": "认为 Prompt 已能稳定强制执行规则",
+      "problem_pattern": "unrelated_goal_boundary"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q6-option-d-negative-r1",
+      "field_key": "question:q-6:option.D",
+      "question_id": "q-6",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：关系有点弱",
+      "user_notes": [
+        "原文是说hook在demo 演示阶段没那么重要，干扰项这么写没什么意义",
+        "这个干扰项和本题考察的核心知识点关系有点弱"
+      ],
+      "proposed_reasons": [
+        "保留“Demo 速度 vs 工程控制”的真实混淆，但避免和题目核心关系过弱。这个选项过度绝对化，因此仍是干扰项。"
+      ],
+      "dspy_reason": "参考最终黄金样本的范围误解干扰项：Hook 不是只能上线后用。",
+      "originalText": "Hook无法用于演示",
+      "targetText": "因为 Hook 只能用于上线后的生产环境",
+      "problem_pattern": "wrong_timing_boundary"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q6-option-d-negative-r3",
+      "field_key": "question:q-6:option.D",
+      "question_id": "q-6",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：关系有点弱",
+      "user_notes": [
+        "原文是说hook在demo 演示阶段没那么重要，干扰项这么写没什么意义",
+        "这个干扰项和本题考察的核心知识点关系有点弱"
+      ],
+      "proposed_reasons": [
+        "保留“Demo 速度 vs 工程控制”的真实混淆，但避免和题目核心关系过弱。这个选项过度绝对化，因此仍是干扰项。"
+      ],
+      "dspy_reason": "来自最终黄金样本定稿：保留 Demo 速度 vs 工程控制的真实混淆，但用“完全失去”保持错误边界。",
+      "originalText": "Hook无法用于演示",
+      "targetText": "因为 Hook 会让 Demo 完全失去快速迭代的优势",
+      "problem_pattern": "adjacent_tool_wrong_substitute"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q7-option-d-negative-r1",
+      "field_key": "question:q-7:option.D",
+      "question_id": "q-7",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：语义不明",
+      "user_notes": [
+        "这个干扰项语义不明，看不懂是要怎么干扰？",
+        "这是个干扰项，你直接给改成正确选项了"
+      ],
+      "proposed_reasons": [
+        "避免把干扰项写成接近正确答案；改为和 Hook 无关的“风格一致性”目标。"
+      ],
+      "dspy_reason": "参考最终黄金样本：这是快速探索场景，不是升级 Hook 的条件。",
+      "originalText": "严格测试",
+      "targetText": "只是想多试几个页面文案和交互细节",
+      "problem_pattern": "manual_repeat_handling_wrong_substitute"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q7-option-d-negative-r2",
+      "field_key": "question:q-7:option.D",
+      "question_id": "q-7",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：语义不明",
+      "user_notes": [
+        "这个干扰项语义不明，看不懂是要怎么干扰？",
+        "这是个干扰项，你直接给改成正确选项了"
+      ],
+      "proposed_reasons": [
+        "避免把干扰项写成接近正确答案；改为和 Hook 无关的“风格一致性”目标。"
+      ],
+      "dspy_reason": "来自最终黄金样本定稿：避免写成接近正确答案，改成风格一致性目标。",
+      "originalText": "严格测试",
+      "targetText": "希望让 AI 的回答风格更像自己",
+      "problem_pattern": "unrelated_goal_boundary"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q13-option-c-negative",
+      "field_key": "question:q-13:option.C",
+      "question_id": "q-13",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：价值低",
+      "user_notes": [
+        "错误选项价值低"
+      ],
+      "proposed_reasons": [
+        "原错误选项太离谱；新选项是更真实的错误做法。"
+      ],
+      "dspy_reason": "来自最终黄金样本定稿：把离谱的“放弃 AI”改成继续只靠自然语言的真实误区。",
+      "originalText": "放弃使用AI",
+      "targetText": "继续只靠自然语言补充需求",
+      "problem_pattern": "too_extreme_low_value"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q13-option-d-negative",
+      "field_key": "question:q-13:option.D",
+      "question_id": "q-13",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：没有意义",
+      "user_notes": [
+        "没有意义的错误选项"
+      ],
+      "proposed_reasons": [
+        "原错误选项无学习价值；新选项能考察 Hook、CI 和工程控制的边界。"
+      ],
+      "dspy_reason": "来自最终黄金样本定稿：把无意义的“责怪工程师”改成 Hook、CI 与工程控制的边界混淆。",
+      "originalText": "责怪工程师",
+      "targetText": "把问题都交给后续 CI 兜底",
+      "problem_pattern": "irrelevant_person_blame"
+    }
+  ],
+  "all": [
+    {
+      "kind": "positive",
+      "sample_id": "positive-hook-q5-option-b-positive",
+      "field_key": "question:q-5:option.B",
+      "question_id": "q-5",
+      "status": "ok_or_no_direct_user_note",
+      "issue": "",
+      "user_notes": [],
+      "proposed_reasons": [],
+      "dspy_reason": "用户容易以为把要求写进 prompt 就足够稳定，这正是 Hook 与 Prompt 的边界。",
+      "originalText": "在Prompt中强调多次",
+      "targetText": "在Prompt中强调多次",
+      "problem_pattern": "good_same_context_distractor"
+    },
+    {
+      "kind": "positive",
+      "sample_id": "positive-hook-q5-option-c-positive",
+      "field_key": "question:q-5:option.C",
+      "question_id": "q-5",
+      "status": "ok_or_no_direct_user_note",
+      "issue": "",
+      "user_notes": [],
+      "proposed_reasons": [],
+      "dspy_reason": "它能让用户区分“手动补救”和“把确定性流程固化”。",
+      "originalText": "手动格式化",
+      "targetText": "手动格式化",
+      "problem_pattern": "good_operational_distractor"
+    },
+    {
+      "kind": "positive",
+      "sample_id": "positive-hook-q6-option-a-positive",
+      "field_key": "question:q-6:option.A",
+      "question_id": "q-6",
+      "status": "ok_or_no_direct_user_note",
+      "issue": "",
+      "user_notes": [],
+      "proposed_reasons": [
+        "原选项只是笼统归因“技术复杂”；新选项是更真实但错误的范围误解。"
+      ],
+      "dspy_reason": "能帮助用户分清“工具复杂度”与“Demo 阶段控制需求不强”这两个不同原因。",
+      "originalText": "Hook技术太复杂",
+      "targetText": "Hook技术太复杂",
+      "problem_pattern": "good_adjacent_but_wrong"
+    },
+    {
+      "kind": "positive",
+      "sample_id": "positive-hook-q7-option-b-positive-revised",
+      "field_key": "question:q-7:option.B",
+      "question_id": "q-7",
+      "status": "ok_or_no_direct_user_note",
+      "issue": "",
+      "user_notes": [],
+      "proposed_reasons": [
+        "真实但不该升级 Hook 的场景，用来区分快速探索和确定性流程。"
+      ],
+      "dspy_reason": "它帮助用户分清什么时候暂时不需要 Hook，什么时候需要升级。",
+      "originalText": "只是想快速探索页面和交互",
+      "targetText": "只是想快速探索页面和交互",
+      "problem_pattern": "good_scope_boundary"
+    },
+    {
+      "kind": "positive",
+      "sample_id": "positive-hook-q7-option-d-positive-revised",
+      "field_key": "question:q-7:option.D",
+      "question_id": "q-7",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：语义不明",
+      "user_notes": [
+        "这个干扰项语义不明，看不懂是要怎么干扰？",
+        "这是个干扰项，你直接给改成正确选项了"
+      ],
+      "proposed_reasons": [
+        "避免把干扰项写成接近正确答案；改为和 Hook 无关的“风格一致性”目标。"
+      ],
+      "dspy_reason": "帮助用户分清风格一致性和流程强制执行不是一回事。",
+      "originalText": "严格测试",
+      "targetText": "希望让 AI 的回答风格更像自己",
+      "problem_pattern": "good_unrelated_goal_boundary"
+    },
+    {
+      "kind": "positive",
+      "sample_id": "positive-hook-q8-option-a-positive",
+      "field_key": "question:q-8:option.A",
+      "question_id": "q-8",
+      "status": "ok_or_no_direct_user_note",
+      "issue": "",
+      "user_notes": [],
+      "proposed_reasons": [],
+      "dspy_reason": "它帮助用户理解 Hook 的价值在于把重复确定任务自动化。",
+      "originalText": "继续手动检查",
+      "targetText": "继续手动检查",
+      "problem_pattern": "good_manual_process_distractor"
+    },
+    {
+      "kind": "positive",
+      "sample_id": "positive-hook-q13-option-b-positive-revised",
+      "field_key": "question:q-13:option.B",
+      "question_id": "q-13",
+      "status": "aligned_enough",
+      "issue": "",
+      "user_notes": [
+        "这个干扰项和C选项干扰项：继续只靠自然语言补充需求 意思差不多"
+      ],
+      "proposed_reasons": [
+        "避免和 C 选项“继续只靠自然语言补充需求”语义重复。"
+      ],
+      "dspy_reason": "它提供了另一条真实错误路径：把可靠性问题归因于模型能力，而不是补上工程化控制。",
+      "originalText": "继续改进提示词",
+      "targetText": "把问题归因于模型不够聪明，等待更强模型",
+      "problem_pattern": "good_model_capability_misattribution"
+    },
+    {
+      "kind": "positive",
+      "sample_id": "positive-hook-q13-option-c-positive-revised",
+      "field_key": "question:q-13:option.C",
+      "question_id": "q-13",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：价值低",
+      "user_notes": [
+        "错误选项价值低"
+      ],
+      "proposed_reasons": [
+        "原错误选项太离谱；新选项是更真实的错误做法。"
+      ],
+      "dspy_reason": "它保留了用户真实可能犯的错误：继续用自然语言补需求，而不是补上工程规则和控制机制。",
+      "originalText": "放弃使用AI",
+      "targetText": "继续只靠自然语言补充需求",
+      "problem_pattern": "good_prompt_overreliance_boundary"
+    },
+    {
+      "kind": "positive",
+      "sample_id": "positive-hook-q13-option-d-positive-revised",
+      "field_key": "question:q-13:option.D",
+      "question_id": "q-13",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：没有意义",
+      "user_notes": [
+        "没有意义的错误选项"
+      ],
+      "proposed_reasons": [
+        "原错误选项无学习价值；新选项能考察 Hook、CI 和工程控制的边界。"
+      ],
+      "dspy_reason": "它把错误点从情绪归因改成流程问题，更符合学习目标。",
+      "originalText": "责怪工程师",
+      "targetText": "只在出问题后让工程师人工补救",
+      "problem_pattern": "good_late_manual_fix_distractor"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q5-option-d-negative",
+      "field_key": "question:q-5:option.D",
+      "question_id": "q-5",
+      "status": "aligned_enough",
+      "issue": "",
+      "user_notes": [
+        "参考其他干扰项，改成一个更有价值的干扰项"
+      ],
+      "proposed_reasons": [
+        "把无意义的极端错误项改成更贴近真实工程流程的干扰项：晚发现问题，而不是在编辑后立刻用 Hook 固化。"
+      ],
+      "dspy_reason": "参考其他干扰项，改成一个更有价值的干扰项。",
+      "originalText": "放弃格式化",
+      "targetText": "放弃格式化",
+      "problem_pattern": "too_extreme_low_value"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q6-option-c-fixable",
+      "field_key": "question:q-6:option.C",
+      "question_id": "q-6",
+      "status": "ok_or_no_direct_user_note",
+      "issue": "",
+      "user_notes": [],
+      "proposed_reasons": [
+        "原选项偏人身归因；新选项对应 Prompt 与 Hook 的真实混淆。"
+      ],
+      "dspy_reason": "方向能表示误区，但不能写成另一种正确解释；这里保留“人的能力归因”这个错误路径。",
+      "originalText": "产品经理不了解AI",
+      "targetText": "产品经理不了解AI",
+      "problem_pattern": "generic_person_blame_but_useful_boundary"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q6-option-d-negative-r1",
+      "field_key": "question:q-6:option.D",
+      "question_id": "q-6",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：关系有点弱",
+      "user_notes": [
+        "原文是说hook在demo 演示阶段没那么重要，干扰项这么写没什么意义",
+        "这个干扰项和本题考察的核心知识点关系有点弱"
+      ],
+      "proposed_reasons": [
+        "保留“Demo 速度 vs 工程控制”的真实混淆，但避免和题目核心关系过弱。这个选项过度绝对化，因此仍是干扰项。"
+      ],
+      "dspy_reason": "原文是说 demo 阶段暂时不优先 Hook，不是 Hook 不能用于演示；改成一个仍然错误但更真实的时机误解。",
+      "originalText": "Hook无法用于演示",
+      "targetText": "Hook无法用于演示",
+      "problem_pattern": "wrong_timing_boundary"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q6-option-d-negative-r3",
+      "field_key": "question:q-6:option.D",
+      "question_id": "q-6",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：关系有点弱",
+      "user_notes": [
+        "原文是说hook在demo 演示阶段没那么重要，干扰项这么写没什么意义",
+        "这个干扰项和本题考察的核心知识点关系有点弱"
+      ],
+      "proposed_reasons": [
+        "保留“Demo 速度 vs 工程控制”的真实混淆，但避免和题目核心关系过弱。这个选项过度绝对化，因此仍是干扰项。"
+      ],
+      "dspy_reason": "上一版“拖慢 Demo 试错”太接近正确答案；这里改成相邻工程机制的错误替代。",
+      "originalText": "Hook无法用于演示",
+      "targetText": "因为 CI 会自动处理 Demo 阶段的所有风险",
+      "problem_pattern": "adjacent_tool_wrong_substitute"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q7-option-c-negative-r2",
+      "field_key": "question:q-7:option.C",
+      "question_id": "q-7",
+      "status": "aligned_enough",
+      "issue": "",
+      "user_notes": [
+        "干扰选项和正确选项，和题干看起来没什么关系"
+      ],
+      "proposed_reasons": [
+        "替换语义不清的干扰项，让它更贴近产品经理实际场景。"
+      ],
+      "dspy_reason": "上一版太接近正确答案；这里改成同一场景中真实但不理想的人工补救路径。",
+      "originalText": "追求代码质量",
+      "targetText": "追求代码质量",
+      "problem_pattern": "manual_review_wrong_substitute"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q7-option-d-negative-r1",
+      "field_key": "question:q-7:option.D",
+      "question_id": "q-7",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：语义不明",
+      "user_notes": [
+        "这个干扰项语义不明，看不懂是要怎么干扰？",
+        "这是个干扰项，你直接给改成正确选项了"
+      ],
+      "proposed_reasons": [
+        "避免把干扰项写成接近正确答案；改为和 Hook 无关的“风格一致性”目标。"
+      ],
+      "dspy_reason": "上一版语义略接近正确做法；这里保留“手动处理重复问题”的错误路径。",
+      "originalText": "严格测试",
+      "targetText": "严格测试",
+      "problem_pattern": "manual_repeat_handling_wrong_substitute"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q7-option-d-negative-r2",
+      "field_key": "question:q-7:option.D",
+      "question_id": "q-7",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：语义不明",
+      "user_notes": [
+        "这个干扰项语义不明，看不懂是要怎么干扰？",
+        "这是个干扰项，你直接给改成正确选项了"
+      ],
+      "proposed_reasons": [
+        "避免把干扰项写成接近正确答案；改为和 Hook 无关的“风格一致性”目标。"
+      ],
+      "dspy_reason": "保留为干扰项：这是合理目标，但不是引入 Hook 的原因；不能改成“Prompt 稳定强制执行规则”这种接近正确边界的选项。",
+      "originalText": "严格测试",
+      "targetText": "认为 Prompt 已能稳定强制执行规则",
+      "problem_pattern": "unrelated_goal_boundary"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q8-option-c-fixable",
+      "field_key": "question:q-8:option.C",
+      "question_id": "q-8",
+      "status": "ok_or_no_direct_user_note",
+      "issue": "",
+      "user_notes": [],
+      "proposed_reasons": [
+        "采用用户建议，让干扰项更具体地对应“继续靠 prompt 记住规则”的误区。"
+      ],
+      "dspy_reason": "原选项语义有点泛；用户建议改成更具体的错误做法。",
+      "originalText": "写更多的Prompt",
+      "targetText": "写更多的Prompt",
+      "problem_pattern": "too_vague_prompt_distractor"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q8-option-d-fixable",
+      "field_key": "question:q-8:option.D",
+      "question_id": "q-8",
+      "status": "ok_or_no_direct_user_note",
+      "issue": "",
+      "user_notes": [],
+      "proposed_reasons": [],
+      "dspy_reason": "原选项太大，改成同一流程下的延迟检查；它仍然是错的，因为没有解决反复手动检查的问题。",
+      "originalText": "重新设计架构",
+      "targetText": "重新设计架构",
+      "problem_pattern": "delayed_check_wrong_substitute"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q13-option-b-fixable",
+      "field_key": "question:q-13:option.B",
+      "question_id": "q-13",
+      "status": "aligned_enough",
+      "issue": "",
+      "user_notes": [
+        "这个干扰项和C选项干扰项：继续只靠自然语言补充需求 意思差不多"
+      ],
+      "proposed_reasons": [
+        "避免和 C 选项“继续只靠自然语言补充需求”语义重复。"
+      ],
+      "dspy_reason": "这是可用干扰项，但必须和其它干扰项拉开：它代表“继续依赖自然语言提醒”的错误路径。",
+      "originalText": "继续改进提示词",
+      "targetText": "继续改进提示词",
+      "problem_pattern": "prompt_overreliance_distractor"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q13-option-c-negative",
+      "field_key": "question:q-13:option.C",
+      "question_id": "q-13",
+      "status": "aligned_enough",
+      "issue": "",
+      "user_notes": [
+        "错误选项价值低"
+      ],
+      "proposed_reasons": [
+        "原错误选项太离谱；新选项是更真实的错误做法。"
+      ],
+      "dspy_reason": "错误选项价值低。",
+      "originalText": "放弃使用AI",
+      "targetText": "放弃使用AI",
+      "problem_pattern": "too_extreme_low_value"
+    },
+    {
+      "kind": "negative",
+      "sample_id": "negative-hook-q13-option-d-negative",
+      "field_key": "question:q-13:option.D",
+      "question_id": "q-13",
+      "status": "aligned_enough",
+      "issue": "",
+      "user_notes": [
+        "没有意义的错误选项"
+      ],
+      "proposed_reasons": [
+        "原错误选项无学习价值；新选项能考察 Hook、CI 和工程控制的边界。"
+      ],
+      "dspy_reason": "没有意义的错误选项。",
+      "originalText": "责怪工程师",
+      "targetText": "责怪工程师",
+      "problem_pattern": "irrelevant_person_blame"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q5-option-d-negative",
+      "field_key": "question:q-5:option.D",
+      "question_id": "q-5",
+      "status": "aligned_enough",
+      "issue": "",
+      "user_notes": [
+        "参考其他干扰项，改成一个更有价值的干扰项"
+      ],
+      "proposed_reasons": [
+        "把无意义的极端错误项改成更贴近真实工程流程的干扰项：晚发现问题，而不是在编辑后立刻用 Hook 固化。"
+      ],
+      "dspy_reason": "来自最终黄金样本定稿：把“放弃格式化”改成“晚发现问题”，避免离谱项，同时保持错误。",
+      "originalText": "放弃格式化",
+      "targetText": "只等到 CI 阶段再发现格式问题",
+      "problem_pattern": "too_extreme_low_value"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q6-option-c-fixable",
+      "field_key": "question:q-6:option.C",
+      "question_id": "q-6",
+      "status": "ok_or_no_direct_user_note",
+      "issue": "",
+      "user_notes": [],
+      "proposed_reasons": [
+        "原选项偏人身归因；新选项对应 Prompt 与 Hook 的真实混淆。"
+      ],
+      "dspy_reason": "来自最终黄金样本定稿：把人身归因改成 Prompt 与 Hook 的真实混淆。",
+      "originalText": "产品经理不了解AI",
+      "targetText": "因为 Prompt 已经能稳定强制执行所有规则",
+      "problem_pattern": "generic_person_blame_but_useful_boundary"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q6-option-d-negative-r1",
+      "field_key": "question:q-6:option.D",
+      "question_id": "q-6",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：关系有点弱",
+      "user_notes": [
+        "原文是说hook在demo 演示阶段没那么重要，干扰项这么写没什么意义",
+        "这个干扰项和本题考察的核心知识点关系有点弱"
+      ],
+      "proposed_reasons": [
+        "保留“Demo 速度 vs 工程控制”的真实混淆，但避免和题目核心关系过弱。这个选项过度绝对化，因此仍是干扰项。"
+      ],
+      "dspy_reason": "参考最终黄金样本的范围误解干扰项：Hook 不是只能上线后用。",
+      "originalText": "Hook无法用于演示",
+      "targetText": "因为 Hook 只能用于上线后的生产环境",
+      "problem_pattern": "wrong_timing_boundary"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q6-option-d-negative-r3",
+      "field_key": "question:q-6:option.D",
+      "question_id": "q-6",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：关系有点弱",
+      "user_notes": [
+        "原文是说hook在demo 演示阶段没那么重要，干扰项这么写没什么意义",
+        "这个干扰项和本题考察的核心知识点关系有点弱"
+      ],
+      "proposed_reasons": [
+        "保留“Demo 速度 vs 工程控制”的真实混淆，但避免和题目核心关系过弱。这个选项过度绝对化，因此仍是干扰项。"
+      ],
+      "dspy_reason": "来自最终黄金样本定稿：保留 Demo 速度 vs 工程控制的真实混淆，但用“完全失去”保持错误边界。",
+      "originalText": "Hook无法用于演示",
+      "targetText": "因为 Hook 会让 Demo 完全失去快速迭代的优势",
+      "problem_pattern": "adjacent_tool_wrong_substitute"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q7-option-c-negative-r2",
+      "field_key": "question:q-7:option.C",
+      "question_id": "q-7",
+      "status": "aligned_enough",
+      "issue": "",
+      "user_notes": [
+        "干扰选项和正确选项，和题干看起来没什么关系"
+      ],
+      "proposed_reasons": [
+        "替换语义不清的干扰项，让它更贴近产品经理实际场景。"
+      ],
+      "dspy_reason": "来自最终黄金样本定稿：替换泛泛的“追求代码质量”，改成产品经理真实探索场景。",
+      "originalText": "追求代码质量",
+      "targetText": "Demo 还只是在探索业务流程是否说得通",
+      "problem_pattern": "manual_review_wrong_substitute"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q7-option-d-negative-r1",
+      "field_key": "question:q-7:option.D",
+      "question_id": "q-7",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：语义不明",
+      "user_notes": [
+        "这个干扰项语义不明，看不懂是要怎么干扰？",
+        "这是个干扰项，你直接给改成正确选项了"
+      ],
+      "proposed_reasons": [
+        "避免把干扰项写成接近正确答案；改为和 Hook 无关的“风格一致性”目标。"
+      ],
+      "dspy_reason": "参考最终黄金样本：这是快速探索场景，不是升级 Hook 的条件。",
+      "originalText": "严格测试",
+      "targetText": "只是想多试几个页面文案和交互细节",
+      "problem_pattern": "manual_repeat_handling_wrong_substitute"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q7-option-d-negative-r2",
+      "field_key": "question:q-7:option.D",
+      "question_id": "q-7",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：语义不明",
+      "user_notes": [
+        "这个干扰项语义不明，看不懂是要怎么干扰？",
+        "这是个干扰项，你直接给改成正确选项了"
+      ],
+      "proposed_reasons": [
+        "避免把干扰项写成接近正确答案；改为和 Hook 无关的“风格一致性”目标。"
+      ],
+      "dspy_reason": "来自最终黄金样本定稿：避免写成接近正确答案，改成风格一致性目标。",
+      "originalText": "严格测试",
+      "targetText": "希望让 AI 的回答风格更像自己",
+      "problem_pattern": "unrelated_goal_boundary"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q8-option-c-fixable",
+      "field_key": "question:q-8:option.C",
+      "question_id": "q-8",
+      "status": "ok_or_no_direct_user_note",
+      "issue": "",
+      "user_notes": [],
+      "proposed_reasons": [
+        "采用用户建议，让干扰项更具体地对应“继续靠 prompt 记住规则”的误区。"
+      ],
+      "dspy_reason": "来自最终黄金样本定稿：把“写更多 Prompt”具体化为继续依赖提示词记住重复检查。",
+      "originalText": "写更多的Prompt",
+      "targetText": "把重复检查继续写进提示词里",
+      "problem_pattern": "too_vague_prompt_distractor"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q8-option-d-fixable",
+      "field_key": "question:q-8:option.D",
+      "question_id": "q-8",
+      "status": "ok_or_no_direct_user_note",
+      "issue": "",
+      "user_notes": [],
+      "proposed_reasons": [],
+      "dspy_reason": "实验候选改写，待人工确认。",
+      "originalText": "重新设计架构",
+      "targetText": "等到提交代码前再统一检查",
+      "problem_pattern": "delayed_check_wrong_substitute"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q13-option-b-fixable",
+      "field_key": "question:q-13:option.B",
+      "question_id": "q-13",
+      "status": "aligned_enough",
+      "issue": "",
+      "user_notes": [
+        "这个干扰项和C选项干扰项：继续只靠自然语言补充需求 意思差不多"
+      ],
+      "proposed_reasons": [
+        "避免和 C 选项“继续只靠自然语言补充需求”语义重复。"
+      ],
+      "dspy_reason": "来自最终黄金样本定稿：避免与 C 选项重复，改成另一条真实错误路径。",
+      "originalText": "继续改进提示词",
+      "targetText": "把问题归因于模型不够聪明，等待更强模型",
+      "problem_pattern": "prompt_overreliance_distractor"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q13-option-c-negative",
+      "field_key": "question:q-13:option.C",
+      "question_id": "q-13",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：价值低",
+      "user_notes": [
+        "错误选项价值低"
+      ],
+      "proposed_reasons": [
+        "原错误选项太离谱；新选项是更真实的错误做法。"
+      ],
+      "dspy_reason": "来自最终黄金样本定稿：把离谱的“放弃 AI”改成继续只靠自然语言的真实误区。",
+      "originalText": "放弃使用AI",
+      "targetText": "继续只靠自然语言补充需求",
+      "problem_pattern": "too_extreme_low_value"
+    },
+    {
+      "kind": "rewrite",
+      "sample_id": "rewrite-hook-q13-option-d-negative",
+      "field_key": "question:q-13:option.D",
+      "question_id": "q-13",
+      "status": "needs_review",
+      "issue": "用户标注关键词未在 DSPy/候选原因中体现：没有意义",
+      "user_notes": [
+        "没有意义的错误选项"
+      ],
+      "proposed_reasons": [
+        "原错误选项无学习价值；新选项能考察 Hook、CI 和工程控制的边界。"
+      ],
+      "dspy_reason": "来自最终黄金样本定稿：把无意义的“责怪工程师”改成 Hook、CI 与工程控制的边界混淆。",
+      "originalText": "责怪工程师",
+      "targetText": "把问题都交给后续 CI 兜底",
+      "problem_pattern": "irrelevant_person_blame"
+    }
+  ]
+}

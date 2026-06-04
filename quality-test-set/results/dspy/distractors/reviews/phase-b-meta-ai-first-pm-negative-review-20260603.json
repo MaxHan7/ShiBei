@@ -1,0 +1,263 @@
+{
+  "meta": {
+    "kind": "dspy_phase_b_non_hook_negative_distractor_review",
+    "sourceDataset": "quality-test-set/results/dspy/distractors/datasets/phase-b-meta-ai-first-pm-negative-candidates.v1.jsonl",
+    "articleSlug": "meta-ai-first-pm",
+    "generatedAt": "2026-06-03T04:13:06.362Z",
+    "rowCount": 18
+  },
+  "rows": [
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-1-01",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-1",
+      "candidate": "PM岗位还在，只是旧的信息传递型 PM 会失去价值",
+      "draft_expected_label": "reject",
+      "draft_issue_category": "correct_equivalent_multiselect_risk",
+      "review": {
+        "review_status": "reject",
+        "note": "这是一个正确答案，而非干扰项",
+        "issue_category": "correct_equivalent_multiselect_risk",
+        "updated_at": "2026-06-03T04:01:06.477Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-1-02",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-1",
+      "candidate": "所有 PM 都会在一年内被 AI 淘汰",
+      "draft_expected_label": "reject",
+      "draft_issue_category": "too_extreme_low_value",
+      "review": {
+        "review_status": "fixable",
+        "note": "过于明显的干扰项，干扰价值不大，极端化表达，一眼排除，不能帮助用户理解岗位定义变化。",
+        "issue_category": "too_extreme_low_value",
+        "updated_at": "2026-06-03T04:06:20.673Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-1-03",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-1",
+      "candidate": "PM 应该尽快学习更多 AI 工具",
+      "draft_expected_label": "fixable",
+      "draft_issue_category": "adjacent_but_not_answering_stem",
+      "review": {
+        "review_status": "reject",
+        "note": "和核心要考察的知识理解没关系，和文章主题相邻，但没有回答岗位数量/定义变化。",
+        "issue_category": "adjacent_but_not_answering_stem",
+        "updated_at": "2026-06-03T04:06:38.761Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-3-04",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-3",
+      "candidate": "主要靠同步进度和转述材料工作的人",
+      "draft_expected_label": "reject",
+      "draft_issue_category": "correct_equivalent_multiselect_risk",
+      "review": {
+        "review_status": "reject",
+        "note": "这是正确答案的另一个表述，不是干扰项",
+        "issue_category": "correct_equivalent_multiselect_risk",
+        "updated_at": "2026-06-03T04:02:56.376Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-3-05",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-3",
+      "candidate": "只会用 AI 复制粘贴材料的 PM",
+      "draft_expected_label": "fixable",
+      "draft_issue_category": "narrow_adjacent_but_distorted",
+      "review": {
+        "review_status": "fixable",
+        "note": "语义表达不明，不知道要表达什么对应的误区",
+        "issue_category": "narrow_adjacent_but_distorted",
+        "updated_at": "2026-06-03T04:04:05.149Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-3-06",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-3",
+      "candidate": "负责在团队之间搬运代码的程序员",
+      "draft_expected_label": "reject",
+      "draft_issue_category": "wrong_role_too_obvious",
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "wrong_role_too_obvious",
+        "updated_at": "2026-06-03T04:04:25.101Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-4-07",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-4",
+      "candidate": "会议组织者",
+      "draft_expected_label": "fixable",
+      "draft_issue_category": "too_generic_role_label",
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "too_generic_role_label",
+        "updated_at": "2026-06-03T04:04:46.799Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-4-08",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-4",
+      "candidate": "产品决策者",
+      "draft_expected_label": "reject",
+      "draft_issue_category": "correct_boundary_confusion",
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "correct_boundary_confusion",
+        "updated_at": "2026-06-03T04:04:55.334Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-7-09",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-7",
+      "candidate": "产品取舍能力",
+      "draft_expected_label": "reject",
+      "draft_issue_category": "correct_equivalent_multiselect_risk",
+      "review": {
+        "review_status": "reject",
+        "note": "判断力在产品语境中的近义表达，容易成为第二正确答案。",
+        "issue_category": "correct_equivalent_multiselect_risk",
+        "updated_at": "2026-06-03T04:05:12.990Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-7-10",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-7",
+      "candidate": "综合能力",
+      "draft_expected_label": "fixable",
+      "draft_issue_category": "too_vague_low_learning_value",
+      "review": {
+        "review_status": "reject",
+        "note": "过泛，没有对应出要考察的常见误区",
+        "issue_category": "too_vague_low_learning_value",
+        "updated_at": "2026-06-03T04:08:53.943Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-7-11",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-7",
+      "candidate": "工作年限",
+      "draft_expected_label": "fixable",
+      "draft_issue_category": "surface_level_adjacent",
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "surface_level_adjacent",
+        "updated_at": "2026-06-03T04:09:16.885Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-8-12",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-8",
+      "candidate": "更熟练地写周报",
+      "draft_expected_label": "reject",
+      "draft_issue_category": "too_narrow_low_value",
+      "review": {
+        "review_status": "fixable",
+        "note": "低价值流程项，一眼不是文章强调的能力。",
+        "issue_category": "too_narrow_low_value",
+        "updated_at": "2026-06-03T04:09:34.043Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-8-13",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-8",
+      "candidate": "判断什么该做、什么不该做的能力",
+      "draft_expected_label": "reject",
+      "draft_issue_category": "correct_equivalent_multiselect_risk",
+      "review": {
+        "review_status": "reject",
+        "note": " 是判断力的展开表述，不能作为干扰项。",
+        "issue_category": "correct_equivalent_multiselect_risk",
+        "updated_at": "2026-06-03T04:09:52.067Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-8-14",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-8",
+      "candidate": "更快地整理需求文档",
+      "draft_expected_label": "fixable",
+      "draft_issue_category": "old_workflow_adjacent_fixable",
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "old_workflow_adjacent_fixable",
+        "updated_at": "2026-06-03T04:10:12.914Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-10-rewrite-3-1-15",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-10-rewrite-3-1",
+      "candidate": "优先考虑 B，因为他没有大厂经验，所以更灵活",
+      "draft_expected_label": "fixable",
+      "draft_issue_category": "wrong_reason_for_correct_choice",
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "wrong_reason_for_correct_choice",
+        "updated_at": "2026-06-03T04:10:31.836Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-10-rewrite-3-1-16",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-10-rewrite-3-1",
+      "candidate": "优先考虑 A，因为传统机器学习经验更接近 AI-first",
+      "draft_expected_label": "reject",
+      "draft_issue_category": "false_causal_reason",
+      "review": {
+        "review_status": "accept",
+        "note": "",
+        "issue_category": "false_causal_reason",
+        "updated_at": "2026-06-03T04:10:55.198Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-10-rewrite-3-1-17",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-10-rewrite-3-1",
+      "candidate": "优先考虑 B，因为小公司的人一定比大厂更先进",
+      "draft_expected_label": "reject",
+      "draft_issue_category": "overgeneralized_stereotype",
+      "review": {
+        "review_status": "fixable",
+        "note": "错误较为明显没有对应常见误区，思考价值较低",
+        "issue_category": "overgeneralized_stereotype",
+        "updated_at": "2026-06-03T04:13:01.880Z"
+      }
+    },
+    {
+      "sample_id": "phase-b-negative-meta-ai-first-pm-q-10-rewrite-3-1-18",
+      "article_slug": "meta-ai-first-pm",
+      "question_id": "q-10-rewrite-3-1",
+      "candidate": "两者都不看，直接选薪资最低的人",
+      "draft_expected_label": "reject",
+      "draft_issue_category": "irrelevant_criterion",
+      "review": {
+        "review_status": "reject",
+        "note": "无关标准，学习价值很低。",
+        "issue_category": "irrelevant_criterion",
+        "updated_at": "2026-06-03T04:12:38.829Z"
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "meta": {
+    "kind": "dspy_phase_a_distractor_review",
+    "activeTab": "positive",
+    "title": "Positive",
+    "source": "user_export_2026-06-02T23:58:35.518Z",
+    "savedAt": "2026-06-02T23:59:11.301Z",
+    "rowCount": 9,
+    "exportScope": "current_tab_only"
+  },
+  "rows": [
+    {
+      "sample_id": "positive-hook-q5-option-b-positive",
+      "review_status": "accept_label",
+      "note": ""
+    },
+    {
+      "sample_id": "positive-hook-q5-option-c-positive",
+      "review_status": "accept_label",
+      "note": ""
+    },
+    {
+      "sample_id": "positive-hook-q6-option-a-positive",
+      "review_status": "accept_label",
+      "note": ""
+    },
+    {
+      "sample_id": "positive-hook-q7-option-b-positive-revised",
+      "review_status": "accept_label",
+      "note": ""
+    },
+    {
+      "sample_id": "positive-hook-q7-option-d-positive-revised",
+      "review_status": "accept_label",
+      "note": ""
+    },
+    {
+      "sample_id": "positive-hook-q8-option-a-positive",
+      "review_status": "accept_label",
+      "note": ""
+    },
+    {
+      "sample_id": "positive-hook-q13-option-b-positive-revised",
+      "review_status": "accept_label",
+      "note": ""
+    },
+    {
+      "sample_id": "positive-hook-q13-option-c-positive-revised",
+      "review_status": "fix_label",
+      "note": "继续只靠自然语言补充需求"
+    },
+    {
+      "sample_id": "positive-hook-q13-option-d-positive-revised",
+      "review_status": "accept_label",
+      "note": ""
+    }
+  ]
+}

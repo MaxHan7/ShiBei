@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>拾贝 DSPy Phase A 干扰项审查</title>
+  <style>
+    :root {
+      --bg: #fbf7ef;
+      --card: #fffdf8;
+      --ink: #211f1a;
+      --muted: #756d60;
+      --line: #eadfcf;
+      --brand: #df9550;
+      --yellow: #f6d95e;
+      --green: #e7f7e9;
+      --green-text: #1c7d3d;
+      --red: #f9e7e4;
+      --red-text: #a33b2e;
+      --blue: #edf2ff;
+      --blue-text: #3158b8;
+      --shadow: 0 18px 50px rgba(71, 49, 20, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 18px 28px;
+      background: rgba(251, 247, 239, 0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+    h1 { margin: 0; font-size: 22px; letter-spacing: 0; }
+    .sub { margin-top: 6px; color: var(--muted); font-size: 14px; line-height: 1.55; max-width: 1120px; }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+    .tab {
+      border: 1px solid var(--line);
+      background: #fffaf1;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 750;
+    }
+    .tab.active { background: var(--ink); border-color: var(--ink); color: white; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+    button, select, textarea, input { font: inherit; }
+    button, .pill {
+      border: 1px solid var(--line);
+      background: #fffaf1;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 9px 14px;
+      cursor: pointer;
+    }
+    button.primary { border-color: transparent; background: var(--ink); color: white; }
+    select { border: 1px solid var(--line); border-radius: 999px; padding: 9px 12px; background: #fffaf1; }
+    main {
+      display: grid;
+      grid-template-columns: minmax(380px, 1fr) minmax(440px, 0.95fr);
+      gap: 22px;
+      padding: 24px 28px 60px;
+      max-width: 1540px;
+      margin: 0 auto;
+    }
+    .panel {
+      background: rgba(255, 253, 248, 0.8);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      align-items: center;
+    }
+    .panel-title { font-size: 18px; font-weight: 800; }
+    .count { color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .list { display: grid; gap: 14px; padding: 18px; }
+    .sample {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 18px;
+      padding: 18px;
+      cursor: pointer;
+    }
+    .sample.active { outline: 3px solid rgba(246, 217, 94, 0.46); }
+    .sample-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+    .badge.rewrite, .badge.fixable { background: var(--blue); color: var(--blue-text); }
+    .badge.accept, .badge.positive { background: var(--green); color: var(--green-text); }
+    .badge.reject, .badge.negative { background: var(--red); color: var(--red-text); }
+    .badge.neutral { background: #fff6d6; color: #7a5c00; }
+    .qid { color: var(--muted); font-size: 13px; text-align: right; }
+    .stem { font-size: 22px; font-weight: 850; line-height: 1.34; margin: 14px 0; }
+    .mini { color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .option {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin: 8px 0;
+      background: #fffefa;
+      line-height: 1.45;
+    }
+    .option.correct { border-color: #bde8c8; background: #f4fff5; }
+    .option.bad { border-color: #f0c5bb; background: #fff4f1; }
+    .option.gold { border-color: #d8c173; background: #fff9dc; }
+    .letter { font-weight: 850; }
+    .small-label { display: inline-flex; align-items: center; gap: 6px; margin: 6px 0; color: var(--muted); font-size: 13px; }
+    .dot { width: 8px; height: 8px; border-radius: 99px; background: var(--yellow); display: inline-block; flex: none; }
+    .detail { padding: 20px; display: grid; gap: 16px; }
+    .section h3 { margin: 0 0 8px; font-size: 15px; }
+    .section p { margin: 0; color: var(--muted); line-height: 1.65; }
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fffefa;
+      padding: 14px;
+      min-width: 0;
+    }
+    .box strong { display: block; margin-bottom: 8px; }
+    .box p { color: var(--ink); }
+    textarea {
+      width: 100%;
+      min-height: 96px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fffefa;
+      color: var(--ink);
+      resize: vertical;
+      line-height: 1.55;
+    }
+    .meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .meta-item {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fffefa;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+    .meta-item strong { color: var(--ink); }
+    .status-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .status-row button.active { background: var(--ink); color: white; border-color: var(--ink); }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      transform: translateX(-50%);
+      background: #211f1a;
+      color: white;
+      border-radius: 999px;
+      padding: 10px 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+    .toast.show { opacity: 1; }
+    @media (max-width: 960px) {
+      main { grid-template-columns: 1fr; padding: 16px; }
+      header { padding: 16px; }
+      .compare { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>DSPy Phase A：干扰项字段审查</h1>
+    <div class="sub">按 DSPy 任务拆开审查：Quality Judge 用来确认 accept / fixable / reject 判断样本；Rewrite 只审“坏项 -> 黄金改写”；Positive / Negative 是模式库，不再混成同一个训练集。</div>
+    <div class="tabs" id="tabs"></div>
+    <div class="toolbar">
+      <select id="filter"></select>
+      <button id="copy-json" class="primary">复制当前 Tab JSON</button>
+      <button id="download-json">下载当前 Tab JSON</button>
+      <span class="pill" id="summary-pill">-</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title" id="list-title">-</div>
+          <div class="count" id="list-hint">-</div>
+        </div>
+        <div class="count" id="count"></div>
+      </div>
+      <div class="list" id="list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title" id="detail-title">-</div>
+          <div class="count" id="detail-id"></div>
+        </div>
+      </div>
+      <div class="detail" id="detail"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast">已复制</div>
+
+  <script>
+    if (window.location.protocol === 'file:') {
+      window.location.replace('http://127.0.0.1:52362/reviews/phase-a-hook-distractor-review.html');
+    }
+
+    const tabDefs = {
+      judge: {
+        title: 'Quality Judge',
+        listTitle: '质量判断样本',
+        hint: '用于确认 accept / fixable / reject 标签，不直接训练 rewrite。',
+        storageKey: 'shibei-dspy-distractor-judge-review-v1'
+      },
+      rewrite: {
+        title: 'Rewrite',
+        listTitle: '改写样本',
+        hint: '用于 RewriteDistractor：坏/可修干扰项 -> 黄金改写。',
+        storageKey: 'shibei-dspy-distractor-rewrite-review-v2'
+      },
+      positive: {
+        title: 'Positive',
+        listTitle: '好样本库',
+        hint: '用于定义什么是好干扰项，后续进入 DistractorQualityJudge。',
+        storageKey: 'shibei-dspy-distractor-positive-review-v1'
+      },
+      negative: {
+        title: 'Negative',
+        listTitle: '坏模式库',
+        hint: '用于定义坏干扰项模式，后续进入 DistractorQualityJudge。',
+        storageKey: 'shibei-dspy-distractor-negative-review-v1'
+      }
+    };
+
+    const datasetPaths = {
+      judge: '../datasets/dspy-distractor-quality-judge-phase-a.v1.jsonl',
+      rewrite: '../datasets/hook-distractor-rewrite-trainset.v1.jsonl',
+      positive: '../datasets/hook-distractor-positive-examples.v1.jsonl',
+      negative: '../datasets/hook-distractor-negative-patterns.v1.jsonl',
+      draft: '../datasets/phase-a-hook-distractor-field-samples.v1.jsonl'
+    };
+
+    const raw = { judge: [], rewrite: [], positive: [], negative: [], draft: [] };
+    let dataByTab = { judge: [], rewrite: [], positive: [], negative: [] };
+    let activeTab = localStorage.getItem('shibei-dspy-active-tab') || 'judge';
+    let activeId = null;
+    let filter = 'all';
+
+    function parseJsonl(text) {
+      return text.trim().split(/\n+/).filter(Boolean).map(line => JSON.parse(line));
+    }
+
+    async function loadData() {
+      for (const [key, path] of Object.entries(datasetPaths)) {
+        const separator = path.includes('?') ? '&' : '?';
+        const response = await fetch(`${path}${separator}v=${Date.now()}`, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`无法读取 ${path}`);
+        raw[key] = parseJsonl(await response.text());
+      }
+
+      dataByTab = {
+        judge: raw.judge,
+        rewrite: raw.rewrite,
+        positive: raw.positive,
+        negative: raw.negative
+      };
+      render();
+    }
+
+    function currentRows() {
+      return dataByTab[activeTab] || [];
+    }
+
+    function storageKey() {
+      return tabDefs[activeTab].storageKey;
+    }
+
+    function savedState() {
+      return JSON.parse(localStorage.getItem(storageKey()) || '{}');
+    }
+
+    function stateFor(id) {
+      return savedState()[id] || {};
+    }
+
+    function save(id, patch) {
+      const saved = savedState();
+      saved[id] = { ...saved[id], ...patch, updated_at: new Date().toISOString() };
+      localStorage.setItem(storageKey(), JSON.stringify(saved, null, 2));
+      render();
+    }
+
+    function filtersForRows(rows) {
+      const values = new Set();
+      for (const row of rows) {
+        values.add(row.gold_quality_label || row.problem_pattern || row.issue_category || row.field_status || row.quality_label || 'unknown');
+      }
+      return [...values].sort();
+    }
+
+    function visibleItems() {
+      return currentRows().filter(item => {
+        const key = item.gold_quality_label || item.problem_pattern || item.issue_category || item.field_status || item.quality_label || 'unknown';
+        return filter === 'all' || key === filter;
+      });
+    }
+
+    function render() {
+      renderTabs();
+      renderFilter();
+      renderList();
+      renderDetail();
+    }
+
+    function renderTabs() {
+      const el = document.getElementById('tabs');
+      el.innerHTML = '';
+      for (const [id, tab] of Object.entries(tabDefs)) {
+        const button = document.createElement('button');
+        button.className = `tab ${id === activeTab ? 'active' : ''}`;
+        button.textContent = `${tab.title} (${(dataByTab[id] || []).length})`;
+        button.onclick = () => {
+          activeTab = id;
+          activeId = null;
+          filter = 'all';
+          localStorage.setItem('shibei-dspy-active-tab', activeTab);
+          render();
+        };
+        el.appendChild(button);
+      }
+    }
+
+    function renderFilter() {
+      const select = document.getElementById('filter');
+      const filters = filtersForRows(currentRows());
+      select.innerHTML = `<option value="all">全部</option>` + filters.map(f => `<option value="${escapeAttr(f)}">${escapeHtml(f)}</option>`).join('');
+      select.value = filters.includes(filter) ? filter : 'all';
+      filter = select.value;
+    }
+
+    function renderList() {
+      const rows = currentRows();
+      const items = visibleItems();
+      const list = document.getElementById('list');
+      document.getElementById('list-title').textContent = tabDefs[activeTab].listTitle;
+      document.getElementById('list-hint').textContent = tabDefs[activeTab].hint;
+      document.getElementById('count').textContent = `${items.length} / ${rows.length}`;
+      document.getElementById('summary-pill').textContent = summaryText(rows);
+      list.innerHTML = '';
+      for (const item of items) {
+        const id = sampleId(item);
+        const st = stateFor(id);
+        const badge = badgeFor(item);
+        const card = document.createElement('article');
+        card.className = 'sample' + (id === activeId ? ' active' : '');
+        card.onclick = () => { activeId = id; render(); };
+        card.innerHTML = `
+          <div class="sample-top">
+            <span class="badge ${badge.className}">${escapeHtml(badge.label)}</span>
+            <span class="qid">${escapeHtml(item.question_id || item.canonical_context?.question_id || '-')} · ${escapeHtml(item.problem_pattern || item.issue_category || item.field_status || '-')} · ${escapeHtml(st.review_status || '待审')}</span>
+          </div>
+          <div class="small-label"><span class="dot"></span>${escapeHtml(kpTitle(item))}</div>
+          <div class="mini">${escapeHtml(st.note || shortSummary(item))}</div>
+        `;
+        list.appendChild(card);
+      }
+    }
+
+    function renderDetail() {
+      const item = currentRows().find(x => sampleId(x) === activeId) || visibleItems()[0] || currentRows()[0];
+      const detail = document.getElementById('detail');
+      if (!item) {
+        detail.innerHTML = '<div class="section"><p>没有数据。</p></div>';
+        return;
+      }
+      activeId = sampleId(item);
+      const st = stateFor(activeId);
+      const context = item.canonical_context || {};
+      document.getElementById('detail-title').textContent = detailTitleFor(item);
+      document.getElementById('detail-id').textContent = `${activeTab} · ${activeId}`;
+      detail.innerHTML = `
+        <div class="meta-grid">
+          <div class="meta-item"><strong>Task</strong>${escapeHtml(item.task || activeTab)}</div>
+          <div class="meta-item"><strong>Role</strong>${escapeHtml(item.sample_role || item.field_status || item.problem_pattern || '-')}</div>
+          <div class="meta-item"><strong>Question</strong>${escapeHtml(item.question_id || context.question_id || '-')}</div>
+          <div class="meta-item"><strong>Pattern</strong>${escapeHtml(item.problem_pattern || item.issue_category || '-')}</div>
+        </div>
+
+        <div class="section">
+          <h3>题干</h3>
+          <div class="stem">${escapeHtml(context.stem || item.stem || item.input?.stem || '-')}</div>
+        </div>
+
+        ${renderOptions(item)}
+        ${renderMainComparison(item)}
+
+        <div class="section">
+          <h3>来源上下文</h3>
+          <p>${escapeHtml(context.source_context || item.source_context || item.input?.source_context || '-')}</p>
+        </div>
+
+        <div class="section">
+          <h3>人工审查</h3>
+          <div class="status-row">
+            ${reviewButtons(activeId, st.review_status)}
+          </div>
+        </div>
+        <div class="section">
+          <h3>备注</h3>
+          <textarea id="note" placeholder="只记录当前 Tab 的审查意见">${escapeHtml(st.note || '')}</textarea>
+        </div>
+        <div class="section">
+          <button class="primary" id="save-note">保存当前样本</button>
+        </div>
+      `;
+      document.getElementById('note').oninput = (event) => save(activeId, { note: event.target.value });
+      document.getElementById('save-note').onclick = () => toast('已保存');
+      for (const button of detail.querySelectorAll('[data-review]')) {
+        button.onclick = () => save(activeId, { review_status: button.dataset.review });
+      }
+    }
+
+    function renderOptions(item) {
+      const context = item.canonical_context || {};
+      const options = context.options || (item.all_options || item.input?.all_options || []).map((text, index) => ({ id: String.fromCharCode(65 + index), text }));
+      if (!options.length) return '';
+      const correctText = context.correct_option || item.correct_option || item.input?.correct_option;
+      const targetText = item.input?.bad_option || item.bad_option || item.candidate_distractor || item.good_option || item.original_option;
+      const goldText = item.gold_output?.rewritten_option || item.gold_option;
+      const fieldLetter = fieldLetterFor(item);
+      const displayOptions = options.map((opt, index) => {
+        const id = opt.id || String.fromCharCode(65 + index);
+        let text = opt.text || opt;
+        if (fieldLetter && id === fieldLetter && activeTab === 'positive' && item.good_option) text = item.good_option;
+        if (fieldLetter && id === fieldLetter && activeTab === 'negative' && item.bad_option) text = item.bad_option;
+        if (fieldLetter && id === fieldLetter && activeTab === 'rewrite' && item.input?.bad_option) text = item.input.bad_option;
+        if (fieldLetter && id === fieldLetter && activeTab === 'judge' && targetText) text = targetText;
+        return { id, text, originalText: opt.text || opt };
+      });
+      let rows = displayOptions.map(opt => {
+        let cls = '';
+        if (opt.text === correctText) cls = ' correct';
+        if (opt.text === targetText && activeTab !== 'positive') cls = ' bad';
+        if (opt.text === item.good_option || opt.text === goldText) cls = activeTab === 'positive' ? ' gold' : cls || ' gold';
+        return `<div class="option${cls}"><span class="letter">${escapeHtml(opt.id || '')}</span><span>${escapeHtml(opt.text || opt)}</span></div>`;
+      }).join('');
+
+      const changed = displayOptions.filter(opt => opt.text !== opt.originalText);
+      if (changed.length) {
+        rows += `<div class="small-label" style="margin-top:14px"><span class="dot"></span>原上下文选项</div>`;
+        rows += changed.map(opt => `<div class="option"><span class="letter">${escapeHtml(opt.id)}</span><span>${escapeHtml(opt.originalText)}<br><span class="mini">已在上方替换为当前正在审查的字段样本。</span></span></div>`).join('');
+      }
+      if (activeTab === 'rewrite' && goldText && fieldLetter) {
+        rows += `<div class="small-label" style="margin-top:14px"><span class="dot"></span>黄金改写</div>`;
+        rows += `<div class="option gold"><span class="letter">${escapeHtml(fieldLetter)}</span><span>${escapeHtml(goldText)}</span></div>`;
+      }
+      return `<div class="section"><h3>${activeTab === 'positive' ? '包含好干扰项的选项组' : activeTab === 'negative' ? '包含坏干扰项的选项组' : activeTab === 'rewrite' ? '包含待改写项的选项组' : '选项组'}</h3>${rows}</div>`;
+    }
+
+    function fieldLetterFor(item) {
+      const key = item.field_key || item.input?.field_key || '';
+      const marker = 'option.';
+      const index = key.indexOf(marker);
+      if (index < 0) return null;
+      const letter = key.slice(index + marker.length, index + marker.length + 1);
+      return /^[A-D]$/.test(letter) ? letter : null;
+    }
+
+    function renderMainComparison(item) {
+      if (activeTab === 'rewrite') {
+        return `
+          <div class="compare">
+            <div class="box"><strong>坏/可修选项</strong><p>${escapeHtml(item.input?.bad_option || '-')}</p></div>
+            <div class="box"><strong>黄金改写</strong><p>${escapeHtml(item.gold_output?.rewritten_option || '-')}</p></div>
+          </div>
+          <div class="section"><h3>问题与改写理由</h3><p>${escapeHtml(item.input?.problem_note || '')}</p><p>${escapeHtml(item.gold_output?.rationale || '')}</p></div>
+        `;
+      }
+      if (activeTab === 'positive') {
+        return `<div class="box"><strong>好干扰项</strong><p>${escapeHtml(item.good_option || '-')}</p><p class="mini">${escapeHtml(item.why_good || '')}</p></div>`;
+      }
+      if (activeTab === 'negative') {
+        return `
+          <div class="box">
+            <strong>坏/可修干扰项</strong>
+            <p>${escapeHtml(item.bad_option || '-')}</p>
+            <p class="mini">${escapeHtml(item.why_bad || '')}</p>
+          </div>
+          <div class="box">
+            <strong>Gold Quality Label</strong>
+            <p>${escapeHtml(item.gold_quality_label || '-')}</p>
+            <p class="mini">${escapeHtml(item.gold_quality_label_rationale || '')}</p>
+          </div>
+        `;
+      }
+      return `
+          <div class="compare">
+            <div class="box"><strong>候选干扰项</strong><p>${escapeHtml(item.candidate_distractor || item.bad_option || item.good_option || item.original_option || '-')}</p></div>
+          <div class="box"><strong>Gold Label</strong><p>${escapeHtml(item.gold_quality_label || item.quality_label || item.field_status || '-')}</p><p class="mini">${escapeHtml(item.gold_quality_label_rationale || item.rationale || item.why_good || item.why_bad || item.human_note || '')}</p></div>
+        </div>
+      `;
+    }
+
+    function reviewButtons(id, active) {
+      const labels = activeTab === 'rewrite'
+        ? ['accept_rewrite', 'fix_rewrite', 'reject_sample']
+        : ['accept_label', 'fix_label', 'reject_label'];
+      return labels.map(label => `<button data-review="${escapeAttr(label)}" class="${active === label ? 'active' : ''}">${escapeHtml(label)}</button>`).join('');
+    }
+
+    function sampleId(item) {
+      return item.sample_id || item.id || `${item.question_id}-${item.field_key}`;
+    }
+
+    function kpTitle(item) {
+      return item.canonical_context?.knowledge_point_title || item.knowledge_point_title || item.input?.knowledge_point_title || '-';
+    }
+
+    function detailTitleFor(item) {
+      if (activeTab === 'rewrite') return '输入与黄金改写';
+      if (activeTab === 'positive') return '好样本审查';
+      if (activeTab === 'negative') return '坏模式审查';
+      return '质量判断样本审查';
+    }
+
+    function badgeFor(item) {
+      if (activeTab === 'rewrite') return { label: 'rewrite', className: 'rewrite' };
+      if (activeTab === 'positive') return { label: 'accept', className: 'positive' };
+      if (activeTab === 'negative') {
+        const label = item.gold_quality_label || 'reject';
+        return { label, className: label === 'fixable' ? 'fixable' : 'negative' };
+      }
+      const label = item.gold_quality_label || item.quality_label || item.field_status || 'judge';
+      return { label, className: label === 'accept' ? 'accept' : label === 'reject' ? 'reject' : label === 'fixable' ? 'fixable' : 'neutral' };
+    }
+
+    function shortSummary(item) {
+      if (activeTab === 'rewrite') return `坏项：${item.input?.bad_option || '-'} → ${item.gold_output?.rewritten_option || '-'}`;
+      if (activeTab === 'positive') return `好项：${item.good_option || '-'}`;
+      if (activeTab === 'negative') return `坏项：${item.bad_option || '-'}`;
+      return `候选：${item.candidate_distractor || item.bad_option || item.good_option || item.original_option || '-'}`;
+    }
+
+    function summaryText(rows) {
+      const qCount = new Set(rows.map(x => x.question_id || x.canonical_context?.question_id)).size;
+      if (activeTab === 'judge') {
+        const counts = rows.reduce((acc, row) => {
+          const key = row.gold_quality_label || row.quality_label || row.field_status || 'unknown';
+          acc[key] = (acc[key] || 0) + 1;
+          return acc;
+        }, {});
+        return `judge · ${rows.length} samples · accept ${counts.accept || 0} · fixable ${counts.fixable || 0} · reject ${counts.reject || 0}`;
+      }
+      if (activeTab === 'negative') {
+        const counts = rows.reduce((acc, row) => {
+          const key = row.gold_quality_label || 'reject';
+          acc[key] = (acc[key] || 0) + 1;
+          return acc;
+        }, {});
+        return `${activeTab} · ${rows.length} samples · reject ${counts.reject || 0} · fixable ${counts.fixable || 0}`;
+      }
+      return `${activeTab} · ${rows.length} samples · ${qCount} questions`;
+    }
+
+    function currentExport() {
+      const rows = currentRows();
+      const saved = savedState();
+      return {
+        meta: {
+          kind: 'dspy_phase_a_distractor_review',
+          activeTab,
+          title: tabDefs[activeTab].title,
+          generatedAt: new Date().toISOString(),
+          rowCount: rows.length,
+          exportScope: 'current_tab_only'
+        },
+        rows: rows.map(row => ({
+          sample_id: sampleId(row),
+          task: row.task || activeTab,
+          question_id: row.question_id || row.canonical_context?.question_id,
+          role: row.sample_role || row.field_status || row.problem_pattern,
+          label: row.gold_quality_label || row.quality_label || row.field_status,
+          gold_quality_label: row.gold_quality_label || null,
+          gold_quality_label_rationale: row.gold_quality_label_rationale || null,
+          issue_category: row.issue_category || row.problem_pattern,
+          candidate: row.candidate_distractor || row.bad_option || row.good_option || row.input?.bad_option,
+          gold_output: row.gold_output || row.gold_option || null,
+          review: saved[sampleId(row)] || null
+        }))
+      };
+    }
+
+    async function copyJson() {
+      const text = JSON.stringify(currentExport(), null, 2);
+      try {
+        await navigator.clipboard.writeText(text);
+        toast('已复制当前 Tab JSON');
+      } catch (error) {
+        const area = document.createElement('textarea');
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand('copy');
+        area.remove();
+        toast('已复制当前 Tab JSON');
+      }
+    }
+
+    function downloadJson() {
+      const blob = new Blob([JSON.stringify(currentExport(), null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `shibei-dspy-${activeTab}-review.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function toast(message) {
+      const el = document.getElementById('toast');
+      el.textContent = message;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 1500);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, '&#96;');
+    }
+
+    document.getElementById('filter').onchange = (event) => {
+      filter = event.target.value;
+      activeId = null;
+      render();
+    };
+    document.getElementById('copy-json').onclick = copyJson;
+    document.getElementById('download-json').onclick = downloadJson;
+
+    loadData().catch(error => {
+      document.getElementById('list').innerHTML = `<div class="sample"><strong>加载失败</strong><p>${escapeHtml(error.message)}</p></div>`;
+      console.error(error);
+    });
+  </script>
+</body>
+</html>

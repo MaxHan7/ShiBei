@@ -1,0 +1,196 @@
+{
+  "meta": {
+    "kind": "dspy_phase_a_distractor_review",
+    "activeTab": "negative",
+    "title": "Negative",
+    "generatedAt": "2026-06-03T02:23:59.216Z",
+    "rowCount": 12,
+    "exportScope": "current_tab_only",
+    "goldQualityLabelCounts": {
+      "reject": 6,
+      "fixable": 6
+    }
+  },
+  "rows": [
+    {
+      "sample_id": "negative-hook-q5-option-d-negative",
+      "task": "classify_distractor_problem",
+      "question_id": "q-5",
+      "role": "too_extreme_low_value",
+      "issue_category": "too_extreme_low_value",
+      "candidate": "放弃格式化",
+      "gold_output": null,
+      "review": {
+        "review_status": "accept_label",
+        "updated_at": "2026-06-03T00:18:03.672Z"
+      },
+      "gold_quality_label": "reject",
+      "gold_quality_label_rationale": "低价值离谱项，一眼排除，不能作为有学习价值的干扰项。"
+    },
+    {
+      "sample_id": "negative-hook-q6-option-c-fixable",
+      "task": "classify_distractor_problem",
+      "question_id": "q-6",
+      "role": "generic_person_blame_but_useful_boundary",
+      "issue_category": "generic_person_blame_but_useful_boundary",
+      "candidate": "产品经理不了解AI",
+      "gold_output": null,
+      "review": {
+        "review_status": "fix_label",
+        "updated_at": "2026-06-03T00:21:15.687Z"
+      },
+      "gold_quality_label": "fixable",
+      "gold_quality_label_rationale": "它抓到“错误归因”方向，但“产品经理不了解 AI”太泛，未贴住 Demo 阶段控制需求；应改成更具体的 Prompt/Hook 误区。"
+    },
+    {
+      "sample_id": "negative-hook-q6-option-d-negative-r1",
+      "task": "classify_distractor_problem",
+      "question_id": "q-6",
+      "role": "wrong_timing_boundary",
+      "issue_category": "wrong_timing_boundary",
+      "candidate": "Hook无法用于演示",
+      "gold_output": null,
+      "review": {
+        "review_status": "accept_label",
+        "updated_at": "2026-06-03T00:21:34.521Z"
+      },
+      "gold_quality_label": "reject",
+      "gold_quality_label_rationale": "“Hook 无法用于演示”过绝对，且和原文“Demo 阶段不优先严格控制”的边界不一致。"
+    },
+    {
+      "sample_id": "negative-hook-q6-option-d-negative-r3",
+      "task": "classify_distractor_problem",
+      "question_id": "q-6",
+      "role": "adjacent_tool_wrong_substitute",
+      "issue_category": "adjacent_tool_wrong_substitute",
+      "candidate": "因为 CI 会自动处理 Demo 阶段的所有风险",
+      "gold_output": null,
+      "review": {
+        "review_status": "fix_label",
+        "updated_at": "2026-06-03T00:21:55.635Z"
+      },
+      "gold_quality_label": "fixable",
+      "gold_quality_label_rationale": "“CI 自动处理 Demo 阶段所有风险”是相邻工程工具误用，但和本题核心关系偏弱；需要改得更贴近 Demo 速度与控制需求。"
+    },
+    {
+      "sample_id": "negative-hook-q7-option-c-negative-r2",
+      "task": "classify_distractor_problem",
+      "question_id": "q-7",
+      "role": "manual_review_wrong_substitute",
+      "issue_category": "manual_review_wrong_substitute",
+      "candidate": "追求代码质量",
+      "gold_output": null,
+      "review": {
+        "review_status": "fix_label",
+        "updated_at": "2026-06-03T00:25:13.187Z"
+      },
+      "gold_quality_label": "fixable",
+      "gold_quality_label_rationale": "“追求代码质量”过泛，能指向工程化但没有具体说明何时需要 Hook；应改成更明确的确定性规则场景。"
+    },
+    {
+      "sample_id": "negative-hook-q7-option-d-negative-r1",
+      "task": "classify_distractor_problem",
+      "question_id": "q-7",
+      "role": "manual_repeat_handling_wrong_substitute",
+      "issue_category": "manual_repeat_handling_wrong_substitute",
+      "candidate": "严格测试",
+      "gold_output": null,
+      "review": {
+        "review_status": "accept_label",
+        "updated_at": "2026-06-03T00:25:38.185Z"
+      },
+      "gold_quality_label": "reject",
+      "gold_quality_label_rationale": "“严格测试”语义不明，看不出如何干扰，也没有说明和 Hook/Vibe coding 的关系。"
+    },
+    {
+      "sample_id": "negative-hook-q7-option-d-negative-r2",
+      "task": "classify_distractor_problem",
+      "question_id": "q-7",
+      "role": "unrelated_goal_boundary",
+      "issue_category": "unrelated_goal_boundary",
+      "candidate": "认为 Prompt 已能稳定强制执行规则",
+      "gold_output": null,
+      "review": {
+        "review_status": "accept_label",
+        "updated_at": "2026-06-03T02:22:15.165Z"
+      },
+      "gold_quality_label": "reject",
+      "gold_quality_label_rationale": "“Prompt 已能稳定强制执行规则”太接近正确知识点，容易造成多选/正确项风险。"
+    },
+    {
+      "sample_id": "negative-hook-q8-option-c-fixable",
+      "task": "classify_distractor_problem",
+      "question_id": "q-8",
+      "role": "too_vague_prompt_distractor",
+      "issue_category": "too_vague_prompt_distractor",
+      "candidate": "写更多的Prompt",
+      "gold_output": null,
+      "review": {
+        "review_status": "accept_label",
+        "updated_at": "2026-06-03T02:22:37.781Z"
+      },
+      "gold_quality_label": "fixable",
+      "gold_quality_label_rationale": "“写更多的 Prompt”方向对，但太短太泛；应改成“把重复检查继续写进提示词里”这种具体错误做法。"
+    },
+    {
+      "sample_id": "negative-hook-q8-option-d-fixable",
+      "task": "classify_distractor_problem",
+      "question_id": "q-8",
+      "role": "delayed_check_wrong_substitute",
+      "issue_category": "delayed_check_wrong_substitute",
+      "candidate": "重新设计架构",
+      "gold_output": null,
+      "review": {
+        "review_status": "accept_label",
+        "updated_at": "2026-06-03T02:23:07.481Z"
+      },
+      "gold_quality_label": "fixable",
+      "gold_quality_label_rationale": "“重新设计架构”是相邻但过大的解决方案，仍可作为可修样本；需要贴近重复检查/流程固化的边界。"
+    },
+    {
+      "sample_id": "negative-hook-q13-option-b-fixable",
+      "task": "classify_distractor_problem",
+      "question_id": "q-13",
+      "role": "prompt_overreliance_distractor",
+      "issue_category": "prompt_overreliance_distractor",
+      "candidate": "继续改进提示词",
+      "gold_output": null,
+      "review": {
+        "review_status": "accept_label",
+        "updated_at": "2026-06-03T02:23:39.568Z"
+      },
+      "gold_quality_label": "fixable",
+      "gold_quality_label_rationale": "“继续改进提示词”是真实误区，但表达略泛；应和可靠性要求/工程规则边界绑定得更清楚。"
+    },
+    {
+      "sample_id": "negative-hook-q13-option-c-negative",
+      "task": "classify_distractor_problem",
+      "question_id": "q-13",
+      "role": "too_extreme_low_value",
+      "issue_category": "too_extreme_low_value",
+      "candidate": "放弃使用AI",
+      "gold_output": null,
+      "review": {
+        "review_status": "accept_label",
+        "updated_at": "2026-06-03T02:23:50.948Z"
+      },
+      "gold_quality_label": "reject",
+      "gold_quality_label_rationale": "“放弃使用 AI”离谱且低价值，一眼排除。"
+    },
+    {
+      "sample_id": "negative-hook-q13-option-d-negative",
+      "task": "classify_distractor_problem",
+      "question_id": "q-13",
+      "role": "irrelevant_person_blame",
+      "issue_category": "irrelevant_person_blame",
+      "candidate": "责怪工程师",
+      "gold_output": null,
+      "review": {
+        "review_status": "accept_label",
+        "updated_at": "2026-06-03T02:23:56.230Z"
+      },
+      "gold_quality_label": "reject",
+      "gold_quality_label_rationale": "“责怪工程师”是情绪化归因，没有学习价值。"
+    }
+  ]
+}

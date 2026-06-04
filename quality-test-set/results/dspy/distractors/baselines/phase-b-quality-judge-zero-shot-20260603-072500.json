@@ -1,0 +1,161 @@
+{
+  "kind": "dspy_phase_b_distractor_quality_judge_baseline",
+  "generated_at": "2026-06-03T07:25:05.983732",
+  "mode": "zero-shot",
+  "model": "deepseek/deepseek-chat",
+  "dataset_path": "quality-test-set/results/dspy/distractors/datasets/dspy-distractor-quality-judge-devtest.v2.jsonl",
+  "fewshot_k": 0,
+  "limit": 2,
+  "summary": {
+    "total": 2,
+    "label_accuracy": 0.5,
+    "issue_exact_accuracy": 0.0,
+    "average_metric_score": 0.4,
+    "confusion_matrix": {
+      "accept": {
+        "accept": 1,
+        "reject": 1
+      }
+    },
+    "by_source_phase": {
+      "phase_a_hook": {
+        "total": 2,
+        "label_accuracy": 0.5,
+        "average_metric_score": 0.4
+      }
+    },
+    "by_gold_label": {
+      "accept": {
+        "total": 2,
+        "label_accuracy": 0.5
+      }
+    },
+    "high_risk_errors": [
+      {
+        "index": 2,
+        "sample_id": "judge-positive-hook-q5-option-c-positive",
+        "source_phase": "phase_a_hook",
+        "article_slug": "UMr6ia1QubqOMw3aBUGbOw",
+        "question_id": "q-5",
+        "candidate_distractor": "手动格式化",
+        "gold_quality_label": "accept",
+        "predicted_quality_label": "reject",
+        "gold_issue_category": "good_operational_distractor",
+        "predicted_issue_category": "too_extreme_low_value",
+        "is_correct_equivalent": "no",
+        "has_multiselect_risk": "no",
+        "same_context": "yes",
+        "learning_value": "low",
+        "fixability": "not_worth_fixing",
+        "score": 0.0,
+        "rationale": "“手动格式化”是一个过于极端且低价值的选项，它完全偏离了“自动化”这一核心对比维度，无法帮助学习者区分Hook与Prompt的本质区别，且与题干中“更好的解决方案”的自动化方向明显矛盾，不具备教学价值。",
+        "review_note": "",
+        "missing_context_fields": [],
+        "hard_fail_reasons": [],
+        "high_risk": true
+      }
+    ],
+    "hard_failures": [],
+    "over_strict_errors": [
+      {
+        "index": 2,
+        "sample_id": "judge-positive-hook-q5-option-c-positive",
+        "source_phase": "phase_a_hook",
+        "article_slug": "UMr6ia1QubqOMw3aBUGbOw",
+        "question_id": "q-5",
+        "candidate_distractor": "手动格式化",
+        "gold_quality_label": "accept",
+        "predicted_quality_label": "reject",
+        "gold_issue_category": "good_operational_distractor",
+        "predicted_issue_category": "too_extreme_low_value",
+        "is_correct_equivalent": "no",
+        "has_multiselect_risk": "no",
+        "same_context": "yes",
+        "learning_value": "low",
+        "fixability": "not_worth_fixing",
+        "score": 0.0,
+        "rationale": "“手动格式化”是一个过于极端且低价值的选项，它完全偏离了“自动化”这一核心对比维度，无法帮助学习者区分Hook与Prompt的本质区别，且与题干中“更好的解决方案”的自动化方向明显矛盾，不具备教学价值。",
+        "review_note": "",
+        "missing_context_fields": [],
+        "hard_fail_reasons": [],
+        "high_risk": true
+      }
+    ],
+    "second_correct_risk_errors": [],
+    "fixable_recall": 0,
+    "invalid_outputs": [],
+    "wrong_predictions": [
+      {
+        "index": 2,
+        "sample_id": "judge-positive-hook-q5-option-c-positive",
+        "source_phase": "phase_a_hook",
+        "article_slug": "UMr6ia1QubqOMw3aBUGbOw",
+        "question_id": "q-5",
+        "candidate_distractor": "手动格式化",
+        "gold_quality_label": "accept",
+        "predicted_quality_label": "reject",
+        "gold_issue_category": "good_operational_distractor",
+        "predicted_issue_category": "too_extreme_low_value",
+        "is_correct_equivalent": "no",
+        "has_multiselect_risk": "no",
+        "same_context": "yes",
+        "learning_value": "low",
+        "fixability": "not_worth_fixing",
+        "score": 0.0,
+        "rationale": "“手动格式化”是一个过于极端且低价值的选项，它完全偏离了“自动化”这一核心对比维度，无法帮助学习者区分Hook与Prompt的本质区别，且与题干中“更好的解决方案”的自动化方向明显矛盾，不具备教学价值。",
+        "review_note": "",
+        "missing_context_fields": [],
+        "hard_fail_reasons": [],
+        "high_risk": true
+      }
+    ]
+  },
+  "results": [
+    {
+      "index": 1,
+      "sample_id": "judge-positive-hook-q5-option-b-positive",
+      "source_phase": "phase_a_hook",
+      "article_slug": "UMr6ia1QubqOMw3aBUGbOw",
+      "question_id": "q-5",
+      "candidate_distractor": "在Prompt中强调多次",
+      "gold_quality_label": "accept",
+      "predicted_quality_label": "accept",
+      "gold_issue_category": "good_same_context_distractor",
+      "predicted_issue_category": "accepted_distractor",
+      "is_correct_equivalent": "no",
+      "has_multiselect_risk": "no",
+      "same_context": "yes",
+      "learning_value": "high",
+      "fixability": "ready",
+      "score": 0.8,
+      "rationale": "该选项“在Prompt中强调多次”是典型的常见误解，与正确选项“使用Hook在PostToolUse触发格式化”形成鲜明对比，能有效帮助学习者区分“依赖Prompt”与“使用Hook”的本质差异，学习价值高，且无多选风险。[[ ## is_correct_equivalent ## ]]\nno",
+      "review_note": "",
+      "missing_context_fields": [],
+      "hard_fail_reasons": [],
+      "high_risk": false
+    },
+    {
+      "index": 2,
+      "sample_id": "judge-positive-hook-q5-option-c-positive",
+      "source_phase": "phase_a_hook",
+      "article_slug": "UMr6ia1QubqOMw3aBUGbOw",
+      "question_id": "q-5",
+      "candidate_distractor": "手动格式化",
+      "gold_quality_label": "accept",
+      "predicted_quality_label": "reject",
+      "gold_issue_category": "good_operational_distractor",
+      "predicted_issue_category": "too_extreme_low_value",
+      "is_correct_equivalent": "no",
+      "has_multiselect_risk": "no",
+      "same_context": "yes",
+      "learning_value": "low",
+      "fixability": "not_worth_fixing",
+      "score": 0.0,
+      "rationale": "“手动格式化”是一个过于极端且低价值的选项，它完全偏离了“自动化”这一核心对比维度，无法帮助学习者区分Hook与Prompt的本质区别，且与题干中“更好的解决方案”的自动化方向明显矛盾，不具备教学价值。",
+      "review_note": "",
+      "missing_context_fields": [],
+      "hard_fail_reasons": [],
+      "high_risk": true
+    }
+  ]
+}
