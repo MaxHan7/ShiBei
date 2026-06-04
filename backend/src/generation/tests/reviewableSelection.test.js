@@ -1180,7 +1180,7 @@ test("composite question is low confidence when source covers only one concept",
   assert.equal(evaluated[0].confidenceReasons.includes("source_coverage_incomplete"), true);
 });
 
-test("claim fidelity drops when question overstates source claim", () => {
+test("claim fidelity remains diagnostic unless the question severely overstates the source claim", () => {
   const demoPoint = {
     id: "kp-1",
     title: "Demo 阶段不需要严格控制",
@@ -1209,7 +1209,7 @@ test("claim fidelity drops when question overstates source claim", () => {
   });
 
   assert.equal(evaluated[0].claimFidelityScore < 4, true);
-  assert.equal(evaluated[0].confidenceReasons.includes("claim_overextended"), true);
+  assert.equal(evaluated[0].confidenceReasons.includes("claim_overextended"), false);
 });
 
 test("records a lower target reason for clearly low-testability points", () => {

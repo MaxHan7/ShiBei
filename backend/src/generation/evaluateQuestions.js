@@ -1091,13 +1091,7 @@ function buildTrustDiagnostics({
     point?.summary
   ]);
   const contextRelevanceScore = scoreContextRelevance(question, sourceValidation);
-  const misconceptionSupportScore = scoreTextGrounding(question.sourceSnippet, [
-    question.commonMisconception
-  ], [
-    question.stem,
-    point?.keyClaim,
-    point?.summary
-  ]);
+  const misconceptionSupportScore = scoreMisconceptionAlignment(question, point);
   const sourcePrecisionScore = clamp(Number(question.sourcePrecisionScore || question.sourceContextSelection?.sourcePrecisionScore || contextRelevanceScore || 1));
   const sourceCoverageScore = scoreSourceCoverage(question);
   const claimFidelityScore = scoreClaimFidelity(question, point);
@@ -1110,8 +1104,8 @@ function buildTrustDiagnostics({
     confidenceReasons.push(explanationReason(question, explanationFaithfulnessScore));
   }
   if (contextRelevanceScore < 4 || sourcePrecisionScore < 4) confidenceReasons.push("weak_context_relevance");
-  if (sourceCoverageScore < 4) confidenceReasons.push("source_coverage_incomplete");
-  if (claimFidelityScore < 4) confidenceReasons.push("claim_overextended");
+  if (sourceCoverageScore < 3 && answerGroundingScore < 4) confidenceReasons.push("source_coverage_incomplete");
+  if (claimFidelityScore < 3) confidenceReasons.push("claim_overextended");
   if (misconceptionSupportScore < 3) confidenceReasons.push(misconceptionReason(question));
   const cognitiveActionFitScore = Number(pedagogy.cognitiveActionFitScore || 0);
   if (typeValidation && !typeValidation.valid && cognitiveActionFitScore > 0 && cognitiveActionFitScore < 3) {
@@ -1122,9 +1116,9 @@ function buildTrustDiagnostics({
   }
   if ((question.sourceSnippetWasBackfilled || question.sourceContextUnsupported) && sourcePrecisionScore < 4) confidenceReasons.push("source_context_backfilled");
   if (judge?.qualityAction === "rewrite" || ruleAction === "rewrite") confidenceReasons.push("judge_rewrite");
-  if (scores.distractorQuality < 4) confidenceReasons.push(distractorReason(question));
+  if (scores.distractorQuality < 3) confidenceReasons.push(distractorReason(question));
   if (scores.answerUniqueness < 4) confidenceReasons.push("answer_not_unique");
-  if (reviewFriction.reviewFrictionScore < 4) {
+  if (reviewFriction.reviewFrictionScore <= 2) {
     confidenceReasons.push(...reviewFriction.reviewFrictionReasons);
   }
 
@@ -1224,13 +1218,11 @@ function confidenceTierForQuestion({
     || confidenceReasons.includes("core_recall_too_literal")
     || confidenceReasons.includes("boundary_not_teaching_real_confusion")
     || confidenceReasons.includes("scenario_transfer_too_literal")
-    || confidenceReasons.includes("source_coverage_incomplete")
-    || confidenceReasons.includes("claim_overextended")
     || confidenceReasons.includes("question_card_too_heavy")
     || confidenceReasons.includes("stem_too_long")
     || confidenceReasons.includes("scenario_background_too_long")
     || confidenceReasons.includes("option_too_explanatory")
-    || Number(reviewFrictionScore || 0) <= 3
+    || Number(reviewFrictionScore || 0) <= 2
     || confidenceReasons.some((reason) => String(reason).startsWith("distractors_"))
     || confidenceReasons.includes("judge_rewrite")
   ) {
@@ -1257,8 +1249,8 @@ function repairHintForReason(primaryBlockingReason, confidenceReasons = []) {
   if (confidenceReasons.includes("core_recall_too_literal")) return "把题目从原文字面识别改成核心主张回忆";
   if (confidenceReasons.includes("boundary_not_teaching_real_confusion")) return "补真实混淆对象，让题目能训练边界辨析";
   if (confidenceReasons.includes("scenario_transfer_too_literal")) return "把题目改成需要在新场景中迁移判断，而不是复述原文";
-  if (confidenceReasons.includes("weak_evidence_learning_value")) return "重新选择更像学习导航的最小充分证据";
-  if (confidenceReasons.includes("source_coverage_incomplete")) return "补充覆盖全部关键概念的来源证据，或把题目收窄到当前来源能支撑的范围";
+  if (confidenceReasons.includes("weak_evidence_learning_value")) return "重新选择更准确的原文锚点";
+  if (confidenceReasons.includes("source_coverage_incomplete")) return "把题目收窄到当前来源锚点能支撑的范围，或换到更准确的原文位置";
   if (confidenceReasons.includes("claim_overextended")) return "收窄题目主张，避免把原文局部判断扩张成更强因果或普遍规律";
   if (confidenceReasons.includes("question_card_too_heavy")) return "压缩题卡可见阅读负担，只保留做判断所需的题干变量和短选项";
   if (confidenceReasons.includes("scenario_background_too_long")) return "把场景压成一个角色、一个冲突或一个决策点，删除不参与判断的背景";
@@ -1393,6 +1385,30 @@ function explanationReason(question, explanationFaithfulnessScore) {
   if (explanationFaithfulnessScore <= 2 && explanation.length > correct.length * 1.4) return "explanation_overextends_source";
   if (/因此|所以|意味着|说明/.test(explanation) && !keywordOverlap(explanation, correct)) return "explanation_not_tied_to_answer";
   return "explanation_not_tied_to_answer";
+}
+
+function scoreMisconceptionAlignment(question = {}, point = {}) {
+  const misconception = String(question.commonMisconception || "").trim();
+  if (!misconception) return 2;
+  if (/没有理解|理解片面|忽略.*关键|只是.*表面|不够深入|混淆概念/.test(misconception) || misconception.length < 8) {
+    return 3;
+  }
+  const wrongOptions = Array.isArray(question.options)
+    ? question.options
+      .filter((option) => option.id !== question.correctOptionId)
+      .map((option) => option.text || "")
+      .join(" ")
+    : "";
+  const localContext = [
+    question.stem,
+    question.correctUnderstanding,
+    wrongOptions,
+    point?.keyClaim,
+    point?.summary
+  ].filter(Boolean).join(" ");
+  if (wrongOptions && keywordOverlap(misconception, wrongOptions)) return 5;
+  if (localContext && keywordOverlap(misconception, localContext)) return 4;
+  return 2;
 }
 
 function misconceptionReason(question) {
@@ -1658,9 +1674,15 @@ function scoreDistractorQuality(question) {
   if (question.type === "scenario_judgment" && isBinaryJudgmentOptions(question)) return 1;
   const correct = question.options.find((option) => option.id === question.correctOptionId)?.text || "";
   const wrongOptions = question.options.filter((option) => option.id !== question.correctOptionId);
-  if (wrongOptions.some((option) => option.text.length < 6)) return 2;
   if (wrongOptions.some((option) => normalize(option.text) === normalize(correct))) return 1;
-  if (wrongOptions.some((option) => /明显错误|无关|随便|都不/.test(option.text))) return 2;
+  const tooWeakCount = wrongOptions.filter((option) => (
+    String(option.text || "").length < 3
+    || /明显错误|无关|随便|都不/.test(option.text || "")
+  )).length;
+  const duplicateCount = wrongOptions.length - new Set(wrongOptions.map((option) => normalize(option.text))).size;
+  if (duplicateCount > 0) return 2;
+  if (tooWeakCount >= 2) return 2;
+  if (tooWeakCount === 1) return 3;
   return 4;
 }
 
@@ -1696,10 +1718,10 @@ function decideAction(scores, averageScore, issues) {
   if (issues.includes("missing_knowledge_point") || issues.includes("missing_source_snippet")) return "discard";
   if (issues.includes("source_snippet_not_found") || issues.includes("source_snippet_missing_source")) return "discard";
   if (issues.includes("source_snippet_unsupported_question_context")) return "discard";
-  if (issues.includes("review_friction_mandatory_rewrite") || issues.includes("review_friction_high")) return "rewrite";
+  if (issues.includes("review_friction_mandatory_rewrite")) return "rewrite";
   if (issues.includes("scenario_judgment_binary_options")) return "rewrite";
   if (issues.includes("non_binary_question_requires_four_options") || issues.includes("true_false_requires_two_options")) return "rewrite";
-  if (scores.sourceSupport < 4 || scores.answerUniqueness < 4 || scores.clarity < 4 || scores.distractorQuality < 4) {
+  if (scores.sourceSupport < 4 || scores.answerUniqueness < 4 || scores.clarity < 4 || scores.distractorQuality < 3) {
     return "rewrite";
   }
   if (scores.reviewValue < 3 || scores.understandingDepth < 3) return "discard";
