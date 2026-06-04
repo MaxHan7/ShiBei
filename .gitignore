@@ -1,4 +1,5 @@
 backend/node_modules/
+**/node_modules/
 .env
 .env.*
 backend/.env
@@ -10,6 +11,8 @@ __pycache__/
 .superpowers/
 .asc/
 ios/
+!experiments/shibei-v2/ios/
+!experiments/shibei-v2/ios/**
 .DS_Store
 **/.DS_Store
 **/xcuserdata/
