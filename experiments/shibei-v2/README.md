@@ -33,7 +33,7 @@ V2 uses:
 
 ```bash
 cd /Users/hanmingyu/Downloads/拾贝-v2-baseline/experiments/shibei-v2/backend
-npm install
+npm ci
 npm run dev
 ```
 
@@ -65,6 +65,10 @@ For a real iPhone on the same Wi-Fi, add this launch argument in Xcode:
 ```text
 -ShibeiV2APIBaseURL http://<Mac局域网IP>:5273
 ```
+
+Then use the app's debug settings to read from the local API. Do not put the
+LAN `http://...` URL into the cloud API field; that field is reserved for a
+future HTTPS Railway endpoint.
 
 You can find the Mac Wi-Fi IP with:
 
