@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hook 文章 V2 复习流程样章</title>
+  <style>
+    :root {
+      --bg: #f6f5ef;
+      --paper: #fffdf7;
+      --ink: #252522;
+      --muted: #6f6a5f;
+      --line: #ded8c8;
+      --accent: #5b7f53;
+      --accent-soft: #e9f0df;
+      --source: #f1eadb;
+      --question: #edf3f7;
+      --scenario: #f6ebee;
+      --note: #f3f0e9;
+      --mis: #fff4d9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    main {
+      width: min(1120px, calc(100vw - 36px));
+      margin: 0 auto;
+      padding: 42px 0 64px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    h2, h3 { letter-spacing: 0; }
+
+    .subtitle {
+      max-width: 860px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.54);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .panel,
+    .node {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--paper);
+      box-shadow: 0 14px 34px rgba(64, 54, 36, 0.06);
+    }
+
+    .panel {
+      margin-top: 26px;
+      padding: 22px;
+    }
+
+    .panel h2,
+    .node h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    .panel p,
+    .node p { margin: 0; }
+
+    .nodes {
+      margin-top: 18px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .node {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 18px;
+      padding: 22px;
+    }
+
+    .badge {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 760;
+      box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.7);
+    }
+
+    .node-title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .progress {
+      white-space: nowrap;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 760;
+    }
+
+    .kp {
+      margin: 0 0 14px;
+      font-size: 16px;
+      font-weight: 650;
+    }
+
+    .why {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .section-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .block {
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .block h3 {
+      margin: 0 0 7px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .source { background: var(--source); }
+    .concept { background: var(--question); }
+    .explain { background: var(--note); }
+    .scenario { background: var(--scenario); }
+    .misconception { background: var(--mis); }
+
+    .quote,
+    .small {
+      color: #4f4639;
+      font-size: 14px;
+    }
+
+    .source-action {
+      display: inline-flex;
+      align-items: center;
+      height: 30px;
+      margin-top: 10px;
+      padding: 0 11px;
+      border-radius: 15px;
+      border: 1px solid var(--line);
+      background: #fffaf0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .answer {
+      margin-top: 8px;
+      color: var(--accent);
+      font-weight: 760;
+    }
+
+    ol {
+      margin: 8px 0 0 20px;
+      padding: 0;
+    }
+
+    li { margin: 3px 0; }
+
+    @media (max-width: 680px) {
+      main {
+        width: min(100vw - 24px, 1120px);
+        padding-top: 26px;
+      }
+
+      .node { grid-template-columns: 1fr; }
+      .badge { width: 58px; height: 58px; }
+      .node-title { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Hook 文章 V2 复习流程样章</h1>
+      <p class="subtitle">按原文顺序重新拆分，并套用最新 PRD 标准：背景不硬出题、轻量理解先行、场景题按知识点密度决定、干扰项由后台误区约束、答题页提供查看原文入口。</p>
+      <div class="meta">
+        <span class="pill">来源：微信公众号 MetaTown</span>
+        <span class="pill">题干：考理解，不考背诵</span>
+        <span class="pill">来源：后台 anchor + 答题页查看原文</span>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h2>文章总览卡</h2>
+      <p>AI 已经能很快把想法变成 Demo，但真正难的是让它每次都稳定、可控、可复用。Hook 的作用，是把那些不能只靠人提醒的检查、限制和自动动作，固定到 AI 编程流程里。它和 Prompt、规则文档、CI 各自承担不同职责，帮助 PM 从“会让 AI 写代码”走向“知道怎样让 AI 可靠地工作”。</p>
+      <p class="why">背景锚点：开头关于 Vibe coding 的对话只负责唤醒文章语境，不作为正式知识点出题。</p>
+    </section>
+
+    <section class="nodes">
+      <article class="node">
+        <div class="badge">01</div>
+        <div>
+          <div class="node-title">
+            <h2>Hook 是什么</h2>
+            <div class="progress">进度 0/4</div>
+          </div>
+          <p class="kp">知识点：Hook 不是另一个提示词，而是在 AI agent 的关键动作前后加入规则、上下文和验证的控制器。</p>
+          <p class="why">为什么值得复习：这是全文的核心概念，后面所有时机、场景和分工都建立在这个定义上。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 6-12 段：固定节点、JSON 上下文、handler、decision、Prompt 与 Hook 的差异。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>Hook 更接近下面哪一种机制？</p>
+              <ol>
+                <li>在关键动作前后自动执行确定性流程</li>
+                <li>把项目规则写得更完整，让模型每次自行遵守</li>
+                <li>把所有质量问题留到合并前由 CI 统一发现</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 Hook 误解成更详细的提示词，或把它和最终质量门槛混在一起，忽略它是在事件发生时执行动作。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把 Hook 的组成特征匹配起来：</p>
+              <ol>
+                <li>固定节点 → 决定什么时候触发</li>
+                <li>上下文 → 让 handler 知道发生了什么</li>
+                <li>decision → 必要时影响这次动作能否继续</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 3</h3>
+              <p>哪类规则更不适合只停留在 prompt 里？</p>
+              <ol>
+                <li>每次改完文件都必须发生的检查或整理</li>
+                <li>这一次回答希望语气更简短</li>
+                <li>这一次先只做一个低保真视觉原型</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把“每次必须发生的流程约束”和“一次性任务偏好”混在一起，导致本该机制化的规则仍停留在聊天提醒里。</p>
+            </div>
+            <div class="block explain">
+              <h3>理解解析页</h3>
+              <p>Hook 的重点是“机制执行”，不是“模型自觉”。当某件事每次都必须发生，就应该从聊天提醒变成流程约束。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题</h3>
+              <p>你在配置 AI 编程流程，希望它每次改完文件后都自动格式化。更适合怎么做？</p>
+              <ol>
+                <li>在每次任务 prompt 里提醒它记得格式化，并相信它会遵守</li>
+                <li>在写文件后的 Hook 里自动执行格式化命令</li>
+                <li>只在合并前用 CI 发现格式问题，不干预 AI 改文件后的动作</li>
+              </ol>
+              <p class="answer">答案：2</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把“每次都要自动发生的动作”继续当成人工提醒，或误以为最终兜底能替代过程中的即时整理。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">02</div>
+        <div>
+          <div class="node-title">
+            <h2>为什么 PM 容易忽略 Hook</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：Demo 阶段只追求“这次能跑”，所以产品经理不容易感知 Hook 代表的工程化控制需求。</p>
+          <p class="why">为什么值得复习：这段解释了问题来源，也是从 Vibe coding 过渡到 Hook 的心理断点。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 13-18 段：Demo 阶段目标、Vibe coding 的顺滑感、以及“掌握 AI 工程流”的误会。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题</h3>
+              <p>Demo 阶段和工程化阶段最关键的差异是什么？</p>
+              <ol>
+                <li>前者更关心这次能跑，后者需要稳定复用和协作</li>
+                <li>前者属于产品工作，后者就完全不是产品经理该管的事</li>
+                <li>前者用自然语言驱动 AI，后者只需要换成更强模型</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把工程化变化误解成角色切换或模型升级，而不是从一次性可运行转向可复用、可协作、可控制。</p>
+            </div>
+            <div class="block explain">
+              <h3>理解解析页</h3>
+              <p>这里不是说 PM 不懂技术，而是 Demo 的目标天然偏短期。只有进入复用、协作和交付，工程控制才会变得明显。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>一个 PM 用自然语言快速做出 Demo，现在销售要把它拿给不同客户反复演示。真正发生变化的是什么？</p>
+              <ol>
+                <li>从一次性演示，变成需要稳定复用的流程</li>
+                <li>从产品验证，变成只需要补一点演示包装</li>
+                <li>从 Claude Code，变成必须换一个更适合交付的 AI 工具</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把复用和协作问题误判成演示效果问题，或误以为换工具就能自动获得流程可靠性。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>Demo 进入真实仓库后，哪件事最能说明它不再只是“这次能跑”？</p>
+              <ol>
+                <li>需要拦住不可接受的行为，并让重复动作自动发生</li>
+                <li>需要让页面动画更完整，方便演示时更有说服力</li>
+                <li>需要把每次 prompt 写得更长，避免 AI 忘掉仓库规则</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把真实仓库里的风险和重复动作继续当成“prompt 不够完整”的问题，而不是流程控制问题。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">03</div>
+        <div>
+          <div class="node-title">
+            <h2>什么时候需要 Hook</h2>
+            <div class="progress">进度 0/4</div>
+          </div>
+          <p class="kp">知识点：Hook 不是一开始就要上，而是在代码、规则、风险和协作变多后，从“可运行”走向“可复用”时出现价值。</p>
+          <p class="why">为什么值得复习：这是文章最实用的判断框架，帮助用户分清何时该引入机制。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 19-25 段：20 分钟概念 Demo、四类信号、代码/规则/风险变多后的价值。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>把需要 Hook 的信号和对应作用匹配：</p>
+              <ol>
+                <li>AI 开始碰危险动作 → 执行前检查风险，必要时阻止或升级人工确认</li>
+                <li>同样的提醒已经说了很多遍 → 把反复提醒变成项目级规则或自动动作</li>
+                <li>Demo 要交给别人继续改 → 把 lint、format、测试等协作秩序固定到仓库流程</li>
+                <li>AI session 变长 → 结束前验收测试、后台任务、未提交变更等状态</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>刚开始做一个短概念 Demo 时，更合理的判断是？</p>
+              <ol>
+                <li>先保持速度，不必一开始就搭复杂 Hook</li>
+                <li>先配置完整 Hook，才说明 Demo 有工程质量</li>
+                <li>Demo 已经能跑，就说明以后也不需要 Hook</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 Hook 理解成“越早越专业”，或者把 Demo 跑通误认为未来复用也可靠。</p>
+            </div>
+            <div class="block explain">
+              <h3>理解解析页</h3>
+              <p>Hook 的价值不是“越早越好”，而是在复杂度和风险上来之后，把反复提醒、危险拦截和结束验收机制化。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>AI 开始执行 shell 命令、移动目录，还可能访问生产接口。下一步最应该补哪类机制？</p>
+              <ol>
+                <li>执行前检查或人工确认</li>
+                <li>让 prompt 写得更谨慎，要求 AI 自己判断风险</li>
+                <li>等任务结束后再统一检查是否出了问题</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把危险动作的控制放在事后检查或模型自觉上，而不是在动作发生前设置拦截和确认。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>你已经第三次提醒 AI：“改完先格式化，生成文件放到 docs/assets”。这说明什么？</p>
+              <ol>
+                <li>这条提醒可能该从聊天里出来，变成规则或自动动作</li>
+                <li>只要把提醒写得更醒目，继续放在 prompt 里就够了</li>
+                <li>主要问题是模型记忆力不够强，应该先换模型</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把反复提醒理解成提示词表达不够强，忽略“重复出现”本身就是规则应该沉淀的信号。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">04</div>
+        <div>
+          <div class="node-title">
+            <h2>最实用的 Hook 场景</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：几个高频 Hook 场景分别对应改后整理、执行前拦截、开工前注入上下文和结束前验收。</p>
+          <p class="why">为什么值得复习：这是从抽象定义进入具体用法的关键段落，适合用匹配题建立边界。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 26-32 段：PostToolUse、PreToolUse、SessionStart、Stop 的高频用法。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题</h3>
+              <p>把 Hook 场景和用途匹配：</p>
+              <ol>
+                <li>PostToolUse → 改完文件后自动整理</li>
+                <li>PreToolUse → 执行危险动作前拦截</li>
+                <li>SessionStart → 会话开始时注入上下文</li>
+                <li>Stop → 结束前验收是否真的完成</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 Hook 类型当成语法名词来背，而不是理解它们各自适合的触发时机。</p>
+            </div>
+            <div class="block explain">
+              <h3>理解解析页</h3>
+              <p>这一组不是让用户背事件名，而是让用户知道“哪个时机适合解决哪类问题”。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>AI 刚写完代码，你希望不打断创作速度，但自动跑格式化。更适合哪个 Hook？</p>
+              <ol>
+                <li>PostToolUse</li>
+                <li>PreToolUse</li>
+                <li>Stop</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把“动作完成后的整理”误放到执行前拦截或结束验收里，混淆 Hook 的触发时机。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>AI 准备停下，但你想确认测试跑过、格式化没有失败，也没有留下后台任务。更适合哪个 Hook？</p>
+              <ol>
+                <li>SessionStart</li>
+                <li>Stop</li>
+                <li>PreToolUse</li>
+              </ol>
+              <p class="answer">答案：2</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把“结束前验收”误解成开工前注入背景，或误以为单次工具调用后的整理就等于整轮任务验收。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">05</div>
+        <div>
+          <div class="node-title">
+            <h2>Hook、CI、规则文档、Prompt 的分工</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：Prompt、项目规则文档、Hook 和 CI 各自负责不同层级，Hook 不能替代 CI，CI 也不能替代 Hook。</p>
+          <p class="why">为什么值得复习：这段负责消除工具边界混淆，是文章后半部分最典型的概念辨析节点。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 33-38 段：Prompt、规则文档、Hook、CI 的职责边界。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题</h3>
+              <p>把工具和职责匹配：</p>
+              <ol>
+                <li>Prompt → 这次希望 AI 怎么思考</li>
+                <li>规则文档 → 项目的长期背景和规则</li>
+                <li>Hook → 事件发生时必须执行的动作</li>
+                <li>CI → 进入主干前的最终质量门槛</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 Prompt、规则文档、Hook、CI 看成互相替代，而不是处在不同层级。</p>
+            </div>
+            <div class="block explain">
+              <h3>理解解析页</h3>
+              <p>Hook 是尽早把问题挡住，CI 是最后统一裁判。Prompt 和规则文档提供意图与背景，但它们本身不等于自动执行。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>团队希望进入主干前，无论代码由人写还是 AI 写，都必须通过统一质量门槛。最应该依赖什么？</p>
+              <ol>
+                <li>CI</li>
+                <li>Hook</li>
+                <li>项目规则文档</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 Hook 的过程控制误认为可以替代进入主干前的统一质量门槛，或把文档规则误认为自动验收。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>你希望 AI 每次改文件后立即格式化，把问题尽早挡住。更适合放在哪一层？</p>
+              <ol>
+                <li>Hook</li>
+                <li>CI</li>
+                <li>Prompt</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把即时过程动作后移到 CI，或继续留在 prompt 里让模型自行遵守。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">06</div>
+        <div>
+          <div class="node-title">
+            <h2>PM 真正该学的是能力边界</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：AI 产品经理不一定要成为 DevOps 工程师，但要知道自然语言驱动代码不是终点，哪些地方不能只靠一句话。</p>
+          <p class="why">为什么值得复习：这是文章的产品经理视角收束，把 Hook 从工具知识拉回到工程边界意识。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 39-47 段：PM 需要追问的边界问题，以及“自然语言驱动代码不是终点”。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题</h3>
+              <p>AI 产品经理在这里最需要补上的是什么判断？</p>
+              <ol>
+                <li>知道哪些地方需要机制和边界</li>
+                <li>把所有工程细节都交给 prompt 自己记住</li>
+                <li>只关注 Demo 速度，不介入复用和风险问题</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把“PM 不需要成为 DevOps 工程师”误解成“PM 不需要理解 AI 写代码时的工程边界”。</p>
+            </div>
+            <div class="block explain">
+              <h3>理解解析页</h3>
+              <p>文章不是要求 PM 立刻写复杂脚本，而是要求 PM 能提出边界问题：AI 能做什么、不能碰什么、完成前要验收什么。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>一个 AI Demo 要进入团队复用阶段。PM 最应该先追问哪类问题？</p>
+              <ol>
+                <li>哪些规则要写进流程，而不是靠人记住</li>
+                <li>怎么让 Demo 页面看起来更完整，方便更多人演示</li>
+                <li>怎么让每次 prompt 更长，覆盖更多注意事项</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把团队复用问题误判成展示完整度或 prompt 长度问题，而不是规则沉淀和流程边界问题。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>团队准备让 AI 接触客户数据和生产配置。PM 的合理反应是什么？</p>
+              <ol>
+                <li>先明确 AI 的权限边界和需要拦截的动作</li>
+                <li>只要 prompt 写清楚，权限问题就可以交给模型自觉处理</li>
+                <li>先追求 Demo 流畅度，权限和生产配置等真正上线前再看</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把数据和生产配置风险当成上线前才需要处理的质量问题，或误以为自然语言提醒足以约束权限边界。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>章节收尾卡</h2>
+      <p>Vibe coding 负责起飞，Hook 负责别偏航。AI coding 让产品经理更快把想法变成可运行 Demo；Hook 则让 Demo 进入下一次、下一个人、下一个环境时，仍然能被可靠使用。</p>
+      <p class="why">收尾说明：原文最后几段更适合作为章节完成总结，不强行拆成新的知识点。</p>
+    </section>
+  </main>
+</body>
+</html>

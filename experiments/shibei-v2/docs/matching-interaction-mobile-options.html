@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>匹配题移动端交互方案静态稿</title>
+  <style>
+    :root {
+      --bg: #f5f3ea;
+      --phone: #fffdf7;
+      --ink: #24231f;
+      --muted: #746e62;
+      --line: #ded8c8;
+      --soft: #edf3e8;
+      --accent: #668a52;
+      --accent-dark: #496c3d;
+      --blue: #edf3f7;
+      --pink: #f7ecef;
+      --tag: #f4efe2;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.45;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 34px 0 56px;
+    }
+
+    header {
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(26px, 4vw, 40px);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 840px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 22px;
+      align-items: start;
+    }
+
+    .option {
+      display: grid;
+      gap: 10px;
+      justify-items: center;
+    }
+
+    .option h2 {
+      width: min(390px, 100%);
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .note {
+      width: min(390px, 100%);
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .phone {
+      position: relative;
+      width: min(390px, 100%);
+      min-height: 760px;
+      padding: 20px 18px 22px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: var(--phone);
+      box-shadow: 0 18px 42px rgba(63, 53, 35, 0.12);
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .progress {
+      color: var(--accent-dark);
+    }
+
+    .question-title {
+      margin: 0 0 8px;
+      font-size: 21px;
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    .prompt {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .source-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fffaf0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+      margin-bottom: 14px;
+    }
+
+    .bottom {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 23px;
+      background: var(--accent);
+      color: white;
+      font-weight: 760;
+      font-size: 15px;
+    }
+
+    .bottom.disabled {
+      background: #d8d2c2;
+      color: #8a8377;
+    }
+
+    .match-wrap {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding-top: 4px;
+    }
+
+    .match-col {
+      display: grid;
+      gap: 12px;
+    }
+
+    .match-card,
+    .choice,
+    .drop-card,
+    .tag,
+    .scenario-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: white;
+      box-shadow: 0 6px 14px rgba(63, 53, 35, 0.05);
+    }
+
+    .match-card {
+      min-height: 70px;
+      padding: 11px 10px;
+      display: flex;
+      align-items: center;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .match-card.left {
+      background: var(--blue);
+    }
+
+    .match-card.right {
+      background: var(--tag);
+    }
+
+    .fake-lines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .fake-lines line {
+      stroke: var(--accent);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 7 7;
+      opacity: 0.55;
+    }
+
+    .focus-card {
+      padding: 16px;
+      border: 1px solid #d5decf;
+      border-radius: 16px;
+      background: var(--soft);
+      margin-bottom: 14px;
+    }
+
+    .focus-label {
+      margin: 0 0 6px;
+      color: var(--accent-dark);
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    .focus-text {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.32;
+      font-weight: 720;
+    }
+
+    .choices {
+      display: grid;
+      gap: 10px;
+    }
+
+    .choice {
+      min-height: 58px;
+      padding: 11px 12px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .choice.selected {
+      border-color: var(--accent);
+      background: var(--soft);
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+
+    .drop-list {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .drop-card {
+      padding: 11px;
+      background: var(--blue);
+    }
+
+    .drop-title {
+      margin: 0 0 8px;
+      font-size: 13px;
+      font-weight: 720;
+    }
+
+    .slot {
+      min-height: 36px;
+      border: 1px dashed #b9c7ae;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .slot.filled {
+      border-style: solid;
+      background: var(--soft);
+      color: var(--accent-dark);
+      font-weight: 650;
+    }
+
+    .tag-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      padding: 8px 10px;
+      font-size: 12px;
+      color: #574f43;
+      background: var(--tag);
+    }
+
+    .scenario-card {
+      padding: 16px;
+      background: var(--pink);
+      margin-bottom: 14px;
+    }
+
+    .scenario-card p {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.42;
+      font-weight: 650;
+    }
+
+    .mini-count {
+      margin: 10px 0 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 720px) {
+      main {
+        width: min(100vw - 20px, 1180px);
+        padding-top: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>匹配题移动端交互方案静态稿</h1>
+      <p class="subtitle">同一组“什么时候需要 Hook”的内容，用四种移动端布局模拟。重点看长文本承载、阅读压力、操作感和是否符合“由宏观到具体”的复习节奏。</p>
+    </header>
+
+    <section class="grid">
+      <article class="option">
+        <h2>方案 A：左右连线</h2>
+        <p class="note">整体关系最强，但长文本会挤，占屏幕高度也高。</p>
+        <div class="phone">
+          <div class="topbar"><span>什么时候需要 Hook</span><span class="progress">1/3</span></div>
+          <h3 class="question-title">把信号和对应作用连起来</h3>
+          <p class="prompt">每条线连对后变绿，连错会自动断开。</p>
+          <div class="source-button">查看原文</div>
+
+          <div class="match-wrap">
+            <svg class="fake-lines" viewBox="0 0 340 360" preserveAspectRatio="none">
+              <line x1="150" y1="38" x2="190" y2="42"></line>
+              <line x1="150" y1="124" x2="190" y2="128"></line>
+              <line x1="150" y1="210" x2="190" y2="214"></line>
+              <line x1="150" y1="296" x2="190" y2="300"></line>
+            </svg>
+            <div class="match-col">
+              <div class="match-card left">AI 开始碰危险动作</div>
+              <div class="match-card left">同样的提醒已经说了很多遍</div>
+              <div class="match-card left">Demo 要交给别人继续改</div>
+              <div class="match-card left">AI session 变长，改动和上下文堆积</div>
+            </div>
+            <div class="match-col">
+              <div class="match-card right">执行前检查风险，必要时阻止或升级人工确认</div>
+              <div class="match-card right">把反复提醒变成项目级规则或自动动作</div>
+              <div class="match-card right">把 lint、format、测试、命名固定到流程</div>
+              <div class="match-card right">结束前验收测试、后台任务、未提交变更</div>
+            </div>
+          </div>
+          <div class="bottom disabled">全部连对后继续</div>
+        </div>
+      </article>
+
+      <article class="option">
+        <h2>方案 B：逐个匹配卡片</h2>
+        <p class="note">最适合手机长文本，一次只处理一个关系。</p>
+        <div class="phone">
+          <div class="topbar"><span>什么时候需要 Hook</span><span class="progress">1/4</span></div>
+          <h3 class="question-title">这个信号对应什么作用？</h3>
+          <p class="prompt">答对后自动进入下一张。</p>
+          <div class="source-button">查看原文</div>
+
+          <div class="focus-card">
+            <p class="focus-label">当前信号</p>
+            <p class="focus-text">AI 开始碰危险动作</p>
+          </div>
+
+          <div class="choices">
+            <div class="choice selected">执行前检查风险，必要时阻止或升级人工确认</div>
+            <div class="choice">把反复提醒变成项目级规则或自动动作</div>
+            <div class="choice">把协作秩序固定到仓库流程里</div>
+            <div class="choice">在结束前验收是否真的完成</div>
+          </div>
+          <p class="mini-count">本组还有 3 张</p>
+          <div class="bottom">继续</div>
+        </div>
+      </article>
+
+      <article class="option">
+        <h2>方案 C：拖拽标签到卡片</h2>
+        <p class="note">保留拼图感，纵向排版比左右连线更稳。</p>
+        <div class="phone">
+          <div class="topbar"><span>什么时候需要 Hook</span><span class="progress">2/4</span></div>
+          <h3 class="question-title">把作用拖到对应信号下</h3>
+          <p class="prompt">正确放入后标签锁定。</p>
+          <div class="source-button">查看原文</div>
+
+          <div class="drop-list">
+            <div class="drop-card">
+              <p class="drop-title">AI 开始碰危险动作</p>
+              <div class="slot filled">执行前检查风险</div>
+            </div>
+            <div class="drop-card">
+              <p class="drop-title">同样的提醒已经说了很多遍</p>
+              <div class="slot">拖入对应作用</div>
+            </div>
+            <div class="drop-card">
+              <p class="drop-title">Demo 要交给别人继续改</p>
+              <div class="slot">拖入对应作用</div>
+            </div>
+          </div>
+
+          <div class="tag-bank">
+            <div class="tag">变成项目级规则</div>
+            <div class="tag">固定协作秩序</div>
+            <div class="tag">结束前验收</div>
+          </div>
+          <div class="bottom disabled">完成全部匹配</div>
+        </div>
+      </article>
+
+      <article class="option">
+        <h2>方案 D：场景选择</h2>
+        <p class="note">像选择题，游戏感弱一些，但场景可写得更自然。</p>
+        <div class="phone">
+          <div class="topbar"><span>什么时候需要 Hook</span><span class="progress">1/4</span></div>
+          <h3 class="question-title">这个场景对应哪个信号？</h3>
+          <p class="prompt">从四个信号中选择最贴近的一项。</p>
+          <div class="source-button">查看原文</div>
+
+          <div class="scenario-card">
+            <p>AI 准备运行 Bash 命令，可能删除文件、读取 `.env`，或者访问生产接口。</p>
+          </div>
+
+          <div class="choices">
+            <div class="choice selected">AI 开始碰危险动作</div>
+            <div class="choice">同样的提醒已经说了很多遍</div>
+            <div class="choice">Demo 要交给别人继续改</div>
+            <div class="choice">AI session 变长</div>
+          </div>
+          <div class="bottom">继续</div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

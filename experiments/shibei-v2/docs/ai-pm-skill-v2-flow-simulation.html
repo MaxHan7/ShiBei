@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI PM 技能文章 V2 复习流程样章</title>
+  <style>
+    :root {
+      --bg: #f6f5ef;
+      --paper: #fffdf7;
+      --ink: #252522;
+      --muted: #6f6a5f;
+      --line: #ded8c8;
+      --accent: #5b7f53;
+      --accent-soft: #e9f0df;
+      --source: #f1eadb;
+      --question: #edf3f7;
+      --scenario: #f6ebee;
+      --note: #f3f0e9;
+      --mis: #fff4d9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    main {
+      width: min(1120px, calc(100vw - 36px));
+      margin: 0 auto;
+      padding: 42px 0 64px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    h2, h3 { letter-spacing: 0; }
+
+    .subtitle {
+      max-width: 860px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.54);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .panel,
+    .node {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--paper);
+      box-shadow: 0 14px 34px rgba(64, 54, 36, 0.06);
+    }
+
+    .panel {
+      margin-top: 26px;
+      padding: 22px;
+    }
+
+    .panel h2,
+    .node h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    .panel p,
+    .node p { margin: 0; }
+
+    .nodes {
+      margin-top: 18px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .node {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 18px;
+      padding: 22px;
+    }
+
+    .badge {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 760;
+      box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.7);
+    }
+
+    .node-title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .progress {
+      white-space: nowrap;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 760;
+    }
+
+    .kp {
+      margin: 0 0 14px;
+      font-size: 16px;
+      font-weight: 650;
+    }
+
+    .why {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .section-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .block {
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .block h3 {
+      margin: 0 0 7px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .source { background: var(--source); }
+    .concept { background: var(--question); }
+    .explain { background: var(--note); }
+    .scenario { background: var(--scenario); }
+    .misconception { background: var(--mis); }
+
+    .quote,
+    .small {
+      color: #4f4639;
+      font-size: 14px;
+    }
+
+    .source-action {
+      display: inline-flex;
+      align-items: center;
+      height: 30px;
+      margin-top: 10px;
+      padding: 0 11px;
+      border-radius: 15px;
+      border: 1px solid var(--line);
+      background: #fffaf0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .answer {
+      margin-top: 8px;
+      color: var(--accent);
+      font-weight: 760;
+    }
+
+    ol {
+      margin: 8px 0 0 20px;
+      padding: 0;
+    }
+
+    li { margin: 3px 0; }
+
+    @media (max-width: 680px) {
+      main {
+        width: min(100vw - 24px, 1120px);
+        padding-top: 26px;
+      }
+
+      .node { grid-template-columns: 1fr; }
+      .badge { width: 58px; height: 58px; }
+      .node-title { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>AI PM 技能文章 V2 复习流程样章</h1>
+      <p class="subtitle">按 Hook golden sample 的质量标准生成：summary 先点核心命题，知识点按原文顺序，轻量理解先行，场景题按内容密度决定，干扰项由题级误区约束。</p>
+      <div class="meta">
+        <span class="pill">来源：晚点再听LaterCast</span>
+        <span class="pill">标题：让你拿到 offer 的 AI 产品经理核心技能</span>
+        <span class="pill">来源：后台 anchor + 答题页查看原文</span>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h2>文章总览卡</h2>
+      <p>AI 产品经理的竞争力正在从“会写需求、会用工具”转向“能把用户反馈变成可运行、可观测、可评估的产品学习系统”。产品品味仍然重要，但它不再只靠直觉表达，而要通过反馈管道、agent 任务、trace 证据和 eval 回路持续校准。会搭这条闭环的 PM，才能更快把用户声音变成可信的路线图和可验证的改动。</p>
+      <p class="why">背景锚点：开头三句引语和播客介绍只负责定调，不单独拆成知识点。</p>
+    </section>
+
+    <section class="nodes">
+      <article class="node">
+        <div class="badge">01</div>
+        <div>
+          <div class="node-title">
+            <h2>反馈管道是 AI PM 的起点</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：AI PM 的第一步不是从空白 PRD 开始，而是把分散的用户反馈接成 agent 可使用的上下文图。</p>
+          <p class="why">为什么值得复习：这是全文工作流的起点，后面的 agent、trace、eval 都建立在真实反馈材料上。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 5-8 段：Aparna 用用户反馈、GitHub discussions、Slack、Discord、Gong、PostHog 等材料构建 product taste agent 的上下文。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>让 agent 判断用户痛点前，PM 最先要做什么？</p>
+              <ol>
+                <li>系统性收集并连接足够多的用户反馈</li>
+                <li>写出更有洞察力的 PRD 开头</li>
+                <li>让 agent 直接决定下一季度路线图</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把产品品味理解成个人直觉或表达能力，忽略它需要先从足够多的用户反馈中建立判断材料。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把这些反馈来源和它们提供的线索匹配起来：</p>
+              <ol>
+                <li>客服工单 / GitHub issue → 用户明确提出的问题</li>
+                <li>Slack / Discord / Twitter → 社区里的抱怨和讨论</li>
+                <li>PostHog / Amplitude / FullStory → 产品内发生的行为线索</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block explain">
+              <h3>理解解析页</h3>
+              <p>这段不是在罗列工具，而是在说明 AI PM 要把用户声音、产品行为和社区反馈接成 agent 能检索、能评分、能复查的材料。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题</h3>
+              <p>你准备让 agent 帮团队找下个版本的最大痛点。哪种材料最能支撑它做出可回溯判断？</p>
+              <ol>
+                <li>用户原话、工单链接和产品行为数据</li>
+                <li>PM 自己整理后的三个结论</li>
+                <li>一份没有原始来源的竞品功能清单</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 agent 当成总结器，只给它二手结论，而不是让它接触可回溯的原始反馈和行为证据。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">02</div>
+        <div>
+          <div class="node-title">
+            <h2>PM 要把任务讲到机器能执行</h2>
+            <div class="progress">进度 0/2</div>
+          </div>
+          <p class="kp">知识点：AI 时代的 PM 不一定每天写业务代码，但要能把产品、数据源、输出格式和判断标准讲清楚，让 agent 真正执行任务。</p>
+          <p class="why">为什么值得复习：这段从“有反馈材料”推进到“如何让 agent 产出可检查的路线图建议”。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 9-11 段：Aparna 让 Claude Code 根据 GitHub issue 建 PM agent，读取 issue、归纳痛点、给出优先级和路线图建议。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题</h3>
+              <p>一个 PM agent 任务最需要被讲清楚的是什么？</p>
+              <ol>
+                <li>产品背景、数据源、输出格式和判断标准</li>
+                <li>PM 希望 agent 最后支持自己的路线图判断</li>
+                <li>agent 应该尽量少暴露中间过程，直接给结论</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把“会用 Claude Code”理解成会发一句宽泛指令，忽略 PM 需要把任务边界和判断标准讲到机器可执行。</p>
+            </div>
+            <div class="block explain">
+              <h3>理解解析页</h3>
+              <p>PM 的任务编排能力，不是替代工程师写所有代码，而是能把产品目标转译成 agent 能执行、能输出、能被检查的任务。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>你让 agent 根据 GitHub issue 生成优先级报告。哪种提示更能让输出可检查？</p>
+              <ol>
+                <li>“读这些 issue，按影响范围、频率和阻塞程度排序，并给出证据链接。”</li>
+                <li>“帮我看看用户最想要什么，给一个靠谱路线图。”</li>
+                <li>“把这些 issue 总结一下，尽量写得像产品规划。”</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把任务交给 agent 时只描述期望结果，不定义评分维度、证据要求和输出格式，导致结果无法复查。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">03</div>
+        <div>
+          <div class="node-title">
+            <h2>Trace 让 agent 判断变得可检查</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：PM 不能只看 agent 的最终报告，还要看 trace，检查它读了什么、调用了什么、漏了什么、哪一步判断跳太快。</p>
+          <p class="why">为什么值得复习：这是文章最核心的新能力之一，把 AI 输出从“看起来合理”变成“过程可复查”。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 12-14 段：Arize 展示最近调用、GitHub 抓取、单次调用评分、executive summary；PM 要追问 trace 中的读取和判断过程。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>Trace 对 PM 最大的价值是什么？</p>
+              <ol>
+                <li>把 agent 的最终报告拆成可检查的行为步骤</li>
+                <li>让 PM 不必再关心用户反馈是否完整</li>
+                <li>证明 agent 只要能输出报告就已经可靠</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 trace 当成工程排障日志，忽略它也是 PM 校准 agent 判断和产品品味的证据。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把 trace 里能看到的内容和 PM 的检查问题匹配：</p>
+              <ol>
+                <li>读取了哪些 issue → 判断是否漏掉关键上下文</li>
+                <li>有哪些 tool call → 判断数据抓取和处理是否真的发生</li>
+                <li>怎样汇总成报告 → 判断结论是否跳得太快</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block explain">
+              <h3>理解解析页</h3>
+              <p>Trace 把“agent 说了什么”变成“agent 怎么得出这个判断”。PM 不需要读每一行代码，但要能看出判断有没有站住。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>Agent 建议下个版本优先做某个功能，但 trace 显示它只读了少数高声量 issue。PM 更合理的反应是什么？</p>
+              <ol>
+                <li>先检查样本是否偏了，再决定是否采纳建议</li>
+                <li>既然 agent 给了路线图，就先推进原型</li>
+                <li>把 prompt 写得更积极，让 agent 更坚定地排序</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把高声量反馈误当成主流需求，或因为报告结论顺眼就跳过过程检查。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">04</div>
+        <div>
+          <div class="node-title">
+            <h2>Eval 是反馈回路，不只是验收表</h2>
+            <div class="progress">进度 0/2</div>
+          </div>
+          <p class="kp">知识点：好的 eval 不应该只是给通过或失败，而应该暴露一部分判断失误，让团队知道 agent 和标准哪里还能改。</p>
+          <p class="why">为什么值得复习：这段解释了为什么“看到 eval 出错”反而是 AI 产品改进的入口。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 15-17 段：Claude 自己判了一些结果“不准确”；Aparna 认为 eval 出错会让团队看到哪里能调。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题</h3>
+              <p>在 AI 产品质量管理里，eval 更像什么？</p>
+              <ol>
+                <li>推动 agent 和判断标准变好的反馈回路</li>
+                <li>一次性判断系统能不能上线的验收表</li>
+                <li>用来证明 agent 输出一定正确的评分机制</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 eval 当成最终盖章工具，期待它全对或全错，而不是把错误当成改进入口。</p>
+            </div>
+            <div class="block explain">
+              <h3>理解解析页</h3>
+              <p>错误的 eval 让人检查标准，错误的 agent 输出让人检查上下文。二者一起构成 AI 产品质量的改进回路。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>你发现 eval 标出了一批 agent 判断失误。最有学习价值的下一步是什么？</p>
+              <ol>
+                <li>检查标准、上下文和 agent 输出之间哪一环出了问题</li>
+                <li>删掉出错的 eval，避免影响团队信心</li>
+                <li>只看最终报告是否能说服业务方</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 eval 错误当成系统失败信号，而不是定位标准、上下文或模型行为问题的入口。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">05</div>
+        <div>
+          <div class="node-title">
+            <h2>AI PM 的边界正在靠近工程实践</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：代码生成门槛下降后，PM 和工程师的边界变得更小；PM 的产品判断仍重要，但要落到可运行、可评估、可改进的系统里。</p>
+          <p class="why">为什么值得复习：这段回答了“PM 是否要变成工程师”的核心问题。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 18-23 段：AI native 团队里 PM 和工程师差距变小；速度来自反馈、agent、trace、eval 的闭环。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>PM 和工程边界变近后，更重要的变化是什么？</p>
+              <ol>
+                <li>产品判断要能进入可运行、可评估、可改进的系统</li>
+                <li>PM 只要会写代码，就可以替代产品判断</li>
+                <li>PM 可以把评估和改进都交给工程师处理</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 AI PM 的能力升级误解成“PM 变工程师”，忽略真正变化是产品判断必须能进入系统闭环。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把 AI native 速度来源和对应支撑匹配：</p>
+              <ol>
+                <li>更快响应客户 → 先做原型并快速验证</li>
+                <li>敢相信 agent → 能查看 trace</li>
+                <li>知道改动有没有伤到体验 → 有 eval</li>
+                <li>知道服务哪个痛点 → 有清晰数据源</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block explain">
+              <h3>理解解析页</h3>
+              <p>速度不是来自加班或只会用工具，而是来自反馈、agent、trace、eval 的系统闭环。PM 要把客户声音变成可验证的改动。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>客户提出一个新需求，团队希望当天判断能否推进。哪种做法更能形成可验证的判断？</p>
+              <ol>
+                <li>用真实反馈做原型，让 trace 和 eval 帮助判断是否可信</li>
+                <li>先开会统一大家的产品感觉，再等工程排期</li>
+                <li>让 agent 直接写完整方案，PM 只负责包装表达</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把快交付理解成跳过验证，或把 agent 输出当成最终判断，而不是用闭环来加速学习。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">06</div>
+        <div>
+          <div class="node-title">
+            <h2>最小闭环从两小时实操开始</h2>
+            <div class="progress">进度 0/2</div>
+          </div>
+          <p class="kp">知识点：PM 不必从全面 AI 化或完整平台开始，可以先用真实反馈跑通一个小闭环：反馈源、agent、trace、eval。</p>
+          <p class="why">为什么值得复习：这是文章给个人成长最具体的行动建议。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 24-29 段：周末两小时建议；从 GitHub issue、客服表格或 Slack 频道开始；trace 数据不应锁在专有平台里。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题</h3>
+              <p>只有一个下午想跑通 AI PM 小闭环，第一步更适合做什么？</p>
+              <ol>
+                <li>选一个真实反馈源</li>
+                <li>等待公司搭好完整数据平台</li>
+                <li>先让 agent 写一份没有来源引用的路线图</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 AI PM 实践想成大型平台工程，导致迟迟不开始，而不是先跑通一条小但真实的反馈链路。</p>
+            </div>
+            <div class="block explain">
+              <h3>理解解析页</h3>
+              <p>先跑通小闭环，才能知道缺哪种数据、哪种标准和哪种工程支持。平台选择可以后置，真实反馈链路要先启动。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>你只有一个下午，想跑通一条最小 AI PM 反馈闭环。最合理的第一版范围是什么？</p>
+              <ol>
+                <li>选一个客服表格，让 agent 输出痛点和证据引用，再检查 trace/eval</li>
+                <li>先设计完整的数据仓库和观测平台，再开始接入反馈</li>
+                <li>先让 agent 写一份没有来源引用的路线图草案</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把“轻量开始”误解成可以不要证据引用和过程检查；或者把“完整系统”当成开始前提。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">07</div>
+        <div>
+          <div class="node-title">
+            <h2>产品会议从观点竞争变成证据校准</h2>
+            <div class="progress">进度 0/4</div>
+          </div>
+          <p class="kp">知识点：当反馈、trace、eval 和上线结果被持续记录，PM 的工作会变成管理产品学习系统，而不是只靠个人经验整理观点。</p>
+          <p class="why">为什么值得复习：这是全文后半段的收束，把方法论落到日常会议、招聘和路线图复盘。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 30-47 段：早会材料、taste 校准、招聘标准、路线图复盘、产品学习资产，以及“反馈进入系统，agent 生成判断，trace 暴露过程，eval 推动改进”。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>产品会议材料发生变化的核心是什么？</p>
+              <ol>
+                <li>从个人感觉和 bullet，转向带 trace 和评分的可复查证据</li>
+                <li>从讨论用户反馈，转向让 agent 直接决定优先级</li>
+                <li>从路线图判断，转向只看模型输出是否完整</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 agent 生成报告理解成替代 PM 判断，而不是为 PM 提供可复查证据来校准判断。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把 PM 要校准的内容和问题匹配：</p>
+              <ol>
+                <li>eval 标准 → 什么算好的输出</li>
+                <li>数据源 → 哪些反馈可信、应该进入上下文</li>
+                <li>trace → agent 的判断过程是否站得住</li>
+                <li>上线结果 → 当初判断是否被真实效果验证</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block explain">
+              <h3>理解解析页</h3>
+              <p>PM 的价值不是被 agent 拿走，而是前移到定义什么算好、什么数据可信、系统在哪些场景不能越界，并持续复盘判断质量。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>某需求上线后，团队想训练自己的产品品味。哪种复盘方式最能把判断变成可复盘的证据？</p>
+              <ol>
+                <li>把当初引用的反馈、trace、eval 和上线数据放在一起看</li>
+                <li>让每个人重新说一遍当时为什么支持这个需求</li>
+                <li>只看上线后指标有没有涨，涨了就说明判断正确</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把复盘简化成结果好坏或观点复述，忽略产品判断要和当时证据、agent 过程、评估标准一起回看。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>面试一个 AI PM 候选人时，哪类现场任务最能证明他懂这套工作方式？</p>
+              <ol>
+                <li>选反馈源、写 agent 任务、定义 eval 指标</li>
+                <li>解释自己如何理解用户，以及为什么有产品品味</li>
+                <li>展示会使用多少个 AI 工具和提示词模板</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 AI PM 能力停留在表达产品感觉或使用工具数量，而不是能把反馈、任务、评估和验证讲清楚。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>章节收尾卡</h2>
+      <p>反馈进入系统，agent 生成判断，trace 暴露过程，eval 推动改进。产品经理不需要把自己伪装成工程师，但要能站在这条线上工作：让用户声音被机器读懂，让机器判断能被人检查，让路线图越来越接近真实证据。</p>
+      <p class="why">收尾说明：原文最后的“先做”和核心收获适合作为章节完成总结，不再拆成新的知识点。</p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anthropic 团队协作文章 V2 复习流程样章</title>
+  <style>
+    :root {
+      --bg: #f6f5ef;
+      --paper: #fffdf7;
+      --ink: #252522;
+      --muted: #6f6a5f;
+      --line: #ded8c8;
+      --accent: #5b7f53;
+      --accent-soft: #e9f0df;
+      --source: #f1eadb;
+      --question: #edf3f7;
+      --scenario: #f6ebee;
+      --note: #f3f0e9;
+      --mis: #fff4d9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    main {
+      width: min(1120px, calc(100vw - 36px));
+      margin: 0 auto;
+      padding: 42px 0 64px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    h2, h3 { letter-spacing: 0; }
+
+    .subtitle {
+      max-width: 860px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.54);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .panel,
+    .node {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--paper);
+      box-shadow: 0 14px 34px rgba(64, 54, 36, 0.06);
+    }
+
+    .panel {
+      margin-top: 26px;
+      padding: 22px;
+    }
+
+    .panel h2,
+    .node h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    .panel p,
+    .node p { margin: 0; }
+
+    .nodes {
+      margin-top: 18px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .node {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 18px;
+      padding: 22px;
+    }
+
+    .badge {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 760;
+      box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.7);
+    }
+
+    .node-title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .progress {
+      white-space: nowrap;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 760;
+    }
+
+    .kp {
+      margin: 0 0 14px;
+      font-size: 16px;
+      font-weight: 650;
+    }
+
+    .why {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .section-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .block {
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .block h3 {
+      margin: 0 0 7px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .source { background: var(--source); }
+    .concept { background: var(--question); }
+    .explain { background: var(--note); }
+    .scenario { background: var(--scenario); }
+    .misconception { background: var(--mis); }
+
+    .quote,
+    .small {
+      color: #4f4639;
+      font-size: 14px;
+    }
+
+    .source-action {
+      display: inline-flex;
+      align-items: center;
+      height: 30px;
+      margin-top: 10px;
+      padding: 0 11px;
+      border-radius: 15px;
+      border: 1px solid var(--line);
+      background: #fffaf0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .answer {
+      margin-top: 8px;
+      color: var(--accent);
+      font-weight: 760;
+    }
+
+    ol {
+      margin: 8px 0 0 20px;
+      padding: 0;
+    }
+
+    li { margin: 3px 0; }
+
+    @media (max-width: 680px) {
+      main {
+        width: min(100vw - 24px, 1120px);
+        padding-top: 26px;
+      }
+
+      .node { grid-template-columns: 1fr; }
+      .badge { width: 58px; height: 58px; }
+      .node-title { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Anthropic 团队协作文章 V2 复习流程样章</h1>
+      <p class="subtitle">按最新 V2 标准生成：题干最小自足、轻量题优先正向提问、知识点开场和第一题避免同义复述、反馈文字保持短而明确。</p>
+      <div class="meta">
+        <span class="pill">来源：晚点再听LaterCast / 傅里叶</span>
+        <span class="pill">标题：Anthropic 团队是怎么协作和运转的？</span>
+        <span class="pill">来源：后台 anchor + 答题页查看原文</span>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h2>文章总览卡</h2>
+      <p>Anthropic 的快不是因为流程少，而是因为很多流程被改造成了可执行、可审查、可回滚、可验证的系统。团队把需求翻译、工程实现、代码审查、产品验证、设计修改和组织知识，尽量压进代码、diff、evals、GitHub workflow 和 AI 可读取的上下文里。真正值得学的不是“低流程”这个表象，而是怎样让协作从人肉传话变成可运行的工作流。</p>
+      <p class="why">背景锚点：开头的调研说明和“先泼冷水”负责建立文章主论点，不单独作为操作知识点。</p>
+    </section>
+
+    <section class="nodes">
+      <article class="node">
+        <div class="badge">01</div>
+        <div>
+          <div class="node-title">
+            <h2>低流程是结果，不是方法</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：Anthropic 不是取消流程，而是把传统流程改造成可执行、可审查、可回滚、可验证的系统。</p>
+          <p class="why">为什么值得复习：这是全文的核心反转，后面所有协作、工程、产品、设计实践都在展开这句话。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 6-9 段：反驳“Anthropic 靠低流程取胜”，提出流程被迁移到代码、diff、evals、workflow 和 AI 可读上下文里。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>团队想学习 Anthropic 的协作方式，最先应该抓住什么？</p>
+              <ol>
+                <li>把流程变成可执行、可审查、可验证的系统</li>
+                <li>减少会议和文档，让工程师直接上线</li>
+                <li>让 AI 接管所有 code review 和发布判断</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把“流程变薄”误解成“流程消失”，忽略验收、审查和回滚反而变得更厚。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把传统流程和它被迁移后的载体匹配起来：</p>
+              <ol>
+                <li>人肉传话 → AI 可读取的项目上下文</li>
+                <li>反复交接 → 可审阅 diff 和 GitHub workflow</li>
+                <li>主观验收 → 可重复 evals 和测试</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>不要把 Anthropic 的速度理解成少管控。更准确的理解是：很多管控被移到了更靠近代码和验证的地方。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题</h3>
+              <p>一个团队想模仿“工程师看到反馈当周上线”。更稳的第一步是什么？</p>
+              <ol>
+                <li>先建立可执行的测试、review 和回滚机制</li>
+                <li>先取消 PRD 和评审会，减少协作成本</li>
+                <li>先让 AI 自动合并小改动，提升速度</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">只模仿“快”和“少流程”，没有复制支撑速度的验证、审查和回滚机制。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">02</div>
+        <div>
+          <div class="node-title">
+            <h2>Builder 是 User 时，反馈不需要翻译</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：Claude Code 这类开发者产品的优势在于构建者也是用户，反馈链路更短，跨职能 pod 可以围绕真实使用快速决策。</p>
+          <p class="why">为什么值得复习：这段解释了 Anthropic 协作快的组织前提，不是所有团队都天然具备。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 10-13 段：builder = user，反馈链路缩短；跨职能 pod 让设计、PM、工程不再串行交接。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>Builder 和 user 是同一拨人时，协作里减少最多的是什么？</p>
+              <ol>
+                <li>把用户问题翻译成需求再交给实现者的成本</li>
+                <li>写代码和跑测试本身需要的时间</li>
+                <li>人类 reviewer 对合并结果的责任</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把短反馈链路误解成不需要产品判断，实际上它只是减少了需求传递和翻译损耗。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把协作结构和它解决的问题匹配：</p>
+              <ol>
+                <li>builder = user → 反馈更少经过翻译</li>
+                <li>跨职能 pod → 设计、PM、工程一起判断</li>
+                <li>内部 dogfooding → 改动更快回到真实使用</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>关键不是让某个角色消失，而是让反馈、判断和实现尽量出现在同一个小队里。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题</h3>
+              <p>一个非开发者产品团队想缩短信号链路，最应该先补哪件事？</p>
+              <ol>
+                <li>让 reviewer 更接近真实用户或真实使用场景</li>
+                <li>要求工程师直接根据社媒反馈改功能</li>
+                <li>取消 PM 和设计在需求阶段的参与</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">忽略 builder=user 是特殊前提，直接照搬“看到反馈就上线”的外在动作。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">03</div>
+        <div>
+          <div class="node-title">
+            <h2>团队知识要进入 AI 可读上下文</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：Claude Code 不只是写代码工具，也承担团队知识流转，把规则、偏好、高频任务和外部系统连接变成 AI 能读取或执行的上下文。</p>
+          <p class="why">为什么值得复习：这是从组织协作过渡到工具化流程的关键段落，也和 V2 后续 prompt/规则设计有关。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 14-15 段：CLAUDE.md、slash commands、MCP、hooks、plugins、GitHub Actions，把团队知识放进 AI 工具可读可执行的位置。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>团队把规则写进 AI 可读上下文，最直接改善的是什么？</p>
+              <ol>
+                <li>新人和 AI 都能更快按仓库规则进入工作</li>
+                <li>团队不再需要 code review 和工程规范</li>
+                <li>所有项目知识都可以不再维护文档</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 AI 可读上下文理解成替代规范，而不是让规范更接近执行现场。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把团队知识载体和适合沉淀的内容匹配：</p>
+              <ol>
+                <li>CLAUDE.md → 代码风格、review 标准、命名偏好</li>
+                <li>Slash commands → 高频重复任务</li>
+                <li>MCP / hooks / plugins → 外部系统接入和自动动作</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>团队知识的价值不只在“被写下来”，还在于 AI 能在执行任务时读到并使用它。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题</h3>
+              <p>团队反复提醒 AI 不要改某个目录、提交前要跑格式化。更适合怎么沉淀？</p>
+              <ol>
+                <li>写进项目规则或自动命令，让 AI 在任务中读取或执行</li>
+                <li>每次任务开头都口头提醒一遍</li>
+                <li>等新人入职培训时集中讲清楚</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把反复出现的团队规则继续留在人和人的提醒里，而不是放进可被 AI 使用的执行上下文。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">04</div>
+        <div>
+          <div class="node-title">
+            <h2>工程流程把注意力从敲键盘转向判断</h2>
+            <div class="progress">进度 0/4</div>
+          </div>
+          <p class="kp">知识点：AI coding 流程的重点不是让 AI 直接写完代码，而是用 clean baseline、上下文、计划、分层授权、checkpoint 和测试来控制判断质量。</p>
+          <p class="why">为什么值得复习：这是文章里最可复制的本地开发 SOP。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 16-26 段：本地开发 SOP、clean git baseline、装载上下文、先要计划、分层授权、checkpoint、跑测试并追问失败原因。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>让 Claude Code 开始改代码前，先要计划的主要价值是什么？</p>
+              <ol>
+                <li>先暴露改动范围、测试方式和风险点</li>
+                <li>让 AI 花更多时间思考，减少 token 消耗</li>
+                <li>让工程师不用再看最终 diff</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把计划当成礼貌性说明，忽略它是控制风险和审查范围的工具。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把工程 SOP 动作和它控制的风险匹配：</p>
+              <ol>
+                <li>Clean baseline → 看清 AI 改了什么，方便回滚</li>
+                <li>装载上下文 → 避免凭空写代码</li>
+                <li>分层授权 → 区分 polish 和核心逻辑风险</li>
+                <li>Checkpoint → 防止长任务跑到不可解释状态</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>AI 写代码越快，人越要把注意力放在边界、计划、验证和风险判断上。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>AI 跳过了本该运行的前端验证。更有价值的排查方式是什么？</p>
+              <ol>
+                <li>追问它为什么跳过，检查 agent 流程和系统提示结构</li>
+                <li>直接加一句更强硬的 prompt，要求以后必须跑</li>
+                <li>认定模型不可靠，暂停所有 AI coding 流程</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">只修结果，不分析 agent 为什么做出那个流程选择。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>AI 要改核心权限逻辑，同时改动多个文件。更合理的授权方式是什么？</p>
+              <ol>
+                <li>要求分阶段计划和 checkpoint，并同步监督关键改动</li>
+                <li>完全放开，让 AI 一次性完成后再看结果</li>
+                <li>只要测试最终通过，就不需要看中间过程</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">用最终测试结果替代过程监督，忽略核心逻辑和安全相关改动需要更强授权边界。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">05</div>
+        <div>
+          <div class="node-title">
+            <h2>AI Review 和 Evals 加速反馈，但不替代责任</h2>
+            <div class="progress">进度 0/4</div>
+          </div>
+          <p class="kp">知识点：AI code review、GitHub Actions 和 evals 能把反馈前移并标准化，但合并责任和发布判断仍要由人类团队定义。</p>
+          <p class="why">为什么值得复习：这段明确了自动化的边界，也连接到 V2 里“验证而不是只生成”的思路。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 27-37 段：@claude 进入 PR 流程，AI review 是结构化反馈不是绝对 gate；evals 同时承担产品验证和回归测试。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>AI code review 在这个流程里更像什么？</p>
+              <ol>
+                <li>人类 review 前的一层结构化反馈</li>
+                <li>自动决定代码能否合并的最终 gate</li>
+                <li>替代 CI 和人工测试的质量保证</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 AI review 的结构化反馈误解成最终合并责任。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把验证机制和它的角色匹配：</p>
+              <ol>
+                <li>AI review → 先扫 diff，输出 inline comments</li>
+                <li>CI 阈值 → 团队自定义阻塞条件</li>
+                <li>Evals → 用真实任务做产品验证和回归测试</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>自动化可以把反馈提前，但不能自动替团队承担发布和合并责任。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>团队想让 AI review 阻塞合并。更合理的做法是什么？</p>
+              <ol>
+                <li>读取机器可读结果，由团队定义阻塞阈值</li>
+                <li>让 AI review 默认拥有合并否决权</li>
+                <li>只要 AI 没有发现问题，就跳过人工 review</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把工具默认行为当成团队质量标准，缺少自己定义的合并阈值。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>一个 agentic 产品还没有完善评估系统。更适合的起步方式是什么？</p>
+              <ol>
+                <li>先用少量高质量真实任务建立基本 evals</li>
+                <li>等评估平台完美后再开始做 evals</li>
+                <li>先只依赖内部 dogfooding 和用户反馈</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 evals 想成成熟阶段才需要的系统，忽略少量真实任务也能建立回归能力。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">06</div>
+        <div>
+          <div class="node-title">
+            <h2>产品从多年路线图转向能力剧本</h2>
+            <div class="progress">进度 0/4</div>
+          </div>
+          <p class="kp">知识点：AI 产品机会同时来自用户反馈和模型能力，团队需要准备可触发的 playbook，而不是只依赖固定多年路线图。</p>
+          <p class="why">为什么值得复习：这段是文章产品部分的核心，解释了 AI 产品规划为什么要更动态。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 38-51 段：产品机会来自用户和模型两条线；football playbook；PRD 增加失败模式、发布级别；Labs / preview / beta / GA。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>AI 产品里的 “football playbook” 更接近哪种规划方式？</p>
+              <ol>
+                <li>准备候选打法，等模型能力或用户信号触发后执行</li>
+                <li>提前锁定多年路线图，减少方向变化</li>
+                <li>只围绕用户需求排优先级，不考虑模型能力</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 AI 产品规划继续当成固定路线图，忽略模型能力变化会打开新动作。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把 AI PRD 字段和它解决的问题匹配：</p>
+              <ol>
+                <li>失败模式 → 提前结构化不确定性</li>
+                <li>发布级别 → 把发不发变成承诺等级选择</li>
+                <li>验收 evals → 用真实任务定义结果</li>
+                <li>模型能力假设 → 说明功能依赖哪些模型行为</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>AI 产品不是把模型包一层 UI，而是产品、研究、工程一起判断模型能力能打开什么动作。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>一个 AI 功能还不稳定，但能探索新交互。更合适的发布方式是什么？</p>
+              <ol>
+                <li>以 Labs 或 Research Preview 方式明确实验性质</li>
+                <li>等达到 GA 标准后才让任何用户接触</li>
+                <li>直接当正式功能发布，再根据投诉修复</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把发布理解成只有“发 / 不发”，没有区分实验、预览、beta 和正式承诺。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>团队用几张写死回复的 Figma 图验证 AI 产品。最大的风险是什么？</p>
+              <ol>
+                <li>看不到模型真实响应和工具调用带来的失败模式</li>
+                <li>视觉层级不够完整，影响用户研究结果</li>
+                <li>工程师无法从设计稿里理解页面结构</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 AI 产品验证当成静态 UI 验证，忽略真正问题藏在模型不确定性和真实数据里。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">07</div>
+        <div>
+          <div class="node-title">
+            <h2>设计要进入真实环境和代码现场</h2>
+            <div class="progress">进度 0/4</div>
+          </div>
+          <p class="kp">知识点：AI 产品设计不能只靠静态 Figma，设计师需要用可运行原型、状态流、边界清单、代码 diff 和 PR 来验证体验。</p>
+          <p class="why">为什么值得复习：这段把“设计师直接改代码”放进了明确边界，而不是简单鼓励越权。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 52-73 段：真实环境优先；设计交付从 Figma 扩展到原型、状态流、代码 diff、PR、eval 场景；设计师可用 Claude Code 改文案和 polish，但复杂逻辑由工程把关。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>AI 产品设计为什么不能只靠静态 Figma？</p>
+              <ol>
+                <li>模型响应、工具调用和失败状态需要在真实环境里暴露</li>
+                <li>Figma 无法表达任何视觉层级和交互结构</li>
+                <li>设计师应该完全改用代码替代设计工具</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把“真实环境优先”误解成 Figma 不重要，实际是 Figma 不能独自承担 AI 产品验证。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把设计交付物和它补足的验证维度匹配：</p>
+              <ol>
+                <li>可运行原型 → 看真实模型和数据表现</li>
+                <li>状态流 / 边界清单 → 覆盖等待、拒绝、部分完成等状态</li>
+                <li>代码 diff / PR → 让视觉和文案改动可审查</li>
+                <li>Eval 场景 → 把体验边界放进可重复验证</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>设计师可以更靠近代码现场，但架构、状态管理、安全和可维护性仍要由工程把关。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>设计师想批量更新 research preview / GA 文案。更高效且可控的方式是什么？</p>
+              <ol>
+                <li>用 Claude Code 全仓搜索和生成 diff，再与法律实时确认措辞</li>
+                <li>让工程师先搜索所有实例，设计和法律异步来回修改</li>
+                <li>直接让 Claude Code 批量替换并自动合并</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把设计师进代码理解成不需要审查，忽略 diff、法律确认和工程边界仍然存在。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>一个 AI 页面经常出现等待权限、工具失败、部分完成等状态。设计阶段更应该先做什么？</p>
+              <ol>
+                <li>让 Claude Code 读状态机和错误处理，生成状态清单</li>
+                <li>先画主路径高保真稿，边界状态上线后再补</li>
+                <li>把所有异常都统一成一个“出错了”提示</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">只设计主路径，忽略 AI 产品大量体验问题发生在边界状态和恢复路径里。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">08</div>
+        <div>
+          <div class="node-title">
+            <h2>可复制的是系统化，不是 Anthropic 的特殊条件</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：Anthropic 的速度依赖 builder=user、开发者产品、短反馈循环和模型控制权；普通团队更应该复制可执行、可审查、可回滚、可验证的系统化动作。</p>
+          <p class="why">为什么值得复习：这是全文的落点，防止用户把案例学习变成表面模仿。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">第 74-87 段：六个机制叠加出速度；外部团队不能直接照搬；用一组问题检查自己的团队边界。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>普通团队学习 Anthropic 时，最应该复制的是什么？</p>
+              <ol>
+                <li>把流程改造成可执行、可审查、可回滚、可验证的系统</li>
+                <li>让工程师看到用户反馈后直接当周上线</li>
+                <li>减少产品、设计、法务和支持参与，让小队更快</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">复制表面速度，却没有复制支撑速度的组织前提和验证系统。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把 Anthropic 的特殊条件和对应影响匹配：</p>
+              <ol>
+                <li>控制底层模型 → 能预期模型能力曲线</li>
+                <li>开发者产品 → 反馈循环更短</li>
+                <li>构建者就是用户 → 需求翻译成本更低</li>
+                <li>Research preview / Labs → 早期发布承诺更低</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>案例学习的重点是识别哪些条件自己没有，再补信号、上下文、evals、review 和发布级别。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题</h3>
+              <p>一个 B2B 团队用户链路长、合规要求高。更适合先问哪类问题？</p>
+              <ol>
+                <li>团队知识 AI 能不能读到，PRD 有没有失败模式和发布级别</li>
+                <li>能不能把所有流程压缩成工程师自驱上线</li>
+                <li>能不能减少客户、法务和支持对早期发布的影响</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把自己的组织约束当成可以跳过的慢流程，而不是需要被系统化表达和验证的边界。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>章节收尾卡</h2>
+      <p>Anthropic 的协作方式并不是“少流程”，而是把流程迁移到更接近执行和验证的地方。能复制的不是它的组织条件，而是那套问题意识：团队知识在哪里，AI 能不能读到，改动能不能审查和回滚，结果有没有 evals，发布承诺是否分级。</p>
+      <p class="why">收尾说明：原文最后的自检问题适合作为章节完成总结，不再拆成单独新知识点。</p>
+    </section>
+  </main>
+</body>
+</html>
