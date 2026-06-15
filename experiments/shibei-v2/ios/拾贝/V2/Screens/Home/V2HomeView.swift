@@ -9,6 +9,7 @@ struct V2HomeView: View {
     var body: some View {
         GeometryReader { geometry in
             let pathArea = V2HomePathArea(geometry: geometry, data: data)
+            let bottomNavScale = min(1, (geometry.size.width - V2Spacing.screenMargin * 2) / 357)
 
             ZStack(alignment: .top) {
                 V2Color.pageGreenBackground
@@ -65,10 +66,17 @@ struct V2HomeView: View {
 
                     Spacer(minLength: 96)
                 }
-            }
-            .safeAreaInset(edge: .bottom) {
-                V2BottomNavigationBar(selectedTab: $selectedTab)
-                    .padding(.bottom, 12)
+
+                VStack {
+                    Spacer()
+
+                    V2BottomNavigationBar(selectedTab: $selectedTab)
+                        .scaleEffect(bottomNavScale, anchor: .bottom)
+                        .frame(width: 357 * bottomNavScale, height: 94 * bottomNavScale)
+                        .padding(.bottom, max(geometry.safeAreaInsets.bottom, 12))
+                }
+                .zIndex(20)
+                .allowsHitTesting(true)
             }
         }
     }

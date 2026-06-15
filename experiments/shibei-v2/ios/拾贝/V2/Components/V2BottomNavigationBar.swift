@@ -5,56 +5,63 @@ struct V2BottomNavigationBar: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 29, style: .continuous)
+            RoundedRectangle(cornerRadius: V2BottomNavMetrics.capsuleRadius, style: .continuous)
                 .fill(V2Color.surfaceNav)
-                .frame(width: 349, height: 86)
-                .position(x: 178.5, y: 43)
+                .frame(width: V2BottomNavMetrics.capsuleSize.width, height: V2BottomNavMetrics.capsuleSize.height)
+                .position(V2BottomNavMetrics.capsuleCenter)
                 .v2Shadow()
 
-            V2BottomNavItem(
-                tab: .learning,
-                isSelected: selectedTab == .learning
-            ) {
-                selectedTab = .learning
-            }
-            .position(x: 45, y: 45)
+            navItem(.learning)
+                .position(V2BottomNavMetrics.center(for: .learning))
 
-            V2BottomNavItem(
-                tab: .materials,
-                isSelected: selectedTab == .materials
-            ) {
-                selectedTab = .materials
-            }
-            .position(x: 111, y: 45)
+            navItem(.materials)
+                .position(V2BottomNavMetrics.center(for: .materials))
 
             V2UploadTabButton {
                 selectedTab = .upload
             }
-            .position(x: 179, y: 36)
+            .position(V2BottomNavMetrics.center(for: .upload))
 
-            V2BottomNavItem(
-                tab: .discover,
-                isSelected: selectedTab == .discover
-            ) {
-                selectedTab = .discover
-            }
-            .position(x: 249, y: 45)
+            navItem(.discover)
+                .position(V2BottomNavMetrics.center(for: .discover))
 
-            V2BottomNavItem(
-                tab: .notes,
-                isSelected: selectedTab == .notes
-            ) {
-                selectedTab = .notes
-            }
-            .position(x: 317, y: 45)
+            navItem(.notes)
+                .position(V2BottomNavMetrics.center(for: .notes))
         }
-        .frame(width: 357, height: 94)
-        .scaleEffect(navScale, anchor: .center)
-        .frame(width: 357 * navScale, height: 94 * navScale)
+        .frame(width: V2BottomNavMetrics.designSize.width, height: V2BottomNavMetrics.designSize.height)
     }
 
-    private var navScale: CGFloat {
-        min(1, (UIScreen.main.bounds.width - 32) / 357)
+    private func navItem(_ tab: V2HomeTab) -> some View {
+        V2BottomNavItem(
+            tab: tab,
+            isSelected: selectedTab == tab
+        ) {
+            selectedTab = tab
+        }
+    }
+}
+
+private enum V2BottomNavMetrics {
+    static let designSize = CGSize(width: 357, height: 94)
+    static let capsuleSize = CGSize(width: 349, height: 86)
+    static let capsuleRadius: CGFloat = 29
+    static let capsuleCenter = CGPoint(x: designSize.width / 2, y: capsuleSize.height / 2)
+
+    // Component anchors from the confirmed nav spec. The icons themselves are
+    // independent 32x32 assets, not crops from the full navigation SVG.
+    static func center(for tab: V2HomeTab) -> CGPoint {
+        switch tab {
+        case .learning:
+            CGPoint(x: 40, y: 45)
+        case .materials:
+            CGPoint(x: 107, y: 45)
+        case .upload:
+            CGPoint(x: 175, y: 36)
+        case .discover:
+            CGPoint(x: 245, y: 45)
+        case .notes:
+            CGPoint(x: 313, y: 45)
+        }
     }
 }
 
@@ -113,6 +120,14 @@ struct V2UploadTabButton: View {
             .accessibilityLabel("上传")
         }
         .buttonStyle(.plain)
-        .frame(maxWidth: .infinity)
+    }
+}
+
+#Preview("V2 Bottom Navigation") {
+    ZStack {
+        V2Color.pageGreenBackground
+            .ignoresSafeArea()
+
+        V2BottomNavigationBar(selectedTab: .constant(.learning))
     }
 }
