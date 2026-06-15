@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>游戏化持续体验设计 V2 复习流程样章</title>
+  <style>
+    :root {
+      --bg: #f6f5ef;
+      --paper: #fffdf7;
+      --ink: #252522;
+      --muted: #6f6a5f;
+      --line: #ded8c8;
+      --accent: #5b7f53;
+      --accent-soft: #e9f0df;
+      --source: #f1eadb;
+      --question: #edf3f7;
+      --scenario: #f6ebee;
+      --note: #f3f0e9;
+      --mis: #fff4d9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    main {
+      width: min(1120px, calc(100vw - 36px));
+      margin: 0 auto;
+      padding: 42px 0 64px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    h2, h3 { letter-spacing: 0; }
+
+    .subtitle {
+      max-width: 860px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.54);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .panel,
+    .node {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--paper);
+      box-shadow: 0 14px 34px rgba(64, 54, 36, 0.06);
+    }
+
+    .panel {
+      margin-top: 26px;
+      padding: 22px;
+    }
+
+    .panel h2,
+    .node h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    .panel p,
+    .node p { margin: 0; }
+
+    .nodes {
+      margin-top: 18px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .node {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 18px;
+      padding: 22px;
+    }
+
+    .badge {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 760;
+      box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.7);
+    }
+
+    .node-title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .progress {
+      white-space: nowrap;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 760;
+    }
+
+    .kp {
+      margin: 0 0 14px;
+      font-size: 16px;
+      font-weight: 650;
+    }
+
+    .why {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .section-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .block {
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .block h3 {
+      margin: 0 0 7px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .source { background: var(--source); }
+    .concept { background: var(--question); }
+    .explain { background: var(--note); }
+    .scenario { background: var(--scenario); }
+    .misconception { background: var(--mis); }
+
+    .quote,
+    .small {
+      color: #4f4639;
+      font-size: 14px;
+    }
+
+    .source-action {
+      display: inline-flex;
+      align-items: center;
+      height: 30px;
+      margin-top: 10px;
+      padding: 0 11px;
+      border-radius: 15px;
+      border: 1px solid var(--line);
+      background: #fffaf0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .answer {
+      margin-top: 8px;
+      color: var(--accent);
+      font-weight: 760;
+    }
+
+    ol {
+      margin: 8px 0 0 20px;
+      padding: 0;
+    }
+
+    li { margin: 3px 0; }
+
+    @media (max-width: 680px) {
+      main {
+        width: min(100vw - 24px, 1120px);
+        padding-top: 26px;
+      }
+
+      .node { grid-template-columns: 1fr; }
+      .badge { width: 58px; height: 58px; }
+      .node-title { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>游戏化持续体验设计 V2 复习流程样章</h1>
+      <p class="subtitle">按 V2 样本标准生成：summary 先点核心命题，知识点按原文顺序，轻量理解题最小自足，选择题保持四选项，场景题围绕真实设计判断，反馈气泡保持短而明确。</p>
+      <div class="meta">
+        <span class="pill">来源：装饰杂志</span>
+        <span class="pill">标题：基于游戏化方法的持续性用户体验设计</span>
+        <span class="pill">作者：吴琼、王婧、高璇</span>
+        <span class="pill">来源：后台 anchor + 答题页查看原文</span>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h2>文章总览卡</h2>
+      <p>游戏化的价值不在于把产品装饰得更像游戏，而在于把长期使用中的目标、反馈、挑战、成长和身份感组织成一条可持续的体验路径。它可以帮助用户看见进展、保持投入、形成习惯和意义感；但如果只堆积分、徽章和排行榜，也可能挤出内在动机、制造比较压力，甚至让产品滑向注意力争夺。</p>
+      <p class="why">背景锚点：开头的概念定义、用户体验理论和案例铺垫负责建立问题背景，不拆成独立题点；复习从“游戏化为什么能服务持续体验”开始。</p>
+    </section>
+
+    <section class="nodes">
+      <article class="node">
+        <div class="badge">01</div>
+        <div>
+          <div class="node-title">
+            <h2>游戏化服务的是持续体验，不是游戏外观</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：游戏化是在非游戏语境中使用游戏设计元素，但目标不是让产品变成游戏，而是用乐趣、反馈和意义支持用户持续参与现实任务。</p>
+          <p class="why">为什么值得复习：这是全文的入口，能防止把游戏化误解成积分、徽章、排行榜的表层堆砌。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">引言前半：游戏、游戏化定义，钢琴楼梯案例，以及用户体验从可用性扩展到愉悦、情感和长期参与。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题</h3>
+              <p>游戏化设计最核心的目标是什么？</p>
+              <ol>
+                <li>让现实任务更愿意被进入、完成并持续进行</li>
+                <li>把产品界面改得更像游戏界面</li>
+                <li>给所有操作都加上积分、徽章和排行榜</li>
+                <li>用娱乐内容替代原本的产品功能</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把游戏化理解成游戏元素装饰，而不是改变用户参与任务的方式。</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>游戏化不是“更像游戏”，而是让用户更愿意持续投入原本的现实目标。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题</h3>
+              <p>一个习惯养成 App 想加入游戏化。哪种方向更符合持续体验设计？</p>
+              <ol>
+                <li>把长期目标拆成可完成的小阶段，并给用户清晰反馈</li>
+                <li>给所有按钮都加上金币图标，让界面更有游戏感</li>
+                <li>默认上线排行榜，让用户每天和好友比较</li>
+                <li>把核心任务藏进抽奖活动里，提高打开频次</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把提升打开频次当成唯一目标，忽略用户是否真正建立了可持续的行动理由。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">02</div>
+        <div>
+          <div class="node-title">
+            <h2>DMC 模型区分体验目标、行为机制和界面组件</h2>
+            <div class="progress">进度 0/4</div>
+          </div>
+          <p class="kp">知识点：DMC 模型把游戏化拆成动力、机制和组件三层；组件最容易被看见，但真正决定持续体验的是上层目标和中层循环。</p>
+          <p class="why">为什么值得复习：这段帮助用户分清“用户看到的元素”和“系统如何组织长期参与”。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">DMC 模型段落：动力层回答体验目标，机制层组织行为循环，组件层把抽象目标落成可见功能。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>DMC 模型主要用来帮助设计者理解什么？</p>
+              <ol>
+                <li>游戏化设计可以分成体验目标、行为机制和界面组件三个层级</li>
+                <li>游戏化产品必须同时加入剧情、任务和排行榜三个元素</li>
+                <li>用户体验应优先从界面组件开始，再决定产品目标</li>
+                <li>持续体验只需要关注用户能看到和点击的功能入口</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 DMC 当成游戏元素清单，而不是理解游戏化从目标到机制再到组件的分层框架。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把 DMC 三层和它们的作用匹配：</p>
+              <ol>
+                <li>动力层 → 定义用户最终体验到的方向</li>
+                <li>机制层 → 组织用户持续参与的规则和流程</li>
+                <li>组件层 → 呈现用户能看到和操作的界面单元</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>不要只盯着徽章和点数。组件只是最底层，持续体验还要看目标和循环。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>团队已经设计了徽章和等级，但用户仍然很快流失。更应该优先检查什么？</p>
+              <ol>
+                <li>这些组件是否服务清晰的目标和可重复参与循环</li>
+                <li>徽章数量是否足够多，样式是否更像游戏</li>
+                <li>排行榜是否放在首页最显眼的位置</li>
+                <li>奖励是否能兑换更直接的物质利益</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">只优化可见组件，忽略用户为什么要反复进入、如何知道自己在推进。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>一个产品想用“成长路径”提升留存。哪种设计更接近机制层？</p>
+              <ol>
+                <li>让用户完成任务、获得反馈、解锁下一阶段，形成循环</li>
+                <li>把路径节点画得更可爱，提升视觉亲和力</li>
+                <li>给路径首页加一个更大的奖杯图标</li>
+                <li>把所有页面都换成更鲜艳的配色</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把机制层误认为视觉包装，忽略机制要让行为在时间中持续运转。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">03</div>
+        <div>
+          <div class="node-title">
+            <h2>阶段性目标把长期投入变成可完成的小闭环</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：持续体验不能只给用户一个遥远总目标，而要把长期旅程拆成清晰、可量化、能获得即时反馈的阶段性目标。</p>
+          <p class="why">为什么值得复习：这段直接对应路径式复习和节点进度的产品设计思路。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">“阶段性目标的设定”部分：长期目标反馈周期过长会稀释成就感，里程碑和每日任务能重构时间感知。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题</h3>
+              <p>阶段性目标解决的核心问题是什么？</p>
+              <ol>
+                <li>让用户在长期目标中持续感到自己正在推进</li>
+                <li>让用户一次性完成所有任务，减少使用次数</li>
+                <li>把长期任务包装成更多广告活动</li>
+                <li>用随机奖励替代明确目标</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把阶段性目标理解成增加任务数量，而不是缩短反馈周期、增强掌控感。</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>阶段性目标的价值是把漫长目标拆成用户今天就能完成和感知的小闭环。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>一个学习产品希望用户坚持三个月。更适合的首页结构是什么？</p>
+              <ol>
+                <li>展示当前阶段、今日任务和完成后的进度反馈</li>
+                <li>只展示三个月后的最终证书，强调终点价值</li>
+                <li>每天随机给用户一个新任务，保持新鲜感</li>
+                <li>把所有课程一次性列出来，让用户自由选择</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">只强调远期回报，忽略用户需要在当下行动中获得进展证据。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>一个专注产品用“种树”表现一次专注任务。这个设计最直接强化了什么？</p>
+              <ol>
+                <li>一次任务从开始到完成的可见进程和闭环感</li>
+                <li>用户之间的竞争压力</li>
+                <li>产品功能的专业复杂度</li>
+                <li>用户对随机奖励的期待</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把可视化进程当成装饰，忽略它在维持阶段性动机中的作用。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">04</div>
+        <div>
+          <div class="node-title">
+            <h2>挑战与能力要动态匹配，才能维持心流</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：持续投入需要任务处在“可达到但有挑战”的区间；系统应随用户能力变化调整难度、节奏和激励。</p>
+          <p class="why">为什么值得复习：这段解释为什么游戏化不能只是固定任务，而要持续调节体验张力。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">“挑战与能力的动态匹配”部分：心流来自挑战和能力的平衡，多邻国案例展示了任务难度和奖励的动态调节。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题</h3>
+              <p>挑战与能力动态匹配想避免哪种问题？</p>
+              <ol>
+                <li>任务太难导致挫败，太容易导致无聊</li>
+                <li>用户太快完成所有任务，减少页面停留</li>
+                <li>系统无法向用户展示足够多的奖励</li>
+                <li>产品缺少排行榜带来的竞争感</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把难度提升等同于更好体验，忽略难度必须和用户能力一起变化。</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>好的挑战不是越难越好，而是让用户觉得需要努力但仍然够得着。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>一个答题 App 发现新用户连续答错后很快退出。更合理的调整是什么？</p>
+              <ol>
+                <li>降低下一轮题目难度，并给出更明确的反馈</li>
+                <li>继续提高难度，让用户更快进入高挑战状态</li>
+                <li>马上推送排行榜，激发用户竞争心</li>
+                <li>减少反馈，避免用户感到被评价</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">只用挑战刺激用户，忽略连续失败会破坏胜任感和继续投入的意愿。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>一个用户已经熟练完成基础训练。为了维持投入，系统更适合怎么做？</p>
+              <ol>
+                <li>加入稍高难度的新任务或新玩法，并配合更清晰奖励</li>
+                <li>永久保持同样简单任务，避免用户失败</li>
+                <li>取消所有反馈，让用户自己判断进步</li>
+                <li>只增加任务数量，不改变任务结构</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把持续投入理解成重复更多同类任务，而不是让能力增长后遇到新的可达挑战。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">05</div>
+        <div>
+          <div class="node-title">
+            <h2>成长机制要把缓慢结果变成可感知进展</h2>
+            <div class="progress">进度 0/4</div>
+          </div>
+          <p class="kp">知识点：持续体验需要把长期、缓慢、抽象的结果转化为用户每天能看见、等待、确认的成长痕迹。</p>
+          <p class="why">为什么值得复习：这段连接了进度条、路径节点、等级、技能树和社交成长等具体设计。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">“成长机制的感知设计”部分：蚂蚁森林、蚂蚁庄园、成就、排行榜、技能树、里程碑和社交关系等案例。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>成长机制感知设计最想让用户看见什么？</p>
+              <ol>
+                <li>自己的行动正在累积成可确认的进展</li>
+                <li>系统有很多可收集的虚拟奖励</li>
+                <li>别人完成任务的速度比自己快多少</li>
+                <li>产品里有足够复杂的等级规则</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把成长机制误解成更多等级和奖章，忽略用户要感知行动和结果之间的连续关系。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把成长设计方式和它提供的感知匹配：</p>
+              <ol>
+                <li>树木生长 → 长期环保行动的可视化进展</li>
+                <li>技能树 → 用户理解进步路径和能力结构</li>
+                <li>里程碑节点 → 阶段成果获得仪式感</li>
+                <li>好友互助 → 成长过程获得更多可见性和参与感</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>成长机制的重点是让用户相信：我的小行动正在留下痕迹。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>一个公益 App 想让用户持续参与低碳行动。哪种反馈更能形成成长感？</p>
+              <ol>
+                <li>把每次低碳行为转化为可积累、可观察的成长过程</li>
+                <li>每次打开都弹出公益口号，强调行动意义</li>
+                <li>只在年底告诉用户总共贡献了多少</li>
+                <li>把所有行动都换算成抽奖机会</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">只强调宏大意义或最终结果，忽略用户需要在日常行动中看见连续进展。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>学习产品想让用户理解自己为什么要先学 A 再学 B。哪种设计更合适？</p>
+              <ol>
+                <li>用成长路径或技能树展示内容之间的先后关系</li>
+                <li>把所有课程按热度排序，让用户自己判断</li>
+                <li>只显示已完成课程数量，减少路径压力</li>
+                <li>给每门课单独设计不同徽章，强调收集</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把成长感只做成数量累计，忽略用户还需要理解进步的结构和方向。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">06</div>
+        <div>
+          <div class="node-title">
+            <h2>情境和身份让任务获得意义</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：游戏化的叙事不只是剧情文本，也可以嵌入空间、角色、环境线索和行动机制，让用户在任务中形成身份认同。</p>
+          <p class="why">为什么值得复习：这段提醒设计者不要只做反馈和奖励，也要让用户理解自己在什么情境中行动。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">“情境设计与身份认同建构”部分：游戏叙事、角色身份、空间线索、AR 探索和 Micropia 博物馆案例。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题</h3>
+              <p>情境设计在游戏化体验中的核心作用是什么？</p>
+              <ol>
+                <li>让用户理解自己扮演的角色、目标和行动意义</li>
+                <li>用更完整的剧情文本替代产品功能</li>
+                <li>让页面看起来更有故事感</li>
+                <li>把所有任务包装成角色扮演游戏</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把叙事理解成写一段故事，忽略空间、角色和互动规则本身也能承载意义。</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>情境设计让用户知道自己是谁、在做什么，以及为什么这个行动有意义。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>一个博物馆想让观众更投入地理解微生物世界。哪种设计更符合情境化思路？</p>
+              <ol>
+                <li>用实验室空间、工作人员角色和收集任务共同组织体验</li>
+                <li>在入口放一段很长的微生物历史介绍</li>
+                <li>给每个展品都加一个积分按钮</li>
+                <li>把展厅改成更明亮的颜色，提高亲和力</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">只靠说明文字传达主题，忽略场景线索和行动机制可以让用户更自然地代入。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>一个城市探索 App 希望用户像“探索者”一样完成任务。哪种设计更能建立身份感？</p>
+              <ol>
+                <li>让真实地点、路线线索和收集任务共同构成探索情境</li>
+                <li>给用户一个探索者头像，但任务仍是普通列表</li>
+                <li>只在完成后发放积分和排名</li>
+                <li>把地图界面换成更游戏化的视觉皮肤</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把身份感当成头像或称号，忽略身份要由场景、目标和行动共同支撑。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">07</div>
+        <div>
+          <div class="node-title">
+            <h2>游戏化必须守住内在动机和任务目标</h2>
+            <div class="progress">进度 0/4</div>
+          </div>
+          <p class="kp">知识点：不恰当的游戏化可能让外部奖励挤出内在动机，制造比较压力，偏移原本任务目标，甚至滑向娱乐至上。</p>
+          <p class="why">为什么值得复习：这段是全文的反面约束，避免把游戏化设计做成注意力争夺或奖励操控。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">风险讨论部分：课堂游戏化研究、挤出效应、排行榜和徽章的负面影响，以及游戏化被商业化简化的问题。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 1</h3>
+              <p>“挤出效应”在游戏化设计里指什么？</p>
+              <ol>
+                <li>外部奖励让用户把行动原因从兴趣转向奖励</li>
+                <li>用户因为任务太难而完全放弃产品</li>
+                <li>系统给出的反馈太少，导致用户不知道进度</li>
+                <li>用户因为界面太复杂而无法理解规则</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">以为奖励越多越能激励用户，忽略外部奖励可能削弱原本的内在理由。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题 2</h3>
+              <p>把游戏化风险和对应后果匹配：</p>
+              <ol>
+                <li>控制性奖励 → 内在动机被削弱</li>
+                <li>数字排行榜 → 比较压力和破坏性竞争</li>
+                <li>娱乐至上 → 核心任务目标被注意力争夺替代</li>
+                <li>元素堆砌 → 真实问题没有被改进</li>
+              </ol>
+              <p class="answer">答案：全部匹配正确后继续</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>游戏化要保护用户为什么行动，而不是只追求用户多点几次、多停留一会儿。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>一个学习产品上线排行榜后，部分用户开始只刷简单题冲排名。最需要警惕什么？</p>
+              <ol>
+                <li>游戏化目标偏移，用户行为离学习质量越来越远</li>
+                <li>排行榜奖励还不够强，用户动力不足</li>
+                <li>题目数量太少，无法支撑用户反复刷题</li>
+                <li>排名展示不够醒目，用户没有充分比较</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把活跃行为当成成功，忽略用户可能在优化奖励而不是完成真正学习。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>教育产品想加入徽章系统。哪种做法更稳？</p>
+              <ol>
+                <li>让徽章反馈真实学习进展，并避免过度比较和控制感</li>
+                <li>让徽章变成唯一学习目标，强化完成压力</li>
+                <li>把徽章和公开排名强绑定，提高竞争强度</li>
+                <li>让用户只有拿到徽章才允许进入下一课</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把徽章当作强控制工具，忽略它应服务进展理解和内在动机维持。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="node">
+        <div class="badge">08</div>
+        <div>
+          <div class="node-title">
+            <h2>AI 让游戏化从预设关卡走向动态生成</h2>
+            <div class="progress">进度 0/3</div>
+          </div>
+          <p class="kp">知识点：生成式 AI 让游戏化体验从预设规则和关卡扩展到按需求、情境和用户状态动态生成任务、挑战和叙事路径。</p>
+          <p class="why">为什么值得复习：这段把传统游戏化方法连接到 AI 时代的新机会，也提醒动态生成仍要服务真实体验目标。</p>
+          <div class="section-grid">
+            <div class="block source">
+              <h3>内部原文锚点</h3>
+              <p class="quote">AI 时代讨论和结尾段：AnyCard 案例、用户从参与者变成创造者，以及游戏化本质是情感锚点和高质量持续体验。</p>
+            </div>
+            <div class="block concept">
+              <h3>轻量理解题</h3>
+              <p>生成式 AI 给游戏化体验带来的关键变化是什么？</p>
+              <ol>
+                <li>任务结构、挑战形式和叙事路径可以按情境动态生成</li>
+                <li>产品不再需要设计目标、反馈和规则</li>
+                <li>积分、徽章和排行榜可以自动替代所有设计判断</li>
+                <li>用户只需要消费系统预设的固定关卡</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 AI 生成理解成自动省掉设计，忽略目标、规则和反馈仍要被设计和校准。</p>
+            </div>
+            <div class="block explain">
+              <h3>答后反馈气泡</h3>
+              <p>AI 扩展的是生成和适配能力，不会替代游戏化对目标、反馈和意义的设计判断。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 1</h3>
+              <p>一个教育产品用 AI 为老师生成卡牌游戏。哪种能力最体现 AI 时代的游戏化变化？</p>
+              <ol>
+                <li>按教学需求生成规则、卡牌和交互任务</li>
+                <li>自动给每个学生生成更多徽章</li>
+                <li>用排行榜替代课堂活动设计</li>
+                <li>把所有课程都包装成同一种固定玩法</li>
+              </ol>
+              <p class="answer">答案：1</p>
+              <div class="source-action">查看原文</div>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把 AI 游戏化理解成批量生产表层奖励，而不是按需求生成可参与的结构。</p>
+            </div>
+            <div class="block scenario">
+              <h3>场景应用题 2</h3>
+              <p>一个 AI 产品想让用户从“参与者”变成“创造者”。更合适的设计是什么？</p>
+              <ol>
+                <li>让用户输入目标和情境，并参与生成任务规则与内容迭代</li>
+                <li>让用户选择更多系统预设头像和称号</li>
+                <li>让 AI 自动决定所有目标，用户只负责完成</li>
+                <li>只把固定任务随机换皮，制造变化感</li>
+              </ol>
+              <p class="answer">答案：1</p>
+            </div>
+            <div class="block misconception">
+              <h3>后台混淆点</h3>
+              <p class="small">把创造性参与误解成更多外观选择，忽略用户要能影响任务和规则本身。</p>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>章节收尾卡</h2>
+      <p>这篇文章的落点不是“多用游戏元素”，而是用游戏机制帮助用户在长期使用中形成目标感、进展感、胜任感和身份认同。好的游戏化要把阶段目标、挑战难度、成长反馈和情境意义组织起来，同时避免外部奖励挤出内在动机；进入 AI 时代后，动态生成让游戏化更灵活，但也更需要清晰的体验目标和伦理边界。</p>
+      <p class="why">收尾说明：结尾总结适合作为章节完成反馈，不再拆成新的知识点。</p>
+    </section>
+  </main>
+</body>
+</html>
