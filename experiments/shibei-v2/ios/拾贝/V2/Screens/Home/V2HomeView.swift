@@ -2,8 +2,12 @@ import SwiftUI
 
 struct V2HomeView: View {
     let data: V2HomeData
+    @Binding var selectedTab: V2HomeTab
+    let onOpenNotifications: () -> Void
+    let onOpenProfile: () -> Void
+    let onOpenChapterDetail: () -> Void
+    let onOpenNode: (V2LearningPathNodeData) -> Void
 
-    @State private var selectedTab: V2HomeTab = .learning
     @State private var selectedNodeID: V2LearningPathNodeData.ID?
 
     var body: some View {
@@ -23,7 +27,7 @@ struct V2HomeView: View {
                         .padding(.horizontal, V2Spacing.screenMargin)
 
                     V2CurrentChapterBanner(chapter: data.currentChapter) {
-                        // Details screen will be connected after the V2 navigation shell exists.
+                        onOpenChapterDetail()
                     }
                     .padding(.top, 30)
                     .padding(.horizontal, V2Spacing.screenMargin)
@@ -53,7 +57,7 @@ struct V2HomeView: View {
                                 node: selectedNode,
                                 pointerX: popover.pointerX
                             ) {
-                                // The actual review route will be connected once the V2 flow screens exist.
+                                onOpenNode(selectedNode)
                             }
                             .position(popover.center)
                             .transition(.scale(scale: 0.96).combined(with: .opacity))
@@ -88,9 +92,9 @@ struct V2HomeView: View {
                 .foregroundStyle(V2Color.textPrimary)
 
             HStack {
-                V2CircleIconButton(kind: .notification) {}
+                V2CircleIconButton(kind: .notification, action: onOpenNotifications)
                 Spacer()
-                V2CircleIconButton(kind: .profile) {}
+                V2CircleIconButton(kind: .profile, action: onOpenProfile)
             }
         }
         .frame(height: 52)
@@ -205,5 +209,12 @@ private struct V2LearningPathCurve: Shape {
 }
 
 #Preview {
-    V2HomeView(data: V2HomeFixture.home)
+    V2HomeView(
+        data: V2HomeFixture.home,
+        selectedTab: .constant(.learning),
+        onOpenNotifications: {},
+        onOpenProfile: {},
+        onOpenChapterDetail: {},
+        onOpenNode: { _ in }
+    )
 }

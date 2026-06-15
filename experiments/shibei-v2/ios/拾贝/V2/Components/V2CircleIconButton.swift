@@ -13,16 +13,7 @@ struct V2CircleIconButton: View {
 
     var body: some View {
         Button(action: action) {
-            ZStack {
-                Circle()
-                    .fill(V2Color.surfaceCircleButton)
-                    .frame(width: 44, height: 44)
-                    .v2Shadow(V2Shadow.subtleGreen)
-
-                glyph
-                    .frame(width: 24, height: 24)
-                    .foregroundStyle(V2Color.textPrimary)
-            }
+            buttonContent
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
@@ -30,19 +21,39 @@ struct V2CircleIconButton: View {
     }
 
     @ViewBuilder
-    private var glyph: some View {
+    private var buttonContent: some View {
         switch kind {
-        case .notification:
-            V2BellGlyph()
-        case .profile:
-            V2ProfileGlyph()
         case .back:
-            V2BackGlyph()
-        case .sourceDocument:
-            Image("V2ChapterSourceIcon")
+            Image("V2CircleButtonBack")
                 .resizable()
                 .renderingMode(.original)
-                .frame(width: 22, height: 22)
+                .frame(width: 44, height: 45)
+        case .sourceDocument:
+            Image("V2CircleButtonSource")
+                .resizable()
+                .renderingMode(.original)
+                .frame(width: 44, height: 45)
+        case .notification:
+            generatedCircleButton {
+                V2BellGlyph()
+            }
+        case .profile:
+            generatedCircleButton {
+                V2ProfileGlyph()
+            }
+        }
+    }
+
+    private func generatedCircleButton<Glyph: View>(@ViewBuilder glyph: () -> Glyph) -> some View {
+        ZStack {
+            Circle()
+                .fill(V2Color.surfaceCircleButton)
+                .frame(width: 44, height: 44)
+                .v2Shadow(V2Shadow.subtleGreen)
+
+            glyph()
+                .frame(width: 24, height: 24)
+                .foregroundStyle(V2Color.textPrimary)
         }
     }
 
@@ -53,19 +64,6 @@ struct V2CircleIconButton: View {
         case .back: "返回"
         case .sourceDocument: "章节详情"
         }
-    }
-}
-
-private struct V2BackGlyph: View {
-    var body: some View {
-        Path { path in
-            path.move(to: CGPoint(x: 18.5, y: 5))
-            path.addLine(to: CGPoint(x: 8, y: 12))
-            path.addLine(to: CGPoint(x: 18.5, y: 19))
-            path.move(to: CGPoint(x: 8, y: 12))
-            path.addLine(to: CGPoint(x: 22, y: 12))
-        }
-        .stroke(V2Color.textPrimary, style: StrokeStyle(lineWidth: 1.8, lineCap: .round, lineJoin: .round))
     }
 }
 

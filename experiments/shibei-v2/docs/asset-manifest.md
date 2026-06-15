@@ -22,6 +22,7 @@
 | Asset | Category | Usage |
 | --- | --- | --- |
 | `nav-icons-32frame-source.svg` | asset source | 底部导航 4 个普通 tab 的 selected/inactive 状态，统一 `32 x 32` frame |
+| `upload-tab-button.svg` | asset | 底部导航中间上传按钮，统一 `60 x 60` frame |
 | `circle-button-back.svg` | asset | 返回圆形按钮 icon 参考/源 |
 | `circle-button-source.svg` | asset | 查看原文/详情圆形按钮 icon 参考/源 |
 | `mascot-static.svg` | asset | 首页路径旁静态 IP |

@@ -98,28 +98,12 @@ struct V2UploadTabButton: View {
 
     var body: some View {
         Button(action: action) {
-            ZStack(alignment: .topLeading) {
-                Circle()
-                    .fill(Color(hex: 0xE8E9C2))
-                    .frame(width: V2UploadTabMetrics.circleDiameter, height: V2UploadTabMetrics.circleDiameter)
-                    .overlay(
-                        Circle()
-                            .stroke(Color.white, lineWidth: 2)
-                    )
-                    .v2Shadow()
-                    .position(V2UploadTabMetrics.circleCenter)
-
-                Path { path in
-                    path.move(to: CGPoint(x: 30, y: 16.93))
-                    path.addLine(to: CGPoint(x: 30, y: 34.47))
-                    path.move(to: CGPoint(x: 20.93, y: 26))
-                    path.addLine(to: CGPoint(x: 38.47, y: 26))
-                }
-                .stroke(V2Color.primary, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
-            }
-            .frame(width: V2UploadTabMetrics.canvasSize.width, height: V2UploadTabMetrics.canvasSize.height)
-            .contentShape(Rectangle())
-            .accessibilityLabel("上传")
+            Image("V2UploadTabButton")
+                .resizable()
+                .renderingMode(.original)
+                .frame(width: V2UploadTabMetrics.canvasSize.width, height: V2UploadTabMetrics.canvasSize.height)
+                .contentShape(Rectangle())
+                .accessibilityLabel("上传")
         }
         .buttonStyle(.plain)
     }
@@ -127,8 +111,6 @@ struct V2UploadTabButton: View {
 
 private enum V2UploadTabMetrics {
     static let canvasSize = CGSize(width: 60, height: 60)
-    static let circleDiameter: CGFloat = 52
-    static let circleCenter = CGPoint(x: 30, y: 26)
 }
 
 #Preview("V2 Bottom Navigation") {
