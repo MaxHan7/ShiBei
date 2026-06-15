@@ -14,6 +14,10 @@ experiments/shibei-v2/
   docs/     Notes for V2-only design work
 ```
 
+Start with `docs/v2-isolated-development-plan-zh.md` when planning V2 work. It
+defines the development milestones, release gate, and final production
+replacement strategy.
+
 ## Isolation Rules
 
 - Do not edit the production app under the repository root `拾贝/`.
@@ -21,6 +25,9 @@ experiments/shibei-v2/
 - Do not point V2 at `https://shibei-production.up.railway.app`.
 - Do not reuse the production Railway `DATABASE_URL`.
 - Do not configure production APNS credentials for the V2 backend.
+- Do not treat V2 as a long-lived second cloud service. V2 is isolated during
+  development, then replaces the existing production service after the release
+  gate is met.
 
 V2 uses:
 
@@ -76,8 +83,15 @@ You can find the Mac Wi-Fi IP with:
 ipconfig getifaddr en0
 ```
 
-## Railway Later
+## Production Replacement Later
 
-Railway is intentionally out of scope for the baseline copy. When V2 needs a
-cloud backend, create a separate Railway project or service with a separate
-PostgreSQL database and V2-only variables.
+Railway is intentionally out of scope for the baseline copy. During development,
+V2 should run locally against `experiments/shibei-v2/backend` and isolated test
+data.
+
+When V2 passes the release gate, it should replace the existing production
+service rather than become a permanent parallel service. Before replacement,
+record the production commit, deployment version, database backup, environment
+variables, and rollback procedure. The production service should only be updated
+after the V2 iOS app, V2 backend, V2 prompt pipeline, data contract, and recovery
+flows have all passed acceptance testing.
