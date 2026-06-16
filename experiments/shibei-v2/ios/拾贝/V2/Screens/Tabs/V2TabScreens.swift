@@ -63,30 +63,38 @@ struct V2MaterialsView: View {
                 }
                 .padding(.bottom, 16)
 
-                V2ChapterCard(
-                    title: V2ReviewFixture.chapter.title,
-                    status: .reviewing,
-                    source: "网页文章",
-                    knowledgeCount: V2ReviewFixture.chapter.units.count,
-                    questionCount: V2ReviewFixture.chapter.units.reduce(0) { $0 + $1.questions.count }
-                )
-                .onTapGesture(perform: openChapter)
+                Button(action: openChapter) {
+                    V2ChapterCard(
+                        title: V2ReviewFixture.chapter.title,
+                        status: .reviewing,
+                        source: "网页文章",
+                        knowledgeCount: V2ReviewFixture.chapter.units.count,
+                        questionCount: V2ReviewFixture.chapter.units.reduce(0) { $0 + $1.questions.count }
+                    )
+                }
+                .buttonStyle(.plain)
 
-                V2ChapterCard(
-                    title: "Claude Code hooks：把自动化放进工作流",
-                    status: .notStarted,
-                    source: "网页文章",
-                    knowledgeCount: 7,
-                    questionCount: 21
-                )
+                Button(action: openChapter) {
+                    V2ChapterCard(
+                        title: "Claude Code hooks：把自动化放进工作流",
+                        status: .notStarted,
+                        source: "网页文章",
+                        knowledgeCount: 7,
+                        questionCount: 21
+                    )
+                }
+                .buttonStyle(.plain)
 
-                V2ChapterCard(
-                    title: "游戏化设计如何改善学习体验",
-                    status: .completed,
-                    source: "网页文章",
-                    knowledgeCount: 6,
-                    questionCount: 18
-                )
+                Button(action: openChapter) {
+                    V2ChapterCard(
+                        title: "游戏化设计如何改善学习体验",
+                        status: .completed,
+                        source: "网页文章",
+                        knowledgeCount: 6,
+                        questionCount: 18
+                    )
+                }
+                .buttonStyle(.plain)
             }
         }
     }
@@ -94,6 +102,7 @@ struct V2MaterialsView: View {
 
 struct V2UploadView: View {
     @Binding var selectedTab: V2HomeTab
+    let onGenerate: () -> Void
 
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "上传") {
@@ -126,7 +135,7 @@ struct V2UploadView: View {
                     }
                 }
 
-                V2PrimaryActionButton(title: "生成复习路径") {}
+                V2PrimaryActionButton(title: "生成复习路径", action: onGenerate)
             }
         }
     }
@@ -139,42 +148,26 @@ struct V2DiscoverView: View {
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "发现") {
             VStack(alignment: .leading, spacing: 20) {
-                V2InfoCard {
-                    HStack(alignment: .center, spacing: 16) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("发现好内容")
-                                .font(V2Typography.cardTitle)
-                                .foregroundStyle(V2Color.primary)
-                            Text("读一篇好文章，也可以马上生成复习路径。")
-                                .font(V2Typography.body)
-                                .foregroundStyle(V2Color.textSecondary)
-                                .lineSpacing(4)
-                        }
-
-                        Spacer()
-
-                        Image("V2DiscoverHeroMascot")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 96)
-                    }
-                }
+                V2DiscoverHeroCard()
 
                 HStack(spacing: 10) {
-                    V2DiscoverChip(title: "推荐", isSelected: true)
+                    V2DiscoverChip(title: "全部", isSelected: true)
                     V2DiscoverChip(title: "AI", isSelected: false)
                     V2DiscoverChip(title: "产品", isSelected: false)
+                    V2DiscoverChip(title: "金融", isSelected: false)
                 }
 
                 V2RecommendedArticleCard(
                     title: "Anthropic 设计总监：为何您的整个团队都应该使用 AI Agents 协同工作",
-                    summary: "从团队协作角度理解 AI Agents 的价值。",
+                    source: "微信公众号",
+                    tags: ["AI", "产品"],
                     action: openArticle
                 )
 
                 V2RecommendedArticleCard(
                     title: "DMC 模型如何影响游戏化学习体验",
-                    summary: "把动机、机制和反馈串成一套更轻的学习流程。",
+                    source: "推荐阅读",
+                    tags: ["AI", "学习"],
                     action: openArticle
                 )
             }
@@ -188,41 +181,37 @@ struct V2NotesView: View {
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "笔记") {
             VStack(spacing: 16) {
-                V2InfoCard {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("收藏题目")
-                                .font(V2Typography.cardTitle)
-                                .foregroundStyle(V2Color.textPrimary)
-                            Text("把容易混淆的题目先放在这里。")
-                                .font(V2Typography.body)
-                                .foregroundStyle(V2Color.textSecondary)
-                        }
-                        Spacer()
-                        Image("V2NotesBookmark")
-                            .resizable()
-                            .renderingMode(.original)
-                            .frame(width: 24, height: 24)
-                    }
-                }
+                ZStack(alignment: .topTrailing) {
+                    V2NotesSummaryCard(count: 7)
+                        .padding(.top, 64)
 
-                ForEach(0..<3, id: \.self) { index in
-                    V2InfoCard {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text(index == 0 ? "选择题" : "场景题")
-                                .font(V2Typography.label)
-                                .foregroundStyle(V2Color.primary)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Capsule().fill(Color(hex: 0xF2EFDC)))
-
-                            Text("为什么团队使用 AI Agent 时，需要先补足共享上下文？")
-                                .font(V2Typography.bodyEmphasis)
-                                .foregroundStyle(V2Color.textPrimary)
-                                .lineLimit(2)
-                        }
-                    }
+                    Image("V2NotesMascot")
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFit()
+                        .frame(width: 132)
+                        .offset(x: 4, y: 0)
+                        .allowsHitTesting(false)
                 }
+                .padding(.bottom, 12)
+
+                V2SavedQuestionCard(
+                    title: "为什么团队使用 AI Agent 时，需要先补足共享上下文？",
+                    source: "Anthropic设计总监：为何您的整个团队都应该使用AI Agents协同工作",
+                    type: "选择题"
+                )
+
+                V2SavedQuestionCard(
+                    title: "判断一个反馈来源是否有价值时，最应该先看什么？",
+                    source: "产品经理如何把 AI 当作协作同事",
+                    type: "场景题"
+                )
+
+                V2SavedQuestionCard(
+                    title: "DMC 模型里，机制为什么不能脱离动机单独设计？",
+                    source: "游戏化设计如何改善学习体验",
+                    type: "选择题"
+                )
             }
         }
     }

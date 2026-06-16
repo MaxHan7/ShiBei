@@ -35,7 +35,13 @@ struct V2RootView: View {
                 route = .chapterDetail
             }
         case .upload:
-            V2UploadView(selectedTab: $selectedTab)
+            V2UploadView(
+                selectedTab: $selectedTab,
+                onGenerate: {
+                    selectedTab = .learning
+                    route = .chapterOverview
+                }
+            )
         case .discover:
             V2DiscoverView(selectedTab: $selectedTab) {
                 route = .recommendedArticle

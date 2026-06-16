@@ -22,9 +22,11 @@
 | Asset | Category | Usage |
 | --- | --- | --- |
 | `nav-icons-32frame-source.svg` | asset source | 底部导航 4 个普通 tab 的 selected/inactive 状态，统一 `32 x 32` frame |
-| `upload-tab-button.svg` | parameter source | 底部导航中间上传按钮，统一 `60 x 60` frame；SwiftUI 组件按该 SVG 参数原生绘制，避免 filter 阴影在 iOS 中失真 |
+| `upload-tab-button.svg` | asset | 底部导航中间上传按钮，统一 `60 x 60` frame；SwiftUI 直接引用该独立资产，避免再次手绘造成尺寸、阴影或加号位置偏差 |
 | `circle-button-back.svg` | asset | 返回圆形按钮 icon 参考/源 |
 | `circle-button-source.svg` | asset | 查看原文/详情圆形按钮 icon 参考/源 |
+| `circle-button-notification.svg` | asset | 首页/顶部通知圆形按钮 |
+| `circle-button-profile.svg` | asset | 首页/顶部个人主页圆形按钮 |
 | `mascot-static.svg` | asset | 首页路径旁静态 IP |
 | `summary-mascot-body-layer.svg` | asset | 章节概要页 IP 身体后层 |
 | `summary-mascot-hands-layer.svg` | asset | 章节概要页 IP 手部前层 |

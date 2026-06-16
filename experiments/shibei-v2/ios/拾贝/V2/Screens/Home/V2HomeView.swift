@@ -217,9 +217,10 @@ private struct V2PathCycleLayout {
         let slot = template.slot(at: index)
         let xScale = min(1.22, max(0.92, (containerWidth - 56) / template.size.width))
         let xOffset = (containerWidth - template.size.width * xScale) / 2
+        let bottomContentReserve: CGFloat = 126
         return CGPoint(
             x: xOffset + slot.x * xScale,
-            y: height - 64 - slot.y * template.verticalScale
+            y: height - bottomContentReserve - slot.y * template.verticalScale
         )
     }
 
@@ -228,7 +229,9 @@ private struct V2PathCycleLayout {
         let groupPoints = group.map(point(at:))
         let averageY = groupPoints.map(\.y).reduce(0, +) / CGFloat(max(groupPoints.count, 1))
         let anchorX = template.isRightMascotGroup(forNodeIndex: index) ? containerWidth * 0.72 : containerWidth * 0.28
-        let anchorY = min(height - 106, max(126, averageY + 36))
+        let bottomNavigationReserve: CGFloat = 190
+        let maxAnchorY = max(126, height - bottomNavigationReserve)
+        let anchorY = min(maxAnchorY, max(126, averageY - 44))
         return CGPoint(x: anchorX, y: anchorY)
     }
 }

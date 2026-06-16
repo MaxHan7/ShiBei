@@ -546,7 +546,8 @@ struct V2RecommendedArticleDetailView: View {
                 VStack(spacing: 20) {
                     V2RecommendedArticleCard(
                         title: V2ReviewFixture.chapter.title,
-                        summary: "这篇推荐文章可以直接生成一套 V2 复习路径。",
+                        source: "推荐阅读",
+                        tags: ["AI", "产品"],
                         action: {}
                     )
 

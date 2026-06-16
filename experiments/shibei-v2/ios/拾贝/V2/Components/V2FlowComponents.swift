@@ -489,15 +489,76 @@ struct V2DiscoverChip: View {
 
     var body: some View {
         Text(title)
-            .font(V2Typography.label)
-            .foregroundStyle(isSelected ? .white : V2Color.textPrimary)
+            .font(.system(size: 12, weight: .regular))
+            .foregroundStyle(isSelected ? Color(hex: 0xFEF9F2) : Color(hex: 0x5E5E5E))
             .frame(width: 61, height: 27)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(isSelected ? Color(hex: 0x929A4F) : Color(hex: 0xFEF9F2))
                     .overlay(
                         RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .stroke(V2Color.decorativeLeaf, lineWidth: 1)
+                            .stroke(Color(hex: 0xDDE1AC), lineWidth: 1)
+                    )
+                    .v2Shadow()
+            )
+    }
+}
+
+struct V2DiscoverHeroCard: View {
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .frame(height: 82)
+                .frame(maxHeight: .infinity, alignment: .bottom)
+                .v2Shadow()
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("发现好内容")
+                    .font(.system(size: 16, weight: .medium))
+                    .tracking(-0.64)
+                    .foregroundStyle(Color(hex: 0xA5AE66))
+
+                Text("不用上传，也可以先体验一篇好文章如何变成复习路径。")
+                    .font(.system(size: 10, weight: .regular))
+                    .tracking(-0.24)
+                    .foregroundStyle(Color(hex: 0x575757))
+                    .lineSpacing(7)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(.leading, 18)
+            .padding(.trailing, 108)
+            .padding(.bottom, 18)
+
+            Image("V2DiscoverHeroMascot")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 104, height: 124)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                .offset(x: -8, y: 0)
+                .allowsHitTesting(false)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 143)
+    }
+}
+
+struct V2ArticleTagPill: View {
+    let title: String
+
+    var body: some View {
+        Text(title)
+            .font(.system(size: 8, weight: .regular))
+            .foregroundStyle(Color(hex: 0x5E5E5E))
+            .frame(width: 35.4, height: 15.7)
+            .background(
+                Capsule()
+                    .fill(Color(hex: 0xFEF9F2))
+                    .overlay(
+                        Capsule()
+                            .stroke(Color(hex: 0xDDE1AC), lineWidth: 1)
                     )
                     .v2Shadow()
             )
@@ -506,37 +567,158 @@ struct V2DiscoverChip: View {
 
 struct V2RecommendedArticleCard: View {
     let title: String
-    let summary: String
+    let source: String
+    let tags: [String]
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 12) {
-                Image("V2DiscoverArticleThumbnail")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 118)
-                    .clipped()
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            GeometryReader { proxy in
+                let infoWidth = min(231, max(0, proxy.size.width * 0.72))
 
-                Text(title)
-                    .font(V2Typography.bodyEmphasis)
-                    .foregroundStyle(V2Color.textPrimary)
-                    .lineLimit(2)
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 15, style: .continuous)
+                        .fill(V2Color.surfaceCream)
+                        .v2Shadow()
 
-                Text(summary)
-                    .font(V2Typography.label)
-                    .foregroundStyle(V2Color.textMuted)
-                    .lineLimit(2)
+                    Image("V2DiscoverArticleThumbnail")
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFill()
+                        .frame(width: 119, height: 94)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        .clipped()
+
+                    RoundedRectangle(cornerRadius: 15, style: .continuous)
+                        .fill(V2Color.surfaceCream)
+                        .frame(width: infoWidth, height: 94)
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(title)
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundStyle(Color(hex: 0x383838))
+                            .lineSpacing(8)
+                            .lineLimit(2)
+                            .frame(maxWidth: infoWidth - 34, alignment: .leading)
+
+                        Text(source)
+                            .font(.system(size: 10, weight: .regular))
+                            .foregroundStyle(Color(hex: 0xA3A3A3))
+                            .lineLimit(1)
+
+                        HStack(spacing: 8) {
+                            ForEach(tags.prefix(3), id: \.self) { tag in
+                                V2ArticleTagPill(title: tag)
+                            }
+                        }
+                    }
+                    .padding(.leading, 20)
+                    .padding(.vertical, 13)
+                    .frame(width: infoWidth, height: 94, alignment: .topLeading)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(V2Color.surfaceCream)
-                    .v2Shadow()
-            )
+            .frame(height: 94)
         }
         .buttonStyle(.plain)
+    }
+}
+
+struct V2NotesSummaryCard: View {
+    let count: Int
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .frame(height: 82)
+                .frame(maxHeight: .infinity, alignment: .top)
+                .v2Shadow()
+
+            Image("V2NotesSummaryWave")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFill()
+                .frame(height: 54)
+                .frame(maxWidth: .infinity)
+                .clipped()
+                .opacity(0.95)
+
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                Text("已收藏 ")
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundStyle(Color(hex: 0x383838))
+                Text("\(count)")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(Color(hex: 0xA5AE66))
+                    .baselineOffset(-1)
+                Text(" 个题目")
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundStyle(Color(hex: 0x383838))
+            }
+            .tracking(-0.8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, 64)
+            .padding(.bottom, 48)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 90)
+    }
+}
+
+struct V2QuestionTypePill: View {
+    let title: String
+
+    var body: some View {
+        Text(title)
+            .font(.system(size: 12, weight: .regular))
+            .foregroundStyle(Color(hex: 0x5A5D2C))
+            .frame(width: 55, height: 22)
+            .background(
+                Capsule()
+                    .fill(Color(hex: 0xF4F2DF))
+            )
+    }
+}
+
+struct V2SavedQuestionCard: View {
+    let title: String
+    let source: String
+    let type: String
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .v2Shadow()
+
+            Text(title)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(Color(hex: 0x383838))
+                .lineSpacing(8)
+                .lineLimit(2)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 18)
+                .padding(.trailing, 54)
+                .padding(.top, 8)
+
+            Text(source)
+                .font(.system(size: 11, weight: .regular))
+                .foregroundStyle(Color(hex: 0x827C75))
+                .lineLimit(1)
+                .offset(x: 20, y: 55)
+
+            V2QuestionTypePill(title: type)
+                .offset(x: 22, y: 92)
+
+            Image("V2NotesBookmark")
+                .resizable()
+                .renderingMode(.original)
+                .frame(width: 12, height: 18)
+                .offset(x: 290, y: 25)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 136)
     }
 }
 

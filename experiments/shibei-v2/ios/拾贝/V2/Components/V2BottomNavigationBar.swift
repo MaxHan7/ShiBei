@@ -101,25 +101,10 @@ struct V2UploadTabButton: View {
 
     var body: some View {
         Button(action: action) {
-            ZStack(alignment: .topLeading) {
-                Circle()
-                    .fill(V2Color.uploadButtonFill)
-                    .overlay {
-                        Circle()
-                            .stroke(V2Color.uploadButtonStroke, lineWidth: 2)
-                    }
-                    .frame(width: V2UploadTabMetrics.circleDiameter, height: V2UploadTabMetrics.circleDiameter)
-                    .shadow(color: Color(hex: 0x98A35E).opacity(0.20), radius: 2, x: 0, y: 4)
-                    .position(V2UploadTabMetrics.circleCenter)
-
-                V2UploadPlusShape()
-                    .stroke(
-                        V2Color.primary,
-                        style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round)
-                    )
-                    .frame(width: V2UploadTabMetrics.canvasSize.width, height: V2UploadTabMetrics.canvasSize.height)
-            }
-            .frame(width: V2UploadTabMetrics.canvasSize.width, height: V2UploadTabMetrics.canvasSize.height)
+            Image("V2UploadTabButton")
+                .resizable()
+                .renderingMode(.original)
+                .frame(width: V2UploadTabMetrics.canvasSize.width, height: V2UploadTabMetrics.canvasSize.height)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -129,26 +114,6 @@ struct V2UploadTabButton: View {
 
 private enum V2UploadTabMetrics {
     static let canvasSize = CGSize(width: 60, height: 60)
-    static let circleDiameter: CGFloat = 52
-    static let circleCenter = CGPoint(x: 30, y: 26)
-}
-
-private struct V2UploadPlusShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        let scaleX = rect.width / 60
-        let scaleY = rect.height / 60
-
-        func point(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
-            CGPoint(x: rect.minX + x * scaleX, y: rect.minY + y * scaleY)
-        }
-
-        var path = Path()
-        path.move(to: point(30, 16.9307))
-        path.addLine(to: point(30, 34.4655))
-        path.move(to: point(20.9307, 26))
-        path.addLine(to: point(38.4655, 26))
-        return path
-    }
 }
 
 #Preview("V2 Bottom Navigation") {
