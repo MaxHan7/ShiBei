@@ -101,7 +101,9 @@ struct V2HomeView: View {
     }
 
     private func selectedNode(in data: V2HomeData) -> V2LearningPathNodeData? {
-        let id = selectedNodeID ?? data.currentNodeID
+        guard let id = selectedNodeID else {
+            return nil
+        }
         return data.nodes.first { $0.id == id }
     }
 
