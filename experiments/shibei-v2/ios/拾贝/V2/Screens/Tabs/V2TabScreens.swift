@@ -7,7 +7,7 @@ struct V2TabScaffold<Content: View>: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let bottomNavScale = min(1, (geometry.size.width - V2Spacing.screenMargin * 2) / 357)
+            let bottomNavScale = min(1, geometry.size.width / 357)
 
             ZStack(alignment: .top) {
                 V2Color.pageGreenBackground
@@ -48,29 +48,44 @@ struct V2MaterialsView: View {
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "全部章节") {
             VStack(spacing: 16) {
-                Image("V2MaterialsMascot")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 130)
-                    .opacity(0.95)
+                ZStack(alignment: .topTrailing) {
+                    V2GeneratedChaptersSummaryCard(count: 12)
+                        .padding(.top, 54)
+
+                    Image("V2MaterialsMascot")
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFit()
+                        .frame(width: 166, height: 137)
+                        .offset(x: 10, y: -6)
+                        .opacity(0.98)
+                        .allowsHitTesting(false)
+                }
+                .padding(.bottom, 16)
 
                 V2ChapterCard(
                     title: V2ReviewFixture.chapter.title,
-                    status: "复习中",
-                    progress: "2 个单元，3 道题目"
+                    status: .reviewing,
+                    source: "网页文章",
+                    knowledgeCount: V2ReviewFixture.chapter.units.count,
+                    questionCount: V2ReviewFixture.chapter.units.reduce(0) { $0 + $1.questions.count }
                 )
                 .onTapGesture(perform: openChapter)
 
                 V2ChapterCard(
                     title: "Claude Code hooks：把自动化放进工作流",
-                    status: "未复习",
-                    progress: "7 个知识点，21 道题目"
+                    status: .notStarted,
+                    source: "网页文章",
+                    knowledgeCount: 7,
+                    questionCount: 21
                 )
 
                 V2ChapterCard(
                     title: "游戏化设计如何改善学习体验",
-                    status: "已完成",
-                    progress: "完成率 100%"
+                    status: .completed,
+                    source: "网页文章",
+                    knowledgeCount: 6,
+                    questionCount: 18
                 )
             }
         }

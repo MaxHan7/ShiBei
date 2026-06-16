@@ -516,11 +516,17 @@ struct V2ChapterDetailView: View {
                     }
 
                     ForEach(V2ReviewFixture.chapter.units) { unit in
-                        V2ChapterCard(
-                            title: unit.title,
-                            status: "知识点",
-                            progress: "\(unit.questions.count) 道题目"
-                        )
+                        V2InfoCard {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(unit.title)
+                                    .font(V2Typography.bodyEmphasis)
+                                    .foregroundStyle(V2Color.textPrimary)
+                                Text("\(unit.questions.count) 道题目")
+                                    .font(V2Typography.label)
+                                    .foregroundStyle(V2Color.textMuted)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
                     }
                 }
                 .padding(.horizontal, V2Spacing.screenMargin)

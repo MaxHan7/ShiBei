@@ -391,36 +391,92 @@ struct V2NotificationCard: View {
 
 struct V2ChapterCard: View {
     let title: String
-    let status: String
-    let progress: String
+    let status: V2ChapterReviewStatus
+    let source: String
+    let knowledgeCount: Int
+    let questionCount: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 7) {
-                    Text(title)
-                        .font(V2Typography.bodyEmphasis)
-                        .foregroundStyle(V2Color.textPrimary)
-                        .lineLimit(2)
-                    Text(progress)
-                        .font(V2Typography.label)
-                        .foregroundStyle(V2Color.textMuted)
-                }
+        VStack(alignment: .leading, spacing: 18) {
+            HStack(alignment: .top, spacing: 12) {
+                V2ChapterStatusTag(status: status)
+                Spacer(minLength: 12)
+            }
+
+            Text(title)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(Color(hex: 0x383838))
+                .lineSpacing(4)
+                .lineLimit(2)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Spacer(minLength: 0)
+
+            HStack(alignment: .center, spacing: 6) {
+                Image("V2ChapterSourceIcon")
+                    .resizable()
+                    .renderingMode(.original)
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
+
+                Text(source)
+                    .font(.system(size: 11, weight: .regular))
+                    .foregroundStyle(Color(hex: 0xACACAC))
+
                 Spacer()
-                Text(status)
-                    .font(V2Typography.label)
-                    .foregroundStyle(V2Color.primary)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(
-                        Capsule()
-                            .fill(Color(hex: 0xF2EFDC))
-                    )
+
+                Text("\(knowledgeCount)个知识点  \(questionCount)道题")
+                    .font(.system(size: 11, weight: .regular))
+                    .foregroundStyle(Color(hex: 0xACACAC))
             }
         }
-        .padding(18)
+        .frame(maxWidth: .infinity, minHeight: 100, alignment: .topLeading)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 16)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .v2Shadow()
+        )
+    }
+}
+
+struct V2ChapterStatusTag: View {
+    let status: V2ChapterReviewStatus
+
+    var body: some View {
+        Text(status.title)
+            .font(.system(size: 12, weight: .regular))
+            .foregroundStyle(Color(hex: status.foregroundColor.hex))
+            .frame(width: 55, height: 22)
+            .background(
+                Capsule()
+                    .fill(Color(hex: status.backgroundColor.hex))
+            )
+    }
+}
+
+struct V2GeneratedChaptersSummaryCard: View {
+    let count: Int
+
+    var body: some View {
+        HStack(spacing: 0) {
+            Text("已生成 ")
+                .font(.system(size: 18, weight: .medium))
+                .foregroundStyle(V2Color.textPrimary)
+            Text("\(count)")
+                .font(.system(size: 28, weight: .bold))
+                .foregroundStyle(V2Color.primary)
+                .baselineOffset(-1)
+            Text(" 个章节")
+                .font(.system(size: 18, weight: .medium))
+                .foregroundStyle(V2Color.textPrimary)
+            Spacer()
+        }
+        .padding(.horizontal, 22)
+        .frame(height: 82)
+        .background(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
         )

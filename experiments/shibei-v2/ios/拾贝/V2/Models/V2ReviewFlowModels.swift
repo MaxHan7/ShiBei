@@ -32,6 +32,40 @@ enum V2MatchingOptionState {
     case locked
 }
 
+enum V2ChapterReviewStatus {
+    case notStarted
+    case reviewing
+    case completed
+
+    var title: String {
+        switch self {
+        case .notStarted: "未复习"
+        case .reviewing: "复习中"
+        case .completed: "已完成"
+        }
+    }
+
+    var foregroundColor: V2ColorValue {
+        switch self {
+        case .notStarted: V2ColorValue(hex: 0x878787)
+        case .reviewing: V2ColorValue(hex: 0xC08D26)
+        case .completed: V2ColorValue(hex: 0x98A84E)
+        }
+    }
+
+    var backgroundColor: V2ColorValue {
+        switch self {
+        case .notStarted: V2ColorValue(hex: 0xE9E9E9)
+        case .reviewing: V2ColorValue(hex: 0xFCEDC4)
+        case .completed: V2ColorValue(hex: 0xE8EBBD)
+        }
+    }
+}
+
+struct V2ColorValue: Equatable {
+    let hex: UInt
+}
+
 struct V2ReviewChapterData {
     let title: String
     let overview: String
