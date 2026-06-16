@@ -46,7 +46,7 @@ struct V2CircleIconButton: View {
         case .notification: "通知"
         case .profile: "个人主页"
         case .back: "返回"
-        case .sourceDocument: "章节详情"
+        case .sourceDocument: "查看原文"
         }
     }
 }

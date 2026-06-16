@@ -27,6 +27,8 @@
 | `V2NotificationCard` | `success`, `failure` | Figma `451:1233`, `451:1234`; `notification-success-icon.svg`, `notification-failure-icon.svg` | 卡片代码绘制，状态 icon 使用资产 |
 | `V2ChapterCard` | `notStarted`, `reviewing`, `completed` | Figma `451:1261` | 整章列表卡；内部状态 tag 和来源 icon 复用 |
 | `V2ChapterStatusTag` | `notStarted`, `reviewing`, `completed` | Figma `451:1245`, `451:1246`, `451:1247` | 小状态标签，代码绘制 |
+| `V2ChapterDetailUnitRow` | `notStarted`, `reviewing`, `completed` via status tag | derives from `V2ChapterStatusTag` | 章节详情页本地单元行；标题、概览、题量和状态标签代码绘制 |
+| `V2ChapterDetailMetricPill` | default | design-system tokens | 章节详情页顶部统计小卡；用于知识点数、题目数和已完成进度 |
 | `V2CurrentChapterBanner` | default | Figma `351:975`, `chapter-source-icon.svg` | 首页当前章节 banner；文字动态，右侧详情 icon |
 | `V2DiscoverChip` | `inactive`, `selected` | Figma `450:1186`, `450:1187` | 发现页 filter chip，文字动态 |
 | `V2RecommendedArticleCard` | default | Figma `381:1117`, `discover-article-thumbnail.svg` | 三层夹图结构，卡片和文字代码绘制 |

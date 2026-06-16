@@ -59,7 +59,11 @@ struct V2RootView: View {
         case .profile:
             V2ProfileView(onBack: closeRoute)
         case .chapterDetail:
-            V2ChapterDetailView(onBack: closeRoute)
+            V2ChapterDetailView(
+                onBack: closeRoute,
+                onContinue: continueFromChapterDetail,
+                onSource: openSource
+            )
         case .sourceArticle:
             V2SourceArticleView(question: sourceQuestion, onBack: closeSource)
         case .recommendedArticle:
@@ -175,6 +179,15 @@ struct V2RootView: View {
             route = .unitOverview(unitID: nextUnit.id)
         } else {
             route = .chapterSummary
+        }
+    }
+
+    private func continueFromChapterDetail() {
+        let currentNodeID = V2HomeFixture.home.currentNodeID
+        if V2ReviewFixture.unit(id: currentNodeID) != nil {
+            route = .unitOverview(unitID: currentNodeID)
+        } else {
+            openFirstUnit()
         }
     }
 

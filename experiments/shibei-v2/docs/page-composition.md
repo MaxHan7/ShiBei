@@ -14,6 +14,7 @@
 | Page / module | Components | Assets / references | Notes |
 | --- | --- | --- | --- |
 | 首页 / 学习路径 | `V2BottomNavigationBar`, `V2CurrentChapterBanner`, `V2CircleIconButton`, `V2NodePopover` | `nav-icons-32frame-source.svg`, `mascot-static.svg`, path reference assets | 路径节点可上下滚动；节点弹窗优先居中，尖角跟随节点 |
+| 章节详情页 | `V2CircleIconButton`, `V2PrimaryActionButton`, `V2ChapterStatusTag`, chapter detail local rows | `chapter-source-icon.svg` | 从首页 banner、资料页章节卡、章节总结弱入口进入；承担继续复习、查看原文、浏览单元状态的交汇作用 |
 | 章节概要页 | `V2CircleIconButton`, `V2PrimaryActionButton`, `V2ChapterOverviewCardWithMascot` | `summary-mascot-body-layer.svg`, `summary-mascot-hands-layer.svg` | IP 身体、正文卡片、手部分层 |
 | 知识点开场页 | `V2CircleIconButton`, `V2UnitProgressBar`, `V2PrimaryActionButton`, `V2UnitOverviewBoardCard` | `unit-overview-mascot.svg` | 白板桌腿在卡片后层，IP 指向卡片 |
 | 选择题页 | `V2CircleIconButton`, `V2UnitProgressBar`, `V2QuestionOptionCard`, `V2AnswerFeedbackPanel`, `V2FeedbackActionButton` | feedback mascot layers, answer panel references | 选项文字左对齐；答后反馈允许继续看题 |
@@ -38,3 +39,4 @@
 7. 如果还有下一个知识点，单元总结页继续进入下一个知识点开场页。
 8. 如果这是章节最后一个知识点，单元总结页继续进入章节总结页。
 9. 章节总结页可返回主页，也可查看章节详情。
+10. 章节详情页可从首页当前章节 banner、资料页章节卡和章节总结页进入；点击“继续复习”进入当前复习单元，点击“查看原文”进入章节级原文页，返回后恢复章节详情页。

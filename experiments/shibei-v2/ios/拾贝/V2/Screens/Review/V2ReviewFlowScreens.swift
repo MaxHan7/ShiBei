@@ -498,41 +498,211 @@ struct V2SourceArticleView: View {
 
 struct V2ChapterDetailView: View {
     let onBack: () -> Void
+    let onContinue: () -> Void
+    let onSource: () -> Void
+
+    private var chapter: V2ReviewChapterData {
+        V2ReviewFixture.chapter
+    }
+
+    private var totalQuestionCount: Int {
+        chapter.units.reduce(0) { $0 + $1.questions.count }
+    }
+
+    private var completedQuestionCount: Int {
+        chapter.units.reduce(0) { total, unit in
+            guard let node = V2HomeFixture.home.nodes.first(where: { $0.id == unit.id }) else {
+                return total
+            }
+
+            switch node.state {
+            case .completed:
+                return total + unit.questions.count
+            case .current:
+                let currentUnitCap = max(unit.questions.count - 1, 0)
+                return total + min(node.completedQuestionCount, currentUnitCap)
+            case .start, .locked:
+                return total
+            }
+        }
+    }
 
     var body: some View {
-        V2FlowScreen(title: "章节详情", onBack: onBack) {
+        V2FlowScreen(
+            title: "章节详情",
+            showSourceButton: true,
+            onBack: onBack,
+            onSource: onSource
+        ) {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
                     V2InfoCard {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(V2ReviewFixture.chapter.title)
+                        VStack(alignment: .leading, spacing: 18) {
+                            Text(chapter.title)
                                 .font(V2Typography.cardTitle)
                                 .foregroundStyle(V2Color.textPrimary)
-                            Text(V2ReviewFixture.chapter.overview)
+
+                            Text(chapter.overview)
                                 .font(V2Typography.body)
                                 .foregroundStyle(V2Color.textSecondary)
                                 .lineSpacing(5)
+
+                            HStack(spacing: 10) {
+                                V2ChapterDetailMetricPill(
+                                    value: "\(chapter.units.count)",
+                                    label: "知识点"
+                                )
+
+                                V2ChapterDetailMetricPill(
+                                    value: "\(totalQuestionCount)",
+                                    label: "题目"
+                                )
+
+                                V2ChapterDetailMetricPill(
+                                    value: "\(completedQuestionCount)/\(max(totalQuestionCount, 1))",
+                                    label: "已完成"
+                                )
+                            }
                         }
                     }
 
-                    ForEach(V2ReviewFixture.chapter.units) { unit in
-                        V2InfoCard {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(unit.title)
-                                    .font(V2Typography.bodyEmphasis)
-                                    .foregroundStyle(V2Color.textPrimary)
-                                Text("\(unit.questions.count) 道题目")
-                                    .font(V2Typography.label)
-                                    .foregroundStyle(V2Color.textMuted)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                    V2PrimaryActionButton(title: "继续复习", action: onContinue)
+                        .padding(.top, 2)
+
+                    Button(action: onSource) {
+                        HStack(spacing: 10) {
+                            Image("V2ChapterSourceIcon")
+                                .resizable()
+                                .renderingMode(.original)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+
+                            Text("查看原文")
+                                .font(V2Typography.bodyEmphasis)
+                                .foregroundStyle(V2Color.primary)
+
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(V2Color.primary.opacity(0.68))
+                        }
+                        .padding(.horizontal, 18)
+                        .frame(height: 56)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .fill(V2Color.surfaceCream)
+                                .v2Shadow(V2Shadow.subtleGreen)
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    Text("核心知识点")
+                        .font(V2Typography.cardTitle)
+                        .foregroundStyle(V2Color.textPrimary)
+                        .padding(.top, 10)
+
+                    VStack(spacing: 12) {
+                        ForEach(Array(chapter.units.enumerated()), id: \.element.id) { index, unit in
+                            V2ChapterDetailUnitRow(
+                                index: index + 1,
+                                unit: unit,
+                                status: status(for: unit)
+                            )
                         }
                     }
                 }
                 .padding(.horizontal, V2Spacing.screenMargin)
                 .padding(.top, 28)
+                .padding(.bottom, 34)
             }
         }
+    }
+
+    private func status(for unit: V2ReviewUnitData) -> V2ChapterReviewStatus {
+        guard let node = V2HomeFixture.home.nodes.first(where: { $0.id == unit.id }) else {
+            return .notStarted
+        }
+
+        switch node.state {
+        case .completed:
+            return .completed
+        case .current:
+            return .reviewing
+        case .start, .locked:
+            return .notStarted
+        }
+    }
+}
+
+private struct V2ChapterDetailMetricPill: View {
+    let value: String
+    let label: String
+
+    var body: some View {
+        VStack(spacing: 3) {
+            Text(value)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(V2Color.primary)
+
+            Text(label)
+                .font(V2Typography.label)
+                .foregroundStyle(V2Color.textMuted)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 56)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(hex: 0xF4F4DF))
+        )
+    }
+}
+
+private struct V2ChapterDetailUnitRow: View {
+    let index: Int
+    let unit: V2ReviewUnitData
+    let status: V2ChapterReviewStatus
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Text("\(index)")
+                .font(.system(size: 15, weight: .bold))
+                .foregroundStyle(V2Color.primary)
+                .frame(width: 32, height: 32)
+                .background(
+                    Circle()
+                        .fill(Color(hex: 0xF2EFDC))
+                )
+
+            VStack(alignment: .leading, spacing: 7) {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(unit.title)
+                        .font(V2Typography.bodyEmphasis)
+                        .foregroundStyle(V2Color.textPrimary)
+                        .lineLimit(2)
+
+                    Spacer(minLength: 6)
+
+                    V2ChapterStatusTag(status: status)
+                }
+
+                Text(unit.overview)
+                    .font(V2Typography.label)
+                    .foregroundStyle(V2Color.textMuted)
+                    .lineSpacing(3)
+                    .lineLimit(2)
+
+                Text("\(unit.questions.count) 道题目")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(V2Color.primary.opacity(0.72))
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .v2Shadow(V2Shadow.subtleGreen)
+        )
     }
 }
 
