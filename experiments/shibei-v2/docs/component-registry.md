@@ -16,7 +16,7 @@
 | --- | --- | --- | --- |
 | `V2BottomNavigationBar` | selected tab | `nav-icons-32frame-source.svg` | 自定义浮动底部导航；普通 tab icon 使用同画布资产 |
 | `V2BottomNavItem` | `inactive`, `selected` | `nav-icons-32frame-source.svg` | icon + label；selected/inactive 不改变 frame |
-| `V2UploadTabButton` | default, future pressed/loading | `upload-tab-button.svg` | 中间圆形上传按钮；SwiftUI 直接使用用户提供的独立 `60 x 60` SVG 资产，避免重新绘制导致和组件库不一致 |
+| `V2UploadTabButton` | default, future pressed/loading | `upload-tab-button.svg` | 中间圆形上传按钮；`upload-tab-button.svg` 作为设计源，SwiftUI 按圆心、半径、描边、加号坐标和阴影参数代码绘制，避免 iOS 直接解析 SVG filter 后和 Figma 不一致 |
 | `V2CircleIconButton` | `notification`, `profile`, `back`, `sourceDocument` | `circle-button-back.svg`, `circle-button-source.svg`, `circle-button-notification.svg`, `circle-button-profile.svg` | 四个顶部圆形按钮都直接使用独立 `44 x 45` 资产，避免各端重新手绘 icon 后出现描边和居中偏差 |
 | `V2PrimaryActionButton` | `normal`, `disabled` | Figma `315:592` | 页面级主按钮，高度 `53`，用于章节概要、知识点开场、总结页 |
 | `V2FeedbackActionButton` | `correct`, `wrong`, `disabled` | Figma `449:2343`, `449:2347` | 答后反馈浮窗内按钮，高度 `42`，不同于页面级按钮 |

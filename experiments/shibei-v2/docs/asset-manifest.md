@@ -22,7 +22,7 @@
 | Asset | Category | Usage |
 | --- | --- | --- |
 | `nav-icons-32frame-source.svg` | asset source | 底部导航 4 个普通 tab 的 selected/inactive 状态，统一 `32 x 32` frame |
-| `upload-tab-button.svg` | asset | 底部导航中间上传按钮，统一 `60 x 60` frame；SwiftUI 直接引用该独立资产，避免再次手绘造成尺寸、阴影或加号位置偏差 |
+| `upload-tab-button.svg` | design source | 底部导航中间上传按钮，统一 `60 x 60` frame；SwiftUI 按该源文件参数代码绘制，避免 SVG filter/dropShadow 在 iOS 中渲染偏差 |
 | `circle-button-back.svg` | asset | 返回圆形按钮 icon 参考/源 |
 | `circle-button-source.svg` | asset | 查看原文/详情圆形按钮 icon 参考/源 |
 | `circle-button-notification.svg` | asset | 首页/顶部通知圆形按钮 |

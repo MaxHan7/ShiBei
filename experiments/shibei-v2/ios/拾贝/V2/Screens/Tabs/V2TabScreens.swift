@@ -107,37 +107,84 @@ struct V2UploadView: View {
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "上传") {
             VStack(spacing: 22) {
-                ZStack {
-                    Image("V2UploadMascotBack")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 150)
+                V2UploadMascotInputGroup()
+                    .padding(.top, 6)
 
-                    Image("V2UploadMascotFront")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 118)
-                        .offset(x: 22, y: 18)
-                }
-
-                V2InfoCard {
-                    HStack(spacing: 12) {
-                        Image("V2UploadLinkIcon")
-                            .resizable()
-                            .renderingMode(.original)
-                            .frame(width: 34, height: 34)
-
-                        Text("粘贴文章链接")
-                            .font(V2Typography.bodyEmphasis)
-                            .foregroundStyle(V2Color.textMuted)
-
-                        Spacer()
-                    }
-                }
+                Text("播客与视频功能即将上线")
+                    .font(V2Typography.label)
+                    .foregroundStyle(V2Color.textMuted.opacity(0.72))
 
                 V2PrimaryActionButton(title: "生成复习路径", action: onGenerate)
             }
         }
+    }
+}
+
+private struct V2UploadMascotInputGroup: View {
+    var body: some View {
+        ZStack(alignment: .top) {
+            Image("V2UploadMascotBack")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 148)
+                .offset(y: 0)
+                .zIndex(0)
+
+            V2UploadLinkInputCard()
+                .offset(y: 84)
+                .zIndex(1)
+
+            Image("V2UploadMascotFront")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 118)
+                .offset(x: 18, y: 74)
+                .zIndex(2)
+        }
+        .frame(height: 188)
+        .frame(maxWidth: .infinity)
+    }
+}
+
+private struct V2UploadLinkInputCard: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("添加知识")
+                .font(V2Typography.cardTitle)
+                .foregroundStyle(V2Color.textPrimary)
+
+            HStack(spacing: 12) {
+                Image("V2UploadLinkIcon")
+                    .resizable()
+                    .renderingMode(.original)
+                    .frame(width: 34, height: 34)
+
+                Text("粘贴文章链接")
+                    .font(V2Typography.bodyEmphasis)
+                    .foregroundStyle(V2Color.textMuted)
+
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 14)
+            .frame(height: 58)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.white.opacity(0.54))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(V2Color.borderSoftGreen.opacity(0.8), lineWidth: 1)
+                    )
+            )
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .v2Shadow()
+        )
     }
 }
 

@@ -101,10 +101,28 @@ struct V2UploadTabButton: View {
 
     var body: some View {
         Button(action: action) {
-            Image("V2UploadTabButton")
-                .resizable()
-                .renderingMode(.original)
-                .frame(width: V2UploadTabMetrics.canvasSize.width, height: V2UploadTabMetrics.canvasSize.height)
+            ZStack(alignment: .topLeading) {
+                Circle()
+                    .fill(V2Color.uploadButtonFill)
+                    .frame(width: V2UploadTabMetrics.circleDiameter, height: V2UploadTabMetrics.circleDiameter)
+                    .overlay {
+                        Circle()
+                            .stroke(V2Color.uploadButtonStroke, lineWidth: V2UploadTabMetrics.circleStrokeWidth)
+                    }
+                    .v2Shadow()
+                    .position(V2UploadTabMetrics.circleCenter)
+
+                V2UploadPlusShape()
+                    .stroke(
+                        V2Color.primary,
+                        style: StrokeStyle(
+                            lineWidth: V2UploadTabMetrics.plusStrokeWidth,
+                            lineCap: .round,
+                            lineJoin: .round
+                        )
+                    )
+            }
+            .frame(width: V2UploadTabMetrics.canvasSize.width, height: V2UploadTabMetrics.canvasSize.height)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -114,6 +132,23 @@ struct V2UploadTabButton: View {
 
 private enum V2UploadTabMetrics {
     static let canvasSize = CGSize(width: 60, height: 60)
+    static let circleCenter = CGPoint(x: 30, y: 26)
+    static let circleDiameter: CGFloat = 52
+    static let circleStrokeWidth: CGFloat = 2
+    static let plusStrokeWidth: CGFloat = 2
+    static let plusVertical = (start: CGPoint(x: 30, y: 16.9307), end: CGPoint(x: 30, y: 34.4655))
+    static let plusHorizontal = (start: CGPoint(x: 20.9307, y: 26), end: CGPoint(x: 38.4655, y: 26))
+}
+
+private struct V2UploadPlusShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            path.move(to: V2UploadTabMetrics.plusVertical.start)
+            path.addLine(to: V2UploadTabMetrics.plusVertical.end)
+            path.move(to: V2UploadTabMetrics.plusHorizontal.start)
+            path.addLine(to: V2UploadTabMetrics.plusHorizontal.end)
+        }
+    }
 }
 
 #Preview("V2 Bottom Navigation") {
