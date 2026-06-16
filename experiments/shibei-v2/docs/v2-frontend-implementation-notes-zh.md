@@ -970,6 +970,7 @@ SwiftUI 建议：
 - 普通 tab 不建议用简单 `HStack` 五等分；应以 Figma 横向中心点为基准，或用等价的锚点布局复现中心位置。
 - icon 使用用户提供的独立 SVG/PDF vector asset，不用 SF Symbols 近似替代，也不用 sprite crop/scale。
 - 上传按钮以独立 `upload-tab-button.svg` 作为参数源。该 SVG 是 `60 x 60` 画布，按钮真实圆心在 `y=26`，阴影占用底部空间；SwiftUI 正式组件用原生 `Circle` / `Shape` 按这些参数绘制圆、白色描边、投影和加号，避免 iOS 对 SVG `filter` 阴影支持不稳定导致视觉失真。
+- SwiftUI 实现时要区分“按钮画布中心”和“可见圆形中心”：Figma 导航栏里 `60 x 60` 上传按钮画布从 `y=10` 开始，可见圆形中心是 `10 + 26 = 36`；因此组件 frame 的中心应放在 `y=40`，不能把圆形中心 `y=36` 误当作 frame center。
 - 上传按钮下方不显示“上传”文字；它只保留中间圆形加号入口。
 - label 字体不内置 `Alibaba PuHuiTi`，正式 iOS 实现使用 iOS 系统字体，并在字号、字重、行高和颜色上尽量贴近 Figma 视觉。
 - 导航栏整体位置必须尊重 iOS 安全区，不能为了贴近截图忽略 Home Indicator。实现时应基于底部 safe area，把导航栏放在视觉和触控都合适的位置。

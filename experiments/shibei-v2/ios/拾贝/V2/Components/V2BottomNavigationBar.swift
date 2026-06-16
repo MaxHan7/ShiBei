@@ -56,7 +56,10 @@ private enum V2BottomNavMetrics {
         case .materials:
             CGPoint(x: 107, y: 45)
         case .upload:
-            CGPoint(x: 175, y: 36)
+            // The upload SVG is a 60x60 canvas whose visible circle is centered
+            // at y=26. In the Figma nav the canvas starts at y=10, so the
+            // SwiftUI frame center must be y=40 to keep the circle at y=36.
+            CGPoint(x: 175, y: 40)
         case .discover:
             CGPoint(x: 245, y: 45)
         case .notes:
