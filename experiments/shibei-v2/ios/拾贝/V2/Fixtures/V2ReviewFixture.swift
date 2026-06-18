@@ -1,8 +1,46 @@
 enum V2ReviewFixture {
+    /// Local preview shortcut: the current SwiftUI mock is used to validate
+    /// choice -> matching -> unit summary -> chapter summary in one pass.
+    static let completesChapterAfterCurrentFixtureUnit = true
+
     static let chapter = V2ReviewChapterData(
         title: "Anthropic设计总监：为何您的整个团队都应该使用AI Agents协同工作",
         overview: "这篇文章讨论团队如何把 AI Agents 当作协作同事，而不是只把它们看成个人效率工具。复习路径会先帮助你回忆文章主旨，再进入每个知识点的理解和应用。",
         sourceTitle: "Anthropic 设计总监：AI Agents 协同工作",
+        sourceAuthor: "Anthropic",
+        sourceURL: "https://www.anthropic.com/",
+        sourceBody: [
+            V2SourceArticleBlock(
+                id: "source-heading-1",
+                kind: .heading,
+                text: "先选企业路线"
+            ),
+            V2SourceArticleBlock(
+                id: "source-paragraph-1",
+                kind: .paragraph,
+                text: "Dario 说，Anthropic 一开始就知道，训练大模型需要极其昂贵的资金，所以它必须成为一家公司，也必须有商业模式。难点在于，商业模式不能把公司推向相反方向。"
+            ),
+            V2SourceArticleBlock(
+                id: "source-paragraph-2",
+                kind: .paragraph,
+                text: "他把消费互联网、广告收入和 AI 视频里的低质内容放在一起看：当收入来自注意力分钟数，产品自然会奖励上瘾和停留。"
+            ),
+            V2SourceArticleBlock(
+                id: "source-quote-1",
+                kind: .quote,
+                text: "如果你选择了一个和价值观根本冲突的商业模式，你会很难办。你要么背叛自己的价值观，要么变得无关紧要。"
+            ),
+            V2SourceArticleBlock(
+                id: "source-paragraph-3",
+                kind: .paragraph,
+                text: "企业路线在他眼里更贴近 Claude 的长期用途：制药公司、学术研究组、教育机构、能源公司、非营利组织，都是组织形态的客户。Anthropic 想卖的，是能进入研发、教育、能源和经济增长流程的工具，而非让人多刷几分钟的玩具。"
+            ),
+            V2SourceArticleBlock(
+                id: "source-paragraph-4",
+                kind: .paragraph,
+                text: "企业客户还会在意信任和多年关系，这一点与 Anthropic 对安全部署的叙事更容易放在同一条线上。Dario 还把企业客户看作一种长期约束：客户会记得供应商有没有兑现承诺，也会把模型接进真实业务系统，供应商很难只靠一次发布会维持关系。"
+            )
+        ],
         units: [
             V2ReviewUnitData(
                 id: "unit-1",
@@ -23,22 +61,23 @@ enum V2ReviewFixture {
                         correctOptionIndex: 0,
                         matchingPairs: [],
                         feedback: "重点不是让 AI 取代团队，而是让它进入协作链路，帮助团队更快形成共享上下文。",
-                        sourceExcerpt: "文章强调 AI Agents 应进入团队协作流程，帮助成员共享信息和推进工作。"
+                        sourceExcerpt: "企业客户还会在意信任和多年关系，这一点与 Anthropic 对安全部署的叙事更容易放在同一条线上。"
                     ),
                     V2ReviewQuestionData(
                         id: "u1-q2",
                         kind: .matching,
                         title: "匹配理解",
-                        prompt: "把左侧的协作动作和右侧更适合 AI Agent 补位的价值匹配起来。",
+                        prompt: "把设计交付物和它补足的验证维度匹配",
                         options: [],
                         correctOptionIndex: nil,
                         matchingPairs: [
                             V2MatchingPairData(id: "m1", left: "收集反馈", right: "整理出重复出现的用户痛点"),
                             V2MatchingPairData(id: "m2", left: "推进任务", right: "提醒下一步和缺失信息"),
-                            V2MatchingPairData(id: "m3", left: "检查方案", right: "发现边界条件和遗漏风险")
+                            V2MatchingPairData(id: "m3", left: "检查方案", right: "发现边界条件和遗漏风险"),
+                            V2MatchingPairData(id: "m4", left: "补充测试", right: "看真实模型和数据表现")
                         ],
                         feedback: "这些匹配都指向同一个理念：AI 更适合承担上下文整理、风险提醒和流程推进，而不是只输出一个孤立答案。",
-                        sourceExcerpt: "原文把 AI Agents 放在协同工作场景中讨论，而不是只讨论个人提效。"
+                        sourceExcerpt: "企业路线在他眼里更贴近 Claude 的长期用途：制药公司、学术研究组、教育机构、能源公司、非营利组织，都是组织形态的客户。"
                     )
                 ],
                 completionMessage: "这个单元已经完成。你已经抓住了 AI Agent 从个人工具进入团队协作流程的关键。"
@@ -62,7 +101,7 @@ enum V2ReviewFixture {
                         correctOptionIndex: 0,
                         matchingPairs: [],
                         feedback: "AI 协作的稳定性依赖上下文质量。目标、约束和进展越清楚，AI 越能做出有用判断。",
-                        sourceExcerpt: "文章反复强调团队协作中的上下文、流程和角色分工。"
+                        sourceExcerpt: "客户会记得供应商有没有兑现承诺，也会把模型接进真实业务系统。"
                     )
                 ],
                 completionMessage: "这个单元已经完成。你已经理解共享上下文为什么是 AI 协作的基础。"
@@ -76,6 +115,13 @@ enum V2ReviewFixture {
 
     static func unit(id: String) -> V2ReviewUnitData? {
         chapter.units.first { $0.id == id }
+    }
+
+    static func unitDisplayTitle(id: String) -> String? {
+        guard let index = chapter.units.firstIndex(where: { $0.id == id }) else {
+            return nil
+        }
+        return "单元\(index + 1)"
     }
 
     static func question(unitID: String, questionID: String) -> V2ReviewQuestionData? {
@@ -96,6 +142,10 @@ enum V2ReviewFixture {
     }
 
     static func nextUnit(after unitID: String) -> V2ReviewUnitData? {
+        if completesChapterAfterCurrentFixtureUnit, unitID == "unit-1" {
+            return nil
+        }
+
         guard let index = chapter.units.firstIndex(where: { $0.id == unitID }),
               chapter.units.indices.contains(index + 1) else {
             return nil

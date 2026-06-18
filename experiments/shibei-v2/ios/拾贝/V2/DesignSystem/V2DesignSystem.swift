@@ -3,6 +3,7 @@ import SwiftUI
 enum V2Color {
     static let primary = Color(hex: 0x98A84E)
     static let primaryAction = Color(hex: 0xA5AE66)
+    static let unitProgressFill = Color(hex: 0xD4D89B)
     static let textPrimary = Color(hex: 0x44423D)
     static let textSecondary = Color(hex: 0x676767)
     static let textMuted = Color(hex: 0x8C8B82)
@@ -17,6 +18,7 @@ enum V2Color {
     static let feedbackCorrectFill = Color(hex: 0xF3F5D7)
     static let feedbackWrongFill = Color(hex: 0xFEF5F0)
     static let feedbackWrongBorder = Color(hex: 0xFD9789)
+    static let notificationBadge = Color(hex: 0xED765C)
     static let selectedBlueBorder = Color(hex: 0x94D0E9)
     static let lockedBorder = Color(hex: 0xE4E4E4)
     static let nodeLockedIcon = Color(hex: 0xBDBDBD)
@@ -35,7 +37,11 @@ enum V2Spacing {
     static let md: CGFloat = 16
     static let lg: CGFloat = 24
     static let xl: CGFloat = 32
-    static let screenMargin: CGFloat = 27
+    static let screenMargin: CGFloat = 24
+}
+
+enum V2Layout {
+    static let contentMaxWidth: CGFloat = 321
 }
 
 enum V2Typography {
@@ -74,6 +80,12 @@ enum V2Shadow {
 extension View {
     func v2Shadow(_ shadow: V2ShadowSpec = V2Shadow.softGreen) -> some View {
         self.shadow(color: shadow.color, radius: shadow.radius, x: shadow.x, y: shadow.y)
+    }
+
+    func v2PageContentWidth() -> some View {
+        self
+            .frame(maxWidth: V2Layout.contentMaxWidth)
+            .frame(maxWidth: .infinity)
     }
 }
 

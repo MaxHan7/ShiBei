@@ -41,6 +41,10 @@ struct V2BottomNavigationBar: View {
     }
 }
 
+enum V2BottomNavPlacement {
+    static let bottomPadding: CGFloat = 12
+}
+
 private enum V2BottomNavMetrics {
     static let designSize = CGSize(width: 357, height: 94)
     static let capsuleSize = CGSize(width: 349, height: 86)

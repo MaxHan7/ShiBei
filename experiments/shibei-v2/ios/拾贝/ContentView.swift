@@ -13,6 +13,10 @@ struct ContentView: View {
     }
 }
 
-#Preview {
-    ContentView()
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+            .previewDevice("iPhone 17")
+            .previewDisplayName("V2 App - iPhone 17")
+    }
 }

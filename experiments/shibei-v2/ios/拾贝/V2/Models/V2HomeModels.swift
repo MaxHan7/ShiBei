@@ -72,4 +72,14 @@ struct V2HomeData {
     let currentChapter: V2CurrentChapterData
     let nodes: [V2LearningPathNodeData]
     let currentNodeID: V2LearningPathNodeData.ID
+
+    var initialViewportAnchorNodeID: V2LearningPathNodeData.ID {
+        guard let currentIndex = nodes.firstIndex(where: { $0.id == currentNodeID }) else {
+            return currentNodeID
+        }
+
+        let lastBottomEligibleIndex = max(0, nodes.count - 3)
+        let anchorIndex = min(currentIndex, lastBottomEligibleIndex)
+        return nodes[anchorIndex].id
+    }
 }

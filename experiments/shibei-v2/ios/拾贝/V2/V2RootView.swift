@@ -94,10 +94,12 @@ struct V2RootView: View {
         case .question(let unitID, let questionID):
             if let question = V2ReviewFixture.question(unitID: unitID, questionID: questionID) {
                 let progress = V2ReviewFixture.progressIndex(unitID: unitID, questionID: questionID)
+                let unitTitle = V2ReviewFixture.unitDisplayTitle(id: unitID) ?? question.title
                 switch question.kind {
                 case .multipleChoice:
                     V2MultipleChoiceQuestionView(
                         question: question,
+                        unitTitle: unitTitle,
                         progress: progress,
                         onBack: closeRoute,
                         onSource: openSource,
@@ -106,6 +108,7 @@ struct V2RootView: View {
                 case .matching:
                     V2MatchingQuestionView(
                         question: question,
+                        unitTitle: unitTitle,
                         progress: progress,
                         onBack: closeRoute,
                         onSource: openSource,
@@ -223,6 +226,10 @@ private struct V2MissingRouteView: View {
     }
 }
 
-#Preview {
-    V2RootView()
+struct V2RootView_Previews: PreviewProvider {
+    static var previews: some View {
+        V2RootView()
+            .previewDevice("iPhone 17")
+            .previewDisplayName("V2 Root - iPhone 17")
+    }
 }

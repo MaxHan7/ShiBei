@@ -21,6 +21,7 @@ struct V2TabScaffold<Content: View>: View {
 
                     ScrollView(showsIndicators: false) {
                         content()
+                            .v2PageContentWidth()
                             .padding(.horizontal, V2Spacing.screenMargin)
                             .padding(.top, 28)
                             .padding(.bottom, 128)
@@ -33,7 +34,7 @@ struct V2TabScaffold<Content: View>: View {
                     V2BottomNavigationBar(selectedTab: $selectedTab)
                         .scaleEffect(bottomNavScale, anchor: .bottom)
                         .frame(width: 357 * bottomNavScale, height: 94 * bottomNavScale)
-                        .padding(.bottom, max(geometry.safeAreaInsets.bottom, 12))
+                        .padding(.bottom, V2BottomNavPlacement.bottomPadding)
                 }
                 .zIndex(20)
             }
@@ -106,86 +107,187 @@ struct V2UploadView: View {
 
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "上传") {
-            VStack(spacing: 22) {
-                V2UploadMascotInputGroup()
-                    .padding(.top, 6)
+            ZStack(alignment: .top) {
+                V2UploadBackgroundDecorations()
+                    .allowsHitTesting(false)
 
-                Text("播客与视频功能即将上线")
-                    .font(V2Typography.label)
-                    .foregroundStyle(V2Color.textMuted.opacity(0.72))
+                VStack(spacing: V2UploadPageMetrics.verticalSpacing) {
+                    V2UploadMascotInputGroup()
+                        .padding(.top, V2UploadPageMetrics.groupTopPadding)
 
-                V2PrimaryActionButton(title: "生成复习路径", action: onGenerate)
+                    Text("播客与视频功能即将上线")
+                        .font(V2Typography.label)
+                        .foregroundStyle(V2Color.primaryAction)
+
+                    V2PrimaryActionButton(title: "开始生成", action: onGenerate)
+                }
             }
+            .frame(minHeight: V2UploadPageMetrics.contentHeight, alignment: .top)
         }
     }
 }
 
 private struct V2UploadMascotInputGroup: View {
     var body: some View {
-        ZStack(alignment: .top) {
-            Image("V2UploadMascotBack")
-                .resizable()
-                .renderingMode(.original)
-                .scaledToFit()
-                .frame(width: 148)
-                .offset(y: 0)
-                .zIndex(0)
+        GeometryReader { proxy in
+            let width = min(proxy.size.width, V2UploadMascotInputMetrics.maxWidth)
 
-            V2UploadLinkInputCard()
-                .offset(y: 84)
-                .zIndex(1)
+            ZStack(alignment: .top) {
+                Image("V2UploadMascotBack")
+                    .resizable()
+                    .renderingMode(.original)
+                    .scaledToFit()
+                    .frame(width: V2UploadMascotInputMetrics.backWidth)
+                    .position(
+                        x: width * V2UploadMascotInputMetrics.backCenterXRatio,
+                        y: V2UploadMascotInputMetrics.backCenterY
+                    )
+                    .zIndex(0)
 
-            Image("V2UploadMascotFront")
-                .resizable()
-                .renderingMode(.original)
-                .scaledToFit()
-                .frame(width: 118)
-                .offset(x: 18, y: 74)
-                .zIndex(2)
+                V2UploadLinkInputCard()
+                    .frame(width: width, height: V2UploadInputCardMetrics.cardHeight)
+                    .position(
+                        x: width / 2,
+                        y: V2UploadMascotInputMetrics.cardCenterY
+                    )
+                    .zIndex(1)
+
+                Image("V2UploadMascotFront")
+                    .resizable()
+                    .renderingMode(.original)
+                    .scaledToFit()
+                    .frame(width: V2UploadMascotInputMetrics.frontWidth)
+                    .position(
+                        x: width * V2UploadMascotInputMetrics.frontCenterXRatio,
+                        y: V2UploadMascotInputMetrics.frontCenterY
+                    )
+                    .zIndex(2)
+            }
+            .frame(width: width, height: V2UploadMascotInputMetrics.groupHeight)
+            .frame(maxWidth: .infinity)
         }
-        .frame(height: 188)
-        .frame(maxWidth: .infinity)
+        .frame(height: V2UploadMascotInputMetrics.groupHeight)
     }
 }
 
 private struct V2UploadLinkInputCard: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("添加知识")
-                .font(V2Typography.cardTitle)
-                .foregroundStyle(V2Color.textPrimary)
+    @State private var urlText = ""
 
-            HStack(spacing: 12) {
+    var body: some View {
+        VStack(alignment: .center, spacing: V2UploadInputCardMetrics.titleToFieldSpacing) {
+            Text("添加学习内容")
+                .font(V2UploadInputCardMetrics.titleFont)
+                .foregroundStyle(V2UploadInputCardMetrics.titleColor)
+                .frame(maxWidth: .infinity)
+
+            HStack(spacing: V2UploadInputCardMetrics.fieldContentSpacing) {
                 Image("V2UploadLinkIcon")
                     .resizable()
                     .renderingMode(.original)
-                    .frame(width: 34, height: 34)
+                    .frame(
+                        width: V2UploadInputCardMetrics.linkIconSize,
+                        height: V2UploadInputCardMetrics.linkIconSize
+                    )
 
-                Text("粘贴文章链接")
-                    .font(V2Typography.bodyEmphasis)
-                    .foregroundStyle(V2Color.textMuted)
+                TextField(text: $urlText) {
+                    Text("粘贴文章链接")
+                        .font(V2UploadInputCardMetrics.placeholderFont)
+                        .foregroundStyle(V2UploadInputCardMetrics.placeholderColor)
+                }
+                    .font(V2UploadInputCardMetrics.placeholderFont)
+                    .foregroundStyle(V2UploadInputCardMetrics.inputTextColor)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .keyboardType(.URL)
 
                 Spacer(minLength: 0)
             }
-            .padding(.horizontal, 14)
-            .frame(height: 58)
+            .padding(.horizontal, V2UploadInputCardMetrics.fieldHorizontalPadding)
+            .frame(height: V2UploadInputCardMetrics.fieldHeight)
             .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color.white.opacity(0.54))
+                RoundedRectangle(cornerRadius: V2UploadInputCardMetrics.fieldRadius, style: .continuous)
+                    .fill(V2UploadInputCardMetrics.fieldFill)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        RoundedRectangle(cornerRadius: V2UploadInputCardMetrics.fieldRadius, style: .continuous)
                             .stroke(V2Color.borderSoftGreen.opacity(0.8), lineWidth: 1)
                     )
             )
         }
-        .padding(18)
+        .padding(V2UploadInputCardMetrics.outerPadding)
         .frame(maxWidth: .infinity)
+        .frame(height: V2UploadInputCardMetrics.cardHeight)
         .background(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
+            RoundedRectangle(cornerRadius: V2UploadInputCardMetrics.cardRadius, style: .continuous)
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
         )
     }
+}
+
+private struct V2UploadBackgroundDecorations: View {
+    var body: some View {
+        GeometryReader { proxy in
+            Image("V2BgDecoLeftHillPlant")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 114, height: 85)
+                .position(x: 20, y: 134)
+                .opacity(0.72)
+
+            Image("V2BgDecoRightHillPlant")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 105, height: 57)
+                .position(x: proxy.size.width - 6, y: 128)
+                .opacity(0.72)
+
+            Image("V2BgDecoSmallPlantCluster")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 62, height: 56)
+                .position(x: proxy.size.width - 2, y: 392)
+                .opacity(0.72)
+        }
+    }
+}
+
+private enum V2UploadPageMetrics {
+    static let groupTopPadding: CGFloat = 28
+    static let verticalSpacing: CGFloat = 22
+    static let contentHeight: CGFloat = 520
+}
+
+private enum V2UploadMascotInputMetrics {
+    static let maxWidth: CGFloat = 321
+    static let backWidth: CGFloat = 93
+    static let frontWidth: CGFloat = 69
+    static let groupHeight: CGFloat = 230
+    static let backCenterXRatio: CGFloat = 0.808
+    static let backCenterY: CGFloat = 84
+    static let frontCenterXRatio: CGFloat = 0.796
+    static let frontCenterY: CGFloat = 85
+    static let cardCenterY: CGFloat = 156
+}
+
+private enum V2UploadInputCardMetrics {
+    static let cardHeight: CGFloat = 148
+    static let outerPadding: CGFloat = 18
+    static let cardRadius: CGFloat = 20
+    static let titleFont = Font.system(size: 16, weight: .regular)
+    static let titleColor = Color(hex: 0x575757)
+    static let titleToFieldSpacing: CGFloat = 20
+    static let fieldHeight: CGFloat = 55
+    static let fieldRadius: CGFloat = 15
+    static let fieldHorizontalPadding: CGFloat = 15
+    static let fieldContentSpacing: CGFloat = 12
+    static let linkIconSize: CGFloat = 34
+    static let placeholderFont = Font.system(size: 12, weight: .regular)
+    static let placeholderColor = Color(hex: 0xB7B7B7)
+    static let inputTextColor = Color(hex: 0x575757)
+    static let fieldFill = Color(hex: 0xFFFBF6)
 }
 
 struct V2DiscoverView: View {
@@ -227,72 +329,188 @@ struct V2NotesView: View {
 
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "笔记") {
-            VStack(spacing: 16) {
-                ZStack(alignment: .topTrailing) {
-                    V2NotesSummaryCard(count: 7)
-                        .padding(.top, 64)
+            ZStack(alignment: .topLeading) {
+                V2NotesBackgroundDecorations()
+                    .zIndex(0)
+                    .allowsHitTesting(false)
 
-                    Image("V2NotesMascot")
-                        .resizable()
-                        .renderingMode(.original)
-                        .scaledToFit()
-                        .frame(width: 132)
-                        .offset(x: 4, y: 0)
-                        .allowsHitTesting(false)
-                }
-                .padding(.bottom, 12)
+                V2NotesSummaryCard(count: 20)
+                    .offset(y: V2NotesPageMetrics.summaryY)
+                    .zIndex(2)
+
+                Image("V2NotesMascot")
+                    .resizable()
+                    .renderingMode(.original)
+                    .scaledToFit()
+                    .frame(width: V2NotesPageMetrics.mascotWidth, height: V2NotesPageMetrics.mascotHeight)
+                    .offset(x: V2NotesPageMetrics.mascotX, y: V2NotesPageMetrics.mascotY)
+                    .allowsHitTesting(false)
+                    .zIndex(4)
 
                 V2SavedQuestionCard(
                     title: "为什么团队使用 AI Agent 时，需要先补足共享上下文？",
                     source: "Anthropic设计总监：为何您的整个团队都应该使用AI Agents协同工作",
                     type: "选择题"
                 )
+                .offset(y: V2NotesPageMetrics.firstCardY)
+                .zIndex(2)
 
                 V2SavedQuestionCard(
                     title: "判断一个反馈来源是否有价值时，最应该先看什么？",
                     source: "产品经理如何把 AI 当作协作同事",
                     type: "场景题"
                 )
+                .offset(y: V2NotesPageMetrics.secondCardY)
+                .zIndex(2)
 
                 V2SavedQuestionCard(
                     title: "DMC 模型里，机制为什么不能脱离动机单独设计？",
                     source: "游戏化设计如何改善学习体验",
                     type: "选择题"
                 )
+                .offset(y: V2NotesPageMetrics.thirdCardY)
+                .zIndex(2)
             }
+            .frame(width: V2Layout.contentMaxWidth, height: V2NotesPageMetrics.contentHeight, alignment: .topLeading)
         }
     }
+}
+
+private struct V2NotesBackgroundDecorations: View {
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            Image("V2BgDecoLeftHillPlant")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: V2NotesPageMetrics.leftDecorationWidth)
+                .offset(x: V2NotesPageMetrics.leftDecorationX, y: V2NotesPageMetrics.leftDecorationY)
+
+            Image("V2BgDecoRightHillPlant")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: V2NotesPageMetrics.rightTopDecorationWidth)
+                .offset(x: V2NotesPageMetrics.rightTopDecorationX, y: V2NotesPageMetrics.rightTopDecorationY)
+
+            Image("V2BgDecoSmallPlantCluster")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: V2NotesPageMetrics.rightMidDecorationWidth)
+                .offset(x: V2NotesPageMetrics.rightMidDecorationX, y: V2NotesPageMetrics.rightMidDecorationY)
+        }
+        .opacity(V2NotesPageMetrics.decorationOpacity)
+    }
+}
+
+private enum V2NotesPageMetrics {
+    static let summaryY: CGFloat = 32
+    static let mascotX: CGFloat = 206
+    static let mascotY: CGFloat = -12
+    static let mascotWidth: CGFloat = 92.63
+    static let mascotHeight: CGFloat = 125.58
+    static let firstCardY: CGFloat = 142
+    static let cardGap: CGFloat = 19
+    static let cardHeight: CGFloat = 136
+    static let secondCardY: CGFloat = firstCardY + cardHeight + cardGap
+    static let thirdCardY: CGFloat = secondCardY + cardHeight + cardGap
+    static let contentHeight: CGFloat = thirdCardY + cardHeight + 24
+    static let decorationOpacity: Double = 0.66
+    static let leftDecorationWidth: CGFloat = 113
+    static let leftDecorationX: CGFloat = -62
+    static let leftDecorationY: CGFloat = 298
+    static let rightTopDecorationWidth: CGFloat = 104
+    static let rightTopDecorationX: CGFloat = 246
+    static let rightTopDecorationY: CGFloat = 82
+    static let rightMidDecorationWidth: CGFloat = 62
+    static let rightMidDecorationX: CGFloat = 290
+    static let rightMidDecorationY: CGFloat = 360
 }
 
 struct V2NotificationView: View {
     let onBack: () -> Void
 
     var body: some View {
-        V2FlowScreen(title: "通知", onBack: onBack) {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 16) {
-                    Image("V2NotificationMascot")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 130)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-
-                    V2NotificationCard(
-                        title: "生成完成",
-                        message: "新文章已经生成复习路径，可以开始学习。",
-                        isSuccess: true
+        V2FlowScreen(
+            title: "通知",
+            titleFont: .system(size: 22, weight: .bold),
+            titleColor: Color(hex: 0x575757),
+            onBack: onBack
+        ) {
+            GeometryReader { geometry in
+                ZStack(alignment: .topLeading) {
+                    notificationDecoration(
+                        name: "V2BgDecoLeftHillPlant",
+                        width: 109,
+                        x: -8,
+                        y: 222
                     )
 
-                    V2NotificationCard(
-                        title: "生成失败",
-                        message: "文章链接暂时无法解析，请稍后重试。",
-                        isSuccess: false
+                    notificationDecoration(
+                        name: "V2BgDecoLeftHillPlant",
+                        width: 109,
+                        x: -6,
+                        y: 588
                     )
+
+                    notificationDecoration(
+                        name: "V2BgDecoRightHillPlant",
+                        width: 104,
+                        x: 98,
+                        y: 213
+                    )
+
+                    notificationDecoration(
+                        name: "V2BgDecoSmallPlantCluster",
+                        width: 60,
+                        x: geometry.size.width - 53,
+                        y: 427
+                    )
+
+                    VStack(spacing: 22) {
+                        V2NotificationSummaryBanner(unreadCount: 2)
+
+                        V2NotificationCard(
+                            title: "章节已生成",
+                            message: "《如何把AI Agent用到你的生意经》已准备好，可以开始学习",
+                            isSuccess: true
+                        )
+
+                        V2NotificationCard(
+                            title: "生成失败",
+                            message: "章节生成失败，点击查看具体原因",
+                            isSuccess: false
+                        )
+                    }
+                    .frame(width: V2Layout.contentMaxWidth)
+                    .position(
+                        x: geometry.size.width / 2,
+                        y: 36 + (82 + 22 + 108 * 2 + 22 * 2) / 2
+                    )
+                    .zIndex(3)
                 }
-                .padding(.horizontal, V2Spacing.screenMargin)
-                .padding(.top, 24)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
+            .frame(height: 760)
         }
+    }
+
+    private func notificationDecoration(
+        name: String,
+        width: CGFloat,
+        x: CGFloat,
+        y: CGFloat
+    ) -> some View {
+        Image(name)
+            .resizable()
+            .renderingMode(.original)
+            .scaledToFit()
+            .frame(width: width)
+            .opacity(0.74)
+            .offset(x: x, y: y)
+            .allowsHitTesting(false)
+            .zIndex(0)
     }
 }
 
@@ -300,36 +518,49 @@ struct V2ProfileView: View {
     let onBack: () -> Void
 
     var body: some View {
-        V2FlowScreen(title: "个人主页", onBack: onBack) {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 18) {
-                    Image("V2MascotStatic")
-                        .resizable()
-                        .renderingMode(.original)
-                        .scaledToFit()
-                        .frame(height: 128)
+        ZStack {
+            V2Color.pageGreenBackground
+                .ignoresSafeArea()
 
-                    V2InfoCard {
-                        VStack(spacing: 16) {
-                            HStack(spacing: 12) {
-                                V2ProfileStatCard(value: "35", label: "个知识点", assetName: "V2ProfileStatReviewed")
-                                V2ProfileStatCard(value: "7", label: "天连续学习", assetName: "V2ProfileStatStreak")
-                            }
-                        }
-                    }
+            GeometryReader { geometry in
+                Image("V2BgDecoLeftHillPlant")
+                    .resizable()
+                    .renderingMode(.original)
+                    .scaledToFit()
+                    .frame(width: 108)
+                    .opacity(0.66)
+                    .position(x: 38, y: 405)
 
-                    V2InfoCard {
-                        VStack(spacing: 0) {
-                            V2ProfileSettingRow(title: "通知设置", assetName: "V2ProfileSettingNotification")
-                            Divider().opacity(0.4)
-                            V2ProfileSettingRow(title: "隐私说明", assetName: "V2ProfileSettingPrivacy")
-                            Divider().opacity(0.4)
-                            V2ProfileSettingRow(title: "账号说明", assetName: "V2ProfileSettingAccount")
-                        }
+                Image("V2BgDecoLeftHillPlant")
+                    .resizable()
+                    .renderingMode(.original)
+                    .scaledToFit()
+                    .frame(width: 105)
+                    .opacity(0.66)
+                    .position(x: 52, y: max(520, geometry.size.height - 160))
+            }
+            .ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                V2ProfileTopBar(onBack: onBack)
+                    .padding(.top, 22)
+
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 20) {
+                        V2ProfileHeaderCard(
+                            name: "Cappy",
+                            bio: "这里是我的自我介绍~",
+                            reviewedCount: "35",
+                            streakDays: "7"
+                        )
+
+                        V2ProfileSettingsCard()
                     }
+                    .frame(maxWidth: V2Layout.contentMaxWidth)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 24)
+                    .padding(.bottom, 40)
                 }
-                .padding(.horizontal, V2Spacing.screenMargin)
-                .padding(.top, 24)
             }
         }
     }

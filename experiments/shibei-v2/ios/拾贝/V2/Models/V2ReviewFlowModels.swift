@@ -70,7 +70,22 @@ struct V2ReviewChapterData {
     let title: String
     let overview: String
     let sourceTitle: String
+    let sourceAuthor: String
+    let sourceURL: String
+    let sourceBody: [V2SourceArticleBlock]
     let units: [V2ReviewUnitData]
+}
+
+struct V2SourceArticleBlock: Identifiable, Equatable {
+    enum Kind: Equatable {
+        case heading
+        case paragraph
+        case quote
+    }
+
+    let id: String
+    let kind: Kind
+    let text: String
 }
 
 struct V2ReviewUnitData: Identifiable, Equatable {

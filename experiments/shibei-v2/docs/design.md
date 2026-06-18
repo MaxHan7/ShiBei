@@ -189,6 +189,7 @@ Core components include:
 - `V2MatchingOptionCard`
 - `V2AnswerFeedbackPanel`
 - `V2NotificationCard`
+- `V2NotificationSummaryBanner`
 - `V2ChapterCard`
 - `V2ChapterStatusTag`
 - `V2CurrentChapterBanner`
@@ -201,6 +202,7 @@ Core components include:
 
 Stateful components must use explicit variants:
 
+- `V2CircleIconButton`: `notification.normal`, `notification.unread`, `profile`, `back`, `sourceDocument`.
 - `V2QuestionOptionCard`: `normal`, `correct`, `wrong`.
 - `V2MatchingOptionCard`: `normal`, `selected`, `correct`, `wrong`, `locked`.
 - `V2PrimaryActionButton`: `normal`, `disabled`.

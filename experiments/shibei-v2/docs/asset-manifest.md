@@ -37,6 +37,7 @@
 | `upload-mascot-front.svg` | asset | 上传页 IP 前层/手和笔记本 |
 | `upload-link-icon.svg` | asset | 上传输入框链接 icon |
 | `notification-mascot.svg` | asset | 通知页 IP |
+| `notification-banner-wave.svg` | asset | 通知页未读数 banner 内部浅绿色波浪装饰，压在 IP 之上 |
 | `notification-success-icon.svg` | asset | 通知成功 icon |
 | `notification-failure-icon.svg` | asset | 通知失败 icon |
 | `materials-mascot.svg` | asset | 全部章节/资料页 IP |
@@ -44,6 +45,7 @@
 | `notes-mascot.svg` | asset | 笔记页 IP |
 | `notes-bookmark.svg` | asset | 笔记卡收藏 icon |
 | `notes-summary-wave.svg` | asset | 笔记页顶部 banner 波形 |
+| `card-bottom-wave.svg` | asset | 可复用卡片底部波形装饰；当前用于章节详情 hero 卡，来自 `notes-summary-wave.svg` 同源形状 |
 | `discover-hero-mascot.svg` | asset | 发现页 hero IP |
 | `discover-article-thumbnail.svg` | asset | 推荐文章缩略图示例 |
 | `profile-stat-reviewed.svg` | asset | 个人主页“已复习知识点”统计 icon |
@@ -56,6 +58,12 @@
 | `completion-grade-rays.svg` | asset | 单元总结标题装饰 |
 | `chapter-completion-mascot.svg` | asset | 章节总结页 IP |
 | `chapter-completion-title-rays.svg` | asset | 章节总结标题装饰 |
+| `chapter-detail-mascot.svg` | asset | 章节详情页 hero 卡右侧 IP |
+| `chapter-detail-link-action-icon.svg` | asset | 章节详情页 hero 卡底部小按钮的链接 icon，统一 `34 x 34` frame |
+| `chapter-detail-summary-action-icon.svg` | asset | 章节详情页 hero 卡底部小按钮的信息/摘要 icon，统一 `34 x 34` frame |
+| `chapter-detail-core-icon.svg` | asset | 章节详情页“文章核心”标题 icon，统一 `23 x 23` frame |
+| `chapter-detail-knowledge-icon.svg` | asset | 章节详情页“知识点”标题 icon，统一 `23 x 23` frame |
+| `chapter-detail-row-arrow.svg` | asset | 章节详情页知识点行右侧箭头 icon，统一 `24 x 24` frame |
 | `bg-deco-left-hill-plant.svg` | asset | 背景装饰植物/地形 |
 | `bg-deco-right-hill-plant.svg` | asset | 背景装饰植物/地形 |
 | `bg-deco-small-plant-cluster.svg` | asset | 背景小植物装饰 |

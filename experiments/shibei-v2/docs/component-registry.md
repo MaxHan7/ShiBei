@@ -17,21 +17,34 @@
 | `V2BottomNavigationBar` | selected tab | `nav-icons-32frame-source.svg` | 自定义浮动底部导航；普通 tab icon 使用同画布资产 |
 | `V2BottomNavItem` | `inactive`, `selected` | `nav-icons-32frame-source.svg` | icon + label；selected/inactive 不改变 frame |
 | `V2UploadTabButton` | default, future pressed/loading | `upload-tab-button.svg` | 中间圆形上传按钮；`upload-tab-button.svg` 作为设计源，SwiftUI 按圆心、半径、描边、加号坐标和阴影参数代码绘制，避免 iOS 直接解析 SVG filter 后和 Figma 不一致 |
-| `V2CircleIconButton` | `notification`, `profile`, `back`, `sourceDocument` | `circle-button-back.svg`, `circle-button-source.svg`, `circle-button-notification.svg`, `circle-button-profile.svg` | 四个顶部圆形按钮都直接使用独立 `44 x 45` 资产，避免各端重新手绘 icon 后出现描边和居中偏差 |
+| `V2CircleIconButton` | `notification.normal`, `notification.unread`, `profile`, `back`, `sourceDocument` | Figma `538:1217`; `circle-button-back.svg`, `circle-button-source.svg`, `circle-button-notification.svg`, `circle-button-profile.svg` | 四个顶部圆形按钮都直接使用独立 `44 x 45` 资产；通知未读态在通知按钮资产上用代码叠加红点，不重新切一张整按钮图 |
+| `V2QuestionFavoriteButton` | `normal`, `saved` | Figma `523:1229`, `523:1230`; star path `M12 2...` | 题目页右上角收藏按钮，替换原先题目页 top bar 的 `sourceDocument`；圆形底、阴影、星形 path 均由 SwiftUI 绘制，不使用截图 PNG；外框固定 `44 x 45`，星形 `24 x 24` |
 | `V2PrimaryActionButton` | `normal`, `disabled` | Figma `315:592` | 页面级主按钮，高度 `53`，用于章节概要、知识点开场、总结页 |
 | `V2FeedbackActionButton` | `correct`, `wrong`, `disabled` | Figma `449:2343`, `449:2347` | 答后反馈浮窗内按钮，高度 `42`，不同于页面级按钮 |
 | `V2UnitProgressBar` | empty, progress fraction | Figma `451:1270`, `315:636` | 代码绘制轨道和进度；外层高度包含阴影留白 |
 | `V2QuestionOptionCard` | `normal`, `correct`, `wrong` | Figma `445:1499`, `445:1498`, `445:1497` | 代码绘制选项卡；无投影；状态切换 fill/border/反馈符号 |
-| `V2MatchingOptionCard` | `normal`, `selected`, `correct`, `wrong`, `locked` | Figma `449:2319`, `449:2323`, `449:2327`, `449:2331`, `449:2335` | 代码绘制连线卡；五态共享尺寸、圆角、文字布局 |
+| `V2MatchingOptionCard` | `normal`, `selected`, `correct`, `wrong`, `locked` | Figma `449:2319`, `449:2323`, `449:2327`, `449:2331`, `449:2335`; size check `322:1059` | 代码绘制连线卡；固定 `140 x 90`、圆角 `15`、文字 `14 regular`、文本框约 `112 x 61`，五态共享尺寸和文字布局 |
 | `V2AnswerFeedbackPanel` | `correct`, `wrong` | `answer-feedback-panel-reference.svg`, feedback mascot layers | 面板主体可代码绘制；IP 后层、卡片、IP 前层用 `ZStack` |
+| `V2MatchingMascot` | unanswered matching state | `matching-mascot.svg` | 连线题未作答/未完成状态专属 IP 资产；完成后切换为 `V2AnswerFeedbackPanel` 内的反馈 IP 分层 |
+| `V2NotificationSummaryBanner` | unread count | Figma `333:818`, `333:823`; `notification-banner-wave.svg`, `notification-mascot.svg` | 通知页顶部未读数 banner；底卡和文字代码绘制，IP 使用已有资产，浅绿色波浪使用独立 SVG 资产；层级为底卡 -> IP -> 波浪 -> 文字 |
 | `V2NotificationCard` | `success`, `failure` | Figma `451:1233`, `451:1234`; `notification-success-icon.svg`, `notification-failure-icon.svg` | 卡片代码绘制，状态 icon 使用资产 |
 | `V2ChapterCard` | `notStarted`, `reviewing`, `completed` | Figma `451:1261` | 整章列表卡；内部状态 tag 和来源 icon 复用 |
 | `V2ChapterStatusTag` | `notStarted`, `reviewing`, `completed` | Figma `451:1245`, `451:1246`, `451:1247` | 小状态标签，代码绘制 |
-| `V2ChapterDetailUnitRow` | `notStarted`, `reviewing`, `completed` via status tag | derives from `V2ChapterStatusTag` | 章节详情页本地单元行；标题、概览、题量和状态标签代码绘制 |
-| `V2ChapterDetailMetricPill` | default | design-system tokens | 章节详情页顶部统计小卡；用于知识点数、题目数和已完成进度 |
-| `V2CurrentChapterBanner` | default | Figma `351:975`, `chapter-source-icon.svg` | 首页当前章节 banner；文字动态，右侧详情 icon |
+| `V2ChapterDetailHeroCard` | default | Figma `548:1231`; action chips `575:1567`, `575:1631`; `chapter-detail-mascot.svg`, `card-bottom-wave.svg` | 章节详情页顶部 hero 卡；卡片、文字和阴影代码绘制，IP 和底部波形为资产；整卡参考 SVG 画布 `329 x 178`，主体矩形 `x=4 y=0 w=321 h=170 rx=15`；标题文本按参考稿从 `x=27 y=23` 起排；真实文章标题可能长于 Figma 示例，SwiftUI 中允许尾部省略但必须和 IP/书本保持安全距离；标题下方放两个横排胶囊，左侧是可点击“查看原文”，右侧是不可点击的作者信息且按作者名自适应宽度 |
+| `V2ChapterDetailHeroActionButton` / `V2ChapterDetailHeroInfoChip` | `sourceLink`, `authorInfo` | Figma `575:1567`, `575:1631`; `chapter-detail-link-action-icon.svg`, `chapter-detail-summary-action-icon.svg` | 章节详情页 hero 卡内的小胶囊；左侧胶囊固定 `x=27 y=116 w=93 h=36`；右侧胶囊起点固定 `x=141 y=116`，最小宽 `93`，按 `sourceAuthor` 文本测量增宽，最大右边界不得超过大卡右侧安全距离；两个胶囊圆角 `10`、填充 `#FDFAF2`、使用标准绿影 `dy=4 blur=2 opacity=0.2`、文字 `8 regular #767676`，icon 使用 `34 x 34` 独立资产并放在胶囊内 `x=7 y=1`；左侧触发 source article，右侧显示 `sourceAuthor`，不响应点击 |
+| `V2SourceArticleHeaderCard` | default | Figma `575:1684`; reuses `V2ChapterDetailHeroActionButton` / `V2ChapterDetailHeroInfoChip` | 查看原文页顶部来源卡；主体 `321 x 143 rx=15`，标准奶白底和绿影；标题区域参考 `x=63 y=149 w=275`，SwiftUI 中换算为卡内 `x=23 y=17 w=275`；下方两个胶囊复用章节详情页同一组件，左侧“原文链接”为可点击外链按钮，右侧显示作者名且不可点击 |
+| `V2SourceArticleBodyCard` | text blocks, optional highlighted source anchor | Figma `575:1684`; source article body; highlight reference SVG `291 x 86 rx=14.5 stroke #A3A568` | 查看原文页正文卡；主体 `321` 宽、奶白底、圆角 `15`、标准绿影；正文需要尽可能还原原文格式，不把原文压成单段。数据层使用 block 渲染，至少支持 heading / paragraph / quote；段落完整显示，不截断；后端接入时保留原文段落、空行、小标题和引用结构。从题目进入时根据 `sourceExcerpt/sourceAnchor` 滚动到对应 block，并用代码绘制动态高亮框：文字列宽 `275`，高亮框宽 `291`，左右各多 `8`，圆角 `14.5`，描边 `#A3A568`、线宽 `1`；不把高亮框存为 SVG 资产 |
+| `V2ChapterDetailSummaryCard` | default | Figma `553:1272`; `chapter-detail-core-icon.svg` | “文章核心”摘要卡；卡片代码绘制，icon 使用 `23 x 23` 资产；正文显示完整文章核心摘要，不做四行截断，卡片高度随正文行数动态增长 |
+| `V2ChapterDetailKnowledgeCard` | default | Figma `552:1261`; `chapter-detail-knowledge-icon.svg` | “知识点”列表卡；卡片、行容器和展开浮窗代码绘制，标题 icon 使用资产；行高固定 `50`，卡片高度随行数和展开内容自然增长；标题组和行内容使用统一左边线 |
+| `V2ChapterDetailKnowledgeRow` | `collapsed`, `expanded` | Figma `553:1373`, `553:1444` | 章节详情页知识点行；固定 `274 x 50`、圆角 `10`、描边 `#EFE9DB`；序号圆、标题和右侧 disclosure arrow 均代码绘制；右侧箭头是按钮，展开后旋转向上并切换为主题绿色，不使用整图裁切 |
+| `V2ChapterDetailKnowledgeExpansionPanel` | default | Figma `553:1444`; expansion reference SVG | 点击知识点行右侧箭头后的展开浮窗；参考画布 `282 x 129`，奶白底卡 `x=4 y=0 w=274 h=121 rx=15`，标准绿影；正文改为 `11 regular #575757`，必须完整显示，不截断；面板高度由正文自然撑开；按钮 `w=215 h=28 rx=10`、填充 `#A5AE66`、标准绿影，距离面板底部固定 `12`；浮窗插在当前知识点行下方，后续知识点自然下移；展开可轻微淡入，收起时面板应即时移除，避免淡出/上移残影和下一行卡片重叠 |
+| `V2CurrentChapterBanner` | default | Figma `548:1216`, document icon SVG path | 首页当前章节 banner；主体 `346 x 88`、圆角 `15`、标签色 `#A5AE66`；标题保留两行空间并尾部省略；右侧详情 icon 与竖线为代码布局；右侧 document icon 在 SwiftUI 中按 SVG path 绘制，避免 asset catalog 对纯 stroke SVG 渲染不稳定 |
+| `V2LearningPathNode` | `reviewed`, `notReviewed`, current progress overlay | Figma `313:1072`, `349:930`; `path-node-states-base.svg` | 知识点节点由 SwiftUI 绘制：`81 x 97` 椭圆、`39 x 39` icon 底圆、星形按 Figma SVG path 转为 `Shape` 并使用组件内 `25 x 24` frame 定位；星形中心约为 `(40.5, 34.75)`，不能按外层底圆自动放大；文字动态，不整图渲染 |
 | `V2DiscoverChip` | `inactive`, `selected` | Figma `450:1186`, `450:1187` | 发现页 filter chip，文字动态 |
 | `V2RecommendedArticleCard` | default | Figma `381:1117`, `discover-article-thumbnail.svg` | 三层夹图结构，卡片和文字代码绘制 |
+| `V2RecommendedArticleReader` | default | reuse `V2SourceArticleHeaderCard`, `V2SourceArticleBodyCard` | 好文阅读页正文布局暂时复用查看原文页：顶部来源卡 + 原文正文卡。区别是右下角叠加 `V2RecommendedArticleAddButton`，用于把推荐好文加入/生成复习路径 |
+| `V2RecommendedArticleAddButton` | default | plus button reference SVG `53 x 53` | 好文阅读页右下角浮动加号按钮；不保存为 SVG 资产，按参数代码绘制：外框 `53 x 53`，圆心 `(26.5,22.5)`、半径 `22.5`、填充 `#E8E9C2`、内描边 `#FEFDFD 2pt`、标准绿影、加号描边 `#98A84E 2pt round cap`；点击后显示好文加入浮窗 |
+| `V2RecommendedArticleAddPopover` | default | popover reference SVG `282 x 108` | 好文阅读页点击加号后的浮窗；不保存为 SVG 资产，按参数代码绘制：外层参考画布 `282 x 108`，真实卡片 `x=4 y=0 w=274 h=100 rx=15`、奶白底、标准绿影；按钮 `x=33 y=54 w=215 h=28 rx=10`、填充 `#A5AE66`、标准绿影、白色文字“开始生成”。浮窗出现时底层加全屏黑色 `20%` 透明遮罩，遮罩位于页面内容之上、浮窗和加号按钮之下 |
 | `V2ProfileStatCard` | metric type | `profile-stat-reviewed.svg`, `profile-stat-streak.svg`, `profile-stat-card-reference.svg` | 数字和说明文字代码绘制；icon 使用独立资产 |
 | `V2ProfileSettingRow` | notification/privacy/account | `profile-setting-notification.svg`, `profile-setting-privacy.svg`, `profile-setting-account.svg` | 设置行代码绘制，icon 独立资产 |
 | `V2ChapterOverviewCardWithMascot` | default | Figma `397:1291`, summary mascot layers | IP 身体后层、正文卡片中层、手部前层 |

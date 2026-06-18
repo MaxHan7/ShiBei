@@ -22,8 +22,8 @@ enum V2HomeFixture {
                 title: "单元1",
                 subtitle: "理解协作的切入点",
                 kind: .unit,
-                state: .completed,
-                completedQuestionCount: 3,
+                state: .current,
+                completedQuestionCount: 1,
                 totalQuestionCount: 3,
                 position: CGPoint(x: 0.28, y: 0.70)
             ),
@@ -32,8 +32,8 @@ enum V2HomeFixture {
                 title: "单元2",
                 subtitle: "把AI当作协作同事",
                 kind: .unit,
-                state: .current,
-                completedQuestionCount: 2,
+                state: .locked,
+                completedQuestionCount: 0,
                 totalQuestionCount: 5,
                 position: CGPoint(x: 0.39, y: 0.47)
             ),
@@ -48,6 +48,6 @@ enum V2HomeFixture {
                 position: CGPoint(x: 0.73, y: 0.31)
             )
         ],
-        currentNodeID: "unit-2"
+        currentNodeID: "unit-1"
     )
 }

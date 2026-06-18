@@ -36,6 +36,7 @@ struct V2PrimaryActionButton: View {
                         .v2Shadow()
                 )
         }
+        .frame(maxWidth: V2Layout.contentMaxWidth)
         .buttonStyle(.plain)
         .disabled(tone == .disabled)
     }
@@ -43,46 +44,70 @@ struct V2PrimaryActionButton: View {
 
 struct V2FlowTopBar: View {
     let title: String
+    var titleFont: Font = V2Typography.pageTitle
+    var titleColor: Color = V2Color.textPrimary
     let showSourceButton: Bool
+    let showFavoriteButton: Bool
+    let isFavoriteSaved: Bool
     let onBack: () -> Void
     let onSource: () -> Void
+    let onFavorite: () -> Void
 
     init(
         title: String,
+        titleFont: Font = V2Typography.pageTitle,
+        titleColor: Color = V2Color.textPrimary,
         showSourceButton: Bool = false,
+        showFavoriteButton: Bool = false,
+        isFavoriteSaved: Bool = false,
         onBack: @escaping () -> Void,
-        onSource: @escaping () -> Void = {}
+        onSource: @escaping () -> Void = {},
+        onFavorite: @escaping () -> Void = {}
     ) {
         self.title = title
+        self.titleFont = titleFont
+        self.titleColor = titleColor
         self.showSourceButton = showSourceButton
+        self.showFavoriteButton = showFavoriteButton
+        self.isFavoriteSaved = isFavoriteSaved
         self.onBack = onBack
         self.onSource = onSource
+        self.onFavorite = onFavorite
     }
 
     var body: some View {
         ZStack {
-            Text(title)
-                .font(V2Typography.pageTitle)
-                .foregroundStyle(V2Color.textPrimary)
+            if !title.isEmpty {
+                Text(title)
+                    .font(titleFont)
+                    .foregroundStyle(titleColor)
+            }
 
             HStack {
                 V2CircleIconButton(kind: .back, action: onBack)
                 Spacer()
-                if showSourceButton {
+                if showFavoriteButton {
+                    V2QuestionFavoriteButton(isSaved: isFavoriteSaved, action: onFavorite)
+                } else if showSourceButton {
                     V2CircleIconButton(kind: .sourceDocument, action: onSource)
                 }
             }
         }
         .frame(height: 52)
-        .padding(.horizontal, V2Spacing.screenMargin)
+        .v2PageContentWidth()
     }
 }
 
 struct V2FlowScreen<Content: View>: View {
     let title: String
+    var titleFont: Font = V2Typography.pageTitle
+    var titleColor: Color = V2Color.textPrimary
     var showSourceButton: Bool = false
+    var showFavoriteButton: Bool = false
+    var isFavoriteSaved: Bool = false
     let onBack: () -> Void
     var onSource: () -> Void = {}
+    var onFavorite: () -> Void = {}
     @ViewBuilder let content: () -> Content
 
     var body: some View {
@@ -93,9 +118,14 @@ struct V2FlowScreen<Content: View>: View {
             VStack(spacing: 0) {
                 V2FlowTopBar(
                     title: title,
+                    titleFont: titleFont,
+                    titleColor: titleColor,
                     showSourceButton: showSourceButton,
+                    showFavoriteButton: showFavoriteButton,
+                    isFavoriteSaved: isFavoriteSaved,
                     onBack: onBack,
-                    onSource: onSource
+                    onSource: onSource,
+                    onFavorite: onFavorite
                 )
                 .padding(.top, 22)
 
@@ -106,102 +136,224 @@ struct V2FlowScreen<Content: View>: View {
 }
 
 struct V2UnitProgressBar: View {
-    let current: Int
-    let total: Int
+    private let progress: CGFloat
 
-    private var progress: CGFloat {
-        guard total > 0 else { return 0 }
-        return CGFloat(current) / CGFloat(total)
+    init(current: Int, total: Int) {
+        if total > 0 {
+            progress = min(max(CGFloat(current) / CGFloat(total), 0), 1)
+        } else {
+            progress = 0
+        }
+    }
+
+    init(progressFraction: CGFloat) {
+        progress = min(max(progressFraction, 0), 1)
     }
 
     var body: some View {
-        VStack(spacing: 6) {
+        GeometryReader { geometry in
             ZStack(alignment: .leading) {
                 Capsule()
                     .fill(V2Color.surfaceNav)
-                    .frame(height: 12)
+                    .frame(height: 11)
                     .v2Shadow(V2Shadow.subtleGreen)
 
                 Capsule()
-                    .fill(V2Color.primary)
-                    .frame(width: max(18, progress * 220), height: 12)
+                    .fill(V2Color.unitProgressFill)
+                    .frame(
+                        width: max(11, geometry.size.width * progress),
+                        height: 11
+                    )
             }
-            .frame(width: 220)
-
-            Text("\(current) / \(total)")
-                .font(V2Typography.label)
-                .foregroundStyle(V2Color.textMuted)
+            .frame(height: 11)
+            .frame(maxHeight: .infinity, alignment: .center)
         }
+        .frame(height: 11)
     }
 }
 
 struct V2QuestionOptionCard: View {
+    let letter: String
     let title: String
     let state: V2QuestionOptionState
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 12) {
+            HStack(spacing: 13) {
+                choiceLetter
+                    .frame(width: 34, height: 34)
+
                 Text(title)
-                    .font(V2Typography.bodyEmphasis)
-                    .foregroundStyle(V2Color.textPrimary)
+                    .font(.system(size: 14, weight: .regular, design: .default))
+                    .foregroundStyle(Color(hex: 0x1F1B12))
+                    .lineSpacing(10)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
-
-                stateGlyph
             }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 15)
-            .frame(maxWidth: .infinity, minHeight: 58)
+            .padding(.horizontal, 16)
+            .frame(width: 270, height: 71, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
                     .fill(fill)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(border, lineWidth: 1.5)
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    .stroke(border, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
     }
 
     @ViewBuilder
-    private var stateGlyph: some View {
-        switch state {
-        case .normal:
-            EmptyView()
-        case .correct:
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(V2Color.primary)
-        case .wrong:
-            Image(systemName: "xmark.circle.fill")
-                .foregroundStyle(V2Color.feedbackWrongBorder)
+    private var choiceLetter: some View {
+        ZStack {
+            Circle()
+                .fill(letterFill)
+
+            switch state {
+            case .normal:
+                Text(letter)
+                    .font(.system(size: 16, weight: .regular, design: .default))
+                    .foregroundStyle(Color(hex: 0x575757))
+            case .correct:
+                CheckMarkShape()
+                    .stroke(Color.white, style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round))
+                    .frame(width: 17, height: 10)
+                    .rotationEffect(.degrees(-6))
+            case .wrong:
+                XMarkShape()
+                    .stroke(Color.white, style: StrokeStyle(lineWidth: 2.3, lineCap: .round))
+                    .frame(width: 13, height: 13)
+            }
         }
     }
 
     private var fill: Color {
         switch state {
         case .normal:
-            V2Color.surfaceCream
+            return Color(hex: 0xFEF8F2)
         case .correct:
-            V2Color.feedbackCorrectFill
+            return V2Color.feedbackCorrectFill
         case .wrong:
-            V2Color.feedbackWrongFill
+            return V2Color.feedbackWrongFill
         }
     }
 
     private var border: Color {
         switch state {
         case .normal:
-            V2Color.borderSoftGreen.opacity(0.7)
+            return V2Color.borderSoftGreen
         case .correct:
-            V2Color.primary
+            return V2Color.unitProgressFill
         case .wrong:
-            V2Color.feedbackWrongBorder
+            return V2Color.feedbackWrongBorder
+        }
+    }
+
+    private var letterFill: Color {
+        switch state {
+        case .normal:
+            return Color(hex: 0xF3EFE7)
+        case .correct:
+            return Color(hex: 0xB9C561)
+        case .wrong:
+            return Color(hex: 0xF36454)
         }
     }
 }
+
+private struct CheckMarkShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.36, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        return path
+    }
+}
+
+private struct XMarkShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.move(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        return path
+    }
+}
+
+struct V2MultipleChoiceQuestionCard: View {
+    let question: V2ReviewQuestionData
+    let selectedIndex: Int?
+    let onSelect: (Int) -> Void
+    let onSource: () -> Void
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(Color(hex: 0xFFFCF4))
+                .v2Shadow()
+
+            VStack(alignment: .leading, spacing: 0) {
+                Text(question.prompt)
+                    .font(.system(size: 18, weight: .regular, design: .default))
+                    .foregroundStyle(Color(hex: 0x1F1B12))
+                    .lineSpacing(8)
+                    .tracking(-0.24)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 23)
+
+                VStack(spacing: 12) {
+                    ForEach(question.options.indices, id: \.self) { index in
+                        V2QuestionOptionCard(
+                            letter: optionLetter(for: index),
+                            title: question.options[index],
+                            state: optionState(for: index)
+                        ) {
+                            guard selectedIndex == nil else { return }
+                            onSelect(index)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+            }
+            .padding(.top, 25)
+            .padding(.horizontal, 27)
+
+            Button(action: onSource) {
+                Text("查看原文")
+                    .font(.system(size: 14, weight: .regular, design: .default))
+                    .tracking(-0.24)
+                    .foregroundStyle(Color(hex: 0x737946).opacity(0.55))
+                    .frame(height: 26)
+            }
+            .buttonStyle(.plain)
+            .frame(width: 100)
+            .position(x: 160.5, y: 518 - 31)
+        }
+        .frame(width: 321, height: 518)
+    }
+
+    private func optionState(for index: Int) -> V2QuestionOptionState {
+        guard let selectedIndex else { return .normal }
+        if index == question.correctOptionIndex {
+            return .correct
+        }
+        if index == selectedIndex {
+            return .wrong
+        }
+        return .normal
+    }
+
+    private func optionLetter(for index: Int) -> String {
+        let letters = ["A", "B", "C", "D"]
+        guard letters.indices.contains(index) else { return "" }
+        return letters[index]
+    }
+}
+
 
 struct V2MatchingOptionCard: View {
     let title: String
@@ -210,32 +362,36 @@ struct V2MatchingOptionCard: View {
 
     var body: some View {
         Button(action: action) {
-            Text(title)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(V2Color.textPrimary)
-                .multilineTextAlignment(.center)
-                .lineLimit(3)
-                .minimumScaleFactor(0.85)
-                .frame(maxWidth: .infinity)
-                .frame(height: 64)
-                .padding(.horizontal, 10)
-                .background(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(fill)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .stroke(border, lineWidth: 1.5)
-                )
+            ZStack {
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    .fill(fill)
+                    .shadow(color: Color(hex: 0x98A35E).opacity(0.20), radius: 2, x: 0, y: 4)
+
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    .stroke(border, lineWidth: 1.5)
+
+                Text(title)
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundStyle(textColor)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
+                    .frame(width: 112, height: 61, alignment: .center)
+            }
+            .frame(width: 140, height: 90)
         }
         .buttonStyle(.plain)
         .disabled(state == .locked)
+        .transaction { transaction in
+            transaction.disablesAnimations = true
+        }
     }
 
     private var fill: Color {
         switch state {
         case .normal:
-            V2Color.surfaceCream
+            Color(hex: 0xFEF8F2)
         case .selected:
             Color(hex: 0xEEF8FC)
         case .correct:
@@ -261,60 +417,243 @@ struct V2MatchingOptionCard: View {
             V2Color.lockedBorder
         }
     }
+
+    private var textColor: Color {
+        switch state {
+        case .locked:
+            return V2Color.textSecondary.opacity(0.62)
+        default:
+            return V2Color.textPrimary
+        }
+    }
 }
 
 struct V2AnswerFeedbackPanel: View {
     let text: String
     let isCorrect: Bool
     let onContinue: () -> Void
+    var onClose: () -> Void = {}
+    var onSource: () -> Void = {}
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
+        ZStack(alignment: .topLeading) {
             Image("V2MascotFeedbackBack")
                 .resizable()
                 .renderingMode(.original)
                 .scaledToFit()
-                .frame(width: 74)
-                .offset(x: -24, y: -56)
-                .zIndex(0)
+                .frame(width: 93, height: 136)
+                .offset(x: 302, y: 0)
+                .zIndex(1)
 
-            VStack(alignment: .leading, spacing: 14) {
-                Text(isCorrect ? "理解到位" : "容易误会")
-                    .font(V2Typography.cardTitle)
-                    .foregroundStyle(isCorrect ? V2Color.primary : V2Color.feedbackWrongBorder)
+            panelContent
+                .padding(.top, V2AnswerFeedbackPanelMetrics.panelY)
+                .zIndex(2)
 
-                Text(text)
-                    .font(V2Typography.body)
-                    .foregroundStyle(V2Color.textSecondary)
-                    .lineSpacing(5)
-                    .lineLimit(3)
-
-                V2PrimaryActionButton(
-                    title: "继续",
-                    tone: isCorrect ? .normal : .wrong,
-                    height: 42,
-                    action: onContinue
-                )
+            Button(action: onClose) {
+                Text("X")
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundStyle(accent)
+                    .frame(width: 30, height: 30)
+                    .contentShape(Rectangle())
             }
-            .padding(20)
-            .padding(.top, 14)
-            .frame(maxWidth: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(V2Color.surfaceCream)
-                    .v2Shadow()
-            )
-            .zIndex(1)
+            .buttonStyle(.plain)
+            .position(x: 363, y: V2AnswerFeedbackPanelMetrics.closeY)
+            .zIndex(6)
 
             Image("V2MascotFeedbackFront")
                 .resizable()
                 .renderingMode(.original)
                 .scaledToFit()
-                .frame(width: 42)
-                .offset(x: -42, y: -18)
-                .zIndex(2)
+                .frame(width: 38, height: 58)
+                .offset(x: 313, y: 46)
+                .zIndex(5)
         }
-        .padding(.top, 46)
+        .frame(width: V2AnswerFeedbackPanelMetrics.width)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private var accent: Color {
+        isCorrect ? Color(hex: 0xA5AE66) : Color(hex: 0xF36454)
+    }
+
+    private var feedbackShadow: Color {
+        isCorrect ? Color(hex: 0xA5AE66).opacity(0.20) : Color(hex: 0xF36454).opacity(0.22)
+    }
+
+    private var sourceColor: Color {
+        isCorrect ? Color(hex: 0x737946).opacity(0.55) : Color(hex: 0xF36454).opacity(0.47)
+    }
+
+    private var panelContent: some View {
+        VStack(spacing: 0) {
+            feedbackText
+                .frame(width: V2AnswerFeedbackPanelMetrics.textWidth, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, V2AnswerFeedbackPanelMetrics.panelBodyTopY + V2AnswerFeedbackPanelMetrics.contentTopInset)
+
+            V2FeedbackActionButton(
+                title: "继续",
+                tone: isCorrect ? .correct : .wrong,
+                action: onContinue
+            )
+            .frame(width: V2AnswerFeedbackPanelMetrics.buttonWidth, height: V2AnswerFeedbackPanelMetrics.buttonHeight)
+            .padding(.top, V2AnswerFeedbackPanelMetrics.textToButtonGap)
+
+            Button(action: onSource) {
+                Text("查看原文")
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundStyle(sourceColor)
+                    .frame(height: V2AnswerFeedbackPanelMetrics.sourceHeight)
+            }
+            .buttonStyle(.plain)
+            .padding(.top, V2AnswerFeedbackPanelMetrics.buttonToSourceGap)
+        }
+        .padding(.bottom, V2AnswerFeedbackPanelMetrics.bottomInset)
+        .frame(width: V2AnswerFeedbackPanelMetrics.width)
+        .background {
+            ZStack {
+                V2FeedbackPanelShape()
+                    .fill(Color(hex: 0xFFFCF4))
+                    .shadow(
+                        color: feedbackShadow,
+                        radius: 5,
+                        x: 0,
+                        y: -6
+                    )
+
+                V2FeedbackPanelTopStroke()
+                    .stroke(accent, lineWidth: 1)
+            }
+        }
+    }
+
+    private var feedbackText: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            Text("正确理解：")
+                .font(.system(size: 14, weight: .bold))
+
+            Text(text)
+                .font(.system(size: 14, weight: .regular))
+                .lineSpacing(4)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .foregroundStyle(Color(hex: 0x4D4635))
+        .multilineTextAlignment(.leading)
+    }
+}
+
+private enum V2AnswerFeedbackPanelMetrics {
+    static let width: CGFloat = 402
+    static let centerX: CGFloat = 201
+    static let panelY: CGFloat = 33
+    static let panelBodyTopY: CGFloat = 33
+    static let contentTopInset: CGFloat = 28
+    static let textWidth: CGFloat = 322
+    static let textToButtonGap: CGFloat = 25
+    static let buttonWidth: CGFloat = 321
+    static let buttonHeight: CGFloat = 42
+    static let buttonToSourceGap: CGFloat = 13
+    static let sourceHeight: CGFloat = 26
+    static let bottomInset: CGFloat = 22
+    static let closeY: CGFloat = 96
+}
+
+struct V2FeedbackActionButton: View {
+    enum Tone {
+        case correct
+        case wrong
+        case disabled
+    }
+
+    let title: String
+    let tone: Tone
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 15, style: .continuous)
+                        .fill(fill)
+                        .shadow(color: shadow, radius: 4, x: 0, y: 4)
+                )
+        }
+        .buttonStyle(.plain)
+        .disabled(tone == .disabled)
+    }
+
+    private var fill: Color {
+        switch tone {
+        case .correct:
+            return Color(hex: 0xA5AE66)
+        case .wrong:
+            return Color(hex: 0xF36454)
+        case .disabled:
+            return V2Color.lockedBorder
+        }
+    }
+
+    private var shadow: Color {
+        switch tone {
+        case .correct:
+            return Color(hex: 0x98A35E).opacity(0.20)
+        case .wrong:
+            return Color(hex: 0xF36454).opacity(0.20)
+        case .disabled:
+            return .clear
+        }
+    }
+}
+
+private struct V2FeedbackPanelShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        let sx = rect.width / 402
+        func p(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
+            CGPoint(x: x * sx, y: y)
+        }
+
+        var path = Path()
+        path.move(to: CGPoint(x: 403 * sx, y: rect.maxY))
+        path.addLine(to: p(403, 33.0902))
+        path.addLine(to: p(332, 33.0902))
+        path.addLine(to: p(327.407, 13.3231))
+        path.addCurve(
+            to: p(322.135, 12.1367),
+            control1: p(326.839, 10.8773),
+            control2: p(323.696, 10.1702)
+        )
+        path.addLine(to: p(305.5, 33.0902))
+        path.addLine(to: p(-3, 33.0902))
+        path.addLine(to: CGPoint(x: -3 * sx, y: rect.maxY))
+        path.closeSubpath()
+        return path
+    }
+}
+
+private struct V2FeedbackPanelTopStroke: Shape {
+    func path(in rect: CGRect) -> Path {
+        let sx = rect.width / 402
+        func p(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
+            CGPoint(x: x * sx, y: y)
+        }
+
+        var path = Path()
+        path.move(to: p(0, 33.59))
+        path.addLine(to: p(305.741, 33.59))
+        path.addLine(to: p(305.892, 33.4014))
+        path.addLine(to: p(322.526, 12.4473))
+        path.addCurve(
+            to: p(326.92, 13.4365),
+            control1: p(323.827, 10.8085),
+            control2: p(326.446, 11.3984)
+        )
+        path.addLine(to: p(331.513, 33.2031))
+        path.addLine(to: p(331.603, 33.5898))
+        path.addLine(to: p(402, 33.5898))
+        return path
     }
 }
 
@@ -355,37 +694,131 @@ struct V2NotificationCard: View {
     let title: String
     let message: String
     let isSuccess: Bool
+    var time: String = "刚刚"
 
     var body: some View {
-        HStack(spacing: 14) {
+        ZStack(alignment: .leading) {
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .v2Shadow()
+
+            Circle()
+                .fill(statusColor)
+                .frame(width: 6, height: 6)
+                .position(x: 18, y: 50)
+
             ZStack {
                 Circle()
-                    .fill(Color(hex: 0xF2EFDC))
-                    .frame(width: 42, height: 42)
+                    .fill(iconShellFill)
+                    .frame(width: 65, height: 65)
+
                 Image(isSuccess ? "V2NotificationSuccessIcon" : "V2NotificationFailureIcon")
                     .resizable()
                     .renderingMode(.original)
                     .scaledToFit()
                     .frame(width: 37, height: 37)
             }
+            .position(x: 61.5, y: 54)
 
-            VStack(alignment: .leading, spacing: 5) {
+            VStack(alignment: .leading, spacing: 14) {
                 Text(title)
-                    .font(V2Typography.bodyEmphasis)
-                    .foregroundStyle(V2Color.textPrimary)
-                Text(message)
-                    .font(V2Typography.label)
-                    .foregroundStyle(V2Color.textMuted)
-            }
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(Color(hex: 0x252419))
+                    .lineLimit(1)
 
-            Spacer()
+                Text(message)
+                    .font(.system(size: 11, weight: .regular))
+                    .foregroundStyle(Color(hex: 0x575757).opacity(0.74))
+                    .lineSpacing(4)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(width: 160, alignment: .leading)
+            .position(x: 193, y: 55)
+
+            Text(time)
+                .font(.system(size: 11, weight: .regular))
+                .foregroundStyle(Color(hex: 0x575757).opacity(0.62))
+                .lineLimit(1)
+                .frame(width: 42)
+                .position(x: 300, y: 27)
+
+            V2NotificationChevron(color: statusColor)
+                .frame(width: 24, height: 24)
+                .position(x: 300, y: 54)
         }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+        .frame(width: V2Layout.contentMaxWidth, height: 108)
+    }
+
+    private var statusColor: Color {
+        isSuccess ? Color(hex: 0xA7AD62) : Color(hex: 0xED765C)
+    }
+
+    private var iconShellFill: Color {
+        isSuccess
+            ? Color(hex: 0xE8E9C2).opacity(0.52)
+            : Color(hex: 0xFFECE4).opacity(0.90)
+    }
+}
+
+struct V2NotificationSummaryBanner: View {
+    let unreadCount: Int
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
+                .frame(width: 321, height: 82)
+                .offset(x: 4, y: 53)
                 .v2Shadow()
-        )
+                .zIndex(0)
+
+            Image("V2NotificationMascot")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 118, height: 128)
+                .offset(x: 182, y: 7)
+                .zIndex(2)
+
+            Image("V2NotificationBannerWave")
+                .resizable()
+                .renderingMode(.original)
+                .frame(width: 329, height: 143)
+                .zIndex(3)
+
+            HStack(alignment: .firstTextBaseline, spacing: 5) {
+                Text("你有")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(V2Color.textPrimary)
+
+                Text("\(unreadCount)")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundStyle(V2Color.primaryAction)
+
+                Text("条新通知")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(V2Color.textPrimary)
+            }
+            .padding(.leading, 26)
+            .padding(.top, 80)
+            .frame(maxWidth: 208, alignment: .leading)
+            .zIndex(4)
+        }
+        .frame(width: 329, height: 143)
+    }
+}
+
+private struct V2NotificationChevron: View {
+    let color: Color
+
+    var body: some View {
+        Path { path in
+            path.move(to: CGPoint(x: 8, y: 7))
+            path.addLine(to: CGPoint(x: 15, y: 12))
+            path.addLine(to: CGPoint(x: 8, y: 17))
+        }
+        .stroke(color, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
     }
 }
 
@@ -397,18 +830,25 @@ struct V2ChapterCard: View {
     let questionCount: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .top, spacing: 12) {
                 V2ChapterStatusTag(status: status)
                 Spacer(minLength: 12)
             }
 
             Text(title)
-                .font(.system(size: 16, weight: .medium))
+                .font(V2ChapterCardMetrics.titleFont)
                 .foregroundStyle(Color(hex: 0x383838))
-                .lineSpacing(4)
+                .lineSpacing(V2ChapterCardMetrics.titleLineSpacing)
                 .lineLimit(2)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .truncationMode(.tail)
+                .frame(
+                    maxWidth: .infinity,
+                    minHeight: V2ChapterCardMetrics.titleBlockHeight,
+                    maxHeight: V2ChapterCardMetrics.titleBlockHeight,
+                    alignment: .topLeading
+                )
+                .padding(.top, V2ChapterCardMetrics.titleTopSpacing)
 
             Spacer(minLength: 0)
 
@@ -430,15 +870,22 @@ struct V2ChapterCard: View {
                     .foregroundStyle(Color(hex: 0xACACAC))
             }
         }
-        .frame(maxWidth: .infinity, minHeight: 100, alignment: .topLeading)
         .padding(.horizontal, 18)
         .padding(.vertical, 16)
+        .frame(maxWidth: .infinity, minHeight: 136, maxHeight: 136, alignment: .topLeading)
         .background(
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
         )
     }
+}
+
+private enum V2ChapterCardMetrics {
+    static let titleFont = Font.system(size: 16, weight: .medium)
+    static let titleLineSpacing: CGFloat = 4
+    static let titleBlockHeight: CGFloat = 42
+    static let titleTopSpacing: CGFloat = 12
 }
 
 struct V2ChapterStatusTag: View {
@@ -460,27 +907,43 @@ struct V2GeneratedChaptersSummaryCard: View {
     let count: Int
 
     var body: some View {
-        HStack(spacing: 0) {
-            Text("已生成 ")
-                .font(.system(size: 18, weight: .medium))
-                .foregroundStyle(V2Color.textPrimary)
-            Text("\(count)")
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(V2Color.primary)
-                .baselineOffset(-1)
-            Text(" 个章节")
-                .font(.system(size: 18, weight: .medium))
-                .foregroundStyle(V2Color.textPrimary)
-            Spacer()
+        ZStack(alignment: .topLeading) {
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                Text("已生成 ")
+                    .font(V2GeneratedChaptersSummaryCardMetrics.textFont)
+                    .foregroundStyle(Color(hex: 0x383838))
+
+                Text("\(count)")
+                    .font(V2GeneratedChaptersSummaryCardMetrics.numberFont)
+                    .foregroundStyle(Color(hex: 0xA5AE66))
+
+                Text(" 个章节")
+                    .font(V2GeneratedChaptersSummaryCardMetrics.textFont)
+                    .foregroundStyle(Color(hex: 0x383838))
+            }
+            .frame(
+                width: V2GeneratedChaptersSummaryCardMetrics.copyWidth,
+                height: V2GeneratedChaptersSummaryCardMetrics.copyHeight,
+                alignment: .leading
+            )
+            .offset(x: V2GeneratedChaptersSummaryCardMetrics.copyX, y: V2GeneratedChaptersSummaryCardMetrics.copyY)
         }
-        .padding(.horizontal, 22)
-        .frame(height: 82)
+        .frame(maxWidth: .infinity, minHeight: 82, maxHeight: 82, alignment: .topLeading)
         .background(
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
         )
     }
+}
+
+private enum V2GeneratedChaptersSummaryCardMetrics {
+    static let copyX: CGFloat = 23
+    static let copyY: CGFloat = 28
+    static let copyWidth: CGFloat = 150
+    static let copyHeight: CGFloat = 24
+    static let textFont = Font.system(size: 12, weight: .regular, design: .default)
+    static let numberFont = Font.system(size: 20, weight: .bold, design: .default)
 }
 
 struct V2DiscoverChip: View {
@@ -506,43 +969,69 @@ struct V2DiscoverChip: View {
 
 struct V2DiscoverHeroCard: View {
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
+        ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
-                .frame(height: 82)
-                .frame(maxHeight: .infinity, alignment: .bottom)
+                .frame(width: V2DiscoverHeroCardMetrics.cardWidth, height: V2DiscoverHeroCardMetrics.cardHeight)
+                .offset(y: V2DiscoverHeroCardMetrics.cardY)
                 .v2Shadow()
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("发现好内容")
-                    .font(.system(size: 16, weight: .medium))
-                    .tracking(-0.64)
-                    .foregroundStyle(Color(hex: 0xA5AE66))
-
-                Text("不用上传，也可以先体验一篇好文章如何变成复习路径。")
-                    .font(.system(size: 10, weight: .regular))
-                    .tracking(-0.24)
-                    .foregroundStyle(Color(hex: 0x575757))
-                    .lineSpacing(7)
-                    .lineLimit(2)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .padding(.leading, 18)
-            .padding(.trailing, 108)
-            .padding(.bottom, 18)
+            Image("V2DiscoverHeroWave")
+                .resizable()
+                .renderingMode(.original)
+                .frame(width: V2DiscoverHeroCardMetrics.waveWidth, height: V2DiscoverHeroCardMetrics.waveHeight)
+                .offset(x: V2DiscoverHeroCardMetrics.waveX, y: V2DiscoverHeroCardMetrics.cardY)
+                .allowsHitTesting(false)
 
             Image("V2DiscoverHeroMascot")
                 .resizable()
                 .renderingMode(.original)
                 .scaledToFit()
-                .frame(width: 104, height: 124)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-                .offset(x: -8, y: 0)
+                .frame(width: V2DiscoverHeroCardMetrics.mascotWidth, height: V2DiscoverHeroCardMetrics.mascotHeight)
+                .offset(x: V2DiscoverHeroCardMetrics.mascotX, y: V2DiscoverHeroCardMetrics.mascotY)
                 .allowsHitTesting(false)
+
+            Text("发现好内容")
+                .font(.system(size: 16, weight: .medium))
+                .tracking(-0.64)
+                .foregroundStyle(Color(hex: 0xA5AE66))
+                .lineLimit(1)
+                .frame(width: V2DiscoverHeroCardMetrics.titleWidth, height: V2DiscoverHeroCardMetrics.titleHeight, alignment: .leading)
+                .offset(x: V2DiscoverHeroCardMetrics.textX, y: V2DiscoverHeroCardMetrics.titleY)
+
+            Text("将知识一键变成复习路径，\n让“收藏“变成记住")
+                .font(.system(size: 10, weight: .regular))
+                .tracking(-0.24)
+                .foregroundStyle(Color(hex: 0x575757))
+                .lineSpacing(9)
+                .lineLimit(2)
+                .frame(width: V2DiscoverHeroCardMetrics.subtitleWidth, height: V2DiscoverHeroCardMetrics.subtitleHeight, alignment: .topLeading)
+                .offset(x: V2DiscoverHeroCardMetrics.textX, y: V2DiscoverHeroCardMetrics.subtitleY)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 143)
+        .frame(height: V2DiscoverHeroCardMetrics.heroHeight)
     }
+}
+
+private enum V2DiscoverHeroCardMetrics {
+    static let cardWidth: CGFloat = 321
+    static let cardHeight: CGFloat = 82
+    static let heroHeight: CGFloat = 135
+    static let cardY: CGFloat = 53
+    static let waveWidth: CGFloat = 329
+    static let waveHeight: CGFloat = 90
+    static let waveX: CGFloat = -4
+    static let textX: CGFloat = 19
+    static let titleY: CGFloat = 64
+    static let titleWidth: CGFloat = 131
+    static let titleHeight: CGFloat = 24
+    static let subtitleY: CGFloat = 93
+    static let subtitleWidth: CGFloat = 167
+    static let subtitleHeight: CGFloat = 41
+    static let mascotX: CGFloat = 195
+    static let mascotY: CGFloat = 0
+    static let mascotWidth: CGFloat = 112
+    static let mascotHeight: CGFloat = 136
 }
 
 struct V2ArticleTagPill: View {
@@ -550,9 +1039,12 @@ struct V2ArticleTagPill: View {
 
     var body: some View {
         Text(title)
-            .font(.system(size: 8, weight: .regular))
+            .font(V2RecommendedArticleCardMetrics.tagFont)
             .foregroundStyle(Color(hex: 0x5E5E5E))
-            .frame(width: 35.4, height: 15.7)
+            .frame(
+                width: V2RecommendedArticleCardMetrics.tagWidth,
+                height: V2RecommendedArticleCardMetrics.tagHeight
+            )
             .background(
                 Capsule()
                     .fill(Color(hex: 0xFEF9F2))
@@ -574,10 +1066,10 @@ struct V2RecommendedArticleCard: View {
     var body: some View {
         Button(action: action) {
             GeometryReader { proxy in
-                let infoWidth = min(231, max(0, proxy.size.width * 0.72))
+                let infoWidth = min(V2RecommendedArticleCardMetrics.infoWidth, max(0, proxy.size.width * 0.72))
 
                 ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    RoundedRectangle(cornerRadius: V2RecommendedArticleCardMetrics.cornerRadius, style: .continuous)
                         .fill(V2Color.surfaceCream)
                         .v2Shadow()
 
@@ -589,81 +1081,124 @@ struct V2RecommendedArticleCard: View {
                         .frame(maxWidth: .infinity, alignment: .trailing)
                         .clipped()
 
-                    RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    RoundedRectangle(cornerRadius: V2RecommendedArticleCardMetrics.cornerRadius, style: .continuous)
                         .fill(V2Color.surfaceCream)
-                        .frame(width: infoWidth, height: 94)
+                        .frame(width: infoWidth, height: V2RecommendedArticleCardMetrics.cardHeight)
 
-                    VStack(alignment: .leading, spacing: 8) {
+                    ZStack(alignment: .topLeading) {
                         Text(title)
-                            .font(.system(size: 12, weight: .regular))
+                            .font(V2RecommendedArticleCardMetrics.titleFont)
                             .foregroundStyle(Color(hex: 0x383838))
-                            .lineSpacing(8)
-                            .lineLimit(2)
-                            .frame(maxWidth: infoWidth - 34, alignment: .leading)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                            .frame(
+                                width: V2RecommendedArticleCardMetrics.titleWidth,
+                                height: V2RecommendedArticleCardMetrics.titleHeight,
+                                alignment: .topLeading
+                            )
+                            .offset(x: V2RecommendedArticleCardMetrics.titleX, y: V2RecommendedArticleCardMetrics.titleY)
 
                         Text(source)
-                            .font(.system(size: 10, weight: .regular))
+                            .font(V2RecommendedArticleCardMetrics.sourceFont)
                             .foregroundStyle(Color(hex: 0xA3A3A3))
                             .lineLimit(1)
+                            .frame(
+                                width: V2RecommendedArticleCardMetrics.titleWidth,
+                                height: V2RecommendedArticleCardMetrics.sourceHeight,
+                                alignment: .topLeading
+                            )
+                            .offset(x: V2RecommendedArticleCardMetrics.sourceX, y: V2RecommendedArticleCardMetrics.sourceY)
 
-                        HStack(spacing: 8) {
+                        HStack(spacing: V2RecommendedArticleCardMetrics.tagSpacing) {
                             ForEach(tags.prefix(3), id: \.self) { tag in
                                 V2ArticleTagPill(title: tag)
                             }
                         }
+                        .offset(x: V2RecommendedArticleCardMetrics.tagsX, y: V2RecommendedArticleCardMetrics.tagsY)
                     }
-                    .padding(.leading, 20)
-                    .padding(.vertical, 13)
-                    .frame(width: infoWidth, height: 94, alignment: .topLeading)
+                    .frame(width: infoWidth, height: V2RecommendedArticleCardMetrics.cardHeight, alignment: .topLeading)
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: V2RecommendedArticleCardMetrics.cornerRadius, style: .continuous))
             }
-            .frame(height: 94)
+            .frame(height: V2RecommendedArticleCardMetrics.cardHeight)
         }
         .buttonStyle(.plain)
     }
+}
+
+private enum V2RecommendedArticleCardMetrics {
+    static let cardHeight: CGFloat = 94
+    static let infoWidth: CGFloat = 231
+    static let cornerRadius: CGFloat = 15
+    static let titleX: CGFloat = 24
+    static let titleY: CGFloat = 11
+    static let titleWidth: CGFloat = 167
+    static let titleHeight: CGFloat = 24
+    static let titleFont = Font.system(size: 12, weight: .regular)
+    static let sourceX: CGFloat = 24
+    static let sourceY: CGFloat = 35
+    static let sourceHeight: CGFloat = 19
+    static let sourceFont = Font.system(size: 10, weight: .regular)
+    static let tagsX: CGFloat = 21
+    static let tagsY: CGFloat = 61
+    static let tagSpacing: CGFloat = 8.6
+    static let tagFont = Font.system(size: 8, weight: .regular)
+    static let tagWidth: CGFloat = 35.4
+    static let tagHeight: CGFloat = 15.7
 }
 
 struct V2NotesSummaryCard: View {
     let count: Int
 
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
-                .frame(height: 82)
-                .frame(maxHeight: .infinity, alignment: .top)
+                .frame(width: V2NotesSummaryCardMetrics.cardWidth, height: V2NotesSummaryCardMetrics.cardFillHeight)
+                .offset(y: V2NotesSummaryCardMetrics.cardFillY)
                 .v2Shadow()
 
             Image("V2NotesSummaryWave")
                 .resizable()
                 .renderingMode(.original)
-                .scaledToFill()
-                .frame(height: 54)
-                .frame(maxWidth: .infinity)
-                .clipped()
-                .opacity(0.95)
+                .frame(width: V2NotesSummaryCardMetrics.waveWidth, height: V2NotesSummaryCardMetrics.waveHeight)
+                .offset(x: V2NotesSummaryCardMetrics.waveX, y: V2NotesSummaryCardMetrics.waveY)
+                .allowsHitTesting(false)
 
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text("已收藏 ")
-                    .font(.system(size: 12, weight: .regular))
+                    .font(V2NotesSummaryCardMetrics.textFont)
                     .foregroundStyle(Color(hex: 0x383838))
                 Text("\(count)")
-                    .font(.system(size: 20, weight: .bold))
+                    .font(V2NotesSummaryCardMetrics.numberFont)
                     .foregroundStyle(Color(hex: 0xA5AE66))
-                    .baselineOffset(-1)
                 Text(" 个题目")
-                    .font(.system(size: 12, weight: .regular))
+                    .font(V2NotesSummaryCardMetrics.textFont)
                     .foregroundStyle(Color(hex: 0x383838))
             }
             .tracking(-0.8)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, 64)
-            .padding(.bottom, 48)
+            .frame(width: V2NotesSummaryCardMetrics.copyWidth, height: V2NotesSummaryCardMetrics.copyHeight, alignment: .leading)
+            .offset(x: V2NotesSummaryCardMetrics.copyX, y: V2NotesSummaryCardMetrics.copyY)
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: 90)
+        .frame(width: V2NotesSummaryCardMetrics.cardWidth, height: V2NotesSummaryCardMetrics.componentHeight, alignment: .topLeading)
     }
+}
+
+private enum V2NotesSummaryCardMetrics {
+    static let cardWidth: CGFloat = 321
+    static let cardFillHeight: CGFloat = 81
+    static let cardFillY: CGFloat = 1
+    static let componentHeight: CGFloat = 90
+    static let waveWidth: CGFloat = 329
+    static let waveHeight: CGFloat = 90
+    static let waveX: CGFloat = -4
+    static let waveY: CGFloat = 0
+    static let copyX: CGFloat = 23
+    static let copyY: CGFloat = 30
+    static let copyWidth: CGFloat = 131
+    static let copyHeight: CGFloat = 24
+    static let textFont = Font.system(size: 12, weight: .regular)
+    static let numberFont = Font.system(size: 20, weight: .bold)
 }
 
 struct V2QuestionTypePill: View {
@@ -695,60 +1230,217 @@ struct V2SavedQuestionCard: View {
             Text(title)
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color(hex: 0x383838))
-                .lineSpacing(8)
-                .lineLimit(2)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, 18)
-                .padding(.trailing, 54)
-                .padding(.top, 8)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .frame(
+                    width: V2SavedQuestionCardMetrics.titleWidth,
+                    height: V2SavedQuestionCardMetrics.titleHeight,
+                    alignment: .leading
+                )
+                .offset(x: V2SavedQuestionCardMetrics.titleX, y: V2SavedQuestionCardMetrics.titleY)
 
             Text(source)
                 .font(.system(size: 11, weight: .regular))
                 .foregroundStyle(Color(hex: 0x827C75))
                 .lineLimit(1)
-                .offset(x: 20, y: 55)
+                .frame(
+                    width: V2SavedQuestionCardMetrics.sourceWidth,
+                    height: V2SavedQuestionCardMetrics.sourceHeight,
+                    alignment: .leading
+                )
+                .offset(x: V2SavedQuestionCardMetrics.sourceX, y: V2SavedQuestionCardMetrics.sourceY)
 
             V2QuestionTypePill(title: type)
-                .offset(x: 22, y: 92)
+                .offset(x: V2SavedQuestionCardMetrics.typeX, y: V2SavedQuestionCardMetrics.typeY)
 
             Image("V2NotesBookmark")
                 .resizable()
                 .renderingMode(.original)
                 .frame(width: 12, height: 18)
-                .offset(x: 290, y: 25)
+                .offset(x: V2SavedQuestionCardMetrics.bookmarkX, y: V2SavedQuestionCardMetrics.bookmarkY)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 136)
+        .frame(height: V2SavedQuestionCardMetrics.cardHeight)
     }
 }
 
+private enum V2SavedQuestionCardMetrics {
+    static let cardHeight: CGFloat = 136
+    static let titleX: CGFloat = 18
+    static let titleY: CGFloat = 8
+    static let titleWidth: CGFloat = 258
+    static let titleHeight: CGFloat = 51.63
+    static let sourceX: CGFloat = 20
+    static let sourceY: CGFloat = 55
+    static let sourceWidth: CGFloat = 213
+    static let sourceHeight: CGFloat = 19
+    static let typeX: CGFloat = 18
+    static let typeY: CGFloat = 92
+    static let bookmarkX: CGFloat = 286
+    static let bookmarkY: CGFloat = 25
+}
+
+struct V2ProfileTopBar: View {
+    let onBack: () -> Void
+
+    var body: some View {
+        ZStack {
+            Text("我的")
+                .font(.system(size: 22, weight: .bold))
+                .foregroundStyle(V2Color.textPrimary)
+                .frame(maxWidth: .infinity)
+
+            HStack {
+                V2CircleIconButton(kind: .back, action: onBack)
+                Spacer()
+            }
+        }
+        .frame(height: 52)
+        .v2PageContentWidth()
+    }
+}
+
+struct V2ProfileHeaderCard: View {
+    let name: String
+    let bio: String
+    let reviewedCount: String
+    let streakDays: String
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: V2ProfileHeaderMetrics.cornerRadius, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .v2Shadow()
+
+            Circle()
+                .fill(Color(hex: 0xEEF0C7))
+                .frame(width: 78, height: 78)
+                .overlay {
+                    Image("V2MascotStatic")
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFit()
+                        .frame(width: 78)
+                        .scaleEffect(0.8, anchor: .top)
+                        .offset(y: 7)
+                }
+                .clipShape(Circle())
+                .offset(x: 24, y: 16)
+
+            Text(name)
+                .font(.system(size: 20, weight: .bold))
+                .foregroundStyle(V2Color.textPrimary)
+                .lineLimit(1)
+                .offset(x: 127, y: 29)
+
+            Text(bio)
+                .font(.system(size: 12, weight: .regular))
+                .foregroundStyle(Color(hex: 0x575757).opacity(0.72))
+                .lineLimit(1)
+                .offset(x: 127, y: 64)
+
+            HStack(spacing: 17) {
+                V2ProfileStatCard(
+                    title: "已复习",
+                    value: reviewedCount,
+                    unit: "个知识点",
+                    assetName: "V2ProfileStatReviewed"
+                )
+                V2ProfileStatCard(
+                    title: "连续学习",
+                    value: streakDays,
+                    unit: "天",
+                    assetName: "V2ProfileStatStreak"
+                )
+            }
+            .offset(x: 24, y: 126)
+
+            Image("V2BgDecoSmallPlantCluster")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 60)
+                .opacity(0.86)
+                .offset(x: 241, y: 157)
+        }
+        .frame(width: V2ProfileHeaderMetrics.cardWidth, height: V2ProfileHeaderMetrics.cardHeight)
+    }
+}
+
+private enum V2ProfileHeaderMetrics {
+    static let cardWidth: CGFloat = 321
+    static let cardHeight: CGFloat = 214
+    static let cornerRadius: CGFloat = 15
+}
+
 struct V2ProfileStatCard: View {
+    let title: String
     let value: String
-    let label: String
+    let unit: String
     let assetName: String
 
     var body: some View {
-        VStack(spacing: 9) {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .v2Shadow()
+
             Image(assetName)
                 .resizable()
                 .renderingMode(.original)
-                .frame(width: 33, height: 33)
+                .frame(width: 32, height: 32)
+                .offset(x: 6, y: 5)
 
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
+            Text(title)
+                .font(.system(size: 10, weight: .regular))
+                .foregroundStyle(Color(hex: 0x575757).opacity(0.68))
+                .lineLimit(1)
+                .offset(x: 48, y: 17)
+
+            HStack(alignment: .lastTextBaseline, spacing: 4) {
                 Text(value)
-                    .font(.system(size: 25, weight: .bold))
+                    .font(.system(size: 20, weight: .bold))
                     .foregroundStyle(V2Color.textPrimary)
-                Text(label)
-                    .font(V2Typography.label)
-                    .foregroundStyle(V2Color.textMuted)
+                    .monospacedDigit()
+                    .frame(width: 35, alignment: .center)
+                Text(unit)
+                    .font(.system(size: 10, weight: .regular))
+                    .foregroundStyle(Color(hex: 0x575757).opacity(0.68))
             }
+            .lineLimit(1)
+            .offset(x: 8, y: 46)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
+        .frame(width: 96, height: 72)
+    }
+}
+
+struct V2ProfileSettingsCard: View {
+    var body: some View {
+        VStack(spacing: 0) {
+            V2ProfileSettingRow(title: "通知设置", assetName: "V2ProfileSettingNotification")
+            V2ProfileSettingDivider()
+            V2ProfileSettingRow(title: "隐私说明", assetName: "V2ProfileSettingPrivacy")
+            V2ProfileSettingDivider()
+            V2ProfileSettingRow(title: "账号说明", assetName: "V2ProfileSettingAccount")
+        }
+        .padding(.top, 10)
+        .padding(.bottom, 10)
+        .frame(width: 321, height: 190)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
+                .v2Shadow()
         )
+    }
+}
+
+private struct V2ProfileSettingDivider: View {
+    var body: some View {
+        Rectangle()
+            .fill(Color(hex: 0xECE9DC))
+            .frame(height: 1)
+            .padding(.leading, 72)
+            .padding(.trailing, 29)
     }
 }
 
@@ -757,22 +1449,98 @@ struct V2ProfileSettingRow: View {
     let assetName: String
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
             Image(assetName)
                 .resizable()
                 .renderingMode(.original)
                 .frame(width: 33, height: 33)
 
             Text(title)
-                .font(V2Typography.bodyEmphasis)
-                .foregroundStyle(V2Color.textPrimary)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(Color(hex: 0x575757))
 
             Spacer()
-
-            Image(systemName: "chevron.right")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(V2Color.textMuted)
         }
-        .padding(.vertical, 12)
+        .frame(height: 56)
+        .padding(.leading, 24)
+        .padding(.trailing, 31)
     }
+}
+
+struct V2UnitOverviewBoardCard: View {
+    let overview: String
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            V2UnitBoardLeg(rotation: 13)
+                .offset(x: 94, y: 238)
+                .zIndex(0)
+
+            V2UnitBoardLeg(rotation: -13)
+                .offset(x: 204, y: 238)
+                .zIndex(0)
+
+            RoundedRectangle(cornerRadius: V2UnitOverviewBoardMetrics.cardRadius, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .overlay(
+                    RoundedRectangle(cornerRadius: V2UnitOverviewBoardMetrics.cardRadius, style: .continuous)
+                        .stroke(Color(hex: 0x929A4F), lineWidth: 1)
+                )
+                .frame(width: V2UnitOverviewBoardMetrics.cardWidth, height: V2UnitOverviewBoardMetrics.cardHeight)
+                .zIndex(1)
+
+            VStack(alignment: .leading, spacing: V2UnitOverviewBoardMetrics.labelBottomSpacing) {
+                Text("核心知识点：")
+                    .font(V2UnitOverviewBoardMetrics.bodyFont)
+                    .foregroundStyle(Color(hex: 0x575757))
+
+                Text(overview)
+                    .font(V2UnitOverviewBoardMetrics.bodyFont)
+                    .foregroundStyle(Color(hex: 0x575757))
+                    .lineSpacing(V2UnitOverviewBoardMetrics.lineSpacing)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(width: V2UnitOverviewBoardMetrics.textWidth, alignment: .topLeading)
+            .offset(x: V2UnitOverviewBoardMetrics.textX, y: V2UnitOverviewBoardMetrics.textY)
+            .zIndex(2)
+
+            Image("V2UnitOverviewMascot")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: V2UnitOverviewBoardMetrics.mascotWidth, height: V2UnitOverviewBoardMetrics.mascotHeight)
+                .offset(x: V2UnitOverviewBoardMetrics.mascotX, y: V2UnitOverviewBoardMetrics.mascotY)
+                .zIndex(3)
+        }
+        .frame(width: V2UnitOverviewBoardMetrics.stageWidth, height: V2UnitOverviewBoardMetrics.stageHeight, alignment: .topLeading)
+    }
+}
+
+private struct V2UnitBoardLeg: View {
+    let rotation: Double
+
+    var body: some View {
+        Capsule()
+            .fill(Color(hex: 0xDDE1AC))
+            .frame(width: 10, height: 72)
+            .rotationEffect(.degrees(rotation), anchor: .top)
+    }
+}
+
+private enum V2UnitOverviewBoardMetrics {
+    static let cardWidth: CGFloat = 321
+    static let cardHeight: CGFloat = 241
+    static let cardRadius: CGFloat = 15
+    static let stageWidth: CGFloat = 321
+    static let stageHeight: CGFloat = 355
+    static let textX: CGFloat = 29
+    static let textY: CGFloat = 35
+    static let textWidth: CGFloat = 263
+    static let labelBottomSpacing: CGFloat = 27
+    static let bodyFont = Font.system(size: 16, weight: .regular, design: .default)
+    static let lineSpacing: CGFloat = 11.2
+    static let mascotX: CGFloat = 204
+    static let mascotY: CGFloat = 175
+    static let mascotWidth: CGFloat = 153
+    static let mascotHeight: CGFloat = 180
 }
