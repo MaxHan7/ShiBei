@@ -25,6 +25,13 @@
 - 当前没有阻塞性的产品语义问题。剩余的 `prompt` / `feedback` / `sourceExcerpt` 等字段差异属于 SwiftUI mock 与正式 API contract 之间的 adapter 映射问题，由 serializer 和测试解决。
 - 推荐继续使用 subagent-driven development，但不要一次性并行所有任务。先由一个 subagent 完成 contract validator，主线程审查通过后再派 golden loader / serializer / review session。
 
+2026-06-19 progress update:
+
+- P0 foundation completed: V2 contract, golden loader, SwiftUI serializer, review session V2.
+- P1 schema foundation completed: sourceMap, reviewPathPlan, unitCards, qualityJudge validators.
+- Fake orchestration completed: generateReviewPathV2 runs the fake prompt pipeline and validates the final review path.
+- Real model calls remain intentionally unconnected.
+
 ## Current Ground Truth
 
 The frontend exploration has already defined a V2 product shape that is different from the current backend output:

@@ -25,7 +25,7 @@
 - `experiments/shibei-v2/backend/src/v2/generation/prompts/` 已建立第一批 prompt schema 与本地 validator，包括 `sourceMap`、`reviewPathPlan`、`unitCards`、`qualityJudge`。
 - 当前后端仍以 V1 型 `knowledgePoints + questions` 为主。
 - 当前 SwiftUI mock 使用的是本地 UI 友好模型，并不等于最终 API contract。
-- prompt orchestration 仍在第一阶段后续任务中；当前还没有接真实模型。
+- prompt orchestration 的 fake caller 骨架已经完成；当前仍没有接真实模型。
 
 ## SwiftUI 当前字段与后端正式字段映射
 
@@ -215,7 +215,9 @@
 2. `reviewPathPlan` prompt/schema。**已完成第一版本地 schema/validator**
 3. `unitCards` prompt/schema。**已完成第一版本地 schema/validator**
 4. `qualityJudge` prompt/schema。**已完成第一版本地 schema/validator**
-5. fake caller orchestration test，先不接真实模型。
+5. fake caller orchestration test，先不接真实模型。**已完成**
+   - 当前实现文件：`src/v2/generation/generateReviewPathV2.js`。
+   - 当前测试覆盖：完整 fake pipeline、stage schema 失败、quality judge discard、最终 contract validation。
 
 ### P2：接真实模型前完成
 
@@ -248,7 +250,7 @@
 
 完成这四项后，再进入真实 prompt pipeline。这样风险最低，也最适合拆给 subagent 执行。
 
-截至当前实现进度：P0 四项已经完成并纳入 `npm run check`；P1 的四个 prompt schema 已完成第一版本地 validator；当前后端检查为 `148/148` 通过。
+截至当前实现进度：P0 四项已经完成并纳入 `npm run check`；P1 的四个 prompt schema 已完成第一版本地 validator；fake prompt orchestration 已完成并纳入后端检查；当前后端检查为 `152/152` 通过。
 
 ## 推荐 subagent 执行方式
 
