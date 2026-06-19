@@ -23,9 +23,12 @@
 - `experiments/shibei-v2/backend/src/v2/serializers/reviewPathClientSerializer.js` 已建立，负责把正式 contract 映射给当前 SwiftUI V2 UI model。
 - `experiments/shibei-v2/backend/src/v2/state/reviewSessionV2.js` 已建立，负责章节概要、知识点、题目、反馈、总结和收藏题入口的状态推进。
 - `experiments/shibei-v2/backend/src/v2/generation/prompts/` 已建立第一批 prompt schema 与本地 validator，包括 `sourceMap`、`reviewPathPlan`、`unitCards`、`qualityJudge`。
+- `experiments/shibei-v2/backend/src/v2/generation/prompts/buildV2PromptMessages.js` 已建立，负责把字段规则转成阶段 prompt。
+- `experiments/shibei-v2/backend/src/v2/generation/modelPromptCaller.js` 已建立，负责把 V2 阶段映射到 schema-bound 模型调用。
+- `experiments/shibei-v2/backend/src/v2/generation/runV2GenerationJob.js` 已建立，负责把生成结果/失败映射成 V2 生成任务状态。
 - 当前后端仍以 V1 型 `knowledgePoints + questions` 为主。
 - 当前 SwiftUI mock 使用的是本地 UI 友好模型，并不等于最终 API contract。
-- prompt orchestration 的 fake caller 骨架已经完成；当前仍没有接真实模型。
+- prompt orchestration 的 fake caller 骨架和真实模型 caller 层已经完成；当前仍没有把 V2 设为线上默认生成路径。
 
 ## SwiftUI 当前字段与后端正式字段映射
 
@@ -218,6 +221,13 @@
 5. fake caller orchestration test，先不接真实模型。**已完成**
    - 当前实现文件：`src/v2/generation/generateReviewPathV2.js`。
    - 当前测试覆盖：完整 fake pipeline、stage schema 失败、quality judge discard、最终 contract validation。
+6. real prompt caller layer。**已完成第一版**
+   - 当前实现文件：`src/v2/generation/prompts/buildV2PromptMessages.js`、`src/v2/generation/modelPromptCaller.js`。
+   - 当前测试覆盖：阶段 prompt 规则、schema-bound caller、usage recorder 传递、unsupported stage。
+   - 当前边界：真实模型调用只通过显式 V2 入口使用，尚未替换旧版默认生成路径。
+7. V2 generation job adapter。**已完成第一版**
+   - 当前实现文件：`src/v2/generation/runV2GenerationJob.js`。
+   - 当前测试覆盖：completed、API key failure、quality discard、contract validation failure。
 
 ### P2：接真实模型前完成
 
@@ -250,7 +260,7 @@
 
 完成这四项后，再进入真实 prompt pipeline。这样风险最低，也最适合拆给 subagent 执行。
 
-截至当前实现进度：P0 四项已经完成并纳入 `npm run check`；P1 的四个 prompt schema 已完成第一版本地 validator；fake prompt orchestration 已完成并纳入后端检查；当前后端检查为 `152/152` 通过。
+截至当前实现进度：P0 四项已经完成并纳入 `npm run check`；P1 的四个 prompt schema 已完成第一版本地 validator；fake prompt orchestration、真实 prompt caller layer、V2 generation job adapter 已完成并纳入后端检查；当前后端检查通过。
 
 ## 推荐 subagent 执行方式
 

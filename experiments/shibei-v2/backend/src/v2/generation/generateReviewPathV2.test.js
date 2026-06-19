@@ -110,6 +110,20 @@ test("throws when the final review path violates the V2 contract", async () => {
   );
 });
 
+test("uses a default prompt caller factory when promptCaller is omitted", async () => {
+  const stages = [];
+  const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
+    createPromptCaller: () => async (stage, payload) => {
+      stages.push(stage);
+      return happyPathPromptCaller(stage, payload);
+    },
+    now: "2026-06-19T00:00:00.000Z"
+  });
+
+  assert.deepEqual(stages, V2_GENERATION_STAGES);
+  assert.equal(reviewPath.status, "completed");
+});
+
 function fakePromptCallerWithJudge(judgeOutput) {
   return async (stage, payload) => {
     if (stage === "qualityJudge") {

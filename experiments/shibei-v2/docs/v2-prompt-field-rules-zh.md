@@ -215,6 +215,21 @@
 - Matching prompt：放职责/边界/场景匹配规则和“不机械配同义词”的反例。
 - Quality judge prompt：检查 source anchor、答案唯一性、干扰项质量、连线题是否有关系理解价值、是否有换壳重复题。
 
+## 代码落点
+
+| Prompt 阶段 | 代码文件 | 生成内容 | 不生成内容 |
+|---|---|---|---|
+| `sourceMap` | `src/v2/generation/prompts/buildV2PromptMessages.js` | `source.blocks` | 知识点、题目 |
+| `reviewPathPlan` | `src/v2/generation/prompts/buildV2PromptMessages.js` | `summaryCard`、`units[].shortSummary/detailSummary/sourceAnchor`、`chapterSummary.encouragementText` | `unit.overview`、题目 |
+| `unitCards` | `src/v2/generation/prompts/buildV2PromptMessages.js` | `unit.overview`、选择题、连线题、`unit.summary` | 前端单独展示的 `correctUnderstanding/misconception` |
+| `qualityJudge` | `src/v2/generation/prompts/buildV2PromptMessages.js` | 质量 verdict 和 issues | 面向用户的新内容 |
+
+模型调用入口：
+
+- `src/v2/generation/modelPromptCaller.js` 负责把阶段名映射到对应 structured output schema，并复用旧版底层 `callOpenAIJson`。
+- `src/v2/generation/generateReviewPathV2.js` 负责阶段编排、阶段输出 validator、最终 V2 contract validation。
+- `src/v2/generation/runV2GenerationJob.js` 负责把成功/失败结果映射成前端生成状态；它不是旧版线上默认路径。
+
 ## 后续维护方式
 
 - 新增字段时，先在 `v2-backend-field-contract-zh.md` 写清字段语义，再在本文档补充生成规则。

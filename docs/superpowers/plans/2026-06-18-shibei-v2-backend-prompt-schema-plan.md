@@ -32,6 +32,13 @@
 - Fake orchestration completed: generateReviewPathV2 runs the fake prompt pipeline and validates the final review path.
 - Real model calls remain intentionally unconnected.
 
+2026-06-19 progress update 2:
+
+- Real prompt caller layer completed: V2 prompt messages and schema-bound model caller.
+- V2 generation job adapter completed for isolated backend integration.
+- Automated tests still mock model calls; no network calls in `npm run check`.
+- Next integration is explicit V2 job routing, not production replacement.
+
 ## Current Ground Truth
 
 The frontend exploration has already defined a V2 product shape that is different from the current backend output:

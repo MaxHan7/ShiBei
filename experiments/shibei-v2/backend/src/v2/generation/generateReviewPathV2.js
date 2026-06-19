@@ -2,6 +2,7 @@ import {
   V2_REVIEW_PATH_SCHEMA_VERSION,
   validateReviewPathV2
 } from "../contracts/reviewPathContract.js";
+import { createV2ModelPromptCaller } from "./modelPromptCaller.js";
 import { validateQualityJudgeOutput } from "./prompts/qualityJudge.js";
 import { validateReviewPathPlanOutput } from "./prompts/reviewPathPlan.js";
 import { validateSourceMapOutput } from "./prompts/sourceMap.js";
@@ -16,21 +17,31 @@ export const V2_GENERATION_STAGES = [
 
 export async function generateReviewPathV2(
   article,
-  { promptCaller, now = new Date().toISOString() } = {}
+  {
+    promptCaller,
+    createPromptCaller = createV2ModelPromptCaller,
+    modelUsageRecorder = null,
+    now = new Date().toISOString()
+  } = {}
 ) {
-  if (typeof promptCaller !== "function") {
-    throw new Error("generateReviewPathV2 requires a promptCaller function");
+  const activePromptCaller =
+    typeof promptCaller === "function"
+      ? promptCaller
+      : createPromptCaller({ modelUsageRecorder });
+
+  if (typeof activePromptCaller !== "function") {
+    throw new Error("generateReviewPathV2 requires a promptCaller function or createPromptCaller factory");
   }
 
   const sourceMap = await callAndValidate(
-    promptCaller,
+    activePromptCaller,
     "sourceMap",
     { article },
     validateSourceMapOutput
   );
   const sourceBlockIds = new Set(sourceMap.blocks.map((block) => block.id));
   const plan = await callAndValidate(
-    promptCaller,
+    activePromptCaller,
     "reviewPathPlan",
     { article, source: sourceMap.source, blocks: sourceMap.blocks },
     (output) => validateReviewPathPlanOutput(output, { sourceBlockIds })
@@ -40,7 +51,7 @@ export async function generateReviewPathV2(
 
   for (const plannedUnit of plan.units) {
     const cards = await callAndValidate(
-      promptCaller,
+      activePromptCaller,
       "unitCards",
       { article, source: sourceMap.source, blocks: sourceMap.blocks, unit: plannedUnit },
       (output) =>
@@ -88,7 +99,7 @@ export async function generateReviewPathV2(
   };
 
   const judge = await callAndValidate(
-    promptCaller,
+    activePromptCaller,
     "qualityJudge",
     { article, reviewPath: draftReviewPath },
     validateQualityJudgeOutput
