@@ -2935,3 +2935,27 @@ The plan consistently uses:
 - `reviewSession.schemaVersion: "v2_review_session_1"`
 - `currentReviewChapterId`
 - `generationMode: "v2"`
+
+## 2026-06-19 progress update 3
+
+本轮新增了 V2 出题质量测试入口，作为“接 iOS 真页面之前”的人工审题阶段。
+
+已完成：
+
+- 新增 `src/v2/generation/tests/runV2QualityExperiment.js`
+  - 支持 `QUALITY_ARTICLE_URL` 或 `QUALITY_ARTICLE_TEXT_FILE`。
+  - 调用 `runV2GenerationJob` 跑 V2 pipeline。
+  - 输出 JSON 与 HTML 报告路径。
+- 新增 `src/v2/generation/tests/v2QualityExperiment.js`
+  - 生成 `v2_quality_report_1` 报告对象。
+  - 渲染可人工审题的 HTML：章节概要、知识点短/长总结、选择题、连线题、答案、解释、source anchor 和完整 source blocks。
+- 新增 `npm run quality:v2`
+  - 用于本地跑单篇文章质量测试。
+- 新增测试 `src/v2/generation/tests/v2QualityExperiment.test.js`
+  - 覆盖 HTML 展开、失败态展示、artifact 唯一路径和落盘。
+
+当前阶段结论：
+
+- 可以开始用真实文章跑第一轮 V2 出题质量测试。
+- 这一步优先看题目质量，不依赖手机端。
+- 发现 prompt 问题时优先改 `v2-prompt-field-rules-zh.md` 与 `buildV2PromptMessages.js`，再重新跑同一篇文章对比报告。

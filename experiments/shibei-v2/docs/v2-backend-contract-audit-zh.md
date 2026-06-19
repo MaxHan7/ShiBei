@@ -26,6 +26,7 @@
 - `experiments/shibei-v2/backend/src/v2/generation/prompts/buildV2PromptMessages.js` 已建立，负责把字段规则转成阶段 prompt。
 - `experiments/shibei-v2/backend/src/v2/generation/modelPromptCaller.js` 已建立，负责把 V2 阶段映射到 schema-bound 模型调用。
 - `experiments/shibei-v2/backend/src/v2/generation/runV2GenerationJob.js` 已建立，负责把生成结果/失败映射成 V2 生成任务状态。
+- `experiments/shibei-v2/backend/src/v2/generation/tests/runV2QualityExperiment.js` 已建立，负责用本地文章 URL 或文本文件跑 V2 出题质量实验并输出 JSON + HTML 报告。
 - 当前后端仍以 V1 型 `knowledgePoints + questions` 为主。
 - 当前 SwiftUI mock 使用的是本地 UI 友好模型，并不等于最终 API contract。
 - prompt orchestration 的 fake caller 骨架和真实模型 caller 层已经完成；当前仍没有把 V2 设为线上默认生成路径。
@@ -228,6 +229,27 @@
 7. V2 generation job adapter。**已完成第一版**
    - 当前实现文件：`src/v2/generation/runV2GenerationJob.js`。
    - 当前测试覆盖：completed、API key failure、quality discard、contract validation failure。
+8. V2 出题质量实验入口。**已完成第一版**
+   - 当前实现文件：`src/v2/generation/tests/runV2QualityExperiment.js`、`src/v2/generation/tests/v2QualityExperiment.js`。
+   - 当前输出：每次运行生成 `runs/*.json` 和 `reports/*.html`。
+   - HTML 报告用于人工审题：章节概要、知识点短/长总结、选择题、连线题、解释、source anchor、完整 source blocks。
+   - 当前命令：
+
+```bash
+cd /Users/hanmingyu/Downloads/拾贝-v2-baseline/experiments/shibei-v2/backend
+QUALITY_ARTICLE_URL='https://example.com/article' \
+QUALITY_EXPERIMENT_SLUG='article-slug' \
+QUALITY_EXPERIMENT_LABEL='first-pass' \
+npm run quality:v2
+```
+
+   - 本地文本文件也可用：
+
+```bash
+QUALITY_ARTICLE_TEXT_FILE='/absolute/path/article.txt' \
+QUALITY_ARTICLE_TITLE='文章标题' \
+npm run quality:v2
+```
 
 ### P2：接真实模型前完成
 
