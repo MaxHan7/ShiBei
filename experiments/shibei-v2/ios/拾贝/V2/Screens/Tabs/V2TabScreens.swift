@@ -44,6 +44,7 @@ struct V2TabScaffold<Content: View>: View {
 
 struct V2MaterialsView: View {
     @Binding var selectedTab: V2HomeTab
+    let showsGeneratingChapterCard: Bool
     let openChapter: () -> Void
 
     var body: some View {
@@ -63,6 +64,18 @@ struct V2MaterialsView: View {
                         .allowsHitTesting(false)
                 }
                 .padding(.bottom, 16)
+
+                if showsGeneratingChapterCard {
+                    V2ChapterCard(
+                        title: "Anthropic设计总监：为什么您的整个团队都应该使用AI Agents协同工作",
+                        status: .generating,
+                        source: "网页文章",
+                        knowledgeCount: 0,
+                        questionCount: 0,
+                        generationProgressText: "正在生成知识点..."
+                    )
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
 
                 Button(action: openChapter) {
                     V2ChapterCard(
@@ -326,6 +339,7 @@ struct V2DiscoverView: View {
 
 struct V2NotesView: View {
     @Binding var selectedTab: V2HomeTab
+    let onOpenSavedQuestion: (Int) -> Void
 
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "笔记") {
@@ -347,29 +361,20 @@ struct V2NotesView: View {
                     .allowsHitTesting(false)
                     .zIndex(4)
 
-                V2SavedQuestionCard(
-                    title: "为什么团队使用 AI Agent 时，需要先补足共享上下文？",
-                    source: "Anthropic设计总监：为何您的整个团队都应该使用AI Agents协同工作",
-                    type: "选择题"
-                )
-                .offset(y: V2NotesPageMetrics.firstCardY)
-                .zIndex(2)
-
-                V2SavedQuestionCard(
-                    title: "判断一个反馈来源是否有价值时，最应该先看什么？",
-                    source: "产品经理如何把 AI 当作协作同事",
-                    type: "场景题"
-                )
-                .offset(y: V2NotesPageMetrics.secondCardY)
-                .zIndex(2)
-
-                V2SavedQuestionCard(
-                    title: "DMC 模型里，机制为什么不能脱离动机单独设计？",
-                    source: "游戏化设计如何改善学习体验",
-                    type: "选择题"
-                )
-                .offset(y: V2NotesPageMetrics.thirdCardY)
-                .zIndex(2)
+                ForEach(Array(V2ReviewFixture.savedQuestions.enumerated()), id: \.element.id) { index, savedQuestion in
+                    Button {
+                        onOpenSavedQuestion(index)
+                    } label: {
+                        V2SavedQuestionCard(
+                            title: savedQuestion.title,
+                            source: savedQuestion.source,
+                            type: savedQuestion.type
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .offset(y: V2NotesPageMetrics.cardY(for: index))
+                    .zIndex(2)
+                }
             }
             .frame(width: V2Layout.contentMaxWidth, height: V2NotesPageMetrics.contentHeight, alignment: .topLeading)
         }
@@ -416,6 +421,9 @@ private enum V2NotesPageMetrics {
     static let secondCardY: CGFloat = firstCardY + cardHeight + cardGap
     static let thirdCardY: CGFloat = secondCardY + cardHeight + cardGap
     static let contentHeight: CGFloat = thirdCardY + cardHeight + 24
+    static func cardY(for index: Int) -> CGFloat {
+        firstCardY + CGFloat(index) * (cardHeight + cardGap)
+    }
     static let decorationOpacity: Double = 0.66
     static let leftDecorationWidth: CGFloat = 113
     static let leftDecorationX: CGFloat = -62
@@ -430,6 +438,8 @@ private enum V2NotesPageMetrics {
 
 struct V2NotificationView: View {
     let onBack: () -> Void
+    let onOpenSuccess: () -> Void
+    let onOpenFailure: () -> Void
 
     var body: some View {
         V2FlowScreen(
@@ -474,13 +484,15 @@ struct V2NotificationView: View {
                         V2NotificationCard(
                             title: "章节已生成",
                             message: "《如何把AI Agent用到你的生意经》已准备好，可以开始学习",
-                            isSuccess: true
+                            isSuccess: true,
+                            action: onOpenSuccess
                         )
 
                         V2NotificationCard(
                             title: "生成失败",
                             message: "章节生成失败，点击查看具体原因",
-                            isSuccess: false
+                            isSuccess: false,
+                            action: onOpenFailure
                         )
                     }
                     .frame(width: V2Layout.contentMaxWidth)
@@ -511,6 +523,152 @@ struct V2NotificationView: View {
             .offset(x: x, y: y)
             .allowsHitTesting(false)
             .zIndex(0)
+    }
+}
+
+struct V2NotificationFailureDetailView: View {
+    let onBack: () -> Void
+    let onRegenerate: () -> Void
+
+    var body: some View {
+        V2FlowScreen(
+            title: "通知详情",
+            titleFont: .system(size: 22, weight: .bold),
+            titleColor: Color(hex: 0x575757),
+            onBack: onBack
+        ) {
+            GeometryReader { geometry in
+                ZStack(alignment: .topLeading) {
+                    failureDetailDecorations(in: geometry.size)
+
+                    Image("V2NotificationFailureDetailMascot")
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFit()
+                        .frame(width: 188, height: 206)
+                        .position(x: geometry.size.width / 2 + 3, y: 164)
+                        .zIndex(1)
+
+                    V2NotificationFailureDetailCard(onRegenerate: onRegenerate)
+                        .position(x: geometry.size.width / 2, y: 402)
+                        .zIndex(2)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            }
+            .frame(height: 760)
+        }
+    }
+
+    @ViewBuilder
+    private func failureDetailDecorations(in size: CGSize) -> some View {
+        Image("V2BgDecoSmallPlantCluster")
+            .resizable()
+            .renderingMode(.original)
+            .scaledToFit()
+            .frame(width: 60)
+            .opacity(0.72)
+            .offset(x: size.width - 52, y: 420)
+            .allowsHitTesting(false)
+
+        Image("V2BgDecoLeftHillPlant")
+            .resizable()
+            .renderingMode(.original)
+            .scaledToFit()
+            .frame(width: 109)
+            .opacity(0.66)
+            .offset(x: -6, y: 500)
+            .allowsHitTesting(false)
+    }
+}
+
+private struct V2NotificationFailureDetailCard: View {
+    let onRegenerate: () -> Void
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .v2Shadow()
+
+            HStack(alignment: .top, spacing: 18) {
+                Image("V2NotificationFailureDetailIcon")
+                    .resizable()
+                    .renderingMode(.original)
+                    .scaledToFit()
+                    .frame(width: 34, height: 34)
+
+                VStack(alignment: .leading, spacing: 7) {
+                    Text("章节生成失败")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(Color(hex: 0x44423D))
+
+                    Text("Claude Code Hooks 深度解析")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(Color(hex: 0x69655F))
+                        .lineLimit(2)
+                        .lineSpacing(4)
+                }
+                .padding(.top, 1)
+            }
+            .padding(.leading, 23)
+            .padding(.top, 28)
+
+            V2NotificationFailureReasonCard()
+                .position(x: 163, y: 150)
+
+            Button(action: onRegenerate) {
+                Text("重新生成")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 207, height: 28)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(V2Color.primaryAction)
+                            .v2Shadow()
+                    )
+            }
+            .buttonStyle(.plain)
+            .position(x: 160.5, y: 237)
+        }
+        .frame(width: V2Layout.contentMaxWidth, height: 277)
+    }
+}
+
+private struct V2NotificationFailureReasonCard: View {
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .v2Shadow()
+
+            Image("V2NotificationFailureReasonIcon")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 23, height: 24)
+                .position(x: 28, y: 32)
+
+            Circle()
+                .fill(Color(hex: 0xF69582))
+                .frame(width: 5, height: 5)
+                .position(x: 28.5, y: 59)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("失败原因")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color(hex: 0x44423D))
+
+                Text("当前链接正文提取失败，可能是网页暂时无法访问，或正文格式还不支持。")
+                    .font(.system(size: 11, weight: .regular))
+                    .foregroundStyle(Color(hex: 0x69655F))
+                    .lineSpacing(4)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(width: 204, alignment: .leading)
+            .padding(.leading, 55)
+            .padding(.top, 23)
+        }
+        .frame(width: 280, height: 95)
     }
 }
 

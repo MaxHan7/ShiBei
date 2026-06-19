@@ -113,6 +113,33 @@ enum V2ReviewFixture {
         chapter.units.first?.id ?? ""
     }
 
+    static let savedQuestions: [V2SavedQuestionData] = [
+        V2SavedQuestionData(
+            id: "saved-u1-q1",
+            unitID: "unit-1",
+            questionID: "u1-q1",
+            title: "为什么团队使用 AI Agent 时，需要先补足共享上下文？",
+            source: "Anthropic设计总监：为何您的整个团队都应该使用AI Agents协同工作",
+            type: "选择题"
+        ),
+        V2SavedQuestionData(
+            id: "saved-u1-q2",
+            unitID: "unit-1",
+            questionID: "u1-q2",
+            title: "把设计交付物和它补足的验证维度匹配",
+            source: "Anthropic设计总监：为何您的整个团队都应该使用AI Agents协同工作",
+            type: "连线题"
+        ),
+        V2SavedQuestionData(
+            id: "saved-u2-q1",
+            unitID: "unit-2",
+            questionID: "u2-q1",
+            title: "如果团队想让 AI 协助推进项目，最应该优先补足什么？",
+            source: "产品经理如何把 AI 当作协作同事",
+            type: "场景题"
+        )
+    ]
+
     static func unit(id: String) -> V2ReviewUnitData? {
         chapter.units.first { $0.id == id }
     }
@@ -126,6 +153,17 @@ enum V2ReviewFixture {
 
     static func question(unitID: String, questionID: String) -> V2ReviewQuestionData? {
         unit(id: unitID)?.questions.first { $0.id == questionID }
+    }
+
+    static func savedQuestion(at index: Int) -> V2SavedQuestionData? {
+        guard savedQuestions.indices.contains(index) else {
+            return nil
+        }
+        return savedQuestions[index]
+    }
+
+    static func question(for savedQuestion: V2SavedQuestionData) -> V2ReviewQuestionData? {
+        question(unitID: savedQuestion.unitID, questionID: savedQuestion.questionID)
     }
 
     static func firstQuestionID(in unitID: String) -> String? {

@@ -208,7 +208,8 @@ Stateful components must use explicit variants:
 - `V2PrimaryActionButton`: `normal`, `disabled`.
 - `V2FeedbackActionButton`: `correct`, `wrong`, `disabled`.
 - `V2NotificationCard`: `success`, `failure`.
-- `V2ChapterCard`: `notStarted`, `reviewing`, `completed`.
+- `V2ChapterCard`: `generating`, `notStarted`, `reviewing`, `completed`.
+- `V2ChapterStatusTag`: `generating`, `notStarted`, `reviewing`, `completed`.
 - `V2DiscoverChip`: `inactive`, `selected`.
 
 The matching interaction is strict: the first selected card turns blue; when the second card is tapped, it does not become blue. The pair immediately turns green if correct or red if wrong. Correct pairs then become locked grey after a short delay; wrong pairs return to normal after a short delay.

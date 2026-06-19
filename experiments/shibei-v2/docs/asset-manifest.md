@@ -40,12 +40,17 @@
 | `notification-banner-wave.svg` | asset | 通知页未读数 banner 内部浅绿色波浪装饰，压在 IP 之上 |
 | `notification-success-icon.svg` | asset | 通知成功 icon |
 | `notification-failure-icon.svg` | asset | 通知失败 icon |
+| `notification-failure-detail-mascot.svg` | asset | 章节生成失败通知详情页 IP |
+| `notification-failure-detail-icon.svg` | asset | 章节生成失败通知详情页主失败 icon |
+| `notification-failure-reason-icon.svg` | asset | 章节生成失败通知详情页“失败原因”灯泡 icon |
 | `materials-mascot.svg` | asset | 全部章节/资料页 IP |
 | `chapter-source-icon.svg` | asset | 章节来源 icon |
+| `generating-popup-mascot.svg` | asset | 点击开始生成后，在全部章节页生成说明弹窗右侧显示的 IP |
+| `generating-popup-wave.svg` | asset | 点击开始生成后，生成说明弹窗底部的波浪装饰 |
 | `notes-mascot.svg` | asset | 笔记页 IP |
 | `notes-bookmark.svg` | asset | 笔记卡收藏 icon |
 | `notes-summary-wave.svg` | asset | 笔记页顶部 banner 波形 |
-| `card-bottom-wave.svg` | asset | 可复用卡片底部波形装饰；当前用于章节详情 hero 卡，来自 `notes-summary-wave.svg` 同源形状 |
+| `card-bottom-wave.svg` | asset | 可复用卡片底部波形装饰，来自 `notes-summary-wave.svg` 同源形状；新版章节详情 hero 卡 `580:1253` 不再使用该波形，保留给仍需要波形装饰的卡片 |
 | `discover-hero-mascot.svg` | asset | 发现页 hero IP |
 | `discover-article-thumbnail.svg` | asset | 推荐文章缩略图示例 |
 | `profile-stat-reviewed.svg` | asset | 个人主页“已复习知识点”统计 icon |

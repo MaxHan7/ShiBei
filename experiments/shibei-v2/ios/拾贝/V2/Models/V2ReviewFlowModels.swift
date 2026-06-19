@@ -2,6 +2,7 @@ import Foundation
 
 enum V2AppRoute: Equatable {
     case notifications
+    case notificationFailureDetail
     case profile
     case chapterDetail
     case sourceArticle
@@ -9,6 +10,7 @@ enum V2AppRoute: Equatable {
     case chapterOverview
     case unitOverview(unitID: String)
     case question(unitID: String, questionID: String)
+    case savedQuestion(index: Int)
     case unitSummary(unitID: String)
     case chapterSummary
 }
@@ -32,13 +34,44 @@ enum V2MatchingOptionState {
     case locked
 }
 
+enum V2MatchingSide: Equatable {
+    case left
+    case right
+}
+
+struct V2MatchingSelection: Equatable {
+    let side: V2MatchingSide
+    let pairID: String
+}
+
+struct V2MultipleChoiceInteractionState: Equatable {
+    var selectedIndex: Int?
+    var isFavoriteSaved = false
+    var feedbackPanelVisible = true
+}
+
+struct V2MatchingInteractionState: Equatable {
+    var selected: V2MatchingSelection?
+    var leftStates: [String: V2MatchingOptionState] = [:]
+    var rightStates: [String: V2MatchingOptionState] = [:]
+    var isFavoriteSaved = false
+    var feedbackPanelVisible = true
+}
+
+struct V2QuestionInteractionState: Equatable {
+    var multipleChoice = V2MultipleChoiceInteractionState()
+    var matching = V2MatchingInteractionState()
+}
+
 enum V2ChapterReviewStatus {
+    case generating
     case notStarted
     case reviewing
     case completed
 
     var title: String {
         switch self {
+        case .generating: "生成中"
         case .notStarted: "未复习"
         case .reviewing: "复习中"
         case .completed: "已完成"
@@ -47,6 +80,7 @@ enum V2ChapterReviewStatus {
 
     var foregroundColor: V2ColorValue {
         switch self {
+        case .generating: V2ColorValue(hex: 0xF36454)
         case .notStarted: V2ColorValue(hex: 0x878787)
         case .reviewing: V2ColorValue(hex: 0xC08D26)
         case .completed: V2ColorValue(hex: 0x98A84E)
@@ -55,6 +89,7 @@ enum V2ChapterReviewStatus {
 
     var backgroundColor: V2ColorValue {
         switch self {
+        case .generating: V2ColorValue(hex: 0xFEF5F0)
         case .notStarted: V2ColorValue(hex: 0xE9E9E9)
         case .reviewing: V2ColorValue(hex: 0xFCEDC4)
         case .completed: V2ColorValue(hex: 0xE8EBBD)
@@ -112,4 +147,13 @@ struct V2MatchingPairData: Identifiable, Equatable {
     let id: String
     let left: String
     let right: String
+}
+
+struct V2SavedQuestionData: Identifiable, Equatable {
+    let id: String
+    let unitID: String
+    let questionID: String
+    let title: String
+    let source: String
+    let type: String
 }

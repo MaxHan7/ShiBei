@@ -109,22 +109,19 @@ struct V2MultipleChoiceQuestionView: View {
     let question: V2ReviewQuestionData
     let unitTitle: String
     let progress: (current: Int, total: Int)
+    @Binding var state: V2MultipleChoiceInteractionState
     let onBack: () -> Void
     let onSource: () -> Void
     let onContinue: () -> Void
-
-    @State private var selectedIndex: Int?
-    @State private var isFavoriteSaved = false
-    @State private var feedbackPanelVisible = true
 
     var body: some View {
         V2FlowScreen(
             title: "",
             showFavoriteButton: true,
-            isFavoriteSaved: isFavoriteSaved,
+            isFavoriteSaved: state.isFavoriteSaved,
             onBack: onBack,
             onSource: onSource,
-            onFavorite: { isFavoriteSaved.toggle() }
+            onFavorite: { state.isFavoriteSaved.toggle() }
         ) {
             ZStack(alignment: .top) {
                 V2UnitProgressBar(current: progress.current, total: progress.total)
@@ -133,10 +130,10 @@ struct V2MultipleChoiceQuestionView: View {
 
                 V2MultipleChoiceQuestionCard(
                     question: question,
-                    selectedIndex: selectedIndex,
+                    selectedIndex: state.selectedIndex,
                     onSelect: {
-                        selectedIndex = $0
-                        feedbackPanelVisible = true
+                        state.selectedIndex = $0
+                        state.feedbackPanelVisible = true
                     },
                     onSource: onSource
                 )
@@ -160,23 +157,23 @@ struct V2MultipleChoiceQuestionView: View {
                     .offset(x: 154, y: V2MultipleChoicePageMetrics.rightDecoY)
                     .allowsHitTesting(false)
 
-                if selectedIndex == nil {
+                if state.selectedIndex == nil {
                     multipleChoiceMascot(isInteractive: false)
                 }
 
-                if selectedIndex != nil, !feedbackPanelVisible {
+                if state.selectedIndex != nil, !state.feedbackPanelVisible {
                     multipleChoiceMascot(isInteractive: true)
                 }
             }
             .frame(maxWidth: .infinity)
             .frame(height: V2MultipleChoicePageMetrics.contentHeight, alignment: .top)
             .overlay(alignment: .bottom) {
-                if let selectedIndex, feedbackPanelVisible {
+                if let selectedIndex = state.selectedIndex, state.feedbackPanelVisible {
                     V2AnswerFeedbackPanel(
                         text: question.feedback,
                         isCorrect: selectedIndex == question.correctOptionIndex,
                         onContinue: onContinue,
-                        onClose: { feedbackPanelVisible = false },
+                        onClose: { state.feedbackPanelVisible = false },
                         onSource: onSource
                     )
                     .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -195,7 +192,7 @@ struct V2MultipleChoiceQuestionView: View {
 
             Group {
                 if isInteractive {
-                    Button(action: { feedbackPanelVisible = true }) {
+                    Button(action: { state.feedbackPanelVisible = true }) {
                         multipleChoiceMascotImage
                     }
                     .buttonStyle(.plain)
@@ -239,38 +236,23 @@ private enum V2MultipleChoicePageMetrics {
 }
 
 
-private enum V2MatchingSide {
-    case left
-    case right
-}
-
-private struct V2MatchingSelection: Equatable {
-    let side: V2MatchingSide
-    let pairID: String
-}
-
 struct V2MatchingQuestionView: View {
     let question: V2ReviewQuestionData
     let unitTitle: String
     let progress: (current: Int, total: Int)
+    @Binding var state: V2MatchingInteractionState
     let onBack: () -> Void
     let onSource: () -> Void
     let onContinue: () -> Void
-
-    @State private var selected: V2MatchingSelection?
-    @State private var leftStates: [String: V2MatchingOptionState] = [:]
-    @State private var rightStates: [String: V2MatchingOptionState] = [:]
-    @State private var isFavoriteSaved = false
-    @State private var feedbackPanelVisible = true
 
     var body: some View {
         V2FlowScreen(
             title: "",
             showFavoriteButton: true,
-            isFavoriteSaved: isFavoriteSaved,
+            isFavoriteSaved: state.isFavoriteSaved,
             onBack: onBack,
             onSource: onSource,
-            onFavorite: { isFavoriteSaved.toggle() }
+            onFavorite: { state.isFavoriteSaved.toggle() }
         ) {
             ZStack(alignment: .top) {
                 V2UnitProgressBar(current: progress.current, total: progress.total)
@@ -305,19 +287,19 @@ struct V2MatchingQuestionView: View {
                     matchingMascot(isInteractive: false)
                 }
 
-                if isComplete, !feedbackPanelVisible {
+                if isComplete, !state.feedbackPanelVisible {
                     matchingMascot(isInteractive: true)
                 }
             }
             .frame(maxWidth: .infinity)
             .frame(height: V2MatchingPageMetrics.contentHeight, alignment: .top)
             .overlay(alignment: .bottom) {
-                if isComplete, feedbackPanelVisible {
+                if isComplete, state.feedbackPanelVisible {
                     V2AnswerFeedbackPanel(
                         text: question.feedback,
                         isCorrect: true,
                         onContinue: onContinue,
-                        onClose: { feedbackPanelVisible = false },
+                        onClose: { state.feedbackPanelVisible = false },
                         onSource: onSource
                     )
                     .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -336,7 +318,7 @@ struct V2MatchingQuestionView: View {
 
             Group {
                 if isInteractive {
-                    Button(action: { feedbackPanelVisible = true }) {
+                    Button(action: { state.feedbackPanelVisible = true }) {
                         matchingMascotImage
                     }
                     .buttonStyle(.plain)
@@ -395,25 +377,25 @@ struct V2MatchingQuestionView: View {
 
     private var isComplete: Bool {
         question.matchingPairs.allSatisfy {
-            leftStates[$0.id] == .locked && rightStates[$0.id] == .locked
+            state.leftStates[$0.id] == .locked && state.rightStates[$0.id] == .locked
         }
     }
 
     private func state(for pairID: String, side: V2MatchingSide) -> V2MatchingOptionState {
         switch side {
         case .left:
-            leftStates[pairID] ?? .normal
+            state.leftStates[pairID] ?? .normal
         case .right:
-            rightStates[pairID] ?? .normal
+            state.rightStates[pairID] ?? .normal
         }
     }
 
-    private func setState(_ state: V2MatchingOptionState, pairID: String, side: V2MatchingSide) {
+    private func setState(_ optionState: V2MatchingOptionState, pairID: String, side: V2MatchingSide) {
         switch side {
         case .left:
-            leftStates[pairID] = state
+            state.leftStates[pairID] = optionState
         case .right:
-            rightStates[pairID] = state
+            state.rightStates[pairID] = optionState
         }
     }
 
@@ -436,15 +418,15 @@ struct V2MatchingQuestionView: View {
 
         let current = V2MatchingSelection(side: side, pairID: pairID)
 
-        guard let selected else {
-            self.selected = current
+        guard let selected = state.selected else {
+            state.selected = current
             setState(.selected, pairID: pairID, side: side)
             return
         }
 
         if selected.side == side {
             setState(.normal, pairID: selected.pairID, side: selected.side)
-            self.selected = current
+            state.selected = current
             setState(.selected, pairID: pairID, side: side)
             return
         }
@@ -452,14 +434,14 @@ struct V2MatchingQuestionView: View {
         let isCorrect = selected.pairID == pairID
         let first = selected
         let second = current
-        self.selected = nil
+        state.selected = nil
 
         setPairState(isCorrect ? .correct : .wrong, first: first, second: second)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             setPairState(isCorrect ? .locked : .normal, first: first, second: second)
             if isCorrect {
-                feedbackPanelVisible = true
+                state.feedbackPanelVisible = true
             }
         }
     }
@@ -802,7 +784,7 @@ struct V2SourceArticleView: View {
     }
 
     var body: some View {
-        V2FlowScreen(title: "查看原文", onBack: onBack) {
+        V2FlowScreen(title: "", onBack: onBack) {
             ScrollViewReader { proxy in
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 19) {
@@ -1034,7 +1016,8 @@ struct V2ChapterDetailView: View {
                         V2ChapterDetailHeroCard(
                             title: chapter.title,
                             author: chapter.sourceAuthor,
-                            onSource: onSource
+                            onSource: onSource,
+                            onStartReview: onContinue
                         )
 
                         V2ChapterDetailSummaryCard(summary: chapter.overview)
@@ -1105,8 +1088,9 @@ private struct V2ChapterDetailHeroCard: View {
     let title: String
     let author: String
     let onSource: () -> Void
-    private let cardBodyHeight: CGFloat = 170
-    private let cardFrameHeight: CGFloat = 178
+    let onStartReview: () -> Void
+    private let cardBodyHeight: CGFloat = 235
+    private let cardFrameHeight: CGFloat = 243
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -1114,13 +1098,6 @@ private struct V2ChapterDetailHeroCard: View {
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
                 .frame(width: V2Layout.contentMaxWidth, height: cardBodyHeight)
-
-            Image("V2CardBottomWave")
-                .resizable()
-                .renderingMode(.original)
-                .frame(width: 329, height: 90)
-                .offset(x: -4, y: 92)
-                .clipped()
 
             Text(title)
                 .font(.system(size: 16, weight: .semibold))
@@ -1150,7 +1127,31 @@ private struct V2ChapterDetailHeroCard: View {
                     )
                 )
             }
-            .offset(x: 27, y: 116)
+            .offset(x: 25, y: 123)
+
+            Image("V2BgDecoSmallPlantCluster")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 62, height: 56)
+                .opacity(0.56)
+                .offset(x: 253, y: 181)
+                .allowsHitTesting(false)
+
+            Button(action: onStartReview) {
+                Text("开始复习")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .tracking(-0.24)
+                    .frame(width: 207, height: 28)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(V2Color.primaryAction)
+                            .v2Shadow()
+                    )
+            }
+            .buttonStyle(.plain)
+            .offset(x: 25, y: 184)
 
             Image("V2ChapterDetailMascot")
                 .resizable()
@@ -1484,7 +1485,7 @@ struct V2RecommendedArticleDetailView: View {
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            V2FlowScreen(title: "好文阅读", onBack: onBack) {
+            V2FlowScreen(title: "", onBack: onBack) {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 19) {
                         V2SourceArticleHeaderCard(

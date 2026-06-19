@@ -695,8 +695,19 @@ struct V2NotificationCard: View {
     let message: String
     let isSuccess: Bool
     var time: String = "刚刚"
+    var action: (() -> Void)?
 
     var body: some View {
+        Button {
+            action?()
+        } label: {
+            cardContent
+        }
+        .buttonStyle(.plain)
+        .disabled(action == nil)
+    }
+
+    private var cardContent: some View {
         ZStack(alignment: .leading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
@@ -828,6 +839,34 @@ struct V2ChapterCard: View {
     let source: String
     let knowledgeCount: Int
     let questionCount: Int
+    let generationProgressText: String?
+
+    init(
+        title: String,
+        status: V2ChapterReviewStatus,
+        source: String,
+        knowledgeCount: Int,
+        questionCount: Int,
+        generationProgressText: String? = nil
+    ) {
+        self.title = title
+        self.status = status
+        self.source = source
+        self.knowledgeCount = knowledgeCount
+        self.questionCount = questionCount
+        self.generationProgressText = generationProgressText
+    }
+
+    private var isGenerating: Bool {
+        status == .generating
+    }
+
+    private var headlineText: String {
+        if isGenerating {
+            return generationProgressText ?? "正在生成知识点..."
+        }
+        return title
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -836,7 +875,7 @@ struct V2ChapterCard: View {
                 Spacer(minLength: 12)
             }
 
-            Text(title)
+            Text(headlineText)
                 .font(V2ChapterCardMetrics.titleFont)
                 .foregroundStyle(Color(hex: 0x383838))
                 .lineSpacing(V2ChapterCardMetrics.titleLineSpacing)
@@ -865,9 +904,11 @@ struct V2ChapterCard: View {
 
                 Spacer()
 
-                Text("\(knowledgeCount)个知识点  \(questionCount)道题")
-                    .font(.system(size: 11, weight: .regular))
-                    .foregroundStyle(Color(hex: 0xACACAC))
+                if !isGenerating {
+                    Text("\(knowledgeCount)个知识点  \(questionCount)道题")
+                        .font(.system(size: 11, weight: .regular))
+                        .foregroundStyle(Color(hex: 0xACACAC))
+                }
             }
         }
         .padding(.horizontal, 18)
@@ -900,6 +941,61 @@ struct V2ChapterStatusTag: View {
                 Capsule()
                     .fill(Color(hex: status.backgroundColor.hex))
             )
+    }
+}
+
+struct V2GenerationStartedDialog: View {
+    let onAcknowledge: () -> Void
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .v2Shadow()
+                .frame(width: 321, height: 142)
+                .offset(x: 4, y: 24)
+
+            Image("V2GeneratingPopupWave")
+                .resizable()
+                .renderingMode(.original)
+                .frame(width: 321, height: 82)
+                .offset(x: 4, y: 84)
+
+            Image("V2GeneratingPopupMascot")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 118, height: 141)
+                .offset(x: 197, y: 0)
+                .allowsHitTesting(false)
+
+            VStack(alignment: .leading, spacing: 12) {
+                Text("正在生成中...")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(V2Color.textPrimary)
+
+                Text("我们会帮你提取正文、拆分知识点并生成题目。生成进度会显示在全部章节页。")
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundStyle(Color(hex: 0x575757))
+                    .lineSpacing(4)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(width: 162, alignment: .leading)
+            .offset(x: 34, y: 62)
+
+            Button(action: onAcknowledge) {
+                Text("知道了")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(V2Color.primaryAction)
+                    .frame(width: 80, height: 32)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .offset(x: 124, y: 130)
+        }
+        .frame(width: 329, height: 174)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("正在生成中，我们会帮你提取正文、拆分知识点并生成题目")
     }
 }
 
