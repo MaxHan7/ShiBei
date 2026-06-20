@@ -195,7 +195,7 @@ function serializeHomeNodes(units, { currentNodeID, completedUnitIds }) {
     ...units.map((unit) => ({
       id: unit.id,
       title: unit.title,
-      subtitle: unit.shortSummary || unit.title,
+      subtitle: unit.nodeLabel || unit.title,
       kind: "unit",
       state: deriveUnitNodeState(unit.id, {
         completedUnitIdSet,

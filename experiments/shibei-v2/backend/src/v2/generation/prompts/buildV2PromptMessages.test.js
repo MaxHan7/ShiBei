@@ -22,6 +22,22 @@ test("sourceMap prompt asks for stable source blocks and no question generation"
   assert.match(messages.user, /Hook 是关键动作前后的流程控制器/);
 });
 
+test("article meta supports extracted sourceAccount and sourceUrl aliases", () => {
+  const messages = buildV2PromptMessages("sourceMap", {
+    article: {
+      id: "chapter-002",
+      sourceTitle: "外部提取文章",
+      sourceAccount: "晚点再听LaterCast",
+      sourceUrl: "https://mp.weixin.qq.com/s/example",
+      rawText: "正文"
+    }
+  });
+
+  assert.match(messages.user, /标题：外部提取文章/);
+  assert.match(messages.user, /作者：晚点再听LaterCast/);
+  assert.match(messages.user, /链接：https:\/\/mp\.weixin\.qq\.com\/s\/example/);
+});
+
 test("reviewPathPlan prompt separates chapter summary and unit summaries", () => {
   const messages = buildV2PromptMessages("reviewPathPlan", {
     article: ARTICLE,
@@ -37,14 +53,16 @@ test("reviewPathPlan prompt separates chapter summary and unit summaries", () =>
   });
 
   assert.match(messages.user, /chapter summary 是整章概要/);
+  assert.match(messages.user, /unit.nodeLabel/);
   assert.match(messages.user, /unit.shortSummary/);
   assert.match(messages.user, /unit.detailSummary/);
+  assert.match(messages.user, /sourceAnchor 必须包含稳定 id/);
   assert.match(messages.user, /sourceAnchor.blockIds/);
   assert.match(messages.user, /章节完成页鼓励文案/);
 });
 
-test("unitCards prompt locks visible question rules", () => {
-  const messages = buildV2PromptMessages("unitCards", {
+test("unitPracticePlan prompt uses evidence value instead of fixed question counts", () => {
+  const messages = buildV2PromptMessages("unitPracticePlan", {
     article: ARTICLE,
     source: { type: "article", title: ARTICLE.title },
     blocks: [
@@ -53,16 +71,70 @@ test("unitCards prompt locks visible question rules", () => {
     unit: {
       id: "unit-01",
       title: "Hook 是什么",
+      nodeLabel: "流程控制",
       shortSummary: "Hook 是流程控制器。",
       detailSummary: "Hook 在关键动作前后稳定执行规则。",
       sourceAnchor: { id: "anchor-unit-01", blockIds: ["p-001"] }
     }
   });
 
-  assert.match(messages.user, /只生成一个 explanation/);
-  assert.match(messages.user, /选择题必须 4 个选项/);
-  assert.match(messages.user, /连线题必须左右各 4 项/);
-  assert.match(messages.user, /不要输出 correctUnderstanding 或 misconception 给前端/);
+  assert.match(messages.user, /unitPracticePlan/);
+  assert.match(messages.user, /questionPlans 不写死数量/);
+  assert.match(messages.user, /learningClaim \/ evidenceNeed/);
+  assert.match(messages.user, /模型层级 -> 设计作用/);
+  assert.match(messages.user, /避免空泛“名词 -> 定义\/贡献\/描述”的机械配对/);
+});
+
+test("multipleChoiceDraft prompt requires misconception-first distractors", () => {
+  const messages = buildV2PromptMessages("multipleChoiceDraft", {
+    article: ARTICLE,
+    source: { type: "article", title: ARTICLE.title },
+    blocks: [
+      { id: "p-001", type: "paragraph", text: "Hook 是关键动作前后的流程控制器。" }
+    ],
+    unit: unitFixture(),
+    practicePlan: practicePlanFixture()
+  });
+
+  assert.match(messages.user, /multipleChoiceDraft/);
+  assert.match(messages.user, /生成 correctUnderstanding/);
+  assert.match(messages.user, /生成 misconception/);
+  assert.match(messages.user, /不能写“根据本文\/根据文章\/根据原文/);
+  assert.match(messages.user, /正确选项不能明显更长/);
+  assert.match(messages.user, /不要写“正确选项A\/B\/C\/D”/);
+});
+
+test("matchingDraft prompt only allows relation-value matching", () => {
+  const messages = buildV2PromptMessages("matchingDraft", {
+    article: ARTICLE,
+    source: { type: "article", title: ARTICLE.title },
+    blocks: [
+      { id: "p-001", type: "paragraph", text: "Hook 是关键动作前后的流程控制器。" }
+    ],
+    unit: unitFixture(),
+    practicePlan: practicePlanFixture()
+  });
+
+  assert.match(messages.user, /matchingDraft/);
+  assert.match(messages.user, /职责、边界、使用时机、场景作用、验证维度或流程信号/);
+  assert.match(messages.user, /禁止只做“概念\/名词\/人物\/案例 -> 定义\/贡献\/描述\/特征”/);
+});
+
+test("unitSummaryDraft prompt separates overview from first answer", () => {
+  const messages = buildV2PromptMessages("unitSummaryDraft", {
+    article: ARTICLE,
+    source: { type: "article", title: ARTICLE.title },
+    blocks: [
+      { id: "p-001", type: "paragraph", text: "Hook 是关键动作前后的流程控制器。" }
+    ],
+    unit: unitFixture(),
+    practicePlan: practicePlanFixture(),
+    questions: []
+  });
+
+  assert.match(messages.user, /unitSummaryDraft/);
+  assert.match(messages.user, /不能把第一题答案原样写成开场/);
+  assert.match(messages.user, /只总结当前知识点/);
 });
 
 test("qualityJudge prompt checks source support and UI fitness", () => {
@@ -74,6 +146,7 @@ test("qualityJudge prompt checks source support and UI fitness", () => {
   assert.match(messages.user, /source anchor/);
   assert.match(messages.user, /选择题是否只有一个正确答案/);
   assert.match(messages.user, /连线题是否一一对应/);
+  assert.match(messages.user, /发现上述任一严重问题时 verdict 必须是 revise 或 discard/);
 });
 
 test("unsupported prompt stage fails loudly", () => {
@@ -82,3 +155,38 @@ test("unsupported prompt stage fails loudly", () => {
     /Unsupported V2 prompt stage: unknown/
   );
 });
+
+function unitFixture() {
+  return {
+    id: "unit-01",
+    title: "Hook 是什么",
+    nodeLabel: "流程控制",
+    shortSummary: "Hook 是流程控制器。",
+    detailSummary: "Hook 在关键动作前后稳定执行规则。",
+    sourceAnchor: { id: "anchor-unit-01", blockIds: ["p-001"] }
+  };
+}
+
+function practicePlanFixture() {
+  return {
+    unitId: "unit-01",
+    practiceGoals: [
+      {
+        id: "goal-01",
+        kind: "core_understanding",
+        target: "理解 Hook 是流程约束",
+        commonMisconception: "把 Hook 当成更长提示词",
+        sourceAnchorId: "anchor-unit-01"
+      }
+    ],
+    questionPlans: [
+      {
+        id: "q-001",
+        type: "multiple_choice",
+        purpose: "light_understanding",
+        practiceGoalId: "goal-01",
+        sourceAnchorId: "anchor-unit-01"
+      }
+    ]
+  };
+}

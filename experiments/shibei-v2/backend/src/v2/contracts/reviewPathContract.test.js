@@ -40,6 +40,7 @@ function validReviewPath(overrides = {}) {
           id: "unit-01",
           order: 1,
           title: "测试知识点",
+          nodeLabel: "测试核心",
           shortSummary: "测试知识点的一句话总结。",
           detailSummary: "测试知识点的完整描述，用于展开态、题目生成和来源校验。",
           why: "这是测试章节的主线。",

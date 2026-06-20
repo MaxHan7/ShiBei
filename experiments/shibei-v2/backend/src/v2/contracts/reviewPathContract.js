@@ -28,6 +28,7 @@ const REQUIRED_UNIT_FIELDS = [
   "id",
   "order",
   "title",
+  "nodeLabel",
   "shortSummary",
   "detailSummary",
   "sourceAnchor",

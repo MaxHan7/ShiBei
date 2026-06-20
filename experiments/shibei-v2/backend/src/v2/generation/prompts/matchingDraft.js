@@ -5,43 +5,40 @@ import {
   requireFields,
   validateUniqueIds
 } from "./schemaValidation.js";
+import { MATCHING_RELATION_TYPES } from "./unitPracticePlan.js";
 
-export const UNIT_CARDS_PROMPT_SCHEMA_NAME = "shibei_v2_unit_cards";
+export const MATCHING_DRAFT_PROMPT_SCHEMA_NAME = "shibei_v2_matching_draft";
 
-export const UNIT_CARDS_OUTPUT_SCHEMA = {
-  name: UNIT_CARDS_PROMPT_SCHEMA_NAME,
+export const MATCHING_DRAFT_OUTPUT_SCHEMA = {
+  name: MATCHING_DRAFT_PROMPT_SCHEMA_NAME,
   type: "object",
-  required: ["unitId", "overview", "questions", "summary"],
+  required: ["unitId", "questions"],
   properties: {
     unitId: { type: "string" },
-    overview: {
-      type: "object",
-      required: ["text"],
-      properties: { text: { type: "string" } }
-    },
     questions: {
       type: "array",
       items: {
         type: "object",
-        required: ["id", "type", "stem", "explanation", "sourceAnchorId"],
+        required: [
+          "id",
+          "type",
+          "practiceGoalId",
+          "relationType",
+          "relationGoal",
+          "stem",
+          "leftItems",
+          "rightItems",
+          "pairs",
+          "explanation",
+          "sourceAnchorId"
+        ],
         properties: {
           id: { type: "string" },
-          type: { enum: ["multiple_choice", "matching"] },
+          type: { enum: ["matching"] },
+          practiceGoalId: { type: "string" },
+          relationType: { enum: MATCHING_RELATION_TYPES },
+          relationGoal: { type: "string" },
           stem: { type: "string" },
-          explanation: { type: "string" },
-          sourceAnchorId: { type: "string" },
-          options: {
-            type: "array",
-            items: {
-              type: "object",
-              required: ["id", "text"],
-              properties: {
-                id: { type: "string" },
-                text: { type: "string" }
-              }
-            }
-          },
-          correctOptionId: { type: "string" },
           leftItems: {
             type: "array",
             items: {
@@ -74,50 +71,50 @@ export const UNIT_CARDS_OUTPUT_SCHEMA = {
                 rightId: { type: "string" }
               }
             }
-          }
+          },
+          explanation: { type: "string" },
+          sourceAnchorId: { type: "string" }
         }
       }
-    },
-    summary: {
-      type: "object",
-      required: ["title", "text"]
     }
   }
 };
 
-export function validateUnitCardsOutput(output, { unitId, sourceAnchorId } = {}) {
+export function validateMatchingDraftOutput(
+  output,
+  { unitId, plans = [], sourceAnchorId } = {}
+) {
   const errors = [];
 
   if (!isPlainObject(output)) {
-    return createValidationResult(["unitCards output must be an object"]);
+    return createValidationResult(["matchingDraft output must be an object"]);
   }
 
   if (!isNonEmptyString(output.unitId)) {
-    errors.push("unitCards.unitId is required");
+    errors.push("matchingDraft.unitId is required");
   } else if (unitId && output.unitId !== unitId) {
-    errors.push(`unitCards.unitId must match ${unitId}`);
+    errors.push(`matchingDraft.unitId must match ${unitId}`);
   }
 
-  if (!isPlainObject(output.overview) || !isNonEmptyString(output.overview.text)) {
-    errors.push("unitCards.overview.text is required");
-  }
+  const expectedPlanIds = new Set(
+    plans.filter((plan) => plan.type === "matching").map((plan) => plan.id)
+  );
 
-  if (!isPlainObject(output.summary)) {
-    errors.push("unitCards.summary must be an object");
-  } else {
-    requireFields(output.summary, ["title", "text"], "unitCards.summary", errors);
-  }
-
-  if (!Array.isArray(output.questions) || output.questions.length === 0) {
-    errors.push("unitCards.questions must be a non-empty array");
+  if (!Array.isArray(output.questions)) {
+    errors.push("matchingDraft.questions must be an array");
     return createValidationResult(errors);
   }
 
-  validateUniqueIds(output.questions, "unitCards.questions", errors);
+  if (output.questions.length !== expectedPlanIds.size) {
+    errors.push(`matchingDraft.questions must contain ${expectedPlanIds.size} matching questions`);
+  }
+
+  validateUniqueIds(output.questions, "matchingDraft.questions", errors);
 
   output.questions.forEach((question, index) => {
-    validateUnitQuestion(question, {
-      path: `unitCards.questions[${index}]`,
+    validateMatchingQuestion(question, {
+      path: `matchingDraft.questions[${index}]`,
+      expectedPlanIds,
       sourceAnchorId,
       errors
     });
@@ -126,60 +123,55 @@ export function validateUnitCardsOutput(output, { unitId, sourceAnchorId } = {})
   return createValidationResult(errors);
 }
 
-function validateUnitQuestion(question, { path, sourceAnchorId, errors }) {
+function validateMatchingQuestion(question, {
+  path,
+  expectedPlanIds,
+  sourceAnchorId,
+  errors
+}) {
   if (!isPlainObject(question)) {
     errors.push(`${path} must be an object`);
     return;
   }
 
-  requireFields(question, ["id", "type", "stem", "explanation", "sourceAnchorId"], path, errors);
+  requireFields(
+    question,
+    [
+      "id",
+      "type",
+      "practiceGoalId",
+      "relationType",
+      "relationGoal",
+      "stem",
+      "explanation",
+      "sourceAnchorId"
+    ],
+    path,
+    errors
+  );
 
+  if (question.type !== "matching") {
+    errors.push(`${path}.type must be matching`);
+  }
+  if (isNonEmptyString(question.id) && !expectedPlanIds.has(question.id)) {
+    errors.push(`${path}.id must match a matching question plan id`);
+  }
+  if (isNonEmptyString(question.relationType) && !MATCHING_RELATION_TYPES.includes(question.relationType)) {
+    errors.push(`${path}.relationType must be one of ${MATCHING_RELATION_TYPES.join(", ")}`);
+  }
   if (sourceAnchorId && question.sourceAnchorId !== sourceAnchorId) {
     errors.push(`${path}.sourceAnchorId must match ${sourceAnchorId}`);
   }
-
-  if (question.type === "multiple_choice") {
-    validateMultipleChoiceQuestion(question, path, errors);
-    return;
-  }
-
-  if (question.type === "matching") {
-    validateMatchingQuestion(question, path, errors);
-    return;
-  }
-
-  errors.push(`${path}.type must be multiple_choice or matching`);
+  validateMatchingItems(question, path, errors);
 }
 
-function validateMultipleChoiceQuestion(question, path, errors) {
-  if (!Array.isArray(question.options) || question.options.length !== 4) {
-    errors.push(`${path}.options must contain exactly 4 options`);
-    return;
-  }
-
-  const optionIds = validateUniqueIds(question.options, `${path}.options`, errors);
-  question.options.forEach((option, index) => {
-    if (isPlainObject(option) && !isNonEmptyString(option.text)) {
-      errors.push(`${path}.options[${index}].text is required`);
-    }
-  });
-
-  if (!isNonEmptyString(question.correctOptionId)) {
-    errors.push(`${path}.correctOptionId is required`);
-  } else if (!optionIds.has(question.correctOptionId)) {
-    errors.push(`${path}.correctOptionId must reference an existing option id`);
-  }
-}
-
-function validateMatchingQuestion(question, path, errors) {
+function validateMatchingItems(question, path, errors) {
   if (!Array.isArray(question.leftItems) || question.leftItems.length !== 4) {
     errors.push(`${path}.leftItems must contain exactly 4 items`);
   }
-
   if (!Array.isArray(question.rightItems) || question.rightItems.length !== 4) {
     errors.push(`${path}.rightItems must contain exactly 4 items`);
   }
-
   if (!Array.isArray(question.pairs) || question.pairs.length !== 4) {
     errors.push(`${path}.pairs must contain exactly 4 pairs`);
     return;
@@ -194,13 +186,15 @@ function validateMatchingQuestion(question, path, errors) {
   const seenLeftIds = new Set();
   const seenRightIds = new Set();
 
-  for (const [index, pair] of question.pairs.entries()) {
+  question.pairs.forEach((pair, index) => {
     const pairPath = `${path}.pairs[${index}]`;
 
     if (!isPlainObject(pair)) {
       errors.push(`${pairPath} must be an object`);
-      continue;
+      return;
     }
+
+    requireFields(pair, ["leftId", "rightId"], pairPath, errors);
 
     if (!leftIds.has(pair.leftId)) {
       errors.push(`${pairPath}.leftId must reference an existing left item`);
@@ -216,5 +210,5 @@ function validateMatchingQuestion(question, path, errors) {
     }
     seenLeftIds.add(pair.leftId);
     seenRightIds.add(pair.rightId);
-  }
+  });
 }

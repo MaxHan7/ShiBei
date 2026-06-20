@@ -64,6 +64,9 @@ export function normalizeGoldenReviewPath(sample, { fileName = sample.id } = {})
       id: node.id,
       order: numberOrFallback(node.order, nodeIndex + 1),
       title: textOrFallback(node.title, `单元 ${nodeIndex + 1}`),
+      nodeLabel: compactNodeLabel(
+        textOrFallback(node.nodeLabel, node.pathLabel, node.title, node.knowledgePoint)
+      ),
       shortSummary: textOrFallback(node.knowledgePoint, node.why, node.title),
       detailSummary: textOrFallback(
         node.explanation,
@@ -289,6 +292,23 @@ function textOrFallback(...values) {
   }
 
   return "";
+}
+
+function compactNodeLabel(value) {
+  const text = normalizeText(value)
+    .replace(/[。！？!?；;：:，,、].*$/u, "")
+    .replace(/^(理解|认识|掌握|区分|判断|使用|运用)/u, "")
+    .trim();
+
+  if (!text) {
+    return "核心知识点";
+  }
+
+  if (text.length <= 24) {
+    return text;
+  }
+
+  return text.slice(0, 24);
 }
 
 function normalizeText(value) {

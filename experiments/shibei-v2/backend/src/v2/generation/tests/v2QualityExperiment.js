@@ -84,6 +84,11 @@ export function buildV2QualityReport({
     (unit.questions || []).map((question) => ({ ...question, unitId: unit.id, unitTitle: unit.title }))
   );
   const sourceBlocks = Array.isArray(chapter?.source?.blocks) ? chapter.source.blocks : [];
+  const qualityDiagnostics = Array.isArray(chapter?.generationMeta?.qualityDiagnostics)
+    ? chapter.generationMeta.qualityDiagnostics
+    : Array.isArray(jobResult?.diagnostics)
+      ? jobResult.diagnostics
+      : [];
 
   return {
     schemaVersion: "v2_quality_report_1",
@@ -104,9 +109,11 @@ export function buildV2QualityReport({
       multipleChoiceCount: questions.filter((question) => question.type === "multiple_choice").length,
       matchingCount: questions.filter((question) => question.type === "matching").length,
       sourceBlockCount: sourceBlocks.length,
-      issueCount: countQualityIssues(jobResult)
+      issueCount: countQualityIssues(jobResult),
+      diagnosticIssueCount: countDiagnosticIssues(qualityDiagnostics)
     },
     chapter,
+    qualityDiagnostics,
     failure: buildFailure(jobResult)
   };
 }
@@ -124,8 +131,14 @@ function buildFailure(jobResult) {
     failureReason: jobResult?.failureReason || "",
     retryable: Boolean(jobResult?.retryable),
     issues: jobResult?.issues || [],
-    errors: jobResult?.errors || []
+    errors: jobResult?.errors || [],
+    diagnostics: jobResult?.diagnostics || []
   };
+}
+
+function countDiagnosticIssues(diagnostics) {
+  if (!Array.isArray(diagnostics)) return 0;
+  return diagnostics.reduce((sum, item) => sum + (Array.isArray(item.issues) ? item.issues.length : 0), 0);
 }
 
 export function renderV2QualityReportHtml(report) {
@@ -133,6 +146,9 @@ export function renderV2QualityReportHtml(report) {
   const units = Array.isArray(chapter.units) ? chapter.units : [];
   const sourceBlocks = Array.isArray(chapter.source?.blocks) ? chapter.source.blocks : [];
   const sourceBlockMap = new Map(sourceBlocks.map((block) => [block.id, block]));
+  const diagnosticsByQuestionId = new Map(
+    (report.qualityDiagnostics || []).map((diagnostic) => [diagnostic.questionId, diagnostic])
+  );
 
   return `<!doctype html>
 <html lang="zh-CN">
@@ -274,6 +290,10 @@ export function renderV2QualityReportHtml(report) {
     details {
       margin-top: 12px;
     }
+    .diagnostic {
+      border-top: 1px dashed var(--line);
+      padding-top: 10px;
+    }
     summary {
       cursor: pointer;
       font-weight: 700;
@@ -305,9 +325,10 @@ export function renderV2QualityReportHtml(report) {
         ${metric("连线题", report.metrics.matchingCount)}
         ${metric("Source blocks", report.metrics.sourceBlockCount)}
         ${metric("Issues", report.metrics.issueCount)}
+        ${metric("Diagnostics", report.metrics.diagnosticIssueCount)}
       </div>
     </section>
-    ${units.map((unit, index) => renderUnit(unit, index, sourceBlockMap)).join("\n")}
+    ${units.map((unit, index) => renderUnit(unit, index, sourceBlockMap, diagnosticsByQuestionId)).join("\n")}
     <section class="card">
       <h2 style="margin-top:0">章节总结</h2>
       <p><span class="tag">${escapeHtml(chapter.chapterSummary?.title || "章节完成")}</span>${escapeHtml(chapter.chapterSummary?.statsText || "")}</p>
@@ -333,10 +354,11 @@ function renderFailure(failure) {
     <p><strong>${escapeHtml(failure.failedStage)}</strong> · ${failure.retryable ? "可重试" : "不可重试"}</p>
     <p>${escapeHtml(failure.failureReason)}</p>
     ${failure.issues?.length || failure.errors?.length ? `<pre>${escapeHtml(JSON.stringify(failure.issues?.length ? failure.issues : failure.errors, null, 2))}</pre>` : ""}
+    ${failure.diagnostics?.length ? `<details open><summary>质量诊断</summary><pre>${escapeHtml(JSON.stringify(failure.diagnostics, null, 2))}</pre></details>` : ""}
   </section>`;
 }
 
-function renderUnit(unit, index, sourceBlockMap) {
+function renderUnit(unit, index, sourceBlockMap, diagnosticsByQuestionId) {
   const anchorBlockIds = Array.isArray(unit.sourceAnchor?.blockIds) ? unit.sourceAnchor.blockIds : [];
   const sourceBlocks = anchorBlockIds.map((id) => sourceBlockMap.get(id)).filter(Boolean);
   return `<section class="card">
@@ -348,7 +370,9 @@ function renderUnit(unit, index, sourceBlockMap) {
       <strong>Source anchor: ${escapeHtml(unit.sourceAnchor?.id || "")}</strong>
       ${sourceBlocks.map((block) => renderSourceBlock(block, true)).join("\n")}
     </div>
-    ${(unit.questions || []).map((question, questionIndex) => renderQuestion(question, questionIndex)).join("\n")}
+    ${(unit.questions || []).map((question, questionIndex) =>
+      renderQuestion(question, questionIndex, diagnosticsByQuestionId.get(question.id))
+    ).join("\n")}
     <details>
       <summary>单元总结</summary>
       <p><strong>${escapeHtml(unit.summary?.title || "")}</strong></p>
@@ -357,13 +381,13 @@ function renderUnit(unit, index, sourceBlockMap) {
   </section>`;
 }
 
-function renderQuestion(question, index) {
-  if (question.type === "multiple_choice") return renderMultipleChoiceQuestion(question, index);
-  if (question.type === "matching") return renderMatchingQuestion(question, index);
+function renderQuestion(question, index, diagnostic) {
+  if (question.type === "multiple_choice") return renderMultipleChoiceQuestion(question, index, diagnostic);
+  if (question.type === "matching") return renderMatchingQuestion(question, index, diagnostic);
   return `<div class="question"><div class="stem">${index + 1}. ${escapeHtml(question.stem || "")}</div></div>`;
 }
 
-function renderMultipleChoiceQuestion(question, index) {
+function renderMultipleChoiceQuestion(question, index, diagnostic) {
   return `<div class="question">
     <div class="stem">${index + 1}. 选择题 · ${escapeHtml(question.stem)}</div>
     <div class="options">
@@ -374,10 +398,11 @@ function renderMultipleChoiceQuestion(question, index) {
     </div>
     <div class="explanation"><strong>解释：</strong>${escapeHtml(question.explanation)}</div>
     <div class="meta">sourceAnchorId: ${escapeHtml(question.sourceAnchorId || "")}</div>
+    ${renderQuestionDiagnostic(diagnostic)}
   </div>`;
 }
 
-function renderMatchingQuestion(question, index) {
+function renderMatchingQuestion(question, index, diagnostic) {
   const rightById = new Map((question.rightItems || []).map((item) => [item.id, item]));
   return `<div class="question">
     <div class="stem">${index + 1}. 连线题 · ${escapeHtml(question.stem)}</div>
@@ -394,7 +419,30 @@ function renderMatchingQuestion(question, index) {
     </details>
     <div class="explanation"><strong>解释：</strong>${escapeHtml(question.explanation)}</div>
     <div class="meta">sourceAnchorId: ${escapeHtml(question.sourceAnchorId || "")}</div>
+    ${renderQuestionDiagnostic(diagnostic)}
   </div>`;
+}
+
+function renderQuestionDiagnostic(diagnostic) {
+  if (!diagnostic) return "";
+  const checks = diagnostic.checks || {};
+  const issueText = diagnostic.issues?.length
+    ? diagnostic.issues.map((issue) => `${issue.code}: ${issue.message}`).join("\n")
+    : "pass";
+  return `<details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: ${escapeHtml(formatCheckValue(checks.forbiddenPhrase))}</div>
+    <div class="meta">distractor value: ${escapeHtml(checks.distractorValue || "not_applicable")}</div>
+    <div class="meta">matching relation value: ${escapeHtml(checks.matchingRelationValue || "not_applicable")}</div>
+    <div class="meta">explanation UI fit: ${escapeHtml(checks.explanationUiFit || "unknown")}</div>
+    <div class="meta">source anchor precision: ${escapeHtml(checks.sourceAnchorPrecision || "unknown")}</div>
+    <pre>${escapeHtml(issueText)}</pre>
+  </details>`;
+}
+
+function formatCheckValue(value) {
+  if (Array.isArray(value)) return value.length ? value.join("、") : "pass";
+  return value || "pass";
 }
 
 function renderSourceBlock(block, highlighted) {

@@ -6,12 +6,19 @@ import { createV2ModelPromptCaller } from "./modelPromptCaller.js";
 import { validateQualityJudgeOutput } from "./prompts/qualityJudge.js";
 import { validateReviewPathPlanOutput } from "./prompts/reviewPathPlan.js";
 import { validateSourceMapOutput } from "./prompts/sourceMap.js";
-import { validateUnitCardsOutput } from "./prompts/unitCards.js";
+import { validateMatchingDraftOutput } from "./prompts/matchingDraft.js";
+import { validateMultipleChoiceDraftOutput } from "./prompts/multipleChoiceDraft.js";
+import { validateUnitPracticePlanOutput } from "./prompts/unitPracticePlan.js";
+import { validateUnitSummaryDraftOutput } from "./prompts/unitSummaryDraft.js";
+import { runV2QualityGuardrails } from "./qualityGuardrails.js";
 
 export const V2_GENERATION_STAGES = [
   "sourceMap",
   "reviewPathPlan",
-  "unitCards",
+  "unitPracticePlan",
+  "multipleChoiceDraft",
+  "matchingDraft",
+  "unitSummaryDraft",
   "qualityJudge"
 ];
 
@@ -48,24 +55,94 @@ export async function generateReviewPathV2(
   );
 
   const units = [];
+  const unitPracticePlans = [];
 
   for (const plannedUnit of plan.units) {
-    const cards = await callAndValidate(
+    const practicePlan = await callAndValidate(
       activePromptCaller,
-      "unitCards",
+      "unitPracticePlan",
       { article, source: sourceMap.source, blocks: sourceMap.blocks, unit: plannedUnit },
       (output) =>
-        validateUnitCardsOutput(output, {
+        validateUnitPracticePlanOutput(output, {
           unitId: plannedUnit.id,
           sourceAnchorId: plannedUnit.sourceAnchor.id
         })
     );
+    const multipleChoiceDraft = await callAndValidate(
+      activePromptCaller,
+      "multipleChoiceDraft",
+      {
+        article,
+        source: sourceMap.source,
+        blocks: sourceMap.blocks,
+        unit: plannedUnit,
+        practicePlan
+      },
+      (output) =>
+        validateMultipleChoiceDraftOutput(output, {
+          unitId: plannedUnit.id,
+          plans: practicePlan.questionPlans,
+          sourceAnchorId: plannedUnit.sourceAnchor.id
+        }),
+      {
+        normalize: (output) =>
+          normalizeDraftQuestionIds(output, practicePlan.questionPlans, "multiple_choice")
+      }
+    );
+    const matchingPlans = practicePlan.questionPlans.filter((questionPlan) => questionPlan.type === "matching");
+    const matchingDraft = matchingPlans.length > 0
+      ? await callAndValidate(
+          activePromptCaller,
+          "matchingDraft",
+          {
+            article,
+            source: sourceMap.source,
+            blocks: sourceMap.blocks,
+            unit: plannedUnit,
+            practicePlan
+          },
+          (output) =>
+            validateMatchingDraftOutput(output, {
+              unitId: plannedUnit.id,
+              plans: practicePlan.questionPlans,
+              sourceAnchorId: plannedUnit.sourceAnchor.id
+            }),
+          {
+            normalize: (output) =>
+              normalizeDraftQuestionIds(output, practicePlan.questionPlans, "matching")
+          }
+        )
+      : { unitId: plannedUnit.id, questions: [] };
+    const questions = sortQuestionsByPlan(
+      [
+        ...multipleChoiceDraft.questions.map(stripInternalQuestionFields),
+        ...matchingDraft.questions.map(stripInternalQuestionFields)
+      ],
+      practicePlan.questionPlans
+    );
+    const unitSummary = await callAndValidate(
+      activePromptCaller,
+      "unitSummaryDraft",
+      {
+        article,
+        source: sourceMap.source,
+        blocks: sourceMap.blocks,
+        unit: plannedUnit,
+        practicePlan,
+        questions
+      },
+      (output) =>
+        validateUnitSummaryDraftOutput(output, {
+          unitId: plannedUnit.id
+        })
+    );
+    unitPracticePlans.push(practicePlan);
 
     units.push({
       ...plannedUnit,
-      overview: cards.overview,
-      questions: cards.questions,
-      summary: cards.summary
+      overview: unitSummary.overview,
+      questions,
+      summary: unitSummary.summary
     });
   }
 
@@ -94,9 +171,12 @@ export async function generateReviewPathV2(
         status: stage,
         displayStatusText: stageDisplayText(stage),
         at: now
-      }))
+      })),
+      unitPracticePlans
     }
   };
+
+  const deterministicQuality = runV2QualityGuardrails(draftReviewPath);
 
   const judge = await callAndValidate(
     activePromptCaller,
@@ -105,13 +185,16 @@ export async function generateReviewPathV2(
     validateQualityJudgeOutput
   );
 
-  if (judge.verdict === "discard") {
-    const error = new Error("V2 review path discarded by quality judge");
-    error.issues = judge.issues;
-    throw error;
-  }
-
   draftReviewPath.generationMeta.qualityJudge = judge;
+  draftReviewPath.generationMeta.qualityDiagnostics = deterministicQuality.diagnostics;
+  draftReviewPath.generationMeta.qualityGate = {
+    mode: "diagnostic_only",
+    blocking: false,
+    deterministicVerdict: deterministicQuality.verdict,
+    deterministicIssueCount: deterministicQuality.issues.length,
+    judgeVerdict: judge.verdict,
+    judgeIssueCount: Array.isArray(judge.issues) ? judge.issues.length : 0
+  };
 
   const validation = validateReviewPathV2(draftReviewPath);
   if (!validation.ok) {
@@ -125,8 +208,9 @@ export async function generateReviewPathV2(
   return draftReviewPath;
 }
 
-async function callAndValidate(promptCaller, stage, payload, validator) {
-  const output = await promptCaller(stage, payload);
+async function callAndValidate(promptCaller, stage, payload, validator, { normalize = null } = {}) {
+  const rawOutput = await promptCaller(stage, payload);
+  const output = typeof normalize === "function" ? normalize(rawOutput) : rawOutput;
   const validation = validator(output);
 
   if (!validation.ok) {
@@ -141,6 +225,49 @@ async function callAndValidate(promptCaller, stage, payload, validator) {
   return output;
 }
 
+function normalizeDraftQuestionIds(output, questionPlans, questionType) {
+  if (!output || !Array.isArray(output.questions)) return output;
+
+  const plans = questionPlans.filter((plan) => plan.type === questionType);
+  if (plans.length !== output.questions.length) return output;
+
+  const knownPlanIds = new Set(plans.map((plan) => plan.id));
+  const needsNormalization = output.questions.some((question) => !knownPlanIds.has(question.id));
+  if (!needsNormalization) return output;
+
+  return {
+    ...output,
+    questions: output.questions.map((question, index) => ({
+      ...question,
+      id: plans[index].id,
+      practiceGoalId: question.practiceGoalId || plans[index].practiceGoalId,
+      sourceAnchorId: question.sourceAnchorId || plans[index].sourceAnchorId
+    }))
+  };
+}
+
+function sortQuestionsByPlan(questions, questionPlans) {
+  const order = new Map(questionPlans.map((plan, index) => [plan.id, index]));
+  return [...questions].sort((a, b) => {
+    const aIndex = order.has(a.id) ? order.get(a.id) : Number.MAX_SAFE_INTEGER;
+    const bIndex = order.has(b.id) ? order.get(b.id) : Number.MAX_SAFE_INTEGER;
+    return aIndex - bIndex;
+  });
+}
+
+function stripInternalQuestionFields(question) {
+  const {
+    practiceGoalId: _practiceGoalId,
+    correctUnderstanding: _correctUnderstanding,
+    misconception: _misconception,
+    distractorRationale: _distractorRationale,
+    relationType: _relationType,
+    relationGoal: _relationGoal,
+    ...visibleQuestion
+  } = question;
+  return visibleQuestion;
+}
+
 function countQuestions(units) {
   return units.reduce((count, unit) => count + unit.questions.length, 0);
 }
@@ -149,7 +276,10 @@ function stageDisplayText(stage) {
   return {
     sourceMap: "正在提取正文",
     reviewPathPlan: "正在生成知识点",
-    unitCards: "正在生成题目",
+    unitPracticePlan: "正在规划练习",
+    multipleChoiceDraft: "正在生成选择题",
+    matchingDraft: "正在生成连线题",
+    unitSummaryDraft: "正在生成单元总结",
     qualityJudge: "正在检查质量"
   }[stage] ?? stage;
 }

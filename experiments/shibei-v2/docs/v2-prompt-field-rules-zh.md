@@ -8,6 +8,7 @@
 - `golden-samples/*.json`
 - `prompt-example-candidates-zh.md`
 - `v2-chapter-review-flow-prd-zh.md`
+- `v2-prompt-architecture-reference-zh.md`
 - `docs/superpowers/plans/2026-06-18-shibei-v2-backend-prompt-schema-plan.md`
 
 ## 总原则
@@ -17,6 +18,7 @@
 - 每个知识点要有认知坡度：开场解释 -> 轻量理解 -> 场景应用 -> 单元总结。
 - 来源依据用于生成、校验和“查看原文”定位；用户题干不应写成阅读理解题。
 - Golden sample 是质量标尺，不是数量模板。不要机械复制某篇样章的知识点数、题目数或题型比例。
+- Prompt 结构应先理解知识结构，再选择训练方式，最后生成题目；不要只靠末端质量审查补救。
 
 ## 章节概要：`chapter.summaryCard.text`
 
@@ -26,7 +28,7 @@
 
 - 先直接点出文章围绕的核心命题，再轻量带出主要展开方向。
 - 语气要像记忆唤醒锚点，不像目录。
-- 可以保留旧版核心概要的语义：帮助用户快速知道这篇文章大概讲什么、为什么值得复习。
+- 承担整篇文章核心概要的产品语义：帮助用户快速知道这篇文章大概讲什么、为什么值得复习。
 
 不要这样写：
 
@@ -44,6 +46,7 @@
 - 背景段、铺垫段不强行切成知识点；只有具有复习价值的概念、方法、判断、边界或关系才进入 `units[]`。
 - 每个 unit 应该围绕一个清晰的学习对象，避免一个 unit 混入多个彼此独立的观点。
 - `unit.title` 是短标题，适合路径节点和列表。
+- `unit.nodeLabel` 是主页节点浮窗里的知识点标题短语，可以直接复用合适的 `unit.title`；它可以显示一到两行，但不能写成长摘要。
 - `unit.shortSummary` 是一句话扫读摘要。
 - `unit.detailSummary` 是完整知识点描述，要表达主张、边界、适用场景或容易误解处。
 - `unit.why` 说明为什么这个知识点值得复习，不能替代 `detailSummary`。
@@ -221,13 +224,17 @@
 |---|---|---|---|
 | `sourceMap` | `src/v2/generation/prompts/buildV2PromptMessages.js` | `source.blocks` | 知识点、题目 |
 | `reviewPathPlan` | `src/v2/generation/prompts/buildV2PromptMessages.js` | `summaryCard`、`units[].shortSummary/detailSummary/sourceAnchor`、`chapterSummary.encouragementText` | `unit.overview`、题目 |
-| `unitCards` | `src/v2/generation/prompts/buildV2PromptMessages.js` | `unit.overview`、选择题、连线题、`unit.summary` | 前端单独展示的 `correctUnderstanding/misconception` |
-| `qualityJudge` | `src/v2/generation/prompts/buildV2PromptMessages.js` | 质量 verdict 和 issues | 面向用户的新内容 |
+| `unitPracticePlan` | `src/v2/generation/prompts/buildV2PromptMessages.js`、`src/v2/generation/prompts/unitPracticePlan.js` | 内部练习目标、常见误区、每个 unit 基于 evidence need 自然形成的题型计划 | 用户可见题目正文 |
+| `multipleChoiceDraft` | `src/v2/generation/prompts/buildV2PromptMessages.js`、`src/v2/generation/prompts/multipleChoiceDraft.js` | 选择题、内部 `correctUnderstanding/misconception`、干扰项理由 | 把内部误区字段暴露给前端 |
+| `matchingDraft` | `src/v2/generation/prompts/buildV2PromptMessages.js`、`src/v2/generation/prompts/matchingDraft.js` | 只有在有高价值 4 组关系时生成连线题 | 机械“名词 -> 定义/贡献”配对 |
+| `unitSummaryDraft` | `src/v2/generation/prompts/buildV2PromptMessages.js`、`src/v2/generation/prompts/unitSummaryDraft.js` | `unit.overview`、`unit.summary` | 题目、选项 |
+| `qualityJudge` | `src/v2/generation/prompts/buildV2PromptMessages.js` | 诊断用质量 verdict 和 issues | 面向用户的新内容；当前不阻断题目生成 |
 
 模型调用入口：
 
 - `src/v2/generation/modelPromptCaller.js` 负责把阶段名映射到对应 structured output schema，并复用旧版底层 `callOpenAIJson`。
 - `src/v2/generation/generateReviewPathV2.js` 负责阶段编排、阶段输出 validator、最终 V2 contract validation。
+- `src/v2/generation/qualityGuardrails.js` 负责 deterministic diagnostics；命中禁用题干、机械连线、过长解释等问题时，只记录到 `generationMeta.qualityDiagnostics` 和质量报告，当前不阻断生成。
 - `src/v2/generation/runV2GenerationJob.js` 负责把成功/失败结果映射成前端生成状态；它不是旧版线上默认路径。
 
 ## 后续维护方式

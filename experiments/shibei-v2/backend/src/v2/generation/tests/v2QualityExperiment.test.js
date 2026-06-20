@@ -36,6 +36,9 @@ test("renders a readable V2 quality HTML report with questions and source anchor
   assert.match(html, /解释：/);
   assert.match(html, /sourceAnchorId: a1/);
   assert.match(html, /source-block highlight/);
+  assert.match(html, /质量诊断/);
+  assert.match(html, /distractor value: pass/);
+  assert.match(html, /matching relation value: pass/);
 });
 
 test("renders generation failures for quality review", () => {
@@ -48,7 +51,16 @@ test("renders generation failures for quality review", () => {
       failedStage: "quality_checking",
       failureReason: "source anchor 不够精准",
       retryable: true,
-      issues: [{ code: "weak_source_anchor", message: "source anchor 不够精准" }]
+      issues: [{ code: "weak_source_anchor", message: "source anchor 不够精准" }],
+      diagnostics: [
+        {
+          unitId: "u1",
+          questionId: "q1",
+          questionType: "multiple_choice",
+          checks: { sourceAnchorPrecision: "missing_or_mismatched" },
+          issues: [{ code: "weak_source_anchor", message: "source anchor 不够精准" }]
+        }
+      ]
     }
   });
 
@@ -107,6 +119,7 @@ function chapterFixture() {
         id: "u1",
         order: 1,
         title: "Hook 的触发机制",
+        nodeLabel: "触发机制",
         shortSummary: "Hook 是触发点。",
         detailSummary: "Hook 会在生命周期的特定点触发，把上下文传给 handler。",
         sourceAnchor: { id: "a1", blockIds: ["b1", "b2"] },
@@ -159,6 +172,36 @@ function chapterFixture() {
       title: "章节完成",
       statsText: "共 1 个核心知识点，2 道题目",
       encouragementText: "你已经掌握了 hook 的核心用法。"
+    },
+    generationMeta: {
+      qualityDiagnostics: [
+        {
+          unitId: "u1",
+          questionId: "q1",
+          questionType: "multiple_choice",
+          checks: {
+            forbiddenPhrase: [],
+            distractorValue: "pass",
+            matchingRelationValue: "not_applicable",
+            explanationUiFit: "pass",
+            sourceAnchorPrecision: "pass"
+          },
+          issues: []
+        },
+        {
+          unitId: "u1",
+          questionId: "q2",
+          questionType: "matching",
+          checks: {
+            forbiddenPhrase: [],
+            distractorValue: "not_applicable",
+            matchingRelationValue: "pass",
+            explanationUiFit: "pass",
+            sourceAnchorPrecision: "pass"
+          },
+          issues: []
+        }
+      ]
     }
   };
 }

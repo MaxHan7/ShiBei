@@ -27,11 +27,32 @@ export const REVIEW_PATH_PLAN_OUTPUT_SCHEMA = {
           "id",
           "order",
           "title",
+          "nodeLabel",
           "shortSummary",
           "detailSummary",
           "why",
           "sourceAnchor"
-        ]
+        ],
+        properties: {
+          id: { type: "string" },
+          order: { type: "integer" },
+          title: { type: "string" },
+          nodeLabel: { type: "string" },
+          shortSummary: { type: "string" },
+          detailSummary: { type: "string" },
+          why: { type: "string" },
+          sourceAnchor: {
+            type: "object",
+            required: ["id", "blockIds"],
+            properties: {
+              id: { type: "string" },
+              blockIds: {
+                type: "array",
+                items: { type: "string" }
+              }
+            }
+          }
+        }
       }
     },
     chapterSummary: {
@@ -80,7 +101,7 @@ export function validateReviewPathPlanOutput(output, { sourceBlockIds = new Set(
 
     requireFields(
       unit,
-      ["id", "title", "shortSummary", "detailSummary", "why"],
+      ["id", "title", "nodeLabel", "shortSummary", "detailSummary", "why"],
       path,
       errors
     );

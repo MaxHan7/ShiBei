@@ -35,7 +35,8 @@ function mapV2GenerationError(error) {
       failedStage: "quality_checking",
       failureReason: error.issues.map((issue) => issue.message || issue.code).join("；") || message,
       retryable: true,
-      issues: error.issues
+      issues: error.issues,
+      diagnostics: error.diagnostics
     });
   }
 
@@ -61,7 +62,8 @@ function failure({
   failureReason,
   retryable,
   issues,
-  errors
+  errors,
+  diagnostics
 }) {
   return {
     status,
@@ -70,6 +72,7 @@ function failure({
     failureReason,
     retryable,
     ...(issues ? { issues } : {}),
-    ...(errors ? { errors } : {})
+    ...(errors ? { errors } : {}),
+    ...(diagnostics ? { diagnostics } : {})
   };
 }

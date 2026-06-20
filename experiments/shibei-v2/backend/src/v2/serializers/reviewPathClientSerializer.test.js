@@ -150,6 +150,8 @@ test("home contains start and unit nodes with default currentNodeID", async () =
     state: "completed"
   });
   assert.equal(serialized.home.nodes[1].id, sample.units[0].id);
+  assert.equal(serialized.home.nodes[1].subtitle, sample.units[0].nodeLabel);
+  assert.notEqual(serialized.home.nodes[1].subtitle, sample.units[0].shortSummary);
   assert.equal(serialized.home.nodes[1].state, "current");
 });
 

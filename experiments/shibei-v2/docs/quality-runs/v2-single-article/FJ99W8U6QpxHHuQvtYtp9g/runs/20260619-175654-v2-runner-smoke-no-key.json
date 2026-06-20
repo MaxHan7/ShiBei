@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-19T17:56:54.269Z",
+  "slug": "FJ99W8U6QpxHHuQvtYtp9g",
+  "label": "v2-runner-smoke-no-key",
+  "status": "failed_generation",
+  "source": {
+    "title": "Claude Code 正在重写你的第二大脑丨Every",
+    "account": "晚点再听LaterCast",
+    "url": "https://mp.weixin.qq.com/s/FJ99W8U6QpxHHuQvtYtp9g",
+    "type": "text",
+    "rawTextLength": 5448
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 0
+  },
+  "chapter": null,
+  "failure": {
+    "failedStage": "model_calling",
+    "failureReason": "缺少模型 API Key。请先设置 DEEPSEEK_API_KEY 或 OPENAI_API_KEY。",
+    "retryable": true,
+    "issues": [],
+    "errors": []
+  }
+}
