@@ -89,6 +89,7 @@ export function buildV2QualityReport({
     : Array.isArray(jobResult?.diagnostics)
       ? jobResult.diagnostics
       : [];
+  const ecdPlanning = chapter?.generationMeta?.ecdPlanning || null;
 
   return {
     schemaVersion: "v2_quality_report_1",
@@ -113,6 +114,7 @@ export function buildV2QualityReport({
       diagnosticIssueCount: countDiagnosticIssues(qualityDiagnostics)
     },
     chapter,
+    ecdPlanning,
     qualityDiagnostics,
     failure: buildFailure(jobResult)
   };
@@ -144,6 +146,7 @@ function countDiagnosticIssues(diagnostics) {
 export function renderV2QualityReportHtml(report) {
   const chapter = report.chapter || {};
   const units = Array.isArray(chapter.units) ? chapter.units : [];
+  const ecdPlanning = report.ecdPlanning || chapter.generationMeta?.ecdPlanning || null;
   const sourceBlocks = Array.isArray(chapter.source?.blocks) ? chapter.source.blocks : [];
   const sourceBlockMap = new Map(sourceBlocks.map((block) => [block.id, block]));
   const diagnosticsByQuestionId = new Map(
@@ -328,6 +331,7 @@ export function renderV2QualityReportHtml(report) {
         ${metric("Diagnostics", report.metrics.diagnosticIssueCount)}
       </div>
     </section>
+    ${renderEcdPlanning(ecdPlanning)}
     ${units.map((unit, index) => renderUnit(unit, index, sourceBlockMap, diagnosticsByQuestionId)).join("\n")}
     <section class="card">
       <h2 style="margin-top:0">章节总结</h2>
@@ -341,6 +345,86 @@ export function renderV2QualityReportHtml(report) {
   </main>
 </body>
 </html>`;
+}
+
+function renderEcdPlanning(ecdPlanning) {
+  if (!ecdPlanning) return "";
+
+  const units = Array.isArray(ecdPlanning.knowledgeModel?.units) ? ecdPlanning.knowledgeModel.units : [];
+  const claimsByUnit = groupByUnitId(ecdPlanning.unitLearningClaims);
+  const evidenceByUnit = groupByUnitId(ecdPlanning.unitEvidenceNeeds);
+  const taskPlansByUnit = groupByUnitId(ecdPlanning.unitTaskPlan);
+  const assemblyByUnit = new Map(
+    (Array.isArray(ecdPlanning.unitAssemblyPlan) ? ecdPlanning.unitAssemblyPlan : []).map((item) => [item.unitId, item])
+  );
+
+  return `<section class="card">
+    <h2 style="margin-top:0">ECD 证据规划 Shadow Stage</h2>
+    <p><span class="tag">核心论点</span>${escapeHtml(ecdPlanning.articleUnderstanding?.coreThesis || "")}</p>
+    <p class="meta">这一段是内部诊断信息：它不会直接改最终题目，用来人工检查模型是否先建立了学习主张、证据需求和题型选择理由。</p>
+    ${units.map((unit, index) => renderEcdPlanningUnit({
+      unit,
+      index,
+      claims: claimsByUnit.get(unit.unitId) || [],
+      evidence: evidenceByUnit.get(unit.unitId) || [],
+      taskPlans: taskPlansByUnit.get(unit.unitId) || [],
+      assembly: assemblyByUnit.get(unit.unitId)
+    })).join("\n")}
+  </section>`;
+}
+
+function renderEcdPlanningUnit({ unit, index, claims, evidence, taskPlans, assembly }) {
+  return `<div class="question">
+    <div class="stem">${index + 1}. ${escapeHtml(unit.nodeLabel || unit.title || unit.unitId)} · ${escapeHtml(unit.knowledgeShape || "")}</div>
+    <p><span class="tag">短版</span>${escapeHtml(unit.shortSummary || "")}</p>
+    <p><span class="tag">长版</span>${escapeHtml(unit.detailSummary || "")}</p>
+    ${renderEcdList("Learning Claims", claims, (claim) =>
+      `${claim.claimId} · ${claim.claimType}：${claim.learningClaim}`
+    )}
+    ${renderEcdList("Evidence Needs", evidence, (item) =>
+      `${item.evidenceId} · ${item.evidenceType}：${item.evidenceNeed} / 可观察反应：${item.observableResponse}`
+    )}
+    ${renderEcdList("Task Plan", taskPlans, (task) =>
+      `${task.taskPlanId} · ${task.taskAffordance} · ${task.taskPurpose}：${task.whyThisTask}`
+    )}
+    ${renderEcdSelectedTasks(assembly)}
+  </div>`;
+}
+
+function renderEcdList(title, items, formatter) {
+  if (!items.length) return `<details><summary>${escapeHtml(title)}</summary><p class="meta">暂无</p></details>`;
+  return `<details open>
+    <summary>${escapeHtml(title)}</summary>
+    <ul>
+      ${items.map((item) => `<li>${escapeHtml(formatter(item))}</li>`).join("\n")}
+    </ul>
+  </details>`;
+}
+
+function renderEcdSelectedTasks(assembly) {
+  const selectedTasks = Array.isArray(assembly?.selectedTasks) ? assembly.selectedTasks : [];
+  const skippedEvidence = Array.isArray(assembly?.skippedEvidence) ? assembly.skippedEvidence : [];
+
+  return `<details open>
+    <summary>Assembly</summary>
+    <p><span class="tag">Selected</span>${escapeHtml(selectedTasks.length)}</p>
+    <ul>
+      ${selectedTasks.map((task) =>
+        `<li>${escapeHtml(`${task.questionPlanId} · ${task.taskAffordance} · ${task.taskPurpose}：${task.assemblyReason}`)}</li>`
+      ).join("\n") || "<li class=\"meta\">暂无 selectedTasks</li>"}
+    </ul>
+    ${skippedEvidence.length ? `<p><span class="tag">Skipped</span>${escapeHtml(skippedEvidence.length)}</p><pre>${escapeHtml(JSON.stringify(skippedEvidence, null, 2))}</pre>` : ""}
+  </details>`;
+}
+
+function groupByUnitId(items) {
+  const map = new Map();
+  for (const item of Array.isArray(items) ? items : []) {
+    const list = map.get(item.unitId) || [];
+    list.push(item);
+    map.set(item.unitId, list);
+  }
+  return map;
 }
 
 function metric(label, value) {

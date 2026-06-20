@@ -1,6 +1,10 @@
 import { callOpenAIJson } from "../../generation/openaiClient.js";
 import { buildV2PromptMessages } from "./prompts/buildV2PromptMessages.js";
 import {
+  ECD_PLANNING_OUTPUT_SCHEMA,
+  ECD_PLANNING_PROMPT_SCHEMA_NAME
+} from "./prompts/ecdPlanning.js";
+import {
   MATCHING_DRAFT_OUTPUT_SCHEMA,
   MATCHING_DRAFT_PROMPT_SCHEMA_NAME
 } from "./prompts/matchingDraft.js";
@@ -39,6 +43,11 @@ const STAGE_SCHEMAS = {
     schemaName: REVIEW_PATH_PLAN_PROMPT_SCHEMA_NAME,
     schema: REVIEW_PATH_PLAN_OUTPUT_SCHEMA,
     estimatedOutputTokens: 2500
+  },
+  ecdPlanning: {
+    schemaName: ECD_PLANNING_PROMPT_SCHEMA_NAME,
+    schema: ECD_PLANNING_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 3000
   },
   unitPracticePlan: {
     schemaName: UNIT_PRACTICE_PLAN_PROMPT_SCHEMA_NAME,

@@ -3,6 +3,7 @@ import {
   validateReviewPathV2
 } from "../contracts/reviewPathContract.js";
 import { createV2ModelPromptCaller } from "./modelPromptCaller.js";
+import { validateEcdPlanningOutput } from "./prompts/ecdPlanning.js";
 import { validateQualityJudgeOutput } from "./prompts/qualityJudge.js";
 import { validateReviewPathPlanOutput } from "./prompts/reviewPathPlan.js";
 import { validateSourceMapOutput } from "./prompts/sourceMap.js";
@@ -15,6 +16,7 @@ import { runV2QualityGuardrails } from "./qualityGuardrails.js";
 export const V2_GENERATION_STAGES = [
   "sourceMap",
   "reviewPathPlan",
+  "ecdPlanning",
   "unitPracticePlan",
   "multipleChoiceDraft",
   "matchingDraft",
@@ -52,6 +54,14 @@ export async function generateReviewPathV2(
     "reviewPathPlan",
     { article, source: sourceMap.source, blocks: sourceMap.blocks },
     (output) => validateReviewPathPlanOutput(output, { sourceBlockIds })
+  );
+  const unitIds = new Set(plan.units.map((unit) => unit.id));
+  const sourceAnchorIds = new Set(plan.units.map((unit) => unit.sourceAnchor?.id).filter(Boolean));
+  const ecdPlanning = await callAndValidate(
+    activePromptCaller,
+    "ecdPlanning",
+    { article, source: sourceMap.source, blocks: sourceMap.blocks, plan },
+    (output) => validateEcdPlanningOutput(output, { unitIds, sourceAnchorIds })
   );
 
   const units = [];
@@ -172,6 +182,7 @@ export async function generateReviewPathV2(
         displayStatusText: stageDisplayText(stage),
         at: now
       })),
+      ecdPlanning,
       unitPracticePlans
     }
   };
@@ -276,6 +287,7 @@ function stageDisplayText(stage) {
   return {
     sourceMap: "正在提取正文",
     reviewPathPlan: "正在生成知识点",
+    ecdPlanning: "正在建立证据规划",
     unitPracticePlan: "正在规划练习",
     multipleChoiceDraft: "正在生成选择题",
     matchingDraft: "正在生成连线题",

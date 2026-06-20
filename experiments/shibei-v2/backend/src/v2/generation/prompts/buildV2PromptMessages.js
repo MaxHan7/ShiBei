@@ -1,6 +1,7 @@
 export function buildV2PromptMessages(stage, payload) {
   if (stage === "sourceMap") return buildSourceMapMessages(payload);
   if (stage === "reviewPathPlan") return buildReviewPathPlanMessages(payload);
+  if (stage === "ecdPlanning") return buildEcdPlanningMessages(payload);
   if (stage === "unitPracticePlan") return buildUnitPracticePlanMessages(payload);
   if (stage === "multipleChoiceDraft") return buildMultipleChoiceDraftMessages(payload);
   if (stage === "matchingDraft") return buildMatchingDraftMessages(payload);
@@ -55,6 +56,36 @@ function buildReviewPathPlanMessages({ article, source, blocks }) {
       "- 按原文阅读顺序切分知识点，背景段和铺垫段不强行出题。",
       "- 每个 unit 只围绕一个清晰学习对象，不混入多个独立观点。",
       "- unit.nodeLabel 适合在节点浮窗中显示一到两行；通常是 4-24 个汉字或等价长度，例如“游戏化的概念与核心定义”“用户体验的演变：从可用性到享乐质量”。",
+      "",
+      renderSource(source, blocks),
+      "",
+      renderArticleMeta(article)
+    ].join("\n")
+  };
+}
+
+function buildEcdPlanningMessages({ article, source, blocks, plan }) {
+  return {
+    system: baseSystem(),
+    user: [
+      "阶段：ecdPlanning。",
+      "任务：基于 Evidence-Centered Design，为已切好的 unit 建立内部出题规划；本阶段不生成用户可见题目。",
+      "核心原则：",
+      "- 先判断文章核心论点和可复习结构，再判断每个 unit 的学习主张。",
+      "- 每个 learningClaim 要回答：用户学完这个知识点后，应该能理解、区分、迁移或识别什么。",
+      "- 每个 evidenceNeed 要回答：什么可观察反应能证明用户掌握了这个 learningClaim。",
+      "- 每个 taskPlan 要回答：哪种题型最适合收集这个 evidence，以及为什么。",
+      "- unitAssemblyPlan 要说明本轮实际选择哪些 task；题目数量不写死，由 evidence 价值自然决定。",
+      "- matching 不要被机械过滤。分层模型、类型集合、流程步骤、信号动作、角色职责等结构关系，如果原文有证据支撑，就应该作为高价值候选。",
+      "- DMC 这类“模型层级 -> 设计作用”的知识点，通常适合 layer_role_matching。",
+      "- 避免空泛“名词 -> 定义/贡献/描述”的弱匹配。",
+      "字段约束：",
+      "- knowledgeModel.units 必须覆盖并只引用 reviewPathPlan.units 里的 unitId。",
+      "- knowledgeModel.units[].sourceAnchorId 必须引用对应 unit.sourceAnchor.id。",
+      "- unitLearningClaims、unitEvidenceNeeds、unitTaskPlan、unitAssemblyPlan 都必须使用稳定 id，且引用关系必须闭合。",
+      "- unitAssemblyPlan.selectedTasks[].questionPlanId 是后续题目计划 id，不是最终题目正文。",
+      "",
+      `reviewPathPlan:\n${JSON.stringify(plan, null, 2)}`,
       "",
       renderSource(source, blocks),
       "",

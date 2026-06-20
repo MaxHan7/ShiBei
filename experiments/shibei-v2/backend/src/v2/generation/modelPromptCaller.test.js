@@ -48,6 +48,42 @@ test("passes modelUsageRecorder through to the transport", async () => {
   });
 });
 
+test("calls the JSON model transport with ecdPlanning schema and messages", async () => {
+  const calls = [];
+  const caller = createV2ModelPromptCaller({
+    modelJsonCaller: async (request) => {
+      calls.push(request);
+      return {
+        articleUnderstanding: {
+          coreThesis: "Hook 把提醒变成稳定流程。",
+          articleStructure: [],
+          reviewableSections: [],
+          nonReviewableSections: []
+        },
+        knowledgeModel: { units: [] },
+        unitLearningClaims: [],
+        unitEvidenceNeeds: [],
+        unitTaskPlan: [],
+        unitAssemblyPlan: []
+      };
+    }
+  });
+
+  await caller("ecdPlanning", {
+    article: { id: "chapter-001", title: "Hook", rawText: "Hook" },
+    source: { type: "article", title: "Hook" },
+    blocks: [{ id: "p-001", type: "paragraph", text: "Hook 是流程控制器。" }],
+    plan: { title: "Hook", units: [] }
+  });
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].schemaName, "shibei_v2_ecd_planning");
+  assert.equal(calls[0].schema.name, undefined);
+  assert.equal(calls[0].stage, "v2_ecdPlanning");
+  assert.match(calls[0].user, /Evidence-Centered Design/);
+  assert.match(calls[0].user, /learningClaim/);
+});
+
 test("rejects unsupported V2 generation stage", async () => {
   const caller = createV2ModelPromptCaller({
     modelJsonCaller: async () => ({})

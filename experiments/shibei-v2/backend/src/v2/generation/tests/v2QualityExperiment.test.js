@@ -36,6 +36,12 @@ test("renders a readable V2 quality HTML report with questions and source anchor
   assert.match(html, /解释：/);
   assert.match(html, /sourceAnchorId: a1/);
   assert.match(html, /source-block highlight/);
+  assert.match(html, /ECD 证据规划 Shadow Stage/);
+  assert.match(html, /Hook 让生命周期触发变成可观察的流程控制/);
+  assert.match(html, /Learning Claims/);
+  assert.match(html, /Evidence Needs/);
+  assert.match(html, /Task Plan/);
+  assert.match(html, /step_purpose_matching/);
   assert.match(html, /质量诊断/);
   assert.match(html, /distractor value: pass/);
   assert.match(html, /matching relation value: pass/);
@@ -174,6 +180,80 @@ function chapterFixture() {
       encouragementText: "你已经掌握了 hook 的核心用法。"
     },
     generationMeta: {
+      ecdPlanning: {
+        articleUnderstanding: {
+          coreThesis: "Hook 让生命周期触发变成可观察的流程控制。",
+          articleStructure: [
+            {
+              id: "section-1",
+              title: "Hook 触发机制",
+              role: "core_argument",
+              sourceAnchorIds: ["a1"]
+            }
+          ],
+          reviewableSections: ["section-1"],
+          nonReviewableSections: []
+        },
+        knowledgeModel: {
+          units: [
+            {
+              unitId: "u1",
+              title: "Hook 的触发机制",
+              nodeLabel: "触发机制",
+              shortSummary: "Hook 是触发点。",
+              detailSummary: "Hook 会在生命周期的特定点触发，把上下文传给 handler。",
+              knowledgeShape: "process_steps",
+              sourceAnchorId: "a1"
+            }
+          ]
+        },
+        unitLearningClaims: [
+          {
+            unitId: "u1",
+            claimId: "claim-1",
+            claimType: "process_understanding",
+            learningClaim: "用户能理解 Hook、Handler、Context、Decision 在流程中的作用。",
+            sourceAnchorId: "a1"
+          }
+        ],
+        unitEvidenceNeeds: [
+          {
+            unitId: "u1",
+            evidenceId: "ev-1",
+            claimId: "claim-1",
+            evidenceType: "map_step_purpose",
+            evidenceNeed: "用户能把四个概念匹配到流程作用。",
+            observableResponse: "完成概念和流程作用的连线。",
+            sourceAnchorId: "a1"
+          }
+        ],
+        unitTaskPlan: [
+          {
+            unitId: "u1",
+            taskPlanId: "task-1",
+            evidenceIds: ["ev-1"],
+            taskAffordance: "matching",
+            taskPurpose: "step_purpose_matching",
+            whyThisTask: "连线题能直接观察用户是否理解流程角色和作用。"
+          }
+        ],
+        unitAssemblyPlan: [
+          {
+            unitId: "u1",
+            selectedTasks: [
+              {
+                questionPlanId: "q2",
+                taskPlanId: "task-1",
+                evidenceIds: ["ev-1"],
+                taskAffordance: "matching",
+                taskPurpose: "step_purpose_matching",
+                assemblyReason: "该连线题覆盖流程作用匹配证据。"
+              }
+            ],
+            skippedEvidence: []
+          }
+        ]
+      },
       qualityDiagnostics: [
         {
           unitId: "u1",

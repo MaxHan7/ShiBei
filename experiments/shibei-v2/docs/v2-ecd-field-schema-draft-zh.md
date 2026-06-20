@@ -12,9 +12,11 @@
 ## Implementation Status
 
 - `ecdPlanning.js` 是第一版代码级 ECD 内部规划 schema 模块。
-- 该 schema 目前只完成 validator 和测试，尚未接入真实 model orchestration。
+- 该 schema 已作为 shadow stage 接入真实 V2 model orchestration：运行顺序为 `sourceMap -> reviewPathPlan -> ecdPlanning -> unitPracticePlan -> ...`。
+- `ecdPlanning` 输出会写入 `generationMeta.ecdPlanning`，并展示在 V2 HTML 质量报告中，用于人工检查模型是否先建立了学习主张、证据需求、任务计划和组装理由。
+- 当前 `ecdPlanning` 不驱动最终题目生成；它先作为诊断层运行。下一步才是让后续题目计划逐步消费它的 `selectedTasks`。
 - 旧 `unitPracticePlan` 仍作为过渡 schema 保留，但已经不再表达固定两道题规则。
-- Prompt chain rewiring 是下一阶段工作，不在本轮 schema 对齐里完成。
+- Prompt chain 完整 rewiring 尚未完成；本轮只完成低风险 shadow 接入。
 
 ## 总览
 

@@ -43,6 +43,8 @@ test("generates a contract-valid V2 review path from split prompt stages", async
   assert.equal(reviewPath.units[0].questions[0].correctUnderstanding, undefined);
   assert.equal(reviewPath.units[0].questions[1].relationGoal, undefined);
   assert.equal(reviewPath.generationMeta.currentStage, "completed");
+  assert.equal(reviewPath.generationMeta.ecdPlanning.articleUnderstanding.coreThesis, "Hook 把关键动作前后的提醒变成稳定流程。");
+  assert.equal(reviewPath.generationMeta.ecdPlanning.unitAssemblyPlan[0].selectedTasks.length, 2);
   assert.equal(reviewPath.generationMeta.unitPracticePlans.length, 1);
   assert.equal(reviewPath.generationMeta.qualityDiagnostics.length, 2);
   assert.deepEqual(reviewPath.generationMeta.qualityGate, {
@@ -72,6 +74,7 @@ test("skips matchingDraft when the practice plan chooses two multiple choice que
   assert.deepEqual(stages, [
     "sourceMap",
     "reviewPathPlan",
+    "ecdPlanning",
     "unitPracticePlan",
     "multipleChoiceDraft",
     "unitSummaryDraft",
@@ -261,6 +264,10 @@ async function happyPathPromptCaller(stage, payload, { matching = true } = {}) {
     return practicePlanFixture(payload.unit.id, payload.unit.sourceAnchor.id, { matching });
   }
 
+  if (stage === "ecdPlanning") {
+    return ecdPlanningFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id, { matching });
+  }
+
   if (stage === "multipleChoiceDraft") {
     const choicePlans = payload.practicePlan.questionPlans.filter((plan) => plan.type === "multiple_choice");
     return {
@@ -385,6 +392,127 @@ function practicePlanFixture(unitId, sourceAnchorId, { matching }) {
             practiceGoalId: "goal-02",
             sourceAnchorId
           }
+    ]
+  };
+}
+
+function ecdPlanningFixture(unitId, sourceAnchorId, { matching }) {
+  const selectedTasks = [
+    {
+      questionPlanId: "q-001",
+      taskPlanId: "tp-001",
+      evidenceIds: ["ev-001"],
+      taskAffordance: "multiple_choice",
+      taskPurpose: "light_understanding",
+      assemblyReason: "先确认用户能把 Hook 理解成流程约束，而不是更长提示词。"
+    }
+  ];
+
+  if (matching) {
+    selectedTasks.push({
+      questionPlanId: "q-002",
+      taskPlanId: "tp-002",
+      evidenceIds: ["ev-002"],
+      taskAffordance: "matching",
+      taskPurpose: "role_responsibility_matching",
+      assemblyReason: "Hook、Prompt、CI、规则文档构成职责边界，适合用连线观察关系理解。"
+    });
+  }
+
+  return {
+    articleUnderstanding: {
+      coreThesis: "Hook 把关键动作前后的提醒变成稳定流程。",
+      articleStructure: [
+        {
+          id: "section-01",
+          title: "Hook 的流程价值",
+          role: "core_argument",
+          sourceAnchorIds: [sourceAnchorId]
+        }
+      ],
+      reviewableSections: ["section-01"],
+      nonReviewableSections: []
+    },
+    knowledgeModel: {
+      units: [
+        {
+          unitId,
+          title: "Hook 是关键动作前后的流程控制器",
+          nodeLabel: "流程控制",
+          shortSummary: "Hook 是关键动作前后的流程控制器。",
+          detailSummary: "Hook 不是更长提示词，而是在关键动作前后稳定执行规则、上下文和验证的流程约束。",
+          knowledgeShape: "role_boundary",
+          sourceAnchorId
+        }
+      ]
+    },
+    unitLearningClaims: [
+      {
+        unitId,
+        claimId: "claim-001",
+        claimType: "concept_understanding",
+        learningClaim: "用户能理解 Hook 是流程约束，而不是更长提示词。",
+        sourceAnchorId
+      },
+      {
+        unitId,
+        claimId: "claim-002",
+        claimType: "boundary_understanding",
+        learningClaim: "用户能区分 Prompt、Hook、CI 和规则文档的职责边界。",
+        sourceAnchorId
+      }
+    ],
+    unitEvidenceNeeds: [
+      {
+        unitId,
+        evidenceId: "ev-001",
+        claimId: "claim-001",
+        evidenceType: "select_core_claim",
+        evidenceNeed: "用户能选择 Hook 的核心作用。",
+        observableResponse: "在选择题中选出关键动作前后的固定流程。",
+        sourceAnchorId
+      },
+      {
+        unitId,
+        evidenceId: "ev-002",
+        claimId: "claim-002",
+        evidenceType: "map_structure_relation",
+        evidenceNeed: "用户能把不同角色匹配到对应职责。",
+        observableResponse: "完成 Prompt、Hook、CI、规则文档与职责的连线。",
+        sourceAnchorId
+      }
+    ],
+    unitTaskPlan: [
+      {
+        unitId,
+        taskPlanId: "tp-001",
+        evidenceIds: ["ev-001"],
+        taskAffordance: "multiple_choice",
+        taskPurpose: "light_understanding",
+        whyThisTask: "选择题能轻量观察用户是否抓住 Hook 的核心作用。"
+      },
+      {
+        unitId,
+        taskPlanId: "tp-002",
+        evidenceIds: ["ev-002"],
+        taskAffordance: "matching",
+        taskPurpose: "role_responsibility_matching",
+        whyThisTask: "连线题能直接观察用户是否理解四类角色的职责边界。"
+      }
+    ],
+    unitAssemblyPlan: [
+      {
+        unitId,
+        selectedTasks,
+        skippedEvidence: matching
+          ? []
+          : [
+              {
+                evidenceId: "ev-002",
+                reason: "本次 fixture 关闭 matching，用场景选择题覆盖第二个目标。"
+              }
+            ]
+      }
     ]
   };
 }

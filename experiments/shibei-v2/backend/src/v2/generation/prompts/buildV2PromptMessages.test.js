@@ -85,6 +85,31 @@ test("unitPracticePlan prompt uses evidence value instead of fixed question coun
   assert.match(messages.user, /避免空泛“名词 -> 定义\/贡献\/描述”的机械配对/);
 });
 
+test("ecdPlanning prompt asks for ECD claims evidence and task planning without drafting questions", () => {
+  const messages = buildV2PromptMessages("ecdPlanning", {
+    article: ARTICLE,
+    source: { type: "article", title: ARTICLE.title },
+    blocks: [
+      { id: "p-001", type: "paragraph", text: "Hook 是关键动作前后的流程控制器。" }
+    ],
+    plan: {
+      title: ARTICLE.title,
+      summaryCard: { text: "Hook 把关键动作变成稳定流程。" },
+      units: [unitFixture()],
+      chapterSummary: { encouragementText: "你已经理解 Hook 的流程价值。" }
+    }
+  });
+
+  assert.match(messages.user, /ecdPlanning/);
+  assert.match(messages.user, /Evidence-Centered Design/);
+  assert.match(messages.user, /learningClaim/);
+  assert.match(messages.user, /evidenceNeed/);
+  assert.match(messages.user, /taskPlan/);
+  assert.match(messages.user, /本阶段不生成用户可见题目/);
+  assert.match(messages.user, /题目数量不写死/);
+  assert.match(messages.user, /DMC 这类“模型层级 -> 设计作用”/);
+});
+
 test("multipleChoiceDraft prompt requires misconception-first distractors", () => {
   const messages = buildV2PromptMessages("multipleChoiceDraft", {
     article: ARTICLE,

@@ -12,6 +12,13 @@
 
 ---
 
+## Current Status
+
+- 已完成第一步低风险接入：`ecdPlanning` 已作为 shadow stage 进入真实 V2 生成链路。
+- 当前阶段顺序为：`sourceMap -> reviewPathPlan -> ecdPlanning -> unitPracticePlan -> multipleChoiceDraft / matchingDraft -> unitSummaryDraft -> qualityJudge`。
+- `ecdPlanning` 输出已经写入 `generationMeta.ecdPlanning`，并在 V2 HTML 质量报告中展示。
+- 目前它只用于诊断，不驱动后续题目生成。下一步才是把 `unitPracticePlan` 的题型计划逐步改为消费 `ecdPlanning.unitAssemblyPlan.selectedTasks`。
+
 ## Files
 
 - Modify: `experiments/shibei-v2/backend/src/v2/generation/prompts/buildV2PromptMessages.js`
