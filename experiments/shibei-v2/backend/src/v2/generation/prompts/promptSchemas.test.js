@@ -51,6 +51,7 @@ test("ECD planning schema exposes nested fields needed by the shadow stage contr
   const articleUnderstanding = schema.properties.articleUnderstanding;
   const knowledgeUnit = schema.properties.knowledgeModel.properties.units.items;
   const subObjective = schema.properties.unitSubObjectives.items;
+  const evidenceAngle = schema.properties.unitEvidenceAngles.items;
   const evidenceNeed = schema.properties.unitEvidenceNeeds.items;
   const selectedTask = schema.properties.unitAssemblyPlan.items.properties.selectedTasks.items;
 
@@ -64,8 +65,12 @@ test("ECD planning schema exposes nested fields needed by the shadow stage contr
   assert.ok(knowledgeUnit.properties.knowledgeShape.enum.includes("layered_framework"));
   assert.ok(subObjective.required.includes("subObjectiveId"));
   assert.ok(subObjective.properties.type.enum.includes("layer"));
+  assert.ok(evidenceAngle.required.includes("angleId"));
+  assert.ok(evidenceAngle.properties.angleType.enum.includes("scenario_transfer"));
   assert.ok(evidenceNeed.required.includes("observableResponse"));
+  assert.ok(evidenceNeed.required.includes("angleId"));
   assert.ok(evidenceNeed.required.includes("coverageRequirement"));
+  assert.ok(selectedTask.required.includes("angleIds"));
   assert.ok(selectedTask.required.includes("assemblyReason"));
   assert.ok(selectedTask.properties.taskPurpose.enum.includes("layer_role_matching"));
 });
@@ -164,6 +169,7 @@ test("allows ECD assembly plans to select a variable number of tasks", () => {
   const fixture = ecdPlanningFixture();
   fixture.unitAssemblyPlan[0].selectedTasks = fixture.unitAssemblyPlan[0].selectedTasks.slice(0, 1);
   fixture.unitEvidenceNeeds[1].coverageRequirement = "supporting";
+  fixture.unitEvidenceAngles[1].importance = "supporting";
 
   const result = validateEcdPlanningOutput(fixture, {
     unitIds: new Set(["unit-03"]),
@@ -186,10 +192,28 @@ test("rejects ECD assembly plans that skip required evidence coverage", () => {
   assert.match(result.errors.join("\n"), /must cover required evidence ev-03-2/);
 });
 
+test("rejects ECD assembly plans that skip required angle coverage", () => {
+  const fixture = ecdPlanningFixture();
+  fixture.unitEvidenceNeeds[1].coverageRequirement = "supporting";
+  fixture.unitAssemblyPlan[0].selectedTasks = fixture.unitAssemblyPlan[0].selectedTasks.slice(0, 1);
+
+  const result = validateEcdPlanningOutput(fixture, {
+    unitIds: new Set(["unit-03"]),
+    sourceAnchorIds: new Set(["anchor-unit-03"])
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /must cover required angle angle-03-2/);
+});
+
 test("rejects ECD planning output with broken claim evidence and task references", () => {
   const fixture = ecdPlanningFixture();
+  fixture.unitEvidenceAngles[0].claimId = "missing-claim";
   fixture.unitEvidenceNeeds[0].claimId = "missing-claim";
+  fixture.unitEvidenceNeeds[0].angleId = "missing-angle";
+  fixture.unitTaskPlan[0].angleIds = ["missing-angle"];
   fixture.unitTaskPlan[0].evidenceIds = ["missing-evidence"];
+  fixture.unitAssemblyPlan[0].selectedTasks[0].angleIds = ["missing-angle"];
   fixture.unitAssemblyPlan[0].selectedTasks[0].taskPlanId = "missing-task-plan";
 
   const result = validateEcdPlanningOutput(fixture, {
@@ -199,6 +223,8 @@ test("rejects ECD planning output with broken claim evidence and task references
 
   assert.equal(result.ok, false);
   assert.match(result.errors.join("\n"), /claimId must reference a unitLearningClaims item/);
+  assert.match(result.errors.join("\n"), /angleId must reference a unitEvidenceAngles item/);
+  assert.match(result.errors.join("\n"), /angleIds\[0\] must reference a unitEvidenceAngles item/);
   assert.match(result.errors.join("\n"), /evidenceIds\[0\] must reference a unitEvidenceNeeds item/);
   assert.match(result.errors.join("\n"), /taskPlanId must reference a unitTaskPlan item/);
 });
@@ -209,6 +235,8 @@ test("normalizes unknown ECD taxonomy labels without dropping the model signal",
   fixture.unitSubObjectives[0].type = "model_layer";
   fixture.unitSubObjectives[1].importance = "must_have";
   fixture.unitLearningClaims[0].claimType = "relationship_understanding";
+  fixture.unitEvidenceAngles[0].angleType = "model_angle";
+  fixture.unitEvidenceAngles[1].importance = "nice_to_have";
   fixture.unitEvidenceNeeds[0].evidenceType = "classify_model_layer";
   fixture.unitEvidenceNeeds[0].coverageRequirement = "must_cover";
   fixture.unitTaskPlan[0].taskPurpose = "model_layer_matching";
@@ -224,6 +252,10 @@ test("normalizes unknown ECD taxonomy labels without dropping the model signal",
   assert.equal(normalized.unitSubObjectives[1].originalImportance, "must_have");
   assert.equal(normalized.unitLearningClaims[0].claimType, "source_grounded_understanding");
   assert.equal(normalized.unitLearningClaims[0].originalClaimType, "relationship_understanding");
+  assert.equal(normalized.unitEvidenceAngles[0].angleType, "definition_grasp");
+  assert.equal(normalized.unitEvidenceAngles[0].originalAngleType, "model_angle");
+  assert.equal(normalized.unitEvidenceAngles[1].importance, "supporting");
+  assert.equal(normalized.unitEvidenceAngles[1].originalImportance, "nice_to_have");
   assert.equal(normalized.unitEvidenceNeeds[0].evidenceType, "ground_answer_in_source");
   assert.equal(normalized.unitEvidenceNeeds[0].originalEvidenceType, "classify_model_layer");
   assert.equal(normalized.unitEvidenceNeeds[0].coverageRequirement, "required");
@@ -232,6 +264,37 @@ test("normalizes unknown ECD taxonomy labels without dropping the model signal",
   assert.equal(normalized.unitTaskPlan[0].originalTaskPurpose, "model_layer_matching");
   assert.equal(normalized.unitAssemblyPlan[0].selectedTasks[0].taskPurpose, "light_understanding");
   assert.equal(normalized.unitAssemblyPlan[0].selectedTasks[0].originalTaskPurpose, "model_layer_matching");
+
+  const result = validateEcdPlanningOutput(normalized, {
+    unitIds: new Set(["unit-03"]),
+    sourceAnchorIds: new Set(["anchor-unit-03"])
+  });
+
+  assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("normalizes unit-scoped ECD source anchors back to the planned unit anchor", () => {
+  const fixture = ecdPlanningFixture();
+  fixture.knowledgeModel.units[0].sourceAnchorId = "p-010";
+  fixture.unitSubObjectives[0].sourceAnchorId = "p-011";
+  fixture.unitLearningClaims[0].sourceAnchorId = "p-012";
+  fixture.unitEvidenceAngles[0].sourceAnchorId = "p-013";
+  fixture.unitEvidenceNeeds[0].sourceAnchorId = "p-014";
+
+  const normalized = normalizeEcdPlanningOutput(fixture, {
+    unitSourceAnchorIds: new Map([["unit-03", "anchor-unit-03"]])
+  });
+
+  assert.equal(normalized.knowledgeModel.units[0].sourceAnchorId, "anchor-unit-03");
+  assert.equal(normalized.knowledgeModel.units[0].originalSourceAnchorId, "p-010");
+  assert.equal(normalized.unitSubObjectives[0].sourceAnchorId, "anchor-unit-03");
+  assert.equal(normalized.unitSubObjectives[0].originalSourceAnchorId, "p-011");
+  assert.equal(normalized.unitLearningClaims[0].sourceAnchorId, "anchor-unit-03");
+  assert.equal(normalized.unitLearningClaims[0].originalSourceAnchorId, "p-012");
+  assert.equal(normalized.unitEvidenceAngles[0].sourceAnchorId, "anchor-unit-03");
+  assert.equal(normalized.unitEvidenceAngles[0].originalSourceAnchorId, "p-013");
+  assert.equal(normalized.unitEvidenceNeeds[0].sourceAnchorId, "anchor-unit-03");
+  assert.equal(normalized.unitEvidenceNeeds[0].originalSourceAnchorId, "p-014");
 
   const result = validateEcdPlanningOutput(normalized, {
     unitIds: new Set(["unit-03"]),
@@ -509,12 +572,35 @@ function ecdPlanningFixture() {
         sourceAnchorId: "anchor-unit-03"
       }
     ],
+    unitEvidenceAngles: [
+      {
+        unitId: "unit-03",
+        angleId: "angle-03-1",
+        subObjectiveId: "sub-03-1",
+        claimId: "claim-03-1",
+        angleType: "structure_mapping",
+        importance: "required",
+        anglePurpose: "从结构对应角度观察用户是否理解 DMC 三层与作用。",
+        sourceAnchorId: "anchor-unit-03"
+      },
+      {
+        unitId: "unit-03",
+        angleId: "angle-03-2",
+        subObjectiveId: "sub-03-2",
+        claimId: "claim-03-2",
+        angleType: "misconception_detection",
+        importance: "required",
+        anglePurpose: "从误区识别角度观察用户是否排除把 DMC 当组件清单的理解。",
+        sourceAnchorId: "anchor-unit-03"
+      }
+    ],
     unitEvidenceNeeds: [
       {
         unitId: "unit-03",
         evidenceId: "ev-03-1",
         subObjectiveId: "sub-03-1",
         claimId: "claim-03-1",
+        angleId: "angle-03-1",
         evidenceType: "map_structure_relation",
         coverageRequirement: "required",
         evidenceNeed: "用户能把动力层、机制层、组件层分别匹配到正确作用。",
@@ -526,6 +612,7 @@ function ecdPlanningFixture() {
         evidenceId: "ev-03-2",
         subObjectiveId: "sub-03-2",
         claimId: "claim-03-2",
+        angleId: "angle-03-2",
         evidenceType: "identify_misconception",
         coverageRequirement: "required",
         evidenceNeed: "用户能识别把 DMC 理解成组件清单的误区。",
@@ -538,6 +625,7 @@ function ecdPlanningFixture() {
         unitId: "unit-03",
         taskPlanId: "tp-03-1",
         evidenceIds: ["ev-03-1"],
+        angleIds: ["angle-03-1"],
         taskAffordance: "matching",
         taskPurpose: "layer_role_matching",
         whyThisTask: "DMC 是分层模型，连线题能直接观察用户是否理解层级和作用的对应关系。"
@@ -546,6 +634,7 @@ function ecdPlanningFixture() {
         unitId: "unit-03",
         taskPlanId: "tp-03-2",
         evidenceIds: ["ev-03-2"],
+        angleIds: ["angle-03-2"],
         taskAffordance: "multiple_choice",
         taskPurpose: "misconception_check",
         whyThisTask: "选择题适合暴露用户是否把游戏化误解成堆组件。"
@@ -559,6 +648,7 @@ function ecdPlanningFixture() {
             questionPlanId: "qp-03-1",
             taskPlanId: "tp-03-1",
             evidenceIds: ["ev-03-1"],
+            angleIds: ["angle-03-1"],
             taskAffordance: "matching",
             taskPurpose: "layer_role_matching",
             assemblyReason: "该 task 直接覆盖 DMC 结构理解的核心 evidence，因此进入本 unit。"
@@ -567,6 +657,7 @@ function ecdPlanningFixture() {
             questionPlanId: "qp-03-2",
             taskPlanId: "tp-03-2",
             evidenceIds: ["ev-03-2"],
+            angleIds: ["angle-03-2"],
             taskAffordance: "multiple_choice",
             taskPurpose: "misconception_check",
             assemblyReason: "该题暴露把 DMC 理解成组件清单的常见误区。"

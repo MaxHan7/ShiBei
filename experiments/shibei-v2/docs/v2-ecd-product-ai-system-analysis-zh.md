@@ -547,6 +547,38 @@ ECD 支撑：`Assembly Model`
 - 哪些 evidence 因为没有高价值 task 被跳过？
 - 为什么最终生成了这些题？
 
+#### 5. 多角度 Evidence Coverage
+
+ECD 支撑：`Evidence Model` + `Task Model` + `Assembly Model`
+
+上一轮 coverage-first 改造解决的是“重要知识点或 required evidence 不应被漏掉”。但这还不等于“一个知识点被充分考察”。一个宽泛选择题可能覆盖了某个 claim，却只观察到用户最表层的定义记忆，无法证明用户能做边界辨析、结构映射、误区识别或场景迁移。
+
+因此新增 `unitEvidenceAngles[]`，位于 `unitLearningClaims[]` 和 `unitEvidenceNeeds[]` 之间。它回答：
+
+- 对同一个 claim，需要从哪些不同角度观察用户理解？
+- 这些角度是否能产生不同的可观察 evidence？
+- 哪些角度是本轮必须覆盖的 required angle？
+- 最终 selected tasks 是否覆盖了 required angles，而不是只覆盖了 evidence id？
+
+建议 angle 类型：
+
+| Angle Type | ECD 含义 | 适合观察什么 |
+| --- | --- | --- |
+| `definition_grasp` | Evidence Model | 是否抓住核心定义或最短判断 |
+| `structure_mapping` | Evidence Model / Task Model | 是否能把层级、类型、步骤与作用对应 |
+| `boundary_discrimination` | Evidence Model | 是否能区分相似概念或边界 |
+| `misconception_detection` | Evidence Model | 是否能识别常见错误理解 |
+| `scenario_transfer` | Task Model | 是否能把知识迁移到具体场景 |
+| `mechanism_reasoning` | Evidence Model | 是否理解机制、因果、为什么 |
+| `source_grounding` | Evidence Support | 是否能回到原文依据 |
+
+重要规则：
+
+- 多角度不是机械增加题量。只有当新 angle 能观察到不同的用户理解表现时，才拆分。
+- `importance: required` 的 angle 必须由 `unitAssemblyPlan.selectedTasks[].angleIds[]` 覆盖。
+- 题型选择发生在 angle/evidence 之后：先判断该知识点有哪些可观察角度，再选择选择题、连线题或未来题型承载它。
+- 对 DMC 模型这类知识点，`structure_mapping` 很自然适合连线题；`misconception_detection` 则更适合选择题或场景辨析题。
+
 ### 后续文档化要求
 
 后续每做一个中层规则，都必须同时写清：

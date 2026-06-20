@@ -54,6 +54,18 @@ The V2 prompt pipeline should produce a contract-valid review path with stable s
 - Added `V2_SOURCE_MAP_MODE=deterministic` for long-article quality experiments. It creates stable source blocks in code rather than asking the model to re-output the full article as JSON, avoiding sourceMap truncation on long inputs.
 - Increased DeepSeek JSON `max_tokens` support and ECD-stage output budget so internal coverage planning is not truncated.
 
+### 2026-06-20 evidence-angle coverage iteration
+
+- Added `ecdPlanning.unitEvidenceAngles[]` between sub-objectives and evidence needs. This records the different observable angles a learner claim may require, such as definition grasp, structure mapping, boundary discrimination, misconception detection, scenario transfer, mechanism reasoning, and source grounding.
+- Added `angleId` to `unitEvidenceNeeds[]`, `unitTaskPlan[]`, and `unitAssemblyPlan[].selectedTasks[]`. Assembly now has to cover required evidence angles, not just broad evidence IDs.
+- Added an Angle Coverage Matrix to the HTML report so each unit can be audited by angle -> evidence -> selected task -> covered/missing.
+- Converted `unitPracticePlan` from a model-generated stage to a deterministic adapter from `ecdPlanning.unitAssemblyPlan[].selectedTasks`. This avoids a redundant model stage reselecting or dropping tasks after ECD has already selected them.
+- Added source-anchor normalization for unit-scoped ECD fields. When the model emits a block id or invalid local id where a unit source anchor is expected, the pipeline restores the planned unit anchor and keeps the original value for diagnostics.
+- Added draft-question normalization so downstream draft stages cannot add extra unplanned questions or drift from ECD-selected question IDs.
+- Added a narrow JSON retry for transient provider responses that contain no parseable structured JSON.
+- Increased `matchingDraft` output budget to reduce truncation when the selected task requires a 4x4 matching question.
+- The full `max6 + concurrency3` run still failed on DeepSeek structured-output instability. The completed run used `V2_GENERATION_UNIT_CONCURRENCY=1`; use serial mode for this provider until the model path is more stable.
+
 ### Earlier baseline fixes
 
 - Added support for extracted article metadata aliases so prompt messages include `sourceAccount` and `sourceUrl`.
@@ -86,11 +98,22 @@ The V2 prompt pipeline should produce a contract-valid review path with stable s
 | `20260620-204412-v2-coverage-first-ecd-max6-rerun2` | failed | Raising large-stage budgets still left sourceMap too large for model JSON output. |
 | `20260620-204722-v2-coverage-first-ecd-max6-deterministic-source` | failed | Deterministic sourceMap moved failure to ECD planning; ECD JSON was truncated at the previous 7600-token stage budget. |
 | `20260620-205026-v2-coverage-first-ecd-max6-deterministic-source-rerun` | completed | 6 units, 12 questions, 10 multiple choice, 2 matching, 127 source blocks, 1 diagnostic issue. Coverage Matrix shows all required evidence covered. |
+| `20260620-214052-v2-evidence-angle-coverage-max6-deterministic-source` | failed | First evidence-angle run failed because DeepSeek returned unparseable structured JSON. |
+| `20260620-214211-v2-evidence-angle-coverage-max6-deterministic-source` | failed | Provider returned no structured text. |
+| `20260620-214542-v2-evidence-angle-coverage-max6-deterministic-source-serial` | failed | Serial mode moved farther through the pipeline, but still hit a no-structured-text provider response. |
+| `20260620-215240-v2-evidence-angle-coverage-max6-deterministic-source-adapter` | failed | Replacing model `unitPracticePlan` with a deterministic adapter exposed source-anchor drift in ECD fields. |
+| `20260620-215818-v2-evidence-angle-coverage-max6-deterministic-source-adapter-anchor` | failed | Source anchors were normalized, then `multipleChoiceDraft` returned extra model-invented questions. |
+| `20260620-220141-v2-evidence-angle-coverage-max6-deterministic-source-adapter-anchor-draft-normal` | failed | Draft question IDs were normalized, but the provider again returned no structured text. |
+| `20260620-220519-v2-evidence-angle-coverage-max6-deterministic-source-adapter-anchor-draft-retry` | failed | Narrow JSON retry helped isolate the issue but the provider still failed to return structured text. |
+| `20260620-221513-v2-evidence-angle-coverage-max6-deterministic-source-final` | failed | Full `max6 + concurrency3` still failed on provider structured-output instability. |
+| `20260620-222608-v2-evidence-angle-coverage-max6-deterministic-source-final-serial` | completed | 6 units, 12 questions, 11 multiple choice, 1 matching, 127 source blocks, 2 diagnostic issues. DMC remains a standalone unit and receives a 4x4 matching task. |
 
 ## Artifacts
 
-- Latest JSON: `runs/20260620-205026-v2-coverage-first-ecd-max6-deterministic-source-rerun.json`
-- Latest HTML: `reports/20260620-205026-v2-coverage-first-ecd-max6-deterministic-source-rerun.html`
+- Latest JSON: `runs/20260620-222608-v2-evidence-angle-coverage-max6-deterministic-source-final-serial.json`
+- Latest HTML: `reports/20260620-222608-v2-evidence-angle-coverage-max6-deterministic-source-final-serial.html`
+- Previous coverage-first JSON: `runs/20260620-205026-v2-coverage-first-ecd-max6-deterministic-source-rerun.json`
+- Previous coverage-first HTML: `reports/20260620-205026-v2-coverage-first-ecd-max6-deterministic-source-rerun.html`
 - Previous knowledge-boundary JSON: `runs/20260620-183009-v2-knowledge-object-boundary-max6-rerun.json`
 - Previous knowledge-boundary HTML: `reports/20260620-183009-v2-knowledge-object-boundary-max6-rerun.html`
 - Previous ECD-driven JSON: `runs/20260620-175013-v2-ecd-driven-planning-max6-schema-items.json`
@@ -104,21 +127,37 @@ The V2 prompt pipeline should produce a contract-valid review path with stable s
 
 ## Conclusion
 
-ECD is no longer only a shadow diagnostic stage for this experiment. The latest completed run uses ECD selected tasks to drive downstream question planning, while `reviewPathPlan.knowledgeObjects[]` protects upstream unit boundaries and `unitSubObjectives[]` now protects unit-internal evidence coverage.
+The evidence-angle iteration moves the V2 ECD pipeline one layer deeper. Coverage-first planning ensured required evidence was represented; evidence-angle planning now asks *how* each important claim should be observed. This lets one knowledge point be assessed from multiple complementary angles without hard-coding a fixed question count.
 
-Compared with `20260620-183009-v2-knowledge-object-boundary-max6-rerun`, the coverage-first run keeps the same 6-unit structure but increases visible coverage from 9 to 12 questions without hard-coding a fixed question count. Every unit has two `required` evidence needs and each is covered by selected tasks.
+The latest completed run has:
 
-The latest run has:
-
+- 6 visible units and 12 questions.
 - `游戏化的概念与核心定义` as an independent core-concept unit.
-- `DMC模型：游戏元素的金字塔结构` as an independent layered-framework unit.
-- Two DMC matching questions: one high-value layer-role matching question and one weaker element-to-layer classification question.
-- A Coverage Matrix in the HTML report showing all required evidence as covered.
-- 1 deterministic diagnostic issue: `q-3-2` is flagged as weak matching because it looks closer to element classification than responsibility/boundary/role matching.
+- `DMC模型：游戏元素的三层结构` as an independent layered-framework unit.
+- A DMC 4x4 matching task plus a follow-up multiple-choice task.
+- Angle counts by unit: `2 / 4 / 3 / 2 / 3 / 3`.
+- 0 structural issues and 2 deterministic diagnostics:
+  - `qp-002-2`: weak distractor set because at least one distractor is too short.
+  - `qp-005-2`: weak distractor set because the correct option is too obvious.
 
-Compared with the stronger shadow run `20260620-135541-v2-ecd-shadow-max6-concurrency3-anchor-normalized`, the latest run is still leaner: 12 visible questions instead of 25. But it now has an explicit coverage explanation for why those 12 questions exist. This is closer to the intended ECD direction: question count emerges from required evidence coverage rather than a fixed per-unit target.
+This is a successful architecture pass, not a final pedagogical-quality pass. The important improvement is that ECD now has an explicit internal representation for multi-angle assessment:
 
-This run still should **not** be treated as a final pedagogical-quality pass. It is a successful architecture pass: knowledge boundaries and required evidence coverage are now both represented. The next iteration should improve task-affordance choice inside coverage planning, especially avoiding weak matching when the evidence is better served by a compact multiple-choice or future sorting/classification interaction.
+```text
+knowledge object
+  -> unit sub-objective
+  -> learning claim
+  -> evidence angle
+  -> evidence need
+  -> selected task
+  -> visible question
+```
+
+The run also exposed two engineering constraints:
+
+- `unitPracticePlan` should not be a model stage. It is now a deterministic adapter from ECD selected tasks, which reduces downstream drift.
+- DeepSeek structured output remains unstable under `max6 + concurrency3`; the successful run used serial unit generation. Until this is improved, quality experiments for this provider should prefer `V2_GENERATION_UNIT_CONCURRENCY=1`.
+
+The next prompt iteration should focus on the quality of angle-to-task mapping and distractor construction. The system can now represent multiple evidence angles, but the model still needs better guidance for turning each angle into a compact, high-value question rather than a shallow or obvious multiple-choice item.
 
 Detailed audit: `../../../v2-prompt-quality-gap-audit-zh.md`
 
@@ -126,14 +165,25 @@ Detailed audit: `../../../v2-prompt-quality-gap-audit-zh.md`
 
 Manually review the latest HTML report against the V2 golden-sample rules before adding more articles. Focus on:
 
-- Whether the selected 6 units match the golden sample's knowledge-point structure.
+- Whether every evidence angle is truly different, or whether some angles merely restate the same check.
+- Whether `angleType` predicts the right interaction type: matching for structure/role/boundary relationships, multiple choice for misconception or scenario transfer, and future interactions for sorting/classification if needed.
+- Whether multiple-choice distractors represent real misconceptions rather than short obvious wrong answers.
 - Whether `nodeLabel` is short enough for the home node popover.
-- Whether the restored DMC unit's matching question has the same value as the golden sample's DMC layer-role matching.
-- Whether one-question units such as “游戏化的概念与核心定义” are under-covered or appropriately focused.
-- Whether matching questions are grounded in strong current-unit evidence, especially for comparison, layered-framework, or process-style units.
-- Whether multiple-choice stems and options are as compact and misconception-driven as the golden sample.
+- Whether the DMC matching task preserves the golden sample's layer-role value.
+- Whether serial generation remains necessary for DeepSeek, or whether a later model/retry path can safely restore concurrency.
 
-The next prompt iteration should refine task-affordance choice while preserving coverage-first planning. The desired pyramid remains: article understanding -> knowledge objects -> unit sub-objectives -> learning claims -> evidence needs -> selected tasks -> visible question drafts.
+The next implementation iteration should refine angle-to-task instructions and distractor-generation rules while preserving the ECD pyramid:
+
+```text
+article understanding
+  -> knowledge objects
+  -> unit sub-objectives
+  -> learning claims
+  -> evidence angles
+  -> evidence needs
+  -> selected tasks
+  -> visible question drafts
+```
 
 After the generation prompts are closer to the V2 standard, run a controlled A/B experiment for an optional lightweight quality-rewrite role:
 

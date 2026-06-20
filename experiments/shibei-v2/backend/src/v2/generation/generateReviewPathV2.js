@@ -70,12 +70,17 @@ export async function generateReviewPathV2(
   const plan = limitPlannedUnits(rawPlan, maxUnitCount);
   const unitIds = new Set(plan.units.map((unit) => unit.id));
   const sourceAnchorIds = new Set(plan.units.map((unit) => unit.sourceAnchor?.id).filter(Boolean));
+  const unitSourceAnchorIds = new Map(
+    plan.units
+      .map((unit) => [unit.id, unit.sourceAnchor?.id])
+      .filter(([, sourceAnchorId]) => Boolean(sourceAnchorId))
+  );
   const ecdPlanning = await callAndValidate(
     activePromptCaller,
     "ecdPlanning",
     { article, source: sourceMap.source, blocks: sourceMap.blocks, plan },
     (output) => validateEcdPlanningOutput(output, { unitIds, sourceAnchorIds }),
-    { normalize: normalizeEcdPlanningOutput }
+    { normalize: (output) => normalizeEcdPlanningOutput(output, { unitSourceAnchorIds, sourceAnchorIds }) }
   );
 
   const generatedUnits = await mapWithConcurrency(
@@ -167,11 +172,7 @@ async function generateUnitReviewContent({
   plannedUnit,
   ecdContext
 }) {
-  const rawPracticePlan = await activePromptCaller(
-    "unitPracticePlan",
-    { article, source: sourceMap.source, blocks: sourceMap.blocks, unit: plannedUnit, ecdContext }
-  );
-  const practicePlan = alignPracticePlanWithEcdContext(rawPracticePlan, {
+  const practicePlan = buildPracticePlanFromEcdContext({
     ecdContext,
     plannedUnit
   });
@@ -334,6 +335,7 @@ function getEcdContextForUnit(ecdPlanning, plannedUnit) {
   const knowledgeUnit = ecdPlanning.knowledgeModel?.units?.find((item) => item.unitId === unitId) ?? null;
   const subObjectives = (ecdPlanning.unitSubObjectives ?? []).filter((item) => item.unitId === unitId);
   const learningClaims = (ecdPlanning.unitLearningClaims ?? []).filter((item) => item.unitId === unitId);
+  const angles = (ecdPlanning.unitEvidenceAngles ?? []).filter((item) => item.unitId === unitId);
   const evidenceNeeds = (ecdPlanning.unitEvidenceNeeds ?? []).filter((item) => item.unitId === unitId);
   const taskPlans = (ecdPlanning.unitTaskPlan ?? []).filter((item) => item.unitId === unitId);
   const assemblyPlan = (ecdPlanning.unitAssemblyPlan ?? []).find((item) => item.unitId === unitId) ?? null;
@@ -342,12 +344,24 @@ function getEcdContextForUnit(ecdPlanning, plannedUnit) {
     knowledgeUnit,
     subObjectives,
     learningClaims,
+    angles,
     evidenceNeeds,
     taskPlans,
     assemblyPlan,
     selectedTasks: assemblyPlan?.selectedTasks ?? [],
     skippedEvidence: assemblyPlan?.skippedEvidence ?? []
   };
+}
+
+function buildPracticePlanFromEcdContext({ ecdContext, plannedUnit }) {
+  return alignPracticePlanWithEcdContext({
+    unitId: plannedUnit.id,
+    practiceGoals: [],
+    questionPlans: []
+  }, {
+    ecdContext,
+    plannedUnit
+  });
 }
 
 function alignPracticePlanWithEcdContext(practicePlan, { ecdContext, plannedUnit }) {
@@ -381,6 +395,7 @@ function alignPracticePlanWithEcdContext(practicePlan, { ecdContext, plannedUnit
       type,
       purpose: questionPurposeForSelectedTask(task.taskPurpose),
       practiceGoalId,
+      angleIds: Array.isArray(task.angleIds) ? task.angleIds : [],
       ...(type === "matching" ? { relationType: relationTypeForTaskPurpose(task.taskPurpose) } : {}),
       sourceAnchorId
     };
@@ -408,6 +423,7 @@ function practiceGoalFromSelectedTask(task, { id, ecdContext, sourceAnchorId }) 
     kind: practiceGoalKindForSelectedTask(task),
     target: evidence?.evidenceNeed || claim?.learningClaim || task.assemblyReason,
     commonMisconception: commonMisconceptionForSelectedTask(task),
+    angleIds: Array.isArray(task.angleIds) ? task.angleIds : [],
     sourceAnchorId
   };
 }
@@ -521,25 +537,32 @@ function normalizeDraftQuestionIds(output, questionPlans, questionType) {
   if (!output || !Array.isArray(output.questions)) return output;
 
   const plans = questionPlans.filter((plan) => plan.type === questionType);
-  if (plans.length !== output.questions.length) return output;
+  if (plans.length === 0 || output.questions.length < plans.length) return output;
 
   const knownPlanIds = new Set(plans.map((plan) => plan.id));
   const plansById = new Map(plans.map((plan) => [plan.id, plan]));
-  const needsNormalization = output.questions.some((question, index) => {
-    const plan = plansById.get(question.id) || plans[index];
-    return (
-      !knownPlanIds.has(question.id) ||
-      !question.practiceGoalId ||
-      !question.sourceAnchorId ||
-      question.practiceGoalId !== plan.practiceGoalId ||
-      question.sourceAnchorId !== plan.sourceAnchorId
-    );
-  });
+  const selectedQuestions = plans.map((plan, index) =>
+    output.questions.find((question) => question?.id === plan.id) || output.questions[index]
+  );
+  if (selectedQuestions.some((question) => !question)) return output;
+
+  const needsNormalization =
+    output.questions.length !== plans.length ||
+    selectedQuestions.some((question, index) => {
+      const plan = plansById.get(question.id) || plans[index];
+      return (
+        !knownPlanIds.has(question.id) ||
+        !question.practiceGoalId ||
+        !question.sourceAnchorId ||
+        question.practiceGoalId !== plan.practiceGoalId ||
+        question.sourceAnchorId !== plan.sourceAnchorId
+      );
+    });
   if (!needsNormalization) return output;
 
   return {
     ...output,
-    questions: output.questions.map((question, index) => ({
+    questions: selectedQuestions.map((question, index) => ({
       ...question,
       ...normalizeDraftQuestionIdentity(question, plans, plansById, index)
     }))

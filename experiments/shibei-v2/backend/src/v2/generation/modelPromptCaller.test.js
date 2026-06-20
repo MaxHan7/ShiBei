@@ -48,6 +48,55 @@ test("passes modelUsageRecorder through to the transport", async () => {
   });
 });
 
+test("retries transient structured JSON transport failures", async () => {
+  const calls = [];
+  const caller = createV2ModelPromptCaller({
+    modelJsonCaller: async (request) => {
+      calls.push(request);
+      if (calls.length === 1) {
+        throw new Error("模型返回内容不是可解析 JSON，请重试。");
+      }
+      return {
+        source: { type: "article", title: "Hook" },
+        blocks: [{ id: "p-001", type: "paragraph", text: "Hook 是流程控制器。" }]
+      };
+    }
+  });
+
+  const output = await caller("sourceMap", {
+    article: {
+      id: "chapter-001",
+      title: "Hook",
+      rawText: "Hook 是流程控制器。"
+    }
+  });
+
+  assert.equal(output.blocks[0].id, "p-001");
+  assert.equal(calls.length, 2);
+});
+
+test("does not retry non-transient model transport failures", async () => {
+  let callCount = 0;
+  const caller = createV2ModelPromptCaller({
+    modelJsonCaller: async () => {
+      callCount += 1;
+      throw new Error("quota exhausted");
+    }
+  });
+
+  await assert.rejects(
+    () => caller("sourceMap", {
+      article: {
+        id: "chapter-001",
+        title: "Hook",
+        rawText: "Hook 是流程控制器。"
+      }
+    }),
+    /quota exhausted/
+  );
+  assert.equal(callCount, 1);
+});
+
 test("calls the JSON model transport with ecdPlanning schema and messages", async () => {
   const calls = [];
   const caller = createV2ModelPromptCaller({

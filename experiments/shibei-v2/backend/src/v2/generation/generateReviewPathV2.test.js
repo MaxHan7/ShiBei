@@ -29,7 +29,7 @@ test("generates a contract-valid V2 review path from split prompt stages", async
 
   assert.deepEqual(
     calls.map((call) => call.stage),
-    V2_GENERATION_STAGES
+    V2_GENERATION_STAGES.filter((stage) => stage !== "unitPracticePlan")
   );
   assert.equal(reviewPath.schemaVersion, "v2_review_path_1");
   assert.equal(reviewPath.id, ARTICLE_INPUT.id);
@@ -49,13 +49,10 @@ test("generates a contract-valid V2 review path from split prompt stages", async
   assert.equal(reviewPath.generationMeta.ecdPlanning.articleUnderstanding.coreThesis, "Hook 把关键动作前后的提醒变成稳定流程。");
   assert.equal(reviewPath.generationMeta.ecdPlanning.unitAssemblyPlan[0].selectedTasks.length, 2);
   assert.equal(reviewPath.generationMeta.unitPracticePlans.length, 1);
-  const unitPracticePlanCall = calls.find((call) => call.stage === "unitPracticePlan");
-  assert.equal(unitPracticePlanCall.payload.ecdContext.unitId, "unit-01");
-  assert.equal(unitPracticePlanCall.payload.ecdContext.assemblyPlan.unitId, "unit-01");
-  assert.equal(unitPracticePlanCall.payload.ecdContext.subObjectives.length, 2);
-  assert.equal(unitPracticePlanCall.payload.ecdContext.selectedTasks.length, 2);
-  assert.equal(unitPracticePlanCall.payload.ecdContext.selectedTasks[1].taskAffordance, "matching");
-  assert.equal(unitPracticePlanCall.payload.ecdContext.taskPlans[1].taskPurpose, "role_responsibility_matching");
+  assert.equal(reviewPath.generationMeta.ecdPlanning.unitEvidenceAngles.length, 2);
+  assert.equal(reviewPath.generationMeta.ecdPlanning.unitTaskPlan[1].taskPurpose, "role_responsibility_matching");
+  assert.deepEqual(reviewPath.generationMeta.unitPracticePlans[0].questionPlans[0].angleIds, ["angle-001"]);
+  assert.deepEqual(reviewPath.generationMeta.unitPracticePlans[0].questionPlans[1].angleIds, ["angle-002"]);
   assert.equal(reviewPath.generationMeta.qualityDiagnostics.length, 2);
   assert.deepEqual(reviewPath.generationMeta.qualityGate, {
     mode: "diagnostic_only",
@@ -78,11 +75,6 @@ test("ECD selected tasks drive downstream practice plans and suppress model-inve
       stages.push(stage);
       if (stage === "ecdPlanning") {
         return ecdPlanningFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id, { matching: false });
-      }
-      if (stage === "unitPracticePlan") {
-        assert.equal(payload.ecdContext.selectedTasks.length, 1);
-        assert.equal(payload.ecdContext.selectedTasks[0].taskAffordance, "multiple_choice");
-        return practicePlanFixture(payload.unit.id, payload.unit.sourceAnchor.id, { matching: true });
       }
       return happyPathPromptCaller(stage, payload);
     },
@@ -127,16 +119,9 @@ test("can build sourceMap deterministically for long article quality experiments
   assert.equal(reviewPath.source.blocks.length, 3);
 });
 
-test("fills matching relationType from ECD before validating practice plans", async () => {
+test("derives matching relationType from ECD selected tasks", async () => {
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
-    promptCaller: async (stage, payload) => {
-      if (stage === "unitPracticePlan") {
-        const plan = practicePlanFixture(payload.unit.id, payload.unit.sourceAnchor.id, { matching: true });
-        delete plan.questionPlans[1].relationType;
-        return plan;
-      }
-      return happyPathPromptCaller(stage, payload);
-    },
+    promptCaller: happyPathPromptCaller,
     now: "2026-06-19T00:00:00.000Z"
   });
 
@@ -158,6 +143,7 @@ test("skips multipleChoiceDraft when ECD assembly selects only matching", async 
       if (stage === "ecdPlanning") {
         const ecd = ecdPlanningFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id, { matching: true });
         ecd.unitEvidenceNeeds[0].coverageRequirement = "supporting";
+        ecd.unitEvidenceAngles[0].importance = "supporting";
         ecd.unitAssemblyPlan[0].selectedTasks = ecd.unitAssemblyPlan[0].selectedTasks.filter(
           (task) => task.taskAffordance === "matching"
         );
@@ -190,7 +176,6 @@ test("skips matchingDraft when ECD assembly does not select matching", async () 
     "sourceMap",
     "reviewPathPlan",
     "ecdPlanning",
-    "unitPracticePlan",
     "multipleChoiceDraft",
     "unitSummaryDraft",
     "qualityJudge"
@@ -233,7 +218,7 @@ test("can limit planned units for bounded quality experiments", async () => {
   assert.equal(reviewPath.generationMeta.unitPracticePlans.length, 1);
   assert.equal(reviewPath.generationConstraints.originalUnitCount, 2);
   assert.equal(reviewPath.generationConstraints.maxUnitCount, 1);
-  assert.equal(stages.filter((stage) => stage === "unitPracticePlan").length, 1);
+  assert.equal(stages.filter((stage) => stage === "unitPracticePlan").length, 0);
 });
 
 test("throws a stage-specific error when sourceMap output is invalid", async () => {
@@ -290,6 +275,10 @@ test("normalizes draft question ids from question plan order", async () => {
       if (stage === "multipleChoiceDraft") {
         output.questions[0].id = "model-made-up-id";
         delete output.questions[0].sourceAnchorId;
+        output.questions.push({
+          ...output.questions[0],
+          id: "model-extra-question"
+        });
       }
       if (stage === "matchingDraft") {
         output.questions[0].id = "another-made-up-id";
@@ -358,7 +347,7 @@ test("uses a default prompt caller factory when promptCaller is omitted", async 
     now: "2026-06-19T00:00:00.000Z"
   });
 
-  assert.deepEqual(stages, V2_GENERATION_STAGES);
+  assert.deepEqual(stages, V2_GENERATION_STAGES.filter((stage) => stage !== "unitPracticePlan"));
   assert.equal(reviewPath.status, "completed");
 });
 
@@ -571,6 +560,7 @@ function ecdPlanningFixture(unitId, sourceAnchorId, { matching }) {
       questionPlanId: "q-001",
       taskPlanId: "tp-001",
       evidenceIds: ["ev-001"],
+      angleIds: ["angle-001"],
       taskAffordance: "multiple_choice",
       taskPurpose: "light_understanding",
       assemblyReason: "先确认用户能把 Hook 理解成流程约束，而不是更长提示词。"
@@ -582,6 +572,7 @@ function ecdPlanningFixture(unitId, sourceAnchorId, { matching }) {
       questionPlanId: "q-002",
       taskPlanId: "tp-002",
       evidenceIds: ["ev-002"],
+      angleIds: ["angle-002"],
       taskAffordance: "matching",
       taskPurpose: "role_responsibility_matching",
       assemblyReason: "Hook、Prompt、CI、规则文档构成职责边界，适合用连线观察关系理解。"
@@ -653,12 +644,35 @@ function ecdPlanningFixture(unitId, sourceAnchorId, { matching }) {
         sourceAnchorId
       }
     ],
+    unitEvidenceAngles: [
+      {
+        unitId,
+        angleId: "angle-001",
+        subObjectiveId: "sub-001",
+        claimId: "claim-001",
+        angleType: "definition_grasp",
+        importance: "required",
+        anglePurpose: "从定义理解角度观察用户是否抓住 Hook 的核心作用。",
+        sourceAnchorId
+      },
+      {
+        unitId,
+        angleId: "angle-002",
+        subObjectiveId: "sub-002",
+        claimId: "claim-002",
+        angleType: "boundary_discrimination",
+        importance: matching ? "required" : "supporting",
+        anglePurpose: "从职责边界角度观察用户是否区分 Prompt、Hook、CI 和规则文档。",
+        sourceAnchorId
+      }
+    ],
     unitEvidenceNeeds: [
       {
         unitId,
         evidenceId: "ev-001",
         subObjectiveId: "sub-001",
         claimId: "claim-001",
+        angleId: "angle-001",
         evidenceType: "select_core_claim",
         coverageRequirement: "required",
         evidenceNeed: "用户能选择 Hook 的核心作用。",
@@ -670,6 +684,7 @@ function ecdPlanningFixture(unitId, sourceAnchorId, { matching }) {
         evidenceId: "ev-002",
         subObjectiveId: "sub-002",
         claimId: "claim-002",
+        angleId: "angle-002",
         evidenceType: "map_structure_relation",
         coverageRequirement: matching ? "required" : "supporting",
         evidenceNeed: "用户能把不同角色匹配到对应职责。",
@@ -682,6 +697,7 @@ function ecdPlanningFixture(unitId, sourceAnchorId, { matching }) {
         unitId,
         taskPlanId: "tp-001",
         evidenceIds: ["ev-001"],
+        angleIds: ["angle-001"],
         taskAffordance: "multiple_choice",
         taskPurpose: "light_understanding",
         whyThisTask: "选择题能轻量观察用户是否抓住 Hook 的核心作用。"
@@ -690,6 +706,7 @@ function ecdPlanningFixture(unitId, sourceAnchorId, { matching }) {
         unitId,
         taskPlanId: "tp-002",
         evidenceIds: ["ev-002"],
+        angleIds: ["angle-002"],
         taskAffordance: "matching",
         taskPurpose: "role_responsibility_matching",
         whyThisTask: "连线题能直接观察用户是否理解四类角色的职责边界。"

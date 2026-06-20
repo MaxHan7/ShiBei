@@ -39,6 +39,9 @@ test("renders a readable V2 quality HTML report with questions and source anchor
   assert.match(html, /ECD 证据规划 Shadow Stage/);
   assert.match(html, /Hook 让生命周期触发变成可观察的流程控制/);
   assert.match(html, /Sub Objectives/);
+  assert.match(html, /Evidence Angles/);
+  assert.match(html, /Angle Coverage Matrix/);
+  assert.match(html, /angle-1 · required · structure_mapping/);
   assert.match(html, /Coverage Matrix/);
   assert.match(html, /ev-1:covered/);
   assert.match(html, /Learning Claims/);
@@ -231,12 +234,25 @@ function chapterFixture() {
             sourceAnchorId: "a1"
           }
         ],
+        unitEvidenceAngles: [
+          {
+            unitId: "u1",
+            angleId: "angle-1",
+            subObjectiveId: "sub-1",
+            claimId: "claim-1",
+            angleType: "structure_mapping",
+            importance: "required",
+            anglePurpose: "从流程结构角度观察用户是否理解 Hook、Handler、Context、Decision 的作用。",
+            sourceAnchorId: "a1"
+          }
+        ],
         unitEvidenceNeeds: [
           {
             unitId: "u1",
             evidenceId: "ev-1",
             subObjectiveId: "sub-1",
             claimId: "claim-1",
+            angleId: "angle-1",
             evidenceType: "map_step_purpose",
             coverageRequirement: "required",
             evidenceNeed: "用户能把四个概念匹配到流程作用。",
@@ -249,6 +265,7 @@ function chapterFixture() {
             unitId: "u1",
             taskPlanId: "task-1",
             evidenceIds: ["ev-1"],
+            angleIds: ["angle-1"],
             taskAffordance: "matching",
             taskPurpose: "step_purpose_matching",
             whyThisTask: "连线题能直接观察用户是否理解流程角色和作用。"
@@ -262,6 +279,7 @@ function chapterFixture() {
                 questionPlanId: "q2",
                 taskPlanId: "task-1",
                 evidenceIds: ["ev-1"],
+                angleIds: ["angle-1"],
                 taskAffordance: "matching",
                 taskPurpose: "step_purpose_matching",
                 assemblyReason: "该连线题覆盖流程作用匹配证据。"

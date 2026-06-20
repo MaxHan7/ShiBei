@@ -62,7 +62,7 @@ const STAGE_SCHEMAS = {
   matchingDraft: {
     schemaName: MATCHING_DRAFT_PROMPT_SCHEMA_NAME,
     schema: MATCHING_DRAFT_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 1600
+    estimatedOutputTokens: 3200
   },
   unitSummaryDraft: {
     schemaName: UNIT_SUMMARY_DRAFT_PROMPT_SCHEMA_NAME,
@@ -76,9 +76,12 @@ const STAGE_SCHEMAS = {
   }
 };
 
+const DEFAULT_MODEL_JSON_RETRY_COUNT = 2;
+
 export function createV2ModelPromptCaller({
   modelJsonCaller = callOpenAIJson,
-  modelUsageRecorder = null
+  modelUsageRecorder = null,
+  retryCount = readOptionalNonNegativeInt(process.env.V2_MODEL_JSON_RETRIES) ?? DEFAULT_MODEL_JSON_RETRY_COUNT
 } = {}) {
   return async function callV2ModelPrompt(stage, payload) {
     const stageConfig = STAGE_SCHEMAS[stage];
@@ -87,7 +90,7 @@ export function createV2ModelPromptCaller({
     }
 
     const messages = buildV2PromptMessages(stage, payload);
-    return modelJsonCaller({
+    const request = {
       system: messages.system,
       user: messages.user,
       schemaName: stageConfig.schemaName,
@@ -95,11 +98,39 @@ export function createV2ModelPromptCaller({
       stage: `v2_${stage}`,
       modelUsageRecorder,
       estimatedOutputTokens: stageConfig.estimatedOutputTokens
-    });
+    };
+
+    let lastError;
+    for (let attempt = 0; attempt <= retryCount; attempt += 1) {
+      try {
+        return await modelJsonCaller(request);
+      } catch (error) {
+        lastError = error;
+        if (!isRetryableJsonModelError(error) || attempt >= retryCount) {
+          throw error;
+        }
+      }
+    }
+    throw lastError;
   };
 }
 
 function schemaForModel(schema) {
   const { name: _name, ...schemaWithoutName } = schema;
   return schemaWithoutName;
+}
+
+function isRetryableJsonModelError(error) {
+  const message = error instanceof Error ? error.message : String(error || "");
+  return (
+    message.includes("模型返回内容不是可解析 JSON") ||
+    message.includes("没有返回结构化文本") ||
+    message.includes("not parseable JSON") ||
+    message.includes("No structured text")
+  );
+}
+
+function readOptionalNonNegativeInt(value) {
+  const parsed = Number.parseInt(value || "", 10);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : undefined;
 }

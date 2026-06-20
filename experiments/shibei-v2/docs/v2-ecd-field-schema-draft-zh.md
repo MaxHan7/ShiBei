@@ -12,17 +12,19 @@
 ## Implementation Status
 
 - `ecdPlanning.js` 是第一版代码级 ECD 内部规划 schema 模块。
-- 该 schema 已接入真实 V2 model orchestration：运行顺序为 `sourceMap -> reviewPathPlan -> ecdPlanning -> unitPracticePlan -> multipleChoiceDraft / matchingDraft -> unitSummaryDraft -> qualityJudge`。
+- 该 schema 已接入真实 V2 orchestration：运行顺序为 `sourceMap -> reviewPathPlan -> ecdPlanning -> deterministic unitPracticePlan adapter -> multipleChoiceDraft / matchingDraft -> unitSummaryDraft -> qualityJudge`。
 - `ecdPlanning` 输出会写入 `generationMeta.ecdPlanning`，并展示在 V2 HTML 质量报告中，用于人工检查模型是否先建立了学习主张、证据需求、任务计划和组装理由。
 - `ecdPlanning.unitAssemblyPlan[].selectedTasks` 现在已经驱动下游 `unitPracticePlan`：编排层会把当前 unit 的 `knowledgeUnit`、`learningClaims`、`evidenceNeeds`、`taskPlans`、`assemblyPlan` 作为 `ecdContext` 传入后续阶段。
-- 旧 `unitPracticePlan` 仍作为过渡 adapter 保留：它把 ECD 的 `selectedTasks` 转成现有 `practiceGoals` 和 `questionPlans`，从而保持 SwiftUI 可见字段合同稳定。
+- 旧 `unitPracticePlan` 仍作为过渡 adapter 保留，但不再由模型重新规划：它确定性地把 ECD 的 `selectedTasks` 转成现有 `practiceGoals` 和 `questionPlans`，从而保持 SwiftUI 可见字段合同稳定，并减少一层 JSON 生成不稳定性。
 - 如果 ECD 只选择 matching，则跳过 `multipleChoiceDraft`；如果 ECD 不选择 matching，则跳过 `matchingDraft`。模型额外发明的 `questionPlans` 会被过滤掉。
 - 当前前端只支持 `multiple_choice` 和 `matching`。ECD 中暂未落地的 future affordance 会在过渡期映射为 `multiple_choice`，后续如果新增题型，再单独扩展前端合同。
 - `reviewPathPlan.knowledgeObjects[]` 已作为 Domain Modeling 的上游知识对象地图接入。它先保护知识边界，再生成 `units[]`，避免把两个本应独立考察的知识对象合并成一个 unit。
 - `units[].sourceKnowledgeObjectIds` 是内部追踪字段，会保留在 `generationMeta.reviewPathPlan.units[]` 中用于质量报告和调试，但不会暴露到 SwiftUI 正式 `units[]` 合同。
 - `ecdPlanning.unitSubObjectives[]` 已加入代码级 schema。它把一个 unit 内部继续拆成可考、可观察、可由原文支撑的小目标；`unitLearningClaims[]` 和 `unitEvidenceNeeds[]` 必须引用这些小目标。
+- `ecdPlanning.unitEvidenceAngles[]` 已加入代码级 schema。它位于 `unitLearningClaims[]` 和 `unitEvidenceNeeds[]` 之间，用来记录同一个 claim 需要从哪些不同证据角度被观察，例如定义掌握、结构匹配、边界辨析、误区识别和场景迁移。
 - `unitEvidenceNeeds[].coverageRequirement` 已加入代码级 schema。`required` evidence 必须被 `unitAssemblyPlan[].selectedTasks[]` 覆盖；`supporting` / `optional` 可以不覆盖，但仍应在 HTML 报告里可见。
-- V2 HTML 质量报告已展示 Coverage Matrix，用来人工检查每个 sub-objective、claim、evidence 和 selected task 的覆盖关系。
+- `unitTaskPlan[].angleIds[]` 和 `unitAssemblyPlan[].selectedTasks[].angleIds[]` 已加入代码级 schema。`required` angle 必须被 selected task 覆盖。
+- V2 HTML 质量报告已展示 Coverage Matrix 和 Angle Coverage Matrix，用来人工检查每个 sub-objective、claim、angle、evidence 和 selected task 的覆盖关系。
 
 ## 总览
 
@@ -31,9 +33,9 @@
 | Domain Analysis | `articleUnderstanding` | `coreThesis`、`articleStructure`、`nonReviewableSections` | 部分可见为章节概要 | 是 |
 | Domain Modeling | `reviewPathPlan.knowledgeObjects`、`knowledgeModel` | `knowledgeObjectId`、`boundaryDecision`、`unitId`、`title`、`nodeLabel`、`knowledgeShape`、`sourceAnchorId` | 部分可见 | 是 |
 | Student Model | `unitSubObjectives`、`unitLearningClaims` | `subObjectiveId`、`importance`、`claimType`、`learningClaim` | 否 | 是 |
-| Evidence Model | `unitEvidenceNeeds` | `subObjectiveId`、`coverageRequirement`、`evidenceType`、`evidenceNeed`、`observableResponse` | 否 | 是 |
-| Task Model | `unitTaskPlan` | `taskPurpose`、`taskAffordance`、`whyThisTask` | 否 | 是 |
-| Assembly Model | `unitAssemblyPlan` | `selectedTasks`、`assemblyReason` | 否 | 是 |
+| Evidence Model | `unitEvidenceAngles`、`unitEvidenceNeeds` | `angleId`、`angleType`、`coverageRequirement`、`evidenceType`、`observableResponse` | 否 | 是 |
+| Task Model | `unitTaskPlan` | `taskPurpose`、`taskAffordance`、`angleIds`、`whyThisTask` | 否 | 是 |
+| Assembly Model | `unitAssemblyPlan` | `selectedTasks`、`angleIds`、`assemblyReason` | 否 | 是 |
 | Presentation / Response | `questionDraft`、runtime state | `question`、`options`、`answer`、`explanation`、`sourceAnchorId` | 是 | 是 |
 | Delivery / Summary | runtime + generated summary | `nextActivity`、`unitSummary`、`chapterCompletionMessage` | 是 | 可选 |
 
@@ -239,7 +241,59 @@ source_grounded_understanding
 | `learningClaim` | 用户应掌握的理解 | 否 | 是 |
 | `sourceAnchorId` | claim 原文依据 | 否 | 是 |
 
-## 5. `unitEvidenceNeeds`
+## 5. `unitEvidenceAngles`
+
+ECD 对应：`Evidence Model` 的证据角度层。
+
+作用：防止一个 claim 被一道宽泛题目浅浅带过。它先记录“这个理解需要从哪些不同角度观察”，再由 `unitEvidenceNeeds[]` 写成具体可观察表现。该层不等于增加固定题量；只有当不同角度能产生不同的可观察 evidence 时，才应该拆分。
+
+建议 schema：
+
+```json
+{
+  "unitId": "unit-3",
+  "angleId": "angle-3-1",
+  "subObjectiveId": "sub-3-1",
+  "claimId": "claim-3-1",
+  "angleType": "structure_mapping",
+  "importance": "required",
+  "anglePurpose": "确认用户能把 DMC 三层分别对应到正确作用，而不是只记住三个英文名。",
+  "sourceAnchorId": "anchor-unit-3"
+}
+```
+
+建议 `angleType` 枚举：
+
+```text
+definition_grasp
+structure_mapping
+boundary_discrimination
+misconception_detection
+scenario_transfer
+mechanism_reasoning
+source_grounding
+```
+
+字段说明：
+
+| 字段 | 作用 | 前端可见 | 报告可见 |
+| --- | --- | --- | --- |
+| `angleId` | evidence angle 稳定 ID | 否 | 是 |
+| `subObjectiveId` | 对应哪个可考小目标 | 否 | 是 |
+| `claimId` | 对应哪个 learning claim | 否 | 是 |
+| `angleType` | 证据角度类型 | 否 | 是 |
+| `importance` | required / supporting / optional | 否 | 是 |
+| `anglePurpose` | 为什么需要这个角度 | 否 | 是 |
+| `sourceAnchorId` | angle 原文依据 | 否 | 是 |
+
+重要规则：
+
+- `importance: "required"` 的 angle 必须被 `unitAssemblyPlan.selectedTasks[].angleIds[]` 覆盖。
+- `unitEvidenceNeeds[].angleId` 必须引用一个已存在的 `unitEvidenceAngles[].angleId`。
+- 一个知识点可以有多个 required angle，例如 DMC 可以同时需要 `structure_mapping` 和 `misconception_detection`。
+- 不要为了增加题量机械拆 angle。只有当新 angle 能观察到不同的用户理解表现时，才应该加入。
+
+## 6. `unitEvidenceNeeds`
 
 ECD 对应：`Evidence Model`
 
@@ -255,6 +309,7 @@ ECD 对应：`Evidence Model`
       "evidenceId": "ev-3-1",
       "subObjectiveId": "sub-3-1",
       "claimId": "claim-3-1",
+      "angleId": "angle-3-1",
       "evidenceType": "map_structure_relation",
       "coverageRequirement": "required",
       "evidenceNeed": "用户能把动力层、机制层、组件层分别匹配到正确作用。",
@@ -283,34 +338,26 @@ ground_answer_in_source
 | 字段 | 作用 | 前端可见 | 报告可见 |
 | --- | --- | --- | --- |
 | `evidenceId` | evidence 稳定 ID | 否 | 是 |
+| `subObjectiveId` | 对应哪个可考小目标 | 否 | 是 |
 | `claimId` | 对应 learning claim | 否 | 是 |
+| `angleId` | 对应哪个 evidence angle | 否 | 是 |
 | `evidenceType` | evidence 类型 | 否 | 是 |
+| `coverageRequirement` | required / supporting / optional | 否 | 是 |
 | `evidenceNeed` | 需要观察到的表现 | 否 | 是 |
 | `observableResponse` | 具体可观察回答/操作 | 否 | 是 |
 | `sourceAnchorId` | evidence 原文依据 | 否 | 是 |
 
-## 5. `unitTaskPlan`
+重要规则：
+
+- `coverageRequirement: "required"` 的 evidence 必须被 `unitAssemblyPlan.selectedTasks[].evidenceIds[]` 覆盖。
+- `supporting` 和 `optional` 不要求一定出题，但不能影响 required evidence 的覆盖。
+- 这不是固定题量规则。一个 task 可以覆盖多个 evidence；一个 unit 也可以因为有多个 required evidence 自然生成多道题。
+
+## 7. `unitTaskPlan`
 
 ECD 对应：`Task Model`
 
-作用：为 evidence 选择合适任务，不直接写题。
-
-建议 schema：
-
-```json
-{
-  "unitId": "unit-3",
-  "recommendedTasks": [
-    {
-      "taskPlanId": "tp-3-1",
-      "evidenceIds": ["ev-3-1"],
-      "taskAffordance": "matching",
-      "taskPurpose": "layer_role_matching",
-      "whyThisTask": "DMC 是分层模型，连线题能直接观察用户是否理解层级和作用的对应关系。"
-    }
-  ]
-}
-```
+作用：记录每个 evidence 适合用什么任务引出，以及为什么这个任务合适。
 
 建议 `taskAffordance` 枚举：
 
@@ -341,38 +388,14 @@ role_responsibility_matching
 
 | 字段 | 作用 | 前端可见 | 报告可见 |
 | --- | --- | --- | --- |
-| `subObjectiveId` | 对应哪个可考小目标 | 否 | 是 |
-| `coverageRequirement` | required / supporting / optional | 否 | 是 |
-| `evidenceId` | evidence 稳定 ID | 否 | 是 |
-| `claimId` | 对应哪个 learning claim | 否 | 是 |
-| `evidenceType` | evidence 类型 | 否 | 是 |
-| `evidenceNeed` | 需要收集什么证据 | 否 | 是 |
-| `observableResponse` | 什么用户反应能证明掌握 | 否 | 是 |
-| `sourceAnchorId` | evidence 原文依据 | 否 | 是 |
-
-重要规则：
-
-- `coverageRequirement: "required"` 的 evidence 必须被 `unitAssemblyPlan.selectedTasks[].evidenceIds[]` 覆盖。
-- `supporting` 和 `optional` 不要求一定出题，但不能影响 required evidence 的覆盖。
-- 这不是固定题量规则。一个 task 可以覆盖多个 evidence；一个 unit 也可以因为有多个 required evidence 自然生成多道题。
-
-## 6. `unitTaskPlan`
-
-ECD 对应：`Task Model`
-
-作用：记录每个 evidence 适合用什么任务引出，以及为什么这个任务合适。
-
-字段说明：
-
-| 字段 | 作用 | 前端可见 | 报告可见 |
-| --- | --- | --- | --- |
 | `taskPlanId` | task plan 稳定 ID | 否 | 是 |
 | `evidenceIds[]` | 覆盖哪些 evidence | 否 | 是 |
+| `angleIds[]` | 覆盖哪些 evidence angle | 否 | 是 |
 | `taskAffordance` | 适合的任务外壳 | 否 | 是 |
 | `taskPurpose` | 任务内部目的 | 否 | 是 |
 | `whyThisTask` | 为什么选这个任务 | 否 | 是 |
 
-## 7. `unitAssemblyPlan`
+## 8. `unitAssemblyPlan`
 
 ECD 对应：`Assembly Model`
 
@@ -384,12 +407,13 @@ ECD 对应：`Assembly Model`
 {
   "unitId": "unit-3",
   "selectedTasks": [
-    {
-      "questionPlanId": "qp-3-1",
-      "taskPlanId": "tp-3-1",
-      "evidenceIds": ["ev-3-1"],
-      "taskAffordance": "matching",
-      "taskPurpose": "layer_role_matching",
+      {
+        "questionPlanId": "qp-3-1",
+        "taskPlanId": "tp-3-1",
+        "evidenceIds": ["ev-3-1"],
+        "angleIds": ["angle-3-1"],
+        "taskAffordance": "matching",
+        "taskPurpose": "layer_role_matching",
       "assemblyReason": "该 task 直接覆盖 DMC 结构理解的核心 evidence，因此进入本 unit。"
     }
   ],
@@ -408,6 +432,7 @@ ECD 对应：`Assembly Model`
 | --- | --- | --- | --- |
 | `selectedTasks[]` | 最终生成哪些题 | 否 | 是 |
 | `questionPlanId` | 题目计划 ID | 否 | 是 |
+| `angleIds[]` | 该题覆盖哪些 evidence angle | 否 | 是 |
 | `assemblyReason` | 该题为什么存在 | 否 | 是 |
 | `skippedEvidence[]` | 有哪些 evidence 被跳过及原因 | 否 | 是 |
 
@@ -416,10 +441,11 @@ ECD 对应：`Assembly Model`
 - `selectedTasks` 不限制数量。
 - 一个 task 可以覆盖多个 evidence。
 - `coverageRequirement: "required"` 的 evidence 不能跳过。
+- `importance: "required"` 的 evidence angle 不能跳过。
 - `supporting` / `optional` evidence 如果没有高价值 task，可以跳过，但应进入 `skippedEvidence[]` 或在报告中可见。
 - 数量不是质量目标，evidence value 才是质量目标。
 
-## 8. `questionDraft`
+## 9. `questionDraft`
 
 ECD 对应：`Presentation Process / Task Instance`
 
@@ -464,7 +490,7 @@ ECD 对应：`Presentation Process / Task Instance`
 | `generationMeta.taskPurpose` | 题目任务目的 | 否 | 是 |
 | `generationMeta.assemblyReason` | 题目存在理由 | 否 | 是 |
 
-## 8. `deliveryState`
+## 10. `deliveryState`
 
 ECD 对应：`Assessment Delivery / Response Processing / Activity Selection`
 
@@ -504,7 +530,7 @@ ECD 对应：`Assessment Delivery / Response Processing / Activity Selection`
 
 这部分不是 prompt 生成重点，但要进入产品工程设计，避免查看原文返回后丢失已作答状态。
 
-## 9. `qualityReport`
+## 11. `qualityReport`
 
 ECD 对应：`Validity / Calibration`
 

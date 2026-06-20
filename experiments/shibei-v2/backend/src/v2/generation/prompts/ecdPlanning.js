@@ -67,6 +67,22 @@ export const COVERAGE_REQUIREMENTS = [
   "optional"
 ];
 
+export const EVIDENCE_ANGLE_TYPES = [
+  "definition_grasp",
+  "structure_mapping",
+  "boundary_discrimination",
+  "misconception_detection",
+  "scenario_transfer",
+  "mechanism_reasoning",
+  "source_grounding"
+];
+
+export const EVIDENCE_ANGLE_IMPORTANCE = [
+  "required",
+  "supporting",
+  "optional"
+];
+
 export const TASK_AFFORDANCES = [
   "multiple_choice",
   "matching",
@@ -98,12 +114,18 @@ const evidenceIdsSchema = {
   items: { type: "string" }
 };
 
+const angleIdsSchema = {
+  type: "array",
+  items: { type: "string" }
+};
+
 const selectedTaskSchema = {
   type: "object",
   required: [
     "questionPlanId",
     "taskPlanId",
     "evidenceIds",
+    "angleIds",
     "taskAffordance",
     "taskPurpose",
     "assemblyReason"
@@ -112,6 +134,7 @@ const selectedTaskSchema = {
     questionPlanId: { type: "string" },
     taskPlanId: { type: "string" },
     evidenceIds: evidenceIdsSchema,
+    angleIds: angleIdsSchema,
     taskAffordance: { enum: TASK_AFFORDANCES },
     taskPurpose: { enum: TASK_PURPOSES },
     assemblyReason: { type: "string" }
@@ -126,6 +149,7 @@ export const ECD_PLANNING_OUTPUT_SCHEMA = {
     "knowledgeModel",
     "unitSubObjectives",
     "unitLearningClaims",
+    "unitEvidenceAngles",
     "unitEvidenceNeeds",
     "unitTaskPlan",
     "unitAssemblyPlan"
@@ -235,6 +259,32 @@ export const ECD_PLANNING_OUTPUT_SCHEMA = {
         }
       }
     },
+    unitEvidenceAngles: {
+      type: "array",
+      items: {
+        type: "object",
+        required: [
+          "unitId",
+          "angleId",
+          "subObjectiveId",
+          "claimId",
+          "angleType",
+          "importance",
+          "anglePurpose",
+          "sourceAnchorId"
+        ],
+        properties: {
+          unitId: { type: "string" },
+          angleId: { type: "string" },
+          subObjectiveId: { type: "string" },
+          claimId: { type: "string" },
+          angleType: { enum: EVIDENCE_ANGLE_TYPES },
+          importance: { enum: EVIDENCE_ANGLE_IMPORTANCE },
+          anglePurpose: { type: "string" },
+          sourceAnchorId: { type: "string" }
+        }
+      }
+    },
     unitEvidenceNeeds: {
       type: "array",
       items: {
@@ -244,6 +294,7 @@ export const ECD_PLANNING_OUTPUT_SCHEMA = {
           "evidenceId",
           "subObjectiveId",
           "claimId",
+          "angleId",
           "evidenceType",
           "coverageRequirement",
           "evidenceNeed",
@@ -255,6 +306,7 @@ export const ECD_PLANNING_OUTPUT_SCHEMA = {
           evidenceId: { type: "string" },
           subObjectiveId: { type: "string" },
           claimId: { type: "string" },
+          angleId: { type: "string" },
           evidenceType: { enum: EVIDENCE_TYPES },
           coverageRequirement: { enum: COVERAGE_REQUIREMENTS },
           evidenceNeed: { type: "string" },
@@ -271,6 +323,7 @@ export const ECD_PLANNING_OUTPUT_SCHEMA = {
           "unitId",
           "taskPlanId",
           "evidenceIds",
+          "angleIds",
           "taskAffordance",
           "taskPurpose",
           "whyThisTask"
@@ -279,6 +332,7 @@ export const ECD_PLANNING_OUTPUT_SCHEMA = {
           unitId: { type: "string" },
           taskPlanId: { type: "string" },
           evidenceIds: evidenceIdsSchema,
+          angleIds: angleIdsSchema,
           taskAffordance: { enum: TASK_AFFORDANCES },
           taskPurpose: { enum: TASK_PURPOSES },
           whyThisTask: { type: "string" }
@@ -327,6 +381,7 @@ export function validateEcdPlanningOutput(output, { unitIds = new Set(), sourceA
       "knowledgeModel",
       "unitSubObjectives",
       "unitLearningClaims",
+      "unitEvidenceAngles",
       "unitEvidenceNeeds",
       "unitTaskPlan",
       "unitAssemblyPlan"
@@ -344,18 +399,28 @@ export function validateEcdPlanningOutput(output, { unitIds = new Set(), sourceA
     subObjectiveIds,
     errors
   });
-  const evidenceIds = validateEvidenceNeeds(output.unitEvidenceNeeds, {
+  const angleIds = validateEvidenceAngles(output.unitEvidenceAngles, {
     unitIds,
     sourceAnchorIds,
     claimIds,
     subObjectiveIds,
     errors
   });
-  const taskPlanIds = validateTaskPlan(output.unitTaskPlan, { unitIds, evidenceIds, errors });
+  const evidenceIds = validateEvidenceNeeds(output.unitEvidenceNeeds, {
+    unitIds,
+    sourceAnchorIds,
+    claimIds,
+    subObjectiveIds,
+    angleIds,
+    errors
+  });
+  const taskPlanIds = validateTaskPlan(output.unitTaskPlan, { unitIds, evidenceIds, angleIds, errors });
   validateAssemblyPlan(output.unitAssemblyPlan, {
     unitIds,
     evidenceItems: output.unitEvidenceNeeds,
     evidenceIds,
+    angleItems: output.unitEvidenceAngles,
+    angleIds,
     taskPlanIds,
     errors
   });
@@ -363,10 +428,13 @@ export function validateEcdPlanningOutput(output, { unitIds = new Set(), sourceA
   return createValidationResult(errors);
 }
 
-export function normalizeEcdPlanningOutput(output) {
+export function normalizeEcdPlanningOutput(output, {
+  unitSourceAnchorIds = new Map(),
+  sourceAnchorIds = new Set(unitSourceAnchorIds.values())
+} = {}) {
   if (!isPlainObject(output)) return output;
 
-  return {
+  const normalized = {
     ...output,
     knowledgeModel: normalizeKnowledgeModel(output.knowledgeModel),
     unitSubObjectives: normalizeEnumItems(
@@ -389,6 +457,20 @@ export function normalizeEcdPlanningOutput(output) {
       allowedValues: CLAIM_TYPES,
       fallback: "source_grounded_understanding"
     }),
+    unitEvidenceAngles: normalizeEnumItems(
+      normalizeEnumItems(output.unitEvidenceAngles, {
+        field: "angleType",
+        originalField: "originalAngleType",
+        allowedValues: EVIDENCE_ANGLE_TYPES,
+        fallback: "definition_grasp"
+      }),
+      {
+        field: "importance",
+        originalField: "originalImportance",
+        allowedValues: EVIDENCE_ANGLE_IMPORTANCE,
+        fallback: "supporting"
+      }
+    ),
     unitEvidenceNeeds: normalizeEnumItems(
       normalizeEnumItems(output.unitEvidenceNeeds, {
         field: "evidenceType",
@@ -419,6 +501,11 @@ export function normalizeEcdPlanningOutput(output) {
     ),
     unitAssemblyPlan: normalizeAssemblyPlan(output.unitAssemblyPlan)
   };
+
+  return normalizeUnitScopedSourceAnchors(normalized, {
+    unitSourceAnchorIds,
+    sourceAnchorIds
+  });
 }
 
 function normalizeKnowledgeModel(knowledgeModel) {
@@ -469,6 +556,43 @@ function normalizeEnumField(item, { field, originalField, allowedValues, fallbac
     ...item,
     [originalField]: value,
     [field]: fallback
+  };
+}
+
+function normalizeUnitScopedSourceAnchors(output, { unitSourceAnchorIds, sourceAnchorIds }) {
+  if (!isPlainObject(output) || !(unitSourceAnchorIds instanceof Map)) return output;
+  return {
+    ...output,
+    knowledgeModel: isPlainObject(output.knowledgeModel) && Array.isArray(output.knowledgeModel.units)
+      ? {
+          ...output.knowledgeModel,
+          units: output.knowledgeModel.units.map((item) =>
+            normalizeUnitScopedSourceAnchor(item, { unitSourceAnchorIds, sourceAnchorIds })
+          )
+        }
+      : output.knowledgeModel,
+    unitSubObjectives: normalizeSourceAnchorItems(output.unitSubObjectives, { unitSourceAnchorIds, sourceAnchorIds }),
+    unitLearningClaims: normalizeSourceAnchorItems(output.unitLearningClaims, { unitSourceAnchorIds, sourceAnchorIds }),
+    unitEvidenceAngles: normalizeSourceAnchorItems(output.unitEvidenceAngles, { unitSourceAnchorIds, sourceAnchorIds }),
+    unitEvidenceNeeds: normalizeSourceAnchorItems(output.unitEvidenceNeeds, { unitSourceAnchorIds, sourceAnchorIds })
+  };
+}
+
+function normalizeSourceAnchorItems(items, options) {
+  if (!Array.isArray(items)) return items;
+  return items.map((item) => normalizeUnitScopedSourceAnchor(item, options));
+}
+
+function normalizeUnitScopedSourceAnchor(item, { unitSourceAnchorIds, sourceAnchorIds }) {
+  if (!isPlainObject(item) || !isNonEmptyString(item.unitId)) return item;
+  const fallbackSourceAnchorId = unitSourceAnchorIds.get(item.unitId);
+  if (!isNonEmptyString(fallbackSourceAnchorId)) return item;
+  if (sourceAnchorIds instanceof Set && sourceAnchorIds.has(item.sourceAnchorId)) return item;
+  if (item.sourceAnchorId === fallbackSourceAnchorId) return item;
+  return {
+    ...item,
+    ...(isNonEmptyString(item.sourceAnchorId) ? { originalSourceAnchorId: item.sourceAnchorId } : {}),
+    sourceAnchorId: fallbackSourceAnchorId
   };
 }
 
@@ -606,7 +730,49 @@ function validateLearningClaims(items, { unitIds, sourceAnchorIds, subObjectiveI
   return ids;
 }
 
-function validateEvidenceNeeds(items, { unitIds, sourceAnchorIds, claimIds, subObjectiveIds, errors }) {
+function validateEvidenceAngles(items, { unitIds, sourceAnchorIds, claimIds, subObjectiveIds, errors }) {
+  const ids = new Set();
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push("ecdPlanning.unitEvidenceAngles must be a non-empty array");
+    return ids;
+  }
+
+  items.forEach((angle, index) => {
+    const path = `ecdPlanning.unitEvidenceAngles[${index}]`;
+    if (!isPlainObject(angle)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    requireFields(
+      angle,
+      ["unitId", "angleId", "subObjectiveId", "claimId", "angleType", "importance", "anglePurpose", "sourceAnchorId"],
+      path,
+      errors
+    );
+    if (ids.has(angle.angleId)) errors.push(`${path}.angleId must be unique`);
+    ids.add(angle.angleId);
+    if (unitIds.size > 0 && !unitIds.has(angle.unitId)) errors.push(`${path}.unitId must reference a known unit`);
+    if (isNonEmptyString(angle.subObjectiveId) && !subObjectiveIds.has(angle.subObjectiveId)) {
+      errors.push(`${path}.subObjectiveId must reference a unitSubObjectives item`);
+    }
+    if (isNonEmptyString(angle.claimId) && !claimIds.has(angle.claimId)) {
+      errors.push(`${path}.claimId must reference a unitLearningClaims item`);
+    }
+    if (isNonEmptyString(angle.angleType) && !EVIDENCE_ANGLE_TYPES.includes(angle.angleType)) {
+      errors.push(`${path}.angleType must be one of ${EVIDENCE_ANGLE_TYPES.join(", ")}`);
+    }
+    if (isNonEmptyString(angle.importance) && !EVIDENCE_ANGLE_IMPORTANCE.includes(angle.importance)) {
+      errors.push(`${path}.importance must be one of ${EVIDENCE_ANGLE_IMPORTANCE.join(", ")}`);
+    }
+    if (sourceAnchorIds.size > 0 && !sourceAnchorIds.has(angle.sourceAnchorId)) {
+      errors.push(`${path}.sourceAnchorId must reference a known source anchor`);
+    }
+  });
+
+  return ids;
+}
+
+function validateEvidenceNeeds(items, { unitIds, sourceAnchorIds, claimIds, subObjectiveIds, angleIds, errors }) {
   const ids = new Set();
   if (!Array.isArray(items) || items.length === 0) {
     errors.push("ecdPlanning.unitEvidenceNeeds must be a non-empty array");
@@ -626,6 +792,7 @@ function validateEvidenceNeeds(items, { unitIds, sourceAnchorIds, claimIds, subO
         "evidenceId",
         "subObjectiveId",
         "claimId",
+        "angleId",
         "evidenceType",
         "coverageRequirement",
         "evidenceNeed",
@@ -646,6 +813,9 @@ function validateEvidenceNeeds(items, { unitIds, sourceAnchorIds, claimIds, subO
     if (isNonEmptyString(evidence.subObjectiveId) && !subObjectiveIds.has(evidence.subObjectiveId)) {
       errors.push(`${path}.subObjectiveId must reference a unitSubObjectives item`);
     }
+    if (isNonEmptyString(evidence.angleId) && !angleIds.has(evidence.angleId)) {
+      errors.push(`${path}.angleId must reference a unitEvidenceAngles item`);
+    }
     if (isNonEmptyString(evidence.evidenceType) && !EVIDENCE_TYPES.includes(evidence.evidenceType)) {
       errors.push(`${path}.evidenceType must be one of ${EVIDENCE_TYPES.join(", ")}`);
     }
@@ -663,7 +833,7 @@ function validateEvidenceNeeds(items, { unitIds, sourceAnchorIds, claimIds, subO
   return ids;
 }
 
-function validateTaskPlan(items, { unitIds, evidenceIds, errors }) {
+function validateTaskPlan(items, { unitIds, evidenceIds, angleIds, errors }) {
   const ids = new Set();
   if (!Array.isArray(items) || items.length === 0) {
     errors.push("ecdPlanning.unitTaskPlan must be a non-empty array");
@@ -689,6 +859,7 @@ function validateTaskPlan(items, { unitIds, evidenceIds, errors }) {
         }
       });
     }
+    validateAngleIdArray(task.angleIds, `${path}.angleIds`, angleIds, errors);
     if (isNonEmptyString(task.taskAffordance) && !TASK_AFFORDANCES.includes(task.taskAffordance)) {
       errors.push(`${path}.taskAffordance must be one of ${TASK_AFFORDANCES.join(", ")}`);
     }
@@ -700,13 +871,14 @@ function validateTaskPlan(items, { unitIds, evidenceIds, errors }) {
   return ids;
 }
 
-function validateAssemblyPlan(items, { unitIds, evidenceItems, evidenceIds, taskPlanIds, errors }) {
+function validateAssemblyPlan(items, { unitIds, evidenceItems, evidenceIds, angleItems, angleIds, taskPlanIds, errors }) {
   if (!Array.isArray(items) || items.length === 0) {
     errors.push("ecdPlanning.unitAssemblyPlan must be a non-empty array");
     return;
   }
 
   const requiredEvidenceByUnit = groupRequiredEvidenceByUnit(evidenceItems);
+  const requiredAnglesByUnit = groupRequiredAnglesByUnit(angleItems);
 
   items.forEach((assembly, index) => {
     const path = `ecdPlanning.unitAssemblyPlan[${index}]`;
@@ -720,16 +892,33 @@ function validateAssemblyPlan(items, { unitIds, evidenceItems, evidenceIds, task
       errors.push(`${path}.selectedTasks must be an array`);
     } else {
       assembly.selectedTasks.forEach((task, taskIndex) => {
-        validateSelectedTask(task, `${path}.selectedTasks[${taskIndex}]`, { evidenceIds, taskPlanIds, errors });
+        validateSelectedTask(task, `${path}.selectedTasks[${taskIndex}]`, { evidenceIds, angleIds, taskPlanIds, errors });
       });
       validateRequiredEvidenceCoverage(assembly, {
         path,
         requiredEvidenceByUnit,
         errors
       });
+      validateRequiredAngleCoverage(assembly, {
+        path,
+        requiredAnglesByUnit,
+        errors
+      });
     }
     if (!Array.isArray(assembly.skippedEvidence)) {
       errors.push(`${path}.skippedEvidence must be an array`);
+    }
+  });
+}
+
+function validateAngleIdArray(items, path, angleIds, errors) {
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push(`${path} must be a non-empty array`);
+    return;
+  }
+  items.forEach((angleId, index) => {
+    if (!angleIds.has(angleId)) {
+      errors.push(`${path}[${index}] must reference a unitEvidenceAngles item`);
     }
   });
 }
@@ -741,6 +930,17 @@ function groupRequiredEvidenceByUnit(evidenceItems) {
     const list = map.get(evidence.unitId) || [];
     list.push(evidence.evidenceId);
     map.set(evidence.unitId, list);
+  }
+  return map;
+}
+
+function groupRequiredAnglesByUnit(angleItems) {
+  const map = new Map();
+  for (const angle of Array.isArray(angleItems) ? angleItems : []) {
+    if (!isPlainObject(angle) || angle.importance !== "required") continue;
+    const list = map.get(angle.unitId) || [];
+    list.push(angle.angleId);
+    map.set(angle.unitId, list);
   }
   return map;
 }
@@ -763,7 +963,25 @@ function validateRequiredEvidenceCoverage(assembly, { path, requiredEvidenceByUn
   }
 }
 
-function validateSelectedTask(task, path, { evidenceIds, taskPlanIds, errors }) {
+function validateRequiredAngleCoverage(assembly, { path, requiredAnglesByUnit, errors }) {
+  const requiredAngles = requiredAnglesByUnit.get(assembly.unitId) || [];
+  if (requiredAngles.length === 0) return;
+
+  const selectedAngles = new Set();
+  for (const task of assembly.selectedTasks) {
+    for (const angleId of Array.isArray(task?.angleIds) ? task.angleIds : []) {
+      selectedAngles.add(angleId);
+    }
+  }
+
+  for (const angleId of requiredAngles) {
+    if (!selectedAngles.has(angleId)) {
+      errors.push(`${path}.selectedTasks must cover required angle ${angleId}`);
+    }
+  }
+}
+
+function validateSelectedTask(task, path, { evidenceIds, angleIds, taskPlanIds, errors }) {
   if (!isPlainObject(task)) {
     errors.push(`${path} must be an object`);
     return;
@@ -783,6 +1001,7 @@ function validateSelectedTask(task, path, { evidenceIds, taskPlanIds, errors }) 
       }
     });
   }
+  validateAngleIdArray(task.angleIds, `${path}.angleIds`, angleIds, errors);
   if (isNonEmptyString(task.taskAffordance) && !TASK_AFFORDANCES.includes(task.taskAffordance)) {
     errors.push(`${path}.taskAffordance must be one of ${TASK_AFFORDANCES.join(", ")}`);
   }

@@ -353,6 +353,7 @@ function renderEcdPlanning(ecdPlanning) {
   const units = Array.isArray(ecdPlanning.knowledgeModel?.units) ? ecdPlanning.knowledgeModel.units : [];
   const subObjectivesByUnit = groupByUnitId(ecdPlanning.unitSubObjectives);
   const claimsByUnit = groupByUnitId(ecdPlanning.unitLearningClaims);
+  const anglesByUnit = groupByUnitId(ecdPlanning.unitEvidenceAngles);
   const evidenceByUnit = groupByUnitId(ecdPlanning.unitEvidenceNeeds);
   const taskPlansByUnit = groupByUnitId(ecdPlanning.unitTaskPlan);
   const assemblyByUnit = new Map(
@@ -368,6 +369,7 @@ function renderEcdPlanning(ecdPlanning) {
       index,
       subObjectives: subObjectivesByUnit.get(unit.unitId) || [],
       claims: claimsByUnit.get(unit.unitId) || [],
+      angles: anglesByUnit.get(unit.unitId) || [],
       evidence: evidenceByUnit.get(unit.unitId) || [],
       taskPlans: taskPlansByUnit.get(unit.unitId) || [],
       assembly: assemblyByUnit.get(unit.unitId)
@@ -375,7 +377,7 @@ function renderEcdPlanning(ecdPlanning) {
   </section>`;
 }
 
-function renderEcdPlanningUnit({ unit, index, subObjectives, claims, evidence, taskPlans, assembly }) {
+function renderEcdPlanningUnit({ unit, index, subObjectives, claims, angles, evidence, taskPlans, assembly }) {
   return `<div class="question">
     <div class="stem">${index + 1}. ${escapeHtml(unit.nodeLabel || unit.title || unit.unitId)} · ${escapeHtml(unit.knowledgeShape || "")}</div>
     <p><span class="tag">短版</span>${escapeHtml(unit.shortSummary || "")}</p>
@@ -386,15 +388,65 @@ function renderEcdPlanningUnit({ unit, index, subObjectives, claims, evidence, t
     ${renderEcdList("Learning Claims", claims, (claim) =>
       `${claim.claimId} · ${claim.subObjectiveId || "no-sub-objective"} · ${claim.claimType}：${claim.learningClaim}`
     )}
+    ${renderEcdList("Evidence Angles", angles, (angle) =>
+      `${angle.angleId} · ${angle.subObjectiveId || "no-sub-objective"} · ${angle.importance || "unknown"} · ${angle.angleType}：${angle.anglePurpose}`
+    )}
     ${renderEcdList("Evidence Needs", evidence, (item) =>
-      `${item.evidenceId} · ${item.subObjectiveId || "no-sub-objective"} · ${item.coverageRequirement || "unknown"} · ${item.evidenceType}：${item.evidenceNeed} / 可观察反应：${item.observableResponse}`
+      `${item.evidenceId} · ${item.subObjectiveId || "no-sub-objective"} · ${item.angleId || "no-angle"} · ${item.coverageRequirement || "unknown"} · ${item.evidenceType}：${item.evidenceNeed} / 可观察反应：${item.observableResponse}`
     )}
     ${renderEcdList("Task Plan", taskPlans, (task) =>
       `${task.taskPlanId} · ${task.taskAffordance} · ${task.taskPurpose}：${task.whyThisTask}`
     )}
+    ${renderAngleCoverageMatrix({ angles, evidence, assembly })}
     ${renderCoverageMatrix({ subObjectives, claims, evidence, assembly })}
     ${renderEcdSelectedTasks(assembly)}
   </div>`;
+}
+
+function renderAngleCoverageMatrix({ angles, evidence, assembly }) {
+  const selectedAngles = new Set();
+  const selectedEvidence = new Set();
+  const taskByAngle = new Map();
+  for (const task of Array.isArray(assembly?.selectedTasks) ? assembly.selectedTasks : []) {
+    for (const angleId of Array.isArray(task.angleIds) ? task.angleIds : []) {
+      selectedAngles.add(angleId);
+      const list = taskByAngle.get(angleId) || [];
+      list.push(`${task.questionPlanId}:${task.taskPurpose}`);
+      taskByAngle.set(angleId, list);
+    }
+    for (const evidenceId of Array.isArray(task.evidenceIds) ? task.evidenceIds : []) {
+      selectedEvidence.add(evidenceId);
+    }
+  }
+  const evidenceByAngle = groupByKey(evidence, "angleId");
+
+  return `<details open>
+    <summary>Angle Coverage Matrix</summary>
+    <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:14px;">
+      <thead>
+        <tr>
+          <th style="text-align:left; border-bottom:1px solid var(--line); padding:6px;">Angle</th>
+          <th style="text-align:left; border-bottom:1px solid var(--line); padding:6px;">Evidence</th>
+          <th style="text-align:left; border-bottom:1px solid var(--line); padding:6px;">Selected task</th>
+          <th style="text-align:left; border-bottom:1px solid var(--line); padding:6px;">Covered</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${angles.map((angle) => {
+          const angleEvidence = evidenceByAngle.get(angle.angleId) || [];
+          const evidenceCoverage = angleEvidence.map((item) =>
+            `${item.evidenceId}:${selectedEvidence.has(item.evidenceId) ? "covered" : "missing"}`
+          ).join(" / ") || "no evidence";
+          return `<tr>
+            <td style="border-bottom:1px solid var(--line); padding:6px;">${escapeHtml(`${angle.angleId} · ${angle.importance} · ${angle.angleType}`)}</td>
+            <td style="border-bottom:1px solid var(--line); padding:6px;">${escapeHtml(evidenceCoverage)}</td>
+            <td style="border-bottom:1px solid var(--line); padding:6px;">${escapeHtml((taskByAngle.get(angle.angleId) || []).join(", ") || "none")}</td>
+            <td style="border-bottom:1px solid var(--line); padding:6px;">${escapeHtml(selectedAngles.has(angle.angleId) ? "covered" : "missing")}</td>
+          </tr>`;
+        }).join("\n") || `<tr><td colspan="4" class="meta" style="padding:6px;">暂无 evidence angles</td></tr>`}
+      </tbody>
+    </table>
+  </details>`;
 }
 
 function renderCoverageMatrix({ subObjectives, claims, evidence, assembly }) {
