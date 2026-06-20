@@ -351,6 +351,7 @@ function renderEcdPlanning(ecdPlanning) {
   if (!ecdPlanning) return "";
 
   const units = Array.isArray(ecdPlanning.knowledgeModel?.units) ? ecdPlanning.knowledgeModel.units : [];
+  const subObjectivesByUnit = groupByUnitId(ecdPlanning.unitSubObjectives);
   const claimsByUnit = groupByUnitId(ecdPlanning.unitLearningClaims);
   const evidenceByUnit = groupByUnitId(ecdPlanning.unitEvidenceNeeds);
   const taskPlansByUnit = groupByUnitId(ecdPlanning.unitTaskPlan);
@@ -365,6 +366,7 @@ function renderEcdPlanning(ecdPlanning) {
     ${units.map((unit, index) => renderEcdPlanningUnit({
       unit,
       index,
+      subObjectives: subObjectivesByUnit.get(unit.unitId) || [],
       claims: claimsByUnit.get(unit.unitId) || [],
       evidence: evidenceByUnit.get(unit.unitId) || [],
       taskPlans: taskPlansByUnit.get(unit.unitId) || [],
@@ -373,22 +375,66 @@ function renderEcdPlanning(ecdPlanning) {
   </section>`;
 }
 
-function renderEcdPlanningUnit({ unit, index, claims, evidence, taskPlans, assembly }) {
+function renderEcdPlanningUnit({ unit, index, subObjectives, claims, evidence, taskPlans, assembly }) {
   return `<div class="question">
     <div class="stem">${index + 1}. ${escapeHtml(unit.nodeLabel || unit.title || unit.unitId)} · ${escapeHtml(unit.knowledgeShape || "")}</div>
     <p><span class="tag">短版</span>${escapeHtml(unit.shortSummary || "")}</p>
     <p><span class="tag">长版</span>${escapeHtml(unit.detailSummary || "")}</p>
+    ${renderEcdList("Sub Objectives", subObjectives, (item) =>
+      `${item.subObjectiveId} · ${item.importance} · ${item.type}：${item.title} / ${item.learningTarget}`
+    )}
     ${renderEcdList("Learning Claims", claims, (claim) =>
-      `${claim.claimId} · ${claim.claimType}：${claim.learningClaim}`
+      `${claim.claimId} · ${claim.subObjectiveId || "no-sub-objective"} · ${claim.claimType}：${claim.learningClaim}`
     )}
     ${renderEcdList("Evidence Needs", evidence, (item) =>
-      `${item.evidenceId} · ${item.evidenceType}：${item.evidenceNeed} / 可观察反应：${item.observableResponse}`
+      `${item.evidenceId} · ${item.subObjectiveId || "no-sub-objective"} · ${item.coverageRequirement || "unknown"} · ${item.evidenceType}：${item.evidenceNeed} / 可观察反应：${item.observableResponse}`
     )}
     ${renderEcdList("Task Plan", taskPlans, (task) =>
       `${task.taskPlanId} · ${task.taskAffordance} · ${task.taskPurpose}：${task.whyThisTask}`
     )}
+    ${renderCoverageMatrix({ subObjectives, claims, evidence, assembly })}
     ${renderEcdSelectedTasks(assembly)}
   </div>`;
+}
+
+function renderCoverageMatrix({ subObjectives, claims, evidence, assembly }) {
+  const selectedEvidence = new Set();
+  for (const task of Array.isArray(assembly?.selectedTasks) ? assembly.selectedTasks : []) {
+    for (const evidenceId of Array.isArray(task.evidenceIds) ? task.evidenceIds : []) {
+      selectedEvidence.add(evidenceId);
+    }
+  }
+  const claimsBySubObjective = groupByKey(claims, "subObjectiveId");
+  const evidenceBySubObjective = groupByKey(evidence, "subObjectiveId");
+
+  return `<details open>
+    <summary>Coverage Matrix</summary>
+    <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:14px;">
+      <thead>
+        <tr>
+          <th style="text-align:left; border-bottom:1px solid var(--line); padding:6px;">Sub Objective</th>
+          <th style="text-align:left; border-bottom:1px solid var(--line); padding:6px;">Claims</th>
+          <th style="text-align:left; border-bottom:1px solid var(--line); padding:6px;">Evidence</th>
+          <th style="text-align:left; border-bottom:1px solid var(--line); padding:6px;">Covered</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${subObjectives.map((objective) => {
+          const objectiveClaims = claimsBySubObjective.get(objective.subObjectiveId) || [];
+          const objectiveEvidence = evidenceBySubObjective.get(objective.subObjectiveId) || [];
+          const coverage = objectiveEvidence.map((item) =>
+            `${item.evidenceId}:${selectedEvidence.has(item.evidenceId) ? "covered" : "missing"}`
+          ).join(" / ") || "no evidence";
+          return `<tr>
+            <td style="border-bottom:1px solid var(--line); padding:6px;">${escapeHtml(`${objective.subObjectiveId} · ${objective.importance} · ${objective.title}`)}</td>
+            <td style="border-bottom:1px solid var(--line); padding:6px;">${escapeHtml(objectiveClaims.map((claim) => claim.claimId).join(", ") || "none")}</td>
+            <td style="border-bottom:1px solid var(--line); padding:6px;">${escapeHtml(objectiveEvidence.map((item) => `${item.evidenceId}(${item.coverageRequirement || "unknown"})`).join(", ") || "none")}</td>
+            <td style="border-bottom:1px solid var(--line); padding:6px;">${escapeHtml(coverage)}</td>
+          </tr>`;
+        }).join("\n") || `<tr><td colspan="4" class="meta" style="padding:6px;">暂无 sub-objectives</td></tr>`}
+      </tbody>
+    </table>
+  </details>`;
 }
 
 function renderEcdList(title, items, formatter) {
@@ -423,6 +469,16 @@ function groupByUnitId(items) {
     const list = map.get(item.unitId) || [];
     list.push(item);
     map.set(item.unitId, list);
+  }
+  return map;
+}
+
+function groupByKey(items, key) {
+  const map = new Map();
+  for (const item of Array.isArray(items) ? items : []) {
+    const list = map.get(item[key]) || [];
+    list.push(item);
+    map.set(item[key], list);
   }
   return map;
 }

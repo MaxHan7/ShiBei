@@ -109,7 +109,8 @@ async function callDeepSeekJson({
       ],
       response_format: { type: "json_object" },
       stream: false,
-      temperature: 0.2
+      temperature: 0.2,
+      max_tokens: normalizeMaxTokens(estimatedOutputTokens)
     })
   }, "DeepSeek");
 
@@ -183,6 +184,12 @@ async function fetchWithTimeout(url, options, label) {
 function readPositiveInt(value, fallback) {
   const number = Number(value);
   return Number.isFinite(number) && number > 0 ? number : fallback;
+}
+
+function normalizeMaxTokens(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return 4096;
+  return Math.max(1024, Math.min(16_000, Math.ceil(parsed)));
 }
 
 function stripCodeFence(text) {

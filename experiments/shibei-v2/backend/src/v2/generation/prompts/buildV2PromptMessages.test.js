@@ -110,6 +110,11 @@ test("ecdPlanning prompt asks for ECD claims evidence and task planning without 
   assert.match(messages.user, /Evidence-Centered Design/);
   assert.match(messages.user, /learningClaim/);
   assert.match(messages.user, /evidenceNeed/);
+  assert.match(messages.user, /unitSubObjectives/);
+  assert.match(messages.user, /assessment targets/);
+  assert.match(messages.user, /coverage matrix/);
+  assert.match(messages.user, /selectedTasks 覆盖所有 required evidence/);
+  assert.match(messages.user, /先列 evidence，再选 task affordance/);
   assert.match(messages.user, /taskPlan/);
   assert.match(messages.user, /本阶段不生成用户可见题目/);
   assert.match(messages.user, /题目数量不写死/);

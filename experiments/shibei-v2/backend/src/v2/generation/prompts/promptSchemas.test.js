@@ -50,6 +50,7 @@ test("ECD planning schema exposes nested fields needed by the shadow stage contr
   const schema = ECD_PLANNING_OUTPUT_SCHEMA;
   const articleUnderstanding = schema.properties.articleUnderstanding;
   const knowledgeUnit = schema.properties.knowledgeModel.properties.units.items;
+  const subObjective = schema.properties.unitSubObjectives.items;
   const evidenceNeed = schema.properties.unitEvidenceNeeds.items;
   const selectedTask = schema.properties.unitAssemblyPlan.items.properties.selectedTasks.items;
 
@@ -61,7 +62,10 @@ test("ECD planning schema exposes nested fields needed by the shadow stage contr
   ]);
   assert.ok(knowledgeUnit.required.includes("knowledgeShape"));
   assert.ok(knowledgeUnit.properties.knowledgeShape.enum.includes("layered_framework"));
+  assert.ok(subObjective.required.includes("subObjectiveId"));
+  assert.ok(subObjective.properties.type.enum.includes("layer"));
   assert.ok(evidenceNeed.required.includes("observableResponse"));
+  assert.ok(evidenceNeed.required.includes("coverageRequirement"));
   assert.ok(selectedTask.required.includes("assemblyReason"));
   assert.ok(selectedTask.properties.taskPurpose.enum.includes("layer_role_matching"));
 });
@@ -158,14 +162,8 @@ test("validates ECD planning output with claim evidence task and assembly links"
 
 test("allows ECD assembly plans to select a variable number of tasks", () => {
   const fixture = ecdPlanningFixture();
-  fixture.unitAssemblyPlan[0].selectedTasks.push({
-    questionPlanId: "qp-03-2",
-    taskPlanId: "tp-03-2",
-    evidenceIds: ["ev-03-2"],
-    taskAffordance: "multiple_choice",
-    taskPurpose: "misconception_check",
-    assemblyReason: "该题暴露把 DMC 理解成组件清单的常见误区。"
-  });
+  fixture.unitAssemblyPlan[0].selectedTasks = fixture.unitAssemblyPlan[0].selectedTasks.slice(0, 1);
+  fixture.unitEvidenceNeeds[1].coverageRequirement = "supporting";
 
   const result = validateEcdPlanningOutput(fixture, {
     unitIds: new Set(["unit-03"]),
@@ -173,6 +171,19 @@ test("allows ECD assembly plans to select a variable number of tasks", () => {
   });
 
   assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("rejects ECD assembly plans that skip required evidence coverage", () => {
+  const fixture = ecdPlanningFixture();
+  fixture.unitAssemblyPlan[0].selectedTasks = fixture.unitAssemblyPlan[0].selectedTasks.slice(0, 1);
+
+  const result = validateEcdPlanningOutput(fixture, {
+    unitIds: new Set(["unit-03"]),
+    sourceAnchorIds: new Set(["anchor-unit-03"])
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /must cover required evidence ev-03-2/);
 });
 
 test("rejects ECD planning output with broken claim evidence and task references", () => {
@@ -195,8 +206,11 @@ test("rejects ECD planning output with broken claim evidence and task references
 test("normalizes unknown ECD taxonomy labels without dropping the model signal", () => {
   const fixture = ecdPlanningFixture();
   fixture.knowledgeModel.units[0].knowledgeShape = "design_model";
+  fixture.unitSubObjectives[0].type = "model_layer";
+  fixture.unitSubObjectives[1].importance = "must_have";
   fixture.unitLearningClaims[0].claimType = "relationship_understanding";
   fixture.unitEvidenceNeeds[0].evidenceType = "classify_model_layer";
+  fixture.unitEvidenceNeeds[0].coverageRequirement = "must_cover";
   fixture.unitTaskPlan[0].taskPurpose = "model_layer_matching";
   fixture.unitAssemblyPlan[0].selectedTasks[0].taskPurpose = "model_layer_matching";
 
@@ -204,10 +218,16 @@ test("normalizes unknown ECD taxonomy labels without dropping the model signal",
 
   assert.equal(normalized.knowledgeModel.units[0].knowledgeShape, "core_concept");
   assert.equal(normalized.knowledgeModel.units[0].originalKnowledgeShape, "design_model");
+  assert.equal(normalized.unitSubObjectives[0].type, "definition");
+  assert.equal(normalized.unitSubObjectives[0].originalType, "model_layer");
+  assert.equal(normalized.unitSubObjectives[1].importance, "required");
+  assert.equal(normalized.unitSubObjectives[1].originalImportance, "must_have");
   assert.equal(normalized.unitLearningClaims[0].claimType, "source_grounded_understanding");
   assert.equal(normalized.unitLearningClaims[0].originalClaimType, "relationship_understanding");
   assert.equal(normalized.unitEvidenceNeeds[0].evidenceType, "ground_answer_in_source");
   assert.equal(normalized.unitEvidenceNeeds[0].originalEvidenceType, "classify_model_layer");
+  assert.equal(normalized.unitEvidenceNeeds[0].coverageRequirement, "required");
+  assert.equal(normalized.unitEvidenceNeeds[0].originalCoverageRequirement, "must_cover");
   assert.equal(normalized.unitTaskPlan[0].taskPurpose, "light_understanding");
   assert.equal(normalized.unitTaskPlan[0].originalTaskPurpose, "model_layer_matching");
   assert.equal(normalized.unitAssemblyPlan[0].selectedTasks[0].taskPurpose, "light_understanding");
@@ -451,12 +471,41 @@ function ecdPlanningFixture() {
         }
       ]
     },
+    unitSubObjectives: [
+      {
+        unitId: "unit-03",
+        subObjectiveId: "sub-03-1",
+        title: "DMC 三层与作用对应",
+        type: "layer",
+        importance: "required",
+        learningTarget: "用户能把 Dynamics、Mechanics、Components 分别对应到设计目标、行为机制和界面组件。",
+        sourceAnchorId: "anchor-unit-03"
+      },
+      {
+        unitId: "unit-03",
+        subObjectiveId: "sub-03-2",
+        title: "避免把 DMC 误解成组件清单",
+        type: "misconception",
+        importance: "required",
+        learningTarget: "用户能识别只堆积分、徽章、排行榜并不等于完成游戏化设计。",
+        sourceAnchorId: "anchor-unit-03"
+      }
+    ],
     unitLearningClaims: [
       {
         unitId: "unit-03",
+        subObjectiveId: "sub-03-1",
         claimId: "claim-03-1",
         claimType: "structure_understanding",
         learningClaim: "用户能区分 DMC 三层分别承担的设计作用。",
+        sourceAnchorId: "anchor-unit-03"
+      },
+      {
+        unitId: "unit-03",
+        subObjectiveId: "sub-03-2",
+        claimId: "claim-03-2",
+        claimType: "misconception_recognition",
+        learningClaim: "用户能识别把 DMC 理解成组件清单的误区。",
         sourceAnchorId: "anchor-unit-03"
       }
     ],
@@ -464,8 +513,10 @@ function ecdPlanningFixture() {
       {
         unitId: "unit-03",
         evidenceId: "ev-03-1",
+        subObjectiveId: "sub-03-1",
         claimId: "claim-03-1",
         evidenceType: "map_structure_relation",
+        coverageRequirement: "required",
         evidenceNeed: "用户能把动力层、机制层、组件层分别匹配到正确作用。",
         observableResponse: "完成层级与作用的连线匹配。",
         sourceAnchorId: "anchor-unit-03"
@@ -473,8 +524,10 @@ function ecdPlanningFixture() {
       {
         unitId: "unit-03",
         evidenceId: "ev-03-2",
-        claimId: "claim-03-1",
+        subObjectiveId: "sub-03-2",
+        claimId: "claim-03-2",
         evidenceType: "identify_misconception",
+        coverageRequirement: "required",
         evidenceNeed: "用户能识别把 DMC 理解成组件清单的误区。",
         observableResponse: "在选择题中排除只堆组件的错误理解。",
         sourceAnchorId: "anchor-unit-03"
@@ -509,6 +562,14 @@ function ecdPlanningFixture() {
             taskAffordance: "matching",
             taskPurpose: "layer_role_matching",
             assemblyReason: "该 task 直接覆盖 DMC 结构理解的核心 evidence，因此进入本 unit。"
+          },
+          {
+            questionPlanId: "qp-03-2",
+            taskPlanId: "tp-03-2",
+            evidenceIds: ["ev-03-2"],
+            taskAffordance: "multiple_choice",
+            taskPurpose: "misconception_check",
+            assemblyReason: "该题暴露把 DMC 理解成组件清单的常见误区。"
           }
         ],
         skippedEvidence: []

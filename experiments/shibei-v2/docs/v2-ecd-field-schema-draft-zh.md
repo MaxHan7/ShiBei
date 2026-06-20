@@ -20,6 +20,9 @@
 - 当前前端只支持 `multiple_choice` 和 `matching`。ECD 中暂未落地的 future affordance 会在过渡期映射为 `multiple_choice`，后续如果新增题型，再单独扩展前端合同。
 - `reviewPathPlan.knowledgeObjects[]` 已作为 Domain Modeling 的上游知识对象地图接入。它先保护知识边界，再生成 `units[]`，避免把两个本应独立考察的知识对象合并成一个 unit。
 - `units[].sourceKnowledgeObjectIds` 是内部追踪字段，会保留在 `generationMeta.reviewPathPlan.units[]` 中用于质量报告和调试，但不会暴露到 SwiftUI 正式 `units[]` 合同。
+- `ecdPlanning.unitSubObjectives[]` 已加入代码级 schema。它把一个 unit 内部继续拆成可考、可观察、可由原文支撑的小目标；`unitLearningClaims[]` 和 `unitEvidenceNeeds[]` 必须引用这些小目标。
+- `unitEvidenceNeeds[].coverageRequirement` 已加入代码级 schema。`required` evidence 必须被 `unitAssemblyPlan[].selectedTasks[]` 覆盖；`supporting` / `optional` 可以不覆盖，但仍应在 HTML 报告里可见。
+- V2 HTML 质量报告已展示 Coverage Matrix，用来人工检查每个 sub-objective、claim、evidence 和 selected task 的覆盖关系。
 
 ## 总览
 
@@ -27,8 +30,8 @@
 | --- | --- | --- | --- | --- |
 | Domain Analysis | `articleUnderstanding` | `coreThesis`、`articleStructure`、`nonReviewableSections` | 部分可见为章节概要 | 是 |
 | Domain Modeling | `reviewPathPlan.knowledgeObjects`、`knowledgeModel` | `knowledgeObjectId`、`boundaryDecision`、`unitId`、`title`、`nodeLabel`、`knowledgeShape`、`sourceAnchorId` | 部分可见 | 是 |
-| Student Model | `unitLearningClaims` | `claimType`、`learningClaim` | 否 | 是 |
-| Evidence Model | `unitEvidenceNeeds` | `evidenceType`、`evidenceNeed`、`observableResponse` | 否 | 是 |
+| Student Model | `unitSubObjectives`、`unitLearningClaims` | `subObjectiveId`、`importance`、`claimType`、`learningClaim` | 否 | 是 |
+| Evidence Model | `unitEvidenceNeeds` | `subObjectiveId`、`coverageRequirement`、`evidenceType`、`evidenceNeed`、`observableResponse` | 否 | 是 |
 | Task Model | `unitTaskPlan` | `taskPurpose`、`taskAffordance`、`whyThisTask` | 否 | 是 |
 | Assembly Model | `unitAssemblyPlan` | `selectedTasks`、`assemblyReason` | 否 | 是 |
 | Presentation / Response | `questionDraft`、runtime state | `question`、`options`、`answer`、`explanation`、`sourceAnchorId` | 是 | 是 |
@@ -153,7 +156,44 @@ role_boundary
 misconception
 ```
 
-## 3. `unitLearningClaims`
+## 3. `unitSubObjectives`
+
+ECD 对应：`Student Model` 的可考小目标层。
+
+作用：防止一个大 unit 只被一个宽泛题目带过。每个 unit 先拆成可观察、可由原文支撑、能转成 evidence 的小目标，再向下生成 claim 和 evidence。
+
+建议 schema：
+
+```json
+{
+  "unitId": "unit-3",
+  "subObjectiveId": "sub-3-1",
+  "title": "DMC 三层与作用对应",
+  "type": "layer",
+  "importance": "required",
+  "learningTarget": "用户能把 Dynamics、Mechanics、Components 分别对应到设计目标、行为机制和界面组件。",
+  "sourceAnchorId": "anchor-unit-3"
+}
+```
+
+字段说明：
+
+| 字段 | 作用 | 前端可见 | 报告可见 |
+| --- | --- | --- | --- |
+| `subObjectiveId` | unit 内部可考小目标 ID | 否 | 是 |
+| `title` | 小目标短标题 | 否 | 是 |
+| `type` | 小目标类型，例如 definition、layer、mechanism、misconception | 否 | 是 |
+| `importance` | `required` / `supporting` / `optional` | 否 | 是 |
+| `learningTarget` | 这个小目标具体要求用户能做到什么 | 否 | 是 |
+| `sourceAnchorId` | 原文依据 | 否 | 是 |
+
+规则：
+
+- `required` sub-objective 必须至少产生一个 `unitLearningClaims[]`。
+- 它不是页面目录，也不是为了增加题量；它是 ECD 的 assessment target，用来保证重要证据不被漏掉。
+- 例如 DMC unit 内部至少可以拆为“层级作用对应”和“避免组件清单误区”两个小目标。
+
+## 4. `unitLearningClaims`
 
 ECD 对应：`Student Model`
 
@@ -167,6 +207,7 @@ ECD 对应：`Student Model`
   "claims": [
     {
       "claimId": "claim-3-1",
+      "subObjectiveId": "sub-3-1",
       "claimType": "structure_understanding",
       "learningClaim": "用户能区分 DMC 三层分别承担的设计作用。",
       "sourceAnchorId": "anchor-unit-3"
@@ -193,11 +234,12 @@ source_grounded_understanding
 | 字段 | 作用 | 前端可见 | 报告可见 |
 | --- | --- | --- | --- |
 | `claimId` | claim 稳定 ID | 否 | 是 |
+| `subObjectiveId` | 对应哪个可考小目标 | 否 | 是 |
 | `claimType` | claim 类型 | 否 | 是 |
 | `learningClaim` | 用户应掌握的理解 | 否 | 是 |
 | `sourceAnchorId` | claim 原文依据 | 否 | 是 |
 
-## 4. `unitEvidenceNeeds`
+## 5. `unitEvidenceNeeds`
 
 ECD 对应：`Evidence Model`
 
@@ -211,8 +253,10 @@ ECD 对应：`Evidence Model`
   "evidenceNeeds": [
     {
       "evidenceId": "ev-3-1",
+      "subObjectiveId": "sub-3-1",
       "claimId": "claim-3-1",
       "evidenceType": "map_structure_relation",
+      "coverageRequirement": "required",
       "evidenceNeed": "用户能把动力层、机制层、组件层分别匹配到正确作用。",
       "observableResponse": "完成层级与作用的连线匹配。",
       "sourceAnchorId": "anchor-unit-3"
@@ -297,13 +341,38 @@ role_responsibility_matching
 
 | 字段 | 作用 | 前端可见 | 报告可见 |
 | --- | --- | --- | --- |
+| `subObjectiveId` | 对应哪个可考小目标 | 否 | 是 |
+| `coverageRequirement` | required / supporting / optional | 否 | 是 |
+| `evidenceId` | evidence 稳定 ID | 否 | 是 |
+| `claimId` | 对应哪个 learning claim | 否 | 是 |
+| `evidenceType` | evidence 类型 | 否 | 是 |
+| `evidenceNeed` | 需要收集什么证据 | 否 | 是 |
+| `observableResponse` | 什么用户反应能证明掌握 | 否 | 是 |
+| `sourceAnchorId` | evidence 原文依据 | 否 | 是 |
+
+重要规则：
+
+- `coverageRequirement: "required"` 的 evidence 必须被 `unitAssemblyPlan.selectedTasks[].evidenceIds[]` 覆盖。
+- `supporting` 和 `optional` 不要求一定出题，但不能影响 required evidence 的覆盖。
+- 这不是固定题量规则。一个 task 可以覆盖多个 evidence；一个 unit 也可以因为有多个 required evidence 自然生成多道题。
+
+## 6. `unitTaskPlan`
+
+ECD 对应：`Task Model`
+
+作用：记录每个 evidence 适合用什么任务引出，以及为什么这个任务合适。
+
+字段说明：
+
+| 字段 | 作用 | 前端可见 | 报告可见 |
+| --- | --- | --- | --- |
 | `taskPlanId` | task plan 稳定 ID | 否 | 是 |
 | `evidenceIds[]` | 覆盖哪些 evidence | 否 | 是 |
 | `taskAffordance` | 适合的任务外壳 | 否 | 是 |
 | `taskPurpose` | 任务内部目的 | 否 | 是 |
 | `whyThisTask` | 为什么选这个任务 | 否 | 是 |
 
-## 6. `unitAssemblyPlan`
+## 7. `unitAssemblyPlan`
 
 ECD 对应：`Assembly Model`
 
@@ -346,10 +415,11 @@ ECD 对应：`Assembly Model`
 
 - `selectedTasks` 不限制数量。
 - 一个 task 可以覆盖多个 evidence。
-- 一个 evidence 如果没有高价值 task，可以跳过。
+- `coverageRequirement: "required"` 的 evidence 不能跳过。
+- `supporting` / `optional` evidence 如果没有高价值 task，可以跳过，但应进入 `skippedEvidence[]` 或在报告中可见。
 - 数量不是质量目标，evidence value 才是质量目标。
 
-## 7. `questionDraft`
+## 8. `questionDraft`
 
 ECD 对应：`Presentation Process / Task Instance`
 

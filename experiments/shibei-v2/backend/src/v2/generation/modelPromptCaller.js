@@ -37,17 +37,17 @@ const STAGE_SCHEMAS = {
   sourceMap: {
     schemaName: SOURCE_MAP_PROMPT_SCHEMA_NAME,
     schema: SOURCE_MAP_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 1800
+    estimatedOutputTokens: 7600
   },
   reviewPathPlan: {
     schemaName: REVIEW_PATH_PLAN_PROMPT_SCHEMA_NAME,
     schema: REVIEW_PATH_PLAN_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 2500
+    estimatedOutputTokens: 5200
   },
   ecdPlanning: {
     schemaName: ECD_PLANNING_PROMPT_SCHEMA_NAME,
     schema: ECD_PLANNING_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 3000
+    estimatedOutputTokens: 14000
   },
   unitPracticePlan: {
     schemaName: UNIT_PRACTICE_PLAN_PROMPT_SCHEMA_NAME,

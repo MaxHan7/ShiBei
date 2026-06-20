@@ -52,6 +52,7 @@ test("generates a contract-valid V2 review path from split prompt stages", async
   const unitPracticePlanCall = calls.find((call) => call.stage === "unitPracticePlan");
   assert.equal(unitPracticePlanCall.payload.ecdContext.unitId, "unit-01");
   assert.equal(unitPracticePlanCall.payload.ecdContext.assemblyPlan.unitId, "unit-01");
+  assert.equal(unitPracticePlanCall.payload.ecdContext.subObjectives.length, 2);
   assert.equal(unitPracticePlanCall.payload.ecdContext.selectedTasks.length, 2);
   assert.equal(unitPracticePlanCall.payload.ecdContext.selectedTasks[1].taskAffordance, "matching");
   assert.equal(unitPracticePlanCall.payload.ecdContext.taskPlans[1].taskPurpose, "role_responsibility_matching");
@@ -99,6 +100,33 @@ test("ECD selected tasks drive downstream practice plans and suppress model-inve
   );
 });
 
+test("can build sourceMap deterministically for long article quality experiments", async () => {
+  const stages = [];
+  const reviewPath = await generateReviewPathV2(
+    {
+      ...ARTICLE_INPUT,
+      rawText: "内容摘要\nHook 是关键动作前后的流程控制器。\n它能稳定触发规则、上下文和验证。"
+    },
+    {
+      sourceMapMode: "deterministic",
+      promptCaller: async (stage, payload) => {
+        stages.push(stage);
+        if (stage === "reviewPathPlan") {
+          assert.deepEqual(
+            payload.blocks.map((block) => `${block.id}:${block.type}`),
+            ["p-001:heading", "p-002:paragraph", "p-003:paragraph"]
+          );
+        }
+        return happyPathPromptCaller(stage, payload);
+      },
+      now: "2026-06-19T00:00:00.000Z"
+    }
+  );
+
+  assert.equal(stages.includes("sourceMap"), false);
+  assert.equal(reviewPath.source.blocks.length, 3);
+});
+
 test("fills matching relationType from ECD before validating practice plans", async () => {
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {
@@ -129,6 +157,7 @@ test("skips multipleChoiceDraft when ECD assembly selects only matching", async 
       stages.push(stage);
       if (stage === "ecdPlanning") {
         const ecd = ecdPlanningFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id, { matching: true });
+        ecd.unitEvidenceNeeds[0].coverageRequirement = "supporting";
         ecd.unitAssemblyPlan[0].selectedTasks = ecd.unitAssemblyPlan[0].selectedTasks.filter(
           (task) => task.taskAffordance === "matching"
         );
@@ -586,9 +615,30 @@ function ecdPlanningFixture(unitId, sourceAnchorId, { matching }) {
         }
       ]
     },
+    unitSubObjectives: [
+      {
+        unitId,
+        subObjectiveId: "sub-001",
+        title: "Hook 核心定义",
+        type: "definition",
+        importance: "required",
+        learningTarget: "用户能理解 Hook 是关键动作前后的流程约束。",
+        sourceAnchorId
+      },
+      {
+        unitId,
+        subObjectiveId: "sub-002",
+        title: "职责边界",
+        type: "boundary",
+        importance: matching ? "required" : "supporting",
+        learningTarget: "用户能区分 Prompt、Hook、CI 和规则文档的职责边界。",
+        sourceAnchorId
+      }
+    ],
     unitLearningClaims: [
       {
         unitId,
+        subObjectiveId: "sub-001",
         claimId: "claim-001",
         claimType: "concept_understanding",
         learningClaim: "用户能理解 Hook 是流程约束，而不是更长提示词。",
@@ -596,6 +646,7 @@ function ecdPlanningFixture(unitId, sourceAnchorId, { matching }) {
       },
       {
         unitId,
+        subObjectiveId: "sub-002",
         claimId: "claim-002",
         claimType: "boundary_understanding",
         learningClaim: "用户能区分 Prompt、Hook、CI 和规则文档的职责边界。",
@@ -606,8 +657,10 @@ function ecdPlanningFixture(unitId, sourceAnchorId, { matching }) {
       {
         unitId,
         evidenceId: "ev-001",
+        subObjectiveId: "sub-001",
         claimId: "claim-001",
         evidenceType: "select_core_claim",
+        coverageRequirement: "required",
         evidenceNeed: "用户能选择 Hook 的核心作用。",
         observableResponse: "在选择题中选出关键动作前后的固定流程。",
         sourceAnchorId
@@ -615,8 +668,10 @@ function ecdPlanningFixture(unitId, sourceAnchorId, { matching }) {
       {
         unitId,
         evidenceId: "ev-002",
+        subObjectiveId: "sub-002",
         claimId: "claim-002",
         evidenceType: "map_structure_relation",
+        coverageRequirement: matching ? "required" : "supporting",
         evidenceNeed: "用户能把不同角色匹配到对应职责。",
         observableResponse: "完成 Prompt、Hook、CI、规则文档与职责的连线。",
         sourceAnchorId

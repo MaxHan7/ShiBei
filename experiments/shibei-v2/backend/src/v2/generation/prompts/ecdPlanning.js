@@ -43,6 +43,30 @@ export const EVIDENCE_TYPES = [
   "ground_answer_in_source"
 ];
 
+export const SUB_OBJECTIVE_IMPORTANCE = [
+  "required",
+  "supporting",
+  "optional"
+];
+
+export const SUB_OBJECTIVE_TYPES = [
+  "definition",
+  "boundary",
+  "layer",
+  "element_classification",
+  "mechanism",
+  "process_step",
+  "scenario_application",
+  "misconception",
+  "example_case"
+];
+
+export const COVERAGE_REQUIREMENTS = [
+  "required",
+  "supporting",
+  "optional"
+];
+
 export const TASK_AFFORDANCES = [
   "multiple_choice",
   "matching",
@@ -100,6 +124,7 @@ export const ECD_PLANNING_OUTPUT_SCHEMA = {
   required: [
     "articleUnderstanding",
     "knowledgeModel",
+    "unitSubObjectives",
     "unitLearningClaims",
     "unitEvidenceNeeds",
     "unitTaskPlan",
@@ -171,13 +196,38 @@ export const ECD_PLANNING_OUTPUT_SCHEMA = {
         }
       }
     },
+    unitSubObjectives: {
+      type: "array",
+      items: {
+        type: "object",
+        required: [
+          "unitId",
+          "subObjectiveId",
+          "title",
+          "type",
+          "importance",
+          "learningTarget",
+          "sourceAnchorId"
+        ],
+        properties: {
+          unitId: { type: "string" },
+          subObjectiveId: { type: "string" },
+          title: { type: "string" },
+          type: { enum: SUB_OBJECTIVE_TYPES },
+          importance: { enum: SUB_OBJECTIVE_IMPORTANCE },
+          learningTarget: { type: "string" },
+          sourceAnchorId: { type: "string" }
+        }
+      }
+    },
     unitLearningClaims: {
       type: "array",
       items: {
         type: "object",
-        required: ["unitId", "claimId", "claimType", "learningClaim", "sourceAnchorId"],
+        required: ["unitId", "subObjectiveId", "claimId", "claimType", "learningClaim", "sourceAnchorId"],
         properties: {
           unitId: { type: "string" },
+          subObjectiveId: { type: "string" },
           claimId: { type: "string" },
           claimType: { enum: CLAIM_TYPES },
           learningClaim: { type: "string" },
@@ -192,8 +242,10 @@ export const ECD_PLANNING_OUTPUT_SCHEMA = {
         required: [
           "unitId",
           "evidenceId",
+          "subObjectiveId",
           "claimId",
           "evidenceType",
+          "coverageRequirement",
           "evidenceNeed",
           "observableResponse",
           "sourceAnchorId"
@@ -201,8 +253,10 @@ export const ECD_PLANNING_OUTPUT_SCHEMA = {
         properties: {
           unitId: { type: "string" },
           evidenceId: { type: "string" },
+          subObjectiveId: { type: "string" },
           claimId: { type: "string" },
           evidenceType: { enum: EVIDENCE_TYPES },
+          coverageRequirement: { enum: COVERAGE_REQUIREMENTS },
           evidenceNeed: { type: "string" },
           observableResponse: { type: "string" },
           sourceAnchorId: { type: "string" }
@@ -268,22 +322,43 @@ export function validateEcdPlanningOutput(output, { unitIds = new Set(), sourceA
 
   requireAnyFields(
     output,
-    ["articleUnderstanding", "knowledgeModel", "unitLearningClaims", "unitEvidenceNeeds", "unitTaskPlan", "unitAssemblyPlan"],
+    [
+      "articleUnderstanding",
+      "knowledgeModel",
+      "unitSubObjectives",
+      "unitLearningClaims",
+      "unitEvidenceNeeds",
+      "unitTaskPlan",
+      "unitAssemblyPlan"
+    ],
     "ecdPlanning",
     errors
   );
 
   validateArticleUnderstanding(output.articleUnderstanding, errors);
   validateKnowledgeModel(output.knowledgeModel, { unitIds, sourceAnchorIds, errors });
-  const claimIds = validateLearningClaims(output.unitLearningClaims, { unitIds, sourceAnchorIds, errors });
+  const subObjectiveIds = validateSubObjectives(output.unitSubObjectives, { unitIds, sourceAnchorIds, errors });
+  const claimIds = validateLearningClaims(output.unitLearningClaims, {
+    unitIds,
+    sourceAnchorIds,
+    subObjectiveIds,
+    errors
+  });
   const evidenceIds = validateEvidenceNeeds(output.unitEvidenceNeeds, {
     unitIds,
     sourceAnchorIds,
     claimIds,
+    subObjectiveIds,
     errors
   });
   const taskPlanIds = validateTaskPlan(output.unitTaskPlan, { unitIds, evidenceIds, errors });
-  validateAssemblyPlan(output.unitAssemblyPlan, { unitIds, evidenceIds, taskPlanIds, errors });
+  validateAssemblyPlan(output.unitAssemblyPlan, {
+    unitIds,
+    evidenceItems: output.unitEvidenceNeeds,
+    evidenceIds,
+    taskPlanIds,
+    errors
+  });
 
   return createValidationResult(errors);
 }
@@ -294,18 +369,40 @@ export function normalizeEcdPlanningOutput(output) {
   return {
     ...output,
     knowledgeModel: normalizeKnowledgeModel(output.knowledgeModel),
+    unitSubObjectives: normalizeEnumItems(
+      normalizeEnumItems(output.unitSubObjectives, {
+        field: "type",
+        originalField: "originalType",
+        allowedValues: SUB_OBJECTIVE_TYPES,
+        fallback: "definition"
+      }),
+      {
+        field: "importance",
+        originalField: "originalImportance",
+        allowedValues: SUB_OBJECTIVE_IMPORTANCE,
+        fallback: "required"
+      }
+    ),
     unitLearningClaims: normalizeEnumItems(output.unitLearningClaims, {
       field: "claimType",
       originalField: "originalClaimType",
       allowedValues: CLAIM_TYPES,
       fallback: "source_grounded_understanding"
     }),
-    unitEvidenceNeeds: normalizeEnumItems(output.unitEvidenceNeeds, {
-      field: "evidenceType",
-      originalField: "originalEvidenceType",
-      allowedValues: EVIDENCE_TYPES,
-      fallback: "ground_answer_in_source"
-    }),
+    unitEvidenceNeeds: normalizeEnumItems(
+      normalizeEnumItems(output.unitEvidenceNeeds, {
+        field: "evidenceType",
+        originalField: "originalEvidenceType",
+        allowedValues: EVIDENCE_TYPES,
+        fallback: "ground_answer_in_source"
+      }),
+      {
+        field: "coverageRequirement",
+        originalField: "originalCoverageRequirement",
+        allowedValues: COVERAGE_REQUIREMENTS,
+        fallback: "required"
+      }
+    ),
     unitTaskPlan: normalizeEnumItems(
       normalizeEnumItems(output.unitTaskPlan, {
         field: "taskAffordance",
@@ -437,7 +534,43 @@ function validateKnowledgeModel(value, { unitIds, sourceAnchorIds, errors }) {
   });
 }
 
-function validateLearningClaims(items, { unitIds, sourceAnchorIds, errors }) {
+function validateSubObjectives(items, { unitIds, sourceAnchorIds, errors }) {
+  const ids = new Set();
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push("ecdPlanning.unitSubObjectives must be a non-empty array");
+    return ids;
+  }
+
+  items.forEach((item, index) => {
+    const path = `ecdPlanning.unitSubObjectives[${index}]`;
+    if (!isPlainObject(item)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    requireFields(
+      item,
+      ["unitId", "subObjectiveId", "title", "type", "importance", "learningTarget", "sourceAnchorId"],
+      path,
+      errors
+    );
+    if (ids.has(item.subObjectiveId)) errors.push(`${path}.subObjectiveId must be unique`);
+    ids.add(item.subObjectiveId);
+    if (unitIds.size > 0 && !unitIds.has(item.unitId)) errors.push(`${path}.unitId must reference a known unit`);
+    if (isNonEmptyString(item.type) && !SUB_OBJECTIVE_TYPES.includes(item.type)) {
+      errors.push(`${path}.type must be one of ${SUB_OBJECTIVE_TYPES.join(", ")}`);
+    }
+    if (isNonEmptyString(item.importance) && !SUB_OBJECTIVE_IMPORTANCE.includes(item.importance)) {
+      errors.push(`${path}.importance must be one of ${SUB_OBJECTIVE_IMPORTANCE.join(", ")}`);
+    }
+    if (sourceAnchorIds.size > 0 && !sourceAnchorIds.has(item.sourceAnchorId)) {
+      errors.push(`${path}.sourceAnchorId must reference a known source anchor`);
+    }
+  });
+
+  return ids;
+}
+
+function validateLearningClaims(items, { unitIds, sourceAnchorIds, subObjectiveIds, errors }) {
   const ids = new Set();
   if (!Array.isArray(items) || items.length === 0) {
     errors.push("ecdPlanning.unitLearningClaims must be a non-empty array");
@@ -450,10 +583,18 @@ function validateLearningClaims(items, { unitIds, sourceAnchorIds, errors }) {
       errors.push(`${path} must be an object`);
       return;
     }
-    requireFields(claim, ["unitId", "claimId", "claimType", "learningClaim", "sourceAnchorId"], path, errors);
+    requireFields(
+      claim,
+      ["unitId", "subObjectiveId", "claimId", "claimType", "learningClaim", "sourceAnchorId"],
+      path,
+      errors
+    );
     if (ids.has(claim.claimId)) errors.push(`${path}.claimId must be unique`);
     ids.add(claim.claimId);
     if (unitIds.size > 0 && !unitIds.has(claim.unitId)) errors.push(`${path}.unitId must reference a known unit`);
+    if (isNonEmptyString(claim.subObjectiveId) && !subObjectiveIds.has(claim.subObjectiveId)) {
+      errors.push(`${path}.subObjectiveId must reference a unitSubObjectives item`);
+    }
     if (isNonEmptyString(claim.claimType) && !CLAIM_TYPES.includes(claim.claimType)) {
       errors.push(`${path}.claimType must be one of ${CLAIM_TYPES.join(", ")}`);
     }
@@ -465,7 +606,7 @@ function validateLearningClaims(items, { unitIds, sourceAnchorIds, errors }) {
   return ids;
 }
 
-function validateEvidenceNeeds(items, { unitIds, sourceAnchorIds, claimIds, errors }) {
+function validateEvidenceNeeds(items, { unitIds, sourceAnchorIds, claimIds, subObjectiveIds, errors }) {
   const ids = new Set();
   if (!Array.isArray(items) || items.length === 0) {
     errors.push("ecdPlanning.unitEvidenceNeeds must be a non-empty array");
@@ -480,7 +621,17 @@ function validateEvidenceNeeds(items, { unitIds, sourceAnchorIds, claimIds, erro
     }
     requireFields(
       evidence,
-      ["unitId", "evidenceId", "claimId", "evidenceType", "evidenceNeed", "observableResponse", "sourceAnchorId"],
+      [
+        "unitId",
+        "evidenceId",
+        "subObjectiveId",
+        "claimId",
+        "evidenceType",
+        "coverageRequirement",
+        "evidenceNeed",
+        "observableResponse",
+        "sourceAnchorId"
+      ],
       path,
       errors
     );
@@ -492,8 +643,17 @@ function validateEvidenceNeeds(items, { unitIds, sourceAnchorIds, claimIds, erro
     if (isNonEmptyString(evidence.claimId) && !claimIds.has(evidence.claimId)) {
       errors.push(`${path}.claimId must reference a unitLearningClaims item`);
     }
+    if (isNonEmptyString(evidence.subObjectiveId) && !subObjectiveIds.has(evidence.subObjectiveId)) {
+      errors.push(`${path}.subObjectiveId must reference a unitSubObjectives item`);
+    }
     if (isNonEmptyString(evidence.evidenceType) && !EVIDENCE_TYPES.includes(evidence.evidenceType)) {
       errors.push(`${path}.evidenceType must be one of ${EVIDENCE_TYPES.join(", ")}`);
+    }
+    if (
+      isNonEmptyString(evidence.coverageRequirement) &&
+      !COVERAGE_REQUIREMENTS.includes(evidence.coverageRequirement)
+    ) {
+      errors.push(`${path}.coverageRequirement must be one of ${COVERAGE_REQUIREMENTS.join(", ")}`);
     }
     if (sourceAnchorIds.size > 0 && !sourceAnchorIds.has(evidence.sourceAnchorId)) {
       errors.push(`${path}.sourceAnchorId must reference a known source anchor`);
@@ -540,11 +700,13 @@ function validateTaskPlan(items, { unitIds, evidenceIds, errors }) {
   return ids;
 }
 
-function validateAssemblyPlan(items, { unitIds, evidenceIds, taskPlanIds, errors }) {
+function validateAssemblyPlan(items, { unitIds, evidenceItems, evidenceIds, taskPlanIds, errors }) {
   if (!Array.isArray(items) || items.length === 0) {
     errors.push("ecdPlanning.unitAssemblyPlan must be a non-empty array");
     return;
   }
+
+  const requiredEvidenceByUnit = groupRequiredEvidenceByUnit(evidenceItems);
 
   items.forEach((assembly, index) => {
     const path = `ecdPlanning.unitAssemblyPlan[${index}]`;
@@ -560,11 +722,45 @@ function validateAssemblyPlan(items, { unitIds, evidenceIds, taskPlanIds, errors
       assembly.selectedTasks.forEach((task, taskIndex) => {
         validateSelectedTask(task, `${path}.selectedTasks[${taskIndex}]`, { evidenceIds, taskPlanIds, errors });
       });
+      validateRequiredEvidenceCoverage(assembly, {
+        path,
+        requiredEvidenceByUnit,
+        errors
+      });
     }
     if (!Array.isArray(assembly.skippedEvidence)) {
       errors.push(`${path}.skippedEvidence must be an array`);
     }
   });
+}
+
+function groupRequiredEvidenceByUnit(evidenceItems) {
+  const map = new Map();
+  for (const evidence of Array.isArray(evidenceItems) ? evidenceItems : []) {
+    if (!isPlainObject(evidence) || evidence.coverageRequirement !== "required") continue;
+    const list = map.get(evidence.unitId) || [];
+    list.push(evidence.evidenceId);
+    map.set(evidence.unitId, list);
+  }
+  return map;
+}
+
+function validateRequiredEvidenceCoverage(assembly, { path, requiredEvidenceByUnit, errors }) {
+  const requiredEvidence = requiredEvidenceByUnit.get(assembly.unitId) || [];
+  if (requiredEvidence.length === 0) return;
+
+  const selectedEvidence = new Set();
+  for (const task of assembly.selectedTasks) {
+    for (const evidenceId of Array.isArray(task?.evidenceIds) ? task.evidenceIds : []) {
+      selectedEvidence.add(evidenceId);
+    }
+  }
+
+  for (const evidenceId of requiredEvidence) {
+    if (!selectedEvidence.has(evidenceId)) {
+      errors.push(`${path}.selectedTasks must cover required evidence ${evidenceId}`);
+    }
+  }
 }
 
 function validateSelectedTask(task, path, { evidenceIds, taskPlanIds, errors }) {

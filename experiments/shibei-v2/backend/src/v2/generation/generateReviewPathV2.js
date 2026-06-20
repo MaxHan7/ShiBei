@@ -39,6 +39,7 @@ export async function generateReviewPathV2(
     modelUsageRecorder = null,
     maxUnitCount = readOptionalPositiveInt(process.env.V2_GENERATION_MAX_UNITS),
     unitConcurrency = readOptionalPositiveInt(process.env.V2_GENERATION_UNIT_CONCURRENCY) ?? 1,
+    sourceMapMode = process.env.V2_SOURCE_MAP_MODE || "model",
     now = new Date().toISOString()
   } = {}
 ) {
@@ -51,12 +52,14 @@ export async function generateReviewPathV2(
     throw new Error("generateReviewPathV2 requires a promptCaller function or createPromptCaller factory");
   }
 
-  const sourceMap = await callAndValidate(
-    activePromptCaller,
-    "sourceMap",
-    { article },
-    validateSourceMapOutput
-  );
+  const sourceMap = sourceMapMode === "deterministic"
+    ? buildDeterministicSourceMap(article)
+    : await callAndValidate(
+        activePromptCaller,
+        "sourceMap",
+        { article },
+        validateSourceMapOutput
+      );
   const sourceBlockIds = new Set(sourceMap.blocks.map((block) => block.id));
   const rawPlan = await callAndValidate(
     activePromptCaller,
@@ -329,6 +332,7 @@ function limitPlannedUnits(plan, maxUnitCount) {
 function getEcdContextForUnit(ecdPlanning, plannedUnit) {
   const unitId = plannedUnit.id;
   const knowledgeUnit = ecdPlanning.knowledgeModel?.units?.find((item) => item.unitId === unitId) ?? null;
+  const subObjectives = (ecdPlanning.unitSubObjectives ?? []).filter((item) => item.unitId === unitId);
   const learningClaims = (ecdPlanning.unitLearningClaims ?? []).filter((item) => item.unitId === unitId);
   const evidenceNeeds = (ecdPlanning.unitEvidenceNeeds ?? []).filter((item) => item.unitId === unitId);
   const taskPlans = (ecdPlanning.unitTaskPlan ?? []).filter((item) => item.unitId === unitId);
@@ -336,6 +340,7 @@ function getEcdContextForUnit(ecdPlanning, plannedUnit) {
   return {
     unitId,
     knowledgeUnit,
+    subObjectives,
     learningClaims,
     evidenceNeeds,
     taskPlans,
@@ -457,6 +462,42 @@ function readOptionalPositiveInt(value) {
   if (value === undefined || value === null || value === "") return null;
   const parsed = Number.parseInt(value, 10);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+function buildDeterministicSourceMap(article) {
+  const rawText = String(article.cleanedText || article.rawText || "");
+  const blocks = splitArticleIntoSourceBlocks(rawText);
+  return {
+    source: {
+      type: article.sourceType || "article",
+      title: article.title || article.sourceTitle || "",
+      author: article.author || article.sourceAccount || "",
+      url: article.url || article.sourceUrl || ""
+    },
+    blocks
+  };
+}
+
+function splitArticleIntoSourceBlocks(rawText) {
+  const lines = rawText
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const sourceLines = lines.length > 0 ? lines : [rawText.trim()].filter(Boolean);
+  return sourceLines.map((text, index) => ({
+    id: `p-${String(index + 1).padStart(3, "0")}`,
+    type: inferSourceBlockType(text),
+    text
+  }));
+}
+
+function inferSourceBlockType(text) {
+  const compact = String(text || "").trim();
+  if (compact.length <= 36 && /^(内容摘要|关键词|引\s*言|结语|[一二三四五六七八九十]+[、.．]|\d+[、.．])/.test(compact)) {
+    return "heading";
+  }
+  return "paragraph";
 }
 
 async function callAndValidate(promptCaller, stage, payload, validator, { normalize = null } = {}) {

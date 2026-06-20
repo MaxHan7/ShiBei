@@ -38,6 +38,9 @@ test("renders a readable V2 quality HTML report with questions and source anchor
   assert.match(html, /source-block highlight/);
   assert.match(html, /ECD 证据规划 Shadow Stage/);
   assert.match(html, /Hook 让生命周期触发变成可观察的流程控制/);
+  assert.match(html, /Sub Objectives/);
+  assert.match(html, /Coverage Matrix/);
+  assert.match(html, /ev-1:covered/);
   assert.match(html, /Learning Claims/);
   assert.match(html, /Evidence Needs/);
   assert.match(html, /Task Plan/);
@@ -207,9 +210,21 @@ function chapterFixture() {
             }
           ]
         },
+        unitSubObjectives: [
+          {
+            unitId: "u1",
+            subObjectiveId: "sub-1",
+            title: "Hook 流程角色",
+            type: "process_step",
+            importance: "required",
+            learningTarget: "用户能理解 Hook、Handler、Context、Decision 在流程中的作用。",
+            sourceAnchorId: "a1"
+          }
+        ],
         unitLearningClaims: [
           {
             unitId: "u1",
+            subObjectiveId: "sub-1",
             claimId: "claim-1",
             claimType: "process_understanding",
             learningClaim: "用户能理解 Hook、Handler、Context、Decision 在流程中的作用。",
@@ -220,8 +235,10 @@ function chapterFixture() {
           {
             unitId: "u1",
             evidenceId: "ev-1",
+            subObjectiveId: "sub-1",
             claimId: "claim-1",
             evidenceType: "map_step_purpose",
+            coverageRequirement: "required",
             evidenceNeed: "用户能把四个概念匹配到流程作用。",
             observableResponse: "完成概念和流程作用的连线。",
             sourceAnchorId: "a1"

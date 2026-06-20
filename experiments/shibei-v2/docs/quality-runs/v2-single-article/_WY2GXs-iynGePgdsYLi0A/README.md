@@ -45,6 +45,15 @@ The V2 prompt pipeline should produce a contract-valid review path with stable s
 - Clarified that DMC-style layered frameworks with their own evidence and natural task value should remain standalone units instead of being folded into a generic definition unit.
 - Moved `unitPracticePlan` ECD alignment before strict validation, so a matching plan can deterministically inherit `relationType` from ECD `selectedTasks` instead of failing because the model omitted a derivable internal field.
 
+### 2026-06-20 coverage-first ECD iteration
+
+- Added `ecdPlanning.unitSubObjectives[]` so each unit first decomposes into assessable, source-grounded sub-objectives before claims, evidence, and tasks are selected.
+- Added `unitEvidenceNeeds[].coverageRequirement`. `required` evidence must be covered by `unitAssemblyPlan.selectedTasks[].evidenceIds[]`; `supporting` and `optional` evidence can remain visible without forcing a question.
+- Updated the ECD prompt order to: unit sub-objectives -> learning claims -> evidence needs -> task affordance -> selected tasks. This keeps task type selection after evidence coverage, instead of using question type as the first decision.
+- Added Coverage Matrix rendering to the V2 HTML quality report so sub-objective, claim, evidence, and selected-task coverage can be checked without reading raw JSON.
+- Added `V2_SOURCE_MAP_MODE=deterministic` for long-article quality experiments. It creates stable source blocks in code rather than asking the model to re-output the full article as JSON, avoiding sourceMap truncation on long inputs.
+- Increased DeepSeek JSON `max_tokens` support and ECD-stage output budget so internal coverage planning is not truncated.
+
 ### Earlier baseline fixes
 
 - Added support for extracted article metadata aliases so prompt messages include `sourceAccount` and `sourceUrl`.
@@ -72,11 +81,18 @@ The V2 prompt pipeline should produce a contract-valid review path with stable s
 | `20260620-175013-v2-ecd-driven-planning-max6-schema-items` | completed | 6 units, 12 questions, 10 multiple choice, 2 matching, 70 source blocks, 1 deterministic diagnostic issue. ECD selected tasks now drive downstream question planning. |
 | `20260620-182328-v2-knowledge-object-boundary-max6` | failed | The first knowledge-object boundary run reached `unitPracticePlan`, then failed because a matching `questionPlan` omitted `relationType`. |
 | `20260620-183009-v2-knowledge-object-boundary-max6-rerun` | completed | 6 units, 9 questions, 7 multiple choice, 2 matching, 118 source blocks, 0 diagnostic issues. DMC is split back into its own standalone layered-framework unit. |
+| `20260620-204008-v2-coverage-first-ecd-max6` | failed | First coverage-first run failed at model JSON parsing because sourceMap attempted to re-output the long article and was truncated. |
+| `20260620-204308-v2-coverage-first-ecd-max6-rerun` | failed | Adding `max_tokens` exposed the same sourceMap truncation more clearly. |
+| `20260620-204412-v2-coverage-first-ecd-max6-rerun2` | failed | Raising large-stage budgets still left sourceMap too large for model JSON output. |
+| `20260620-204722-v2-coverage-first-ecd-max6-deterministic-source` | failed | Deterministic sourceMap moved failure to ECD planning; ECD JSON was truncated at the previous 7600-token stage budget. |
+| `20260620-205026-v2-coverage-first-ecd-max6-deterministic-source-rerun` | completed | 6 units, 12 questions, 10 multiple choice, 2 matching, 127 source blocks, 1 diagnostic issue. Coverage Matrix shows all required evidence covered. |
 
 ## Artifacts
 
-- Latest JSON: `runs/20260620-183009-v2-knowledge-object-boundary-max6-rerun.json`
-- Latest HTML: `reports/20260620-183009-v2-knowledge-object-boundary-max6-rerun.html`
+- Latest JSON: `runs/20260620-205026-v2-coverage-first-ecd-max6-deterministic-source-rerun.json`
+- Latest HTML: `reports/20260620-205026-v2-coverage-first-ecd-max6-deterministic-source-rerun.html`
+- Previous knowledge-boundary JSON: `runs/20260620-183009-v2-knowledge-object-boundary-max6-rerun.json`
+- Previous knowledge-boundary HTML: `reports/20260620-183009-v2-knowledge-object-boundary-max6-rerun.html`
 - Previous ECD-driven JSON: `runs/20260620-175013-v2-ecd-driven-planning-max6-schema-items.json`
 - Previous ECD-driven HTML: `reports/20260620-175013-v2-ecd-driven-planning-max6-schema-items.html`
 - Previous ECD shadow JSON: `runs/20260620-135541-v2-ecd-shadow-max6-concurrency3-anchor-normalized.json`
@@ -88,18 +104,21 @@ The V2 prompt pipeline should produce a contract-valid review path with stable s
 
 ## Conclusion
 
-ECD is no longer only a shadow diagnostic stage for this experiment. The latest completed run uses ECD selected tasks to drive downstream question planning, while `reviewPathPlan.knowledgeObjects[]` now protects upstream unit boundaries before ECD task assembly.
+ECD is no longer only a shadow diagnostic stage for this experiment. The latest completed run uses ECD selected tasks to drive downstream question planning, while `reviewPathPlan.knowledgeObjects[]` protects upstream unit boundaries and `unitSubObjectives[]` now protects unit-internal evidence coverage.
 
-Compared with `20260620-175013-v2-ecd-driven-planning-max6-schema-items`, the most important structural issue is fixed: “游戏化核心概念” and “DMC 模型” are no longer merged into one unit. The latest run has:
+Compared with `20260620-183009-v2-knowledge-object-boundary-max6-rerun`, the coverage-first run keeps the same 6-unit structure but increases visible coverage from 9 to 12 questions without hard-coding a fixed question count. Every unit has two `required` evidence needs and each is covered by selected tasks.
+
+The latest run has:
 
 - `游戏化的概念与核心定义` as an independent core-concept unit.
 - `DMC模型：游戏元素的金字塔结构` as an independent layered-framework unit.
-- A dedicated DMC matching question: model layers -> responsibilities.
-- 0 deterministic diagnostic issues.
+- Two DMC matching questions: one high-value layer-role matching question and one weaker element-to-layer classification question.
+- A Coverage Matrix in the HTML report showing all required evidence as covered.
+- 1 deterministic diagnostic issue: `q-3-2` is flagged as weak matching because it looks closer to element classification than responsibility/boundary/role matching.
 
-Compared with the stronger shadow run `20260620-135541-v2-ecd-shadow-max6-concurrency3-anchor-normalized`, the latest run is structurally cleaner and less noisy, but it is also much leaner: 9 visible questions instead of 25. This is acceptable for this iteration because the user asked not to hard-code question counts, but it needs manual review: some units now have only one visible question, so the next quality pass should check whether the evidence needs are sufficiently covered, not whether a fixed target count is met.
+Compared with the stronger shadow run `20260620-135541-v2-ecd-shadow-max6-concurrency3-anchor-normalized`, the latest run is still leaner: 12 visible questions instead of 25. But it now has an explicit coverage explanation for why those 12 questions exist. This is closer to the intended ECD direction: question count emerges from required evidence coverage rather than a fixed per-unit target.
 
-This run still should **not** be treated as a final pedagogical-quality pass. It is a successful structural repair pass: the boundary error that caused DMC to disappear has been fixed. The next iteration should review whether the latest ECD selected tasks cover enough evidence for each standalone unit and whether one-question units are truly sufficient.
+This run still should **not** be treated as a final pedagogical-quality pass. It is a successful architecture pass: knowledge boundaries and required evidence coverage are now both represented. The next iteration should improve task-affordance choice inside coverage planning, especially avoiding weak matching when the evidence is better served by a compact multiple-choice or future sorting/classification interaction.
 
 Detailed audit: `../../../v2-prompt-quality-gap-audit-zh.md`
 
@@ -114,7 +133,7 @@ Manually review the latest HTML report against the V2 golden-sample rules before
 - Whether matching questions are grounded in strong current-unit evidence, especially for comparison, layered-framework, or process-style units.
 - Whether multiple-choice stems and options are as compact and misconception-driven as the golden sample.
 
-The next prompt iteration should improve ECD selected-task coverage and evidence sufficiency, not reintroduce independent task selection inside `unitPracticePlan`. The desired pyramid remains: article understanding -> knowledge objects -> unit knowledge model -> learning claims -> evidence needs -> selected tasks -> visible question drafts.
+The next prompt iteration should refine task-affordance choice while preserving coverage-first planning. The desired pyramid remains: article understanding -> knowledge objects -> unit sub-objectives -> learning claims -> evidence needs -> selected tasks -> visible question drafts.
 
 After the generation prompts are closer to the V2 standard, run a controlled A/B experiment for an optional lightweight quality-rewrite role:
 
