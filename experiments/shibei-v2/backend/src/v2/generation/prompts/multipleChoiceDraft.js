@@ -40,6 +40,8 @@ export const MULTIPLE_CHOICE_DRAFT_OUTPUT_SCHEMA = {
           distractorRationale: { type: "string" },
           options: {
             type: "array",
+            minItems: 4,
+            maxItems: 4,
             items: {
               type: "object",
               required: ["id", "text"],

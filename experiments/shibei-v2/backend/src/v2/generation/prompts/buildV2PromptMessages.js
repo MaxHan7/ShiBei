@@ -100,22 +100,29 @@ function buildEcdPlanningMessages({ article, source, blocks, plan }) {
   };
 }
 
-function buildUnitPracticePlanMessages({ article, source, blocks, unit }) {
+function buildUnitPracticePlanMessages({ article, source, blocks, unit, ecdContext }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：unitPracticePlan。",
-      "任务：只为当前知识点设计练习计划，不生成用户可见题目。",
-      "计划规则：",
+      "任务：把当前 unit 的 ECD context 转换为现有 practiceGoals 和 questionPlans；不生成用户可见题目。",
+      "转换规则：",
       "- 输出 practiceGoals 和 questionPlans。",
-      "- questionPlans 不写死数量；先根据 learningClaim / evidenceNeed 判断哪些题有证据价值，再生成对应计划。",
+      "- 以 ECD context.assemblyPlan.selectedTasks 为唯一题型来源；不要重新选择题型，不要自行增加额外 matching。",
+      "- questionPlans 的数量、顺序和 id 应跟 selectedTasks 对齐。",
+      "- questionPlan.id 必须等于 selectedTask.questionPlanId。",
+      "- selectedTask.taskAffordance 为 matching 时，questionPlan.type 写 matching；其他当前前端未支持的 affordance 先转换为 multiple_choice。",
+      "- questionPlan.purpose 必须继承 selectedTask.taskPurpose。",
+      "- practiceGoal 要服务于 selectedTask.evidenceIds 对应的 evidenceNeed 和 learningClaim。",
       "- 选择题可承担 light_understanding、scenario_application、boundary_check、misconception_check 等目的。",
-      "- matching 适合训练分层模型、类型集合、流程步骤、信号动作、角色职责等关系；DMC 这类“模型层级 -> 设计作用”是高价值 matching。",
+      "- matching 只在 ECD selectedTasks 已经选择 matching 时出现；不要把其他 unit 套成 DMC 式 matching。",
       "- 避免空泛“名词 -> 定义/贡献/描述”的机械配对，但不要误伤有明确关系证据的 matching。",
       "- 每个 practiceGoal 要写明 target 和 commonMisconception，供后续选择题生成真实干扰项。",
       "- questionPlans[].sourceAnchorId 必须等于当前 unit.sourceAnchor.id。",
       "",
       `当前 unit:\n${JSON.stringify(unit, null, 2)}`,
+      "",
+      `ECD context:\n${JSON.stringify(ecdContext || {}, null, 2)}`,
       "",
       renderSource(source, blocks),
       "",
@@ -124,12 +131,15 @@ function buildUnitPracticePlanMessages({ article, source, blocks, unit }) {
   };
 }
 
-function buildMultipleChoiceDraftMessages({ article, source, blocks, unit, practicePlan }) {
+function buildMultipleChoiceDraftMessages({ article, source, blocks, unit, practicePlan, ecdContext }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：multipleChoiceDraft。",
       "任务：按 practice plan 生成当前知识点的选择题。",
+      "ECD 使用方式：",
+      "- 每道题必须服务于对应 questionPlan 背后的 ECD learningClaim、evidenceNeed 和 assemblyReason。",
+      "- 不要重新改变题型或新增题；只把已有 questionPlan 写成可见选择题。",
       "生成顺序必须遵守：",
       "1. 先确认每题考察目标。",
       "2. 生成 correctUnderstanding。",
@@ -150,6 +160,8 @@ function buildMultipleChoiceDraftMessages({ article, source, blocks, unit, pract
       "",
       `practicePlan:\n${JSON.stringify(practicePlan, null, 2)}`,
       "",
+      `ECD context:\n${JSON.stringify(ecdContext || {}, null, 2)}`,
+      "",
       renderSource(source, blocks),
       "",
       renderArticleMeta(article)
@@ -157,15 +169,20 @@ function buildMultipleChoiceDraftMessages({ article, source, blocks, unit, pract
   };
 }
 
-function buildMatchingDraftMessages({ article, source, blocks, unit, practicePlan }) {
+function buildMatchingDraftMessages({ article, source, blocks, unit, practicePlan, ecdContext }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：matchingDraft。",
       "任务：只生成 practice plan 中要求的高价值连线题。",
+      "ECD 使用方式：",
+      "- 只实现 ECD selectedTasks 中已经选择 matching 的题。",
+      "- stem、左右项和 explanation 必须贴合当前 unit 的 evidenceNeed 和 assemblyReason。",
+      "- 不要把其他 unit 的好模式套到当前 unit；尤其不要把非 DMC unit 写成 DMC 三层匹配。",
       "连线题规则：",
       "- question.type 只能是 matching。",
-      "- 左右各 4 项，pairs 一一对应。",
+      "- 左右必须各 4 项，pairs 必须正好 4 对，一一对应；少于 4 对会被前端合同拒绝。",
+      "- 如果原始结构看起来只有 3 组，第四组必须来自当前 unit 中同级、有原文支撑的边界项、对照项、步骤项或角色项；不要虚构。",
       "- stem 必须说明匹配的关系：职责、边界、使用时机、场景作用、验证维度或流程信号。",
       "- 右侧必须是具体作用、处理方式、职责边界、判断结果、典型场景或验证维度。",
       "- 禁止只做“概念/名词/人物/案例 -> 定义/贡献/描述/特征”。",
@@ -177,6 +194,8 @@ function buildMatchingDraftMessages({ article, source, blocks, unit, practicePla
       "",
       `practicePlan:\n${JSON.stringify(practicePlan, null, 2)}`,
       "",
+      `ECD context:\n${JSON.stringify(ecdContext || {}, null, 2)}`,
+      "",
       renderSource(source, blocks),
       "",
       renderArticleMeta(article)
@@ -184,7 +203,7 @@ function buildMatchingDraftMessages({ article, source, blocks, unit, practicePla
   };
 }
 
-function buildUnitSummaryDraftMessages({ article, source, blocks, unit, practicePlan, questions }) {
+function buildUnitSummaryDraftMessages({ article, source, blocks, unit, practicePlan, questions, ecdContext }) {
   return {
     system: baseSystem(),
     user: [
@@ -200,6 +219,8 @@ function buildUnitSummaryDraftMessages({ article, source, blocks, unit, practice
       `当前 unit:\n${JSON.stringify(unit, null, 2)}`,
       "",
       `practicePlan:\n${JSON.stringify(practicePlan, null, 2)}`,
+      "",
+      `ECD context:\n${JSON.stringify(ecdContext || {}, null, 2)}`,
       "",
       `已生成题目:\n${JSON.stringify(questions, null, 2)}`,
       "",

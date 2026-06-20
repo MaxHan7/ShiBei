@@ -12,11 +12,12 @@
 ## Implementation Status
 
 - `ecdPlanning.js` 是第一版代码级 ECD 内部规划 schema 模块。
-- 该 schema 已作为 shadow stage 接入真实 V2 model orchestration：运行顺序为 `sourceMap -> reviewPathPlan -> ecdPlanning -> unitPracticePlan -> ...`。
+- 该 schema 已接入真实 V2 model orchestration：运行顺序为 `sourceMap -> reviewPathPlan -> ecdPlanning -> unitPracticePlan -> multipleChoiceDraft / matchingDraft -> unitSummaryDraft -> qualityJudge`。
 - `ecdPlanning` 输出会写入 `generationMeta.ecdPlanning`，并展示在 V2 HTML 质量报告中，用于人工检查模型是否先建立了学习主张、证据需求、任务计划和组装理由。
-- 当前 `ecdPlanning` 不驱动最终题目生成；它先作为诊断层运行。下一步才是让后续题目计划逐步消费它的 `selectedTasks`。
-- 旧 `unitPracticePlan` 仍作为过渡 schema 保留，但已经不再表达固定两道题规则。
-- Prompt chain 完整 rewiring 尚未完成；本轮只完成低风险 shadow 接入。
+- `ecdPlanning.unitAssemblyPlan[].selectedTasks` 现在已经驱动下游 `unitPracticePlan`：编排层会把当前 unit 的 `knowledgeUnit`、`learningClaims`、`evidenceNeeds`、`taskPlans`、`assemblyPlan` 作为 `ecdContext` 传入后续阶段。
+- 旧 `unitPracticePlan` 仍作为过渡 adapter 保留：它把 ECD 的 `selectedTasks` 转成现有 `practiceGoals` 和 `questionPlans`，从而保持 SwiftUI 可见字段合同稳定。
+- 如果 ECD 只选择 matching，则跳过 `multipleChoiceDraft`；如果 ECD 不选择 matching，则跳过 `matchingDraft`。模型额外发明的 `questionPlans` 会被过滤掉。
+- 当前前端只支持 `multiple_choice` 和 `matching`。ECD 中暂未落地的 future affordance 会在过渡期映射为 `multiple_choice`，后续如果新增题型，再单独扩展前端合同。
 
 ## 总览
 

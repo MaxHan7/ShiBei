@@ -29,6 +29,14 @@ The V2 prompt pipeline should produce a contract-valid review path with stable s
 - Added `V2_GENERATION_MAX_UNITS` and `V2_GENERATION_UNIT_CONCURRENCY` for bounded quality experiments. The latest completed run used `max6 + concurrency3` to make split-stage experiments practical.
 - Expanded draft-question normalization so missing `sourceAnchorId` / `practiceGoalId` is filled from the corresponding question plan instead of failing the whole run.
 
+### 2026-06-20 ECD-driven planning adapter
+
+- Connected `ecdPlanning.unitAssemblyPlan[].selectedTasks` into downstream `unitPracticePlan` through a per-unit `ecdContext`.
+- Added a deterministic adapter so `unitPracticePlan.questionPlans` follow ECD selected tasks instead of reselecting task types independently.
+- Filtered model-invented extra question plans. Draft stages now run only for question types selected by ECD: pure matching units skip `multipleChoiceDraft`, and non-matching units skip `matchingDraft`.
+- Passed the same `ecdContext` into `multipleChoiceDraft`, `matchingDraft`, and `unitSummaryDraft` so visible question drafting serves the selected learning claim, evidence need, and task purpose.
+- Tightened draft schemas so multiple choice has exactly 4 options and matching has exactly 4 left items, 4 right items, and 4 pairs.
+
 ### Earlier baseline fixes
 
 - Added support for extracted article metadata aliases so prompt messages include `sourceAccount` and `sourceUrl`.
@@ -51,11 +59,16 @@ The V2 prompt pipeline should produce a contract-valid review path with stable s
 | `20260620-132035-v2-ecd-shadow-review-plan-complete-units` | failed | Complete-unit prompt fixed review planning; ECD then failed on one unknown internal `claimType` enum. |
 | `20260620-135049-v2-ecd-shadow-max6-concurrency3` | failed | Bounded/concurrent run reached multiple-choice drafting, then failed because one draft omitted `sourceAnchorId` for unit `u4`. |
 | `20260620-135541-v2-ecd-shadow-max6-concurrency3-anchor-normalized` | completed | 6 units, 25 questions, 21 multiple choice, 4 matching, 77 source blocks. ECD identified DMC as `layered_framework` and generated a DMC layer-role matching question. |
+| `20260620-173939-v2-ecd-driven-planning-max6` | failed | ECD selected only matching for one unit, but orchestration still called `multipleChoiceDraft`, causing a zero-MC validation failure. |
+| `20260620-174439-v2-ecd-driven-planning-max6-rerun` | failed | Matching draft returned fewer than 4 left/right/pair items. This exposed that the model-facing matching schema still allowed underspecified arrays. |
+| `20260620-175013-v2-ecd-driven-planning-max6-schema-items` | completed | 6 units, 12 questions, 10 multiple choice, 2 matching, 70 source blocks, 1 deterministic diagnostic issue. ECD selected tasks now drive downstream question planning. |
 
 ## Artifacts
 
-- Latest JSON: `runs/20260620-135541-v2-ecd-shadow-max6-concurrency3-anchor-normalized.json`
-- Latest HTML: `reports/20260620-135541-v2-ecd-shadow-max6-concurrency3-anchor-normalized.html`
+- Latest JSON: `runs/20260620-175013-v2-ecd-driven-planning-max6-schema-items.json`
+- Latest HTML: `reports/20260620-175013-v2-ecd-driven-planning-max6-schema-items.html`
+- Previous ECD shadow JSON: `runs/20260620-135541-v2-ecd-shadow-max6-concurrency3-anchor-normalized.json`
+- Previous ECD shadow HTML: `reports/20260620-135541-v2-ecd-shadow-max6-concurrency3-anchor-normalized.html`
 - Previous split-stage diagnostic JSON: `runs/20260619-204253-v2-golden-deepseek-diagnostic-only-chat-id-normalized.json`
 - Previous split-stage diagnostic HTML: `reports/20260619-204253-v2-golden-deepseek-diagnostic-only-chat-id-normalized.html`
 - Previous completed baseline JSON: `runs/20260619-181727-v2-golden-deepseek-type-enum.json`
@@ -63,9 +76,11 @@ The V2 prompt pipeline should produce a contract-valid review path with stable s
 
 ## Conclusion
 
-The ECD shadow-stage direction is now technically runnable on this article. The latest completed run produced matching again, and the DMC unit was correctly recognized as a layered framework with a layer-role matching task. This is a meaningful improvement over the previous split-stage run that produced no matching.
+ECD is no longer only a shadow diagnostic stage for this experiment. The latest completed run uses ECD selected tasks to drive downstream question planning, then lets the draft stages write only the selected visible question types.
 
-This run should **not** be treated as a pedagogical-quality pass yet. The matching recovery is partly over-broad: some non-DMC units still borrowed DMC-style layer-role matching, which means the next prompt iteration should constrain matching evidence to the current unit instead of reusing a good pattern from another unit. The pipeline is now ready for focused quality comparison against the golden sample, but not ready for broad multi-article evaluation.
+The immediate macro improvement is that the earlier non-DMC “DMC-style matching” leakage is gone. The system now produces fewer but more explicitly ECD-backed questions: 12 visible questions for 6 units, with matching only where ECD selected matching.
+
+This run should **not** be treated as a pedagogical-quality pass yet. The main remaining macro issue moved upstream: `reviewPathPlan` / `knowledgeModel` merged “游戏化核心概念” and “DMC 模型” into one unit, so DMC no longer appears as a clean standalone knowledge point like the golden sample. One generated matching question was also flagged as `v2_weak_matching_relation`, which suggests the next iteration should improve ECD assembly criteria for relation strength before broad multi-article testing.
 
 Detailed audit: `../../../v2-prompt-quality-gap-audit-zh.md`
 
@@ -75,10 +90,11 @@ Manually review the latest HTML report against the V2 golden-sample rules before
 
 - Whether the selected 6 units match the golden sample's knowledge-point structure.
 - Whether `nodeLabel` is short enough for the home node popover.
-- Whether matching questions are grounded in the current unit's evidence, especially outside the DMC unit.
+- Whether DMC should be split back out as its own `layered_framework` unit.
+- Whether matching questions are grounded in strong current-unit evidence, especially for signal/action or process-style units.
 - Whether multiple-choice stems and options are as compact and misconception-driven as the golden sample.
 
-The next prompt iteration should connect ECD shadow planning into `unitPracticePlan` instead of letting `unitPracticePlan` independently rediscover tasks. This should make task selection more pyramid-like: article understanding -> unit learning claims -> evidence needs -> task affordances -> visible question drafts.
+The next prompt iteration should improve the upstream knowledge model and ECD assembly selection, not reintroduce independent task selection inside `unitPracticePlan`. The desired pyramid remains: article understanding -> unit knowledge model -> learning claims -> evidence needs -> selected tasks -> visible question drafts.
 
 After the generation prompts are closer to the V2 standard, run a controlled A/B experiment for an optional lightweight quality-rewrite role:
 

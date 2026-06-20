@@ -1,0 +1,1166 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>v2-ecd-driven-planning-max6-schema-items - V2 出题质量报告</title>
+  <style>
+    :root {
+      --bg: #f2f5cf;
+      --paper: #fdfaf2;
+      --ink: #44423d;
+      --muted: #807d73;
+      --line: #dde1ac;
+      --brand: #98a84e;
+      --soft: #f2f1da;
+      --danger: #ed765c;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    h1, h2, h3 {
+      line-height: 1.25;
+      margin: 0;
+    }
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 40px 0 16px;
+    }
+    h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(152, 163, 94, 0.18);
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      color: var(--brand);
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 14px 0;
+      background: rgba(253, 250, 242, 0.72);
+    }
+    .stem {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .options, .pairs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .option, .pair {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .correct {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .explanation {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+    .source {
+      margin-top: 12px;
+      border-left: 4px solid var(--line);
+      padding-left: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .source-block {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin: 8px 0;
+      background: rgba(255,255,255,0.45);
+    }
+    .source-block.highlight {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .failure {
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    details {
+      margin-top: 12px;
+    }
+    .diagnostic {
+      border-top: 1px dashed var(--line);
+      padding-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>V2 出题质量报告</h1>
+    <div class="meta">2026-06-20T17:56:10.817Z · v2-ecd-driven-planning-max6-schema-items · completed</div>
+    
+    <section class="card">
+      <h2 style="margin-top:0">文章与章节</h2>
+      <p><strong>基于游戏化方法的持续性用户体验设计</strong></p>
+      <p class="meta">吴 琼、王婧等 · <a href="https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A">https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A</a></p>
+      <p>本文聚焦游戏化方法如何作用于持续性用户体验设计。首先梳理游戏化的概念与DMC模型，进而从阶段性目标、挑战与能力匹配、成长感知、情境与身份认同四个维度展开分析，最后讨论游戏化设计的潜在风险（挤出效应、娱乐至上）及AI时代的新机遇。</p>
+      <div class="grid">
+        <div class="metric"><strong>6</strong>知识点</div>
+        <div class="metric"><strong>12</strong>题目</div>
+        <div class="metric"><strong>10</strong>选择题</div>
+        <div class="metric"><strong>2</strong>连线题</div>
+        <div class="metric"><strong>70</strong>Source blocks</div>
+        <div class="metric"><strong>0</strong>Issues</div>
+        <div class="metric"><strong>1</strong>Diagnostics</div>
+      </div>
+    </section>
+    <section class="card">
+    <h2 style="margin-top:0">ECD 证据规划 Shadow Stage</h2>
+    <p><span class="tag">核心论点</span>游戏化方法通过阶段性目标、挑战与能力匹配、成长感知、情境身份认同四个维度，作用于持续性用户体验设计，并需注意挤出效应与娱乐至上的风险。</p>
+    <p class="meta">这一段是内部诊断信息：它不会直接改最终题目，用来人工检查模型是否先建立了学习主张、证据需求和题型选择理由。</p>
+    <div class="question">
+    <div class="stem">1. 游戏化概念与DMC模型 · layered_framework</div>
+    <p><span class="tag">短版</span>游戏化是将游戏设计元素用于非游戏场景，DMC模型从动力、机制、组件三层分解游戏化系统。</p>
+    <p><span class="tag">长版</span>游戏化（Gamification）由塞巴斯蒂安·德特丁定义为“在非游戏语境中使用游戏设计元素”。凯文·韦巴赫与丹·亨特提出DMC模型：动力层（约束、情感、叙事等）界定整体体验，机制层（挑战、反馈、奖励等）组织行为循环，组件层（徽章、排行榜、点数等）落实为具体交互元素。</p>
+    <details open>
+    <summary>Learning Claims</summary>
+    <ul>
+      <li>u1-c1 · concept_understanding：理解游戏化的定义：在非游戏语境中使用游戏设计元素。</li>
+<li>u1-c2 · structure_understanding：掌握DMC模型的三层结构：动力层（整体体验）、机制层（行为循环）、组件层（具体元素），并理解每层的典型元素及其作用。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Evidence Needs</summary>
+    <ul>
+      <li>u1-e1 · select_core_claim：用户能从多个定义中准确选出游戏化的标准定义。 / 可观察反应：在四个选项中正确选择“在非游戏语境中使用游戏设计元素”。</li>
+<li>u1-e2 · map_structure_relation：用户能将DMC模型的三层（动力、机制、组件）与对应的元素正确匹配。 / 可观察反应：在匹配题中，将“约束/情感”“挑战/反馈”“徽章/排行榜”分别对应到动力层、机制层、组件层。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Task Plan</summary>
+    <ul>
+      <li>u1-t1 · multiple_choice · light_understanding：选择题能直接检验对游戏化定义的准确记忆，快速判断概念理解。</li>
+<li>u1-t2 · matching · layer_role_matching：匹配题适合检验DMC模型各层与元素的对应关系，符合分层结构验证。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Assembly</summary>
+    <p><span class="tag">Selected</span>2</p>
+    <ul>
+      <li>u1-q1 · multiple_choice · light_understanding：直接检验游戏化定义，基础且必要。</li>
+<li>u1-q2 · matching · layer_role_matching：匹配题有效验证DMC分层结构理解，高价值证据。</li>
+    </ul>
+    
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">2. 用户体验：从可用性到享乐质量 · comparison_pair</div>
+    <p><span class="tag">短版</span>用户体验从关注效率、任务完成转向情感、审美与意义获得，享乐质量强调自主感、胜任感与归属感。</p>
+    <p><span class="tag">长版</span>ISO定义用户体验为使用或预期使用产品时的感知与反应。可用性强调有效、效率、满意，但忽视愉悦感。哈森扎尔提出“实用—享乐”框架：实用质量支持完成任务，享乐质量满足成为目标（身份认同、刺激、审美），对应心流理论中挑战与技能平衡带来的沉浸体验。</p>
+    <details open>
+    <summary>Learning Claims</summary>
+    <ul>
+      <li>u2-c1 · concept_understanding：理解用户体验从可用性（效率、任务完成）向享乐质量（情感、审美、意义）的演变。</li>
+<li>u2-c2 · source_grounded_understanding：区分实用质量与享乐质量：实用质量支持“做目标”，享乐质量支持“成为目标”（身份认同、刺激、审美）。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Evidence Needs</summary>
+    <ul>
+      <li>u2-e1 · select_core_claim：用户能识别出用户体验演变的关键方向（从可用性到享乐质量）。 / 可观察反应：在选择题中选出“用户体验从关注任务效率转向情感与意义获得”。</li>
+<li>u2-e2 · distinguish_boundary：用户能区分实用质量与享乐质量的概念边界。 / 可观察反应：在判断题中正确判断“实用质量关注完成目标，享乐质量关注成为目标”。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Task Plan</summary>
+    <ul>
+      <li>u2-t1 · multiple_choice · light_understanding：选择题快速检验对用户体验演变方向的总体认知。</li>
+<li>u2-t2 · future_correction · boundary_check：修正题可要求用户纠正关于实用与享乐质量的错误表述，检验边界理解。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Assembly</summary>
+    <p><span class="tag">Selected</span>2</p>
+    <ul>
+      <li>u2-q1 · multiple_choice · light_understanding：快速检验演变方向。</li>
+<li>u2-q2 · future_correction · boundary_check：修正题可区分实用与享乐质量边界，深入理解概念。</li>
+    </ul>
+    
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">3. 阶段性目标与里程碑 · process_steps</div>
+    <p><span class="tag">短版</span>将长期目标拆解为可量化的阶段性任务，通过及时反馈缩短心理时间，形成行为习惯。</p>
+    <p><span class="tag">长版</span>长期目标反馈周期过长易导致动机衰减。阶段性目标（如每日打卡、每月挑战）将漫长旅程分解为短途冲刺，每次闭环带来即时满足并强化自我效能感。案例：专注森林（Forest）用树木生长呈现专注进程，失败则枯萎，将抽象专注转化为可视任务。</p>
+    <details open>
+    <summary>Learning Claims</summary>
+    <ul>
+      <li>u3-c1 · process_understanding：理解阶段性目标设定的作用：将长期目标拆解为可量化的阶段性任务，通过及时反馈缩短心理时间，形成行为习惯。</li>
+<li>u3-c2 · scenario_transfer：能够识别并解释案例中阶段性目标的应用（如专注森林的树木生长作为阶段性反馈）。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Evidence Needs</summary>
+    <ul>
+      <li>u3-e1 · map_step_purpose：用户能理解阶段性目标设定的目的：将长期目标拆解为短期任务并给予反馈。 / 可观察反应：在排序题中，将“设定总体目标→拆分为阶段性目标→设置反馈机制”正确排序。</li>
+<li>u3-e2 · apply_to_scenario：用户能分析专注森林如何应用阶段性目标。 / 可观察反应：在文本题中，指出专注森林将专注时间转化为树木生长，每次完成是一次阶段性成功。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Task Plan</summary>
+    <ul>
+      <li>u3-t1 · future_sorting · step_purpose_matching：排序题能检验用户对阶段性目标设定步骤的理解，查看过程逻辑。</li>
+<li>u3-t2 · multiple_choice · scenario_application：选择题可让用户从多个描述中选出专注森林如何体现阶段性目标，验证迁移能力。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Assembly</summary>
+    <p><span class="tag">Selected</span>2</p>
+    <ul>
+      <li>u3-q1 · future_sorting · step_purpose_matching：排序题验证阶段性目标设定过程逻辑。</li>
+<li>u3-q2 · multiple_choice · scenario_application：案例应用题检验迁移能力。</li>
+    </ul>
+    
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">4. 挑战与能力的动态匹配 · scenario_rule</div>
+    <p><span class="tag">短版</span>任务难度随用户能力动态调整，使其始终处于“可达到但有挑战”区间，促进心流。</p>
+    <p><span class="tag">长版</span>心流状态需要清晰目标、即时反馈以及技能与挑战的平衡。游戏设计通过难度星级、动态调节机制来维持张力。案例：多邻国根据前一天表现调整次日任务难度与奖励，错误多则降低难度保持参与，状态好则加大挑战并给予更高奖励。</p>
+    <details open>
+    <summary>Learning Claims</summary>
+    <ul>
+      <li>u4-c1 · process_understanding：理解挑战与能力动态匹配对维持心流的作用：任务难度随能力调整，避免无聊或焦虑。</li>
+<li>u4-c2 · scenario_transfer：能够解释多邻国如何根据用户前一日表现动态调整任务难度与奖励。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Evidence Needs</summary>
+    <ul>
+      <li>u4-e1 · map_structure_relation：用户能理解心流与挑战能力匹配的关系。 / 可观察反应：在匹配题中，将“技能&lt;挑战”与“焦虑”对应，“技能&gt;挑战”与“无聊”对应，“技能≈挑战”与“心流”对应。</li>
+<li>u4-e2 · apply_to_scenario：用户能分析多邻国如何动态调整难度。 / 可观察反应：在选择题中，正确描述多邻国根据前一日表现调整难度和奖励。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Task Plan</summary>
+    <ul>
+      <li>u4-t1 · matching · signal_action_matching：匹配题适合将不同能力-挑战状态与对应情绪（心流/焦虑/无聊）配对，检验动态关系理解。</li>
+<li>u4-t2 · multiple_choice · scenario_application：选择题可检验用户对多邻国动态调节机制的具体理解。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Assembly</summary>
+    <p><span class="tag">Selected</span>2</p>
+    <ul>
+      <li>u4-q1 · matching · signal_action_matching：匹配能力-挑战与情绪状态，检验动态关系理解。</li>
+<li>u4-q2 · multiple_choice · scenario_application：案例应用检验多邻国机制理解。</li>
+    </ul>
+    
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">5. 成长感知设计 · process_steps</div>
+    <p><span class="tag">短版</span>通过可视化、易感知的设计将缓慢成果转化为持续变化，结合社交互动增强成长可见性。</p>
+    <p><span class="tag">长版</span>成长感知设计将长期行为成果实时可视化。案例：蚂蚁森林将低碳行为转化为绿色能量，能量积累可种真实树木；蚂蚁庄园通过喂养小鸡、收蛋支持公益。此外，成就、排行榜、技能树等组件将能力转化为可识别的标识，社交互动（如好友帮助收能量）增强参与感。</p>
+    <details open>
+    <summary>Learning Claims</summary>
+    <ul>
+      <li>u5-c1 · process_understanding：理解成长感知设计通过可视化、易感知的方式将长期成果转化为持续变化，增强投入感。</li>
+<li>u5-c2 · scenario_transfer：能够分析蚂蚁森林/蚂蚁庄园如何通过可视化成长（绿色能量、喂养小鸡）促进持续参与。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Evidence Needs</summary>
+    <ul>
+      <li>u5-e1 · map_step_purpose：用户能理解成长感知设计的关键步骤：可视化→持续感知→增强投入。 / 可观察反应：在排序题中，将“行为数据化→可视反馈→成长感知→增强投入”正确排序。</li>
+<li>u5-e2 · apply_to_scenario：用户能分析蚂蚁森林如何通过可视化促进持续使用。 / 可观察反应：在文本题中，指出蚂蚁森林将低碳行为转化为绿色能量，树木成长使进步可见。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Task Plan</summary>
+    <ul>
+      <li>u5-t1 · future_sorting · step_purpose_matching：排序题可检验成长感知设计的关键步骤顺序，强化过程理解。</li>
+<li>u5-t2 · multiple_choice · scenario_application：选择题检验蚂蚁森林如何可视化成长，验证案例迁移能力。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Assembly</summary>
+    <p><span class="tag">Selected</span>2</p>
+    <ul>
+      <li>u5-q1 · future_sorting · step_purpose_matching：排序题验证成长感知设计步骤。</li>
+<li>u5-q2 · multiple_choice · scenario_application：案例应用检验蚂蚁森林可视化理解。</li>
+    </ul>
+    
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">6. 情境设计与身份认同 · scenario_rule</div>
+    <p><span class="tag">短版</span>借助空间线索、角色设定与行动规则，让用户在情境中代入角色，建立身份认同。</p>
+    <p><span class="tag">长版</span>叙事不依赖剧情文本，而是嵌入空间、地标、关卡与环境线索。案例：《毛线小精灵2》中毛线角色特性与材料一致，障碍也符合材质属性；《宝可梦GO》将现实世界转化为游戏场景，用户以训练师身份探索。荷兰微生物博物馆通过实验室氛围与角色设定，强化“自己是微生物载体”的认同。</p>
+    <details open>
+    <summary>Learning Claims</summary>
+    <ul>
+      <li>u6-c1 · concept_understanding：理解情境设计与身份认同建构的方法：通过空间线索、角色设定、行动规则使用户代入角色。</li>
+<li>u6-c2 · scenario_transfer：能够分析《毛线小精灵2》或《宝可梦GO》如何通过情境设计建立身份认同。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Evidence Needs</summary>
+    <ul>
+      <li>u6-e1 · select_core_claim：用户能识别情境设计的关键元素：空间线索、角色设定、行动规则。 / 可观察反应：在多选题中，正确选出“空间线索、角色设定、行动规则”作为情境设计要素。</li>
+<li>u6-e2 · apply_to_scenario：用户能分析《毛线小精灵2》中角色特性如何与情境结合。 / 可观察反应：在文本题中，指出毛线角色怕火，障碍设计符合材质特性，强化身份认同。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Task Plan</summary>
+    <ul>
+      <li>u6-t1 · multiple_choice · light_understanding：多选题检验对情境设计关键要素的识别，直接覆盖概念理解。</li>
+<li>u6-t2 · multiple_choice · scenario_application：选择题检验对《毛线小精灵2》情境设计的分析能力，考察案例应用。</li>
+    </ul>
+  </details>
+    <details open>
+    <summary>Assembly</summary>
+    <p><span class="tag">Selected</span>2</p>
+    <ul>
+      <li>u6-q1 · multiple_choice · light_understanding：多选题检验情境设计要素识别。</li>
+<li>u6-q2 · multiple_choice · scenario_application：案例应用检验毛线小精灵情境分析。</li>
+    </ul>
+    
+  </details>
+  </div>
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">1. 游戏化的核心概念与DMC模型</h2>
+    <p><span class="tag">短版</span>游戏化是将游戏设计元素用于非游戏场景，DMC模型从动力、机制、组件三层分解游戏化系统。</p>
+    <p><span class="tag">长版</span>游戏化（Gamification）由塞巴斯蒂安·德特丁定义为“在非游戏语境中使用游戏设计元素”。凯文·韦巴赫与丹·亨特提出DMC模型：动力层（约束、情感、叙事等）界定整体体验，机制层（挑战、反馈、奖励等）组织行为循环，组件层（徽章、排行榜、点数等）落实为具体交互元素。</p>
+    <p><span class="tag">概要页</span>本单元将带你复习游戏化的核心定义与DMC模型的分层结构。请先思考：游戏化究竟意味着什么？游戏元素如何从动力到组件层层落实？</p>
+    <div class="source">
+      <strong>Source anchor: anchor-u1</strong>
+      <div class="source-block highlight">
+    <strong>p-007 · paragraph</strong>
+    <div>本文简要梳理了游戏化的概念，从阶段性目标的设定、挑战与能力的动态匹配、成长机制的感知设计以及情境设计与身份认同建构四个方面，分析游戏化方法如何作用于持续性用户体验设计；并进一步讨论了游戏化设计的潜在风险与人工智能时代面临的新挑战，为数字媒介环境中的持续性用户体验设计提供了有效的思路和方法参考。</div>
+  </div>
+<div class="source-block highlight">
+    <strong>p-011 · paragraph</strong>
+    <div>“游戏化”（ Gamification ）这一概念由尼克·佩林（ Nick Pelling ）于 2002 年提出，并逐渐受到关注。 2011 年，塞巴斯蒂安·德特丁（ Sebastian Deterding ）将其界定为“在非游戏语境中使用游戏设计元素” [3] ，该表述也成为后续研究中最常引用的定义。凯文·韦巴赫（ Kevin Werbach ）与丹·亨特（ Dan Hunter ）在《游戏化思维：改变未来商业的新力量》中指出，游戏化的关键在于以创造“乐趣”的方式服务现实目标，使人们更愿意进入、完成并持续进行某一活动。 [4] 在商业、教育、文博、文旅等领域中，运用游戏化的设计来提升用户体验的方法有广泛的运用。以瑞典斯德哥尔摩奥丁广场（ Odenplan ）地铁站为例，其通道楼梯被改造为可交互的“钢琴键”，行人每踏上一级台阶都会触发对应音符，使上楼过程转化为趣味的互动体验，从而促使更多人主动地选择“爬楼梯”这种健康行为。（图 1 ）</div>
+  </div>
+<div class="source-block highlight">
+    <strong>p-017 · paragraph</strong>
+    <div>从结构层面来说，凯文·韦巴赫（ Kevin Werbach ）与丹·亨特（ Dan Hunter ）提出了金字塔式的 DMC （ Dynamics – Mechanics – Components ）模型，将游戏化分为动力、机制与组件三个层面 [12] （图 3 ）：动力层处于最高层，主要回答“用户最终体验到什么”的问题，即界定系统整体体验，例如约束、情感、叙事、成长或进展关系；机制层主要指组织用户行为与推进用户参与的规则与流程，例如挑战、机会、竞争、合作、反馈、资源获取、奖励、交易、回合与获胜状态等，它的作用在于把单一操作编排成可重复的参与，使动力层的体验目标在时间维度上逐步累积；组件层位于最底层，是用户最容易直接感知与操作的单元，通常以界面元素或功能模块的形式呈现，例如成就、徽章、战斗、排行榜、点数、任务、社交图谱和虚拟商品等，与前两层相比，这一层更关注“用户看到什么、能做什么”，把抽象目标转化为可视、可交互的具体入口。总体而言，动力层规定体验的目标与方向，机制层构成持续运转的操作循环，组件层则将前两者进一步落实为具体功能。</div>
+  </div>
+    </div>
+    <div class="question">
+    <div class="stem">1. 选择题 · 下列哪项最准确地描述了“游戏化”的定义？</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> 在软件中集成游戏娱乐功能以提升趣味性</div>
+<div class="option correct"><strong>B</strong> 在非游戏语境中使用游戏设计元素</div>
+<div class="option "><strong>C</strong> 将游戏技术应用于严肃场景以增强学习效果</div>
+<div class="option "><strong>D</strong> 在教育软件中嵌入游戏关卡和积分系统</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>游戏化的核心定义是由德特丁提出的“在非游戏语境中使用游戏设计元素”，强调的不是把非游戏内容变成游戏，而是借用游戏元素来服务非游戏目标。</div>
+    <div class="meta">sourceAnchorId: anchor-u1</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">2. 连线题 · 请将以下概念与它们各自的职责或定义进行匹配。</div>
+    <div class="pairs">
+      <div class="pair"><strong>l1 → r1</strong><br>动力层<br><span class="meta">界定整体体验</span></div>
+<div class="pair"><strong>l2 → r2</strong><br>机制层<br><span class="meta">组织行为循环</span></div>
+<div class="pair"><strong>l3 → r3</strong><br>组件层<br><span class="meta">落实为具体交互元素</span></div>
+<div class="pair"><strong>l4 → r4</strong><br>游戏化定义<br><span class="meta">在非游戏语境中使用游戏设计元素</span></div>
+    </div>
+    <details>
+      <summary>左右选项原始列表</summary>
+      <pre>{
+  &quot;leftItems&quot;: [
+    {
+      &quot;id&quot;: &quot;l1&quot;,
+      &quot;text&quot;: &quot;动力层&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l2&quot;,
+      &quot;text&quot;: &quot;机制层&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l3&quot;,
+      &quot;text&quot;: &quot;组件层&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l4&quot;,
+      &quot;text&quot;: &quot;游戏化定义&quot;
+    }
+  ],
+  &quot;rightItems&quot;: [
+    {
+      &quot;id&quot;: &quot;r1&quot;,
+      &quot;text&quot;: &quot;界定整体体验&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r2&quot;,
+      &quot;text&quot;: &quot;组织行为循环&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r3&quot;,
+      &quot;text&quot;: &quot;落实为具体交互元素&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r4&quot;,
+      &quot;text&quot;: &quot;在非游戏语境中使用游戏设计元素&quot;
+    }
+  ],
+  &quot;pairs&quot;: [
+    {
+      &quot;leftId&quot;: &quot;l1&quot;,
+      &quot;rightId&quot;: &quot;r1&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l2&quot;,
+      &quot;rightId&quot;: &quot;r2&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l3&quot;,
+      &quot;rightId&quot;: &quot;r3&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l4&quot;,
+      &quot;rightId&quot;: &quot;r4&quot;
+    }
+  ]
+}</pre>
+    </details>
+    <div class="explanation"><strong>解释：</strong>动力层界定整体体验，机制层组织行为循环，组件层落实为具体交互元素，游戏化定义为在非游戏语境中使用游戏设计元素。</div>
+    <div class="meta">sourceAnchorId: anchor-u1</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: not_applicable</div>
+    <div class="meta">matching relation value: pass</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+    <details>
+      <summary>单元总结</summary>
+      <p><strong>单元完成</strong></p>
+      <p>游戏化定义为在非游戏语境中使用游戏设计元素。DMC模型从动力（界定体验）、机制（组织行为）、组件（具体元素）三个层面分解游戏化系统。</p>
+    </details>
+  </section>
+<section class="card">
+    <h2 style="margin-top:0">2. 用户体验的演变：从可用性到享乐质量</h2>
+    <p><span class="tag">短版</span>用户体验从关注效率、任务完成转向情感、审美与意义获得，享乐质量强调自主感、胜任感与归属感。</p>
+    <p><span class="tag">长版</span>ISO定义用户体验为使用或预期使用产品时的感知与反应。可用性强调有效、效率、满意，但忽视愉悦感。哈森扎尔提出“实用—享乐”框架：实用质量支持完成任务，享乐质量满足成为目标（身份认同、刺激、审美），对应心流理论中挑战与技能平衡带来的沉浸体验。</p>
+    <p><span class="tag">概要页</span>用户体验最初聚焦于可用性——任务完成的效率与有效性，后来拓展到享乐质量，强调情感、审美与意义获得。本单元帮你复习这一演变的核心理念，并清晰区分实用质量与享乐质量的边界。</p>
+    <div class="source">
+      <strong>Source anchor: anchor-u2</strong>
+      <div class="source-block highlight">
+    <strong>p-013 · paragraph</strong>
+    <div>用户体验是人机交互研究的重要内容之一。 2010 年，国际标准组织将用户体验定义为用户在使用或预期使用系统、产品或服务时产生的感知和反应 [5] ，涵盖情绪、信念、偏好、感知、舒适度、行为及成就等多个方面。可用性作为评估交互质量及用户体验的重要标准，关注用户在特定使用情境中完成特定目标时的有效性、效率与满意度。 [6] 可用性强调任务达成，却忽略了人们在产品实际使用中对愉悦感、信任感等积极情绪的追求。在 2003 年出版的 Funology: From Usability to Enjoyment 一书中，作者对人机交互领域长期“以任务为中心”的研究取向提出了反思，强调用户体验不应仅停留在效率和易用性层面，更应关注情感、美学和愉悦感。一些学者关注到游戏中的吸引力及其激发用户持续投入的能力，希望将其引入产品设计之中，产品不只是单一意义上的“工具”，还可以成为承载趣味与愉悦体验的“玩具”。 [7] 米哈里·契克森米哈赖（ Mihaly Csikszentmihalyi ）于 20 世纪 70 年代提出的“心流”（ Flow ） [8] 理论则从心理学视角解释了这种吸引力何以产生：当个体能力与挑战难度保持动态平衡，同时又具备清晰目标与即时反馈时，用户便会进入高度专注且愉悦的沉浸状态，并将挑战视为具有内在回报的活动，从而持续、自发地投入其中 [9] 。 2007 年，马克·哈森扎尔（ Marc Hassenzahl ）提出的“实用—享乐”（ Pragmatic – hedonic ）框架进一步将用户对产品质量的感知划分为两个部分：其一是实用质量（ Pragmatic Quality ），强调产品对“完成目标”（ Do- goals ）的支持，关注可控性、效率、可理解性与任务完成；其二是享乐质量（ Hedonic Quality ），强调产品对“成为目标”（ Be-goals ）的支持，涉及身份认同、刺激与新奇、审美愉悦、自我表达与意义获得等体验维度，作用于积极的用户体验。相较于传统视角，享乐质量强调用户体验应满足自主感、胜任感和归属感等深层的心理需求。</div>
+  </div>
+    </div>
+    <div class="question">
+    <div class="stem">1. 选择题 · 关于用户体验的演变，以下哪一项最准确地描述了这种转变？</div>
+    <div class="options">
+      <div class="option correct"><strong>a</strong> 从可用性转向享乐质量，关注情感与意义</div>
+<div class="option "><strong>b</strong> 从享乐质量转向可用性，回归效率优先</div>
+<div class="option "><strong>c</strong> 始终只关注效率和使用效果，未发生变化</div>
+<div class="option "><strong>d</strong> 不再关心任务完成，只追求愉悦感</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>用户体验最初关注可用性（效率、任务完成），后来拓展到享乐质量（情感、审美、意义），这一演变强调了情感与意义的重要性。</div>
+    <div class="meta">sourceAnchorId: anchor-u2</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">2. 选择题 · 根据哈森扎尔的“实用—享乐”框架，以下哪一项正确区分了实用质量与享乐质量？</div>
+    <div class="options">
+      <div class="option correct"><strong>a</strong> 实用质量关注任务完成效率，享乐质量关注身份认同与审美体验</div>
+<div class="option "><strong>b</strong> 实用质量和享乐质量都主要关注任务完成</div>
+<div class="option "><strong>c</strong> 享乐质量就是让用户感到轻松愉快，实用质量则相反</div>
+<div class="option "><strong>d</strong> 实用质量关注情感体验，享乐质量关注效率</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>实用质量强调对“做目标”的支持（效率、可控性），享乐质量强调对“成为目标”的支持（身份认同、刺激、审美）。</div>
+    <div class="meta">sourceAnchorId: anchor-u2</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+    <details>
+      <summary>单元总结</summary>
+      <p><strong>单元完成</strong></p>
+      <p>用户体验经历了从可用性（效率、任务完成）到享乐质量（情感、审美、意义）的演变。实用质量支持“完成目标”，享乐质量支持“成为目标”（身份认同、刺激、审美）。把握这一演进，是理解游戏化如何提升持续投入的关键。</p>
+    </details>
+  </section>
+<section class="card">
+    <h2 style="margin-top:0">3. 阶段性目标的设定：里程碑与反馈循环</h2>
+    <p><span class="tag">短版</span>将长期目标拆解为可量化的阶段性任务，通过及时反馈缩短心理时间，形成行为习惯。</p>
+    <p><span class="tag">长版</span>长期目标反馈周期过长易导致动机衰减。阶段性目标（如每日打卡、每月挑战）将漫长旅程分解为短途冲刺，每次闭环带来即时满足并强化自我效能感。案例：专注森林（Forest）用树木生长呈现专注进程，失败则枯萎，将抽象专注转化为可视任务。</p>
+    <p><span class="tag">概要页</span>本单元我们将探讨如何通过设定阶段性目标，将长期目标拆解为可量化的短途冲刺，并通过即时反馈维持动机，形成稳定的行为习惯。</p>
+    <div class="source">
+      <strong>Source anchor: anchor-u3</strong>
+      <div class="source-block highlight">
+    <strong>p-021 · paragraph</strong>
+    <div>在许多依赖用户长期投入的产品体验中，总体目标的实现往往跨越数周乃至数月，这种过长的反馈周期使得用户因无法在当下行动中感知进展，导致成就感的稀释与动机的渐进衰减。因此，体验设计应围绕总体目标，构建清晰的目标层级体系，设定具体、可量化的阶段性目标。这些“里程碑”不仅为用户提供了可预期的近期终点，更在心理层面重构了时间感知，使漫长旅程分解为一系列可掌控的短途冲刺，将传统意义上消耗意志力的“一次性艰难完成”，转化为具备流畅感与掌控感的“高质量标准动作”。每一次阶段性闭环不仅带来即时的满意与愉悦，更通过正向强化塑造用户的自我效能感，在长期互动中培育出稳定的行为习惯与深层的产品依赖，实现从外在激励向内在驱动的过渡。这一思路在学习类与健身类产品中都较为常见，例如“每日打卡”“每月挑战”等机制，将漫长的学习和训练划分为多轮边界清晰的小任务。用户每一次的进入，都能够明确当前目标，获得及时回应，从而减少因周期过长带来的注意力分散和中途退出的情况。以时间管理应用“专注森林”（ Forest ）为例，该产品不直接要求用户保持长期的“专注”，而是将其转化为一次次时长明确的阶段性任务。用户设定专注时长后，系统便以树木生长的方式呈现任务进程；若中途退出，树木则会枯萎。（图 4 ）从一棵树到一片森林，推进用户养成长期使用的习惯。</div>
+  </div>
+    </div>
+    <div class="question">
+    <div class="stem">1. 选择题 · 关于阶段性目标设定在长期任务中的作用，以下说法最准确的是？</div>
+    <div class="options">
+      <div class="option correct"><strong>A</strong> 阶段性目标是将长期目标拆解为短期任务，并通过及时反馈维持动机，形成行为习惯。</div>
+<div class="option "><strong>B</strong> 阶段性目标只是简单地把大任务分成小任务，与反馈循环无关。</div>
+<div class="option "><strong>C</strong> 阶段性目标主要依靠外部奖励来激励用户，内在动机不重要。</div>
+<div class="option "><strong>D</strong> 阶段性目标只适用于游戏化产品，不适用于其他领域。</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>阶段性目标不仅分解任务，更重要的是通过及时反馈提供即时满足，强化自我效能感，形成持续参与的行为习惯。</div>
+    <div class="meta">sourceAnchorId: anchor-u3</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">2. 选择题 · 专注森林（Forest）应用中的树木生长机制，最准确地体现了什么？</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> 树木生长是专注森林的视觉装饰，没有实际功能。</div>
+<div class="option correct"><strong>B</strong> 树木生长代表了专注时间转化为可见的阶段性成果，每次完成一次专注任务就是一次阶段性成功。</div>
+<div class="option "><strong>C</strong> 树木生长用于记录用户的总专注时长，与阶段性目标无关。</div>
+<div class="option "><strong>D</strong> 树木生长是社交功能，用于朋友之间比较专注时间。</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>专注森林用树木生长直观呈现每次专注任务的完成，提供即时反馈，属于阶段性目标设定的应用。</div>
+    <div class="meta">sourceAnchorId: anchor-u3</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+    <details>
+      <summary>单元总结</summary>
+      <p><strong>单元完成</strong></p>
+      <p>阶段性目标将漫长旅程分解为短期任务，每次闭环带来即时满足，强化自我效能感。核心是建立清晰的里程碑与反馈循环。</p>
+    </details>
+  </section>
+<section class="card">
+    <h2 style="margin-top:0">4. 挑战与能力的动态匹配：心流维持</h2>
+    <p><span class="tag">短版</span>任务难度随用户能力动态调整，使其始终处于“可达到但有挑战”区间，促进心流。</p>
+    <p><span class="tag">长版</span>心流状态需要清晰目标、即时反馈以及技能与挑战的平衡。游戏设计通过难度星级、动态调节机制来维持张力。案例：多邻国根据前一天表现调整次日任务难度与奖励，错误多则降低难度保持参与，状态好则加大挑战并给予更高奖励。</p>
+    <p><span class="tag">概要页</span>心流状态需要技能与挑战的动态匹配：当两者平衡时进入心流，偏离则导致焦虑或无聊。接下来，你将通过匹配题巩固这一关系，并通过多邻国案例学习如何动态调整难度与奖励。</p>
+    <div class="source">
+      <strong>Source anchor: anchor-u4</strong>
+      <div class="source-block highlight">
+    <strong>p-026 · paragraph</strong>
+    <div>用户是否愿意继续投入，不仅取决于阶段性目标是否清晰，也与每一个阶段的体验是否有足够的变化和张力密切相关。适度递增的任务难度和相应的激励机制是推动形成心流体验、吸引用户持续投入的关键因素。在游戏设计中，会通过设定难度星级、引入动态调节机制，使任务始终处于“可达到但有挑战”的区间，进而维持注意力与沉浸感。因为通常玩家所掌握的能力或技能会随着关卡难度的提升而提升，所以当用户熟练掌握某种技能后，游戏系统会给用户提供新的道具或者玩法。学习软件多邻国便引入了这种机制，根据用户前一天的表现对第二天的任务难度进行动态调整，并配合宝物箱、宝石和限时多倍经验等奖励，控制学习节奏。在用户前一日错误较多、每日完成任务较少的情况下，系统会适当降低任务数量及难度，以保持用户的参与意愿；当用户状态较好时，则通过更具挑战性的任务和更高的奖励，鼓励其继续投入。此外，答题表现与完成速度也影响了关卡的星级获得。（图 6 ）</div>
+  </div>
+    </div>
+    <div class="question">
+    <div class="stem">1. 连线题 · 将以下挑战与能力的匹配状态与对应的体验结果配对</div>
+    <div class="pairs">
+      <div class="pair"><strong>left1 → right1</strong><br>技能低于挑战<br><span class="meta">焦虑</span></div>
+<div class="pair"><strong>left2 → right2</strong><br>技能高于挑战<br><span class="meta">无聊</span></div>
+<div class="pair"><strong>left3 → right3</strong><br>技能与挑战平衡<br><span class="meta">心流</span></div>
+<div class="pair"><strong>left4 → right4</strong><br>技能与挑战动态匹配<br><span class="meta">心流维持</span></div>
+    </div>
+    <details>
+      <summary>左右选项原始列表</summary>
+      <pre>{
+  &quot;leftItems&quot;: [
+    {
+      &quot;id&quot;: &quot;left1&quot;,
+      &quot;text&quot;: &quot;技能低于挑战&quot;
+    },
+    {
+      &quot;id&quot;: &quot;left2&quot;,
+      &quot;text&quot;: &quot;技能高于挑战&quot;
+    },
+    {
+      &quot;id&quot;: &quot;left3&quot;,
+      &quot;text&quot;: &quot;技能与挑战平衡&quot;
+    },
+    {
+      &quot;id&quot;: &quot;left4&quot;,
+      &quot;text&quot;: &quot;技能与挑战动态匹配&quot;
+    }
+  ],
+  &quot;rightItems&quot;: [
+    {
+      &quot;id&quot;: &quot;right1&quot;,
+      &quot;text&quot;: &quot;焦虑&quot;
+    },
+    {
+      &quot;id&quot;: &quot;right2&quot;,
+      &quot;text&quot;: &quot;无聊&quot;
+    },
+    {
+      &quot;id&quot;: &quot;right3&quot;,
+      &quot;text&quot;: &quot;心流&quot;
+    },
+    {
+      &quot;id&quot;: &quot;right4&quot;,
+      &quot;text&quot;: &quot;心流维持&quot;
+    }
+  ],
+  &quot;pairs&quot;: [
+    {
+      &quot;leftId&quot;: &quot;left1&quot;,
+      &quot;rightId&quot;: &quot;right1&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;left2&quot;,
+      &quot;rightId&quot;: &quot;right2&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;left3&quot;,
+      &quot;rightId&quot;: &quot;right3&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;left4&quot;,
+      &quot;rightId&quot;: &quot;right4&quot;
+    }
+  ]
+}</pre>
+    </details>
+    <div class="explanation"><strong>解释：</strong>技能低于挑战会引发焦虑，技能高于挑战导致无聊，技能与挑战平衡产生心流，动态匹配维持心流。</div>
+    <div class="meta">sourceAnchorId: anchor-u4</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: not_applicable</div>
+    <div class="meta">matching relation value: weak_relation</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>v2_weak_matching_relation: 连线题像机械名词解释配对，没有体现职责、边界、时机、作用或验证维度。</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">2. 选择题 · 多邻国是如何根据用户前一日表现来调整次日游戏体验的？</div>
+    <div class="options">
+      <div class="option "><strong>u4-q2-a</strong> 根据前一日错误次数多则降低难度，错误少则提高难度，但奖励不变</div>
+<div class="option "><strong>u4-q2-b</strong> 固定每周循环调整，不依赖用户表现</div>
+<div class="option "><strong>u4-q2-c</strong> 根据前一日完成的任务数量调整奖励，但不改变难度</div>
+<div class="option correct"><strong>u4-q2-d</strong> 根据前一日表现动态调整次日任务难度和奖励</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>多邻国会综合用户前一日错误数量和任务完成情况，同步调整难度和奖励，使挑战始终匹配能力。</div>
+    <div class="meta">sourceAnchorId: anchor-u4</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+    <details>
+      <summary>单元总结</summary>
+      <p><strong>单元完成</strong></p>
+      <p>本单元学习了心流维持的核心——挑战与能力的动态匹配：技能低于挑战引发焦虑，高于挑战导致无聊，平衡时进入心流。多邻国通过动态调整任务难度与奖励，使挑战始终匹配能力，从而维持心流。</p>
+    </details>
+  </section>
+<section class="card">
+    <h2 style="margin-top:0">5. 成长机制的感知设计：可视化进步</h2>
+    <p><span class="tag">短版</span>通过可视化、易感知的设计将缓慢成果转化为持续变化，结合社交互动增强成长可见性。</p>
+    <p><span class="tag">长版</span>成长感知设计将长期行为成果实时可视化。案例：蚂蚁森林将低碳行为转化为绿色能量，能量积累可种真实树木；蚂蚁庄园通过喂养小鸡、收蛋支持公益。此外，成就、排行榜、技能树等组件将能力转化为可识别的标识，社交互动（如好友帮助收能量）增强参与感。</p>
+    <p><span class="tag">概要页</span>本单元聚焦成长机制的感知设计：如何通过可视化手段将长期行为成果转化为可感知的持续变化，使用户在每次互动中都能看到自己的进步。你将学习这一设计方法的核心步骤，并分析蚂蚁森林等真实案例如何运用可视化促进持续参与。</p>
+    <div class="source">
+      <strong>Source anchor: anchor-u5</strong>
+      <div class="source-block highlight">
+    <strong>p-029 · paragraph</strong>
+    <div>在持续性体验设计中，对进步感知的设计至关重要。通过可视化、易感知的设计，将原本缓慢生成的结果转化为持续变化的获得，有助于增强用户的投入感与持续参与意愿。蚂蚁森林与蚂蚁庄园是支付宝中关于环保生活的公益应用小程序，其成长机制的感知设计是一个有益的参考：针对环保活动的行动周期长、成果难以及时感知的问题，其设计通过可视化的方式把日常的行为转化为一种能够被持续感知的过程。蚂蚁森林将绿色出行和无纸化等低碳行为作为种植树木的“绿色能量”，并可转化为真实世界中的树木种植，加深了用户参与的成就感。（图 7—8 ）同样，蚂蚁庄园通过“喂养小鸡—收获爱心蛋—支持公益”的链条，把日常参与公益活动映射为照料小鸡的过程，原本长期渐现的公益结果被转化为可观察、可等待、可确认的过程。树在生长，鸡蛋在增加，个人行动留下了清晰痕迹，用户获得了“我正在产生影响”的成长感，增强了持续投入的动力。</div>
+  </div>
+<div class="source-block highlight">
+    <strong>p-032 · paragraph</strong>
+    <div>在成长机制感知的设计中，成就、排行榜等游戏元素是最常使用的界面组件，即借助等级、段位等方式将能力变为可见的成长标识，帮助用户在持续使用中形成对自身进步的明确感知，还可通过技能树或成长路径把内容结构化，让用户理解进步或者晋升的内在逻辑，从而增强行动的方向感；很多场景中还会设置里程碑节点，使阶段性成果的获得具有仪式感。此外，很多成长机制的设计中也会嵌入社交关系，例如在蚂蚁森林，用户不仅通过自身行为积累能量，也可以帮助好友收取能量，在互动中参与彼此的进度变化，使成长过程获得了更多可见性与参与感。</div>
+  </div>
+    </div>
+    <div class="question">
+    <div class="stem">1. 选择题 · 成长感知设计通过哪一系列步骤有效提升用户持续投入？</div>
+    <div class="options">
+      <div class="option correct"><strong>a</strong> 可视化行为数据→用户持续感知进步→增强投入动机</div>
+<div class="option "><strong>b</strong> 设定最终目标→直接展示成就→用户获得满足感</div>
+<div class="option "><strong>c</strong> 用户行为→即时奖励→重复行为</div>
+<div class="option "><strong>d</strong> 社交互动→排名比较→竞争动力</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>成长感知设计的关键在于将长期成果通过可视化转化为持续可感知的变化，让用户不断看到进步，从而增强内在动机。</div>
+    <div class="meta">sourceAnchorId: anchor-u5</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">2. 选择题 · 蚂蚁森林通过什么方式让用户感受到持续的成长进步？</div>
+    <div class="options">
+      <div class="option correct"><strong>a</strong> 将低碳行为转化为绿色能量，通过能量积累和树木成长的可视化过程让用户感知进步</div>
+<div class="option "><strong>b</strong> 用户直接使用绿色能量兑换真实树木，无需关注中间过程</div>
+<div class="option "><strong>c</strong> 通过排行榜比较好友的能量数量激发竞争</div>
+<div class="option "><strong>d</strong> 在蚂蚁庄园喂养小鸡来收集爱心蛋</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>蚂蚁森林通过将行为转化为可视化的绿色能量和树木成长，让用户持续感知自己的进步，从而增强参与动力。</div>
+    <div class="meta">sourceAnchorId: anchor-u5</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+    <details>
+      <summary>单元总结</summary>
+      <p><strong>单元完成</strong></p>
+      <p>成长感知设计通过可视化→持续感知→增强投入的步骤，将长期行为成果实时呈现。蚂蚁森林的绿色能量与树木成长、蚂蚁庄园的喂养小鸡与收集爱心蛋，都是典型例证。成就、排行榜、技能树等组件以及社交互动，进一步强化了成长可见性与参与动机。</p>
+    </details>
+  </section>
+<section class="card">
+    <h2 style="margin-top:0">6. 情境设计与身份认同建构</h2>
+    <p><span class="tag">短版</span>借助空间线索、角色设定与行动规则，让用户在情境中代入角色，建立身份认同。</p>
+    <p><span class="tag">长版</span>叙事不依赖剧情文本，而是嵌入空间、地标、关卡与环境线索。案例：《毛线小精灵2》中毛线角色特性与材料一致，障碍也符合材质属性；《宝可梦GO》将现实世界转化为游戏场景，用户以训练师身份探索。荷兰微生物博物馆通过实验室氛围与角色设定，强化“自己是微生物载体”的认同。</p>
+    <p><span class="tag">概要页</span>情境设计如何让用户代入角色，建立身份认同？本单元将借助游戏与博物馆案例，回顾空间线索、角色设定与行动规则的作用。</p>
+    <div class="source">
+      <strong>Source anchor: anchor-u6</strong>
+      <div class="source-block highlight">
+    <strong>p-034 · paragraph</strong>
+    <div>很多人认为故事是游戏设计最为关键的内容之一，也有研究者主张应把焦点放在玩法机制而非故事本身上。亨利·詹金斯（ Henry Jenkins ）认为，这场争论不应走向二元对立：一方面，许多游戏确实依托世界观与故事来组织角色体验；另一方面，“玩游戏”并不等同于阅读故事，他将游戏中的“叙事”理解为一种叙事架构或叙事背景：叙事并非只依靠剧情文本推进，而是被嵌入空间结构、地标与路线、关卡组织、环境线索与物件关系之中，玩家通过行动在场景中“代入角色” [13] 。例如，在游戏《毛线小精灵 2 》（ Unravel Two ）中，玩家所扮演的是与真实世界的毛线球一样大小的毛线角色，其移动、连接与解谜方式也与“毛线”这一材料可牵引、可缠绕的特性深度吻合（图 9 ），角色在关卡中所面临的火焰障碍也与毛线怕火的这一特点相关（图 10 ）。在游戏中，玩家主要通过在关卡空间与互动规则中逐步理解角色身份、目标与情感指向，从而获得更生动鲜活的体验。增强现实技术的兴起，为情境化叙事在现实世界中的展开提供了更有力的条件，在增强现实（ AR ）游戏《精灵宝可梦 GO 》（ Pok é mon GO，图11 ）中，玩家以“训练师”的身份展开探索、捕捉与孵化宝可梦的任务，现实的街道、公园和地标通过手机摄像头转化为游戏场景，进而成为游戏场景的组成部分。玩家在真实移动与收集互动中，建立了新的身份认同，并进一步增强了自身在游戏情境中的代入感。</div>
+  </div>
+<div class="source-block highlight">
+    <strong>p-039 · paragraph</strong>
+    <div>角色设定、环境线索和空间结构能够帮助用户快速建立对于情境的理解和认知。荷兰的微生物博物馆（ Micropia ）就是一个很好的案例（图 12 ），该博物馆被打造成一间互动实验室，显微镜、培养皿、身穿白大褂的工作人员，以及“咕噜咕噜”气体冒泡的环境音等元素，共同营造出了真实的实验室氛围。观众在进入博物馆时，便能够感知到“自己也是微生物载体”的身份设定，在参观过程中以打卡、收集等方式逐步建立与展览内容之间的联系。可以看到，在这个微生物世界中，无论是整个场景还是观众的角色设定，都围绕微观世界展开，空间、线索与行动机制共同组织了叙事，承载了意义，从而激发起观众的兴趣。</div>
+  </div>
+    </div>
+    <div class="question">
+    <div class="stem">1. 选择题 · 情境设计通常通过哪些要素帮助用户代入角色，建立身份认同？</div>
+    <div class="options">
+      <div class="option correct"><strong>A</strong> 空间线索、角色设定、行动规则</div>
+<div class="option "><strong>B</strong> 剧情文本、视觉风格、音效</div>
+<div class="option "><strong>C</strong> 用户界面设计、社交功能、奖励机制</div>
+<div class="option "><strong>D</strong> 角色等级、装备系统、任务列表</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>情境设计通过空间线索、角色设定和行动规则让用户代入角色，而非仅依靠剧情文本。</div>
+    <div class="meta">sourceAnchorId: anchor-u6</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">2. 选择题 · 在《毛线小精灵2》中，毛线角色的身份认同主要是通过什么建立的？</div>
+    <div class="options">
+      <div class="option correct"><strong>A</strong> 角色材质特性与关卡障碍的匹配，如毛线怕火</div>
+<div class="option "><strong>B</strong> 精美的剧情故事和角色对话</div>
+<div class="option "><strong>C</strong> 丰富的角色技能和升级系统</div>
+<div class="option "><strong>D</strong> 强大的装备和道具收集</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>毛线角色的身份认同来自其材质特性与关卡障碍的匹配，如怕火特色，而非剧情文本。</div>
+    <div class="meta">sourceAnchorId: anchor-u6</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+    <details>
+      <summary>单元总结</summary>
+      <p><strong>单元完成</strong></p>
+      <p>情境设计通过空间线索、角色设定和行动规则使用户代入角色，而非依赖剧情文本。《毛线小精灵2》《宝可梦GO》及微生物博物馆案例都展示了这一方法。</p>
+    </details>
+  </section>
+    <section class="card">
+      <h2 style="margin-top:0">章节总结</h2>
+      <p><span class="tag">章节完成</span>共 6 个核心知识点，12 道题目</p>
+      <p>游戏化远不止积分与徽章，它是在长期互动中为用户铺设清晰路径、匹配适度挑战、让成长可见并赋予意义的一门艺术。你已经洞悉了这些机制背后的逻辑，下一步，试着在真实产品中识别它们——你设计的每一个反馈，都可能成为用户持续投入的理由。</p>
+    </section>
+    <section class="card">
+      <h2 style="margin-top:0">完整来源块</h2>
+      <div class="source-block ">
+    <strong>p-001 · heading</strong>
+    <div>基于游戏化方法的持续性用户体验设计</div>
+  </div>
+<div class="source-block ">
+    <strong>p-002 · paragraph</strong>
+    <div>原创</div>
+  </div>
+<div class="source-block ">
+    <strong>p-003 · paragraph</strong>
+    <div>吴 琼、王婧等</div>
+  </div>
+<div class="source-block ">
+    <strong>p-004 · paragraph</strong>
+    <div>吴 琼、王婧等</div>
+  </div>
+<div class="source-block ">
+    <strong>p-005 · paragraph</strong>
+    <div>装饰杂志</div>
+  </div>
+<div class="source-block ">
+    <strong>p-006 · heading</strong>
+    <div>内容摘要</div>
+  </div>
+<div class="source-block ">
+    <strong>p-007 · paragraph</strong>
+    <div>本文简要梳理了游戏化的概念，从阶段性目标的设定、挑战与能力的动态匹配、成长机制的感知设计以及情境设计与身份认同建构四个方面，分析游戏化方法如何作用于持续性用户体验设计；并进一步讨论了游戏化设计的潜在风险与人工智能时代面临的新挑战，为数字媒介环境中的持续性用户体验设计提供了有效的思路和方法参考。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-008 · heading</strong>
+    <div>关键词：游戏化、持续性用户体验、设计方法</div>
+  </div>
+<div class="source-block ">
+    <strong>p-009 · heading</strong>
+    <div>引 言</div>
+  </div>
+<div class="source-block ">
+    <strong>p-010 · paragraph</strong>
+    <div>游戏是基于规则的交互性系统 [1] ，是一种通过规则约束与目标达成来激发参与者自主感与胜任感的人类活动。游戏设计师简·麦格尼格尔（ Jane McGonigal ）将游戏概括为“我们自愿尝试去克服的不必要的挑战” [2] ，点明了游戏追求的不是效率，而是体验。规则、交互、愉悦和吸引力是理解游戏的几个核心关键词。信息技术的持续发展推动了电子游戏，尤其是网络游戏的功能拓展与边界重构，使之从传统的娱乐应用转变为深度融入教育、社交及文旅等生活场景的数字媒介。在此过程中，积分、徽章、排行榜、进度条等源自游戏的元素和机制也被广泛引入到各类交互性产品与系统之中，尤其是在面向长期使用场景的持续性体验设计之中，用于提高产品的吸引力，增强用户的参与意愿并提升留存率。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-011 · paragraph</strong>
+    <div>“游戏化”（ Gamification ）这一概念由尼克·佩林（ Nick Pelling ）于 2002 年提出，并逐渐受到关注。 2011 年，塞巴斯蒂安·德特丁（ Sebastian Deterding ）将其界定为“在非游戏语境中使用游戏设计元素” [3] ，该表述也成为后续研究中最常引用的定义。凯文·韦巴赫（ Kevin Werbach ）与丹·亨特（ Dan Hunter ）在《游戏化思维：改变未来商业的新力量》中指出，游戏化的关键在于以创造“乐趣”的方式服务现实目标，使人们更愿意进入、完成并持续进行某一活动。 [4] 在商业、教育、文博、文旅等领域中，运用游戏化的设计来提升用户体验的方法有广泛的运用。以瑞典斯德哥尔摩奥丁广场（ Odenplan ）地铁站为例，其通道楼梯被改造为可交互的“钢琴键”，行人每踏上一级台阶都会触发对应音符，使上楼过程转化为趣味的互动体验，从而促使更多人主动地选择“爬楼梯”这种健康行为。（图 1 ）</div>
+  </div>
+<div class="source-block ">
+    <strong>p-012 · paragraph</strong>
+    <div>1. 奥丁广场（Odenplan）地铁站的钢琴楼梯（图片来源：Photo Courtesy goodvertisement.site）</div>
+  </div>
+<div class="source-block ">
+    <strong>p-013 · paragraph</strong>
+    <div>用户体验是人机交互研究的重要内容之一。 2010 年，国际标准组织将用户体验定义为用户在使用或预期使用系统、产品或服务时产生的感知和反应 [5] ，涵盖情绪、信念、偏好、感知、舒适度、行为及成就等多个方面。可用性作为评估交互质量及用户体验的重要标准，关注用户在特定使用情境中完成特定目标时的有效性、效率与满意度。 [6] 可用性强调任务达成，却忽略了人们在产品实际使用中对愉悦感、信任感等积极情绪的追求。在 2003 年出版的 Funology: From Usability to Enjoyment 一书中，作者对人机交互领域长期“以任务为中心”的研究取向提出了反思，强调用户体验不应仅停留在效率和易用性层面，更应关注情感、美学和愉悦感。一些学者关注到游戏中的吸引力及其激发用户持续投入的能力，希望将其引入产品设计之中，产品不只是单一意义上的“工具”，还可以成为承载趣味与愉悦体验的“玩具”。 [7] 米哈里·契克森米哈赖（ Mihaly Csikszentmihalyi ）于 20 世纪 70 年代提出的“心流”（ Flow ） [8] 理论则从心理学视角解释了这种吸引力何以产生：当个体能力与挑战难度保持动态平衡，同时又具备清晰目标与即时反馈时，用户便会进入高度专注且愉悦的沉浸状态，并将挑战视为具有内在回报的活动，从而持续、自发地投入其中 [9] 。 2007 年，马克·哈森扎尔（ Marc Hassenzahl ）提出的“实用—享乐”（ Pragmatic – hedonic ）框架进一步将用户对产品质量的感知划分为两个部分：其一是实用质量（ Pragmatic Quality ），强调产品对“完成目标”（ Do- goals ）的支持，关注可控性、效率、可理解性与任务完成；其二是享乐质量（ Hedonic Quality ），强调产品对“成为目标”（ Be-goals ）的支持，涉及身份认同、刺激与新奇、审美愉悦、自我表达与意义获得等体验维度，作用于积极的用户体验。相较于传统视角，享乐质量强调用户体验应满足自主感、胜任感和归属感等深层的心理需求。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-014 · paragraph</strong>
+    <div>用户体验专家埃里克· 沙弗（ Eric Schaffer ）提出要“超越可用性”，将用户体验与持续性行为联系起来。他认为，用户体验设计不应仅支持用户“能做什么”，还应该通过增强说服力、激发感情来建立信任，从而促进用户的持续投入与行为改变。 [10] 用户体验的概念非常宽泛，在实践中应当面向具体的体验需求进行有针对性的设计。本文所强调的持续性用户体验设计，是一种面向长期使用情境的系统设计，既包括阶段性目标的达成效率和过程感受，也包括用户在反复使用中逐渐形成的认知、行为习惯与情感联结。在以内容消费、习惯养成与服务为主要功能的、以长期使用为特点的产品中，用户体验的评价标准不仅包含单次任务的完成度，还扩展到留存、访问频次与连续性等长期指标，情绪、审美与意义等主观维度在用户体验的评测中也非常关键 [11] ，当数字产品与服务的竞争焦点从“可用性”转为“持续参与、情绪投入与长期关系建立”时，游戏化的设计方法能够成为构建持续性用户体验的一种重要策略。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-015 · paragraph</strong>
+    <div>游戏化不仅能够增强用户在交互过程中的沉浸感与心流体验，更为重要的是通过反馈、挑战与意义建构，提升用户持续投入的意愿，并在参与中获得愉悦、专注与成长的体验。 Foursquare 是一个具有代表性的游戏化设计案例，该平台将现实空间中的“到访”行为转化为游戏模式：在一定时间内，对同一地点签到次数最多的用户可获得“市长”称号，并获得相应的身份标识与成就反馈（图 2 ），而这些反馈又进一步强化后续行动，把原本单纯的地点打卡转化为激发持续参与的动力。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-016 · paragraph</strong>
+    <div>2. Foursquare 中获得“市长”称号的界面（图片来源：https://pcholic.blogspot.com/2015/06/SwarmSticker9.html）</div>
+  </div>
+<div class="source-block ">
+    <strong>p-017 · paragraph</strong>
+    <div>从结构层面来说，凯文·韦巴赫（ Kevin Werbach ）与丹·亨特（ Dan Hunter ）提出了金字塔式的 DMC （ Dynamics – Mechanics – Components ）模型，将游戏化分为动力、机制与组件三个层面 [12] （图 3 ）：动力层处于最高层，主要回答“用户最终体验到什么”的问题，即界定系统整体体验，例如约束、情感、叙事、成长或进展关系；机制层主要指组织用户行为与推进用户参与的规则与流程，例如挑战、机会、竞争、合作、反馈、资源获取、奖励、交易、回合与获胜状态等，它的作用在于把单一操作编排成可重复的参与，使动力层的体验目标在时间维度上逐步累积；组件层位于最底层，是用户最容易直接感知与操作的单元，通常以界面元素或功能模块的形式呈现，例如成就、徽章、战斗、排行榜、点数、任务、社交图谱和虚拟商品等，与前两层相比，这一层更关注“用户看到什么、能做什么”，把抽象目标转化为可视、可交互的具体入口。总体而言，动力层规定体验的目标与方向，机制层构成持续运转的操作循环，组件层则将前两者进一步落实为具体功能。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-018 · paragraph</strong>
+    <div>3. DMC 模型—游戏元素的金字塔分层结构（图片来源：笔者绘制）</div>
+  </div>
+<div class="source-block ">
+    <strong>p-019 · paragraph</strong>
+    <div>交互是游戏的本质属性。比尔·韦普朗克（ Bill Verplank ）指出，交互设计需要解决用户的可行动性（ do ）、可感知性（ feel ）与可理解性（ know ）三个根本问题。其中，可行动性和可感知性是交互在本能层次的循环：用户依据当前状态做出判断和操作，系统给出反馈；用户再根据反馈做出新的判断并进入下一轮操作，由此形成“行动—反馈”的循环。以《俄罗斯方块》为例，玩家每一次左右移动、旋转或快速下落的操作，都会立刻改变方块的落点与堆叠形态，而堆叠形态的变化又促进玩家调整下一步操作；用户理解了游戏的逻辑和目标，大脑更清晰稳定地产生下一步行为指令，此为可理解性，也是交互设计最为重要的内容。对于持续性的用户体验来说，可理解性尤为关键，除了交互行为的逻辑，还需要将长期目标拆解为一系列可完成的短期任务，并借助易于感知的反馈，让每一次行动都成为“我正在接近目标”的证据。大脑对实现目标、体验成长有着天然的渴望，游戏中的成长机制正是利用这种内在动机，使玩家在可控的挑战中不断感知进展并获得满足感。比如在角色扮演游戏中（ Roleplaying Game, RPG ），玩家每次战斗获得的经验增长和等级提升，能够将“成长”和“与目标之间的距离”具象化。此外，将规则、目标与反馈嵌入交互式场景之中，让玩家通过情境线索、角色身份和节奏等信息，形成对系统叙事和运转逻辑的判断，从而支持后续行为的展开，强化对意义的认知也是常用的方法。总体而言，在面向持续性体验的设计时，应让参与者明确“要做什么”以及“为何这样做”，并能在持续投入中建立情感联系与身份认同。具体实践中，游戏化的设计方法至少包括以下四个方面内容。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-020 · heading</strong>
+    <div>一、阶段性目标的设定</div>
+  </div>
+<div class="source-block ">
+    <strong>p-021 · paragraph</strong>
+    <div>在许多依赖用户长期投入的产品体验中，总体目标的实现往往跨越数周乃至数月，这种过长的反馈周期使得用户因无法在当下行动中感知进展，导致成就感的稀释与动机的渐进衰减。因此，体验设计应围绕总体目标，构建清晰的目标层级体系，设定具体、可量化的阶段性目标。这些“里程碑”不仅为用户提供了可预期的近期终点，更在心理层面重构了时间感知，使漫长旅程分解为一系列可掌控的短途冲刺，将传统意义上消耗意志力的“一次性艰难完成”，转化为具备流畅感与掌控感的“高质量标准动作”。每一次阶段性闭环不仅带来即时的满意与愉悦，更通过正向强化塑造用户的自我效能感，在长期互动中培育出稳定的行为习惯与深层的产品依赖，实现从外在激励向内在驱动的过渡。这一思路在学习类与健身类产品中都较为常见，例如“每日打卡”“每月挑战”等机制，将漫长的学习和训练划分为多轮边界清晰的小任务。用户每一次的进入，都能够明确当前目标，获得及时回应，从而减少因周期过长带来的注意力分散和中途退出的情况。以时间管理应用“专注森林”（ Forest ）为例，该产品不直接要求用户保持长期的“专注”，而是将其转化为一次次时长明确的阶段性任务。用户设定专注时长后，系统便以树木生长的方式呈现任务进程；若中途退出，树木则会枯萎。（图 4 ）从一棵树到一片森林，推进用户养成长期使用的习惯。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-022 · paragraph</strong>
+    <div>4. 专注森林以树木生长作为森林的阶段性目标（图片来源：专注森林界面截图）</div>
+  </div>
+<div class="source-block ">
+    <strong>p-023 · paragraph</strong>
+    <div>NFT 产品“无聊猿”（ Bored Ape Yacht Club ）则展示了另一种阶段化组织方式，即将长期运营过程拆分为多个相对独立的阶段性活动。比如在其衍生游戏 Dookey Dash 中，无论是免费领取通行证的老会员，还是通过购买获得资格的新用户，都可以直接进入当期活动，完成完整的竞赛与奖励流程，活动所获得的道具还可以转换为新的 NFT 角色，在提升产品留存的同时，也增强了用户对后续活动的期待。（图 5 ）</div>
+  </div>
+<div class="source-block ">
+    <strong>p-024 · paragraph</strong>
+    <div>5-1. Dookey Dash 的通行证；5-2. Dookey Dash 游戏的闯关界面（图片来源：https://x.com/Dexerto/status/1630585662951809026?s=20）</div>
+  </div>
+<div class="source-block ">
+    <strong>p-025 · heading</strong>
+    <div>二、挑战与能力的动态匹配</div>
+  </div>
+<div class="source-block ">
+    <strong>p-026 · paragraph</strong>
+    <div>用户是否愿意继续投入，不仅取决于阶段性目标是否清晰，也与每一个阶段的体验是否有足够的变化和张力密切相关。适度递增的任务难度和相应的激励机制是推动形成心流体验、吸引用户持续投入的关键因素。在游戏设计中，会通过设定难度星级、引入动态调节机制，使任务始终处于“可达到但有挑战”的区间，进而维持注意力与沉浸感。因为通常玩家所掌握的能力或技能会随着关卡难度的提升而提升，所以当用户熟练掌握某种技能后，游戏系统会给用户提供新的道具或者玩法。学习软件多邻国便引入了这种机制，根据用户前一天的表现对第二天的任务难度进行动态调整，并配合宝物箱、宝石和限时多倍经验等奖励，控制学习节奏。在用户前一日错误较多、每日完成任务较少的情况下，系统会适当降低任务数量及难度，以保持用户的参与意愿；当用户状态较好时，则通过更具挑战性的任务和更高的奖励，鼓励其继续投入。此外，答题表现与完成速度也影响了关卡的星级获得。（图 6 ）</div>
+  </div>
+<div class="source-block ">
+    <strong>p-027 · paragraph</strong>
+    <div>6. 学习软件多邻国中的任务、奖励与等级（图片来源：多邻国界面截图）</div>
+  </div>
+<div class="source-block ">
+    <strong>p-028 · heading</strong>
+    <div>三、成长机制的感知设计</div>
+  </div>
+<div class="source-block ">
+    <strong>p-029 · paragraph</strong>
+    <div>在持续性体验设计中，对进步感知的设计至关重要。通过可视化、易感知的设计，将原本缓慢生成的结果转化为持续变化的获得，有助于增强用户的投入感与持续参与意愿。蚂蚁森林与蚂蚁庄园是支付宝中关于环保生活的公益应用小程序，其成长机制的感知设计是一个有益的参考：针对环保活动的行动周期长、成果难以及时感知的问题，其设计通过可视化的方式把日常的行为转化为一种能够被持续感知的过程。蚂蚁森林将绿色出行和无纸化等低碳行为作为种植树木的“绿色能量”，并可转化为真实世界中的树木种植，加深了用户参与的成就感。（图 7—8 ）同样，蚂蚁庄园通过“喂养小鸡—收获爱心蛋—支持公益”的链条，把日常参与公益活动映射为照料小鸡的过程，原本长期渐现的公益结果被转化为可观察、可等待、可确认的过程。树在生长，鸡蛋在增加，个人行动留下了清晰痕迹，用户获得了“我正在产生影响”的成长感，增强了持续投入的动力。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-030 · paragraph</strong>
+    <div>7. 蚂蚁森林中的树木培育的不同阶段（图片来源：蚂蚁森林界面截图）</div>
+  </div>
+<div class="source-block ">
+    <strong>p-031 · paragraph</strong>
+    <div>8. 蚂蚁森林中的虚拟“花棒”与真实种植的花棒林（图片来源：蚂蚁森林界面截图、https://finance.sina.com.cn/jjxw/2024-08-27/doc-incmaiqq4387922.shtml）</div>
+  </div>
+<div class="source-block ">
+    <strong>p-032 · paragraph</strong>
+    <div>在成长机制感知的设计中，成就、排行榜等游戏元素是最常使用的界面组件，即借助等级、段位等方式将能力变为可见的成长标识，帮助用户在持续使用中形成对自身进步的明确感知，还可通过技能树或成长路径把内容结构化，让用户理解进步或者晋升的内在逻辑，从而增强行动的方向感；很多场景中还会设置里程碑节点，使阶段性成果的获得具有仪式感。此外，很多成长机制的设计中也会嵌入社交关系，例如在蚂蚁森林，用户不仅通过自身行为积累能量，也可以帮助好友收取能量，在互动中参与彼此的进度变化，使成长过程获得了更多可见性与参与感。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-033 · heading</strong>
+    <div>四、情境设计与身份认同建构</div>
+  </div>
+<div class="source-block ">
+    <strong>p-034 · paragraph</strong>
+    <div>很多人认为故事是游戏设计最为关键的内容之一，也有研究者主张应把焦点放在玩法机制而非故事本身上。亨利·詹金斯（ Henry Jenkins ）认为，这场争论不应走向二元对立：一方面，许多游戏确实依托世界观与故事来组织角色体验；另一方面，“玩游戏”并不等同于阅读故事，他将游戏中的“叙事”理解为一种叙事架构或叙事背景：叙事并非只依靠剧情文本推进，而是被嵌入空间结构、地标与路线、关卡组织、环境线索与物件关系之中，玩家通过行动在场景中“代入角色” [13] 。例如，在游戏《毛线小精灵 2 》（ Unravel Two ）中，玩家所扮演的是与真实世界的毛线球一样大小的毛线角色，其移动、连接与解谜方式也与“毛线”这一材料可牵引、可缠绕的特性深度吻合（图 9 ），角色在关卡中所面临的火焰障碍也与毛线怕火的这一特点相关（图 10 ）。在游戏中，玩家主要通过在关卡空间与互动规则中逐步理解角色身份、目标与情感指向，从而获得更生动鲜活的体验。增强现实技术的兴起，为情境化叙事在现实世界中的展开提供了更有力的条件，在增强现实（ AR ）游戏《精灵宝可梦 GO 》（ Pok é mon GO，图11 ）中，玩家以“训练师”的身份展开探索、捕捉与孵化宝可梦的任务，现实的街道、公园和地标通过手机摄像头转化为游戏场景，进而成为游戏场景的组成部分。玩家在真实移动与收集互动中，建立了新的身份认同，并进一步增强了自身在游戏情境中的代入感。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-035 · paragraph</strong>
+    <div>9. 《毛线小精灵2》游戏中角色利用自身毛线作为解密道具（图片来源：Unravel Two 游戏截图）</div>
+  </div>
+<div class="source-block ">
+    <strong>p-036 · paragraph</strong>
+    <div>10. 《毛线小精灵2》游戏中角色所面临的障碍与毛线怕火的特点相关（图片来源：Unravel Two 游戏截图）</div>
+  </div>
+<div class="source-block ">
+    <strong>p-037 · paragraph</strong>
+    <div>11. 在《宝可梦GO》中，玩家通过手机摄像头在现实生活中捕捉宝可梦（图片来源：https://www.pokemongo.com/）</div>
+  </div>
+<div class="source-block ">
+    <strong>p-038 · paragraph</strong>
+    <div>12. 微生物博物馆Micropia荷兰 阿姆斯特丹（图片来源：https://www.simoncorder.com/micropia/）</div>
+  </div>
+<div class="source-block ">
+    <strong>p-039 · paragraph</strong>
+    <div>角色设定、环境线索和空间结构能够帮助用户快速建立对于情境的理解和认知。荷兰的微生物博物馆（ Micropia ）就是一个很好的案例（图 12 ），该博物馆被打造成一间互动实验室，显微镜、培养皿、身穿白大褂的工作人员，以及“咕噜咕噜”气体冒泡的环境音等元素，共同营造出了真实的实验室氛围。观众在进入博物馆时，便能够感知到“自己也是微生物载体”的身份设定，在参观过程中以打卡、收集等方式逐步建立与展览内容之间的联系。可以看到，在这个微生物世界中，无论是整个场景还是观众的角色设定，都围绕微观世界展开，空间、线索与行动机制共同组织了叙事，承载了意义，从而激发起观众的兴趣。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-040 · paragraph</strong>
+    <div>当然，不恰当的游戏化会给用户体验设计带来一些问题，比如干扰注意力、偏移任务目标等。这种问题在教育场景中尤为典型，俄亥俄州立大学开展的一项课堂对照研究发现，在融入排行榜、徽章等游戏化元素的课程中，学生的内在学习动机、课堂满意度与学习赋权感随时间推移呈现显著下降趋势；而无游戏化元素的对照组则未出现类似情况。 [14] 究其原因，徽章等虚拟奖励被学生感知为控制性的外部激励，同时，数字化排行榜又加剧了比较和破坏性竞争，削弱了学生的内在学习驱动力，催生了一系列消极的心理体验与行为反应。这种现象也被称为“挤出效应”（ Crowding-out Effect ），即系统引入积分、徽章、排行榜、可兑换奖励等外在激励后，用户对自身行为原因的解释发生变化，原本基于兴趣、价值或责任的内在动机被削弱，进而出现仅在有奖励的情况下才愿意行动的倾向。当这种目标偏移发展为持续、重复且难以中止的状态时，还可能引发过度沉迷的问题。游戏化设计方法是一种面向激励系统与服务体验的设计方法，进行持续性用户体验设计时，需要将奖励机制、可视化反馈与核心任务目标紧密结合，优先支持内在动机的生成与维持，以真正提高用户的长期留存率与行为质量。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-041 · paragraph</strong>
+    <div>除此之外，游戏化带来的另一种更具社会风险的倾向是“娱乐至上”，即原本服务于学习、工作、消费或公共生活的产品，逐步转向以感官刺激和留存为重心的注意力争夺。游戏设计师伊恩·博格斯特（ Ian Bogost ）指出，游戏化常被营销与咨询产业简化为可包装、可复制的积分与徽章方案，借助“游戏化”的修辞制造商业潮流，却回避了游戏在叙事、规则体验与意义建构上的意义和价值，这样一来，游戏化的关注点更多在于推销标准化解决方案、延续产业体系，而非对真实问题与用户体验的改进。因此，游戏化设计的关键并不在于是否加入更多“像游戏的元素”，而在于是否真正改变了用户参与任务的方式。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-042 · paragraph</strong>
+    <div>随着生成式人工智能的快速发展，游戏化设计也出现了很多新的特点。传统游戏大都依赖预设规则、关卡和路径，而生成式人工智能使用户“创造性参与”和“自定义生成”的条件越来越完善。任意卡牌模拟器（ AnyCard ）是一款基于人工智能的教育产品，它以教育者提出的具体需求为输入，由智能体对需求进行解析，并调用框架内的游戏对象来生成函数与规则模板，自动构建对应的游戏内容与交互逻辑并生成卡牌。借助人工智能生成的机制，用户能够以“开发者”的方式参与卡牌的创建与迭代，游戏化体验能够从“预设关卡”转向“无限生成”，用户的身份也从“参与者”跨越到了“创造者”。当系统能够根据具体需求、使用情境和用户状态持续生成新的任务结构、挑战形式和叙事路径时，持续性体验也拥有了能够动态更新的内容支撑。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-043 · paragraph</strong>
+    <div>基于游戏化方法的体验设计，绝非是将产品包装得“更像游戏”，其本质在于将游戏机制深度转化为用户在长期使用过程中的情感锚点——包括持续的情绪投入、稳定的行为维系、清晰的进展感知，以及深层的身份认同。优秀的设计应当超越积分、徽章、排行榜等外在激励的堆砌，转而关注这些机制是否真正支持了用户的认知理解、能力成长与主动参与，是否能够有效平衡产品功能目标与用户情感体验，在“激发参与”与“守护福祉”之间建立起伦理平衡，通过赋予用户参与感、掌控感与胜任感，形成兼具黏性与品质的高价值持续性用户体验。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-044 · heading</strong>
+    <div>注释与参考文献（向上滑动查看）：</div>
+  </div>
+<div class="source-block ">
+    <strong>p-045 · paragraph</strong>
+    <div>[1] Salen K, Zimmerman E. Rules of Play : Game Design Fundamentals [M]. Cambridge: MIT Press, 2003: 58-61.</div>
+  </div>
+<div class="source-block ">
+    <strong>p-046 · paragraph</strong>
+    <div>[2] [ 美 ] 简·麦戈尼格尔：《游戏改变世界：游戏化如何让现实变得更美好》 [M] ，闾佳译，北京：北京联合出版公司， 2016 ，第 22 页。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-047 · paragraph</strong>
+    <div>[3] Deterding S, Dixon D, Khaled R, Nacke L. From Game Design Elements to Gamefulness: Defining Gamification [C]. Proceedings of the 15th International Academic MindTrek Conference: Envisioning Future Media Environments. New York: ACM Press, 2011: 9-15.</div>
+  </div>
+<div class="source-block ">
+    <strong>p-048 · paragraph</strong>
+    <div>[4] [ 美 ] 凯文·韦巴赫、丹·亨特：《游戏化思维：改变未来商业的新力量》 [M] ，周逵、王晓丹译，杭州：浙江人民出版社， 2014 ，第 31 页。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-049 · paragraph</strong>
+    <div>[5] 国际标准化组织 . ISO 9241-210:2010 Ergonomics of Human-system Interaction — Part 210: Humancentred Design for Interactive Systems [S]. Geneva: International Organization for Standardization, 2010.</div>
+  </div>
+<div class="source-block ">
+    <strong>p-050 · paragraph</strong>
+    <div>[6] 国际标准化组织 . ISO 9241-11:2018 Ergonomics of human-system interaction — Part 11: Usability: Definitions and concepts [S]. Geneva: International Organization for Standardization, 2018.</div>
+  </div>
+<div class="source-block ">
+    <strong>p-051 · paragraph</strong>
+    <div>[7] Monk A, Blythe M, Hassenzahl M, Reed D, eds. Funology: From Usability to Enjoyment [C]. Dordrecht: Kluwer Academic Publishers, 2003.</div>
+  </div>
+<div class="source-block ">
+    <strong>p-052 · paragraph</strong>
+    <div>[8] [ 美 ] 米哈里·契克森米哈赖：《心流：最优体验心理学》 [M] ，张定绮译，北京：中信出版集团股份有限公司， 2017 ，第 130 — 131 页。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-053 · paragraph</strong>
+    <div>[9] Cowley B, Charles D, Black M, Hickey R. Toward an Understanding of Flow in Video Games [J]. Computers in Entertainment (CIE) , 2008, 6(2): 1-27.</div>
+  </div>
+<div class="source-block ">
+    <strong>p-054 · paragraph</strong>
+    <div>[10] Schaffer E. Beyond Usability: Designing Web Sites for Persuasion, Emotion, and Trust [EB/OL]. UXmatters, 2009-09-22.</div>
+  </div>
+<div class="source-block ">
+    <strong>p-055 · paragraph</strong>
+    <div>[11] 吴琼：《用户体验设计之辨》 [J] ，《装饰》， 2018 年第 10 期，第 30 — 33 页。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-056 · paragraph</strong>
+    <div>[12] Werbach K, Hunter D. The Gamification Toolkit: Dynamics, Mechanics, and Components for the Win [M]. Philadelphia: University of Pennsylvania Press, 2015: 14-30.</div>
+  </div>
+<div class="source-block ">
+    <strong>p-057 · paragraph</strong>
+    <div>[13] 同 [12] 。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-058 · paragraph</strong>
+    <div>[14] Hanus M D, Fox J. Assessing the Effects of Gamification in the Classroom: A Longitudinal Study on Intrinsic Motivation, Social Comparison, Satisfaction, Effort, and Academic Performance [J]. Computers &amp; Education , 2015, 80: 152-161.</div>
+  </div>
+<div class="source-block ">
+    <strong>p-059 · heading</strong>
+    <div>参考文献：</div>
+  </div>
+<div class="source-block ">
+    <strong>p-060 · paragraph</strong>
+    <div>[1] [ 英 ] 夏普、普瑞斯、罗杰斯：《交互设计：超越人机交互》 [M] ，刘伟、托娅、张霖峰、苌凯旋、辛益博译，北京：机械工业出版社， 2018 。</div>
+  </div>
+<div class="source-block ">
+    <strong>p-061 · paragraph</strong>
+    <div>来源： 《装饰》2026年第4期</div>
+  </div>
+<div class="source-block ">
+    <strong>p-062 · paragraph</strong>
+    <div>原文： 《 基于游戏化方法的持续性用户体验设计 》</div>
+  </div>
+<div class="source-block ">
+    <strong>p-063 · paragraph</strong>
+    <div>作者 ：吴 琼、 王 婧、 高 璇，清华大学美术学院</div>
+  </div>
+<div class="source-block ">
+    <strong>p-064 · heading</strong>
+    <div>延伸阅读：</div>
+  </div>
+<div class="source-block ">
+    <strong>p-065 · paragraph</strong>
+    <div>《装饰》2026年第4期介绍</div>
+  </div>
+<div class="source-block ">
+    <strong>p-066 · paragraph</strong>
+    <div>如何在智能设计中构建触觉体验？</div>
+  </div>
+<div class="source-block ">
+    <strong>p-067 · paragraph</strong>
+    <div>身体作为介质、媒介、界面的多重创新维度：智能时代的共生设计与认知模型</div>
+  </div>
+<div class="source-block ">
+    <strong>p-068 · paragraph</strong>
+    <div>智能时代设计方法论的重构：从双钻模型到人机共创的“智能钻石模型” 框架</div>
+  </div>
+<div class="source-block ">
+    <strong>p-069 · paragraph</strong>
+    <div>从体验反馈到设计依据：可穿戴产品用户研究的设计转译路径</div>
+  </div>
+<div class="source-block ">
+    <strong>p-070 · paragraph</strong>
+    <div>医疗、大数据分析与用户体验设计</div>
+  </div>
+    </section>
+  </main>
+</body>
+</html>

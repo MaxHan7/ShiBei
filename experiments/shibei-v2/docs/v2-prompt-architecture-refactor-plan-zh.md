@@ -14,10 +14,11 @@
 
 ## Current Status
 
-- 已完成第一步低风险接入：`ecdPlanning` 已作为 shadow stage 进入真实 V2 生成链路。
+- 已完成第一步低风险接入：`ecdPlanning` 已进入真实 V2 生成链路。
 - 当前阶段顺序为：`sourceMap -> reviewPathPlan -> ecdPlanning -> unitPracticePlan -> multipleChoiceDraft / matchingDraft -> unitSummaryDraft -> qualityJudge`。
 - `ecdPlanning` 输出已经写入 `generationMeta.ecdPlanning`，并在 V2 HTML 质量报告中展示。
-- 目前它只用于诊断，不驱动后续题目生成。下一步才是把 `unitPracticePlan` 的题型计划逐步改为消费 `ecdPlanning.unitAssemblyPlan.selectedTasks`。
+- `ecdPlanning.unitAssemblyPlan.selectedTasks` 已经开始驱动 `unitPracticePlan` 的题型计划。`unitPracticePlan` 目前是过渡 adapter：把 ECD selectedTasks 转成现有 `practiceGoals` 和 `questionPlans`，同时保持前端可见字段合同稳定。
+- 下一步不应让 `unitPracticePlan` 重新选择题型，而应继续强化上游 `reviewPathPlan` / `knowledgeModel` 的知识点切分，以及 `ecdPlanning` 对 matching 关系强度的判断。
 
 ## Files
 

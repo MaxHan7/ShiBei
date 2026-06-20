@@ -72,20 +72,15 @@ test("unitPracticePlan prompt uses evidence value instead of fixed question coun
     blocks: [
       { id: "p-001", type: "paragraph", text: "Hook 是关键动作前后的流程控制器。" }
     ],
-    unit: {
-      id: "unit-01",
-      title: "Hook 是什么",
-      nodeLabel: "流程控制",
-      shortSummary: "Hook 是流程控制器。",
-      detailSummary: "Hook 在关键动作前后稳定执行规则。",
-      sourceAnchor: { id: "anchor-unit-01", blockIds: ["p-001"] }
-    }
+    unit: unitFixture(),
+    ecdContext: ecdContextFixture()
   });
 
   assert.match(messages.user, /unitPracticePlan/);
-  assert.match(messages.user, /questionPlans 不写死数量/);
-  assert.match(messages.user, /learningClaim \/ evidenceNeed/);
-  assert.match(messages.user, /模型层级 -> 设计作用/);
+  assert.match(messages.user, /ECD context/);
+  assert.match(messages.user, /selectedTasks/);
+  assert.match(messages.user, /不要重新选择题型/);
+  assert.match(messages.user, /questionPlan.id 必须等于 selectedTask.questionPlanId/);
   assert.match(messages.user, /避免空泛“名词 -> 定义\/贡献\/描述”的机械配对/);
 });
 
@@ -217,5 +212,71 @@ function practicePlanFixture() {
         sourceAnchorId: "anchor-unit-01"
       }
     ]
+  };
+}
+
+function ecdContextFixture() {
+  return {
+    unitId: "unit-01",
+    knowledgeUnit: {
+      unitId: "unit-01",
+      knowledgeShape: "role_boundary",
+      sourceAnchorId: "anchor-unit-01"
+    },
+    learningClaims: [
+      {
+        unitId: "unit-01",
+        claimId: "claim-01",
+        claimType: "boundary_understanding",
+        learningClaim: "用户能区分 Hook 和 Prompt 的职责边界。",
+        sourceAnchorId: "anchor-unit-01"
+      }
+    ],
+    evidenceNeeds: [
+      {
+        unitId: "unit-01",
+        evidenceId: "ev-01",
+        claimId: "claim-01",
+        evidenceType: "map_structure_relation",
+        evidenceNeed: "用户能把不同工作流组件匹配到对应职责。",
+        observableResponse: "完成职责边界连线题。",
+        sourceAnchorId: "anchor-unit-01"
+      }
+    ],
+    taskPlans: [
+      {
+        unitId: "unit-01",
+        taskPlanId: "tp-01",
+        evidenceIds: ["ev-01"],
+        taskAffordance: "matching",
+        taskPurpose: "role_responsibility_matching",
+        whyThisTask: "连线题能直接观察职责边界理解。"
+      }
+    ],
+    assemblyPlan: {
+      unitId: "unit-01",
+      selectedTasks: [
+        {
+          questionPlanId: "q-001",
+          taskPlanId: "tp-01",
+          evidenceIds: ["ev-01"],
+          taskAffordance: "matching",
+          taskPurpose: "role_responsibility_matching",
+          assemblyReason: "该题直接服务于职责边界 evidence。"
+        }
+      ],
+      skippedEvidence: []
+    },
+    selectedTasks: [
+      {
+        questionPlanId: "q-001",
+        taskPlanId: "tp-01",
+        evidenceIds: ["ev-01"],
+        taskAffordance: "matching",
+        taskPurpose: "role_responsibility_matching",
+        assemblyReason: "该题直接服务于职责边界 evidence。"
+      }
+    ],
+    skippedEvidence: []
   };
 }

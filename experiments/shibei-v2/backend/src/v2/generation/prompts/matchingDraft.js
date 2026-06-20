@@ -41,6 +41,8 @@ export const MATCHING_DRAFT_OUTPUT_SCHEMA = {
           stem: { type: "string" },
           leftItems: {
             type: "array",
+            minItems: 4,
+            maxItems: 4,
             items: {
               type: "object",
               required: ["id", "text"],
@@ -52,6 +54,8 @@ export const MATCHING_DRAFT_OUTPUT_SCHEMA = {
           },
           rightItems: {
             type: "array",
+            minItems: 4,
+            maxItems: 4,
             items: {
               type: "object",
               required: ["id", "text"],
@@ -63,6 +67,8 @@ export const MATCHING_DRAFT_OUTPUT_SCHEMA = {
           },
           pairs: {
             type: "array",
+            minItems: 4,
+            maxItems: 4,
             items: {
               type: "object",
               required: ["leftId", "rightId"],

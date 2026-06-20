@@ -12,7 +12,11 @@ import { validateReviewPathPlanOutput } from "./prompts/reviewPathPlan.js";
 import { validateSourceMapOutput } from "./prompts/sourceMap.js";
 import { validateMatchingDraftOutput } from "./prompts/matchingDraft.js";
 import { validateMultipleChoiceDraftOutput } from "./prompts/multipleChoiceDraft.js";
-import { validateUnitPracticePlanOutput } from "./prompts/unitPracticePlan.js";
+import {
+  MATCHING_RELATION_TYPES,
+  QUESTION_PLAN_PURPOSES,
+  validateUnitPracticePlanOutput
+} from "./prompts/unitPracticePlan.js";
 import { validateUnitSummaryDraftOutput } from "./prompts/unitSummaryDraft.js";
 import { runV2QualityGuardrails } from "./qualityGuardrails.js";
 
@@ -74,13 +78,16 @@ export async function generateReviewPathV2(
   const generatedUnits = await mapWithConcurrency(
     plan.units,
     unitConcurrency,
-    (plannedUnit) =>
-      generateUnitReviewContent({
+    (plannedUnit) => {
+      const ecdContext = getEcdContextForUnit(ecdPlanning, plannedUnit);
+      return generateUnitReviewContent({
         activePromptCaller,
         article,
         sourceMap,
-        plannedUnit
-      })
+        plannedUnit,
+        ecdContext
+      });
+    }
   );
   const units = generatedUnits.map((item) => item.unit);
   const unitPracticePlans = generatedUnits.map((item) => item.practicePlan);
@@ -153,39 +160,60 @@ async function generateUnitReviewContent({
   activePromptCaller,
   article,
   sourceMap,
-  plannedUnit
+  plannedUnit,
+  ecdContext
 }) {
-  const practicePlan = await callAndValidate(
+  const rawPracticePlan = await callAndValidate(
     activePromptCaller,
     "unitPracticePlan",
-    { article, source: sourceMap.source, blocks: sourceMap.blocks, unit: plannedUnit },
+    { article, source: sourceMap.source, blocks: sourceMap.blocks, unit: plannedUnit, ecdContext },
     (output) =>
       validateUnitPracticePlanOutput(output, {
         unitId: plannedUnit.id,
         sourceAnchorId: plannedUnit.sourceAnchor.id
       })
   );
-  const multipleChoiceDraft = await callAndValidate(
-    activePromptCaller,
-    "multipleChoiceDraft",
-    {
-      article,
-      source: sourceMap.source,
-      blocks: sourceMap.blocks,
-      unit: plannedUnit,
-      practicePlan
-    },
-    (output) =>
-      validateMultipleChoiceDraftOutput(output, {
-        unitId: plannedUnit.id,
-        plans: practicePlan.questionPlans,
-        sourceAnchorId: plannedUnit.sourceAnchor.id
-      }),
-    {
-      normalize: (output) =>
-        normalizeDraftQuestionIds(output, practicePlan.questionPlans, "multiple_choice")
-    }
-  );
+  const practicePlan = alignPracticePlanWithEcdContext(rawPracticePlan, {
+    ecdContext,
+    plannedUnit
+  });
+  const alignedValidation = validateUnitPracticePlanOutput(practicePlan, {
+    unitId: plannedUnit.id,
+    sourceAnchorId: plannedUnit.sourceAnchor.id
+  });
+  if (!alignedValidation.ok) {
+    const error = new Error(
+      `unitPracticePlan ECD alignment failed validation:\n${alignedValidation.errors.join("\n")}`
+    );
+    error.stage = "unitPracticePlan";
+    error.errors = alignedValidation.errors;
+    throw error;
+  }
+  const multipleChoicePlans = practicePlan.questionPlans.filter((questionPlan) => questionPlan.type === "multiple_choice");
+  const multipleChoiceDraft = multipleChoicePlans.length > 0
+    ? await callAndValidate(
+        activePromptCaller,
+        "multipleChoiceDraft",
+        {
+          article,
+          source: sourceMap.source,
+          blocks: sourceMap.blocks,
+          unit: plannedUnit,
+          practicePlan,
+          ecdContext
+        },
+        (output) =>
+          validateMultipleChoiceDraftOutput(output, {
+            unitId: plannedUnit.id,
+            plans: practicePlan.questionPlans,
+            sourceAnchorId: plannedUnit.sourceAnchor.id
+          }),
+        {
+          normalize: (output) =>
+            normalizeDraftQuestionIds(output, practicePlan.questionPlans, "multiple_choice")
+        }
+      )
+    : { unitId: plannedUnit.id, questions: [] };
   const matchingPlans = practicePlan.questionPlans.filter((questionPlan) => questionPlan.type === "matching");
   const matchingDraft = matchingPlans.length > 0
     ? await callAndValidate(
@@ -196,7 +224,8 @@ async function generateUnitReviewContent({
           source: sourceMap.source,
           blocks: sourceMap.blocks,
           unit: plannedUnit,
-          practicePlan
+          practicePlan,
+          ecdContext
         },
         (output) =>
           validateMatchingDraftOutput(output, {
@@ -226,7 +255,8 @@ async function generateUnitReviewContent({
       blocks: sourceMap.blocks,
       unit: plannedUnit,
       practicePlan,
-      questions
+      questions,
+      ecdContext
     },
     (output) =>
       validateUnitSummaryDraftOutput(output, {
@@ -276,6 +306,133 @@ function limitPlannedUnits(plan, maxUnitCount) {
       limitedBy: "V2_GENERATION_MAX_UNITS"
     }
   };
+}
+
+function getEcdContextForUnit(ecdPlanning, plannedUnit) {
+  const unitId = plannedUnit.id;
+  const knowledgeUnit = ecdPlanning.knowledgeModel?.units?.find((item) => item.unitId === unitId) ?? null;
+  const learningClaims = (ecdPlanning.unitLearningClaims ?? []).filter((item) => item.unitId === unitId);
+  const evidenceNeeds = (ecdPlanning.unitEvidenceNeeds ?? []).filter((item) => item.unitId === unitId);
+  const taskPlans = (ecdPlanning.unitTaskPlan ?? []).filter((item) => item.unitId === unitId);
+  const assemblyPlan = (ecdPlanning.unitAssemblyPlan ?? []).find((item) => item.unitId === unitId) ?? null;
+  return {
+    unitId,
+    knowledgeUnit,
+    learningClaims,
+    evidenceNeeds,
+    taskPlans,
+    assemblyPlan,
+    selectedTasks: assemblyPlan?.selectedTasks ?? [],
+    skippedEvidence: assemblyPlan?.skippedEvidence ?? []
+  };
+}
+
+function alignPracticePlanWithEcdContext(practicePlan, { ecdContext, plannedUnit }) {
+  const selectedTasks = Array.isArray(ecdContext?.selectedTasks) ? ecdContext.selectedTasks : [];
+  if (selectedTasks.length === 0) return practicePlan;
+
+  const sourceAnchorId = plannedUnit.sourceAnchor.id;
+  const existingGoals = Array.isArray(practicePlan.practiceGoals) ? practicePlan.practiceGoals : [];
+  const existingPlans = Array.isArray(practicePlan.questionPlans) ? practicePlan.questionPlans : [];
+  const existingPlansById = new Map(existingPlans.map((plan) => [plan.id, plan]));
+  const goalsById = new Map(existingGoals.map((goal) => [goal.id, goal]));
+
+  const alignedPlans = selectedTasks.map((task, index) => {
+    const existingPlan = existingPlansById.get(task.questionPlanId) || {};
+    const practiceGoalId = existingPlan.practiceGoalId || practiceGoalIdForSelectedTask(task, index);
+    if (!goalsById.has(practiceGoalId)) {
+      goalsById.set(
+        practiceGoalId,
+        practiceGoalFromSelectedTask(task, {
+          id: practiceGoalId,
+          ecdContext,
+          sourceAnchorId
+        })
+      );
+    }
+
+    const type = questionTypeForTaskAffordance(task.taskAffordance);
+    return {
+      ...existingPlan,
+      id: task.questionPlanId,
+      type,
+      purpose: questionPurposeForSelectedTask(task.taskPurpose),
+      practiceGoalId,
+      ...(type === "matching" ? { relationType: relationTypeForTaskPurpose(task.taskPurpose) } : {}),
+      sourceAnchorId
+    };
+  });
+
+  return {
+    ...practicePlan,
+    unitId: plannedUnit.id,
+    practiceGoals: Array.from(goalsById.values()),
+    questionPlans: alignedPlans
+  };
+}
+
+function practiceGoalIdForSelectedTask(task, index) {
+  return `goal-${task.questionPlanId || index + 1}`;
+}
+
+function practiceGoalFromSelectedTask(task, { id, ecdContext, sourceAnchorId }) {
+  const evidence = firstEvidenceForSelectedTask(task, ecdContext);
+  const claim = evidence
+    ? ecdContext.learningClaims.find((item) => item.claimId === evidence.claimId)
+    : null;
+  return {
+    id,
+    kind: practiceGoalKindForSelectedTask(task),
+    target: evidence?.evidenceNeed || claim?.learningClaim || task.assemblyReason,
+    commonMisconception: commonMisconceptionForSelectedTask(task),
+    sourceAnchorId
+  };
+}
+
+function firstEvidenceForSelectedTask(task, ecdContext) {
+  const evidenceIds = Array.isArray(task.evidenceIds) ? task.evidenceIds : [];
+  return ecdContext.evidenceNeeds.find((item) => evidenceIds.includes(item.evidenceId)) ?? null;
+}
+
+function practiceGoalKindForSelectedTask(task) {
+  if (task.taskAffordance === "matching") return "relationship_mapping";
+  if (task.taskPurpose === "scenario_application") return "scenario_application";
+  if (task.taskPurpose === "boundary_check" || task.taskPurpose === "counterexample_check") {
+    return "boundary_clarification";
+  }
+  return "core_understanding";
+}
+
+function commonMisconceptionForSelectedTask(task) {
+  if (task.taskAffordance === "matching") {
+    return "把结构关系误解成孤立名词定义。";
+  }
+  if (task.taskPurpose === "scenario_application") {
+    return "只记住概念表述，不能迁移到具体场景。";
+  }
+  if (task.taskPurpose === "boundary_check" || task.taskPurpose === "counterexample_check") {
+    return "忽略这个知识点的适用边界。";
+  }
+  return "把这个知识点理解成表面说法，而没有抓住核心主张。";
+}
+
+function questionTypeForTaskAffordance(taskAffordance) {
+  return taskAffordance === "matching" ? "matching" : "multiple_choice";
+}
+
+function questionPurposeForSelectedTask(taskPurpose) {
+  return QUESTION_PLAN_PURPOSES.includes(taskPurpose) ? taskPurpose : "light_understanding";
+}
+
+function relationTypeForTaskPurpose(taskPurpose) {
+  const relationType = {
+    layer_role_matching: "responsibility",
+    type_feature_matching: "verification_dimension",
+    step_purpose_matching: "process_signal",
+    signal_action_matching: "process_signal",
+    role_responsibility_matching: "responsibility"
+  }[taskPurpose] || "scenario_effect";
+  return MATCHING_RELATION_TYPES.includes(relationType) ? relationType : "scenario_effect";
 }
 
 function readOptionalPositiveInt(value) {
