@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   ECD_PLANNING_OUTPUT_SCHEMA,
+  normalizeEcdPlanningOutput,
   validateEcdPlanningOutput
 } from "./ecdPlanning.js";
 import {
@@ -43,6 +44,26 @@ test("exports stable prompt schema names for the V2 generation pipeline", () => 
   assert.equal(MATCHING_DRAFT_OUTPUT_SCHEMA.name, "shibei_v2_matching_draft");
   assert.equal(UNIT_SUMMARY_DRAFT_OUTPUT_SCHEMA.name, "shibei_v2_unit_summary_draft");
   assert.equal(QUALITY_JUDGE_OUTPUT_SCHEMA.name, "shibei_v2_quality_judge");
+});
+
+test("ECD planning schema exposes nested fields needed by the shadow stage contract", () => {
+  const schema = ECD_PLANNING_OUTPUT_SCHEMA;
+  const articleUnderstanding = schema.properties.articleUnderstanding;
+  const knowledgeUnit = schema.properties.knowledgeModel.properties.units.items;
+  const evidenceNeed = schema.properties.unitEvidenceNeeds.items;
+  const selectedTask = schema.properties.unitAssemblyPlan.items.properties.selectedTasks.items;
+
+  assert.deepEqual(articleUnderstanding.required, [
+    "coreThesis",
+    "articleStructure",
+    "reviewableSections",
+    "nonReviewableSections"
+  ]);
+  assert.ok(knowledgeUnit.required.includes("knowledgeShape"));
+  assert.ok(knowledgeUnit.properties.knowledgeShape.enum.includes("layered_framework"));
+  assert.ok(evidenceNeed.required.includes("observableResponse"));
+  assert.ok(selectedTask.required.includes("assemblyReason"));
+  assert.ok(selectedTask.properties.taskPurpose.enum.includes("layer_role_matching"));
 });
 
 test("validates source map blocks with stable ids and supported block types", () => {
@@ -175,6 +196,35 @@ test("rejects ECD planning output with broken claim evidence and task references
   assert.match(result.errors.join("\n"), /claimId must reference a unitLearningClaims item/);
   assert.match(result.errors.join("\n"), /evidenceIds\[0\] must reference a unitEvidenceNeeds item/);
   assert.match(result.errors.join("\n"), /taskPlanId must reference a unitTaskPlan item/);
+});
+
+test("normalizes unknown ECD taxonomy labels without dropping the model signal", () => {
+  const fixture = ecdPlanningFixture();
+  fixture.knowledgeModel.units[0].knowledgeShape = "design_model";
+  fixture.unitLearningClaims[0].claimType = "relationship_understanding";
+  fixture.unitEvidenceNeeds[0].evidenceType = "classify_model_layer";
+  fixture.unitTaskPlan[0].taskPurpose = "model_layer_matching";
+  fixture.unitAssemblyPlan[0].selectedTasks[0].taskPurpose = "model_layer_matching";
+
+  const normalized = normalizeEcdPlanningOutput(fixture);
+
+  assert.equal(normalized.knowledgeModel.units[0].knowledgeShape, "core_concept");
+  assert.equal(normalized.knowledgeModel.units[0].originalKnowledgeShape, "design_model");
+  assert.equal(normalized.unitLearningClaims[0].claimType, "source_grounded_understanding");
+  assert.equal(normalized.unitLearningClaims[0].originalClaimType, "relationship_understanding");
+  assert.equal(normalized.unitEvidenceNeeds[0].evidenceType, "ground_answer_in_source");
+  assert.equal(normalized.unitEvidenceNeeds[0].originalEvidenceType, "classify_model_layer");
+  assert.equal(normalized.unitTaskPlan[0].taskPurpose, "light_understanding");
+  assert.equal(normalized.unitTaskPlan[0].originalTaskPurpose, "model_layer_matching");
+  assert.equal(normalized.unitAssemblyPlan[0].selectedTasks[0].taskPurpose, "light_understanding");
+  assert.equal(normalized.unitAssemblyPlan[0].selectedTasks[0].originalTaskPurpose, "model_layer_matching");
+
+  const result = validateEcdPlanningOutput(normalized, {
+    unitIds: new Set(["unit-03"]),
+    sourceAnchorIds: new Set(["anchor-unit-03"])
+  });
+
+  assert.deepEqual(result, { ok: true, errors: [] });
 });
 
 test("validates unit practice plans with variable question plan counts", () => {

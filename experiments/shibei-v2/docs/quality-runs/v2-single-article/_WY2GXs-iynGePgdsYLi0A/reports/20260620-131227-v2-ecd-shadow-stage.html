@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>v2-ecd-shadow-stage - V2 出题质量报告</title>
+  <style>
+    :root {
+      --bg: #f2f5cf;
+      --paper: #fdfaf2;
+      --ink: #44423d;
+      --muted: #807d73;
+      --line: #dde1ac;
+      --brand: #98a84e;
+      --soft: #f2f1da;
+      --danger: #ed765c;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    h1, h2, h3 {
+      line-height: 1.25;
+      margin: 0;
+    }
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 40px 0 16px;
+    }
+    h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(152, 163, 94, 0.18);
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      color: var(--brand);
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 14px 0;
+      background: rgba(253, 250, 242, 0.72);
+    }
+    .stem {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .options, .pairs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .option, .pair {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .correct {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .explanation {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+    .source {
+      margin-top: 12px;
+      border-left: 4px solid var(--line);
+      padding-left: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .source-block {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin: 8px 0;
+      background: rgba(255,255,255,0.45);
+    }
+    .source-block.highlight {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .failure {
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    details {
+      margin-top: 12px;
+    }
+    .diagnostic {
+      border-top: 1px dashed var(--line);
+      padding-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>V2 出题质量报告</h1>
+    <div class="meta">2026-06-20T13:14:35.352Z · v2-ecd-shadow-stage · failed_generation</div>
+    <section class="card failure">
+    <h2 style="margin-top:0">生成失败</h2>
+    <p><strong>contract_validation</strong> · 不可重试</p>
+    <p>ecdPlanning.articleUnderstanding.articleStructure must be a non-empty array；ecdPlanning.articleUnderstanding.reviewableSections must be an array；ecdPlanning.articleUnderstanding.nonReviewableSections must be an array；ecdPlanning.knowledgeModel.units[0].title is required；ecdPlanning.knowledgeModel.units[0].nodeLabel is required；ecdPlanning.knowledgeModel.units[0].shortSummary is required；ecdPlanning.knowledgeModel.units[0].detailSummary is required；ecdPlanning.knowledgeModel.units[0].knowledgeShape is required；ecdPlanning.knowledgeModel.units[1].title is required；ecdPlanning.knowledgeModel.units[1].nodeLabel is required；ecdPlanning.knowledgeModel.units[1].shortSummary is required；ecdPlanning.knowledgeModel.units[1].detailSummary is required；ecdPlanning.knowledgeModel.units[1].knowledgeShape is required；ecdPlanning.knowledgeModel.units[2].title is required；ecdPlanning.knowledgeModel.units[2].nodeLabel is required；ecdPlanning.knowledgeModel.units[2].shortSummary is required；ecdPlanning.knowledgeModel.units[2].detailSummary is required；ecdPlanning.knowledgeModel.units[2].knowledgeShape is required；ecdPlanning.knowledgeModel.units[3].title is required；ecdPlanning.knowledgeModel.units[3].nodeLabel is required；ecdPlanning.knowledgeModel.units[3].shortSummary is required；ecdPlanning.knowledgeModel.units[3].detailSummary is required；ecdPlanning.knowledgeModel.units[3].knowledgeShape is required；ecdPlanning.knowledgeModel.units[4].title is required；ecdPlanning.knowledgeModel.units[4].nodeLabel is required；ecdPlanning.knowledgeModel.units[4].shortSummary is required；ecdPlanning.knowledgeModel.units[4].detailSummary is required；ecdPlanning.knowledgeModel.units[4].knowledgeShape is required；ecdPlanning.knowledgeModel.units[5].title is required；ecdPlanning.knowledgeModel.units[5].nodeLabel is required；ecdPlanning.knowledgeModel.units[5].shortSummary is required；ecdPlanning.knowledgeModel.units[5].detailSummary is required；ecdPlanning.knowledgeModel.units[5].knowledgeShape is required；ecdPlanning.knowledgeModel.units[6].title is required；ecdPlanning.knowledgeModel.units[6].nodeLabel is required；ecdPlanning.knowledgeModel.units[6].shortSummary is required；ecdPlanning.knowledgeModel.units[6].detailSummary is required；ecdPlanning.knowledgeModel.units[6].knowledgeShape is required；ecdPlanning.knowledgeModel.units[7].title is required；ecdPlanning.knowledgeModel.units[7].nodeLabel is required；ecdPlanning.knowledgeModel.units[7].shortSummary is required；ecdPlanning.knowledgeModel.units[7].detailSummary is required；ecdPlanning.knowledgeModel.units[7].knowledgeShape is required；ecdPlanning.knowledgeModel.units[8].title is required；ecdPlanning.knowledgeModel.units[8].nodeLabel is required；ecdPlanning.knowledgeModel.units[8].shortSummary is required；ecdPlanning.knowledgeModel.units[8].detailSummary is required；ecdPlanning.knowledgeModel.units[8].knowledgeShape is required；ecdPlanning.knowledgeModel.units[9].title is required；ecdPlanning.knowledgeModel.units[9].nodeLabel is required；ecdPlanning.knowledgeModel.units[9].shortSummary is required；ecdPlanning.knowledgeModel.units[9].detailSummary is required；ecdPlanning.knowledgeModel.units[9].knowledgeShape is required；ecdPlanning.knowledgeModel.units[10].title is required；ecdPlanning.knowledgeModel.units[10].nodeLabel is required；ecdPlanning.knowledgeModel.units[10].shortSummary is required；ecdPlanning.knowledgeModel.units[10].detailSummary is required；ecdPlanning.knowledgeModel.units[10].knowledgeShape is required；ecdPlanning.unitLearningClaims[0].claimId is required；ecdPlanning.unitLearningClaims[0].claimType is required；ecdPlanning.unitLearningClaims[0].learningClaim is required；ecdPlanning.unitLearningClaims[0].sourceAnchorId is required；ecdPlanning.unitLearningClaims[0].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[1].claimId is required；ecdPlanning.unitLearningClaims[1].claimType is required；ecdPlanning.unitLearningClaims[1].learningClaim is required；ecdPlanning.unitLearningClaims[1].sourceAnchorId is required；ecdPlanning.unitLearningClaims[1].claimId must be unique；ecdPlanning.unitLearningClaims[1].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[2].claimId is required；ecdPlanning.unitLearningClaims[2].claimType is required；ecdPlanning.unitLearningClaims[2].learningClaim is required；ecdPlanning.unitLearningClaims[2].sourceAnchorId is required；ecdPlanning.unitLearningClaims[2].claimId must be unique；ecdPlanning.unitLearningClaims[2].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[3].claimId is required；ecdPlanning.unitLearningClaims[3].claimType is required；ecdPlanning.unitLearningClaims[3].learningClaim is required；ecdPlanning.unitLearningClaims[3].sourceAnchorId is required；ecdPlanning.unitLearningClaims[3].claimId must be unique；ecdPlanning.unitLearningClaims[3].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[4].claimId is required；ecdPlanning.unitLearningClaims[4].claimType is required；ecdPlanning.unitLearningClaims[4].learningClaim is required；ecdPlanning.unitLearningClaims[4].sourceAnchorId is required；ecdPlanning.unitLearningClaims[4].claimId must be unique；ecdPlanning.unitLearningClaims[4].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[5].claimId is required；ecdPlanning.unitLearningClaims[5].claimType is required；ecdPlanning.unitLearningClaims[5].learningClaim is required；ecdPlanning.unitLearningClaims[5].sourceAnchorId is required；ecdPlanning.unitLearningClaims[5].claimId must be unique；ecdPlanning.unitLearningClaims[5].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[6].claimId is required；ecdPlanning.unitLearningClaims[6].claimType is required；ecdPlanning.unitLearningClaims[6].learningClaim is required；ecdPlanning.unitLearningClaims[6].sourceAnchorId is required；ecdPlanning.unitLearningClaims[6].claimId must be unique；ecdPlanning.unitLearningClaims[6].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[7].claimId is required；ecdPlanning.unitLearningClaims[7].claimType is required；ecdPlanning.unitLearningClaims[7].learningClaim is required；ecdPlanning.unitLearningClaims[7].sourceAnchorId is required；ecdPlanning.unitLearningClaims[7].claimId must be unique；ecdPlanning.unitLearningClaims[7].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[8].claimId is required；ecdPlanning.unitLearningClaims[8].claimType is required；ecdPlanning.unitLearningClaims[8].learningClaim is required；ecdPlanning.unitLearningClaims[8].sourceAnchorId is required；ecdPlanning.unitLearningClaims[8].claimId must be unique；ecdPlanning.unitLearningClaims[8].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[9].claimId is required；ecdPlanning.unitLearningClaims[9].claimType is required；ecdPlanning.unitLearningClaims[9].learningClaim is required；ecdPlanning.unitLearningClaims[9].sourceAnchorId is required；ecdPlanning.unitLearningClaims[9].claimId must be unique；ecdPlanning.unitLearningClaims[9].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[10].claimId is required；ecdPlanning.unitLearningClaims[10].claimType is required；ecdPlanning.unitLearningClaims[10].learningClaim is required；ecdPlanning.unitLearningClaims[10].sourceAnchorId is required；ecdPlanning.unitLearningClaims[10].claimId must be unique；ecdPlanning.unitLearningClaims[10].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[11].claimId is required；ecdPlanning.unitLearningClaims[11].claimType is required；ecdPlanning.unitLearningClaims[11].learningClaim is required；ecdPlanning.unitLearningClaims[11].sourceAnchorId is required；ecdPlanning.unitLearningClaims[11].claimId must be unique；ecdPlanning.unitLearningClaims[11].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[12].claimId is required；ecdPlanning.unitLearningClaims[12].claimType is required；ecdPlanning.unitLearningClaims[12].learningClaim is required；ecdPlanning.unitLearningClaims[12].sourceAnchorId is required；ecdPlanning.unitLearningClaims[12].claimId must be unique；ecdPlanning.unitLearningClaims[12].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[13].claimId is required；ecdPlanning.unitLearningClaims[13].claimType is required；ecdPlanning.unitLearningClaims[13].learningClaim is required；ecdPlanning.unitLearningClaims[13].sourceAnchorId is required；ecdPlanning.unitLearningClaims[13].claimId must be unique；ecdPlanning.unitLearningClaims[13].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[14].claimId is required；ecdPlanning.unitLearningClaims[14].claimType is required；ecdPlanning.unitLearningClaims[14].learningClaim is required；ecdPlanning.unitLearningClaims[14].sourceAnchorId is required；ecdPlanning.unitLearningClaims[14].claimId must be unique；ecdPlanning.unitLearningClaims[14].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[15].claimId is required；ecdPlanning.unitLearningClaims[15].claimType is required；ecdPlanning.unitLearningClaims[15].learningClaim is required；ecdPlanning.unitLearningClaims[15].sourceAnchorId is required；ecdPlanning.unitLearningClaims[15].claimId must be unique；ecdPlanning.unitLearningClaims[15].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[16].claimId is required；ecdPlanning.unitLearningClaims[16].claimType is required；ecdPlanning.unitLearningClaims[16].learningClaim is required；ecdPlanning.unitLearningClaims[16].sourceAnchorId is required；ecdPlanning.unitLearningClaims[16].claimId must be unique；ecdPlanning.unitLearningClaims[16].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[17].claimId is required；ecdPlanning.unitLearningClaims[17].claimType is required；ecdPlanning.unitLearningClaims[17].learningClaim is required；ecdPlanning.unitLearningClaims[17].sourceAnchorId is required；ecdPlanning.unitLearningClaims[17].claimId must be unique；ecdPlanning.unitLearningClaims[17].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[18].claimId is required；ecdPlanning.unitLearningClaims[18].claimType is required；ecdPlanning.unitLearningClaims[18].learningClaim is required；ecdPlanning.unitLearningClaims[18].sourceAnchorId is required；ecdPlanning.unitLearningClaims[18].claimId must be unique；ecdPlanning.unitLearningClaims[18].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[19].claimId is required；ecdPlanning.unitLearningClaims[19].claimType is required；ecdPlanning.unitLearningClaims[19].learningClaim is required；ecdPlanning.unitLearningClaims[19].sourceAnchorId is required；ecdPlanning.unitLearningClaims[19].claimId must be unique；ecdPlanning.unitLearningClaims[19].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[20].claimId is required；ecdPlanning.unitLearningClaims[20].claimType is required；ecdPlanning.unitLearningClaims[20].learningClaim is required；ecdPlanning.unitLearningClaims[20].sourceAnchorId is required；ecdPlanning.unitLearningClaims[20].claimId must be unique；ecdPlanning.unitLearningClaims[20].sourceAnchorId must reference a known source anchor；ecdPlanning.unitLearningClaims[21].claimId is required；ecdPlanning.unitLearningClaims[21].claimType is required；ecdPlanning.unitLearningClaims[21].learningClaim is required；ecdPlanning.unitLearningClaims[21].sourceAnchorId is required；ecdPlanning.unitLearningClaims[21].claimId must be unique；ecdPlanning.unitLearningClaims[21].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[0].unitId is required；ecdPlanning.unitEvidenceNeeds[0].evidenceId is required；ecdPlanning.unitEvidenceNeeds[0].evidenceType is required；ecdPlanning.unitEvidenceNeeds[0].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[0].observableResponse is required；ecdPlanning.unitEvidenceNeeds[0].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[0].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[0].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[0].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[1].unitId is required；ecdPlanning.unitEvidenceNeeds[1].evidenceId is required；ecdPlanning.unitEvidenceNeeds[1].evidenceType is required；ecdPlanning.unitEvidenceNeeds[1].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[1].observableResponse is required；ecdPlanning.unitEvidenceNeeds[1].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[1].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[1].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[1].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[1].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[2].unitId is required；ecdPlanning.unitEvidenceNeeds[2].evidenceId is required；ecdPlanning.unitEvidenceNeeds[2].evidenceType is required；ecdPlanning.unitEvidenceNeeds[2].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[2].observableResponse is required；ecdPlanning.unitEvidenceNeeds[2].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[2].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[2].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[2].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[2].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[3].unitId is required；ecdPlanning.unitEvidenceNeeds[3].evidenceId is required；ecdPlanning.unitEvidenceNeeds[3].evidenceType is required；ecdPlanning.unitEvidenceNeeds[3].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[3].observableResponse is required；ecdPlanning.unitEvidenceNeeds[3].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[3].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[3].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[3].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[3].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[4].unitId is required；ecdPlanning.unitEvidenceNeeds[4].evidenceId is required；ecdPlanning.unitEvidenceNeeds[4].evidenceType is required；ecdPlanning.unitEvidenceNeeds[4].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[4].observableResponse is required；ecdPlanning.unitEvidenceNeeds[4].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[4].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[4].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[4].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[4].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[5].unitId is required；ecdPlanning.unitEvidenceNeeds[5].evidenceId is required；ecdPlanning.unitEvidenceNeeds[5].evidenceType is required；ecdPlanning.unitEvidenceNeeds[5].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[5].observableResponse is required；ecdPlanning.unitEvidenceNeeds[5].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[5].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[5].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[5].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[5].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[6].unitId is required；ecdPlanning.unitEvidenceNeeds[6].evidenceId is required；ecdPlanning.unitEvidenceNeeds[6].evidenceType is required；ecdPlanning.unitEvidenceNeeds[6].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[6].observableResponse is required；ecdPlanning.unitEvidenceNeeds[6].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[6].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[6].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[6].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[6].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[7].unitId is required；ecdPlanning.unitEvidenceNeeds[7].evidenceId is required；ecdPlanning.unitEvidenceNeeds[7].evidenceType is required；ecdPlanning.unitEvidenceNeeds[7].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[7].observableResponse is required；ecdPlanning.unitEvidenceNeeds[7].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[7].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[7].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[7].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[7].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[8].unitId is required；ecdPlanning.unitEvidenceNeeds[8].evidenceId is required；ecdPlanning.unitEvidenceNeeds[8].evidenceType is required；ecdPlanning.unitEvidenceNeeds[8].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[8].observableResponse is required；ecdPlanning.unitEvidenceNeeds[8].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[8].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[8].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[8].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[8].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[9].unitId is required；ecdPlanning.unitEvidenceNeeds[9].evidenceId is required；ecdPlanning.unitEvidenceNeeds[9].evidenceType is required；ecdPlanning.unitEvidenceNeeds[9].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[9].observableResponse is required；ecdPlanning.unitEvidenceNeeds[9].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[9].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[9].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[9].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[9].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[10].unitId is required；ecdPlanning.unitEvidenceNeeds[10].evidenceId is required；ecdPlanning.unitEvidenceNeeds[10].evidenceType is required；ecdPlanning.unitEvidenceNeeds[10].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[10].observableResponse is required；ecdPlanning.unitEvidenceNeeds[10].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[10].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[10].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[10].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[10].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[11].unitId is required；ecdPlanning.unitEvidenceNeeds[11].evidenceId is required；ecdPlanning.unitEvidenceNeeds[11].evidenceType is required；ecdPlanning.unitEvidenceNeeds[11].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[11].observableResponse is required；ecdPlanning.unitEvidenceNeeds[11].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[11].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[11].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[11].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[11].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[12].unitId is required；ecdPlanning.unitEvidenceNeeds[12].evidenceId is required；ecdPlanning.unitEvidenceNeeds[12].evidenceType is required；ecdPlanning.unitEvidenceNeeds[12].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[12].observableResponse is required；ecdPlanning.unitEvidenceNeeds[12].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[12].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[12].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[12].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[12].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[13].unitId is required；ecdPlanning.unitEvidenceNeeds[13].evidenceId is required；ecdPlanning.unitEvidenceNeeds[13].evidenceType is required；ecdPlanning.unitEvidenceNeeds[13].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[13].observableResponse is required；ecdPlanning.unitEvidenceNeeds[13].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[13].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[13].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[13].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[13].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[14].unitId is required；ecdPlanning.unitEvidenceNeeds[14].evidenceId is required；ecdPlanning.unitEvidenceNeeds[14].evidenceType is required；ecdPlanning.unitEvidenceNeeds[14].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[14].observableResponse is required；ecdPlanning.unitEvidenceNeeds[14].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[14].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[14].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[14].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[14].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[15].unitId is required；ecdPlanning.unitEvidenceNeeds[15].evidenceId is required；ecdPlanning.unitEvidenceNeeds[15].evidenceType is required；ecdPlanning.unitEvidenceNeeds[15].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[15].observableResponse is required；ecdPlanning.unitEvidenceNeeds[15].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[15].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[15].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[15].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[15].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[16].unitId is required；ecdPlanning.unitEvidenceNeeds[16].evidenceId is required；ecdPlanning.unitEvidenceNeeds[16].evidenceType is required；ecdPlanning.unitEvidenceNeeds[16].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[16].observableResponse is required；ecdPlanning.unitEvidenceNeeds[16].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[16].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[16].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[16].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[16].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[17].unitId is required；ecdPlanning.unitEvidenceNeeds[17].evidenceId is required；ecdPlanning.unitEvidenceNeeds[17].evidenceType is required；ecdPlanning.unitEvidenceNeeds[17].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[17].observableResponse is required；ecdPlanning.unitEvidenceNeeds[17].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[17].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[17].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[17].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[17].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[18].unitId is required；ecdPlanning.unitEvidenceNeeds[18].evidenceId is required；ecdPlanning.unitEvidenceNeeds[18].evidenceType is required；ecdPlanning.unitEvidenceNeeds[18].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[18].observableResponse is required；ecdPlanning.unitEvidenceNeeds[18].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[18].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[18].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[18].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[18].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[19].unitId is required；ecdPlanning.unitEvidenceNeeds[19].evidenceId is required；ecdPlanning.unitEvidenceNeeds[19].evidenceType is required；ecdPlanning.unitEvidenceNeeds[19].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[19].observableResponse is required；ecdPlanning.unitEvidenceNeeds[19].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[19].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[19].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[19].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[19].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[20].unitId is required；ecdPlanning.unitEvidenceNeeds[20].evidenceId is required；ecdPlanning.unitEvidenceNeeds[20].evidenceType is required；ecdPlanning.unitEvidenceNeeds[20].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[20].observableResponse is required；ecdPlanning.unitEvidenceNeeds[20].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[20].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[20].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[20].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[20].sourceAnchorId must reference a known source anchor；ecdPlanning.unitEvidenceNeeds[21].unitId is required；ecdPlanning.unitEvidenceNeeds[21].evidenceId is required；ecdPlanning.unitEvidenceNeeds[21].evidenceType is required；ecdPlanning.unitEvidenceNeeds[21].evidenceNeed is required；ecdPlanning.unitEvidenceNeeds[21].observableResponse is required；ecdPlanning.unitEvidenceNeeds[21].sourceAnchorId is required；ecdPlanning.unitEvidenceNeeds[21].evidenceId must be unique；ecdPlanning.unitEvidenceNeeds[21].unitId must reference a known unit；ecdPlanning.unitEvidenceNeeds[21].claimId must reference a unitLearningClaims item；ecdPlanning.unitEvidenceNeeds[21].sourceAnchorId must reference a known source anchor；ecdPlanning.unitTaskPlan[0].unitId is required；ecdPlanning.unitTaskPlan[0].taskPlanId is required；ecdPlanning.unitTaskPlan[0].taskAffordance is required；ecdPlanning.unitTaskPlan[0].taskPurpose is required；ecdPlanning.unitTaskPlan[0].whyThisTask is required；ecdPlanning.unitTaskPlan[0].unitId must reference a known unit；ecdPlanning.unitTaskPlan[0].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[1].unitId is required；ecdPlanning.unitTaskPlan[1].taskPlanId is required；ecdPlanning.unitTaskPlan[1].taskAffordance is required；ecdPlanning.unitTaskPlan[1].taskPurpose is required；ecdPlanning.unitTaskPlan[1].whyThisTask is required；ecdPlanning.unitTaskPlan[1].taskPlanId must be unique；ecdPlanning.unitTaskPlan[1].unitId must reference a known unit；ecdPlanning.unitTaskPlan[1].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[2].unitId is required；ecdPlanning.unitTaskPlan[2].taskPlanId is required；ecdPlanning.unitTaskPlan[2].taskAffordance is required；ecdPlanning.unitTaskPlan[2].taskPurpose is required；ecdPlanning.unitTaskPlan[2].whyThisTask is required；ecdPlanning.unitTaskPlan[2].taskPlanId must be unique；ecdPlanning.unitTaskPlan[2].unitId must reference a known unit；ecdPlanning.unitTaskPlan[2].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[3].unitId is required；ecdPlanning.unitTaskPlan[3].taskPlanId is required；ecdPlanning.unitTaskPlan[3].taskAffordance is required；ecdPlanning.unitTaskPlan[3].taskPurpose is required；ecdPlanning.unitTaskPlan[3].whyThisTask is required；ecdPlanning.unitTaskPlan[3].taskPlanId must be unique；ecdPlanning.unitTaskPlan[3].unitId must reference a known unit；ecdPlanning.unitTaskPlan[3].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[4].unitId is required；ecdPlanning.unitTaskPlan[4].taskPlanId is required；ecdPlanning.unitTaskPlan[4].taskAffordance is required；ecdPlanning.unitTaskPlan[4].taskPurpose is required；ecdPlanning.unitTaskPlan[4].whyThisTask is required；ecdPlanning.unitTaskPlan[4].taskPlanId must be unique；ecdPlanning.unitTaskPlan[4].unitId must reference a known unit；ecdPlanning.unitTaskPlan[4].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[5].unitId is required；ecdPlanning.unitTaskPlan[5].taskPlanId is required；ecdPlanning.unitTaskPlan[5].taskAffordance is required；ecdPlanning.unitTaskPlan[5].taskPurpose is required；ecdPlanning.unitTaskPlan[5].whyThisTask is required；ecdPlanning.unitTaskPlan[5].taskPlanId must be unique；ecdPlanning.unitTaskPlan[5].unitId must reference a known unit；ecdPlanning.unitTaskPlan[5].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[6].unitId is required；ecdPlanning.unitTaskPlan[6].taskPlanId is required；ecdPlanning.unitTaskPlan[6].taskAffordance is required；ecdPlanning.unitTaskPlan[6].taskPurpose is required；ecdPlanning.unitTaskPlan[6].whyThisTask is required；ecdPlanning.unitTaskPlan[6].taskPlanId must be unique；ecdPlanning.unitTaskPlan[6].unitId must reference a known unit；ecdPlanning.unitTaskPlan[6].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[7].unitId is required；ecdPlanning.unitTaskPlan[7].taskPlanId is required；ecdPlanning.unitTaskPlan[7].taskAffordance is required；ecdPlanning.unitTaskPlan[7].taskPurpose is required；ecdPlanning.unitTaskPlan[7].whyThisTask is required；ecdPlanning.unitTaskPlan[7].taskPlanId must be unique；ecdPlanning.unitTaskPlan[7].unitId must reference a known unit；ecdPlanning.unitTaskPlan[7].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[8].unitId is required；ecdPlanning.unitTaskPlan[8].taskPlanId is required；ecdPlanning.unitTaskPlan[8].taskAffordance is required；ecdPlanning.unitTaskPlan[8].taskPurpose is required；ecdPlanning.unitTaskPlan[8].whyThisTask is required；ecdPlanning.unitTaskPlan[8].taskPlanId must be unique；ecdPlanning.unitTaskPlan[8].unitId must reference a known unit；ecdPlanning.unitTaskPlan[8].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[9].unitId is required；ecdPlanning.unitTaskPlan[9].taskPlanId is required；ecdPlanning.unitTaskPlan[9].taskAffordance is required；ecdPlanning.unitTaskPlan[9].taskPurpose is required；ecdPlanning.unitTaskPlan[9].whyThisTask is required；ecdPlanning.unitTaskPlan[9].taskPlanId must be unique；ecdPlanning.unitTaskPlan[9].unitId must reference a known unit；ecdPlanning.unitTaskPlan[9].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[10].unitId is required；ecdPlanning.unitTaskPlan[10].taskPlanId is required；ecdPlanning.unitTaskPlan[10].taskAffordance is required；ecdPlanning.unitTaskPlan[10].taskPurpose is required；ecdPlanning.unitTaskPlan[10].whyThisTask is required；ecdPlanning.unitTaskPlan[10].taskPlanId must be unique；ecdPlanning.unitTaskPlan[10].unitId must reference a known unit；ecdPlanning.unitTaskPlan[10].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[11].unitId is required；ecdPlanning.unitTaskPlan[11].taskPlanId is required；ecdPlanning.unitTaskPlan[11].taskAffordance is required；ecdPlanning.unitTaskPlan[11].taskPurpose is required；ecdPlanning.unitTaskPlan[11].whyThisTask is required；ecdPlanning.unitTaskPlan[11].taskPlanId must be unique；ecdPlanning.unitTaskPlan[11].unitId must reference a known unit；ecdPlanning.unitTaskPlan[11].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[12].unitId is required；ecdPlanning.unitTaskPlan[12].taskPlanId is required；ecdPlanning.unitTaskPlan[12].taskAffordance is required；ecdPlanning.unitTaskPlan[12].taskPurpose is required；ecdPlanning.unitTaskPlan[12].whyThisTask is required；ecdPlanning.unitTaskPlan[12].taskPlanId must be unique；ecdPlanning.unitTaskPlan[12].unitId must reference a known unit；ecdPlanning.unitTaskPlan[12].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[13].unitId is required；ecdPlanning.unitTaskPlan[13].taskPlanId is required；ecdPlanning.unitTaskPlan[13].taskAffordance is required；ecdPlanning.unitTaskPlan[13].taskPurpose is required；ecdPlanning.unitTaskPlan[13].whyThisTask is required；ecdPlanning.unitTaskPlan[13].taskPlanId must be unique；ecdPlanning.unitTaskPlan[13].unitId must reference a known unit；ecdPlanning.unitTaskPlan[13].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[14].unitId is required；ecdPlanning.unitTaskPlan[14].taskPlanId is required；ecdPlanning.unitTaskPlan[14].taskAffordance is required；ecdPlanning.unitTaskPlan[14].taskPurpose is required；ecdPlanning.unitTaskPlan[14].whyThisTask is required；ecdPlanning.unitTaskPlan[14].taskPlanId must be unique；ecdPlanning.unitTaskPlan[14].unitId must reference a known unit；ecdPlanning.unitTaskPlan[14].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[15].unitId is required；ecdPlanning.unitTaskPlan[15].taskPlanId is required；ecdPlanning.unitTaskPlan[15].taskAffordance is required；ecdPlanning.unitTaskPlan[15].taskPurpose is required；ecdPlanning.unitTaskPlan[15].whyThisTask is required；ecdPlanning.unitTaskPlan[15].taskPlanId must be unique；ecdPlanning.unitTaskPlan[15].unitId must reference a known unit；ecdPlanning.unitTaskPlan[15].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[16].unitId is required；ecdPlanning.unitTaskPlan[16].taskPlanId is required；ecdPlanning.unitTaskPlan[16].taskAffordance is required；ecdPlanning.unitTaskPlan[16].taskPurpose is required；ecdPlanning.unitTaskPlan[16].whyThisTask is required；ecdPlanning.unitTaskPlan[16].taskPlanId must be unique；ecdPlanning.unitTaskPlan[16].unitId must reference a known unit；ecdPlanning.unitTaskPlan[16].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[17].unitId is required；ecdPlanning.unitTaskPlan[17].taskPlanId is required；ecdPlanning.unitTaskPlan[17].taskAffordance is required；ecdPlanning.unitTaskPlan[17].taskPurpose is required；ecdPlanning.unitTaskPlan[17].whyThisTask is required；ecdPlanning.unitTaskPlan[17].taskPlanId must be unique；ecdPlanning.unitTaskPlan[17].unitId must reference a known unit；ecdPlanning.unitTaskPlan[17].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[18].unitId is required；ecdPlanning.unitTaskPlan[18].taskPlanId is required；ecdPlanning.unitTaskPlan[18].taskAffordance is required；ecdPlanning.unitTaskPlan[18].taskPurpose is required；ecdPlanning.unitTaskPlan[18].whyThisTask is required；ecdPlanning.unitTaskPlan[18].taskPlanId must be unique；ecdPlanning.unitTaskPlan[18].unitId must reference a known unit；ecdPlanning.unitTaskPlan[18].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[19].unitId is required；ecdPlanning.unitTaskPlan[19].taskPlanId is required；ecdPlanning.unitTaskPlan[19].taskAffordance is required；ecdPlanning.unitTaskPlan[19].taskPurpose is required；ecdPlanning.unitTaskPlan[19].whyThisTask is required；ecdPlanning.unitTaskPlan[19].taskPlanId must be unique；ecdPlanning.unitTaskPlan[19].unitId must reference a known unit；ecdPlanning.unitTaskPlan[19].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[20].unitId is required；ecdPlanning.unitTaskPlan[20].taskPlanId is required；ecdPlanning.unitTaskPlan[20].taskAffordance is required；ecdPlanning.unitTaskPlan[20].taskPurpose is required；ecdPlanning.unitTaskPlan[20].whyThisTask is required；ecdPlanning.unitTaskPlan[20].taskPlanId must be unique；ecdPlanning.unitTaskPlan[20].unitId must reference a known unit；ecdPlanning.unitTaskPlan[20].evidenceIds must be a non-empty array；ecdPlanning.unitTaskPlan[21].unitId is required；ecdPlanning.unitTaskPlan[21].taskPlanId is required；ecdPlanning.unitTaskPlan[21].taskAffordance is required；ecdPlanning.unitTaskPlan[21].taskPurpose is required；ecdPlanning.unitTaskPlan[21].whyThisTask is required；ecdPlanning.unitTaskPlan[21].taskPlanId must be unique；ecdPlanning.unitTaskPlan[21].unitId must reference a known unit；ecdPlanning.unitTaskPlan[21].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[0].selectedTasks[0].taskPlanId is required；ecdPlanning.unitAssemblyPlan[0].selectedTasks[0].taskAffordance is required；ecdPlanning.unitAssemblyPlan[0].selectedTasks[0].taskPurpose is required；ecdPlanning.unitAssemblyPlan[0].selectedTasks[0].assemblyReason is required；ecdPlanning.unitAssemblyPlan[0].selectedTasks[0].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[0].selectedTasks[1].taskPlanId is required；ecdPlanning.unitAssemblyPlan[0].selectedTasks[1].taskAffordance is required；ecdPlanning.unitAssemblyPlan[0].selectedTasks[1].taskPurpose is required；ecdPlanning.unitAssemblyPlan[0].selectedTasks[1].assemblyReason is required；ecdPlanning.unitAssemblyPlan[0].selectedTasks[1].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[0].skippedEvidence must be an array；ecdPlanning.unitAssemblyPlan[1].selectedTasks[0].taskPlanId is required；ecdPlanning.unitAssemblyPlan[1].selectedTasks[0].taskAffordance is required；ecdPlanning.unitAssemblyPlan[1].selectedTasks[0].taskPurpose is required；ecdPlanning.unitAssemblyPlan[1].selectedTasks[0].assemblyReason is required；ecdPlanning.unitAssemblyPlan[1].selectedTasks[0].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[1].selectedTasks[1].taskPlanId is required；ecdPlanning.unitAssemblyPlan[1].selectedTasks[1].taskAffordance is required；ecdPlanning.unitAssemblyPlan[1].selectedTasks[1].taskPurpose is required；ecdPlanning.unitAssemblyPlan[1].selectedTasks[1].assemblyReason is required；ecdPlanning.unitAssemblyPlan[1].selectedTasks[1].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[1].skippedEvidence must be an array；ecdPlanning.unitAssemblyPlan[2].selectedTasks[0].taskPlanId is required；ecdPlanning.unitAssemblyPlan[2].selectedTasks[0].taskAffordance is required；ecdPlanning.unitAssemblyPlan[2].selectedTasks[0].taskPurpose is required；ecdPlanning.unitAssemblyPlan[2].selectedTasks[0].assemblyReason is required；ecdPlanning.unitAssemblyPlan[2].selectedTasks[0].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[2].selectedTasks[1].taskPlanId is required；ecdPlanning.unitAssemblyPlan[2].selectedTasks[1].taskAffordance is required；ecdPlanning.unitAssemblyPlan[2].selectedTasks[1].taskPurpose is required；ecdPlanning.unitAssemblyPlan[2].selectedTasks[1].assemblyReason is required；ecdPlanning.unitAssemblyPlan[2].selectedTasks[1].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[2].skippedEvidence must be an array；ecdPlanning.unitAssemblyPlan[3].selectedTasks[0].taskPlanId is required；ecdPlanning.unitAssemblyPlan[3].selectedTasks[0].taskAffordance is required；ecdPlanning.unitAssemblyPlan[3].selectedTasks[0].taskPurpose is required；ecdPlanning.unitAssemblyPlan[3].selectedTasks[0].assemblyReason is required；ecdPlanning.unitAssemblyPlan[3].selectedTasks[0].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[3].selectedTasks[1].taskPlanId is required；ecdPlanning.unitAssemblyPlan[3].selectedTasks[1].taskAffordance is required；ecdPlanning.unitAssemblyPlan[3].selectedTasks[1].taskPurpose is required；ecdPlanning.unitAssemblyPlan[3].selectedTasks[1].assemblyReason is required；ecdPlanning.unitAssemblyPlan[3].selectedTasks[1].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[3].skippedEvidence must be an array；ecdPlanning.unitAssemblyPlan[4].selectedTasks[0].taskPlanId is required；ecdPlanning.unitAssemblyPlan[4].selectedTasks[0].taskAffordance is required；ecdPlanning.unitAssemblyPlan[4].selectedTasks[0].taskPurpose is required；ecdPlanning.unitAssemblyPlan[4].selectedTasks[0].assemblyReason is required；ecdPlanning.unitAssemblyPlan[4].selectedTasks[0].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[4].selectedTasks[1].taskPlanId is required；ecdPlanning.unitAssemblyPlan[4].selectedTasks[1].taskAffordance is required；ecdPlanning.unitAssemblyPlan[4].selectedTasks[1].taskPurpose is required；ecdPlanning.unitAssemblyPlan[4].selectedTasks[1].assemblyReason is required；ecdPlanning.unitAssemblyPlan[4].selectedTasks[1].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[4].skippedEvidence must be an array；ecdPlanning.unitAssemblyPlan[5].selectedTasks[0].taskPlanId is required；ecdPlanning.unitAssemblyPlan[5].selectedTasks[0].taskAffordance is required；ecdPlanning.unitAssemblyPlan[5].selectedTasks[0].taskPurpose is required；ecdPlanning.unitAssemblyPlan[5].selectedTasks[0].assemblyReason is required；ecdPlanning.unitAssemblyPlan[5].selectedTasks[0].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[5].selectedTasks[1].taskPlanId is required；ecdPlanning.unitAssemblyPlan[5].selectedTasks[1].taskAffordance is required；ecdPlanning.unitAssemblyPlan[5].selectedTasks[1].taskPurpose is required；ecdPlanning.unitAssemblyPlan[5].selectedTasks[1].assemblyReason is required；ecdPlanning.unitAssemblyPlan[5].selectedTasks[1].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[5].skippedEvidence must be an array；ecdPlanning.unitAssemblyPlan[6].selectedTasks[0].taskPlanId is required；ecdPlanning.unitAssemblyPlan[6].selectedTasks[0].taskAffordance is required；ecdPlanning.unitAssemblyPlan[6].selectedTasks[0].taskPurpose is required；ecdPlanning.unitAssemblyPlan[6].selectedTasks[0].assemblyReason is required；ecdPlanning.unitAssemblyPlan[6].selectedTasks[0].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[6].selectedTasks[1].taskPlanId is required；ecdPlanning.unitAssemblyPlan[6].selectedTasks[1].taskAffordance is required；ecdPlanning.unitAssemblyPlan[6].selectedTasks[1].taskPurpose is required；ecdPlanning.unitAssemblyPlan[6].selectedTasks[1].assemblyReason is required；ecdPlanning.unitAssemblyPlan[6].selectedTasks[1].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[6].skippedEvidence must be an array；ecdPlanning.unitAssemblyPlan[7].selectedTasks[0].taskPlanId is required；ecdPlanning.unitAssemblyPlan[7].selectedTasks[0].taskAffordance is required；ecdPlanning.unitAssemblyPlan[7].selectedTasks[0].taskPurpose is required；ecdPlanning.unitAssemblyPlan[7].selectedTasks[0].assemblyReason is required；ecdPlanning.unitAssemblyPlan[7].selectedTasks[0].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[7].selectedTasks[1].taskPlanId is required；ecdPlanning.unitAssemblyPlan[7].selectedTasks[1].taskAffordance is required；ecdPlanning.unitAssemblyPlan[7].selectedTasks[1].taskPurpose is required；ecdPlanning.unitAssemblyPlan[7].selectedTasks[1].assemblyReason is required；ecdPlanning.unitAssemblyPlan[7].selectedTasks[1].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[7].skippedEvidence must be an array；ecdPlanning.unitAssemblyPlan[8].selectedTasks[0].taskPlanId is required；ecdPlanning.unitAssemblyPlan[8].selectedTasks[0].taskAffordance is required；ecdPlanning.unitAssemblyPlan[8].selectedTasks[0].taskPurpose is required；ecdPlanning.unitAssemblyPlan[8].selectedTasks[0].assemblyReason is required；ecdPlanning.unitAssemblyPlan[8].selectedTasks[0].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[8].selectedTasks[1].taskPlanId is required；ecdPlanning.unitAssemblyPlan[8].selectedTasks[1].taskAffordance is required；ecdPlanning.unitAssemblyPlan[8].selectedTasks[1].taskPurpose is required；ecdPlanning.unitAssemblyPlan[8].selectedTasks[1].assemblyReason is required；ecdPlanning.unitAssemblyPlan[8].selectedTasks[1].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[8].skippedEvidence must be an array；ecdPlanning.unitAssemblyPlan[9].selectedTasks[0].taskPlanId is required；ecdPlanning.unitAssemblyPlan[9].selectedTasks[0].taskAffordance is required；ecdPlanning.unitAssemblyPlan[9].selectedTasks[0].taskPurpose is required；ecdPlanning.unitAssemblyPlan[9].selectedTasks[0].assemblyReason is required；ecdPlanning.unitAssemblyPlan[9].selectedTasks[0].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[9].selectedTasks[1].taskPlanId is required；ecdPlanning.unitAssemblyPlan[9].selectedTasks[1].taskAffordance is required；ecdPlanning.unitAssemblyPlan[9].selectedTasks[1].taskPurpose is required；ecdPlanning.unitAssemblyPlan[9].selectedTasks[1].assemblyReason is required；ecdPlanning.unitAssemblyPlan[9].selectedTasks[1].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[9].skippedEvidence must be an array；ecdPlanning.unitAssemblyPlan[10].selectedTasks[0].taskPlanId is required；ecdPlanning.unitAssemblyPlan[10].selectedTasks[0].taskAffordance is required；ecdPlanning.unitAssemblyPlan[10].selectedTasks[0].taskPurpose is required；ecdPlanning.unitAssemblyPlan[10].selectedTasks[0].assemblyReason is required；ecdPlanning.unitAssemblyPlan[10].selectedTasks[0].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[10].selectedTasks[1].taskPlanId is required；ecdPlanning.unitAssemblyPlan[10].selectedTasks[1].taskAffordance is required；ecdPlanning.unitAssemblyPlan[10].selectedTasks[1].taskPurpose is required；ecdPlanning.unitAssemblyPlan[10].selectedTasks[1].assemblyReason is required；ecdPlanning.unitAssemblyPlan[10].selectedTasks[1].evidenceIds must be a non-empty array；ecdPlanning.unitAssemblyPlan[10].skippedEvidence must be an array</p>
+    <pre>[
+  &quot;ecdPlanning.articleUnderstanding.articleStructure must be a non-empty array&quot;,
+  &quot;ecdPlanning.articleUnderstanding.reviewableSections must be an array&quot;,
+  &quot;ecdPlanning.articleUnderstanding.nonReviewableSections must be an array&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[0].title is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[0].nodeLabel is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[0].shortSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[0].detailSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[0].knowledgeShape is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[1].title is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[1].nodeLabel is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[1].shortSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[1].detailSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[1].knowledgeShape is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[2].title is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[2].nodeLabel is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[2].shortSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[2].detailSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[2].knowledgeShape is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[3].title is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[3].nodeLabel is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[3].shortSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[3].detailSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[3].knowledgeShape is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[4].title is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[4].nodeLabel is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[4].shortSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[4].detailSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[4].knowledgeShape is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[5].title is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[5].nodeLabel is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[5].shortSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[5].detailSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[5].knowledgeShape is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[6].title is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[6].nodeLabel is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[6].shortSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[6].detailSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[6].knowledgeShape is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[7].title is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[7].nodeLabel is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[7].shortSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[7].detailSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[7].knowledgeShape is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[8].title is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[8].nodeLabel is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[8].shortSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[8].detailSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[8].knowledgeShape is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[9].title is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[9].nodeLabel is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[9].shortSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[9].detailSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[9].knowledgeShape is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[10].title is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[10].nodeLabel is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[10].shortSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[10].detailSummary is required&quot;,
+  &quot;ecdPlanning.knowledgeModel.units[10].knowledgeShape is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[0].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[0].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[0].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[0].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[0].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[1].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[1].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[1].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[1].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[1].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[1].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[2].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[2].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[2].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[2].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[2].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[2].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[3].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[3].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[3].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[3].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[3].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[3].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[4].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[4].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[4].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[4].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[4].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[4].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[5].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[5].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[5].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[5].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[5].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[5].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[6].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[6].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[6].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[6].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[6].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[6].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[7].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[7].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[7].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[7].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[7].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[7].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[8].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[8].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[8].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[8].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[8].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[8].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[9].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[9].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[9].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[9].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[9].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[9].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[10].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[10].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[10].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[10].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[10].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[10].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[11].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[11].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[11].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[11].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[11].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[11].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[12].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[12].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[12].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[12].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[12].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[12].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[13].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[13].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[13].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[13].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[13].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[13].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[14].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[14].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[14].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[14].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[14].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[14].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[15].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[15].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[15].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[15].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[15].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[15].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[16].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[16].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[16].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[16].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[16].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[16].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[17].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[17].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[17].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[17].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[17].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[17].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[18].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[18].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[18].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[18].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[18].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[18].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[19].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[19].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[19].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[19].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[19].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[19].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[20].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[20].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[20].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[20].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[20].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[20].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitLearningClaims[21].claimId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[21].claimType is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[21].learningClaim is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[21].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitLearningClaims[21].claimId must be unique&quot;,
+  &quot;ecdPlanning.unitLearningClaims[21].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[0].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[0].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[0].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[0].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[0].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[0].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[0].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[0].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[0].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[1].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[1].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[1].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[1].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[1].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[1].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[1].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[1].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[1].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[1].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[2].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[2].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[2].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[2].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[2].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[2].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[2].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[2].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[2].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[2].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[3].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[3].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[3].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[3].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[3].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[3].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[3].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[3].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[3].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[3].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[4].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[4].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[4].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[4].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[4].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[4].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[4].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[4].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[4].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[4].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[5].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[5].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[5].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[5].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[5].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[5].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[5].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[5].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[5].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[5].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[6].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[6].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[6].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[6].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[6].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[6].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[6].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[6].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[6].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[6].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[7].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[7].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[7].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[7].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[7].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[7].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[7].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[7].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[7].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[7].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[8].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[8].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[8].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[8].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[8].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[8].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[8].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[8].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[8].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[8].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[9].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[9].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[9].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[9].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[9].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[9].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[9].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[9].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[9].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[9].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[10].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[10].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[10].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[10].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[10].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[10].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[10].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[10].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[10].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[10].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[11].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[11].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[11].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[11].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[11].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[11].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[11].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[11].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[11].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[11].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[12].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[12].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[12].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[12].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[12].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[12].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[12].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[12].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[12].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[12].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[13].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[13].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[13].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[13].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[13].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[13].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[13].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[13].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[13].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[13].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[14].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[14].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[14].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[14].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[14].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[14].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[14].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[14].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[14].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[14].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[15].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[15].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[15].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[15].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[15].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[15].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[15].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[15].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[15].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[15].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[16].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[16].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[16].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[16].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[16].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[16].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[16].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[16].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[16].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[16].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[17].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[17].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[17].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[17].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[17].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[17].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[17].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[17].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[17].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[17].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[18].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[18].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[18].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[18].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[18].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[18].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[18].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[18].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[18].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[18].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[19].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[19].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[19].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[19].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[19].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[19].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[19].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[19].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[19].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[19].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[20].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[20].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[20].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[20].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[20].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[20].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[20].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[20].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[20].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[20].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[21].unitId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[21].evidenceId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[21].evidenceType is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[21].evidenceNeed is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[21].observableResponse is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[21].sourceAnchorId is required&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[21].evidenceId must be unique&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[21].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[21].claimId must reference a unitLearningClaims item&quot;,
+  &quot;ecdPlanning.unitEvidenceNeeds[21].sourceAnchorId must reference a known source anchor&quot;,
+  &quot;ecdPlanning.unitTaskPlan[0].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[0].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[0].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[0].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[0].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[0].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[0].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[1].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[1].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[1].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[1].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[1].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[1].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[1].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[1].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[2].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[2].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[2].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[2].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[2].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[2].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[2].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[2].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[3].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[3].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[3].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[3].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[3].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[3].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[3].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[3].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[4].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[4].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[4].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[4].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[4].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[4].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[4].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[4].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[5].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[5].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[5].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[5].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[5].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[5].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[5].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[5].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[6].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[6].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[6].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[6].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[6].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[6].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[6].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[6].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[7].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[7].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[7].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[7].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[7].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[7].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[7].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[7].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[8].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[8].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[8].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[8].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[8].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[8].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[8].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[8].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[9].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[9].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[9].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[9].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[9].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[9].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[9].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[9].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[10].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[10].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[10].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[10].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[10].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[10].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[10].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[10].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[11].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[11].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[11].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[11].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[11].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[11].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[11].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[11].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[12].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[12].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[12].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[12].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[12].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[12].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[12].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[12].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[13].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[13].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[13].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[13].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[13].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[13].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[13].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[13].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[14].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[14].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[14].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[14].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[14].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[14].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[14].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[14].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[15].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[15].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[15].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[15].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[15].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[15].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[15].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[15].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[16].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[16].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[16].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[16].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[16].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[16].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[16].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[16].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[17].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[17].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[17].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[17].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[17].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[17].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[17].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[17].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[18].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[18].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[18].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[18].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[18].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[18].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[18].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[18].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[19].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[19].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[19].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[19].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[19].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[19].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[19].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[19].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[20].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[20].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[20].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[20].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[20].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[20].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[20].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[20].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitTaskPlan[21].unitId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[21].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[21].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[21].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[21].whyThisTask is required&quot;,
+  &quot;ecdPlanning.unitTaskPlan[21].taskPlanId must be unique&quot;,
+  &quot;ecdPlanning.unitTaskPlan[21].unitId must reference a known unit&quot;,
+  &quot;ecdPlanning.unitTaskPlan[21].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[0].selectedTasks[0].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[0].selectedTasks[0].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[0].selectedTasks[0].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[0].selectedTasks[0].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[0].selectedTasks[0].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[0].selectedTasks[1].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[0].selectedTasks[1].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[0].selectedTasks[1].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[0].selectedTasks[1].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[0].selectedTasks[1].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[0].skippedEvidence must be an array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[1].selectedTasks[0].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[1].selectedTasks[0].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[1].selectedTasks[0].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[1].selectedTasks[0].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[1].selectedTasks[0].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[1].selectedTasks[1].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[1].selectedTasks[1].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[1].selectedTasks[1].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[1].selectedTasks[1].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[1].selectedTasks[1].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[1].skippedEvidence must be an array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[2].selectedTasks[0].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[2].selectedTasks[0].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[2].selectedTasks[0].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[2].selectedTasks[0].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[2].selectedTasks[0].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[2].selectedTasks[1].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[2].selectedTasks[1].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[2].selectedTasks[1].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[2].selectedTasks[1].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[2].selectedTasks[1].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[2].skippedEvidence must be an array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[3].selectedTasks[0].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[3].selectedTasks[0].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[3].selectedTasks[0].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[3].selectedTasks[0].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[3].selectedTasks[0].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[3].selectedTasks[1].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[3].selectedTasks[1].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[3].selectedTasks[1].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[3].selectedTasks[1].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[3].selectedTasks[1].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[3].skippedEvidence must be an array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[4].selectedTasks[0].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[4].selectedTasks[0].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[4].selectedTasks[0].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[4].selectedTasks[0].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[4].selectedTasks[0].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[4].selectedTasks[1].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[4].selectedTasks[1].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[4].selectedTasks[1].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[4].selectedTasks[1].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[4].selectedTasks[1].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[4].skippedEvidence must be an array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[5].selectedTasks[0].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[5].selectedTasks[0].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[5].selectedTasks[0].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[5].selectedTasks[0].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[5].selectedTasks[0].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[5].selectedTasks[1].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[5].selectedTasks[1].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[5].selectedTasks[1].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[5].selectedTasks[1].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[5].selectedTasks[1].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[5].skippedEvidence must be an array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[6].selectedTasks[0].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[6].selectedTasks[0].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[6].selectedTasks[0].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[6].selectedTasks[0].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[6].selectedTasks[0].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[6].selectedTasks[1].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[6].selectedTasks[1].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[6].selectedTasks[1].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[6].selectedTasks[1].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[6].selectedTasks[1].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[6].skippedEvidence must be an array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[7].selectedTasks[0].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[7].selectedTasks[0].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[7].selectedTasks[0].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[7].selectedTasks[0].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[7].selectedTasks[0].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[7].selectedTasks[1].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[7].selectedTasks[1].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[7].selectedTasks[1].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[7].selectedTasks[1].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[7].selectedTasks[1].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[7].skippedEvidence must be an array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[8].selectedTasks[0].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[8].selectedTasks[0].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[8].selectedTasks[0].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[8].selectedTasks[0].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[8].selectedTasks[0].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[8].selectedTasks[1].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[8].selectedTasks[1].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[8].selectedTasks[1].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[8].selectedTasks[1].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[8].selectedTasks[1].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[8].skippedEvidence must be an array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[9].selectedTasks[0].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[9].selectedTasks[0].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[9].selectedTasks[0].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[9].selectedTasks[0].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[9].selectedTasks[0].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[9].selectedTasks[1].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[9].selectedTasks[1].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[9].selectedTasks[1].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[9].selectedTasks[1].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[9].selectedTasks[1].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[9].skippedEvidence must be an array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[10].selectedTasks[0].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[10].selectedTasks[0].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[10].selectedTasks[0].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[10].selectedTasks[0].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[10].selectedTasks[0].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[10].selectedTasks[1].taskPlanId is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[10].selectedTasks[1].taskAffordance is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[10].selectedTasks[1].taskPurpose is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[10].selectedTasks[1].assemblyReason is required&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[10].selectedTasks[1].evidenceIds must be a non-empty array&quot;,
+  &quot;ecdPlanning.unitAssemblyPlan[10].skippedEvidence must be an array&quot;
+]</pre>
+    
+  </section>
+    <section class="card">
+      <h2 style="margin-top:0">文章与章节</h2>
+      <p><strong>基于游戏化方法的持续性用户体验设计</strong></p>
+      <p class="meta">吴 琼、王婧等 · <a href="https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A">https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A</a></p>
+      <p></p>
+      <div class="grid">
+        <div class="metric"><strong>0</strong>知识点</div>
+        <div class="metric"><strong>0</strong>题目</div>
+        <div class="metric"><strong>0</strong>选择题</div>
+        <div class="metric"><strong>0</strong>连线题</div>
+        <div class="metric"><strong>0</strong>Source blocks</div>
+        <div class="metric"><strong>704</strong>Issues</div>
+        <div class="metric"><strong>0</strong>Diagnostics</div>
+      </div>
+    </section>
+    
+    
+    <section class="card">
+      <h2 style="margin-top:0">章节总结</h2>
+      <p><span class="tag">章节完成</span></p>
+      <p></p>
+    </section>
+    <section class="card">
+      <h2 style="margin-top:0">完整来源块</h2>
+      <p class="meta">暂无 source blocks</p>
+    </section>
+  </main>
+</body>
+</html>

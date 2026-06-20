@@ -64,6 +64,36 @@ export const TASK_PURPOSES = [
   "role_responsibility_matching"
 ];
 
+const sourceAnchorIdsSchema = {
+  type: "array",
+  items: { type: "string" }
+};
+
+const evidenceIdsSchema = {
+  type: "array",
+  items: { type: "string" }
+};
+
+const selectedTaskSchema = {
+  type: "object",
+  required: [
+    "questionPlanId",
+    "taskPlanId",
+    "evidenceIds",
+    "taskAffordance",
+    "taskPurpose",
+    "assemblyReason"
+  ],
+  properties: {
+    questionPlanId: { type: "string" },
+    taskPlanId: { type: "string" },
+    evidenceIds: evidenceIdsSchema,
+    taskAffordance: { enum: TASK_AFFORDANCES },
+    taskPurpose: { enum: TASK_PURPOSES },
+    assemblyReason: { type: "string" }
+  }
+};
+
 export const ECD_PLANNING_OUTPUT_SCHEMA = {
   name: ECD_PLANNING_PROMPT_SCHEMA_NAME,
   type: "object",
@@ -76,12 +106,156 @@ export const ECD_PLANNING_OUTPUT_SCHEMA = {
     "unitAssemblyPlan"
   ],
   properties: {
-    articleUnderstanding: { type: "object" },
-    knowledgeModel: { type: "object" },
-    unitLearningClaims: { type: "array" },
-    unitEvidenceNeeds: { type: "array" },
-    unitTaskPlan: { type: "array" },
-    unitAssemblyPlan: { type: "array" }
+    articleUnderstanding: {
+      type: "object",
+      required: ["coreThesis", "articleStructure", "reviewableSections", "nonReviewableSections"],
+      properties: {
+        coreThesis: { type: "string" },
+        articleStructure: {
+          type: "array",
+          items: {
+            type: "object",
+            required: ["id", "title", "role", "sourceAnchorIds"],
+            properties: {
+              id: { type: "string" },
+              title: { type: "string" },
+              role: { type: "string" },
+              sourceAnchorIds: sourceAnchorIdsSchema
+            }
+          }
+        },
+        reviewableSections: {
+          type: "array",
+          items: { type: "string" }
+        },
+        nonReviewableSections: {
+          type: "array",
+          items: {
+            type: "object",
+            required: ["sourceAnchorId", "reason"],
+            properties: {
+              sourceAnchorId: { type: "string" },
+              reason: { type: "string" }
+            }
+          }
+        }
+      }
+    },
+    knowledgeModel: {
+      type: "object",
+      required: ["units"],
+      properties: {
+        units: {
+          type: "array",
+          items: {
+            type: "object",
+            required: [
+              "unitId",
+              "title",
+              "nodeLabel",
+              "shortSummary",
+              "detailSummary",
+              "knowledgeShape",
+              "sourceAnchorId"
+            ],
+            properties: {
+              unitId: { type: "string" },
+              title: { type: "string" },
+              nodeLabel: { type: "string" },
+              shortSummary: { type: "string" },
+              detailSummary: { type: "string" },
+              knowledgeShape: { enum: KNOWLEDGE_SHAPES },
+              sourceAnchorId: { type: "string" }
+            }
+          }
+        }
+      }
+    },
+    unitLearningClaims: {
+      type: "array",
+      items: {
+        type: "object",
+        required: ["unitId", "claimId", "claimType", "learningClaim", "sourceAnchorId"],
+        properties: {
+          unitId: { type: "string" },
+          claimId: { type: "string" },
+          claimType: { enum: CLAIM_TYPES },
+          learningClaim: { type: "string" },
+          sourceAnchorId: { type: "string" }
+        }
+      }
+    },
+    unitEvidenceNeeds: {
+      type: "array",
+      items: {
+        type: "object",
+        required: [
+          "unitId",
+          "evidenceId",
+          "claimId",
+          "evidenceType",
+          "evidenceNeed",
+          "observableResponse",
+          "sourceAnchorId"
+        ],
+        properties: {
+          unitId: { type: "string" },
+          evidenceId: { type: "string" },
+          claimId: { type: "string" },
+          evidenceType: { enum: EVIDENCE_TYPES },
+          evidenceNeed: { type: "string" },
+          observableResponse: { type: "string" },
+          sourceAnchorId: { type: "string" }
+        }
+      }
+    },
+    unitTaskPlan: {
+      type: "array",
+      items: {
+        type: "object",
+        required: [
+          "unitId",
+          "taskPlanId",
+          "evidenceIds",
+          "taskAffordance",
+          "taskPurpose",
+          "whyThisTask"
+        ],
+        properties: {
+          unitId: { type: "string" },
+          taskPlanId: { type: "string" },
+          evidenceIds: evidenceIdsSchema,
+          taskAffordance: { enum: TASK_AFFORDANCES },
+          taskPurpose: { enum: TASK_PURPOSES },
+          whyThisTask: { type: "string" }
+        }
+      }
+    },
+    unitAssemblyPlan: {
+      type: "array",
+      items: {
+        type: "object",
+        required: ["unitId", "selectedTasks", "skippedEvidence"],
+        properties: {
+          unitId: { type: "string" },
+          selectedTasks: {
+            type: "array",
+            items: selectedTaskSchema
+          },
+          skippedEvidence: {
+            type: "array",
+            items: {
+              type: "object",
+              required: ["evidenceId", "reason"],
+              properties: {
+                evidenceId: { type: "string" },
+                reason: { type: "string" }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 };
 
@@ -112,6 +286,93 @@ export function validateEcdPlanningOutput(output, { unitIds = new Set(), sourceA
   validateAssemblyPlan(output.unitAssemblyPlan, { unitIds, evidenceIds, taskPlanIds, errors });
 
   return createValidationResult(errors);
+}
+
+export function normalizeEcdPlanningOutput(output) {
+  if (!isPlainObject(output)) return output;
+
+  return {
+    ...output,
+    knowledgeModel: normalizeKnowledgeModel(output.knowledgeModel),
+    unitLearningClaims: normalizeEnumItems(output.unitLearningClaims, {
+      field: "claimType",
+      originalField: "originalClaimType",
+      allowedValues: CLAIM_TYPES,
+      fallback: "source_grounded_understanding"
+    }),
+    unitEvidenceNeeds: normalizeEnumItems(output.unitEvidenceNeeds, {
+      field: "evidenceType",
+      originalField: "originalEvidenceType",
+      allowedValues: EVIDENCE_TYPES,
+      fallback: "ground_answer_in_source"
+    }),
+    unitTaskPlan: normalizeEnumItems(
+      normalizeEnumItems(output.unitTaskPlan, {
+        field: "taskAffordance",
+        originalField: "originalTaskAffordance",
+        allowedValues: TASK_AFFORDANCES,
+        fallback: "multiple_choice"
+      }),
+      {
+        field: "taskPurpose",
+        originalField: "originalTaskPurpose",
+        allowedValues: TASK_PURPOSES,
+        fallback: "light_understanding"
+      }
+    ),
+    unitAssemblyPlan: normalizeAssemblyPlan(output.unitAssemblyPlan)
+  };
+}
+
+function normalizeKnowledgeModel(knowledgeModel) {
+  if (!isPlainObject(knowledgeModel) || !Array.isArray(knowledgeModel.units)) return knowledgeModel;
+  return {
+    ...knowledgeModel,
+    units: normalizeEnumItems(knowledgeModel.units, {
+      field: "knowledgeShape",
+      originalField: "originalKnowledgeShape",
+      allowedValues: KNOWLEDGE_SHAPES,
+      fallback: "core_concept"
+    })
+  };
+}
+
+function normalizeAssemblyPlan(items) {
+  if (!Array.isArray(items)) return items;
+  return items.map((assembly) => {
+    if (!isPlainObject(assembly) || !Array.isArray(assembly.selectedTasks)) return assembly;
+    const selectedTasks = normalizeEnumItems(
+      normalizeEnumItems(assembly.selectedTasks, {
+        field: "taskAffordance",
+        originalField: "originalTaskAffordance",
+        allowedValues: TASK_AFFORDANCES,
+        fallback: "multiple_choice"
+      }),
+      {
+        field: "taskPurpose",
+        originalField: "originalTaskPurpose",
+        allowedValues: TASK_PURPOSES,
+        fallback: "light_understanding"
+      }
+    );
+    return { ...assembly, selectedTasks };
+  });
+}
+
+function normalizeEnumItems(items, { field, originalField, allowedValues, fallback }) {
+  if (!Array.isArray(items)) return items;
+  return items.map((item) => normalizeEnumField(item, { field, originalField, allowedValues, fallback }));
+}
+
+function normalizeEnumField(item, { field, originalField, allowedValues, fallback }) {
+  if (!isPlainObject(item)) return item;
+  const value = item[field];
+  if (!isNonEmptyString(value) || allowedValues.includes(value)) return item;
+  return {
+    ...item,
+    [originalField]: value,
+    [field]: fallback
+  };
 }
 
 function requireAnyFields(value, fields, path, errors) {

@@ -86,6 +86,41 @@ test("skips matchingDraft when the practice plan chooses two multiple choice que
   );
 });
 
+test("can limit planned units for bounded quality experiments", async () => {
+  const stages = [];
+  const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
+    promptCaller: async (stage, payload) => {
+      stages.push(stage);
+      if (stage !== "reviewPathPlan") return happyPathPromptCaller(stage, payload);
+      const plan = await happyPathPromptCaller(stage, payload);
+      return {
+        ...plan,
+        units: [
+          ...plan.units,
+          {
+            ...plan.units[0],
+            id: "unit-02",
+            order: 2,
+            title: "Hook 的边界",
+            sourceAnchor: {
+              ...plan.units[0].sourceAnchor,
+              id: "anchor-unit-02"
+            }
+          }
+        ]
+      };
+    },
+    maxUnitCount: 1,
+    now: "2026-06-19T00:00:00.000Z"
+  });
+
+  assert.equal(reviewPath.units.length, 1);
+  assert.equal(reviewPath.generationMeta.unitPracticePlans.length, 1);
+  assert.equal(reviewPath.generationConstraints.originalUnitCount, 2);
+  assert.equal(reviewPath.generationConstraints.maxUnitCount, 1);
+  assert.equal(stages.filter((stage) => stage === "unitPracticePlan").length, 1);
+});
+
 test("throws a stage-specific error when sourceMap output is invalid", async () => {
   await assert.rejects(
     () =>
@@ -139,9 +174,11 @@ test("normalizes draft question ids from question plan order", async () => {
       const output = await happyPathPromptCaller(stage, payload);
       if (stage === "multipleChoiceDraft") {
         output.questions[0].id = "model-made-up-id";
+        delete output.questions[0].sourceAnchorId;
       }
       if (stage === "matchingDraft") {
         output.questions[0].id = "another-made-up-id";
+        delete output.questions[0].practiceGoalId;
       }
       return output;
     },
@@ -151,6 +188,10 @@ test("normalizes draft question ids from question plan order", async () => {
   assert.deepEqual(
     reviewPath.units[0].questions.map((question) => question.id),
     ["q-001", "q-002"]
+  );
+  assert.deepEqual(
+    reviewPath.units[0].questions.map((question) => question.sourceAnchorId),
+    ["anchor-unit-01", "anchor-unit-01"]
   );
 });
 

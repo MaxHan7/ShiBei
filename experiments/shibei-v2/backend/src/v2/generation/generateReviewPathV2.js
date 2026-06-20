@@ -3,7 +3,10 @@ import {
   validateReviewPathV2
 } from "../contracts/reviewPathContract.js";
 import { createV2ModelPromptCaller } from "./modelPromptCaller.js";
-import { validateEcdPlanningOutput } from "./prompts/ecdPlanning.js";
+import {
+  normalizeEcdPlanningOutput,
+  validateEcdPlanningOutput
+} from "./prompts/ecdPlanning.js";
 import { validateQualityJudgeOutput } from "./prompts/qualityJudge.js";
 import { validateReviewPathPlanOutput } from "./prompts/reviewPathPlan.js";
 import { validateSourceMapOutput } from "./prompts/sourceMap.js";
@@ -30,6 +33,8 @@ export async function generateReviewPathV2(
     promptCaller,
     createPromptCaller = createV2ModelPromptCaller,
     modelUsageRecorder = null,
+    maxUnitCount = readOptionalPositiveInt(process.env.V2_GENERATION_MAX_UNITS),
+    unitConcurrency = readOptionalPositiveInt(process.env.V2_GENERATION_UNIT_CONCURRENCY) ?? 1,
     now = new Date().toISOString()
   } = {}
 ) {
@@ -49,112 +54,36 @@ export async function generateReviewPathV2(
     validateSourceMapOutput
   );
   const sourceBlockIds = new Set(sourceMap.blocks.map((block) => block.id));
-  const plan = await callAndValidate(
+  const rawPlan = await callAndValidate(
     activePromptCaller,
     "reviewPathPlan",
     { article, source: sourceMap.source, blocks: sourceMap.blocks },
     (output) => validateReviewPathPlanOutput(output, { sourceBlockIds })
   );
+  const plan = limitPlannedUnits(rawPlan, maxUnitCount);
   const unitIds = new Set(plan.units.map((unit) => unit.id));
   const sourceAnchorIds = new Set(plan.units.map((unit) => unit.sourceAnchor?.id).filter(Boolean));
   const ecdPlanning = await callAndValidate(
     activePromptCaller,
     "ecdPlanning",
     { article, source: sourceMap.source, blocks: sourceMap.blocks, plan },
-    (output) => validateEcdPlanningOutput(output, { unitIds, sourceAnchorIds })
+    (output) => validateEcdPlanningOutput(output, { unitIds, sourceAnchorIds }),
+    { normalize: normalizeEcdPlanningOutput }
   );
 
-  const units = [];
-  const unitPracticePlans = [];
-
-  for (const plannedUnit of plan.units) {
-    const practicePlan = await callAndValidate(
-      activePromptCaller,
-      "unitPracticePlan",
-      { article, source: sourceMap.source, blocks: sourceMap.blocks, unit: plannedUnit },
-      (output) =>
-        validateUnitPracticePlanOutput(output, {
-          unitId: plannedUnit.id,
-          sourceAnchorId: plannedUnit.sourceAnchor.id
-        })
-    );
-    const multipleChoiceDraft = await callAndValidate(
-      activePromptCaller,
-      "multipleChoiceDraft",
-      {
+  const generatedUnits = await mapWithConcurrency(
+    plan.units,
+    unitConcurrency,
+    (plannedUnit) =>
+      generateUnitReviewContent({
+        activePromptCaller,
         article,
-        source: sourceMap.source,
-        blocks: sourceMap.blocks,
-        unit: plannedUnit,
-        practicePlan
-      },
-      (output) =>
-        validateMultipleChoiceDraftOutput(output, {
-          unitId: plannedUnit.id,
-          plans: practicePlan.questionPlans,
-          sourceAnchorId: plannedUnit.sourceAnchor.id
-        }),
-      {
-        normalize: (output) =>
-          normalizeDraftQuestionIds(output, practicePlan.questionPlans, "multiple_choice")
-      }
-    );
-    const matchingPlans = practicePlan.questionPlans.filter((questionPlan) => questionPlan.type === "matching");
-    const matchingDraft = matchingPlans.length > 0
-      ? await callAndValidate(
-          activePromptCaller,
-          "matchingDraft",
-          {
-            article,
-            source: sourceMap.source,
-            blocks: sourceMap.blocks,
-            unit: plannedUnit,
-            practicePlan
-          },
-          (output) =>
-            validateMatchingDraftOutput(output, {
-              unitId: plannedUnit.id,
-              plans: practicePlan.questionPlans,
-              sourceAnchorId: plannedUnit.sourceAnchor.id
-            }),
-          {
-            normalize: (output) =>
-              normalizeDraftQuestionIds(output, practicePlan.questionPlans, "matching")
-          }
-        )
-      : { unitId: plannedUnit.id, questions: [] };
-    const questions = sortQuestionsByPlan(
-      [
-        ...multipleChoiceDraft.questions.map(stripInternalQuestionFields),
-        ...matchingDraft.questions.map(stripInternalQuestionFields)
-      ],
-      practicePlan.questionPlans
-    );
-    const unitSummary = await callAndValidate(
-      activePromptCaller,
-      "unitSummaryDraft",
-      {
-        article,
-        source: sourceMap.source,
-        blocks: sourceMap.blocks,
-        unit: plannedUnit,
-        practicePlan,
-        questions
-      },
-      (output) =>
-        validateUnitSummaryDraftOutput(output, {
-          unitId: plannedUnit.id
-        })
-    );
-    unitPracticePlans.push(practicePlan);
-
-    units.push({
-      ...plannedUnit,
-      overview: unitSummary.overview,
-      questions,
-      summary: unitSummary.summary
-    });
-  }
+        sourceMap,
+        plannedUnit
+      })
+  );
+  const units = generatedUnits.map((item) => item.unit);
+  const unitPracticePlans = generatedUnits.map((item) => item.practicePlan);
 
   const draftReviewPath = {
     schemaVersion: V2_REVIEW_PATH_SCHEMA_VERSION,
@@ -175,6 +104,7 @@ export async function generateReviewPathV2(
       statsText: `共 ${units.length} 个核心知识点，${countQuestions(units)} 道题目`,
       encouragementText: plan.chapterSummary.encouragementText
     },
+    ...(plan.generationConstraints ? { generationConstraints: plan.generationConstraints } : {}),
     generationMeta: {
       currentStage: "completed",
       stages: V2_GENERATION_STAGES.map((stage) => ({
@@ -219,6 +149,141 @@ export async function generateReviewPathV2(
   return draftReviewPath;
 }
 
+async function generateUnitReviewContent({
+  activePromptCaller,
+  article,
+  sourceMap,
+  plannedUnit
+}) {
+  const practicePlan = await callAndValidate(
+    activePromptCaller,
+    "unitPracticePlan",
+    { article, source: sourceMap.source, blocks: sourceMap.blocks, unit: plannedUnit },
+    (output) =>
+      validateUnitPracticePlanOutput(output, {
+        unitId: plannedUnit.id,
+        sourceAnchorId: plannedUnit.sourceAnchor.id
+      })
+  );
+  const multipleChoiceDraft = await callAndValidate(
+    activePromptCaller,
+    "multipleChoiceDraft",
+    {
+      article,
+      source: sourceMap.source,
+      blocks: sourceMap.blocks,
+      unit: plannedUnit,
+      practicePlan
+    },
+    (output) =>
+      validateMultipleChoiceDraftOutput(output, {
+        unitId: plannedUnit.id,
+        plans: practicePlan.questionPlans,
+        sourceAnchorId: plannedUnit.sourceAnchor.id
+      }),
+    {
+      normalize: (output) =>
+        normalizeDraftQuestionIds(output, practicePlan.questionPlans, "multiple_choice")
+    }
+  );
+  const matchingPlans = practicePlan.questionPlans.filter((questionPlan) => questionPlan.type === "matching");
+  const matchingDraft = matchingPlans.length > 0
+    ? await callAndValidate(
+        activePromptCaller,
+        "matchingDraft",
+        {
+          article,
+          source: sourceMap.source,
+          blocks: sourceMap.blocks,
+          unit: plannedUnit,
+          practicePlan
+        },
+        (output) =>
+          validateMatchingDraftOutput(output, {
+            unitId: plannedUnit.id,
+            plans: practicePlan.questionPlans,
+            sourceAnchorId: plannedUnit.sourceAnchor.id
+          }),
+        {
+          normalize: (output) =>
+            normalizeDraftQuestionIds(output, practicePlan.questionPlans, "matching")
+        }
+      )
+    : { unitId: plannedUnit.id, questions: [] };
+  const questions = sortQuestionsByPlan(
+    [
+      ...multipleChoiceDraft.questions.map(stripInternalQuestionFields),
+      ...matchingDraft.questions.map(stripInternalQuestionFields)
+    ],
+    practicePlan.questionPlans
+  );
+  const unitSummary = await callAndValidate(
+    activePromptCaller,
+    "unitSummaryDraft",
+    {
+      article,
+      source: sourceMap.source,
+      blocks: sourceMap.blocks,
+      unit: plannedUnit,
+      practicePlan,
+      questions
+    },
+    (output) =>
+      validateUnitSummaryDraftOutput(output, {
+        unitId: plannedUnit.id
+      })
+  );
+
+  return {
+    practicePlan,
+    unit: {
+      ...plannedUnit,
+      overview: unitSummary.overview,
+      questions,
+      summary: unitSummary.summary
+    }
+  };
+}
+
+async function mapWithConcurrency(items, concurrency, mapper) {
+  const limit = Math.max(1, Number.isInteger(concurrency) ? concurrency : 1);
+  const results = new Array(items.length);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < items.length) {
+      const currentIndex = nextIndex;
+      nextIndex += 1;
+      results[currentIndex] = await mapper(items[currentIndex], currentIndex);
+    }
+  }
+
+  const workerCount = Math.min(limit, items.length);
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  return results;
+}
+
+function limitPlannedUnits(plan, maxUnitCount) {
+  if (!Number.isInteger(maxUnitCount) || maxUnitCount <= 0) return plan;
+  if (!Array.isArray(plan?.units) || plan.units.length <= maxUnitCount) return plan;
+  return {
+    ...plan,
+    units: plan.units.slice(0, maxUnitCount),
+    generationConstraints: {
+      ...(plan.generationConstraints || {}),
+      originalUnitCount: plan.units.length,
+      maxUnitCount,
+      limitedBy: "V2_GENERATION_MAX_UNITS"
+    }
+  };
+}
+
+function readOptionalPositiveInt(value) {
+  if (value === undefined || value === null || value === "") return null;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
 async function callAndValidate(promptCaller, stage, payload, validator, { normalize = null } = {}) {
   const rawOutput = await promptCaller(stage, payload);
   const output = typeof normalize === "function" ? normalize(rawOutput) : rawOutput;
@@ -243,17 +308,34 @@ function normalizeDraftQuestionIds(output, questionPlans, questionType) {
   if (plans.length !== output.questions.length) return output;
 
   const knownPlanIds = new Set(plans.map((plan) => plan.id));
-  const needsNormalization = output.questions.some((question) => !knownPlanIds.has(question.id));
+  const plansById = new Map(plans.map((plan) => [plan.id, plan]));
+  const needsNormalization = output.questions.some((question, index) => {
+    const plan = plansById.get(question.id) || plans[index];
+    return (
+      !knownPlanIds.has(question.id) ||
+      !question.practiceGoalId ||
+      !question.sourceAnchorId ||
+      question.practiceGoalId !== plan.practiceGoalId ||
+      question.sourceAnchorId !== plan.sourceAnchorId
+    );
+  });
   if (!needsNormalization) return output;
 
   return {
     ...output,
     questions: output.questions.map((question, index) => ({
       ...question,
-      id: plans[index].id,
-      practiceGoalId: question.practiceGoalId || plans[index].practiceGoalId,
-      sourceAnchorId: question.sourceAnchorId || plans[index].sourceAnchorId
+      ...normalizeDraftQuestionIdentity(question, plans, plansById, index)
     }))
+  };
+}
+
+function normalizeDraftQuestionIdentity(question, plans, plansById, index) {
+  const plan = plansById.get(question.id) || plans[index];
+  return {
+    id: plan.id,
+    practiceGoalId: plan.practiceGoalId,
+    sourceAnchorId: plan.sourceAnchorId
   };
 }
 

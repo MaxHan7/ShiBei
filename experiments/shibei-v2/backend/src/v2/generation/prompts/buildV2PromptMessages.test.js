@@ -59,6 +59,10 @@ test("reviewPathPlan prompt separates chapter summary and unit summaries", () =>
   assert.match(messages.user, /sourceAnchor 必须包含稳定 id/);
   assert.match(messages.user, /sourceAnchor.blockIds/);
   assert.match(messages.user, /章节完成页鼓励文案/);
+  assert.match(messages.user, /不能用 section\/outline\/目录项\/骨架对象替代/);
+  assert.match(messages.user, /缺 nodeLabel、shortSummary、detailSummary、why 或 sourceAnchor/);
+  assert.match(messages.user, /最值得复习、能形成 evidence 的核心知识点/);
+  assert.match(messages.user, /通常保留 4-7 个高价值完整 unit/);
 });
 
 test("unitPracticePlan prompt uses evidence value instead of fixed question counts", () => {
