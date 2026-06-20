@@ -97,57 +97,51 @@ test("rejects source map output with duplicated source block ids", () => {
 });
 
 test("validates review path plans against known source block ids", () => {
-  const result = validateReviewPathPlanOutput(
-    {
-      title: "Hook 的工作流",
-      summaryCard: { text: "Hook 把关键动作变成稳定流程。" },
-      units: [
-        {
-          id: "unit-01",
-          order: 1,
-          title: "Hook 是什么",
-          nodeLabel: "流程控制",
-          shortSummary: "Hook 是流程控制器。",
-          detailSummary: "Hook 在关键动作前后加入规则、上下文和验证。",
-          why: "这是理解后续场景的基础。",
-          sourceAnchor: {
-            id: "anchor-unit-01",
-            blockIds: ["p-002"],
-            quote: "Hook 是关键动作前后的流程控制器。"
-          }
-        }
-      ],
-      chapterSummary: {
-        encouragementText: "你已经掌握了 Hook 作为流程约束的基本判断。"
-      }
-    },
-    { sourceBlockIds: new Set(["p-001", "p-002"]) }
-  );
+  const result = validateReviewPathPlanOutput(reviewPathPlanFixture(), {
+    sourceBlockIds: new Set(["p-001", "p-002"])
+  });
 
   assert.deepEqual(result, { ok: true, errors: [] });
 });
 
+test("rejects review path plans without a knowledge object map", () => {
+  const plan = reviewPathPlanFixture();
+  delete plan.knowledgeObjects;
+
+  const result = validateReviewPathPlanOutput(plan, {
+    sourceBlockIds: new Set(["p-001", "p-002"])
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /knowledgeObjects/);
+});
+
+test("rejects review path plans that merge multiple standalone knowledge objects into one unit", () => {
+  const plan = reviewPathPlanFixture();
+  plan.knowledgeObjects.push({
+    id: "ko-02",
+    title: "DMC 模型",
+    nodeLabel: "DMC 三层模型",
+    knowledgeShape: "layered_framework",
+    roleInArticle: "core_argument",
+    sourceBlockIds: ["p-002"],
+    boundaryDecision: "standalone_unit",
+    boundaryReason: "DMC 是独立分层模型，有自己的结构理解 evidence。"
+  });
+  plan.units[0].sourceKnowledgeObjectIds = ["ko-01", "ko-02"];
+
+  const result = validateReviewPathPlanOutput(plan, {
+    sourceBlockIds: new Set(["p-001", "p-002"])
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /must not merge multiple standalone knowledge objects/);
+});
+
 test("rejects review path plans that point anchors at missing source blocks", () => {
-  const result = validateReviewPathPlanOutput(
-    {
-      title: "Hook 的工作流",
-      summaryCard: { text: "Hook 把关键动作变成稳定流程。" },
-      units: [
-        {
-          id: "unit-01",
-          order: 1,
-          title: "Hook 是什么",
-          nodeLabel: "流程控制",
-          shortSummary: "Hook 是流程控制器。",
-          detailSummary: "Hook 在关键动作前后加入规则、上下文和验证。",
-          why: "这是理解后续场景的基础。",
-          sourceAnchor: { id: "anchor-unit-01", blockIds: ["missing-block"] }
-        }
-      ],
-      chapterSummary: { encouragementText: "继续向前。" }
-    },
-    { sourceBlockIds: new Set(["p-001"]) }
-  );
+  const plan = reviewPathPlanFixture();
+  plan.units[0].sourceAnchor = { id: "anchor-unit-01", blockIds: ["missing-block"] };
+  const result = validateReviewPathPlanOutput(plan, { sourceBlockIds: new Set(["p-001"]) });
 
   assert.equal(result.ok, false);
   assert.match(result.errors.join("\n"), /references missing source block missing-block/);
@@ -387,6 +381,45 @@ function unitPracticePlanFixture() {
         sourceAnchorId: "anchor-unit-01"
       }
     ]
+  };
+}
+
+function reviewPathPlanFixture() {
+  return {
+    title: "Hook 的工作流",
+    summaryCard: { text: "Hook 把关键动作变成稳定流程。" },
+    knowledgeObjects: [
+      {
+        id: "ko-01",
+        title: "Hook 是什么",
+        nodeLabel: "流程控制",
+        knowledgeShape: "core_concept",
+        roleInArticle: "core_argument",
+        sourceBlockIds: ["p-002"],
+        boundaryDecision: "standalone_unit",
+        boundaryReason: "Hook 是后续理解流程约束的独立核心概念。"
+      }
+    ],
+    units: [
+      {
+        id: "unit-01",
+        order: 1,
+        title: "Hook 是什么",
+        nodeLabel: "流程控制",
+        shortSummary: "Hook 是流程控制器。",
+        detailSummary: "Hook 在关键动作前后加入规则、上下文和验证。",
+        why: "这是理解后续场景的基础。",
+        sourceKnowledgeObjectIds: ["ko-01"],
+        sourceAnchor: {
+          id: "anchor-unit-01",
+          blockIds: ["p-002"],
+          quote: "Hook 是关键动作前后的流程控制器。"
+        }
+      }
+    ],
+    chapterSummary: {
+      encouragementText: "你已经掌握了 Hook 作为流程约束的基本判断。"
+    }
   };
 }
 

@@ -36,6 +36,9 @@ test("generates a contract-valid V2 review path from split prompt stages", async
   assert.equal(reviewPath.status, "completed");
   assert.equal(reviewPath.units.length, 1);
   assert.equal(reviewPath.units[0].questions.length, 2);
+  assert.equal(reviewPath.units[0].sourceKnowledgeObjectIds, undefined);
+  assert.equal(reviewPath.generationMeta.reviewPathPlan.knowledgeObjects.length, 1);
+  assert.deepEqual(reviewPath.generationMeta.reviewPathPlan.units[0].sourceKnowledgeObjectIds, ["ko-01"]);
   assert.deepEqual(
     reviewPath.units[0].questions.map((question) => question.type),
     ["multiple_choice", "matching"]
@@ -93,6 +96,29 @@ test("ECD selected tasks drive downstream practice plans and suppress model-inve
   assert.deepEqual(
     reviewPath.units[0].questions.map((question) => `${question.id}:${question.type}`),
     ["q-001:multiple_choice"]
+  );
+});
+
+test("fills matching relationType from ECD before validating practice plans", async () => {
+  const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
+    promptCaller: async (stage, payload) => {
+      if (stage === "unitPracticePlan") {
+        const plan = practicePlanFixture(payload.unit.id, payload.unit.sourceAnchor.id, { matching: true });
+        delete plan.questionPlans[1].relationType;
+        return plan;
+      }
+      return happyPathPromptCaller(stage, payload);
+    },
+    now: "2026-06-19T00:00:00.000Z"
+  });
+
+  assert.equal(
+    reviewPath.generationMeta.unitPracticePlans[0].questionPlans[1].relationType,
+    "responsibility"
+  );
+  assert.deepEqual(
+    reviewPath.units[0].questions.map((question) => `${question.id}:${question.type}`),
+    ["q-001:multiple_choice", "q-002:matching"]
   );
 });
 
@@ -339,6 +365,18 @@ async function happyPathPromptCaller(stage, payload, { matching = true } = {}) {
       summaryCard: {
         text: "这篇文章解释 Hook 如何把 AI 工作流里的关键动作变成稳定流程。"
       },
+      knowledgeObjects: [
+        {
+          id: "ko-01",
+          title: "Hook 是什么",
+          nodeLabel: "流程控制",
+          knowledgeShape: "core_concept",
+          roleInArticle: "core_argument",
+          sourceBlockIds: ["p-001", "p-002"],
+          boundaryDecision: "standalone_unit",
+          boundaryReason: "Hook 是理解后续自动化边界的独立核心概念。"
+        }
+      ],
       units: [
         {
           id: "unit-01",
@@ -348,6 +386,7 @@ async function happyPathPromptCaller(stage, payload, { matching = true } = {}) {
           shortSummary: "Hook 是关键动作前后的流程控制器。",
           detailSummary: "Hook 不是更长提示词，而是在关键动作前后稳定执行规则、上下文和验证的流程约束。",
           why: "这是理解后续自动化边界的基础。",
+          sourceKnowledgeObjectIds: ["ko-01"],
           sourceAnchor: {
             id: "anchor-unit-01",
             blockIds: ["p-001", "p-002"],

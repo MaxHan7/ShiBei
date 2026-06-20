@@ -18,7 +18,9 @@
 - 当前阶段顺序为：`sourceMap -> reviewPathPlan -> ecdPlanning -> unitPracticePlan -> multipleChoiceDraft / matchingDraft -> unitSummaryDraft -> qualityJudge`。
 - `ecdPlanning` 输出已经写入 `generationMeta.ecdPlanning`，并在 V2 HTML 质量报告中展示。
 - `ecdPlanning.unitAssemblyPlan.selectedTasks` 已经开始驱动 `unitPracticePlan` 的题型计划。`unitPracticePlan` 目前是过渡 adapter：把 ECD selectedTasks 转成现有 `practiceGoals` 和 `questionPlans`，同时保持前端可见字段合同稳定。
-- 下一步不应让 `unitPracticePlan` 重新选择题型，而应继续强化上游 `reviewPathPlan` / `knowledgeModel` 的知识点切分，以及 `ecdPlanning` 对 matching 关系强度的判断。
+- `reviewPathPlan.knowledgeObjects[]` 已作为低风险边界保护补丁落地。它要求模型先列知识对象，再决定 visible unit，并阻止一个 unit 合并多个 `standalone_unit` 知识对象。
+- 2026-06-20 知识对象边界实验显示：DMC 已从“游戏化核心概念”中重新拆出为独立 `layered_framework` unit，并生成专门的层级职责 matching 题。
+- 下一步不应让 `unitPracticePlan` 重新选择题型，也不应回退到固定题量；应继续检查 ECD `selectedTasks` 对每个 standalone unit 的 evidence 覆盖是否足够，尤其是一题 unit 是否真的已经覆盖关键 learning claim。
 
 ## Files
 

@@ -63,6 +63,11 @@ test("reviewPathPlan prompt separates chapter summary and unit summaries", () =>
   assert.match(messages.user, /缺 nodeLabel、shortSummary、detailSummary、why 或 sourceAnchor/);
   assert.match(messages.user, /最值得复习、能形成 evidence 的核心知识点/);
   assert.match(messages.user, /通常保留 4-7 个高价值完整 unit/);
+  assert.match(messages.user, /knowledgeObjects/);
+  assert.match(messages.user, /先列知识对象，再决定 unit/);
+  assert.match(messages.user, /standalone_unit/);
+  assert.match(messages.user, /DMC 模型/);
+  assert.match(messages.user, /不能把相关但独立的知识对象合并/);
 });
 
 test("unitPracticePlan prompt uses evidence value instead of fixed question counts", () => {
@@ -81,6 +86,8 @@ test("unitPracticePlan prompt uses evidence value instead of fixed question coun
   assert.match(messages.user, /selectedTasks/);
   assert.match(messages.user, /不要重新选择题型/);
   assert.match(messages.user, /questionPlan.id 必须等于 selectedTask.questionPlanId/);
+  assert.match(messages.user, /questionPlan.type 为 matching 时，必须填写 relationType/);
+  assert.match(messages.user, /layer_role_matching \/ role_responsibility_matching 通常是 responsibility/);
   assert.match(messages.user, /避免空泛“名词 -> 定义\/贡献\/描述”的机械配对/);
 });
 

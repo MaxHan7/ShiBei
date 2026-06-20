@@ -18,13 +18,15 @@
 - 旧 `unitPracticePlan` 仍作为过渡 adapter 保留：它把 ECD 的 `selectedTasks` 转成现有 `practiceGoals` 和 `questionPlans`，从而保持 SwiftUI 可见字段合同稳定。
 - 如果 ECD 只选择 matching，则跳过 `multipleChoiceDraft`；如果 ECD 不选择 matching，则跳过 `matchingDraft`。模型额外发明的 `questionPlans` 会被过滤掉。
 - 当前前端只支持 `multiple_choice` 和 `matching`。ECD 中暂未落地的 future affordance 会在过渡期映射为 `multiple_choice`，后续如果新增题型，再单独扩展前端合同。
+- `reviewPathPlan.knowledgeObjects[]` 已作为 Domain Modeling 的上游知识对象地图接入。它先保护知识边界，再生成 `units[]`，避免把两个本应独立考察的知识对象合并成一个 unit。
+- `units[].sourceKnowledgeObjectIds` 是内部追踪字段，会保留在 `generationMeta.reviewPathPlan.units[]` 中用于质量报告和调试，但不会暴露到 SwiftUI 正式 `units[]` 合同。
 
 ## 总览
 
 | ECD 层级 | 后端阶段草案 | 主要字段 | 前端可见 | 质量报告可见 |
 | --- | --- | --- | --- | --- |
 | Domain Analysis | `articleUnderstanding` | `coreThesis`、`articleStructure`、`nonReviewableSections` | 部分可见为章节概要 | 是 |
-| Domain Modeling | `knowledgeModel` | `unitId`、`title`、`nodeLabel`、`knowledgeShape`、`sourceAnchorId` | 部分可见 | 是 |
+| Domain Modeling | `reviewPathPlan.knowledgeObjects`、`knowledgeModel` | `knowledgeObjectId`、`boundaryDecision`、`unitId`、`title`、`nodeLabel`、`knowledgeShape`、`sourceAnchorId` | 部分可见 | 是 |
 | Student Model | `unitLearningClaims` | `claimType`、`learningClaim` | 否 | 是 |
 | Evidence Model | `unitEvidenceNeeds` | `evidenceType`、`evidenceNeed`、`observableResponse` | 否 | 是 |
 | Task Model | `unitTaskPlan` | `taskPurpose`、`taskAffordance`、`whyThisTask` | 否 | 是 |
@@ -75,6 +77,35 @@ ECD 对应：`Domain Analysis`
 ECD 对应：`Domain Modeling`
 
 作用：把文章内容建模成可复习 unit。
+
+在生成 `knowledgeModel.units[]` 之前，先生成 `reviewPathPlan.knowledgeObjects[]`。它不是前端页面字段，而是用来保护知识边界的内部地图：
+
+```json
+{
+  "knowledgeObjects": [
+    {
+      "id": "ko_3",
+      "title": "DMC模型：游戏元素的金字塔结构",
+      "nodeLabel": "DMC模型",
+      "knowledgeShape": "layered_framework",
+      "roleInArticle": "core_argument",
+      "sourceBlockIds": ["p-025", "p-026"],
+      "boundaryDecision": "standalone_unit",
+      "boundaryReason": "DMC 是独立分层模型，有自己的证据关系和自然连线题价值。"
+    }
+  ]
+}
+```
+
+`boundaryDecision` 的含义：
+
+| 值 | 含义 |
+| --- | --- |
+| `standalone_unit` | 这个知识对象有独立 claim/evidence/task 价值，应成为或支撑一个独立 unit。 |
+| `merge_fragment` | 这个知识对象只是另一个 unit 的组成片段，可合并。 |
+| `context_only` | 只作为上下文，不强行出题。 |
+
+规则：一个 visible unit 不应合并多个 `standalone_unit` 知识对象。比如“游戏化定义”和“DMC 模型”虽然相关，但如果 DMC 有独立的分层结构和匹配价值，就必须保留为独立 unit。
 
 建议 schema：
 

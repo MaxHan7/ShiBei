@@ -114,6 +114,7 @@ export async function generateReviewPathV2(
     ...(plan.generationConstraints ? { generationConstraints: plan.generationConstraints } : {}),
     generationMeta: {
       currentStage: "completed",
+      reviewPathPlan: stripReviewPathPlanForMetadata(plan),
       stages: V2_GENERATION_STAGES.map((stage) => ({
         status: stage,
         displayStatusText: stageDisplayText(stage),
@@ -163,15 +164,9 @@ async function generateUnitReviewContent({
   plannedUnit,
   ecdContext
 }) {
-  const rawPracticePlan = await callAndValidate(
-    activePromptCaller,
+  const rawPracticePlan = await activePromptCaller(
     "unitPracticePlan",
-    { article, source: sourceMap.source, blocks: sourceMap.blocks, unit: plannedUnit, ecdContext },
-    (output) =>
-      validateUnitPracticePlanOutput(output, {
-        unitId: plannedUnit.id,
-        sourceAnchorId: plannedUnit.sourceAnchor.id
-      })
+    { article, source: sourceMap.source, blocks: sourceMap.blocks, unit: plannedUnit, ecdContext }
   );
   const practicePlan = alignPracticePlanWithEcdContext(rawPracticePlan, {
     ecdContext,
@@ -267,11 +262,34 @@ async function generateUnitReviewContent({
   return {
     practicePlan,
     unit: {
-      ...plannedUnit,
+      ...stripInternalPlannedUnitFields(plannedUnit),
       overview: unitSummary.overview,
       questions,
       summary: unitSummary.summary
     }
+  };
+}
+
+function stripInternalPlannedUnitFields(unit) {
+  const { sourceKnowledgeObjectIds, ...publicUnit } = unit;
+  return publicUnit;
+}
+
+function stripReviewPathPlanForMetadata(plan) {
+  return {
+    title: plan.title,
+    summaryCard: plan.summaryCard,
+    knowledgeObjects: plan.knowledgeObjects ?? [],
+    units: (plan.units ?? []).map((unit) => ({
+      id: unit.id,
+      order: unit.order,
+      title: unit.title,
+      nodeLabel: unit.nodeLabel,
+      sourceKnowledgeObjectIds: unit.sourceKnowledgeObjectIds ?? [],
+      sourceAnchor: unit.sourceAnchor
+    })),
+    chapterSummary: plan.chapterSummary,
+    ...(plan.generationConstraints ? { generationConstraints: plan.generationConstraints } : {})
   };
 }
 
