@@ -33,6 +33,14 @@ export const V2_GENERATION_STAGES = [
   "qualityJudge"
 ];
 
+export function activeV2GenerationStages({ qualityJudgeEnabled = false } = {}) {
+  return V2_GENERATION_STAGES.filter((stage) => {
+    if (stage === "unitPracticePlan") return false;
+    if (stage === "qualityJudge") return qualityJudgeEnabled;
+    return true;
+  });
+}
+
 export async function generateReviewPathV2(
   article,
   {
@@ -41,6 +49,7 @@ export async function generateReviewPathV2(
     modelUsageRecorder = null,
     maxUnitCount = readOptionalPositiveInt(process.env.V2_GENERATION_MAX_UNITS),
     unitConcurrency = readOptionalPositiveInt(process.env.V2_GENERATION_UNIT_CONCURRENCY) ?? 1,
+    qualityJudgeEnabled = readOptionalBoolean(process.env.V2_ENABLE_QUALITY_JUDGE) ?? false,
     sourceMapMode = process.env.V2_SOURCE_MAP_MODE || "model",
     now = new Date().toISOString()
   } = {}
@@ -144,7 +153,7 @@ export async function generateReviewPathV2(
       currentStage: "completed",
       reviewPathPlan: stripReviewPathPlanForMetadata(plan),
       unitKnowledgeMap,
-      stages: V2_GENERATION_STAGES.map((stage) => ({
+      stages: activeV2GenerationStages({ qualityJudgeEnabled }).map((stage) => ({
         status: stage,
         displayStatusText: stageDisplayText(stage),
         at: now
@@ -156,11 +165,13 @@ export async function generateReviewPathV2(
 
   const deterministicQuality = runV2QualityGuardrails(draftReviewPath);
 
-  const { judge, judgeError } = await runOptionalQualityJudge({
-    activePromptCaller,
-    article,
-    draftReviewPath
-  });
+  const { judge, judgeError } = qualityJudgeEnabled
+    ? await runOptionalQualityJudge({
+        activePromptCaller,
+        article,
+        draftReviewPath
+      })
+    : { judge: skippedQualityJudge(), judgeError: null };
 
   draftReviewPath.generationMeta.qualityJudge = judge;
   if (judgeError) {
@@ -168,8 +179,9 @@ export async function generateReviewPathV2(
   }
   draftReviewPath.generationMeta.qualityDiagnostics = deterministicQuality.diagnostics;
   draftReviewPath.generationMeta.qualityGate = {
-    mode: "diagnostic_only",
+    mode: qualityJudgeEnabled ? "diagnostic_only" : "deterministic_only",
     blocking: false,
+    qualityJudgeEnabled,
     deterministicVerdict: deterministicQuality.verdict,
     deterministicIssueCount: deterministicQuality.issues.length,
     judgeVerdict: judge.verdict,
@@ -253,6 +265,14 @@ async function runOptionalQualityJudge({
       }
     };
   }
+}
+
+function skippedQualityJudge() {
+  return {
+    verdict: "skipped",
+    issues: [],
+    summary: "qualityJudge 默认停用；本轮只保留 deterministic guardrails 和 HTML 报告诊断。"
+  };
 }
 
 async function generateUnitReviewContent({
@@ -571,6 +591,14 @@ function readOptionalPositiveInt(value) {
   if (value === undefined || value === null || value === "") return null;
   const parsed = Number.parseInt(value, 10);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+function readOptionalBoolean(value) {
+  if (value === undefined || value === null || value === "") return null;
+  const normalized = String(value).trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(normalized)) return true;
+  if (["0", "false", "no", "off"].includes(normalized)) return false;
+  return null;
 }
 
 function buildDeterministicSourceMap(article) {

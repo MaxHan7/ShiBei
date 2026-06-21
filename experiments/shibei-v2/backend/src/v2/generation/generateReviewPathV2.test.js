@@ -3,8 +3,8 @@ import test from "node:test";
 
 import { validateReviewPathV2 } from "../contracts/reviewPathContract.js";
 import {
-  generateReviewPathV2,
-  V2_GENERATION_STAGES
+  activeV2GenerationStages,
+  generateReviewPathV2
 } from "./generateReviewPathV2.js";
 
 const ARTICLE_INPUT = {
@@ -29,7 +29,7 @@ test("generates a contract-valid V2 review path from split prompt stages", async
 
   assert.deepEqual(
     calls.map((call) => call.stage),
-    V2_GENERATION_STAGES.filter((stage) => stage !== "unitPracticePlan")
+    activeV2GenerationStages()
   );
   assert.equal(reviewPath.schemaVersion, "v2_review_path_1");
   assert.equal(reviewPath.id, ARTICLE_INPUT.id);
@@ -57,11 +57,12 @@ test("generates a contract-valid V2 review path from split prompt stages", async
   assert.deepEqual(reviewPath.generationMeta.unitPracticePlans[0].questionPlans[1].angleIds, ["angle-002"]);
   assert.equal(reviewPath.generationMeta.qualityDiagnostics.length, 2);
   assert.deepEqual(reviewPath.generationMeta.qualityGate, {
-    mode: "diagnostic_only",
+    mode: "deterministic_only",
     blocking: false,
+    qualityJudgeEnabled: false,
     deterministicVerdict: "pass",
     deterministicIssueCount: 0,
-    judgeVerdict: "pass",
+    judgeVerdict: "skipped",
     judgeIssueCount: 0
   });
   assert.deepEqual(validateReviewPathV2(reviewPath), {
@@ -180,8 +181,7 @@ test("skips matchingDraft when ECD assembly does not select matching", async () 
     "unitKnowledgeMap",
     "ecdPlanning",
     "multipleChoiceDraft",
-    "unitSummaryDraft",
-    "qualityJudge"
+    "unitSummaryDraft"
   ]);
   assert.deepEqual(
     reviewPath.units[0].questions.map((question) => question.type),
@@ -261,12 +261,14 @@ test("keeps generated questions when quality judge revises in diagnostic-only mo
         }
       ]
     }),
+    qualityJudgeEnabled: true,
     now: "2026-06-19T00:00:00.000Z"
   });
 
   assert.equal(reviewPath.status, "completed");
   assert.equal(reviewPath.units[0].questions.length, 2);
   assert.equal(reviewPath.generationMeta.qualityJudge.verdict, "revise");
+  assert.equal(reviewPath.generationMeta.qualityGate.qualityJudgeEnabled, true);
   assert.equal(reviewPath.generationMeta.qualityGate.blocking, false);
   assert.equal(reviewPath.generationMeta.qualityGate.judgeIssueCount, 1);
 });
@@ -283,6 +285,7 @@ test("keeps generated questions when quality judge JSON fails in diagnostic-only
       }
       return happyPathPromptCaller(stage, payload);
     },
+    qualityJudgeEnabled: true,
     now: "2026-06-19T00:00:00.000Z"
   });
 
@@ -373,7 +376,7 @@ test("uses a default prompt caller factory when promptCaller is omitted", async 
     now: "2026-06-19T00:00:00.000Z"
   });
 
-  assert.deepEqual(stages, V2_GENERATION_STAGES.filter((stage) => stage !== "unitPracticePlan"));
+  assert.deepEqual(stages, activeV2GenerationStages());
   assert.equal(reviewPath.status, "completed");
 });
 

@@ -15,7 +15,7 @@
 - `unitKnowledgeMap.js` 是第二轮结构重构新增的内部 micro knowledge inventory schema。它只负责拆每个 unit 内部的小知识点，不生成题目、不选择题型、不做 selectedTasks。
 - `ecdPlanning.js` 是代码级 ECD 内部规划 schema 模块。它现在消费 `unitKnowledgeMap`，再生成 learning claims、evidence angles、evidence needs、task plans 和 assembly。
 - 2026-06-21 更新：`ecdPlanning` 已改成 **逐 unit 运行**，再由编排层合并为 `generationMeta.ecdPlanning`。这样避免把 6 个 unit 的 ECD 证据规划塞进一个巨型 JSON，减少模型输出截断，同时也让每个 unit 的 evidence 设计更像 ECD 的独立任务模型。
-- 当前真实 V2 orchestration：`sourceMap -> reviewPathPlan -> unitKnowledgeMap -> per-unit ecdPlanning -> deterministic unitPracticePlan adapter -> multipleChoiceDraft / matchingDraft -> unitSummaryDraft -> optional qualityJudge`。
+- 当前真实 V2 orchestration：`sourceMap -> reviewPathPlan -> unitKnowledgeMap -> per-unit ecdPlanning -> deterministic unitPracticePlan adapter -> multipleChoiceDraft / matchingDraft -> unitSummaryDraft`。`qualityJudge` 已从默认主链路移除，只在显式设置 `V2_ENABLE_QUALITY_JUDGE=1` 时作为后续 A/B 实验阶段运行。
 - `unitKnowledgeMap` 输出会写入 `generationMeta.unitKnowledgeMap`，并展示在 V2 HTML 质量报告中，用来人工检查每个 unit 内部的小知识点是否先被完整发现。
 - `ecdPlanning` 输出会写入 `generationMeta.ecdPlanning`，并展示在 V2 HTML 质量报告中，用于人工检查模型是否先建立了学习主张、证据需求、任务计划和组装理由。
 - `ecdPlanning.unitAssemblyPlan[].selectedTasks` 现在已经驱动下游 `unitPracticePlan`：编排层会把当前 unit 的 `microKnowledgePoints`、`knowledgeUnit`、`learningClaims`、`evidenceAngles`、`evidenceNeeds`、`taskPlans`、`assemblyPlan` 作为 `ecdContext` 传入后续阶段。
@@ -30,7 +30,7 @@
 - `unitTaskPlan[].angleIds[]` 和 `unitAssemblyPlan[].selectedTasks[].angleIds[]` 已加入代码级 schema。`required` angle 必须被 selected task 覆盖。
 - V2 HTML 质量报告已展示 Coverage Matrix 和 Angle Coverage Matrix，用来人工检查每个 sub-objective、claim、angle、evidence 和 selected task 的覆盖关系。
 - 2026-06-21 prompt 减重方向：schema 保持稳定，但 prompt 不再把教学质量主要写成“不要/避免/跳过”。工程合同继续硬约束；教学判断改成正向证据目标，例如掌握证据组合、高价值 supporting angle、selectedTasks 不以最低覆盖为目标。
-- 2026-06-21 质量诊断策略：`qualityJudge` 仍会运行，但处于 diagnostic-only；如果模型 JSON 失败，不再阻断完整题目输出，而是写入 `generationMeta.qualityJudgeError` 和质量报告的模型调用记录。
+- 2026-06-21 质量诊断策略：默认停用模型型 `qualityJudge`，避免一个超长的后置审查阶段制造 JSON 解析失败和 token 压力。当前主链路只保留 deterministic guardrails 与 HTML 报告诊断；`generationMeta.qualityGate.mode` 默认为 `deterministic_only`，`qualityJudge.verdict` 记录为 `skipped`。后续如果要比较“无审查 / per-unit 审查 / 质量改写角色”的效果，再用 `V2_ENABLE_QUALITY_JUDGE=1` 或新实验分支显式打开。
 
 ## 总览
 

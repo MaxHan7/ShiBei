@@ -235,7 +235,7 @@ Implementation changes:
 
 - Added `unitKnowledgeMap` as a protected micro knowledge inventory stage.
 - Changed `ecdPlanning` from one all-units global JSON output to per-unit ECD planning, then merged the results.
-- Kept `qualityJudge` diagnostic-only. If it fails to produce valid JSON, the generated questions are still preserved and `qualityJudgeError` is recorded.
+- At this checkpoint `qualityJudge` was still diagnostic-only. The next checkpoint changes this default because the full-path judge adds a large extra model call.
 - Added model-call diagnostics to the V2 quality report so failed reports show the exact model stage and parse preview.
 
 ### Failed Attempts Before the Fix
@@ -282,3 +282,47 @@ Remaining issues are now downstream draft-quality issues, not macro architecture
 - one weak distractor set in `unit-6`
 
 Next iteration should focus on compact distractor quality and explanation wording. It should not add another macro layer until these downstream draft issues are reviewed.
+
+## 2026-06-21 Disable Default Quality Judge
+
+### What Changed
+
+The V2 main generation path now skips the model-based `qualityJudge` by default:
+
+```text
+sourceMap
+  -> reviewPathPlan
+  -> unitKnowledgeMap
+  -> per-unit ecdPlanning
+  -> deterministic unitPracticePlan adapter
+  -> visible question drafts
+  -> deterministic guardrails + HTML diagnostics
+```
+
+`qualityJudge` can still be enabled explicitly with `V2_ENABLE_QUALITY_JUDGE=1` for a future A/B experiment, but it should not run as part of the default chain.
+
+Rationale:
+
+- The full-path judge reads the entire generated review path, which creates a very large prompt after ECD fields were added.
+- It is a post-generation reviewer, not the source of question quality. The current product goal is to inspect all generated questions, not silently rely on a judge stage.
+- It adds another JSON-generation failure surface. If we later test a quality repair role, it should be measured separately against a no-repair baseline.
+
+### Verification
+
+- Code test: `npm --prefix experiments/shibei-v2/backend run check`
+- Result: 203 tests passed.
+- Default `generationMeta.qualityGate.mode`: `deterministic_only`
+- Default `generationMeta.qualityJudge.verdict`: `skipped`
+- Explicit judge mode remains covered by tests with `qualityJudgeEnabled: true`.
+
+### Live Quality Run Attempt
+
+Two live DeepSeek quality smoke runs were attempted after this change:
+
+- `V2_GENERATION_MAX_UNITS=6`, label `v2-no-quality-judge-max6`
+- `V2_GENERATION_MAX_UNITS=2`, label `v2-no-quality-judge-max2-smoke`
+- `V2_GENERATION_MAX_UNITS=1`, label `v2-no-quality-judge-max1-timeout20s`
+
+They were manually interrupted because the CLI runner produced no stage progress output and did not finish within the expected smoke-test window. No new quality JSON/HTML artifact was recorded from these interrupted runs.
+
+This is an engineering observability issue, not a quality conclusion. Before the next long live experiment, the runner should expose stage-level progress and/or an experiment-level timeout so a stuck model request is visible immediately.

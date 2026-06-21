@@ -659,7 +659,7 @@ sourceMap
 
 这个调整更符合 ECD 的 task model 思路：每个 unit 都有自己的 learning claims、evidence angles、evidence needs 和 selected tasks。全局阶段负责切分知识边界，逐 unit 阶段负责设计证据任务。这样可以避免全局 planning 反向压缩 unit 内部的小知识点，也能避免单次模型输出过大。
 
-质量诊断也相应调整：`qualityJudge` 保留为 diagnostic-only。如果它自身 JSON 失败，不阻断完整题目输出，而是记录 `qualityJudgeError`，因为当前阶段的目标是先观察全部题目和 ECD 结构，再讨论是否加入独立的质量改写角色。
+质量诊断也相应调整：模型型 `qualityJudge` 默认从主链路停用。原因是它需要读取完整 review path，容易形成超长 JSON 输入和一次额外的结构化输出风险；当前阶段的目标是先观察完整题目和 ECD 结构，而不是让后置审查员替主链路兜底。主链路继续保留 deterministic guardrails 和 HTML 报告诊断；如果后续要验证质量审查或质量改写角色是否有效，应作为显式 A/B 实验开启，而不是混在默认生成链路里。
 
 ### 后续文档化要求
 
