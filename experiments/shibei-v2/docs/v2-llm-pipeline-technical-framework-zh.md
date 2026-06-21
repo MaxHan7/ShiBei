@@ -120,6 +120,104 @@ Adapter                 -> structured output caller + schema validator
 
 - `v2-llm-stage-contracts-zh.md`：定义每个 V2 LLM stage 的 signature、输入输出、source context 策略、禁止职责、指标和当前实现差距。
 
+## 2026-06-21：对照 DSPy 后的架构校准
+
+最近几轮实验给了一个很清楚的信号：**不能把 DSPy-style 理解成“把阶段越拆越多”或“把所有中间思考都写成 JSON”**。DSPy 的核心不是多调用，也不是重 JSON，而是：
+
+```text
+清晰 signature
+  -> 单一职责 module
+  -> adapter 负责格式化/解析
+  -> metric 负责判断好坏
+  -> optimizer/eval 负责迭代，而不是手写补丁越堆越多
+```
+
+这对当前问题的判断如下。
+
+### 1. JSON 不稳定：不是靠写更多格式要求解决，而是缩小 signature
+
+DSPy 把 signature 定义为输入字段到输出字段的转换。当前 `questionDraftBatch` 能跑通，但一次输出全章所有题，导致 completion 很大、retry 变多、总 token 上升。这说明它的 signature 粒度过粗：
+
+```text
+AllUnitQuestionPlans + AllUnitContexts -> AllQuestions
+```
+
+这不是理想 DSPy-style module。更合适的是按语义边界拆成中等粒度：
+
+```text
+AllMCPlans + RelevantUnitContexts -> MultipleChoiceQuestions
+AllMatchingPlans + RelevantUnitContexts -> MatchingQuestions
+AllUnitCopyInputs -> UnitCopy
+```
+
+这样不是回到 per-unit 细碎调用，也不是一个超大 JSON，而是在“稳定结构化输出”和“减少重复 context”之间取中间点。
+
+### 2. Token 成本上升：调用数不是唯一指标，metric 必须同时看成本和质量
+
+DSPy 的 optimizer 不是单纯减少调用次数，而是用 metric 比较 program 质量。对拾贝来说，下一轮每个架构 checkpoint 至少同时看：
+
+- JSON 成功率 / retry 次数。
+- total tokens。
+- stage latency。
+- unit 覆盖。
+- micro 知识点覆盖。
+- matching 数量与关系价值。
+- 人工质量判断。
+
+如果调用数下降但 token、retry、题型覆盖变差，这不是有效优化。`v2-batched-draft-compact-brief-max6` 就属于这种情况：成功调用从 16 降到 5，但 total tokens 从约 85k 升到约 109k，matching 从 3 降到 1。
+
+### 3. ECD 的位置：是 module 内的设计准则，不是独立重型输出
+
+ECD 应该被嵌入每个 module 的少量关键规则里：
+
+- `unitKnowledgeMap`：拆出可考察的小知识点。
+- `taskBriefPlan`：把小知识点映射到可观察掌握证据与题型任务。
+- `QuestionDraft`：让题干、干扰项和解释服务于证据目标。
+
+不应该把完整 ECD 论文式字段输出成一大段 JSON。当前 `taskBriefPlan` 的 compact contract 是正确方向：只保留下游生成题目真正需要的 `practiceGoals / questionPlans / microIds`。
+
+### 4. Adapter 的职责：格式和解析属于 runtime，不属于 prompt 补丁
+
+DSPy 里 adapter 负责把 signature 和字段渲染成模型消息，再把输出解析回结构化字段。拾贝对应：
+
+```text
+model raw response
+  -> JSON parse
+  -> schema validation
+  -> normalization
+  -> runtime diagnostics
+```
+
+因此当出现 provider 空返回、JSON 截断、parse error，不应第一反应就在 prompt 里继续加“必须输出 JSON”。正确方向是：
+
+- 缩小该 stage 的输出面。
+- 缩短字段。
+- 给 schema 更窄的字段集合。
+- 让 runtime 记录失败类型和重试。
+
+### 5. Optimizer 的现实版：先用人工 eval 模拟 DSPy compile
+
+现在不迁移 Python DSPy runtime，所以暂时没有自动 optimizer。但可以用 DSPy 的思想做“人工 compile loop”：
+
+1. 固定 golden article / golden assertions。
+2. 修改一个 module 的 signature 或 prompt。
+3. 跑质量实验。
+4. 记录 metric。
+5. 决定保留、回滚或继续拆分。
+
+这就是当前 `quality-runs` + README 的意义。后续如果样本集稳定，可以再考虑把这套 eval 做成更自动的 optimizer-like loop。
+
+### 对下一轮代码的直接约束
+
+下一轮不要继续叠一个更大的 prompt，也不要把 ECD 再输出成重 JSON。按 DSPy-style，优先做：
+
+1. 保留 compact `taskBriefPlan`。
+2. 拆掉单个超大的 `questionDraftBatch`。
+3. 新增中等粒度的 `multipleChoiceDraftBatch` 和 `matchingDraftBatch`。
+4. 保留 `unitCopyBatch`。
+5. 每个 batch stage 都有独立 signature、schema、validator、prompt text test 和质量指标。
+6. 每轮只比较一个架构变化，不混入新的教学规则补丁。
+
 ## DSPy-style 到拾贝 V2 的具体技术标准
 
 为了避免又回到泛泛讨论，后续每个阶段都应按照以下模板定义。
