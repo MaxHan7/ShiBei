@@ -1,0 +1,155 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-21T16:49:57.851Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-runtime-reliability-max6-rerun",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11365
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 0,
+    "diagnosticIssueCount": 0,
+    "runtimeFailedAttemptCount": 3,
+    "runtimeRetryAttemptCount": 2
+  },
+  "chapter": null,
+  "unitKnowledgeMap": null,
+  "ecdPlanning": null,
+  "sourceContextStats": null,
+  "stageRuntime": {
+    "schemaVersion": "v2_stage_runtime_1",
+    "callCount": 1,
+    "attemptCount": 3,
+    "failedAttemptCount": 3,
+    "retryAttemptCount": 2,
+    "stages": [
+      {
+        "stage": "v2_sourceMap",
+        "callCount": 1,
+        "successCallCount": 0,
+        "failedCallCount": 1,
+        "attemptCount": 3,
+        "retryAttemptCount": 2,
+        "transientFailureCount": 3,
+        "totalDurationMs": 174915,
+        "errorTypes": {
+          "empty_structured_text": 3
+        },
+        "lastErrorType": "empty_structured_text",
+        "lastErrorMessage": "DeepSeek 没有返回结构化文本。"
+      }
+    ],
+    "attempts": [
+      {
+        "callId": "sourceMap-1",
+        "stage": "v2_sourceMap",
+        "modelStage": "sourceMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 59738,
+        "retryable": true,
+        "errorType": "empty_structured_text",
+        "errorMessage": "DeepSeek 没有返回结构化文本。"
+      },
+      {
+        "callId": "sourceMap-1",
+        "stage": "v2_sourceMap",
+        "modelStage": "sourceMap",
+        "attempt": 2,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 57385,
+        "retryable": true,
+        "errorType": "empty_structured_text",
+        "errorMessage": "DeepSeek 没有返回结构化文本。"
+      },
+      {
+        "callId": "sourceMap-1",
+        "stage": "v2_sourceMap",
+        "modelStage": "sourceMap",
+        "attempt": 3,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 57792,
+        "retryable": false,
+        "errorType": "empty_structured_text",
+        "errorMessage": "DeepSeek 没有返回结构化文本。"
+      }
+    ]
+  },
+  "qualityDiagnostics": [],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_sourceMap",
+      "estimatedOutputTokens": 7600,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 6109,
+        "completion_tokens": 7600,
+        "total_tokens": 13709,
+        "prompt_cache_hit_tokens": 6016,
+        "prompt_cache_miss_tokens": 93
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_sourceMap",
+      "estimatedOutputTokens": 7600,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 6109,
+        "completion_tokens": 7600,
+        "total_tokens": 13709,
+        "prompt_cache_hit_tokens": 6016,
+        "prompt_cache_miss_tokens": 93
+      }
+    },
+    {
+      "index": 3,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_sourceMap",
+      "estimatedOutputTokens": 7600,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 6109,
+        "completion_tokens": 7600,
+        "total_tokens": 13709,
+        "prompt_cache_hit_tokens": 6016,
+        "prompt_cache_miss_tokens": 93
+      }
+    }
+  ],
+  "failure": {
+    "failedStage": "v2_sourceMap",
+    "failureReason": "DeepSeek 没有返回结构化文本。",
+    "retryable": true,
+    "modelStage": "sourceMap",
+    "retryAttempts": 3,
+    "issues": [],
+    "errors": [],
+    "diagnostics": []
+  }
+}

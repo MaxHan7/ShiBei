@@ -168,3 +168,83 @@ export function validateUnitKnowledgeMapOutput(output, { unitIds = new Set(), so
 
   return createValidationResult(errors);
 }
+
+export function normalizeUnitKnowledgeMapOutput(output) {
+  if (!isPlainObject(output) || !Array.isArray(output.units)) return output;
+
+  return {
+    ...output,
+    units: output.units.map((unit) => {
+      if (!isPlainObject(unit) || !Array.isArray(unit.microKnowledgePoints)) return unit;
+      return {
+        ...unit,
+        microKnowledgePoints: unit.microKnowledgePoints.map((micro) => normalizeMicroKnowledgePoint(micro))
+      };
+    })
+  };
+}
+
+function normalizeMicroKnowledgePoint(micro) {
+  if (!isPlainObject(micro)) return micro;
+  const normalizedRole = normalizeMicroRole(micro.role);
+  const normalizedAssessmentValue = normalizeAssessmentValue(micro.assessmentValue);
+  return {
+    ...micro,
+    ...(micro.role !== normalizedRole ? { rawRole: micro.role } : {}),
+    ...(micro.assessmentValue !== normalizedAssessmentValue ? { rawAssessmentValue: micro.assessmentValue } : {}),
+    role: normalizedRole,
+    assessmentValue: normalizedAssessmentValue,
+    suggestedEvidenceAngles: Array.isArray(micro.suggestedEvidenceAngles)
+      ? micro.suggestedEvidenceAngles
+      : []
+  };
+}
+
+function normalizeMicroRole(value) {
+  if (MICRO_KNOWLEDGE_ROLES.includes(value)) return value;
+  const normalized = String(value || "").trim().toLowerCase();
+  if (!normalized) return "relationship";
+  if (normalized.includes("definition") || normalized.includes("concept") || normalized.includes("概念") || normalized.includes("定义")) {
+    return "definition";
+  }
+  if (normalized.includes("boundary") || normalized.includes("limit") || normalized.includes("边界")) {
+    return "boundary";
+  }
+  if (normalized.includes("layer") || normalized.includes("model") || normalized.includes("层")) {
+    return "model_layer";
+  }
+  if (normalized.includes("mechanism") || normalized.includes("cause") || normalized.includes("effect") || normalized.includes("机制") || normalized.includes("因果")) {
+    return "mechanism";
+  }
+  if (normalized.includes("process") || normalized.includes("step") || normalized.includes("流程") || normalized.includes("步骤")) {
+    return "process_step";
+  }
+  if (normalized.includes("scenario") || normalized.includes("application") || normalized.includes("场景") || normalized.includes("应用")) {
+    return "scenario_application";
+  }
+  if (normalized.includes("misconception") || normalized.includes("mistake") || normalized.includes("误区")) {
+    return "misconception";
+  }
+  if (normalized.includes("example") || normalized.includes("case") || normalized.includes("案例") || normalized.includes("例子")) {
+    return "example_case";
+  }
+  return "relationship";
+}
+
+function normalizeAssessmentValue(value) {
+  if (MICRO_ASSESSMENT_VALUES.includes(value)) return value;
+  const normalized = String(value || "").trim().toLowerCase();
+  if (["required", "important", "core", "high_value", "核心", "重要"].some((item) => normalized.includes(item))) {
+    return "high";
+  }
+  if (["supporting", "medium", "secondary", "辅助", "中"].some((item) => normalized.includes(item))) {
+    return "medium";
+  }
+  if (["context", "background", "背景"].some((item) => normalized.includes(item))) {
+    return "context_only";
+  }
+  if (["low", "optional", "低"].some((item) => normalized.includes(item))) {
+    return "low";
+  }
+  return "medium";
+}

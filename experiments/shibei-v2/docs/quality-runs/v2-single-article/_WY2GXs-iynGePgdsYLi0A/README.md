@@ -595,3 +595,93 @@ Remaining risks:
 - DeepSeek still occasionally returns no structured text in `ecdPlanning`, even with smaller context.
 - The next architecture pass should inspect whether provider retry strategy, stage-specific output budgets, or per-unit fallback/retry isolation can reduce these transient failures.
 - Quality still needs manual inspection; token slimming alone does not prove pedagogical quality improved.
+
+## 2026-06-21 Runtime Reliability + Taxonomy Normalization
+
+### What Changed
+
+This checkpoint tested the runtime reliability instrumentation added after the source-window pass.
+
+Implementation details:
+
+- Added stage-level runtime diagnostics to failed and completed V2 quality reports.
+- Recorded per-stage call count, attempt count, retry count, failed attempt count, duration, and stable error type.
+- Added `unitKnowledgeMap` taxonomy normalization for model enum drift:
+  - unknown micro `role` values are mapped to the nearest stable role and preserved as `rawRole`;
+  - unknown `assessmentValue` values are mapped to the nearest stable value and preserved as `rawAssessmentValue`;
+  - missing `suggestedEvidenceAngles` falls back to an empty array.
+
+### Failed Attempts Before The Fix
+
+Model `sourceMap` run:
+
+- JSON: `runs/20260621-164702-v2-runtime-reliability-max6-rerun.json`
+- HTML: `reports/20260621-164702-v2-runtime-reliability-max6-rerun.html`
+- Status: failed at `v2_sourceMap`.
+- Runtime finding: `empty_structured_text` happened 3 times. The failure is a provider structured-output failure, not a downstream schema issue.
+
+Deterministic-source run before normalization:
+
+- JSON: `runs/20260621-165026-v2-runtime-reliability-deterministic-source-max6.json`
+- HTML: `reports/20260621-165026-v2-runtime-reliability-deterministic-source-max6.html`
+- Status: failed at contract validation.
+- Error: `unitKnowledgeMap.units[5].microKnowledgePoints[3].role` used a taxonomy label outside the stable enum.
+- Runtime finding: no failed model attempts. The model returned parseable JSON; the failure was a contract-normalization gap.
+
+### Completed Run After Normalization
+
+The rerun was completed with deterministic source blocks. The environment label was mistyped, so artifacts were written to the default `v2-quality` directory instead of this article slug directory:
+
+- JSON: `../v2-quality/runs/20260621-165437-v2-quality.json`
+- HTML: `../v2-quality/reports/20260621-165437-v2-quality.html`
+
+Metrics:
+
+| Metric | Source context window | Runtime reliability rerun |
+| --- | ---: | ---: |
+| Units | 6 | 6 |
+| Questions | 14 | 13 |
+| Multiple choice | 10 | 6 |
+| Matching | 4 | 7 |
+| Diagnostic issues | 1 | 0 |
+| Model calls | 26 | 26 |
+| Prompt tokens | 103,951 | 102,309 |
+| Completion tokens | 41,323 | 44,672 |
+| Total tokens | 145,274 | 146,981 |
+| Prompt cache miss tokens | 67,599 | 65,573 |
+| Runtime failed attempts | 2 | 2 |
+| Runtime retry attempts | 2 | 2 |
+
+Unit coverage in the completed rerun:
+
+- `游戏化的定义与理论基础`: 3 questions, including 2 matching.
+- `DMC模型：动力、机制与组件`: 2 matching questions.
+- `阶段性目标的设定`: 2 questions, including 1 matching.
+- `挑战与能力的动态匹配`: 2 multiple-choice questions.
+- `成长机制的感知设计`: 2 questions, including 1 matching.
+- `情境设计与身份认同建构`: 2 questions, including 1 matching.
+
+### Conclusion
+
+The runtime instrumentation is effective. It separated three different failure classes that previously looked similar:
+
+- provider returned no structured text (`empty_structured_text`);
+- model returned parseable JSON but drifted outside our internal taxonomy;
+- later stages completed with normal retry accounting.
+
+The taxonomy-normalization fix was useful: after the fix, the same deterministic-source path completed instead of failing on an enum label.
+
+The new structure is partially effective:
+
+- Good: DMC no longer disappears. It remains its own unit and receives high-value 4x4 matching coverage.
+- Good: matching is not suppressed; the rerun produced 7 matching questions.
+- Good: prompt tokens stayed close to the source-context-window pass and far below the pre-window slim-review-plan run.
+- Risk: visible stem style regressed. 10 of 13 stems use exam-like phrasing such as `根据...`, `请将...`, or `以下哪...`.
+- Risk: `unitKnowledgeMap` still produced one overlong/unparseable attempt before succeeding.
+- Risk: `ecdPlanning` still produced one unparseable attempt before succeeding.
+
+Next iteration should not add another macro layer. It should stabilize the existing split structure:
+
+- make `unitKnowledgeMap` output more compact so it does not overrun JSON;
+- make `ecdPlanning` selected-task output more compact and less likely to truncate;
+- tighten visible draft wording so generated stems follow the golden-sample style instead of exam-style instructions.

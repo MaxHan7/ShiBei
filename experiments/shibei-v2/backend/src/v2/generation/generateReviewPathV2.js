@@ -10,7 +10,10 @@ import {
 import { validateQualityJudgeOutput } from "./prompts/qualityJudge.js";
 import { validateReviewPathPlanOutput } from "./prompts/reviewPathPlan.js";
 import { validateSourceMapOutput } from "./prompts/sourceMap.js";
-import { validateUnitKnowledgeMapOutput } from "./prompts/unitKnowledgeMap.js";
+import {
+  normalizeUnitKnowledgeMapOutput,
+  validateUnitKnowledgeMapOutput
+} from "./prompts/unitKnowledgeMap.js";
 import { validateMatchingDraftOutput } from "./prompts/matchingDraft.js";
 import { validateMultipleChoiceDraftOutput } from "./prompts/multipleChoiceDraft.js";
 import {
@@ -107,7 +110,8 @@ export async function generateReviewPathV2(
       sourceContextNote: planSourceContext.sourceContextNote,
       plan
     },
-    (output) => validateUnitKnowledgeMapOutput(output, { unitIds, sourceAnchorIds })
+    (output) => validateUnitKnowledgeMapOutput(output, { unitIds, sourceAnchorIds }),
+    { normalize: normalizeUnitKnowledgeMapOutput }
   );
   const ecdPlanning = mergeEcdPlanningOutputs(
     await mapWithConcurrency(

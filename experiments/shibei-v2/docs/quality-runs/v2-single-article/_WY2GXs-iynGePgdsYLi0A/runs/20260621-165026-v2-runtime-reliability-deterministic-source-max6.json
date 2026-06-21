@@ -1,0 +1,139 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-21T16:51:13.575Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-runtime-reliability-deterministic-source-max6",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11365
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 1,
+    "diagnosticIssueCount": 0,
+    "runtimeFailedAttemptCount": 0,
+    "runtimeRetryAttemptCount": 0
+  },
+  "chapter": null,
+  "unitKnowledgeMap": null,
+  "ecdPlanning": null,
+  "sourceContextStats": null,
+  "stageRuntime": {
+    "schemaVersion": "v2_stage_runtime_1",
+    "callCount": 2,
+    "attemptCount": 2,
+    "failedAttemptCount": 0,
+    "retryAttemptCount": 0,
+    "stages": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 23918,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 23353,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      }
+    ],
+    "attempts": [
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 23918,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-2",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 23353,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      }
+    ]
+  },
+  "qualityDiagnostics": [],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 3200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 9951,
+        "completion_tokens": 2255,
+        "total_tokens": 12206,
+        "prompt_cache_hit_tokens": 9856,
+        "prompt_cache_miss_tokens": 95
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 7200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 5839,
+        "completion_tokens": 3232,
+        "total_tokens": 9071,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 5071
+      }
+    }
+  ],
+  "failure": {
+    "failedStage": "contract_validation",
+    "failureReason": "unitKnowledgeMap.units[5].microKnowledgePoints[3].role must be one of definition, boundary, model_layer, mechanism, process_step, scenario_application, misconception, example_case, relationship",
+    "retryable": false,
+    "modelStage": "",
+    "retryAttempts": 0,
+    "issues": [],
+    "errors": [
+      "unitKnowledgeMap.units[5].microKnowledgePoints[3].role must be one of definition, boundary, model_layer, mechanism, process_step, scenario_application, misconception, example_case, relationship"
+    ],
+    "diagnostics": []
+  }
+}

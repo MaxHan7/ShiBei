@@ -27,6 +27,7 @@ import {
   validateSourceMapOutput
 } from "./sourceMap.js";
 import {
+  normalizeUnitKnowledgeMapOutput,
   UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA,
   validateUnitKnowledgeMapOutput
 } from "./unitKnowledgeMap.js";
@@ -58,6 +59,27 @@ test("validates unit knowledge maps as protected micro knowledge inventory", () 
   });
 
   assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("normalizes unit knowledge map taxonomy aliases before validation", () => {
+  const fixture = unitKnowledgeMapFixture();
+  fixture.units[0].microKnowledgePoints[0].role = "model_layer_classification";
+  fixture.units[0].microKnowledgePoints[0].assessmentValue = "core";
+  fixture.units[0].microKnowledgePoints[1].role = "概念边界";
+  fixture.units[0].microKnowledgePoints[1].assessmentValue = "supporting";
+
+  const normalized = normalizeUnitKnowledgeMapOutput(fixture);
+
+  assert.equal(normalized.units[0].microKnowledgePoints[0].role, "model_layer");
+  assert.equal(normalized.units[0].microKnowledgePoints[0].assessmentValue, "high");
+  assert.equal(normalized.units[0].microKnowledgePoints[0].rawRole, "model_layer_classification");
+  assert.equal(normalized.units[0].microKnowledgePoints[0].rawAssessmentValue, "core");
+  assert.equal(normalized.units[0].microKnowledgePoints[1].role, "definition");
+  assert.equal(normalized.units[0].microKnowledgePoints[1].assessmentValue, "medium");
+  assert.deepEqual(validateUnitKnowledgeMapOutput(normalized, {
+    unitIds: new Set(["unit-01"]),
+    sourceAnchorIds: new Set(["anchor-unit-01"])
+  }), { ok: true, errors: [] });
 });
 
 test("rejects unit knowledge maps that omit planned units", () => {
