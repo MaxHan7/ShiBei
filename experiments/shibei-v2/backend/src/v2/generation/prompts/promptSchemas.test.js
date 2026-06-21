@@ -11,9 +11,17 @@ import {
   validateMatchingDraftOutput
 } from "./matchingDraft.js";
 import {
+  MATCHING_DRAFT_BATCH_OUTPUT_SCHEMA,
+  validateMatchingDraftBatchOutput
+} from "./matchingDraftBatch.js";
+import {
   MULTIPLE_CHOICE_DRAFT_OUTPUT_SCHEMA,
   validateMultipleChoiceDraftOutput
 } from "./multipleChoiceDraft.js";
+import {
+  MULTIPLE_CHOICE_DRAFT_BATCH_OUTPUT_SCHEMA,
+  validateMultipleChoiceDraftBatchOutput
+} from "./multipleChoiceDraftBatch.js";
 import {
   QUALITY_JUDGE_OUTPUT_SCHEMA,
   validateQualityJudgeOutput
@@ -58,6 +66,8 @@ test("exports stable prompt schema names for the V2 generation pipeline", () => 
   assert.equal(ECD_PLANNING_OUTPUT_SCHEMA.name, "shibei_v2_ecd_planning");
   assert.equal(TASK_BRIEF_PLAN_OUTPUT_SCHEMA.name, "shibei_v2_task_brief_plan");
   assert.equal(QUESTION_DRAFT_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_question_draft_batch");
+  assert.equal(MULTIPLE_CHOICE_DRAFT_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_multiple_choice_draft_batch");
+  assert.equal(MATCHING_DRAFT_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_matching_draft_batch");
   assert.equal(UNIT_COPY_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_unit_copy_batch");
   assert.equal(REVIEW_PATH_PLAN_OUTPUT_SCHEMA.name, "shibei_v2_review_path_plan");
   assert.equal(UNIT_PRACTICE_PLAN_OUTPUT_SCHEMA.name, "shibei_v2_unit_practice_plan");
@@ -72,6 +82,50 @@ test("validates unit knowledge maps as protected micro knowledge inventory", () 
     unitIds: new Set(["unit-01"]),
     sourceAnchorIds: new Set(["anchor-unit-01"])
   });
+
+  assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("validates multiple choice draft batches by unit practice plans", () => {
+  const practicePlansByUnit = new Map([["unit-01", unitPracticePlanFixture()]]);
+  const sourceAnchorByUnit = new Map([["unit-01", "anchor-unit-01"]]);
+  const result = validateMultipleChoiceDraftBatchOutput(
+    {
+      units: [
+        {
+          unitId: "unit-01",
+          questions: [
+            multipleChoiceQuestionFixture(),
+            {
+              ...multipleChoiceQuestionFixture(),
+              id: "q-003",
+              practiceGoalId: "goal-01",
+              stem: "Hook 最容易被误解成什么？"
+            }
+          ]
+        }
+      ]
+    },
+    { practicePlansByUnit, sourceAnchorByUnit }
+  );
+
+  assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("validates matching draft batches by unit practice plans", () => {
+  const practicePlansByUnit = new Map([["unit-01", unitPracticePlanFixture()]]);
+  const sourceAnchorByUnit = new Map([["unit-01", "anchor-unit-01"]]);
+  const result = validateMatchingDraftBatchOutput(
+    {
+      units: [
+        {
+          unitId: "unit-01",
+          questions: [matchingQuestionFixture()]
+        }
+      ]
+    },
+    { practicePlansByUnit, sourceAnchorByUnit }
+  );
 
   assert.deepEqual(result, { ok: true, errors: [] });
 });

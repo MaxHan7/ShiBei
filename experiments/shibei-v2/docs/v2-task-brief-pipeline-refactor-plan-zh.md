@@ -72,6 +72,47 @@
   - `matchingDraftBatch`：只批量生成 selected matching，或在 matching 少量时保留 per-matching 调用。
   - 保持 `taskBriefPlan` 的 compact contract。
 
+## Checkpoint 2.5: DSPy-Style Typed Draft Batches
+
+**目标：** 按 DSPy-style signature 边界，把过粗的 `questionDraftBatch` 拆成两个中等粒度模块：
+
+- `multipleChoiceDraftBatch`：只生成所有 unit 的选择题。
+- `matchingDraftBatch`：只生成所有 unit 的连线题。
+- `unitCopyBatch` 继续保留批量形态。
+
+**实现结果：**
+
+- [x] 新增 `multipleChoiceDraftBatch` schema / validator。
+- [x] 新增 `matchingDraftBatch` schema / validator。
+- [x] 主链路改为：
+  `sourceMap/deterministic -> reviewPathPlan -> unitKnowledgeMap -> taskBriefPlan -> multipleChoiceDraftBatch -> matchingDraftBatch -> unitCopyBatch`。
+- [x] typed batch 输入只带对应题型的 `questionPlans`，并只带这些题目引用到的 `practiceGoals`。
+- [x] 旧 `questionDraftBatch` 保留为历史/回滚模块，但不再是默认主链路。
+- [x] backend `npm run check` 通过。
+- [x] 同篇黄金文章复测完成：`20260621-183909-v2-typed-draft-batches-max6`。
+
+**对比结果：**
+
+| Metric | Task brief per-stage | Mixed `questionDraftBatch` | Typed draft batches |
+| --- | ---: | ---: | ---: |
+| Units | 6 | 6 | 6 |
+| Questions | 13 | 11 | 12 |
+| Multiple choice | 10 | 10 | 10 |
+| Matching | 3 | 1 | 2 |
+| Successful model calls | 16 | 5 | 6 |
+| Runtime failed attempts | 2 | 3 | 0 |
+| Runtime retry attempts | 2 | 3 | 0 |
+| Prompt tokens | 56,524 | 69,510 | 45,544 |
+| Completion tokens | 28,220 | 39,612 | 22,755 |
+| Total tokens | 84,744 | 109,122 | 68,299 |
+
+**判断：**
+
+- 这是当前三轮里技术指标最平衡的一版：调用数接近 mixed batch，但 token 和 retry 明显下降。
+- DMC 继续作为独立 unit 出现，并得到 2 道 matching 题，说明拆分没有破坏结构型知识点覆盖。
+- 仍有 5 个 deterministic diagnostic issue，主要是题干风格仍出现“以下/下列表述”一类考试感表达；下一轮应优化题干语气，但不属于架构性失败。
+- 当前推荐把 typed draft batches 作为默认候选链路继续迭代。
+
 ## Checkpoint 3: Quality Comparison
 
 每次测试都记录：

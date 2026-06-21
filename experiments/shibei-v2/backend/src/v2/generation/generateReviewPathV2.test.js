@@ -50,6 +50,9 @@ test("generates a contract-valid V2 review path from split prompt stages", async
   assert.equal(reviewPath.generationMeta.stageRuntime.schemaVersion, "v2_stage_runtime_1");
   assert.equal(reviewPath.generationMeta.stageRuntime.callCount, 0);
   assert.equal(reviewPath.generationMeta.ecdPlanning, undefined);
+  assert.equal(reviewPath.generationMeta.questionDraftBatch, undefined);
+  assert.equal(reviewPath.generationMeta.multipleChoiceDraftBatch.units.length, 1);
+  assert.equal(reviewPath.generationMeta.matchingDraftBatch.units.length, 1);
   assert.equal(reviewPath.generationMeta.taskBriefPlan.units[0].questionPlans.length, 2);
   assert.equal(reviewPath.generationMeta.unitPracticePlans.length, 1);
   assert.deepEqual(
@@ -88,7 +91,9 @@ test("task briefs drive downstream practice plans and suppress model-invented ma
   });
 
   assert.equal(stages.includes("matchingDraft"), false);
-  assert.equal(stages.includes("questionDraftBatch"), true);
+  assert.equal(stages.includes("questionDraftBatch"), false);
+  assert.equal(stages.includes("multipleChoiceDraftBatch"), true);
+  assert.equal(stages.includes("matchingDraftBatch"), false);
   assert.deepEqual(
     reviewPath.generationMeta.unitPracticePlans[0].questionPlans.map((plan) => `${plan.id}:${plan.type}`),
     ["q-001:multiple_choice", "q-002:multiple_choice"]
@@ -103,7 +108,8 @@ test("passes only compact source windows into per-unit stages", async () => {
   const captured = {
     unitKnowledgeMap: null,
     taskBriefPlan: null,
-    questionDraftBatch: null,
+    multipleChoiceDraftBatch: null,
+    matchingDraftBatch: null,
     unitCopyBatch: null
   };
   const longBlocks = Array.from({ length: 8 }, (_, index) => ({
@@ -129,8 +135,12 @@ test("passes only compact source windows into per-unit stages", async () => {
         units: payload.plan.units.map((unit) => practicePlanFixture(unit.id, unit.sourceAnchor.id, { matching: false }))
       };
     }
-    if (stage === "questionDraftBatch") {
-      captured.questionDraftBatch = payload;
+    if (stage === "multipleChoiceDraftBatch") {
+      captured.multipleChoiceDraftBatch = payload;
+      return happyPathPromptCaller(stage, payload);
+    }
+    if (stage === "matchingDraftBatch") {
+      captured.matchingDraftBatch = payload;
       return happyPathPromptCaller(stage, payload);
     }
     if (stage === "unitCopyBatch") {
@@ -191,8 +201,9 @@ test("passes only compact source windows into per-unit stages", async () => {
   assert.equal(captured.taskBriefPlan.plan.knowledgeObjects, undefined);
   assert.equal(Array.isArray(captured.taskBriefPlan.plan.chapterWideNotes), false);
 
-  assert.deepEqual(captured.questionDraftBatch.units[0].sourceContext.blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
-  assert.deepEqual(captured.questionDraftBatch.units[1].sourceContext.blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
+  assert.deepEqual(captured.multipleChoiceDraftBatch.units[0].sourceContext.blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
+  assert.deepEqual(captured.multipleChoiceDraftBatch.units[1].sourceContext.blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
+  assert.equal(captured.matchingDraftBatch, null);
   assert.deepEqual(captured.unitCopyBatch.units[0].sourceContext.blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
   assert.deepEqual(captured.unitCopyBatch.units[1].sourceContext.blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
   assert.deepEqual(reviewPath.generationMeta.sourceContextStats, {
@@ -267,7 +278,7 @@ test("derives matching relationType from task briefs", async () => {
   );
 });
 
-test("skips multipleChoiceDraft when task brief selects only matching", async () => {
+test("skips multipleChoiceDraftBatch when task brief selects only matching", async () => {
   const stages = [];
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {
@@ -291,14 +302,16 @@ test("skips multipleChoiceDraft when task brief selects only matching", async ()
 
   assert.equal(stages.includes("multipleChoiceDraft"), false);
   assert.equal(stages.includes("matchingDraft"), false);
-  assert.equal(stages.includes("questionDraftBatch"), true);
+  assert.equal(stages.includes("questionDraftBatch"), false);
+  assert.equal(stages.includes("multipleChoiceDraftBatch"), false);
+  assert.equal(stages.includes("matchingDraftBatch"), true);
   assert.deepEqual(
     reviewPath.units[0].questions.map((question) => `${question.id}:${question.type}`),
     ["q-002:matching"]
   );
 });
 
-test("skips matchingDraft when task brief does not select matching", async () => {
+test("skips matchingDraftBatch when task brief does not select matching", async () => {
   const stages = [];
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {
@@ -313,7 +326,7 @@ test("skips matchingDraft when task brief does not select matching", async () =>
     "reviewPathPlan",
     "unitKnowledgeMap",
     "taskBriefPlan",
-    "questionDraftBatch",
+    "multipleChoiceDraftBatch",
     "unitCopyBatch"
   ]);
   assert.deepEqual(
@@ -436,7 +449,7 @@ test("normalizes draft question ids from question plan order", async () => {
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {
       const output = await happyPathPromptCaller(stage, payload);
-      if (stage === "questionDraftBatch") {
+      if (stage === "multipleChoiceDraftBatch") {
         output.units[0].questions[0].id = "model-made-up-id";
         delete output.units[0].questions[0].sourceAnchorId;
         output.units[0].questions.push({
@@ -464,7 +477,7 @@ test("normalizes draft question ids from question plan order", async () => {
 test("keeps generated questions when deterministic guardrails find forbidden phrases", async () => {
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {
-      if (stage === "questionDraftBatch") {
+      if (stage === "multipleChoiceDraftBatch") {
         const draft = await happyPathPromptCaller(stage, payload);
         draft.units[0].questions[0].stem = "根据本文，Hook 更接近哪种机制？";
         return draft;
@@ -595,6 +608,28 @@ async function happyPathPromptCaller(stage, payload, { matching = true } = {}) {
             ? matchingQuestionForPlan(input.unit, plan)
             : multipleChoiceQuestionForPlan(input.unit, plan, index)
         )
+      }))
+    };
+  }
+
+  if (stage === "multipleChoiceDraftBatch") {
+    return {
+      units: payload.units.map((input) => ({
+        unitId: input.unit.id,
+        questions: input.practicePlan.questionPlans
+          .filter((plan) => plan.type === "multiple_choice")
+          .map((plan, index) => multipleChoiceQuestionForPlan(input.unit, plan, index))
+      }))
+    };
+  }
+
+  if (stage === "matchingDraftBatch") {
+    return {
+      units: payload.units.map((input) => ({
+        unitId: input.unit.id,
+        questions: input.practicePlan.questionPlans
+          .filter((plan) => plan.type === "matching")
+          .map((plan) => matchingQuestionForPlan(input.unit, plan))
       }))
     };
   }

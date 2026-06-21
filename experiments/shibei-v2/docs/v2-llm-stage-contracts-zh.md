@@ -20,8 +20,10 @@
 | `reviewPathPlan` | `ArticleMeta + FullSourceBlocks -> ChapterPlan` | 全文 blocks | 前端章节结构 + unit 切分 |
 | `unitKnowledgeMap` | `ChapterPlan + PlanSourceWindow -> MicroKnowledgeMap` | 所有 unit anchor 的 union window | ECD 规划 |
 | `taskBriefPlan` | `ChapterPlan + MicroKnowledgeMap + PlanSourceWindow -> TaskBriefPlan` | plan union window | 题目 draft stages |
-| `questionDraftBatch` | `TaskBriefPlan + UnitSourceWindows -> QuestionDraftBatch` | 每个 unit 的 compact window | 实验性前端题目 |
+| `multipleChoiceDraftBatch` | `MCPlans + UnitSourceWindows -> MultipleChoiceDraftBatch` | 每个 unit 的 compact window | 前端选择题 |
+| `matchingDraftBatch` | `MatchingPlans + UnitSourceWindows -> MatchingDraftBatch` | 每个 unit 的 compact window | 前端连线题 |
 | `unitCopyBatch` | `TaskBriefPlan + UnitSourceWindows -> UnitCopyBatch` | 每个 unit 的 compact window | 前端单元页 |
+| `questionDraftBatch` | `TaskBriefPlan + UnitSourceWindows -> QuestionDraftBatch` | 每个 unit 的 compact window | 历史/回滚路径 |
 | `multipleChoiceDraft` | `MCPlans + UnitSourceWindow + PracticePlan -> MultipleChoiceDraft` | 当前 unit window | 历史/回滚路径 |
 | `matchingDraft` | `MatchingPlans + UnitSourceWindow + PracticePlan -> MatchingDraft` | 当前 unit window | 历史/回滚路径 |
 | `qualityDiagnostics` | `ReviewPath -> DiagnosticReport` | 已生成 reviewPath | HTML 质量报告 |
@@ -236,7 +238,86 @@ ChapterPlan + MicroKnowledgeMap + PlanSourceWindow -> TaskBriefPlan
 - stage completion tokens 是否低于截断风险区间。
 - JSON 成功率和 retry 次数。
 
-## 5. `questionDraftBatch`（当前实验性默认，尚未证明是最终架构）
+## 5. `multipleChoiceDraftBatch`（当前默认）
+
+**Signature**
+
+```text
+MCPlans + UnitSourceWindows -> MultipleChoiceDraftBatch
+```
+
+**输入**
+
+- 每个含 multiple-choice plan 的 unit。
+- 该题型实际引用的 `practiceGoals`。
+- 该题型的 `questionPlans`。
+- 当前 unit 的 compact source window。
+
+**输出**
+
+- `units[].unitId`
+- `units[].questions[]`
+  - 只允许 `type = multiple_choice`
+
+**source context policy**
+
+- 每个 unit 只携带自身 compact source window。
+- 不接收完整 ECD 字段、候选矩阵或全文章。
+
+**禁止职责**
+
+- 不生成 matching。
+- 不新增 question plan。
+- 不改变题型。
+- 不重新规划知识结构。
+- 不输出 ECD 字段或推理链。
+
+**当前实验结论**
+
+- `20260621-183909-v2-typed-draft-batches-max6` 中一次通过，无 retry。
+- 与 mixed `questionDraftBatch` 相比，typed batch 显著降低 total tokens 和 JSON 风险。
+
+## 6. `matchingDraftBatch`（当前默认，有 matching plan 时调用）
+
+**Signature**
+
+```text
+MatchingPlans + UnitSourceWindows -> MatchingDraftBatch
+```
+
+**输入**
+
+- 每个含 matching plan 的 unit。
+- 该题型实际引用的 `practiceGoals`。
+- 该题型的 `questionPlans`。
+- 当前 unit 的 compact source window。
+
+**输出**
+
+- `units[].unitId`
+- `units[].questions[]`
+  - 只允许 `type = matching`
+  - 每题左右各 4 项，pairs 正好 4 对
+
+**source context policy**
+
+- 每个 unit 只携带自身 compact source window。
+- 不接收完整 ECD 字段、候选矩阵或全文章。
+
+**禁止职责**
+
+- 不生成 multiple-choice。
+- 不为了凑题新增 matching plan。
+- 不把名词定义机械改成连线。
+- 不输出 ECD 字段或推理链。
+
+**当前实验结论**
+
+- `20260621-183909-v2-typed-draft-batches-max6` 中一次通过，无 retry。
+- DMC unit 生成 2 道 matching，说明题型覆盖比 mixed `questionDraftBatch` 更健康。
+- 后续仍要优化题干语气，避免“请匹配/以下”这类考试感表达过重。
+
+## 7. `questionDraftBatch`（历史实验/回滚路径，当前默认主链路不调用）
 
 **Signature**
 
@@ -274,7 +355,7 @@ TaskBriefPlan + UnitSourceWindows -> QuestionDraftBatch
   - `multipleChoiceDraftBatch`
   - `matchingDraftBatch`
 
-## 6. `unitCopyBatch`（当前默认）
+## 8. `unitCopyBatch`（当前默认）
 
 **Signature**
 
@@ -302,7 +383,7 @@ TaskBriefPlan + UnitSourceWindows -> UnitCopyBatch
 
 - 相比 `questionDraftBatch`，`unitCopyBatch` 输出短、结构稳定，可以继续保留批量形态。
 
-## 7. `ecdPlanning`（历史实验/对照路径，当前默认主链路不调用）
+## 9. `ecdPlanning`（历史实验/对照路径，当前默认主链路不调用）
 
 **Signature**
 
@@ -563,10 +644,10 @@ Unit + Questions + UnitSourceWindow -> UnitOverviewAndSummary
 
 ## 当前实现差距
 
-1. `questionDraftBatch` 粒度过大：调用数少，但 JSON 体量、retry、total tokens 上升，且 matching 覆盖下降。
-2. 下一轮应该按 DSPy-style signature 边界拆成 `multipleChoiceDraftBatch` 与 `matchingDraftBatch`，而不是继续扩大一个 batch prompt。
-3. `taskBriefPlan` 已 compact 化，但仍是高负载阶段；需要继续看 completion tokens 和 retry 是否稳定。
-4. HTML report 还没有足够清楚地区分“调用数下降”和“总 token / retry / 质量是否真正变好”。
+1. `multipleChoiceDraftBatch` 与 `matchingDraftBatch` 已替代 `questionDraftBatch` 成为当前默认候选链路；这轮证明中等粒度 typed signature 比混合大 batch 更稳。
+2. `taskBriefPlan` 已 compact 化，但仍是高负载阶段；需要继续观察它是否会在更长文章里成为瓶颈。
+3. 题干语气仍有考试感表达，例如“以下/下列表述”；这属于题干文案层问题，不是当前主链路架构失败。
+4. HTML report 还可以更清楚地区分“架构指标”和“题目文案指标”，例如单独统计 forbidden stem phrase。
 5. `qualityJudge` prompt 仍存在于代码中，但默认不启用；后续若保留，应改名或迁移为实验性小审查模块，避免误解为主链路。
 
 ## 与前端合同的关系

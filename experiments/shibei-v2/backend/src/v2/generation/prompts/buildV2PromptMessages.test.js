@@ -182,6 +182,60 @@ test("questionDraftBatch prompt generates all planned questions without ECD JSON
   assert.match(messages.user, /sourceContext/);
 });
 
+test("multipleChoiceDraftBatch prompt only generates planned multiple choice questions", () => {
+  const messages = buildV2PromptMessages("multipleChoiceDraftBatch", {
+    article: ARTICLE,
+    source: { type: "article", title: ARTICLE.title },
+    units: [
+      {
+        unit: unitFixture(),
+        practicePlan: {
+          unitId: "unit-01",
+          practiceGoals: [],
+          questionPlans: [{ id: "q-001", type: "multiple_choice" }]
+        },
+        sourceContext: {
+          blocks: [{ id: "p-001", type: "paragraph", text: "Hook 是流程控制器。" }],
+          sourceContextNote: { mode: "unit_window", unitId: "unit-01" }
+        }
+      }
+    ]
+  });
+
+  assert.match(messages.user, /multipleChoiceDraftBatch/);
+  assert.match(messages.user, /只生成整章各 unit 的选择题/);
+  assert.match(messages.user, /不要输出 ECD 字段、推理链、候选矩阵或批注/);
+  assert.match(messages.user, /不要新增 questionPlan；不要漏掉任何 multiple_choice questionPlan/);
+  assert.match(messages.user, /unitDraftInputs/);
+});
+
+test("matchingDraftBatch prompt only generates planned matching questions", () => {
+  const messages = buildV2PromptMessages("matchingDraftBatch", {
+    article: ARTICLE,
+    source: { type: "article", title: ARTICLE.title },
+    units: [
+      {
+        unit: unitFixture(),
+        practicePlan: {
+          unitId: "unit-01",
+          practiceGoals: [],
+          questionPlans: [{ id: "q-002", type: "matching", relationType: "responsibility" }]
+        },
+        sourceContext: {
+          blocks: [{ id: "p-001", type: "paragraph", text: "Hook 是流程控制器。" }],
+          sourceContextNote: { mode: "unit_window", unitId: "unit-01" }
+        }
+      }
+    ]
+  });
+
+  assert.match(messages.user, /matchingDraftBatch/);
+  assert.match(messages.user, /只生成整章各 unit 的连线匹配题/);
+  assert.match(messages.user, /不要输出 ECD 字段、推理链、候选矩阵或批注/);
+  assert.match(messages.user, /不要新增 questionPlan；不要漏掉任何 matching questionPlan/);
+  assert.match(messages.user, /unitDraftInputs/);
+});
+
 test("unitCopyBatch prompt generates all unit overview and summary copy", () => {
   const messages = buildV2PromptMessages("unitCopyBatch", {
     article: ARTICLE,

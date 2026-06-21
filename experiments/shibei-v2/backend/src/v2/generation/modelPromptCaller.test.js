@@ -233,6 +233,12 @@ test("calls the JSON model transport with batched draft schemas and messages", a
       if (request.stage === "v2_questionDraftBatch") {
         return { units: [{ unitId: "unit-01", questions: [] }] };
       }
+      if (request.stage === "v2_multipleChoiceDraftBatch") {
+        return { units: [{ unitId: "unit-01", questions: [] }] };
+      }
+      if (request.stage === "v2_matchingDraftBatch") {
+        return { units: [{ unitId: "unit-01", questions: [] }] };
+      }
       return {
         units: [
           {
@@ -250,6 +256,16 @@ test("calls the JSON model transport with batched draft schemas and messages", a
     source: { type: "article", title: "Hook" },
     units: []
   });
+  await caller("multipleChoiceDraftBatch", {
+    article: { id: "chapter-001", title: "Hook", rawText: "Hook" },
+    source: { type: "article", title: "Hook" },
+    units: []
+  });
+  await caller("matchingDraftBatch", {
+    article: { id: "chapter-001", title: "Hook", rawText: "Hook" },
+    source: { type: "article", title: "Hook" },
+    units: []
+  });
   await caller("unitCopyBatch", {
     article: { id: "chapter-001", title: "Hook", rawText: "Hook" },
     source: { type: "article", title: "Hook" },
@@ -260,10 +276,18 @@ test("calls the JSON model transport with batched draft schemas and messages", a
   assert.equal(calls[0].stage, "v2_questionDraftBatch");
   assert.equal(calls[0].estimatedOutputTokens, 9000);
   assert.match(calls[0].user, /不要新增 questionPlan/);
-  assert.equal(calls[1].schemaName, "shibei_v2_unit_copy_batch");
-  assert.equal(calls[1].stage, "v2_unitCopyBatch");
-  assert.equal(calls[1].estimatedOutputTokens, 2400);
-  assert.match(calls[1].user, /不输出题目，不输出 ECD 字段/);
+  assert.equal(calls[1].schemaName, "shibei_v2_multiple_choice_draft_batch");
+  assert.equal(calls[1].stage, "v2_multipleChoiceDraftBatch");
+  assert.equal(calls[1].estimatedOutputTokens, 6500);
+  assert.match(calls[1].user, /只生成整章各 unit 的选择题/);
+  assert.equal(calls[2].schemaName, "shibei_v2_matching_draft_batch");
+  assert.equal(calls[2].stage, "v2_matchingDraftBatch");
+  assert.equal(calls[2].estimatedOutputTokens, 5200);
+  assert.match(calls[2].user, /只生成整章各 unit 的连线匹配题/);
+  assert.equal(calls[3].schemaName, "shibei_v2_unit_copy_batch");
+  assert.equal(calls[3].stage, "v2_unitCopyBatch");
+  assert.equal(calls[3].estimatedOutputTokens, 2400);
+  assert.match(calls[3].user, /不输出题目，不输出 ECD 字段/);
 });
 
 test("rejects unsupported V2 generation stage", async () => {

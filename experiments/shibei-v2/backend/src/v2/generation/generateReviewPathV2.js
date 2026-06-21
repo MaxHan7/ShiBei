@@ -6,10 +6,8 @@ import { createV2ModelPromptCaller } from "./modelPromptCaller.js";
 import { validateQualityJudgeOutput } from "./prompts/qualityJudge.js";
 import { validateReviewPathPlanOutput } from "./prompts/reviewPathPlan.js";
 import { validateSourceMapOutput } from "./prompts/sourceMap.js";
-import {
-  getQuestionDraftForUnit,
-  validateQuestionDraftBatchOutput
-} from "./prompts/questionDraftBatch.js";
+import { validateMatchingDraftBatchOutput } from "./prompts/matchingDraftBatch.js";
+import { validateMultipleChoiceDraftBatchOutput } from "./prompts/multipleChoiceDraftBatch.js";
 import {
   getTaskBriefForUnit,
   validateTaskBriefPlanOutput
@@ -45,7 +43,8 @@ export const V2_GENERATION_STAGES = [
   "reviewPathPlan",
   "unitKnowledgeMap",
   "taskBriefPlan",
-  "questionDraftBatch",
+  "multipleChoiceDraftBatch",
+  "matchingDraftBatch",
   "unitCopyBatch",
   "qualityJudge"
 ];
@@ -133,26 +132,53 @@ export async function generateReviewPathV2(
   );
   const unitDraftInputs = buildUnitDraftInputs({ sourceMap, plan, taskBriefPlan });
   const practicePlansByUnit = new Map(unitDraftInputs.map((input) => [input.unit.id, input.practicePlan]));
-  const questionDraftBatch = await callAndValidate(
-    activePromptCaller,
-    "questionDraftBatch",
-    {
-      article,
-      source: sourceMap.source,
-      units: unitDraftInputs
-    },
-    (output) =>
-      validateQuestionDraftBatchOutput(output, {
-        practicePlansByUnit,
-        sourceAnchorByUnit: unitSourceAnchorIds
-      }),
-    {
-      normalize: (output) => normalizeQuestionDraftBatchIds(output, unitDraftInputs)
-    }
-  );
-  const questionDraftsByUnit = new Map(
-    plan.units.map((unit) => [unit.id, getQuestionDraftForUnit(questionDraftBatch, unit.id)])
-  );
+  const multipleChoiceDraftInputs = buildTypedDraftInputs(unitDraftInputs, "multiple_choice");
+  const matchingDraftInputs = buildTypedDraftInputs(unitDraftInputs, "matching");
+  const multipleChoiceDraftBatch = multipleChoiceDraftInputs.length > 0
+    ? await callAndValidate(
+        activePromptCaller,
+        "multipleChoiceDraftBatch",
+        {
+          article,
+          source: sourceMap.source,
+          units: multipleChoiceDraftInputs
+        },
+        (output) =>
+          validateMultipleChoiceDraftBatchOutput(output, {
+            practicePlansByUnit,
+            sourceAnchorByUnit: unitSourceAnchorIds
+          }),
+        {
+          normalize: (output) =>
+            normalizeTypedQuestionDraftBatchIds(output, unitDraftInputs, "multiple_choice")
+        }
+      )
+    : { units: [] };
+  const matchingDraftBatch = matchingDraftInputs.length > 0
+    ? await callAndValidate(
+        activePromptCaller,
+        "matchingDraftBatch",
+        {
+          article,
+          source: sourceMap.source,
+          units: matchingDraftInputs
+        },
+        (output) =>
+          validateMatchingDraftBatchOutput(output, {
+            practicePlansByUnit,
+            sourceAnchorByUnit: unitSourceAnchorIds
+          }),
+        {
+          normalize: (output) =>
+            normalizeTypedQuestionDraftBatchIds(output, unitDraftInputs, "matching")
+        }
+      )
+    : { units: [] };
+  const questionDraftsByUnit = mergeTypedQuestionDrafts({
+    unitDraftInputs,
+    multipleChoiceDraftBatch,
+    matchingDraftBatch
+  });
   const unitCopyBatch = await callAndValidate(
     activePromptCaller,
     "unitCopyBatch",
@@ -162,7 +188,7 @@ export async function generateReviewPathV2(
       units: unitDraftInputs.map((input) => ({
         unit: input.unit,
         practicePlan: input.practicePlan,
-        questions: getQuestionDraftForUnit(questionDraftBatch, input.unit.id)?.questions || [],
+        questions: questionDraftsByUnit.get(input.unit.id)?.questions || [],
         sourceContext: input.sourceContext
       }))
     },
@@ -216,7 +242,8 @@ export async function generateReviewPathV2(
         at: now
       })),
       taskBriefPlan,
-      questionDraftBatch,
+      multipleChoiceDraftBatch,
+      matchingDraftBatch,
       unitCopyBatch,
       unitPracticePlans
     }
@@ -304,7 +331,25 @@ function buildUnitDraftInputs({ sourceMap, plan, taskBriefPlan }) {
   });
 }
 
-function normalizeQuestionDraftBatchIds(output, unitDraftInputs) {
+function buildTypedDraftInputs(unitDraftInputs, type) {
+  return unitDraftInputs
+    .map((input) => {
+      const questionPlans = (input.practicePlan?.questionPlans || []).filter((questionPlan) => questionPlan.type === type);
+      if (questionPlans.length === 0) return null;
+      const practiceGoalIds = new Set(questionPlans.map((questionPlan) => questionPlan.practiceGoalId));
+      return {
+        ...input,
+        practicePlan: {
+          ...input.practicePlan,
+          practiceGoals: (input.practicePlan?.practiceGoals || []).filter((goal) => practiceGoalIds.has(goal.id)),
+          questionPlans
+        }
+      };
+    })
+    .filter(Boolean);
+}
+
+function normalizeTypedQuestionDraftBatchIds(output, unitDraftInputs, type) {
   if (!output || !Array.isArray(output.units)) return output;
   const inputsByUnitId = new Map(unitDraftInputs.map((input) => [input.unit.id, input]));
   return {
@@ -312,31 +357,50 @@ function normalizeQuestionDraftBatchIds(output, unitDraftInputs) {
     units: output.units.map((unitDraft) => {
       const input = inputsByUnitId.get(unitDraft?.unitId);
       if (!input || !Array.isArray(unitDraft.questions)) return unitDraft;
-      const normalizedMultipleChoice = normalizeDraftQuestionIds(
-        {
-          unitId: unitDraft.unitId,
-          questions: unitDraft.questions.filter((question) => question?.type === "multiple_choice")
-        },
-        input.practicePlan.questionPlans,
-        "multiple_choice"
-      ).questions;
-      const normalizedMatching = normalizeDraftQuestionIds(
-        {
-          unitId: unitDraft.unitId,
-          questions: unitDraft.questions.filter((question) => question?.type === "matching")
-        },
-        input.practicePlan.questionPlans,
-        "matching"
-      ).questions;
       return {
         ...unitDraft,
-        questions: sortQuestionsByPlan(
-          [...normalizedMultipleChoice, ...normalizedMatching],
-          input.practicePlan.questionPlans
-        )
+        questions: normalizeDraftQuestionIds(
+          {
+            unitId: unitDraft.unitId,
+            questions: unitDraft.questions.filter((question) => question?.type === type)
+          },
+          input.practicePlan.questionPlans,
+          type
+        ).questions
       };
     })
   };
+}
+
+function mergeTypedQuestionDrafts({
+  unitDraftInputs,
+  multipleChoiceDraftBatch,
+  matchingDraftBatch
+}) {
+  const multipleChoiceByUnit = new Map(
+    (multipleChoiceDraftBatch?.units || []).map((unitDraft) => [unitDraft.unitId, unitDraft.questions || []])
+  );
+  const matchingByUnit = new Map(
+    (matchingDraftBatch?.units || []).map((unitDraft) => [unitDraft.unitId, unitDraft.questions || []])
+  );
+  return new Map(
+    unitDraftInputs.map((input) => {
+      const questions = sortQuestionsByPlan(
+        [
+          ...(multipleChoiceByUnit.get(input.unit.id) || []),
+          ...(matchingByUnit.get(input.unit.id) || [])
+        ],
+        input.practicePlan.questionPlans
+      );
+      return [
+        input.unit.id,
+        {
+          unitId: input.unit.id,
+          questions
+        }
+      ];
+    })
+  );
 }
 
 function buildGeneratedUnitFromBatches({

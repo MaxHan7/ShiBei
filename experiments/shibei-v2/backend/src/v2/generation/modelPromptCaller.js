@@ -10,9 +10,17 @@ import {
   MATCHING_DRAFT_PROMPT_SCHEMA_NAME
 } from "./prompts/matchingDraft.js";
 import {
+  MATCHING_DRAFT_BATCH_OUTPUT_SCHEMA,
+  MATCHING_DRAFT_BATCH_PROMPT_SCHEMA_NAME
+} from "./prompts/matchingDraftBatch.js";
+import {
   MULTIPLE_CHOICE_DRAFT_OUTPUT_SCHEMA,
   MULTIPLE_CHOICE_DRAFT_PROMPT_SCHEMA_NAME
 } from "./prompts/multipleChoiceDraft.js";
+import {
+  MULTIPLE_CHOICE_DRAFT_BATCH_OUTPUT_SCHEMA,
+  MULTIPLE_CHOICE_DRAFT_BATCH_PROMPT_SCHEMA_NAME
+} from "./prompts/multipleChoiceDraftBatch.js";
 import {
   QUALITY_JUDGE_OUTPUT_SCHEMA,
   QUALITY_JUDGE_PROMPT_SCHEMA_NAME
@@ -80,6 +88,16 @@ const STAGE_SCHEMAS = {
     schemaName: QUESTION_DRAFT_BATCH_PROMPT_SCHEMA_NAME,
     schema: QUESTION_DRAFT_BATCH_OUTPUT_SCHEMA,
     estimatedOutputTokens: 9000
+  },
+  multipleChoiceDraftBatch: {
+    schemaName: MULTIPLE_CHOICE_DRAFT_BATCH_PROMPT_SCHEMA_NAME,
+    schema: MULTIPLE_CHOICE_DRAFT_BATCH_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 6500
+  },
+  matchingDraftBatch: {
+    schemaName: MATCHING_DRAFT_BATCH_PROMPT_SCHEMA_NAME,
+    schema: MATCHING_DRAFT_BATCH_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 5200
   },
   unitCopyBatch: {
     schemaName: UNIT_COPY_BATCH_PROMPT_SCHEMA_NAME,

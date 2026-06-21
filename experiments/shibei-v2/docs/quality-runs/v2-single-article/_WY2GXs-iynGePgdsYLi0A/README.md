@@ -853,3 +853,83 @@ Decision:
   - `multipleChoiceDraftBatch`, batched across units but only for MC questions.
   - `matchingDraftBatch`, batched only for selected matching tasks, or kept per matching group if JSON stability remains poor.
 - `unitCopyBatch` can likely stay batched.
+
+## 2026-06-21 DSPy-Style Typed Draft Batch Checkpoint
+
+### What Changed
+
+This checkpoint implemented the medium-grained architecture suggested by the previous mixed batch run:
+
+- Kept `sourceMap/deterministic -> reviewPathPlan -> unitKnowledgeMap -> taskBriefPlan`.
+- Replaced the default mixed `questionDraftBatch` with:
+  - `multipleChoiceDraftBatch`: only generates selected multiple-choice plans.
+  - `matchingDraftBatch`: only generates selected matching plans.
+- Kept `unitCopyBatch`.
+- Trimmed typed batch inputs so each batch receives only the relevant `questionPlans` and the `practiceGoals` referenced by those plans.
+- Kept the old `questionDraftBatch` code as a rollback/historical experiment, but it is no longer the default main-chain stage.
+
+### Artifacts
+
+- JSON: `runs/20260621-183909-v2-typed-draft-batches-max6.json`
+- HTML: `reports/20260621-183909-v2-typed-draft-batches-max6.html`
+
+### Metrics
+
+| Metric | Task brief checkpoint | Mixed `questionDraftBatch` | Typed draft batches |
+| --- | ---: | ---: | ---: |
+| Units | 6 | 6 | 6 |
+| Questions | 13 | 11 | 12 |
+| Multiple choice | 10 | 10 | 10 |
+| Matching | 3 | 1 | 2 |
+| Diagnostic issues | 0 | 0 | 5 |
+| Successful model calls | 16 | 5 | 6 |
+| Model usage attempts | 18 | 8 | 6 |
+| Prompt tokens | 56,524 | 69,510 | 45,544 |
+| Completion tokens | 28,220 | 39,612 | 22,755 |
+| Total tokens | 84,744 | 109,122 | 68,299 |
+| Runtime failed attempts | 2 | 3 | 0 |
+| Runtime retry attempts | 2 | 3 | 0 |
+
+Stage totals in the typed batch run:
+
+| Stage | Attempts | Note |
+| --- | ---: | --- |
+| `reviewPathPlan` | 1 | success |
+| `unitKnowledgeMap` | 1 | success |
+| `taskBriefPlan` | 1 | success |
+| `multipleChoiceDraftBatch` | 1 | success |
+| `matchingDraftBatch` | 1 | success |
+| `unitCopyBatch` | 1 | success |
+
+Unit coverage:
+
+- `游戏化的概念与核心定义`: 2 multiple-choice questions.
+- `DMC模型：游戏元素的金字塔分层结构`: 2 matching questions.
+- `阶段性目标设定：从里程碑到习惯养成`: 2 multiple-choice questions.
+- `挑战与能力的动态匹配：心流与自适应机制`: 2 multiple-choice questions.
+- `成长机制的感知设计：可视化进步与社交互动`: 2 multiple-choice questions.
+- `情境设计与身份认同建构：叙事与角色代入`: 2 multiple-choice questions.
+
+### Conclusion
+
+This checkpoint is currently the best technical balance among the three recent architectures.
+
+What improved:
+
+- Compared with the task brief per-stage run, successful model calls dropped from 16 to 6.
+- Compared with the mixed `questionDraftBatch` run, total tokens dropped from about 109k to about 68k.
+- Runtime failures and retries dropped to zero.
+- DMC remained an independent unit and received matching questions, so the typed split did not erase the structural knowledge point.
+- Matching coverage recovered from 1 to 2 compared with mixed batch, though it is still below the task brief per-stage run's 3.
+
+What remains:
+
+- The deterministic diagnostics found 5 issues, mainly stem wording with an exam-like style such as “以下/下列表述”.
+- The next iteration should optimize visible stem language and option phrasing, not add another heavy planning layer.
+- `taskBriefPlan` remains the next stage to monitor on longer articles, because it still carries the full cross-unit task selection responsibility.
+
+Decision:
+
+- Treat typed draft batches as the current default candidate chain.
+- Keep mixed `questionDraftBatch` only as a historical checkpoint / rollback reference.
+- Continue iterating with DSPy-style discipline: clear signature boundaries, smaller output schemas, validation, and metric comparison after each change.

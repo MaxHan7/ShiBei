@@ -5,6 +5,8 @@ export function buildV2PromptMessages(stage, payload) {
   if (stage === "ecdPlanning") return buildEcdPlanningMessages(payload);
   if (stage === "taskBriefPlan") return buildTaskBriefPlanMessages(payload);
   if (stage === "questionDraftBatch") return buildQuestionDraftBatchMessages(payload);
+  if (stage === "multipleChoiceDraftBatch") return buildMultipleChoiceDraftBatchMessages(payload);
+  if (stage === "matchingDraftBatch") return buildMatchingDraftBatchMessages(payload);
   if (stage === "unitCopyBatch") return buildUnitCopyBatchMessages(payload);
   if (stage === "unitPracticePlan") return buildUnitPracticePlanMessages(payload);
   if (stage === "multipleChoiceDraft") return buildMultipleChoiceDraftMessages(payload);
@@ -37,6 +39,69 @@ function buildQuestionDraftBatchMessages({ article, source, units }) {
       "- matching 只考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。",
       "- 如果某个 matching 计划看起来只有 3 组，第四组必须来自同一 unit 中有原文支撑的同级边界项、对照项、步骤项或角色项；不要虚构。",
       "- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。",
+      "source 使用规则：",
+      "- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。",
+      "- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。",
+      "",
+      `source:\n${JSON.stringify(source || {}, null, 2)}`,
+      "",
+      `unitDraftInputs:\n${JSON.stringify(units || [], null, 2)}`,
+      "",
+      renderArticleMeta(article)
+    ].join("\n")
+  };
+}
+
+function buildMultipleChoiceDraftBatchMessages({ article, source, units }) {
+  return {
+    system: baseSystem(),
+    user: [
+      "阶段：multipleChoiceDraftBatch。",
+      "任务：按 taskBriefPlan 只生成整章各 unit 的选择题。",
+      "核心设计方式：",
+      "- ECD 是你的隐性思考方法：题目要让用户表现出对应 practiceGoal 的可观察掌握证据。",
+      "- 不要输出 ECD 字段、推理链、候选矩阵或批注。",
+      "- 不要新增 questionPlan；不要漏掉任何 multiple_choice questionPlan。",
+      "- 每个输出 unitId 必须原样对应输入。",
+      "- questions 数量必须等于该 unit 的 multiple_choice questionPlans 数量。",
+      "选择题规则：",
+      "- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。",
+      "- 先抓正确理解，再用真实误区设计干扰项。",
+      "- 4 个选项只能有一个正确答案；正确选项不能明显更长。",
+      "- 选项尽量短，考理解、边界、误区或场景迁移，不做阅读理解复述。",
+      "- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。",
+      "source 使用规则：",
+      "- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。",
+      "- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。",
+      "",
+      `source:\n${JSON.stringify(source || {}, null, 2)}`,
+      "",
+      `unitDraftInputs:\n${JSON.stringify(units || [], null, 2)}`,
+      "",
+      renderArticleMeta(article)
+    ].join("\n")
+  };
+}
+
+function buildMatchingDraftBatchMessages({ article, source, units }) {
+  return {
+    system: baseSystem(),
+    user: [
+      "阶段：matchingDraftBatch。",
+      "任务：按 taskBriefPlan 只生成整章各 unit 的连线匹配题。",
+      "核心设计方式：",
+      "- ECD 是你的隐性思考方法：连线题要观察用户是否理解结构关系。",
+      "- 不要输出 ECD 字段、推理链、候选矩阵或批注。",
+      "- 不要新增 questionPlan；不要漏掉任何 matching questionPlan。",
+      "- 每个输出 unitId 必须原样对应输入。",
+      "- questions 数量必须等于该 unit 的 matching questionPlans 数量。",
+      "连线题规则：",
+      "- 左右必须各 4 项，pairs 正好 4 对，一一对应。",
+      "- matching 只考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。",
+      "- 如果某个 matching 计划看起来只有 3 组，第四组必须来自同一 unit 中有原文支撑的同级边界项、对照项、步骤项或角色项；不要虚构。",
+      "- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。",
+      "- 左右项文字要短，适合移动端连线卡片；不是长定义粘贴。",
+      "- explanation 是答后浮窗里的一段短解释，说明这组关系为什么重要。",
       "source 使用规则：",
       "- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。",
       "- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。",
