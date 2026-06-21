@@ -99,6 +99,12 @@ test("unitKnowledgeMap prompt isolates micro knowledge discovery from task assem
     blocks: [
       { id: "p-001", type: "paragraph", text: "Hook 是关键动作前后的流程控制器。" }
     ],
+    sourceContextNote: {
+      mode: "plan_union_window",
+      selectedBlockIds: ["p-001"],
+      fullBlockCount: 8,
+      selectedBlockCount: 1
+    },
     plan: {
       title: ARTICLE.title,
       summaryCard: { text: "Hook 把关键动作变成稳定流程。" },
@@ -108,6 +114,8 @@ test("unitKnowledgeMap prompt isolates micro knowledge discovery from task assem
   });
 
   assert.match(messages.user, /unitKnowledgeMap/);
+  assert.match(messages.user, /sourceContextNote/);
+  assert.match(messages.user, /plan_union_window/);
   assert.match(messages.user, /本阶段不生成题目、不选择题型、不做 selectedTasks/);
   assert.match(messages.user, /完整发现/);
   assert.match(messages.user, /不要为了控制题量而删掉/);
@@ -122,6 +130,13 @@ test("ecdPlanning prompt asks for internal ECD reasoning and compact task planni
     blocks: [
       { id: "p-001", type: "paragraph", text: "Hook 是关键动作前后的流程控制器。" }
     ],
+    sourceContextNote: {
+      mode: "unit_window",
+      unitId: "unit-01",
+      selectedBlockIds: ["p-001"],
+      fullBlockCount: 8,
+      selectedBlockCount: 1
+    },
     plan: {
       title: ARTICLE.title,
       summaryCard: { text: "Hook 把关键动作变成稳定流程。" },
@@ -132,6 +147,7 @@ test("ecdPlanning prompt asks for internal ECD reasoning and compact task planni
   });
 
   assert.match(messages.user, /ecdPlanning/);
+  assert.match(messages.user, /unit_window/);
   assert.match(messages.user, /Evidence-Centered Design/);
   assert.match(messages.user, /compact task model/);
   assert.match(messages.user, /内部按 ECD 推理/);

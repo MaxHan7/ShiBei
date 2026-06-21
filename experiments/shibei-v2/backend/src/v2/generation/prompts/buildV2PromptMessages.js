@@ -74,7 +74,7 @@ function buildReviewPathPlanMessages({ article, source, blocks }) {
   };
 }
 
-function buildUnitKnowledgeMapMessages({ article, source, blocks, plan }) {
+function buildUnitKnowledgeMapMessages({ article, source, blocks, sourceContextNote, plan }) {
   return {
     system: baseSystem(),
     user: [
@@ -105,14 +105,14 @@ function buildUnitKnowledgeMapMessages({ article, source, blocks, plan }) {
       "",
       `reviewPathPlan:\n${JSON.stringify(plan, null, 2)}`,
       "",
-      renderSource(source, blocks),
+      renderSource(source, blocks, sourceContextNote),
       "",
       renderArticleMeta(article)
     ].join("\n")
   };
 }
 
-function buildEcdPlanningMessages({ article, source, blocks, plan, unitKnowledgeMap }) {
+function buildEcdPlanningMessages({ article, source, blocks, sourceContextNote, plan, unitKnowledgeMap }) {
   return {
     system: baseSystem(),
     user: [
@@ -148,14 +148,14 @@ function buildEcdPlanningMessages({ article, source, blocks, plan, unitKnowledge
       "",
       `unitKnowledgeMap:\n${JSON.stringify(unitKnowledgeMap || {}, null, 2)}`,
       "",
-      renderSource(source, blocks),
+      renderSource(source, blocks, sourceContextNote),
       "",
       renderArticleMeta(article)
     ].join("\n")
   };
 }
 
-function buildUnitPracticePlanMessages({ article, source, blocks, unit, ecdContext }) {
+function buildUnitPracticePlanMessages({ article, source, blocks, sourceContextNote, unit, ecdContext }) {
   return {
     system: baseSystem(),
     user: [
@@ -182,14 +182,14 @@ function buildUnitPracticePlanMessages({ article, source, blocks, unit, ecdConte
       "",
       `ECD context:\n${JSON.stringify(ecdContext || {}, null, 2)}`,
       "",
-      renderSource(source, blocks),
+      renderSource(source, blocks, sourceContextNote),
       "",
       renderArticleMeta(article)
     ].join("\n")
   };
 }
 
-function buildMultipleChoiceDraftMessages({ article, source, blocks, unit, practicePlan, ecdContext }) {
+function buildMultipleChoiceDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, ecdContext }) {
   return {
     system: baseSystem(),
     user: [
@@ -220,14 +220,14 @@ function buildMultipleChoiceDraftMessages({ article, source, blocks, unit, pract
       "",
       `ECD context:\n${JSON.stringify(ecdContext || {}, null, 2)}`,
       "",
-      renderSource(source, blocks),
+      renderSource(source, blocks, sourceContextNote),
       "",
       renderArticleMeta(article)
     ].join("\n")
   };
 }
 
-function buildMatchingDraftMessages({ article, source, blocks, unit, practicePlan, ecdContext }) {
+function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, ecdContext }) {
   return {
     system: baseSystem(),
     user: [
@@ -256,14 +256,14 @@ function buildMatchingDraftMessages({ article, source, blocks, unit, practicePla
       "",
       `ECD context:\n${JSON.stringify(ecdContext || {}, null, 2)}`,
       "",
-      renderSource(source, blocks),
+      renderSource(source, blocks, sourceContextNote),
       "",
       renderArticleMeta(article)
     ].join("\n")
   };
 }
 
-function buildUnitSummaryDraftMessages({ article, source, blocks, unit, practicePlan, questions, ecdContext }) {
+function buildUnitSummaryDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, questions, ecdContext }) {
   return {
     system: baseSystem(),
     user: [
@@ -284,7 +284,7 @@ function buildUnitSummaryDraftMessages({ article, source, blocks, unit, practice
       "",
       `已生成题目:\n${JSON.stringify(questions, null, 2)}`,
       "",
-      renderSource(source, blocks),
+      renderSource(source, blocks, sourceContextNote),
       "",
       renderArticleMeta(article)
     ].join("\n")
@@ -333,9 +333,12 @@ function renderArticleMeta(article) {
   ].join("\n");
 }
 
-function renderSource(source, blocks = []) {
+function renderSource(source, blocks = [], sourceContextNote = null) {
   return [
     `source:\n${JSON.stringify(source || {}, null, 2)}`,
+    sourceContextNote
+      ? `sourceContextNote:\n${JSON.stringify(sourceContextNote, null, 2)}`
+      : "",
     `blocks:\n${JSON.stringify(blocks, null, 2)}`
-  ].join("\n");
+  ].filter(Boolean).join("\n");
 }

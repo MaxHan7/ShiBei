@@ -96,14 +96,40 @@ test("ECD selected tasks drive downstream practice plans and suppress model-inve
   );
 });
 
-test("passes only compact current-unit context into ecdPlanning", async () => {
-  const captured = [];
+test("passes only compact source windows into per-unit stages", async () => {
+  const captured = {
+    unitKnowledgeMap: null,
+    ecdPlanning: [],
+    multipleChoiceDraft: [],
+    unitSummaryDraft: []
+  };
+  const longBlocks = Array.from({ length: 8 }, (_, index) => ({
+    id: `p-${String(index + 1).padStart(3, "0")}`,
+    type: "paragraph",
+    text: `长文章段落 ${index + 1}`
+  }));
   const promptCaller = async (stage, payload) => {
+    if (stage === "sourceMap") {
+      return {
+        source: {
+          type: "article",
+          title: ARTICLE_INPUT.title,
+          author: ARTICLE_INPUT.author,
+          url: ARTICLE_INPUT.url
+        },
+        blocks: longBlocks
+      };
+    }
     if (stage === "ecdPlanning") {
-      captured.push(payload);
+      captured.ecdPlanning.push(payload);
       return ecdPlanningFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id, { matching: false });
     }
-    if (stage === "multipleChoiceDraft" || stage === "unitSummaryDraft") {
+    if (stage === "multipleChoiceDraft") {
+      captured.multipleChoiceDraft.push(payload);
+      return happyPathPromptCaller(stage, payload);
+    }
+    if (stage === "unitSummaryDraft") {
+      captured.unitSummaryDraft.push(payload);
       return happyPathPromptCaller(stage, payload);
     }
     if (stage === "matchingDraft") return null;
@@ -113,7 +139,13 @@ test("passes only compact current-unit context into ecdPlanning", async () => {
         ...plan,
         chapterWideNotes: ["unrelated full-chapter note"],
         units: [
-          plan.units[0],
+          {
+            ...plan.units[0],
+            sourceAnchor: {
+              ...plan.units[0].sourceAnchor,
+              blockIds: ["p-003"]
+            }
+          },
           {
             ...plan.units[0],
             id: "unit-02",
@@ -121,13 +153,15 @@ test("passes only compact current-unit context into ecdPlanning", async () => {
             title: "第二个知识点",
             sourceAnchor: {
               ...plan.units[0].sourceAnchor,
-              id: "anchor-unit-02"
+              id: "anchor-unit-02",
+              blockIds: ["p-007"]
             }
           }
         ]
       };
     }
     if (stage === "unitKnowledgeMap") {
+      captured.unitKnowledgeMap = payload;
       return {
         units: payload.plan.units.map((unit) => unitKnowledgeMapFixture(unit.id, unit.sourceAnchor.id).units[0])
       };
@@ -135,19 +169,58 @@ test("passes only compact current-unit context into ecdPlanning", async () => {
     return happyPathPromptCaller(stage, payload);
   };
 
-  await generateReviewPathV2(ARTICLE_INPUT, {
+  const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller,
     unitConcurrency: 1,
     now: "2026-06-19T00:00:00.000Z"
   });
 
-  assert.equal(captured.length, 2);
-  assert.equal(captured[0].plan.units.length, 1);
-  assert.equal(captured[1].plan.units.length, 1);
-  assert.notEqual(captured[0].plan.units[0].id, captured[1].plan.units[0].id);
-  assert.equal(captured[0].plan.knowledgeObjects, undefined);
-  assert.equal(captured[1].plan.knowledgeObjects, undefined);
-  assert.equal(Array.isArray(captured[0].plan.chapterWideNotes), false);
+  assert.deepEqual(
+    captured.unitKnowledgeMap.blocks.map((block) => block.id),
+    ["p-002", "p-003", "p-004", "p-006", "p-007", "p-008"]
+  );
+  assert.equal(captured.unitKnowledgeMap.sourceContextNote.mode, "plan_union_window");
+
+  assert.equal(captured.ecdPlanning.length, 2);
+  assert.deepEqual(captured.ecdPlanning[0].blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
+  assert.deepEqual(captured.ecdPlanning[1].blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
+  assert.equal(captured.ecdPlanning[0].sourceContextNote.mode, "unit_window");
+  assert.equal(captured.ecdPlanning[0].plan.units.length, 1);
+  assert.equal(captured.ecdPlanning[1].plan.units.length, 1);
+  assert.notEqual(captured.ecdPlanning[0].plan.units[0].id, captured.ecdPlanning[1].plan.units[0].id);
+  assert.equal(captured.ecdPlanning[0].plan.knowledgeObjects, undefined);
+  assert.equal(captured.ecdPlanning[1].plan.knowledgeObjects, undefined);
+  assert.equal(Array.isArray(captured.ecdPlanning[0].plan.chapterWideNotes), false);
+
+  assert.deepEqual(captured.multipleChoiceDraft[0].blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
+  assert.deepEqual(captured.unitSummaryDraft[1].blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
+  assert.deepEqual(reviewPath.generationMeta.sourceContextStats, {
+    fullBlockCount: 8,
+    unitKnowledgeMap: {
+      mode: "plan_union_window",
+      selectedBlockCount: 6,
+      selectedBlockIds: ["p-002", "p-003", "p-004", "p-006", "p-007", "p-008"],
+      fallbackUsed: false
+    },
+    unitWindows: [
+      {
+        unitId: "unit-01",
+        anchorId: "anchor-unit-01",
+        anchorBlockIds: ["p-003"],
+        selectedBlockCount: 3,
+        selectedBlockIds: ["p-002", "p-003", "p-004"],
+        fallbackUsed: false
+      },
+      {
+        unitId: "unit-02",
+        anchorId: "anchor-unit-02",
+        anchorBlockIds: ["p-007"],
+        selectedBlockCount: 3,
+        selectedBlockIds: ["p-006", "p-007", "p-008"],
+        fallbackUsed: false
+      }
+    ]
+  });
 });
 
 test("can build sourceMap deterministically for long article quality experiments", async () => {

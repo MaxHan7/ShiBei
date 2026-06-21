@@ -49,6 +49,10 @@ test("renders a readable V2 quality HTML report with questions and source anchor
   assert.match(html, /质量诊断/);
   assert.match(html, /distractor value: pass/);
   assert.match(html, /matching relation value: pass/);
+  assert.match(html, /Source Context Stats/);
+  assert.match(html, /unitKnowledgeMap: b1, b2/);
+  assert.match(html, /展开完整 source block/);
+  assert.match(html, /这一段是为了测试长 source block/);
 });
 
 test("renders generation failures for quality review", () => {
@@ -138,7 +142,7 @@ function chapterFixture() {
     source: {
       title: "Hook 测试文章",
       blocks: [
-        { id: "b1", type: "paragraph", text: "Hook 会在生命周期的特定点触发。" },
+        { id: "b1", type: "paragraph", text: `Hook 会在生命周期的特定点触发。这一段是为了测试长 source block 在质量报告里默认展示预览，同时保留完整文本供人工展开审查。${"补充说明".repeat(40)}` },
         { id: "b2", type: "paragraph", text: "Handler 可以检查输入并执行动作。" }
       ]
     },
@@ -247,6 +251,25 @@ function chapterFixture() {
                 sourceAnchorId: "a1"
               }
             ]
+          }
+        ]
+      },
+      sourceContextStats: {
+        fullBlockCount: 2,
+        unitKnowledgeMap: {
+          mode: "plan_union_window",
+          selectedBlockCount: 2,
+          selectedBlockIds: ["b1", "b2"],
+          fallbackUsed: false
+        },
+        unitWindows: [
+          {
+            unitId: "u1",
+            anchorId: "a1",
+            anchorBlockIds: ["b1", "b2"],
+            selectedBlockCount: 2,
+            selectedBlockIds: ["b1", "b2"],
+            fallbackUsed: false
           }
         ]
       },

@@ -20,6 +20,10 @@ import {
 } from "./prompts/unitPracticePlan.js";
 import { validateUnitSummaryDraftOutput } from "./prompts/unitSummaryDraft.js";
 import { runV2QualityGuardrails } from "./qualityGuardrails.js";
+import {
+  buildPlanSourceContext,
+  buildUnitSourceContext
+} from "./sourceContext.js";
 
 export const V2_GENERATION_STAGES = [
   "sourceMap",
@@ -79,6 +83,7 @@ export async function generateReviewPathV2(
     (output) => validateReviewPathPlanOutput(output, { sourceBlockIds })
   );
   const plan = limitPlannedUnits(rawPlan, maxUnitCount);
+  const planSourceContext = buildPlanSourceContext(sourceMap, plan);
   const unitIds = new Set(plan.units.map((unit) => unit.id));
   const sourceAnchorIds = new Set(plan.units.map((unit) => unit.sourceAnchor?.id).filter(Boolean));
   const unitSourceAnchorIds = new Map(
@@ -89,26 +94,36 @@ export async function generateReviewPathV2(
   const unitKnowledgeMap = await callAndValidate(
     activePromptCaller,
     "unitKnowledgeMap",
-    { article, source: sourceMap.source, blocks: sourceMap.blocks, plan },
+    {
+      article,
+      source: planSourceContext.source,
+      blocks: planSourceContext.blocks,
+      sourceContextNote: planSourceContext.sourceContextNote,
+      plan
+    },
     (output) => validateUnitKnowledgeMapOutput(output, { unitIds, sourceAnchorIds })
   );
   const ecdPlanning = mergeEcdPlanningOutputs(
     await mapWithConcurrency(
       plan.units,
       unitConcurrency,
-      (plannedUnit) => callAndValidate(
-        activePromptCaller,
-        "ecdPlanning",
-        {
-          article,
-          source: sourceMap.source,
-          blocks: sourceMap.blocks,
-          plan: buildSingleUnitPlan(plan, plannedUnit),
-          unitKnowledgeMap: buildSingleUnitKnowledgeMap(unitKnowledgeMap, plannedUnit.id)
-        },
-        (output) => validateEcdPlanningOutput(output, { unitIds: new Set([plannedUnit.id]), sourceAnchorIds }),
-        { normalize: (output) => normalizeEcdPlanningOutput(output, { unitSourceAnchorIds, sourceAnchorIds }) }
-      )
+      (plannedUnit) => {
+        const unitSourceContext = buildUnitSourceContext(sourceMap, plannedUnit);
+        return callAndValidate(
+          activePromptCaller,
+          "ecdPlanning",
+          {
+            article,
+            source: unitSourceContext.source,
+            blocks: unitSourceContext.blocks,
+            sourceContextNote: unitSourceContext.sourceContextNote,
+            plan: buildSingleUnitPlan(plan, plannedUnit),
+            unitKnowledgeMap: buildSingleUnitKnowledgeMap(unitKnowledgeMap, plannedUnit.id)
+          },
+          (output) => validateEcdPlanningOutput(output, { unitIds: new Set([plannedUnit.id]), sourceAnchorIds }),
+          { normalize: (output) => normalizeEcdPlanningOutput(output, { unitSourceAnchorIds, sourceAnchorIds }) }
+        );
+      }
     )
   );
 
@@ -121,6 +136,7 @@ export async function generateReviewPathV2(
         activePromptCaller,
         article,
         sourceMap,
+        sourceContext: buildUnitSourceContext(sourceMap, plannedUnit),
         plannedUnit,
         ecdContext
       });
@@ -153,6 +169,11 @@ export async function generateReviewPathV2(
       currentStage: "completed",
       reviewPathPlan: stripReviewPathPlanForMetadata(plan),
       unitKnowledgeMap,
+      sourceContextStats: buildSourceContextStats({
+        sourceMap,
+        plan,
+        planSourceContext
+      }),
       stages: activeV2GenerationStages({ qualityJudgeEnabled }).map((stage) => ({
         status: stage,
         displayStatusText: stageDisplayText(stage),
@@ -268,9 +289,11 @@ async function generateUnitReviewContent({
   activePromptCaller,
   article,
   sourceMap,
+  sourceContext,
   plannedUnit,
   ecdContext
 }) {
+  const unitSourceContext = sourceContext || buildUnitSourceContext(sourceMap, plannedUnit);
   const practicePlan = buildPracticePlanFromEcdContext({
     ecdContext,
     plannedUnit
@@ -294,8 +317,9 @@ async function generateUnitReviewContent({
         "multipleChoiceDraft",
         {
           article,
-          source: sourceMap.source,
-          blocks: sourceMap.blocks,
+          source: unitSourceContext.source,
+          blocks: unitSourceContext.blocks,
+          sourceContextNote: unitSourceContext.sourceContextNote,
           unit: plannedUnit,
           practicePlan,
           ecdContext
@@ -319,8 +343,9 @@ async function generateUnitReviewContent({
         "matchingDraft",
         {
           article,
-          source: sourceMap.source,
-          blocks: sourceMap.blocks,
+          source: unitSourceContext.source,
+          blocks: unitSourceContext.blocks,
+          sourceContextNote: unitSourceContext.sourceContextNote,
           unit: plannedUnit,
           practicePlan,
           ecdContext
@@ -349,8 +374,9 @@ async function generateUnitReviewContent({
     "unitSummaryDraft",
     {
       article,
-      source: sourceMap.source,
-      blocks: sourceMap.blocks,
+      source: unitSourceContext.source,
+      blocks: unitSourceContext.blocks,
+      sourceContextNote: unitSourceContext.sourceContextNote,
       unit: plannedUnit,
       practicePlan,
       questions,
@@ -370,6 +396,30 @@ async function generateUnitReviewContent({
       questions,
       summary: unitSummary.summary
     }
+  };
+}
+
+function buildSourceContextStats({ sourceMap, plan, planSourceContext }) {
+  const fullBlockCount = Array.isArray(sourceMap?.blocks) ? sourceMap.blocks.length : 0;
+  return {
+    fullBlockCount,
+    unitKnowledgeMap: {
+      mode: planSourceContext.sourceContextNote.mode,
+      selectedBlockCount: planSourceContext.sourceContextNote.selectedBlockCount,
+      selectedBlockIds: planSourceContext.sourceContextNote.selectedBlockIds,
+      fallbackUsed: planSourceContext.sourceContextNote.fallbackUsed
+    },
+    unitWindows: (plan?.units || []).map((unit) => {
+      const context = buildUnitSourceContext(sourceMap, unit);
+      return {
+        unitId: unit.id,
+        anchorId: context.sourceContextNote.anchorId,
+        anchorBlockIds: context.sourceContextNote.anchorBlockIds,
+        selectedBlockCount: context.sourceContextNote.selectedBlockCount,
+        selectedBlockIds: context.sourceContextNote.selectedBlockIds,
+        fallbackUsed: context.sourceContextNote.fallbackUsed
+      };
+    })
   };
 }
 

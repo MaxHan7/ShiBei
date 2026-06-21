@@ -91,6 +91,7 @@ export function buildV2QualityReport({
       : [];
   const ecdPlanning = chapter?.generationMeta?.ecdPlanning || null;
   const unitKnowledgeMap = chapter?.generationMeta?.unitKnowledgeMap || null;
+  const sourceContextStats = chapter?.generationMeta?.sourceContextStats || null;
 
   return {
     schemaVersion: "v2_quality_report_1",
@@ -117,6 +118,7 @@ export function buildV2QualityReport({
     chapter,
     unitKnowledgeMap,
     ecdPlanning,
+    sourceContextStats,
     qualityDiagnostics,
     modelUsage: Array.isArray(jobResult?.modelUsage) ? jobResult.modelUsage : [],
     failure: buildFailure(jobResult)
@@ -323,6 +325,7 @@ export function renderV2QualityReportHtml(report) {
     <div class="meta">${escapeHtml(report.generatedAt)} · ${escapeHtml(report.label)} · ${escapeHtml(report.status)}</div>
     ${renderFailure(report.failure)}
     ${renderModelUsage(report.modelUsage)}
+    ${renderSourceContextStats(report.sourceContextStats)}
     <section class="card">
       <h2 style="margin-top:0">文章与章节</h2>
       <p><strong>${escapeHtml(chapter.title || report.source.title || "未命名文章")}</strong></p>
@@ -617,6 +620,25 @@ function renderModelUsage(modelUsage) {
   </section>`;
 }
 
+function renderSourceContextStats(sourceContextStats) {
+  if (!sourceContextStats) return "";
+  const unitWindows = Array.isArray(sourceContextStats.unitWindows) ? sourceContextStats.unitWindows : [];
+  return `<section class="card">
+    <h2 style="margin-top:0">Source Context Stats</h2>
+    <p class="meta">这一段显示实际传给下游阶段的 source window，用来检查是否还在把全文 blocks 塞给每个 unit。</p>
+    <div class="grid">
+      ${metric("Full blocks", sourceContextStats.fullBlockCount || 0)}
+      ${metric("Plan blocks", sourceContextStats.unitKnowledgeMap?.selectedBlockCount || 0)}
+      ${metric("Unit windows", unitWindows.length)}
+    </div>
+    ${sourceContextStats.unitKnowledgeMap ? `<p class="meta">unitKnowledgeMap: ${escapeHtml((sourceContextStats.unitKnowledgeMap.selectedBlockIds || []).join(", "))}${sourceContextStats.unitKnowledgeMap.fallbackUsed ? " · fallback" : ""}</p>` : ""}
+    ${unitWindows.map((window) => `<div class="question">
+      <strong>${escapeHtml(window.unitId)}</strong>
+      <div class="meta">anchor: ${escapeHtml(window.anchorId || "")} · blocks: ${escapeHtml((window.selectedBlockIds || []).join(", "))}${window.fallbackUsed ? " · fallback" : ""}</div>
+    </div>`).join("\n")}
+  </section>`;
+}
+
 function renderUnit(unit, index, sourceBlockMap, diagnosticsByQuestionId) {
   const anchorBlockIds = Array.isArray(unit.sourceAnchor?.blockIds) ? unit.sourceAnchor.blockIds : [];
   const sourceBlocks = anchorBlockIds.map((id) => sourceBlockMap.get(id)).filter(Boolean);
@@ -705,9 +727,12 @@ function formatCheckValue(value) {
 }
 
 function renderSourceBlock(block, highlighted) {
+  const text = String(block.text || "");
+  const preview = text.length > 180 ? `${text.slice(0, 180)}...` : text;
   return `<div class="source-block ${highlighted ? "highlight" : ""}">
     <strong>${escapeHtml(block.id)} · ${escapeHtml(block.type)}</strong>
-    <div>${escapeHtml(block.text)}</div>
+    <div>${escapeHtml(preview)}</div>
+    ${text.length > 180 ? `<details><summary>展开完整 source block</summary><pre>${escapeHtml(text)}</pre></details>` : ""}
   </div>`;
 }
 
