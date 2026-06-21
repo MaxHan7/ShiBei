@@ -202,18 +202,12 @@ export async function generateReviewPathV2(
 }
 
 function buildSingleUnitPlan(plan, plannedUnit) {
-  const unitId = plannedUnit.id;
-  const sourceAnchorId = plannedUnit.sourceAnchor?.id;
   return {
     title: plan.title,
     summaryCard: plan.summaryCard,
     chapterSummary: plan.chapterSummary,
     units: [plannedUnit],
-    knowledgeObjects: (plan.knowledgeObjects || []).filter((item) => {
-      return item.unitId === unitId ||
-        item.sourceAnchorId === sourceAnchorId ||
-        (Array.isArray(plannedUnit.sourceKnowledgeObjectIds) && plannedUnit.sourceKnowledgeObjectIds.includes(item.id));
-    }),
+    ...(Array.isArray(plan.knowledgeObjects) ? { knowledgeObjects: plan.knowledgeObjects } : {}),
     ...(plan.generationConstraints ? { generationConstraints: plan.generationConstraints } : {})
   };
 }
@@ -388,14 +382,14 @@ function stripReviewPathPlanForMetadata(plan) {
   return {
     title: plan.title,
     summaryCard: plan.summaryCard,
-    knowledgeObjects: plan.knowledgeObjects ?? [],
+    ...(Array.isArray(plan.knowledgeObjects) ? { knowledgeObjects: plan.knowledgeObjects } : {}),
     units: (plan.units ?? []).map((unit) => ({
       id: unit.id,
       order: unit.order,
       title: unit.title,
       nodeLabel: unit.nodeLabel,
-      sourceKnowledgeObjectIds: unit.sourceKnowledgeObjectIds ?? [],
-      sourceAnchor: unit.sourceAnchor
+      sourceAnchor: unit.sourceAnchor,
+      ...(Array.isArray(unit.sourceKnowledgeObjectIds) ? { sourceKnowledgeObjectIds: unit.sourceKnowledgeObjectIds } : {})
     })),
     chapterSummary: plan.chapterSummary,
     ...(plan.generationConstraints ? { generationConstraints: plan.generationConstraints } : {})

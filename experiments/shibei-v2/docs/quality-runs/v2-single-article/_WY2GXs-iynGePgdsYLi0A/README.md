@@ -399,3 +399,95 @@ After compact ECD:
 - matching count: <observed>
 - whether DMC-style structural matching survives: yes/no
 ```
+
+## 2026-06-21 Slim Review Path Plan
+
+### What Happened
+
+The first compact-ECD smoke run did not reach the compact ECD stage:
+
+- `20260621-121438-v2-compact-ecd-max1`
+  - Failed by experiment timeout at `unitKnowledgeMap`.
+  - `reviewPathPlan` alone took about 87s under a 90s total timeout.
+- `20260621-121622-v2-compact-ecd-max1-timeout240`
+  - Failed at `reviewPathPlan` after three JSON retries.
+  - Model usage showed each attempt used the full 5200 completion-token budget and was truncated while outputting `knowledgeObjects`.
+
+Diagnosis:
+
+- The bottleneck had moved earlier than compact ECD.
+- `reviewPathPlan` was doing too much: chapter summary, knowledge-object boundary map, unit selection, source anchors, and chapter completion copy.
+- This violated the pyramid structure we want. The first layer should identify high-level units; micro knowledge and ECD task modeling belong downstream.
+
+### Implementation Change
+
+`reviewPathPlan` was slimmed into a lightweight chapter/unit planning stage:
+
+- Removed default model output for `knowledgeObjects[]`.
+- Removed default model output for `units[].sourceKnowledgeObjectIds`.
+- Kept only:
+  - `title`
+  - `summaryCard.text`
+  - `units[]` with `id/order/title/nodeLabel/shortSummary/detailSummary/why/sourceAnchor`
+  - `chapterSummary.encouragementText`
+- Kept DMC-style guidance as positive unit-splitting instructions, but no longer requires the model to serialize a full boundary-decision table.
+- Lowered `reviewPathPlan` output budget from 5200 to 3200 because the schema is now smaller.
+- Removed unused knowledge-object validator helpers from `reviewPathPlan.js` to avoid future confusion.
+
+The resulting structure is now clearer:
+
+```text
+reviewPathPlan: chapter summary + high-level units
+  -> unitKnowledgeMap: micro knowledge inventory
+  -> ecdPlanning: assessable targets + selected tasks
+  -> visible question drafts
+```
+
+### Verification
+
+- Code check: `npm --prefix experiments/shibei-v2/backend run check`
+- Result: 202 tests passed.
+
+Live smoke:
+
+- JSON: `runs/20260621-122330-v2-slim-review-plan-max1.json`
+- HTML: `reports/20260621-122330-v2-slim-review-plan-max1.html`
+- Result: completed.
+- Metrics: 1 unit, 2 questions, 1 multiple choice, 1 matching, 0 diagnostic issues.
+- Timings:
+  - `reviewPathPlan`: 26s
+  - `unitKnowledgeMap`: 15s
+  - `ecdPlanning`: 83s
+  - `multipleChoiceDraft`: 11s
+  - `matchingDraft`: 63s
+  - `unitSummaryDraft`: 4s
+
+Full bounded run:
+
+- JSON: `runs/20260621-122718-v2-slim-review-plan-max6-rerun.json`
+- HTML: `reports/20260621-122718-v2-slim-review-plan-max6-rerun.html`
+- Result: completed.
+- Metrics: 6 units, 14 questions, 9 multiple choice, 5 matching, 127 source blocks, 1 diagnostic issue.
+- Unit coverage:
+  - `游戏化的概念与核心理论`: 3 questions, including 1 matching.
+  - `DMC模型：游戏元素的分层框架`: 3 questions, including a DMC layer-role matching task.
+  - `阶段性目标设定`: 2 multiple-choice questions.
+  - `挑战与能力的动态匹配`: 2 questions, including 1 matching.
+  - `成长机制的感知设计`: 2 questions, including 1 matching.
+  - `情境设计与身份认同建构`: 2 questions, including 1 matching.
+
+### Conclusion
+
+This was a successful structural slimming pass.
+
+- The JSON truncation root cause was not compact ECD itself; it was the over-heavy `reviewPathPlan` stage.
+- Slimming the first layer restored stable JSON output and improved runtime.
+- DMC remained an independent unit and received a direct matching task.
+- Question volume recovered from the prompt-diet run: 6 questions -> 14 questions.
+- Matching recovered from 1 matching -> 5 matching.
+
+Remaining risks:
+
+- `ecdPlanning` and `matchingDraft` can still be slow for individual units.
+- One DMC multiple-choice item was flagged for weak distractors.
+- The next quality pass should inspect the generated report manually before changing more architecture.

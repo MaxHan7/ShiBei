@@ -37,8 +37,8 @@ test("generates a contract-valid V2 review path from split prompt stages", async
   assert.equal(reviewPath.units.length, 1);
   assert.equal(reviewPath.units[0].questions.length, 2);
   assert.equal(reviewPath.units[0].sourceKnowledgeObjectIds, undefined);
-  assert.equal(reviewPath.generationMeta.reviewPathPlan.knowledgeObjects.length, 1);
-  assert.deepEqual(reviewPath.generationMeta.reviewPathPlan.units[0].sourceKnowledgeObjectIds, ["ko-01"]);
+  assert.equal(reviewPath.generationMeta.reviewPathPlan.knowledgeObjects, undefined);
+  assert.equal(reviewPath.generationMeta.reviewPathPlan.units[0].sourceKnowledgeObjectIds, undefined);
   assert.deepEqual(
     reviewPath.units[0].questions.map((question) => question.type),
     ["multiple_choice", "matching"]
@@ -112,21 +112,6 @@ test("passes only compact current-unit context into ecdPlanning", async () => {
       return {
         ...plan,
         chapterWideNotes: ["unrelated full-chapter note"],
-        knowledgeObjects: [
-          ...plan.knowledgeObjects.map((item) => ({ ...item, unitId: "unit-01", sourceAnchorId: "anchor-unit-01" })),
-          {
-            id: "ko-02",
-            unitId: "unit-02",
-            sourceAnchorId: "anchor-unit-02",
-            title: "第二个知识对象",
-            nodeLabel: "第二个知识对象",
-            knowledgeShape: "core_concept",
-            roleInArticle: "supporting_detail",
-            sourceBlockIds: ["p-002"],
-            boundaryDecision: "standalone_unit",
-            boundaryReason: "第二个知识对象用于测试 per-unit 输入瘦身。"
-          }
-        ],
         units: [
           plan.units[0],
           {
@@ -134,7 +119,6 @@ test("passes only compact current-unit context into ecdPlanning", async () => {
             id: "unit-02",
             order: 2,
             title: "第二个知识点",
-            sourceKnowledgeObjectIds: ["ko-02"],
             sourceAnchor: {
               ...plan.units[0].sourceAnchor,
               id: "anchor-unit-02"
@@ -161,14 +145,8 @@ test("passes only compact current-unit context into ecdPlanning", async () => {
   assert.equal(captured[0].plan.units.length, 1);
   assert.equal(captured[1].plan.units.length, 1);
   assert.notEqual(captured[0].plan.units[0].id, captured[1].plan.units[0].id);
-  assert.equal(
-    captured[0].plan.knowledgeObjects.every((item) => item.unitId === captured[0].plan.units[0].id),
-    true
-  );
-  assert.equal(
-    captured[1].plan.knowledgeObjects.every((item) => item.unitId === captured[1].plan.units[0].id),
-    true
-  );
+  assert.equal(captured[0].plan.knowledgeObjects, undefined);
+  assert.equal(captured[1].plan.knowledgeObjects, undefined);
   assert.equal(Array.isArray(captured[0].plan.chapterWideNotes), false);
 });
 
@@ -488,18 +466,6 @@ async function happyPathPromptCaller(stage, payload, { matching = true } = {}) {
       summaryCard: {
         text: "这篇文章解释 Hook 如何把 AI 工作流里的关键动作变成稳定流程。"
       },
-      knowledgeObjects: [
-        {
-          id: "ko-01",
-          title: "Hook 是什么",
-          nodeLabel: "流程控制",
-          knowledgeShape: "core_concept",
-          roleInArticle: "core_argument",
-          sourceBlockIds: ["p-001", "p-002"],
-          boundaryDecision: "standalone_unit",
-          boundaryReason: "Hook 是理解后续自动化边界的独立核心概念。"
-        }
-      ],
       units: [
         {
           id: "unit-01",
@@ -509,7 +475,6 @@ async function happyPathPromptCaller(stage, payload, { matching = true } = {}) {
           shortSummary: "Hook 是关键动作前后的流程控制器。",
           detailSummary: "Hook 不是更长提示词，而是在关键动作前后稳定执行规则、上下文和验证的流程约束。",
           why: "这是理解后续自动化边界的基础。",
-          sourceKnowledgeObjectIds: ["ko-01"],
           sourceAnchor: {
             id: "anchor-unit-01",
             blockIds: ["p-001", "p-002"],

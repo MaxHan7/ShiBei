@@ -63,11 +63,10 @@ test("reviewPathPlan prompt separates chapter summary and unit summaries", () =>
   assert.match(messages.user, /缺 nodeLabel、shortSummary、detailSummary、why 或 sourceAnchor/);
   assert.match(messages.user, /最值得复习、能形成 evidence 的核心知识点/);
   assert.match(messages.user, /通常保留 4-7 个高价值完整 unit/);
-  assert.match(messages.user, /knowledgeObjects/);
-  assert.match(messages.user, /先列知识对象，再决定 unit/);
-  assert.match(messages.user, /standalone_unit/);
   assert.match(messages.user, /DMC 模型/);
-  assert.match(messages.user, /不能把相关但独立的知识对象合并/);
+  assert.match(messages.user, /不能把相关但独立的大知识点合并/);
+  assert.doesNotMatch(messages.user, /knowledgeObjects/);
+  assert.doesNotMatch(messages.user, /standalone_unit/);
 });
 
 test("unitPracticePlan prompt uses evidence value instead of fixed question counts", () => {
