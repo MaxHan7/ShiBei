@@ -659,6 +659,18 @@ sourceMap
 
 这个调整更符合 ECD 的 task model 思路：每个 unit 都有自己的 learning claims、evidence angles、evidence needs 和 selected tasks。全局阶段负责切分知识边界，逐 unit 阶段负责设计证据任务。这样可以避免全局 planning 反向压缩 unit 内部的小知识点，也能避免单次模型输出过大。
 
+2026-06-21 继续测试后发现：只把 `ecdPlanning` 改成逐 unit 还不够。如果每个 unit 仍要求模型完整输出 ECD 的每层中间链路，单个 unit 也会变成超长 JSON。下一步调整不是撤销 ECD，而是把 ECD 从“全量可见中间链”调整为“驱动任务选择的内部方法”：
+
+```text
+unitKnowledgeMap.microKnowledgePoints
+-> ecdPlanning 内部按 ECD 推理
+-> compact assessableTargets
+-> compact selectedTasks
+-> visible question drafts
+```
+
+真正需要长期记录的是知识覆盖和任务覆盖，而不是每一层推理的完整文本。`learningClaim`、`evidenceAngle`、`evidenceNeed`、`taskPlan`、`assemblyReason` 仍然是 prompt 设计时的概念框架，但默认不再全部持久化到 `generationMeta`。如需审查完整 ECD 链路，应通过单独 debug/experiment mode 开启，而不是进入生产默认链路。
+
 质量诊断也相应调整：模型型 `qualityJudge` 默认从主链路停用。原因是它需要读取完整 review path，容易形成超长 JSON 输入和一次额外的结构化输出风险；当前阶段的目标是先观察完整题目和 ECD 结构，而不是让后置审查员替主链路兜底。主链路继续保留 deterministic guardrails 和 HTML 报告诊断；如果后续要验证质量审查或质量改写角色是否有效，应作为显式 A/B 实验开启，而不是混在默认生成链路里。
 
 ### 后续文档化要求

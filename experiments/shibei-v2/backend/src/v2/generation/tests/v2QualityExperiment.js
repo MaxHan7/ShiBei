@@ -375,6 +375,7 @@ function renderUnitKnowledgeMap(unitKnowledgeMap) {
 
 function renderEcdPlanning(ecdPlanning) {
   if (!ecdPlanning) return "";
+  if (Array.isArray(ecdPlanning.units)) return renderCompactEcdPlanning(ecdPlanning);
 
   const units = Array.isArray(ecdPlanning.knowledgeModel?.units) ? ecdPlanning.knowledgeModel.units : [];
   const subObjectivesByUnit = groupByUnitId(ecdPlanning.unitSubObjectives);
@@ -400,6 +401,29 @@ function renderEcdPlanning(ecdPlanning) {
       taskPlans: taskPlansByUnit.get(unit.unitId) || [],
       assembly: assemblyByUnit.get(unit.unitId)
     })).join("\n")}
+  </section>`;
+}
+
+function renderCompactEcdPlanning(ecdPlanning) {
+  const units = Array.isArray(ecdPlanning?.units) ? ecdPlanning.units : [];
+  if (units.length === 0) return "";
+
+  return `<section class="card">
+    <h2 style="margin-top:0">Compact ECD Task Model</h2>
+    <p class="meta">这一段是内部诊断信息：ECD 仍然驱动任务选择，但默认只持久化可检查的目标覆盖和任务覆盖，不再输出完整思考链。</p>
+    ${units.map((unit, index) => {
+      const targets = Array.isArray(unit.assessableTargets) ? unit.assessableTargets : [];
+      const tasks = Array.isArray(unit.selectedTasks) ? unit.selectedTasks : [];
+      return `<div class="question">
+        <div class="stem">${index + 1}. ${escapeHtml(unit.unitId)}</div>
+        ${renderEcdList("Assessable Targets", targets, (target) =>
+          `${target.targetId} · ${target.importance} · ${target.microId}：${target.title || ""} / ${target.learningTarget || ""}`
+        )}
+        ${renderEcdList("Selected Tasks", tasks, (task) =>
+          `${task.questionPlanId} · ${task.taskAffordance} · ${task.taskPurpose} / targets: ${(task.targetIds || []).join(", ")} / micros: ${(task.microIds || []).join(", ")} / ${task.evidenceGoal || ""} / misconception: ${task.commonMisconception || ""}`
+        )}
+      </div>`;
+    }).join("\n")}
   </section>`;
 }
 

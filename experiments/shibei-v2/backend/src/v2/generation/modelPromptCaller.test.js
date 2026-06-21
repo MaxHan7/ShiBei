@@ -103,17 +103,35 @@ test("calls the JSON model transport with ecdPlanning schema and messages", asyn
     modelJsonCaller: async (request) => {
       calls.push(request);
       return {
-        articleUnderstanding: {
-          coreThesis: "Hook 把提醒变成稳定流程。",
-          articleStructure: [],
-          reviewableSections: [],
-          nonReviewableSections: []
-        },
-        knowledgeModel: { units: [] },
-        unitLearningClaims: [],
-        unitEvidenceNeeds: [],
-        unitTaskPlan: [],
-        unitAssemblyPlan: []
+        units: [
+          {
+            unitId: "unit-01",
+            sourceAnchorId: "anchor-unit-01",
+            assessableTargets: [
+              {
+                targetId: "target-001",
+                microIds: ["micro-unit-01-001"],
+                title: "Hook 核心定义",
+                learningTarget: "用户能理解 Hook 是流程约束。",
+                evidenceGoal: "用户能选择 Hook 的核心作用。",
+                evidenceType: "select_core_claim",
+                coverageRequirement: "required",
+                sourceAnchorId: "anchor-unit-01"
+              }
+            ],
+            selectedTasks: [
+              {
+                questionPlanId: "q-001",
+                targetIds: ["target-001"],
+                microIds: ["micro-unit-01-001"],
+                taskAffordance: "multiple_choice",
+                taskPurpose: "light_understanding",
+                evidenceGoal: "用户能选择 Hook 的核心作用。",
+                assemblyReason: "先确认用户能把 Hook 理解成流程约束。"
+              }
+            ]
+          }
+        ]
       };
     }
   });
@@ -129,8 +147,9 @@ test("calls the JSON model transport with ecdPlanning schema and messages", asyn
   assert.equal(calls[0].schemaName, "shibei_v2_ecd_planning");
   assert.equal(calls[0].schema.name, undefined);
   assert.equal(calls[0].stage, "v2_ecdPlanning");
+  assert.equal(calls[0].estimatedOutputTokens, 3000);
   assert.match(calls[0].user, /Evidence-Centered Design/);
-  assert.match(calls[0].user, /learningClaim/);
+  assert.match(calls[0].user, /compact task model/);
 });
 
 test("rejects unsupported V2 generation stage", async () => {

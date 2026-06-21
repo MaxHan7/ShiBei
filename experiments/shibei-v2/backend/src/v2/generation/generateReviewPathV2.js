@@ -202,9 +202,19 @@ export async function generateReviewPathV2(
 }
 
 function buildSingleUnitPlan(plan, plannedUnit) {
+  const unitId = plannedUnit.id;
+  const sourceAnchorId = plannedUnit.sourceAnchor?.id;
   return {
-    ...plan,
-    units: [plannedUnit]
+    title: plan.title,
+    summaryCard: plan.summaryCard,
+    chapterSummary: plan.chapterSummary,
+    units: [plannedUnit],
+    knowledgeObjects: (plan.knowledgeObjects || []).filter((item) => {
+      return item.unitId === unitId ||
+        item.sourceAnchorId === sourceAnchorId ||
+        (Array.isArray(plannedUnit.sourceKnowledgeObjectIds) && plannedUnit.sourceKnowledgeObjectIds.includes(item.id));
+    }),
+    ...(plan.generationConstraints ? { generationConstraints: plan.generationConstraints } : {})
   };
 }
 
@@ -216,23 +226,8 @@ function buildSingleUnitKnowledgeMap(unitKnowledgeMap, unitId) {
 
 function mergeEcdPlanningOutputs(outputs) {
   const validOutputs = (outputs || []).filter(Boolean);
-  const first = validOutputs[0] || {};
   return {
-    articleUnderstanding: first.articleUnderstanding || {
-      coreThesis: "",
-      articleStructure: [],
-      reviewableSections: [],
-      nonReviewableSections: []
-    },
-    knowledgeModel: {
-      units: validOutputs.flatMap((output) => output.knowledgeModel?.units || [])
-    },
-    unitSubObjectives: validOutputs.flatMap((output) => output.unitSubObjectives || []),
-    unitLearningClaims: validOutputs.flatMap((output) => output.unitLearningClaims || []),
-    unitEvidenceAngles: validOutputs.flatMap((output) => output.unitEvidenceAngles || []),
-    unitEvidenceNeeds: validOutputs.flatMap((output) => output.unitEvidenceNeeds || []),
-    unitTaskPlan: validOutputs.flatMap((output) => output.unitTaskPlan || []),
-    unitAssemblyPlan: validOutputs.flatMap((output) => output.unitAssemblyPlan || [])
+    units: validOutputs.flatMap((output) => output.units || [])
   };
 }
 
@@ -444,25 +439,13 @@ function getEcdContextForUnit(ecdPlanning, plannedUnit, unitKnowledgeMap = null)
   const unitId = plannedUnit.id;
   const microKnowledgePoints =
     unitKnowledgeMap?.units?.find((item) => item.unitId === unitId)?.microKnowledgePoints ?? [];
-  const knowledgeUnit = ecdPlanning.knowledgeModel?.units?.find((item) => item.unitId === unitId) ?? null;
-  const subObjectives = (ecdPlanning.unitSubObjectives ?? []).filter((item) => item.unitId === unitId);
-  const learningClaims = (ecdPlanning.unitLearningClaims ?? []).filter((item) => item.unitId === unitId);
-  const angles = (ecdPlanning.unitEvidenceAngles ?? []).filter((item) => item.unitId === unitId);
-  const evidenceNeeds = (ecdPlanning.unitEvidenceNeeds ?? []).filter((item) => item.unitId === unitId);
-  const taskPlans = (ecdPlanning.unitTaskPlan ?? []).filter((item) => item.unitId === unitId);
-  const assemblyPlan = (ecdPlanning.unitAssemblyPlan ?? []).find((item) => item.unitId === unitId) ?? null;
+  const unitTaskModel = (ecdPlanning.units ?? []).find((item) => item.unitId === unitId) ?? null;
   return {
     unitId,
     microKnowledgePoints,
-    knowledgeUnit,
-    subObjectives,
-    learningClaims,
-    angles,
-    evidenceNeeds,
-    taskPlans,
-    assemblyPlan,
-    selectedTasks: assemblyPlan?.selectedTasks ?? [],
-    skippedEvidence: assemblyPlan?.skippedEvidence ?? []
+    assessableTargets: unitTaskModel?.assessableTargets ?? [],
+    selectedTasks: unitTaskModel?.selectedTasks ?? [],
+    skippedTargets: unitTaskModel?.skippedTargets ?? []
   };
 }
 
@@ -508,7 +491,8 @@ function alignPracticePlanWithEcdContext(practicePlan, { ecdContext, plannedUnit
       type,
       purpose: questionPurposeForSelectedTask(task.taskPurpose),
       practiceGoalId,
-      angleIds: Array.isArray(task.angleIds) ? task.angleIds : [],
+      targetIds: Array.isArray(task.targetIds) ? task.targetIds : [],
+      microIds: Array.isArray(task.microIds) ? task.microIds : [],
       ...(type === "matching" ? { relationType: relationTypeForTaskPurpose(task.taskPurpose) } : {}),
       sourceAnchorId
     };
@@ -527,23 +511,21 @@ function practiceGoalIdForSelectedTask(task, index) {
 }
 
 function practiceGoalFromSelectedTask(task, { id, ecdContext, sourceAnchorId }) {
-  const evidence = firstEvidenceForSelectedTask(task, ecdContext);
-  const claim = evidence
-    ? ecdContext.learningClaims.find((item) => item.claimId === evidence.claimId)
-    : null;
+  const target = firstTargetForSelectedTask(task, ecdContext);
   return {
     id,
     kind: practiceGoalKindForSelectedTask(task),
-    target: evidence?.evidenceNeed || claim?.learningClaim || task.assemblyReason,
+    target: task.evidenceGoal || target?.evidenceGoal || target?.learningTarget || task.assemblyReason,
     commonMisconception: commonMisconceptionForSelectedTask(task),
-    angleIds: Array.isArray(task.angleIds) ? task.angleIds : [],
+    targetIds: Array.isArray(task.targetIds) ? task.targetIds : [],
+    microIds: Array.isArray(task.microIds) ? task.microIds : [],
     sourceAnchorId
   };
 }
 
-function firstEvidenceForSelectedTask(task, ecdContext) {
-  const evidenceIds = Array.isArray(task.evidenceIds) ? task.evidenceIds : [];
-  return ecdContext.evidenceNeeds.find((item) => evidenceIds.includes(item.evidenceId)) ?? null;
+function firstTargetForSelectedTask(task, ecdContext) {
+  const targetIds = Array.isArray(task.targetIds) ? task.targetIds : [];
+  return ecdContext.assessableTargets.find((item) => targetIds.includes(item.targetId)) ?? null;
 }
 
 function practiceGoalKindForSelectedTask(task) {
@@ -556,6 +538,9 @@ function practiceGoalKindForSelectedTask(task) {
 }
 
 function commonMisconceptionForSelectedTask(task) {
+  if (typeof task.commonMisconception === "string" && task.commonMisconception.trim()) {
+    return task.commonMisconception.trim();
+  }
   if (task.taskAffordance === "matching") {
     return "把结构关系误解成孤立名词定义。";
   }

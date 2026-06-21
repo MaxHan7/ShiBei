@@ -84,8 +84,10 @@ test("unitPracticePlan prompt uses evidence value instead of fixed question coun
   assert.match(messages.user, /unitPracticePlan/);
   assert.match(messages.user, /ECD context/);
   assert.match(messages.user, /selectedTasks/);
-  assert.match(messages.user, /保持 ECD assembly 已选择的任务组合/);
+  assert.match(messages.user, /保持 ECD 已选择的 compact task 组合/);
   assert.match(messages.user, /questionPlan.id 必须等于 selectedTask.questionPlanId/);
+  assert.match(messages.user, /targetIds/);
+  assert.match(messages.user, /microIds/);
   assert.match(messages.user, /questionPlan.type 为 matching 时，必须填写 relationType/);
   assert.match(messages.user, /layer_role_matching \/ role_responsibility_matching 通常是 responsibility/);
   assert.match(messages.user, /matching 优先表达当前 unit 自身的层级、边界、步骤、信号、角色等关系证据/);
@@ -114,7 +116,7 @@ test("unitKnowledgeMap prompt isolates micro knowledge discovery from task assem
   assert.match(messages.user, /microKnowledgePoints/);
 });
 
-test("ecdPlanning prompt asks for ECD claims evidence and task planning without drafting questions", () => {
+test("ecdPlanning prompt asks for internal ECD reasoning and compact task planning", () => {
   const messages = buildV2PromptMessages("ecdPlanning", {
     article: ARTICLE,
     source: { type: "article", title: ARTICLE.title },
@@ -132,28 +134,20 @@ test("ecdPlanning prompt asks for ECD claims evidence and task planning without 
 
   assert.match(messages.user, /ecdPlanning/);
   assert.match(messages.user, /Evidence-Centered Design/);
+  assert.match(messages.user, /compact task model/);
+  assert.match(messages.user, /内部按 ECD 推理/);
   assert.match(messages.user, /unitKnowledgeMap\.microKnowledgePoints/);
   assert.match(messages.user, /不要在本阶段重新压缩/);
   assert.match(messages.user, /high 或 medium/);
-  assert.match(messages.user, /learningClaim/);
-  assert.match(messages.user, /evidenceNeed/);
-  assert.match(messages.user, /unitSubObjectives/);
-  assert.match(messages.user, /unitEvidenceAngles/);
-  assert.match(messages.user, /多角度 evidence/);
+  assert.match(messages.user, /assessableTargets/);
+  assert.match(messages.user, /selectedTasks/);
+  assert.match(messages.user, /targetIds/);
+  assert.match(messages.user, /microIds/);
+  assert.match(messages.user, /evidenceGoal/);
   assert.match(messages.user, /掌握证据组合/);
-  assert.match(messages.user, /不同可观察理解表现/);
-  assert.match(messages.user, /高价值 supporting/);
-  assert.match(messages.user, /definition_grasp/);
-  assert.match(messages.user, /scenario_transfer/);
-  assert.match(messages.user, /misconception_detection/);
-  assert.match(messages.user, /assessment targets/);
-  assert.match(messages.user, /coverage matrix/);
-  assert.match(messages.user, /不以最低覆盖为目标/);
-  assert.match(messages.user, /required angles/);
-  assert.match(messages.user, /先列 evidence，再选 task affordance/);
-  assert.match(messages.user, /taskPlan/);
+  assert.match(messages.user, /required 的 assessableTargets/);
+  assert.match(messages.user, /不要输出 skippedEvidence、learningClaims、evidenceNeeds、taskPlan 或 articleUnderstanding/);
   assert.match(messages.user, /本阶段不生成用户可见题目/);
-  assert.match(messages.user, /题目数量由 evidence value 和掌握证据组合自然决定/);
   assert.match(messages.user, /DMC 这类“模型层级 -> 设计作用”/);
 });
 
@@ -288,65 +282,29 @@ function practicePlanFixture() {
 function ecdContextFixture() {
   return {
     unitId: "unit-01",
-    knowledgeUnit: {
-      unitId: "unit-01",
-      knowledgeShape: "role_boundary",
-      sourceAnchorId: "anchor-unit-01"
-    },
-    learningClaims: [
+    assessableTargets: [
       {
-        unitId: "unit-01",
-        claimId: "claim-01",
-        claimType: "boundary_understanding",
-        learningClaim: "用户能区分 Hook 和 Prompt 的职责边界。",
-        sourceAnchorId: "anchor-unit-01"
-      }
-    ],
-    evidenceNeeds: [
-      {
-        unitId: "unit-01",
-        evidenceId: "ev-01",
-        claimId: "claim-01",
+        targetId: "target-01",
+        microIds: ["micro-unit-01-001"],
+        title: "职责边界",
+        learningTarget: "用户能区分 Hook 和 Prompt 的职责边界。",
+        evidenceGoal: "用户能把不同工作流组件匹配到对应职责。",
         evidenceType: "map_structure_relation",
-        evidenceNeed: "用户能把不同工作流组件匹配到对应职责。",
-        observableResponse: "完成职责边界连线题。",
+        coverageRequirement: "required",
         sourceAnchorId: "anchor-unit-01"
       }
     ],
-    taskPlans: [
-      {
-        unitId: "unit-01",
-        taskPlanId: "tp-01",
-        evidenceIds: ["ev-01"],
-        taskAffordance: "matching",
-        taskPurpose: "role_responsibility_matching",
-        whyThisTask: "连线题能直接观察职责边界理解。"
-      }
-    ],
-    assemblyPlan: {
-      unitId: "unit-01",
-      selectedTasks: [
-        {
-          questionPlanId: "q-001",
-          taskPlanId: "tp-01",
-          evidenceIds: ["ev-01"],
-          taskAffordance: "matching",
-          taskPurpose: "role_responsibility_matching",
-          assemblyReason: "该题直接服务于职责边界 evidence。"
-        }
-      ],
-      skippedEvidence: []
-    },
     selectedTasks: [
       {
         questionPlanId: "q-001",
-        taskPlanId: "tp-01",
-        evidenceIds: ["ev-01"],
+        targetIds: ["target-01"],
+        microIds: ["micro-unit-01-001"],
         taskAffordance: "matching",
         taskPurpose: "role_responsibility_matching",
+        evidenceGoal: "用户能把不同工作流组件匹配到对应职责。",
         assemblyReason: "该题直接服务于职责边界 evidence。"
       }
     ],
-    skippedEvidence: []
+    skippedTargets: []
   };
 }

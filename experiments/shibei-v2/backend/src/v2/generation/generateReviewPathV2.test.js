@@ -46,15 +46,16 @@ test("generates a contract-valid V2 review path from split prompt stages", async
   assert.equal(reviewPath.units[0].questions[0].correctUnderstanding, undefined);
   assert.equal(reviewPath.units[0].questions[1].relationGoal, undefined);
   assert.equal(reviewPath.generationMeta.currentStage, "completed");
-  assert.equal(reviewPath.generationMeta.ecdPlanning.articleUnderstanding.coreThesis, "Hook 把关键动作前后的提醒变成稳定流程。");
   assert.equal(reviewPath.generationMeta.unitKnowledgeMap.units[0].microKnowledgePoints.length, 2);
-  assert.deepEqual(reviewPath.generationMeta.ecdPlanning.unitAssemblyPlan[0].selectedTasks[0].angleIds, ["angle-001"]);
-  assert.equal(reviewPath.generationMeta.ecdPlanning.unitAssemblyPlan[0].selectedTasks.length, 2);
+  assert.equal(reviewPath.generationMeta.ecdPlanning.units[0].assessableTargets.length, 2);
+  assert.deepEqual(reviewPath.generationMeta.ecdPlanning.units[0].selectedTasks[0].targetIds, ["target-001"]);
+  assert.equal(reviewPath.generationMeta.ecdPlanning.units[0].selectedTasks.length, 2);
   assert.equal(reviewPath.generationMeta.unitPracticePlans.length, 1);
-  assert.equal(reviewPath.generationMeta.ecdPlanning.unitEvidenceAngles.length, 2);
-  assert.equal(reviewPath.generationMeta.ecdPlanning.unitTaskPlan[1].taskPurpose, "role_responsibility_matching");
-  assert.deepEqual(reviewPath.generationMeta.unitPracticePlans[0].questionPlans[0].angleIds, ["angle-001"]);
-  assert.deepEqual(reviewPath.generationMeta.unitPracticePlans[0].questionPlans[1].angleIds, ["angle-002"]);
+  assert.equal(reviewPath.generationMeta.ecdPlanning.units[0].selectedTasks[1].taskPurpose, "role_responsibility_matching");
+  assert.deepEqual(reviewPath.generationMeta.unitPracticePlans[0].questionPlans[0].targetIds, ["target-001"]);
+  assert.deepEqual(reviewPath.generationMeta.unitPracticePlans[0].questionPlans[0].microIds, ["micro-unit-01-001"]);
+  assert.deepEqual(reviewPath.generationMeta.unitPracticePlans[0].questionPlans[1].targetIds, ["target-002"]);
+  assert.deepEqual(reviewPath.generationMeta.unitPracticePlans[0].questionPlans[1].microIds, ["micro-unit-01-002"]);
   assert.equal(reviewPath.generationMeta.qualityDiagnostics.length, 2);
   assert.deepEqual(reviewPath.generationMeta.qualityGate, {
     mode: "deterministic_only",
@@ -93,6 +94,82 @@ test("ECD selected tasks drive downstream practice plans and suppress model-inve
     reviewPath.units[0].questions.map((question) => `${question.id}:${question.type}`),
     ["q-001:multiple_choice"]
   );
+});
+
+test("passes only compact current-unit context into ecdPlanning", async () => {
+  const captured = [];
+  const promptCaller = async (stage, payload) => {
+    if (stage === "ecdPlanning") {
+      captured.push(payload);
+      return ecdPlanningFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id, { matching: false });
+    }
+    if (stage === "multipleChoiceDraft" || stage === "unitSummaryDraft") {
+      return happyPathPromptCaller(stage, payload);
+    }
+    if (stage === "matchingDraft") return null;
+    if (stage === "reviewPathPlan") {
+      const plan = await happyPathPromptCaller(stage, payload);
+      return {
+        ...plan,
+        chapterWideNotes: ["unrelated full-chapter note"],
+        knowledgeObjects: [
+          ...plan.knowledgeObjects.map((item) => ({ ...item, unitId: "unit-01", sourceAnchorId: "anchor-unit-01" })),
+          {
+            id: "ko-02",
+            unitId: "unit-02",
+            sourceAnchorId: "anchor-unit-02",
+            title: "第二个知识对象",
+            nodeLabel: "第二个知识对象",
+            knowledgeShape: "core_concept",
+            roleInArticle: "supporting_detail",
+            sourceBlockIds: ["p-002"],
+            boundaryDecision: "standalone_unit",
+            boundaryReason: "第二个知识对象用于测试 per-unit 输入瘦身。"
+          }
+        ],
+        units: [
+          plan.units[0],
+          {
+            ...plan.units[0],
+            id: "unit-02",
+            order: 2,
+            title: "第二个知识点",
+            sourceKnowledgeObjectIds: ["ko-02"],
+            sourceAnchor: {
+              ...plan.units[0].sourceAnchor,
+              id: "anchor-unit-02"
+            }
+          }
+        ]
+      };
+    }
+    if (stage === "unitKnowledgeMap") {
+      return {
+        units: payload.plan.units.map((unit) => unitKnowledgeMapFixture(unit.id, unit.sourceAnchor.id).units[0])
+      };
+    }
+    return happyPathPromptCaller(stage, payload);
+  };
+
+  await generateReviewPathV2(ARTICLE_INPUT, {
+    promptCaller,
+    unitConcurrency: 1,
+    now: "2026-06-19T00:00:00.000Z"
+  });
+
+  assert.equal(captured.length, 2);
+  assert.equal(captured[0].plan.units.length, 1);
+  assert.equal(captured[1].plan.units.length, 1);
+  assert.notEqual(captured[0].plan.units[0].id, captured[1].plan.units[0].id);
+  assert.equal(
+    captured[0].plan.knowledgeObjects.every((item) => item.unitId === captured[0].plan.units[0].id),
+    true
+  );
+  assert.equal(
+    captured[1].plan.knowledgeObjects.every((item) => item.unitId === captured[1].plan.units[0].id),
+    true
+  );
+  assert.equal(Array.isArray(captured[0].plan.chapterWideNotes), false);
 });
 
 test("can build sourceMap deterministically for long article quality experiments", async () => {
@@ -145,9 +222,8 @@ test("skips multipleChoiceDraft when ECD assembly selects only matching", async 
       stages.push(stage);
       if (stage === "ecdPlanning") {
         const ecd = ecdPlanningFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id, { matching: true });
-        ecd.unitEvidenceNeeds[0].coverageRequirement = "supporting";
-        ecd.unitEvidenceAngles[0].importance = "supporting";
-        ecd.unitAssemblyPlan[0].selectedTasks = ecd.unitAssemblyPlan[0].selectedTasks.filter(
+        ecd.units[0].assessableTargets[0].coverageRequirement = "supporting";
+        ecd.units[0].selectedTasks = ecd.units[0].selectedTasks.filter(
           (task) => task.taskAffordance === "matching"
         );
         return ecd;
@@ -589,14 +665,16 @@ function practicePlanFixture(unitId, sourceAnchorId, { matching }) {
 }
 
 function ecdPlanningFixture(unitId, sourceAnchorId, { matching }) {
+  const firstMicroId = `micro-${unitId}-001`;
+  const secondMicroId = `micro-${unitId}-002`;
   const selectedTasks = [
     {
       questionPlanId: "q-001",
-      taskPlanId: "tp-001",
-      evidenceIds: ["ev-001"],
-      angleIds: ["angle-001"],
+      targetIds: ["target-001"],
+      microIds: [firstMicroId],
       taskAffordance: "multiple_choice",
       taskPurpose: "light_understanding",
+      evidenceGoal: "用户能选择 Hook 的核心作用。",
       assemblyReason: "先确认用户能把 Hook 理解成流程约束，而不是更长提示词。"
     }
   ];
@@ -604,157 +682,48 @@ function ecdPlanningFixture(unitId, sourceAnchorId, { matching }) {
   if (matching) {
     selectedTasks.push({
       questionPlanId: "q-002",
-      taskPlanId: "tp-002",
-      evidenceIds: ["ev-002"],
-      angleIds: ["angle-002"],
+      targetIds: ["target-002"],
+      microIds: [secondMicroId],
       taskAffordance: "matching",
       taskPurpose: "role_responsibility_matching",
+      evidenceGoal: "用户能把不同角色匹配到对应职责。",
       assemblyReason: "Hook、Prompt、CI、规则文档构成职责边界，适合用连线观察关系理解。"
     });
   }
 
   return {
-    articleUnderstanding: {
-      coreThesis: "Hook 把关键动作前后的提醒变成稳定流程。",
-      articleStructure: [
-        {
-          id: "section-01",
-          title: "Hook 的流程价值",
-          role: "core_argument",
-          sourceAnchorIds: [sourceAnchorId]
-        }
-      ],
-      reviewableSections: ["section-01"],
-      nonReviewableSections: []
-    },
-    knowledgeModel: {
-      units: [
-        {
-          unitId,
-          title: "Hook 是关键动作前后的流程控制器",
-          nodeLabel: "流程控制",
-          shortSummary: "Hook 是关键动作前后的流程控制器。",
-          detailSummary: "Hook 不是更长提示词，而是在关键动作前后稳定执行规则、上下文和验证的流程约束。",
-          knowledgeShape: "role_boundary",
-          sourceAnchorId
-        }
-      ]
-    },
-    unitSubObjectives: [
+    units: [
       {
         unitId,
-        subObjectiveId: "sub-001",
-        title: "Hook 核心定义",
-        type: "definition",
-        importance: "required",
-        learningTarget: "用户能理解 Hook 是关键动作前后的流程约束。",
-        sourceAnchorId
-      },
-      {
-        unitId,
-        subObjectiveId: "sub-002",
-        title: "职责边界",
-        type: "boundary",
-        importance: matching ? "required" : "supporting",
-        learningTarget: "用户能区分 Prompt、Hook、CI 和规则文档的职责边界。",
-        sourceAnchorId
-      }
-    ],
-    unitLearningClaims: [
-      {
-        unitId,
-        subObjectiveId: "sub-001",
-        claimId: "claim-001",
-        claimType: "concept_understanding",
-        learningClaim: "用户能理解 Hook 是流程约束，而不是更长提示词。",
-        sourceAnchorId
-      },
-      {
-        unitId,
-        subObjectiveId: "sub-002",
-        claimId: "claim-002",
-        claimType: "boundary_understanding",
-        learningClaim: "用户能区分 Prompt、Hook、CI 和规则文档的职责边界。",
-        sourceAnchorId
-      }
-    ],
-    unitEvidenceAngles: [
-      {
-        unitId,
-        angleId: "angle-001",
-        subObjectiveId: "sub-001",
-        claimId: "claim-001",
-        angleType: "definition_grasp",
-        importance: "required",
-        anglePurpose: "从定义理解角度观察用户是否抓住 Hook 的核心作用。",
-        sourceAnchorId
-      },
-      {
-        unitId,
-        angleId: "angle-002",
-        subObjectiveId: "sub-002",
-        claimId: "claim-002",
-        angleType: "boundary_discrimination",
-        importance: matching ? "required" : "supporting",
-        anglePurpose: "从职责边界角度观察用户是否区分 Prompt、Hook、CI 和规则文档。",
-        sourceAnchorId
-      }
-    ],
-    unitEvidenceNeeds: [
-      {
-        unitId,
-        evidenceId: "ev-001",
-        subObjectiveId: "sub-001",
-        claimId: "claim-001",
-        angleId: "angle-001",
-        evidenceType: "select_core_claim",
-        coverageRequirement: "required",
-        evidenceNeed: "用户能选择 Hook 的核心作用。",
-        observableResponse: "在选择题中选出关键动作前后的固定流程。",
-        sourceAnchorId
-      },
-      {
-        unitId,
-        evidenceId: "ev-002",
-        subObjectiveId: "sub-002",
-        claimId: "claim-002",
-        angleId: "angle-002",
-        evidenceType: "map_structure_relation",
-        coverageRequirement: matching ? "required" : "supporting",
-        evidenceNeed: "用户能把不同角色匹配到对应职责。",
-        observableResponse: "完成 Prompt、Hook、CI、规则文档与职责的连线。",
-        sourceAnchorId
-      }
-    ],
-    unitTaskPlan: [
-      {
-        unitId,
-        taskPlanId: "tp-001",
-        evidenceIds: ["ev-001"],
-        angleIds: ["angle-001"],
-        taskAffordance: "multiple_choice",
-        taskPurpose: "light_understanding",
-        whyThisTask: "选择题能轻量观察用户是否抓住 Hook 的核心作用。"
-      },
-      {
-        unitId,
-        taskPlanId: "tp-002",
-        evidenceIds: ["ev-002"],
-        angleIds: ["angle-002"],
-        taskAffordance: "matching",
-        taskPurpose: "role_responsibility_matching",
-        whyThisTask: "连线题能直接观察用户是否理解四类角色的职责边界。"
-      }
-    ],
-    unitAssemblyPlan: [
-      {
-        unitId,
+        sourceAnchorId,
+        assessableTargets: [
+          {
+            targetId: "target-001",
+            microIds: [firstMicroId],
+            title: "Hook 核心定义",
+            learningTarget: "用户能理解 Hook 是关键动作前后的流程约束。",
+            evidenceGoal: "用户能选择 Hook 的核心作用。",
+            evidenceType: "select_core_claim",
+            coverageRequirement: "required",
+            sourceAnchorId
+          },
+          {
+            targetId: "target-002",
+            microIds: [secondMicroId],
+            title: "职责边界",
+            learningTarget: "用户能区分 Prompt、Hook、CI 和规则文档的职责边界。",
+            evidenceGoal: "用户能把不同角色匹配到对应职责。",
+            evidenceType: "map_structure_relation",
+            coverageRequirement: matching ? "required" : "supporting",
+            sourceAnchorId
+          }
+        ],
         selectedTasks,
-        skippedEvidence: matching
+        skippedTargets: matching
           ? []
           : [
               {
-                evidenceId: "ev-002",
+                targetId: "target-002",
                 reason: "本次 fixture 关闭 matching，用场景选择题覆盖第二个目标。"
               }
             ]
@@ -764,13 +733,15 @@ function ecdPlanningFixture(unitId, sourceAnchorId, { matching }) {
 }
 
 function unitKnowledgeMapFixture(unitId, sourceAnchorId) {
+  const firstMicroId = `micro-${unitId}-001`;
+  const secondMicroId = `micro-${unitId}-002`;
   return {
     units: [
       {
         unitId,
         microKnowledgePoints: [
           {
-            microId: "micro-unit-01-001",
+            microId: firstMicroId,
             title: "Hook 核心定义",
             summary: "Hook 是关键动作前后的流程约束。",
             role: "definition",
@@ -780,7 +751,7 @@ function unitKnowledgeMapFixture(unitId, sourceAnchorId) {
             sourceSupport: "原文说明 Hook 是关键动作前后的流程控制器。"
           },
           {
-            microId: "micro-unit-01-002",
+            microId: secondMicroId,
             title: "职责边界",
             summary: "Prompt、Hook、CI 和规则文档在流程中承担不同职责。",
             role: "relationship",

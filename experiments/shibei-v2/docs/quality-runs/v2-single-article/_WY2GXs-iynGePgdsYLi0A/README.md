@@ -361,3 +361,41 @@ Conclusion:
 
 - The previous “silent hang” was not caused by `qualityJudge`; after disabling `qualityJudge`, the runner still needed visibility because a normal stage can be slow.
 - The next backend iteration should inspect why per-unit `ecdPlanning` can be slow even with `V2_GENERATION_MAX_UNITS=1`, before running another full max6 quality comparison.
+
+## 2026-06-21 Compact ECD Planning Hypothesis
+
+The `v2-runner-progress-max1-timeout90s` run showed that the next bottleneck is the default persisted shape of `ecdPlanning`, not the ECD theory itself.
+
+Hypothesis for the next implementation:
+
+- Keep `unitKnowledgeMap` as the complete micro knowledge inventory.
+- Keep ECD as the internal method for deciding assessable targets and selected tasks.
+- Stop asking the model to serialize every ECD intermediate layer as JSON by default.
+- Persist only compact planning artifacts:
+  - `assessableTargets[]`
+  - `selectedTasks[]`
+  - coverage ids such as `targetIds` and `microIds`
+- Pass only the current task's compact context into downstream draft stages.
+- Keep verbose ECD only behind a deliberate debug/experiment flag if needed.
+
+Expected result:
+
+- `ecdPlanning` finishes inside the 90s max1 smoke window.
+- The HTML report still shows enough information to audit micro-point and selected-task coverage.
+- DMC-style structural matching is still possible because compact `selectedTasks[]` preserves `taskAffordance`, `taskPurpose`, `targetIds`, and `microIds`.
+
+Comparison target for the next run:
+
+```text
+Before compact ECD:
+- max1 timed out at ecdPlanning after 90s.
+- reviewPathPlan: about 39s.
+- unitKnowledgeMap: about 14s.
+
+After compact ECD:
+- ecdPlanning: <observed seconds>
+- unit count: <observed>
+- question count: <observed>
+- matching count: <observed>
+- whether DMC-style structural matching survives: yes/no
+```

@@ -119,24 +119,59 @@ const angleIdsSchema = {
   items: { type: "string" }
 };
 
+const targetIdsSchema = {
+  type: "array",
+  items: { type: "string" }
+};
+
+const microIdsSchema = {
+  type: "array",
+  items: { type: "string" }
+};
+
+const assessableTargetSchema = {
+  type: "object",
+  required: [
+    "targetId",
+    "microIds",
+    "title",
+    "learningTarget",
+    "evidenceGoal",
+    "evidenceType",
+    "coverageRequirement",
+    "sourceAnchorId"
+  ],
+  properties: {
+    targetId: { type: "string" },
+    microIds: microIdsSchema,
+    title: { type: "string" },
+    learningTarget: { type: "string" },
+    evidenceGoal: { type: "string" },
+    evidenceType: { enum: EVIDENCE_TYPES },
+    coverageRequirement: { enum: COVERAGE_REQUIREMENTS },
+    sourceAnchorId: { type: "string" }
+  }
+};
+
 const selectedTaskSchema = {
   type: "object",
   required: [
     "questionPlanId",
-    "taskPlanId",
-    "evidenceIds",
-    "angleIds",
+    "targetIds",
+    "microIds",
     "taskAffordance",
     "taskPurpose",
+    "evidenceGoal",
     "assemblyReason"
   ],
   properties: {
     questionPlanId: { type: "string" },
-    taskPlanId: { type: "string" },
-    evidenceIds: evidenceIdsSchema,
-    angleIds: angleIdsSchema,
+    targetIds: targetIdsSchema,
+    microIds: microIdsSchema,
     taskAffordance: { enum: TASK_AFFORDANCES },
     taskPurpose: { enum: TASK_PURPOSES },
+    evidenceGoal: { type: "string" },
+    commonMisconception: { type: "string" },
     assemblyReason: { type: "string" }
   }
 };
@@ -144,219 +179,31 @@ const selectedTaskSchema = {
 export const ECD_PLANNING_OUTPUT_SCHEMA = {
   name: ECD_PLANNING_PROMPT_SCHEMA_NAME,
   type: "object",
-  required: [
-    "articleUnderstanding",
-    "knowledgeModel",
-    "unitSubObjectives",
-    "unitLearningClaims",
-    "unitEvidenceAngles",
-    "unitEvidenceNeeds",
-    "unitTaskPlan",
-    "unitAssemblyPlan"
-  ],
+  required: ["units"],
   properties: {
-    articleUnderstanding: {
-      type: "object",
-      required: ["coreThesis", "articleStructure", "reviewableSections", "nonReviewableSections"],
-      properties: {
-        coreThesis: { type: "string" },
-        articleStructure: {
-          type: "array",
-          items: {
-            type: "object",
-            required: ["id", "title", "role", "sourceAnchorIds"],
-            properties: {
-              id: { type: "string" },
-              title: { type: "string" },
-              role: { type: "string" },
-              sourceAnchorIds: sourceAnchorIdsSchema
-            }
-          }
-        },
-        reviewableSections: {
-          type: "array",
-          items: { type: "string" }
-        },
-        nonReviewableSections: {
-          type: "array",
-          items: {
-            type: "object",
-            required: ["sourceAnchorId", "reason"],
-            properties: {
-              sourceAnchorId: { type: "string" },
-              reason: { type: "string" }
-            }
-          }
-        }
-      }
-    },
-    knowledgeModel: {
-      type: "object",
-      required: ["units"],
-      properties: {
-        units: {
-          type: "array",
-          items: {
-            type: "object",
-            required: [
-              "unitId",
-              "title",
-              "nodeLabel",
-              "shortSummary",
-              "detailSummary",
-              "knowledgeShape",
-              "sourceAnchorId"
-            ],
-            properties: {
-              unitId: { type: "string" },
-              title: { type: "string" },
-              nodeLabel: { type: "string" },
-              shortSummary: { type: "string" },
-              detailSummary: { type: "string" },
-              knowledgeShape: { enum: KNOWLEDGE_SHAPES },
-              sourceAnchorId: { type: "string" }
-            }
-          }
-        }
-      }
-    },
-    unitSubObjectives: {
+    units: {
       type: "array",
       items: {
         type: "object",
-        required: [
-          "unitId",
-          "subObjectiveId",
-          "title",
-          "type",
-          "importance",
-          "learningTarget",
-          "sourceAnchorId"
-        ],
+        required: ["unitId", "sourceAnchorId", "assessableTargets", "selectedTasks"],
         properties: {
           unitId: { type: "string" },
-          subObjectiveId: { type: "string" },
-          title: { type: "string" },
-          type: { enum: SUB_OBJECTIVE_TYPES },
-          importance: { enum: SUB_OBJECTIVE_IMPORTANCE },
-          learningTarget: { type: "string" },
-          sourceAnchorId: { type: "string" }
-        }
-      }
-    },
-    unitLearningClaims: {
-      type: "array",
-      items: {
-        type: "object",
-        required: ["unitId", "subObjectiveId", "claimId", "claimType", "learningClaim", "sourceAnchorId"],
-        properties: {
-          unitId: { type: "string" },
-          subObjectiveId: { type: "string" },
-          claimId: { type: "string" },
-          claimType: { enum: CLAIM_TYPES },
-          learningClaim: { type: "string" },
-          sourceAnchorId: { type: "string" }
-        }
-      }
-    },
-    unitEvidenceAngles: {
-      type: "array",
-      items: {
-        type: "object",
-        required: [
-          "unitId",
-          "angleId",
-          "subObjectiveId",
-          "claimId",
-          "angleType",
-          "importance",
-          "anglePurpose",
-          "sourceAnchorId"
-        ],
-        properties: {
-          unitId: { type: "string" },
-          angleId: { type: "string" },
-          subObjectiveId: { type: "string" },
-          claimId: { type: "string" },
-          angleType: { enum: EVIDENCE_ANGLE_TYPES },
-          importance: { enum: EVIDENCE_ANGLE_IMPORTANCE },
-          anglePurpose: { type: "string" },
-          sourceAnchorId: { type: "string" }
-        }
-      }
-    },
-    unitEvidenceNeeds: {
-      type: "array",
-      items: {
-        type: "object",
-        required: [
-          "unitId",
-          "evidenceId",
-          "subObjectiveId",
-          "claimId",
-          "angleId",
-          "evidenceType",
-          "coverageRequirement",
-          "evidenceNeed",
-          "observableResponse",
-          "sourceAnchorId"
-        ],
-        properties: {
-          unitId: { type: "string" },
-          evidenceId: { type: "string" },
-          subObjectiveId: { type: "string" },
-          claimId: { type: "string" },
-          angleId: { type: "string" },
-          evidenceType: { enum: EVIDENCE_TYPES },
-          coverageRequirement: { enum: COVERAGE_REQUIREMENTS },
-          evidenceNeed: { type: "string" },
-          observableResponse: { type: "string" },
-          sourceAnchorId: { type: "string" }
-        }
-      }
-    },
-    unitTaskPlan: {
-      type: "array",
-      items: {
-        type: "object",
-        required: [
-          "unitId",
-          "taskPlanId",
-          "evidenceIds",
-          "angleIds",
-          "taskAffordance",
-          "taskPurpose",
-          "whyThisTask"
-        ],
-        properties: {
-          unitId: { type: "string" },
-          taskPlanId: { type: "string" },
-          evidenceIds: evidenceIdsSchema,
-          angleIds: angleIdsSchema,
-          taskAffordance: { enum: TASK_AFFORDANCES },
-          taskPurpose: { enum: TASK_PURPOSES },
-          whyThisTask: { type: "string" }
-        }
-      }
-    },
-    unitAssemblyPlan: {
-      type: "array",
-      items: {
-        type: "object",
-        required: ["unitId", "selectedTasks", "skippedEvidence"],
-        properties: {
-          unitId: { type: "string" },
+          sourceAnchorId: { type: "string" },
+          assessableTargets: {
+            type: "array",
+            items: assessableTargetSchema
+          },
           selectedTasks: {
             type: "array",
             items: selectedTaskSchema
           },
-          skippedEvidence: {
+          skippedTargets: {
             type: "array",
             items: {
               type: "object",
-              required: ["evidenceId", "reason"],
+              required: ["targetId", "reason"],
               properties: {
-                evidenceId: { type: "string" },
+                targetId: { type: "string" },
                 reason: { type: "string" }
               }
             }
@@ -374,56 +221,7 @@ export function validateEcdPlanningOutput(output, { unitIds = new Set(), sourceA
     return createValidationResult(["ecdPlanning output must be an object"]);
   }
 
-  requireAnyFields(
-    output,
-    [
-      "articleUnderstanding",
-      "knowledgeModel",
-      "unitSubObjectives",
-      "unitLearningClaims",
-      "unitEvidenceAngles",
-      "unitEvidenceNeeds",
-      "unitTaskPlan",
-      "unitAssemblyPlan"
-    ],
-    "ecdPlanning",
-    errors
-  );
-
-  validateArticleUnderstanding(output.articleUnderstanding, errors);
-  validateKnowledgeModel(output.knowledgeModel, { unitIds, sourceAnchorIds, errors });
-  const subObjectiveIds = validateSubObjectives(output.unitSubObjectives, { unitIds, sourceAnchorIds, errors });
-  const claimIds = validateLearningClaims(output.unitLearningClaims, {
-    unitIds,
-    sourceAnchorIds,
-    subObjectiveIds,
-    errors
-  });
-  const angleIds = validateEvidenceAngles(output.unitEvidenceAngles, {
-    unitIds,
-    sourceAnchorIds,
-    claimIds,
-    subObjectiveIds,
-    errors
-  });
-  const evidenceIds = validateEvidenceNeeds(output.unitEvidenceNeeds, {
-    unitIds,
-    sourceAnchorIds,
-    claimIds,
-    subObjectiveIds,
-    angleIds,
-    errors
-  });
-  const taskPlanIds = validateTaskPlan(output.unitTaskPlan, { unitIds, evidenceIds, angleIds, errors });
-  validateAssemblyPlan(output.unitAssemblyPlan, {
-    unitIds,
-    evidenceItems: output.unitEvidenceNeeds,
-    evidenceIds,
-    angleItems: output.unitEvidenceAngles,
-    angleIds,
-    taskPlanIds,
-    errors
-  });
+  validateCompactUnits(output.units, { unitIds, sourceAnchorIds, errors });
 
   return createValidationResult(errors);
 }
@@ -436,75 +234,264 @@ export function normalizeEcdPlanningOutput(output, {
 
   const normalized = {
     ...output,
-    knowledgeModel: normalizeKnowledgeModel(output.knowledgeModel),
-    unitSubObjectives: normalizeEnumItems(
-      normalizeEnumItems(output.unitSubObjectives, {
-        field: "type",
-        originalField: "originalType",
-        allowedValues: SUB_OBJECTIVE_TYPES,
-        fallback: "definition"
-      }),
-      {
-        field: "importance",
-        originalField: "originalImportance",
-        allowedValues: SUB_OBJECTIVE_IMPORTANCE,
-        fallback: "required"
-      }
-    ),
-    unitLearningClaims: normalizeEnumItems(output.unitLearningClaims, {
-      field: "claimType",
-      originalField: "originalClaimType",
-      allowedValues: CLAIM_TYPES,
-      fallback: "source_grounded_understanding"
-    }),
-    unitEvidenceAngles: normalizeEnumItems(
-      normalizeEnumItems(output.unitEvidenceAngles, {
-        field: "angleType",
-        originalField: "originalAngleType",
-        allowedValues: EVIDENCE_ANGLE_TYPES,
-        fallback: "definition_grasp"
-      }),
-      {
-        field: "importance",
-        originalField: "originalImportance",
-        allowedValues: EVIDENCE_ANGLE_IMPORTANCE,
-        fallback: "supporting"
-      }
-    ),
-    unitEvidenceNeeds: normalizeEnumItems(
-      normalizeEnumItems(output.unitEvidenceNeeds, {
-        field: "evidenceType",
-        originalField: "originalEvidenceType",
-        allowedValues: EVIDENCE_TYPES,
-        fallback: "ground_answer_in_source"
-      }),
-      {
-        field: "coverageRequirement",
-        originalField: "originalCoverageRequirement",
-        allowedValues: COVERAGE_REQUIREMENTS,
-        fallback: "required"
-      }
-    ),
-    unitTaskPlan: normalizeEnumItems(
-      normalizeEnumItems(output.unitTaskPlan, {
-        field: "taskAffordance",
-        originalField: "originalTaskAffordance",
-        allowedValues: TASK_AFFORDANCES,
-        fallback: "multiple_choice"
-      }),
-      {
-        field: "taskPurpose",
-        originalField: "originalTaskPurpose",
-        allowedValues: TASK_PURPOSES,
-        fallback: "light_understanding"
-      }
-    ),
-    unitAssemblyPlan: normalizeAssemblyPlan(output.unitAssemblyPlan)
+    units: normalizeCompactUnits(output.units)
   };
 
-  return normalizeUnitScopedSourceAnchors(normalized, {
+  return normalizeCompactUnitSourceAnchors(normalized, {
     unitSourceAnchorIds,
     sourceAnchorIds
+  });
+}
+
+function normalizeCompactUnits(units) {
+  if (!Array.isArray(units)) return units;
+  return units.map((unit) => {
+    if (!isPlainObject(unit)) return unit;
+    const assessableTargets = normalizeEnumItems(unit.assessableTargets, {
+      field: "evidenceType",
+      originalField: "originalEvidenceType",
+      allowedValues: EVIDENCE_TYPES,
+      fallback: "ground_answer_in_source"
+    });
+    return {
+      ...unit,
+      assessableTargets: Array.isArray(assessableTargets)
+        ? assessableTargets.map((target) => normalizeEnumField(target, {
+            field: "coverageRequirement",
+            originalField: "originalCoverageRequirement",
+            allowedValues: COVERAGE_REQUIREMENTS,
+            fallback: "required"
+          }))
+        : assessableTargets,
+      selectedTasks: normalizeEnumItems(
+        normalizeEnumItems(unit.selectedTasks, {
+          field: "taskAffordance",
+          originalField: "originalTaskAffordance",
+          allowedValues: TASK_AFFORDANCES,
+          fallback: "multiple_choice"
+        }),
+        {
+          field: "taskPurpose",
+          originalField: "originalTaskPurpose",
+          allowedValues: TASK_PURPOSES,
+          fallback: "light_understanding"
+        }
+      )
+    };
+  });
+}
+
+function normalizeCompactUnitSourceAnchors(output, { unitSourceAnchorIds, sourceAnchorIds }) {
+  if (!isPlainObject(output) || !(unitSourceAnchorIds instanceof Map) || !Array.isArray(output.units)) return output;
+  return {
+    ...output,
+    units: output.units.map((unit) => {
+      if (!isPlainObject(unit) || !isNonEmptyString(unit.unitId)) return unit;
+      const normalizedUnit = normalizeUnitScopedSourceAnchor(unit, { unitSourceAnchorIds, sourceAnchorIds });
+      return {
+        ...normalizedUnit,
+        assessableTargets: normalizeCompactTargetSourceAnchors(normalizedUnit.assessableTargets, {
+          unitId: normalizedUnit.unitId,
+          unitSourceAnchorIds,
+          sourceAnchorIds
+        })
+      };
+    })
+  };
+}
+
+function normalizeCompactTargetSourceAnchors(targets, { unitId, unitSourceAnchorIds, sourceAnchorIds }) {
+  if (!Array.isArray(targets)) return targets;
+  return targets.map((target) => {
+    const normalized = normalizeUnitScopedSourceAnchor(
+      isPlainObject(target) ? { ...target, unitId } : target,
+      { unitSourceAnchorIds, sourceAnchorIds }
+    );
+    if (!isPlainObject(normalized)) return normalized;
+    const { unitId: _unitId, ...targetWithoutUnitId } = normalized;
+    return targetWithoutUnitId;
+  });
+}
+
+function validateCompactUnits(units, { unitIds, sourceAnchorIds, errors }) {
+  if (!Array.isArray(units) || units.length === 0) {
+    errors.push("ecdPlanning.units must be a non-empty array");
+    return;
+  }
+
+  const seenUnitIds = new Set();
+  units.forEach((unit, index) => {
+    const path = `ecdPlanning.units[${index}]`;
+    if (!isPlainObject(unit)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+
+    requireFields(unit, ["unitId", "sourceAnchorId"], path, errors);
+    if (seenUnitIds.has(unit.unitId)) errors.push(`${path}.unitId must be unique`);
+    seenUnitIds.add(unit.unitId);
+    if (unitIds.size > 0 && !unitIds.has(unit.unitId)) {
+      errors.push(`${path}.unitId must reference a known unit`);
+    }
+    if (sourceAnchorIds.size > 0 && !sourceAnchorIds.has(unit.sourceAnchorId)) {
+      errors.push(`${path}.sourceAnchorId must reference a known source anchor`);
+    }
+
+    const targetIds = validateAssessableTargets(unit.assessableTargets, {
+      path: `${path}.assessableTargets`,
+      unitId: unit.unitId,
+      sourceAnchorIds,
+      errors
+    });
+    validateCompactSelectedTasks(unit.selectedTasks, {
+      path: `${path}.selectedTasks`,
+      targetIds,
+      errors
+    });
+    validateRequiredTargetCoverage(unit, { path, errors });
+    validateSkippedTargets(unit.skippedTargets, {
+      path: `${path}.skippedTargets`,
+      targetIds,
+      errors
+    });
+  });
+}
+
+function validateAssessableTargets(targets, { path, unitId, sourceAnchorIds, errors }) {
+  const targetIds = new Set();
+  if (!Array.isArray(targets) || targets.length === 0) {
+    errors.push(`${path} must be a non-empty array`);
+    return targetIds;
+  }
+
+  targets.forEach((target, index) => {
+    const targetPath = `${path}[${index}]`;
+    if (!isPlainObject(target)) {
+      errors.push(`${targetPath} must be an object`);
+      return;
+    }
+    requireFields(
+      target,
+      [
+        "targetId",
+        "title",
+        "learningTarget",
+        "evidenceGoal",
+        "evidenceType",
+        "coverageRequirement",
+        "sourceAnchorId"
+      ],
+      targetPath,
+      errors
+    );
+    if (targetIds.has(target.targetId)) errors.push(`${targetPath}.targetId must be unique`);
+    targetIds.add(target.targetId);
+    validateNonEmptyStringArray(target.microIds, `${targetPath}.microIds`, errors);
+    if (isNonEmptyString(target.evidenceType) && !EVIDENCE_TYPES.includes(target.evidenceType)) {
+      errors.push(`${targetPath}.evidenceType must be one of ${EVIDENCE_TYPES.join(", ")}`);
+    }
+    if (
+      isNonEmptyString(target.coverageRequirement) &&
+      !COVERAGE_REQUIREMENTS.includes(target.coverageRequirement)
+    ) {
+      errors.push(`${targetPath}.coverageRequirement must be one of ${COVERAGE_REQUIREMENTS.join(", ")}`);
+    }
+    if (sourceAnchorIds.size > 0 && !sourceAnchorIds.has(target.sourceAnchorId)) {
+      errors.push(`${targetPath}.sourceAnchorId must reference a known source anchor`);
+    }
+    if (isNonEmptyString(target.unitId) && target.unitId !== unitId) {
+      errors.push(`${targetPath}.unitId must match ${unitId}`);
+    }
+  });
+
+  return targetIds;
+}
+
+function validateCompactSelectedTasks(tasks, { path, targetIds, errors }) {
+  if (!Array.isArray(tasks) || tasks.length === 0) {
+    errors.push(`${path} must be a non-empty array`);
+    return;
+  }
+
+  const questionPlanIds = new Set();
+  tasks.forEach((task, index) => {
+    const taskPath = `${path}[${index}]`;
+    if (!isPlainObject(task)) {
+      errors.push(`${taskPath} must be an object`);
+      return;
+    }
+    requireFields(
+      task,
+      ["questionPlanId", "taskAffordance", "taskPurpose", "evidenceGoal", "assemblyReason"],
+      taskPath,
+      errors
+    );
+    if (questionPlanIds.has(task.questionPlanId)) errors.push(`${taskPath}.questionPlanId must be unique`);
+    questionPlanIds.add(task.questionPlanId);
+    validateTargetIdArray(task.targetIds, `${taskPath}.targetIds`, targetIds, errors);
+    validateNonEmptyStringArray(task.microIds, `${taskPath}.microIds`, errors);
+    if (isNonEmptyString(task.taskAffordance) && !TASK_AFFORDANCES.includes(task.taskAffordance)) {
+      errors.push(`${taskPath}.taskAffordance must be one of ${TASK_AFFORDANCES.join(", ")}`);
+    }
+    if (isNonEmptyString(task.taskPurpose) && !TASK_PURPOSES.includes(task.taskPurpose)) {
+      errors.push(`${taskPath}.taskPurpose must be one of ${TASK_PURPOSES.join(", ")}`);
+    }
+  });
+}
+
+function validateTargetIdArray(items, path, targetIds, errors) {
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push(`${path} must be a non-empty array`);
+    return;
+  }
+  items.forEach((targetId, index) => {
+    if (!targetIds.has(targetId)) {
+      errors.push(`${path}[${index}] must reference an assessableTargets item`);
+    }
+  });
+}
+
+function validateNonEmptyStringArray(items, path, errors) {
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push(`${path} must be a non-empty array`);
+    return;
+  }
+  items.forEach((item, index) => {
+    if (!isNonEmptyString(item)) errors.push(`${path}[${index}] must be a non-empty string`);
+  });
+}
+
+function validateRequiredTargetCoverage(unit, { path, errors }) {
+  if (!Array.isArray(unit.assessableTargets) || !Array.isArray(unit.selectedTasks)) return;
+  const selectedTargetIds = new Set();
+  unit.selectedTasks.forEach((task) => {
+    (Array.isArray(task?.targetIds) ? task.targetIds : []).forEach((targetId) => selectedTargetIds.add(targetId));
+  });
+
+  unit.assessableTargets.forEach((target) => {
+    if (!isPlainObject(target) || target.coverageRequirement !== "required") return;
+    if (!selectedTargetIds.has(target.targetId)) {
+      errors.push(`${path}.selectedTasks must cover required target ${target.targetId}`);
+    }
+  });
+}
+
+function validateSkippedTargets(skippedTargets, { path, targetIds, errors }) {
+  if (skippedTargets === undefined) return;
+  if (!Array.isArray(skippedTargets)) {
+    errors.push(`${path} must be an array`);
+    return;
+  }
+  skippedTargets.forEach((item, index) => {
+    const itemPath = `${path}[${index}]`;
+    if (!isPlainObject(item)) {
+      errors.push(`${itemPath} must be an object`);
+      return;
+    }
+    requireFields(item, ["targetId", "reason"], itemPath, errors);
+    if (isNonEmptyString(item.targetId) && !targetIds.has(item.targetId)) {
+      errors.push(`${itemPath}.targetId must reference an assessableTargets item`);
+    }
   });
 }
 
@@ -587,7 +574,6 @@ function normalizeUnitScopedSourceAnchor(item, { unitSourceAnchorIds, sourceAnch
   if (!isPlainObject(item) || !isNonEmptyString(item.unitId)) return item;
   const fallbackSourceAnchorId = unitSourceAnchorIds.get(item.unitId);
   if (!isNonEmptyString(fallbackSourceAnchorId)) return item;
-  if (sourceAnchorIds instanceof Set && sourceAnchorIds.has(item.sourceAnchorId)) return item;
   if (item.sourceAnchorId === fallbackSourceAnchorId) return item;
   return {
     ...item,

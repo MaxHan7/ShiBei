@@ -57,6 +57,14 @@ export const UNIT_PRACTICE_PLAN_OUTPUT_SCHEMA = {
           kind: { enum: PRACTICE_GOAL_KINDS },
           target: { type: "string" },
           commonMisconception: { type: "string" },
+          targetIds: {
+            type: "array",
+            items: { type: "string" }
+          },
+          microIds: {
+            type: "array",
+            items: { type: "string" }
+          },
           sourceAnchorId: { type: "string" }
         }
       }
@@ -72,6 +80,14 @@ export const UNIT_PRACTICE_PLAN_OUTPUT_SCHEMA = {
           purpose: { enum: QUESTION_PLAN_PURPOSES },
           practiceGoalId: { type: "string" },
           relationType: { enum: MATCHING_RELATION_TYPES },
+          targetIds: {
+            type: "array",
+            items: { type: "string" }
+          },
+          microIds: {
+            type: "array",
+            items: { type: "string" }
+          },
           sourceAnchorId: { type: "string" }
         }
       }
@@ -129,6 +145,8 @@ function validatePracticeGoals(goals, { sourceAnchorId, errors }) {
     if (sourceAnchorId && goal.sourceAnchorId !== sourceAnchorId) {
       errors.push(`${path}.sourceAnchorId must match ${sourceAnchorId}`);
     }
+    validateOptionalStringArray(goal.targetIds, `${path}.targetIds`, errors);
+    validateOptionalStringArray(goal.microIds, `${path}.microIds`, errors);
   });
 }
 
@@ -165,5 +183,18 @@ function validateQuestionPlans(plans, { practiceGoalIds, sourceAnchorId, errors 
     if (plan.type === "matching" && !MATCHING_RELATION_TYPES.includes(plan.relationType)) {
       errors.push(`${path}.relationType is required for matching plans`);
     }
+    validateOptionalStringArray(plan.targetIds, `${path}.targetIds`, errors);
+    validateOptionalStringArray(plan.microIds, `${path}.microIds`, errors);
+  });
+}
+
+function validateOptionalStringArray(items, path, errors) {
+  if (items === undefined) return;
+  if (!Array.isArray(items)) {
+    errors.push(`${path} must be an array`);
+    return;
+  }
+  items.forEach((item, index) => {
+    if (!isNonEmptyString(item)) errors.push(`${path}[${index}] must be a non-empty string`);
   });
 }

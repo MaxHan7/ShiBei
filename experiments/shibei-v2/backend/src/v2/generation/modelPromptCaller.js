@@ -56,7 +56,7 @@ const STAGE_SCHEMAS = {
   ecdPlanning: {
     schemaName: ECD_PLANNING_PROMPT_SCHEMA_NAME,
     schema: ECD_PLANNING_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 14000
+    estimatedOutputTokens: 3000
   },
   unitPracticePlan: {
     schemaName: UNIT_PRACTICE_PLAN_PROMPT_SCHEMA_NAME,

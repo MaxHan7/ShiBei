@@ -13,12 +13,13 @@
 ## Implementation Status
 
 - `unitKnowledgeMap.js` 是第二轮结构重构新增的内部 micro knowledge inventory schema。它只负责拆每个 unit 内部的小知识点，不生成题目、不选择题型、不做 selectedTasks。
-- `ecdPlanning.js` 是代码级 ECD 内部规划 schema 模块。它现在消费 `unitKnowledgeMap`，再生成 learning claims、evidence angles、evidence needs、task plans 和 assembly。
+- `ecdPlanning.js` 是代码级 ECD 内部规划 schema 模块。它消费 `unitKnowledgeMap`，使用 ECD 的 claim / evidence / task / assembly 思路做内部判断，但下一轮不再默认把每一层思考都完整输出成 JSON。
 - 2026-06-21 更新：`ecdPlanning` 已改成 **逐 unit 运行**，再由编排层合并为 `generationMeta.ecdPlanning`。这样避免把 6 个 unit 的 ECD 证据规划塞进一个巨型 JSON，减少模型输出截断，同时也让每个 unit 的 evidence 设计更像 ECD 的独立任务模型。
 - 当前真实 V2 orchestration：`sourceMap -> reviewPathPlan -> unitKnowledgeMap -> per-unit ecdPlanning -> deterministic unitPracticePlan adapter -> multipleChoiceDraft / matchingDraft -> unitSummaryDraft`。`qualityJudge` 已从默认主链路移除，只在显式设置 `V2_ENABLE_QUALITY_JUDGE=1` 时作为后续 A/B 实验阶段运行。
 - `unitKnowledgeMap` 输出会写入 `generationMeta.unitKnowledgeMap`，并展示在 V2 HTML 质量报告中，用来人工检查每个 unit 内部的小知识点是否先被完整发现。
-- `ecdPlanning` 输出会写入 `generationMeta.ecdPlanning`，并展示在 V2 HTML 质量报告中，用于人工检查模型是否先建立了学习主张、证据需求、任务计划和组装理由。
-- `ecdPlanning.unitAssemblyPlan[].selectedTasks` 现在已经驱动下游 `unitPracticePlan`：编排层会把当前 unit 的 `microKnowledgePoints`、`knowledgeUnit`、`learningClaims`、`evidenceAngles`、`evidenceNeeds`、`taskPlans`、`assemblyPlan` 作为 `ecdContext` 传入后续阶段。
+- 2026-06-21 下一轮减重原则：ECD 仍然是系统理论，但不再把完整 ECD 思考链全部持久化为 JSON。`unitKnowledgeMap` 负责防止漏小知识点；`ecdPlanning` 默认只保留 compact task model：`assessableTargets[]` 和 `selectedTasks[]`。
+- `learningClaim / evidenceAngle / evidenceNeed / taskPlan / assemblyPlan` 作为概念继续存在于 prompt 推理中，但不再作为默认持久化字段。只有未来显式 debug mode 才允许输出 verbose ECD。
+- compact `ecdPlanning.units[].selectedTasks[]` 会驱动下游 `unitPracticePlan`：编排层只把当前题真正需要的 `targetIds`、`microIds`、`evidenceGoal`、`commonMisconception`、`taskPurpose` 和 `sourceAnchorId` 传入后续阶段，不再反复传整包 ECD context。
 - 旧 `unitPracticePlan` 仍作为过渡 adapter 保留，但不再由模型重新规划：它确定性地把 ECD 的 `selectedTasks` 转成现有 `practiceGoals` 和 `questionPlans`，从而保持 SwiftUI 可见字段合同稳定，并减少一层 JSON 生成不稳定性。
 - 如果 ECD 只选择 matching，则跳过 `multipleChoiceDraft`；如果 ECD 不选择 matching，则跳过 `matchingDraft`。模型额外发明的 `questionPlans` 会被过滤掉。
 - 当前前端只支持 `multiple_choice` 和 `matching`。ECD 中暂未落地的 future affordance 会在过渡期映射为 `multiple_choice`，后续如果新增题型，再单独扩展前端合同。
@@ -39,10 +40,10 @@
 | Domain Analysis | `articleUnderstanding` | `coreThesis`、`articleStructure`、`nonReviewableSections` | 部分可见为章节概要 | 是 |
 | Domain Modeling | `reviewPathPlan.knowledgeObjects`、`knowledgeModel` | `knowledgeObjectId`、`boundaryDecision`、`unitId`、`title`、`nodeLabel`、`knowledgeShape`、`sourceAnchorId` | 部分可见 | 是 |
 | Micro Knowledge Inventory | `unitKnowledgeMap` | `microId`、`title`、`role`、`assessmentValue`、`suggestedEvidenceAngles` | 否 | 是 |
-| Student Model | `unitSubObjectives`、`unitLearningClaims` | `subObjectiveId`、`importance`、`claimType`、`learningClaim` | 否 | 是 |
-| Evidence Model | `unitEvidenceAngles`、`unitEvidenceNeeds` | `angleId`、`angleType`、`coverageRequirement`、`evidenceType`、`observableResponse` | 否 | 是 |
-| Task Model | `unitTaskPlan` | `taskPurpose`、`taskAffordance`、`angleIds`、`whyThisTask` | 否 | 是 |
-| Assembly Model | `unitAssemblyPlan` | `selectedTasks`、`angleIds`、`assemblyReason` | 否 | 是 |
+| Student Model | prompt 内部推理 + `assessableTargets` | `targetId`、`microId`、`importance`、`learningTarget` | 否 | 是 |
+| Evidence Model | prompt 内部推理 + `selectedTasks` | `targetIds`、`microIds`、`evidenceGoal`、`commonMisconception` | 否 | 是 |
+| Task Model | `selectedTasks` | `taskPurpose`、`taskAffordance`、`sourceAnchorId` | 否 | 是 |
+| Assembly Model | compact selected tasks | `questionPlanId`、`targetIds`、`microIds` | 否 | 是 |
 | Presentation / Response | `questionDraft`、runtime state | `question`、`options`、`answer`、`explanation`、`sourceAnchorId` | 是 | 是 |
 | Delivery / Summary | runtime + generated summary | `nextActivity`、`unitSummary`、`chapterCompletionMessage` | 是 | 可选 |
 
