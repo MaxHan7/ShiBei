@@ -1,4 +1,5 @@
 import { callOpenAIJson } from "../../generation/openaiClient.js";
+import { classifyModelRuntimeError } from "./runtimeReliability.js";
 import { buildV2PromptMessages } from "./prompts/buildV2PromptMessages.js";
 import {
   ECD_PLANNING_OUTPUT_SCHEMA,
@@ -90,6 +91,7 @@ const DEFAULT_MODEL_JSON_RETRY_COUNT = 2;
 export function createV2ModelPromptCaller({
   modelJsonCaller = callOpenAIJson,
   modelUsageRecorder = null,
+  runtimeRecorder = null,
   retryCount = readOptionalNonNegativeInt(process.env.V2_MODEL_JSON_RETRIES) ?? DEFAULT_MODEL_JSON_RETRY_COUNT
 } = {}) {
   return async function callV2ModelPrompt(stage, payload) {
@@ -110,12 +112,40 @@ export function createV2ModelPromptCaller({
     };
 
     let lastError;
+    const callId = runtimeRecorder && typeof runtimeRecorder.nextCallId === "function"
+      ? runtimeRecorder.nextCallId(stage)
+      : "";
+    const maxAttempts = retryCount + 1;
     for (let attempt = 0; attempt <= retryCount; attempt += 1) {
+      const startedAt = Date.now();
       try {
-        return await modelJsonCaller(request);
+        const output = await modelJsonCaller(request);
+        recordRuntimeAttempt(runtimeRecorder, {
+          callId,
+          stage: `v2_${stage}`,
+          modelStage: stage,
+          attempt: attempt + 1,
+          maxAttempts,
+          status: "success",
+          durationMs: Date.now() - startedAt,
+          retryable: false
+        });
+        return output;
       } catch (error) {
         lastError = error;
-        if (!isRetryableJsonModelError(error) || attempt >= retryCount) {
+        const retryable = isRetryableJsonModelError(error);
+        recordRuntimeAttempt(runtimeRecorder, {
+          callId,
+          stage: `v2_${stage}`,
+          modelStage: stage,
+          attempt: attempt + 1,
+          maxAttempts,
+          status: "failed",
+          durationMs: Date.now() - startedAt,
+          retryable: retryable && attempt < retryCount,
+          error
+        });
+        if (!retryable || attempt >= retryCount) {
           annotatePromptStageError(error, stage, attempt + 1);
           throw error;
         }
@@ -131,6 +161,12 @@ function annotatePromptStageError(error, stage, attemptCount) {
   error.stage = `v2_${stage}`;
   error.modelStage = stage;
   error.retryAttempts = attemptCount;
+  error.runtimeErrorType = classifyModelRuntimeError(error);
+}
+
+function recordRuntimeAttempt(runtimeRecorder, event) {
+  if (!runtimeRecorder || typeof runtimeRecorder.recordAttempt !== "function") return;
+  runtimeRecorder.recordAttempt(event);
 }
 
 function schemaForModel(schema) {

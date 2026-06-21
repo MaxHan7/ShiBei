@@ -41,7 +41,8 @@ function mapV2GenerationError(error) {
       failureReason: error.issues.map((issue) => issue.message || issue.code).join("；") || message,
       retryable: true,
       issues: error.issues,
-      diagnostics: error.diagnostics
+      diagnostics: error.diagnostics,
+      stageRuntime: error.stageRuntime
     });
   }
 
@@ -50,7 +51,8 @@ function mapV2GenerationError(error) {
       failedStage: "contract_validation",
       failureReason: error.errors.join("；"),
       retryable: false,
-      errors: error.errors
+      errors: error.errors,
+      stageRuntime: error.stageRuntime
     });
   }
 
@@ -59,7 +61,9 @@ function mapV2GenerationError(error) {
     failureReason: message,
     retryable: true,
     ...(error?.modelStage ? { modelStage: error.modelStage } : {}),
-    ...(error?.retryAttempts ? { retryAttempts: error.retryAttempts } : {})
+    ...(error?.retryAttempts ? { retryAttempts: error.retryAttempts } : {}),
+    ...(error?.runtimeErrorType ? { runtimeErrorType: error.runtimeErrorType } : {}),
+    ...(error?.stageRuntime ? { stageRuntime: error.stageRuntime } : {})
   });
 }
 
@@ -72,7 +76,9 @@ function failure({
   errors,
   diagnostics,
   modelStage,
-  retryAttempts
+  retryAttempts,
+  runtimeErrorType,
+  stageRuntime
 }) {
   return {
     status,
@@ -82,6 +88,8 @@ function failure({
     retryable,
     ...(modelStage ? { modelStage } : {}),
     ...(retryAttempts ? { retryAttempts } : {}),
+    ...(runtimeErrorType ? { runtimeErrorType } : {}),
+    ...(stageRuntime ? { stageRuntime } : {}),
     ...(issues ? { issues } : {}),
     ...(errors ? { errors } : {}),
     ...(diagnostics ? { diagnostics } : {})

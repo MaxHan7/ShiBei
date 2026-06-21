@@ -47,6 +47,8 @@ test("generates a contract-valid V2 review path from split prompt stages", async
   assert.equal(reviewPath.units[0].questions[1].relationGoal, undefined);
   assert.equal(reviewPath.generationMeta.currentStage, "completed");
   assert.equal(reviewPath.generationMeta.unitKnowledgeMap.units[0].microKnowledgePoints.length, 2);
+  assert.equal(reviewPath.generationMeta.stageRuntime.schemaVersion, "v2_stage_runtime_1");
+  assert.equal(reviewPath.generationMeta.stageRuntime.callCount, 0);
   assert.equal(reviewPath.generationMeta.ecdPlanning.units[0].assessableTargets.length, 2);
   assert.deepEqual(reviewPath.generationMeta.ecdPlanning.units[0].selectedTasks[0].targetIds, ["target-001"]);
   assert.equal(reviewPath.generationMeta.ecdPlanning.units[0].selectedTasks.length, 2);

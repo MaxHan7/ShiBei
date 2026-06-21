@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { createV2ModelPromptCaller } from "./modelPromptCaller.js";
+import { createStageRuntimeRecorder } from "./runtimeReliability.js";
 
 test("calls the JSON model transport with sourceMap schema and messages", async () => {
   const calls = [];
@@ -50,7 +51,9 @@ test("passes modelUsageRecorder through to the transport", async () => {
 
 test("retries transient structured JSON transport failures", async () => {
   const calls = [];
+  const runtimeRecorder = createStageRuntimeRecorder();
   const caller = createV2ModelPromptCaller({
+    runtimeRecorder,
     modelJsonCaller: async (request) => {
       calls.push(request);
       if (calls.length === 1) {
@@ -73,11 +76,19 @@ test("retries transient structured JSON transport failures", async () => {
 
   assert.equal(output.blocks[0].id, "p-001");
   assert.equal(calls.length, 2);
+  const runtime = runtimeRecorder.summary();
+  assert.equal(runtime.callCount, 1);
+  assert.equal(runtime.attemptCount, 2);
+  assert.equal(runtime.failedAttemptCount, 1);
+  assert.equal(runtime.retryAttemptCount, 1);
+  assert.equal(runtime.stages[0].errorTypes.json_parse_error, 1);
 });
 
 test("does not retry non-transient model transport failures", async () => {
   let callCount = 0;
+  const runtimeRecorder = createStageRuntimeRecorder();
   const caller = createV2ModelPromptCaller({
+    runtimeRecorder,
     modelJsonCaller: async () => {
       callCount += 1;
       throw new Error("quota exhausted");
@@ -95,6 +106,10 @@ test("does not retry non-transient model transport failures", async () => {
     /quota exhausted/
   );
   assert.equal(callCount, 1);
+  const runtime = runtimeRecorder.summary();
+  assert.equal(runtime.callCount, 1);
+  assert.equal(runtime.failedAttemptCount, 1);
+  assert.equal(runtime.stages[0].errorTypes.provider_error, 1);
 });
 
 test("calls the JSON model transport with ecdPlanning schema and messages", async () => {

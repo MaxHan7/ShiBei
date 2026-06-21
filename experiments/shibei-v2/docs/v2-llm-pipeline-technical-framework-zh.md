@@ -12,6 +12,7 @@
   - OpenAI Structured Outputs：schema-first 和受约束输出参考。
   - LangGraph：长期 durable workflow / stateful orchestration 参考。
 - 不建议现在整体迁移到 DSPy、LangGraph 或 BAML。更稳妥的路线是：**以 DSPy 的技术思想作为主架构参照，把现有 Node V2 pipeline 改造成 DSPy-style 的模块化 LM program**。
+- 运行稳定性单独由 runtime/adapter 契约管理，见 `v2-llm-runtime-reliability-contract-zh.md`；不要把 provider 空返回、JSON 破损、timeout 这类工程问题继续塞进 prompt 文案。
 
 ## 参考资料
 

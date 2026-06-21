@@ -92,6 +92,7 @@ export function buildV2QualityReport({
   const ecdPlanning = chapter?.generationMeta?.ecdPlanning || null;
   const unitKnowledgeMap = chapter?.generationMeta?.unitKnowledgeMap || null;
   const sourceContextStats = chapter?.generationMeta?.sourceContextStats || null;
+  const stageRuntime = chapter?.generationMeta?.stageRuntime || jobResult?.stageRuntime || null;
 
   return {
     schemaVersion: "v2_quality_report_1",
@@ -113,12 +114,15 @@ export function buildV2QualityReport({
       matchingCount: questions.filter((question) => question.type === "matching").length,
       sourceBlockCount: sourceBlocks.length,
       issueCount: countQualityIssues(jobResult),
-      diagnosticIssueCount: countDiagnosticIssues(qualityDiagnostics)
+      diagnosticIssueCount: countDiagnosticIssues(qualityDiagnostics),
+      runtimeFailedAttemptCount: stageRuntime?.failedAttemptCount || 0,
+      runtimeRetryAttemptCount: stageRuntime?.retryAttemptCount || 0
     },
     chapter,
     unitKnowledgeMap,
     ecdPlanning,
     sourceContextStats,
+    stageRuntime,
     qualityDiagnostics,
     modelUsage: Array.isArray(jobResult?.modelUsage) ? jobResult.modelUsage : [],
     failure: buildFailure(jobResult)
@@ -325,6 +329,7 @@ export function renderV2QualityReportHtml(report) {
     <div class="meta">${escapeHtml(report.generatedAt)} · ${escapeHtml(report.label)} · ${escapeHtml(report.status)}</div>
     ${renderFailure(report.failure)}
     ${renderModelUsage(report.modelUsage)}
+    ${renderStageRuntime(report.stageRuntime)}
     ${renderSourceContextStats(report.sourceContextStats)}
     <section class="card">
       <h2 style="margin-top:0">文章与章节</h2>
@@ -339,6 +344,8 @@ export function renderV2QualityReportHtml(report) {
         ${metric("Source blocks", report.metrics.sourceBlockCount)}
         ${metric("Issues", report.metrics.issueCount)}
         ${metric("Diagnostics", report.metrics.diagnosticIssueCount)}
+        ${metric("Runtime failed attempts", report.metrics.runtimeFailedAttemptCount)}
+        ${metric("Runtime retries", report.metrics.runtimeRetryAttemptCount)}
       </div>
     </section>
     ${renderUnitKnowledgeMap(unitKnowledgeMap)}
@@ -618,6 +625,32 @@ function renderModelUsage(modelUsage) {
       </div>
     `).join("")}
   </section>`;
+}
+
+function renderStageRuntime(stageRuntime) {
+  if (!stageRuntime || !Array.isArray(stageRuntime.stages)) return "";
+  return `<section class="card">
+    <h2 style="margin-top:0">Stage Runtime Reliability</h2>
+    <p class="meta">这一段显示 structured-output runtime 的稳定性：每个 stage 调用了几次、重试了几次、失败类型是什么。它不是题目质量审查。</p>
+    <div class="grid">
+      ${metric("Calls", stageRuntime.callCount || 0)}
+      ${metric("Attempts", stageRuntime.attemptCount || 0)}
+      ${metric("Failed attempts", stageRuntime.failedAttemptCount || 0)}
+      ${metric("Retry attempts", stageRuntime.retryAttemptCount || 0)}
+    </div>
+    ${stageRuntime.stages.map((stage) => `<div class="question">
+      <div><strong>${escapeHtml(stage.stage)}</strong></div>
+      <div class="meta">calls: ${escapeHtml(stage.callCount || 0)} · success calls: ${escapeHtml(stage.successCallCount || 0)} · failed calls: ${escapeHtml(stage.failedCallCount || 0)} · attempts: ${escapeHtml(stage.attemptCount || 0)} · retries: ${escapeHtml(stage.retryAttemptCount || 0)} · failed attempts: ${escapeHtml(stage.transientFailureCount || 0)} · duration: ${escapeHtml(stage.totalDurationMs || 0)}ms</div>
+      ${Object.keys(stage.errorTypes || {}).length ? `<div class="meta">error types: ${escapeHtml(formatErrorTypes(stage.errorTypes))}</div>` : ""}
+      ${stage.lastErrorMessage ? `<details><summary>last error</summary><pre>${escapeHtml(`${stage.lastErrorType || "unknown"}: ${stage.lastErrorMessage}`)}</pre></details>` : ""}
+    </div>`).join("\n")}
+  </section>`;
+}
+
+function formatErrorTypes(errorTypes) {
+  return Object.entries(errorTypes || {})
+    .map(([type, count]) => `${type}=${count}`)
+    .join(", ");
 }
 
 function renderSourceContextStats(sourceContextStats) {

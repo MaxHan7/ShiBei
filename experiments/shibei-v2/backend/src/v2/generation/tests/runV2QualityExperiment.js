@@ -154,8 +154,8 @@ function createProgressPromptCallerFactory({
   progressEvents,
   startedAt
 }) {
-  return function createProgressPromptCaller() {
-    const basePromptCaller = createV2ModelPromptCaller({ modelUsageRecorder });
+  return function createProgressPromptCaller({ runtimeRecorder } = {}) {
+    const basePromptCaller = createV2ModelPromptCaller({ modelUsageRecorder, runtimeRecorder });
     const stageAttempts = new Map();
 
     return async function callWithProgress(stage, payload) {

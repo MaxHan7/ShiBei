@@ -21,6 +21,10 @@ import {
 import { validateUnitSummaryDraftOutput } from "./prompts/unitSummaryDraft.js";
 import { runV2QualityGuardrails } from "./qualityGuardrails.js";
 import {
+  attachStageRuntimeToError,
+  createStageRuntimeRecorder
+} from "./runtimeReliability.js";
+import {
   buildPlanSourceContext,
   buildUnitSourceContext
 } from "./sourceContext.js";
@@ -58,15 +62,17 @@ export async function generateReviewPathV2(
     now = new Date().toISOString()
   } = {}
 ) {
+  const runtimeRecorder = createStageRuntimeRecorder();
   const activePromptCaller =
     typeof promptCaller === "function"
       ? promptCaller
-      : createPromptCaller({ modelUsageRecorder });
+      : createPromptCaller({ modelUsageRecorder, runtimeRecorder });
 
   if (typeof activePromptCaller !== "function") {
     throw new Error("generateReviewPathV2 requires a promptCaller function or createPromptCaller factory");
   }
 
+  try {
   const sourceMap = sourceMapMode === "deterministic"
     ? buildDeterministicSourceMap(article)
     : await callAndValidate(
@@ -174,6 +180,7 @@ export async function generateReviewPathV2(
         plan,
         planSourceContext
       }),
+      stageRuntime: runtimeRecorder.summary(),
       stages: activeV2GenerationStages({ qualityJudgeEnabled }).map((stage) => ({
         status: stage,
         displayStatusText: stageDisplayText(stage),
@@ -209,6 +216,7 @@ export async function generateReviewPathV2(
     judgeIssueCount: Array.isArray(judge.issues) ? judge.issues.length : 0,
     ...(judgeError ? { judgeError: judgeError.message } : {})
   };
+  draftReviewPath.generationMeta.stageRuntime = runtimeRecorder.summary();
 
   const validation = validateReviewPathV2(draftReviewPath);
   if (!validation.ok) {
@@ -220,6 +228,10 @@ export async function generateReviewPathV2(
   }
 
   return draftReviewPath;
+  } catch (error) {
+    attachStageRuntimeToError(error, runtimeRecorder.summary());
+    throw error;
+  }
 }
 
 function buildSingleUnitPlan(plan, plannedUnit) {

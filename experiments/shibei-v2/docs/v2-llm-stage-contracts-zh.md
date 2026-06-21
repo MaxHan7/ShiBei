@@ -9,6 +9,7 @@
 - **默认主链路不使用 qualityJudge 拦截**：当前只保留 deterministic diagnostics 和 HTML 报告，用户要先看完整题目输出。
 - **不要全量输出 ECD 中间思考**：只保留能防止漏知识点、方便调试的中间层，例如 micro knowledge、assessable targets、selected tasks。
 - **source context 要逐层变窄**：整章规划可以看全文；每个 unit 的 ECD 和题目生成只看当前 unit 的原文窗口。
+- **runtime 稳定性不写进 prompt**：structured output 空返回、JSON 破损、timeout、provider error 由 `v2-llm-runtime-reliability-contract-zh.md` 里的 adapter/runtime 策略处理。
 
 ## Stage 总览
 

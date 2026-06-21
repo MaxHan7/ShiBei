@@ -111,6 +111,16 @@ test("preserves model prompt stage when JSON generation fails", async () => {
       error.stage = "v2_multipleChoiceDraft";
       error.modelStage = "multipleChoiceDraft";
       error.retryAttempts = 3;
+      error.runtimeErrorType = "json_parse_error";
+      error.stageRuntime = {
+        schemaVersion: "v2_stage_runtime_1",
+        callCount: 1,
+        attemptCount: 3,
+        failedAttemptCount: 3,
+        retryAttemptCount: 2,
+        stages: [],
+        attempts: []
+      };
       throw error;
     }
   });
@@ -119,5 +129,7 @@ test("preserves model prompt stage when JSON generation fails", async () => {
   assert.equal(result.failedStage, "v2_multipleChoiceDraft");
   assert.equal(result.modelStage, "multipleChoiceDraft");
   assert.equal(result.retryAttempts, 3);
+  assert.equal(result.runtimeErrorType, "json_parse_error");
+  assert.equal(result.stageRuntime.failedAttemptCount, 3);
   assert.equal(result.retryable, true);
 });

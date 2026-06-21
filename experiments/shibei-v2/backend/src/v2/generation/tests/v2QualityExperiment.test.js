@@ -51,6 +51,9 @@ test("renders a readable V2 quality HTML report with questions and source anchor
   assert.match(html, /matching relation value: pass/);
   assert.match(html, /Source Context Stats/);
   assert.match(html, /unitKnowledgeMap: b1, b2/);
+  assert.match(html, /Stage Runtime Reliability/);
+  assert.match(html, /v2_ecdPlanning/);
+  assert.match(html, /Runtime retries/);
   assert.match(html, /展开完整 source block/);
   assert.match(html, /这一段是为了测试长 source block/);
 });
@@ -272,6 +275,29 @@ function chapterFixture() {
             fallbackUsed: false
           }
         ]
+      },
+      stageRuntime: {
+        schemaVersion: "v2_stage_runtime_1",
+        callCount: 2,
+        attemptCount: 3,
+        failedAttemptCount: 1,
+        retryAttemptCount: 1,
+        stages: [
+          {
+            stage: "v2_ecdPlanning",
+            callCount: 1,
+            successCallCount: 1,
+            failedCallCount: 0,
+            attemptCount: 2,
+            retryAttemptCount: 1,
+            transientFailureCount: 1,
+            totalDurationMs: 1200,
+            errorTypes: { empty_structured_text: 1 },
+            lastErrorType: "empty_structured_text",
+            lastErrorMessage: "DeepSeek 没有返回结构化文本。"
+          }
+        ],
+        attempts: []
       },
       qualityDiagnostics: [
         {
