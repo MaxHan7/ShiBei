@@ -78,3 +78,25 @@ test("maps contract validation errors to non-retryable generation failure", asyn
   assert.equal(result.retryable, false);
   assert.match(result.failureReason, /payload.units/);
 });
+
+test("preserves model prompt stage when JSON generation fails", async () => {
+  const result = await runV2GenerationJob({
+    id: "chapter-001",
+    title: "Hook",
+    rawText: "Hook 是流程控制器。"
+  }, {
+    generateReviewPath: async () => {
+      const error = new Error("模型返回内容不是可解析 JSON，请重试。");
+      error.stage = "v2_multipleChoiceDraft";
+      error.modelStage = "multipleChoiceDraft";
+      error.retryAttempts = 3;
+      throw error;
+    }
+  });
+
+  assert.equal(result.status, "failed_generation");
+  assert.equal(result.failedStage, "v2_multipleChoiceDraft");
+  assert.equal(result.modelStage, "multipleChoiceDraft");
+  assert.equal(result.retryAttempts, 3);
+  assert.equal(result.retryable, true);
+});

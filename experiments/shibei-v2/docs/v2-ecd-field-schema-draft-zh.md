@@ -8,13 +8,17 @@
 - ECD 字段优先作为后端内部中间产物和 HTML 质量报告字段。
 - 不把 `learningClaim`、`evidenceNeed`、`taskPurpose` 等内部推理字段直接暴露给 SwiftUI。
 - 题目数量不写死，由 `evidenceNeeds` 和 `selectedTasks` 自然形成。
+- 知识发现和题目组装分离：先完整列出 unit 内部小知识点，再进入 evidence 和 task 设计。
 
 ## Implementation Status
 
-- `ecdPlanning.js` 是第一版代码级 ECD 内部规划 schema 模块。
-- 该 schema 已接入真实 V2 orchestration：运行顺序为 `sourceMap -> reviewPathPlan -> ecdPlanning -> deterministic unitPracticePlan adapter -> multipleChoiceDraft / matchingDraft -> unitSummaryDraft -> qualityJudge`。
+- `unitKnowledgeMap.js` 是第二轮结构重构新增的内部 micro knowledge inventory schema。它只负责拆每个 unit 内部的小知识点，不生成题目、不选择题型、不做 selectedTasks。
+- `ecdPlanning.js` 是代码级 ECD 内部规划 schema 模块。它现在消费 `unitKnowledgeMap`，再生成 learning claims、evidence angles、evidence needs、task plans 和 assembly。
+- 2026-06-21 更新：`ecdPlanning` 已改成 **逐 unit 运行**，再由编排层合并为 `generationMeta.ecdPlanning`。这样避免把 6 个 unit 的 ECD 证据规划塞进一个巨型 JSON，减少模型输出截断，同时也让每个 unit 的 evidence 设计更像 ECD 的独立任务模型。
+- 当前真实 V2 orchestration：`sourceMap -> reviewPathPlan -> unitKnowledgeMap -> per-unit ecdPlanning -> deterministic unitPracticePlan adapter -> multipleChoiceDraft / matchingDraft -> unitSummaryDraft -> optional qualityJudge`。
+- `unitKnowledgeMap` 输出会写入 `generationMeta.unitKnowledgeMap`，并展示在 V2 HTML 质量报告中，用来人工检查每个 unit 内部的小知识点是否先被完整发现。
 - `ecdPlanning` 输出会写入 `generationMeta.ecdPlanning`，并展示在 V2 HTML 质量报告中，用于人工检查模型是否先建立了学习主张、证据需求、任务计划和组装理由。
-- `ecdPlanning.unitAssemblyPlan[].selectedTasks` 现在已经驱动下游 `unitPracticePlan`：编排层会把当前 unit 的 `knowledgeUnit`、`learningClaims`、`evidenceNeeds`、`taskPlans`、`assemblyPlan` 作为 `ecdContext` 传入后续阶段。
+- `ecdPlanning.unitAssemblyPlan[].selectedTasks` 现在已经驱动下游 `unitPracticePlan`：编排层会把当前 unit 的 `microKnowledgePoints`、`knowledgeUnit`、`learningClaims`、`evidenceAngles`、`evidenceNeeds`、`taskPlans`、`assemblyPlan` 作为 `ecdContext` 传入后续阶段。
 - 旧 `unitPracticePlan` 仍作为过渡 adapter 保留，但不再由模型重新规划：它确定性地把 ECD 的 `selectedTasks` 转成现有 `practiceGoals` 和 `questionPlans`，从而保持 SwiftUI 可见字段合同稳定，并减少一层 JSON 生成不稳定性。
 - 如果 ECD 只选择 matching，则跳过 `multipleChoiceDraft`；如果 ECD 不选择 matching，则跳过 `matchingDraft`。模型额外发明的 `questionPlans` 会被过滤掉。
 - 当前前端只支持 `multiple_choice` 和 `matching`。ECD 中暂未落地的 future affordance 会在过渡期映射为 `multiple_choice`，后续如果新增题型，再单独扩展前端合同。
@@ -26,6 +30,7 @@
 - `unitTaskPlan[].angleIds[]` 和 `unitAssemblyPlan[].selectedTasks[].angleIds[]` 已加入代码级 schema。`required` angle 必须被 selected task 覆盖。
 - V2 HTML 质量报告已展示 Coverage Matrix 和 Angle Coverage Matrix，用来人工检查每个 sub-objective、claim、angle、evidence 和 selected task 的覆盖关系。
 - 2026-06-21 prompt 减重方向：schema 保持稳定，但 prompt 不再把教学质量主要写成“不要/避免/跳过”。工程合同继续硬约束；教学判断改成正向证据目标，例如掌握证据组合、高价值 supporting angle、selectedTasks 不以最低覆盖为目标。
+- 2026-06-21 质量诊断策略：`qualityJudge` 仍会运行，但处于 diagnostic-only；如果模型 JSON 失败，不再阻断完整题目输出，而是写入 `generationMeta.qualityJudgeError` 和质量报告的模型调用记录。
 
 ## 总览
 
@@ -33,6 +38,7 @@
 | --- | --- | --- | --- | --- |
 | Domain Analysis | `articleUnderstanding` | `coreThesis`、`articleStructure`、`nonReviewableSections` | 部分可见为章节概要 | 是 |
 | Domain Modeling | `reviewPathPlan.knowledgeObjects`、`knowledgeModel` | `knowledgeObjectId`、`boundaryDecision`、`unitId`、`title`、`nodeLabel`、`knowledgeShape`、`sourceAnchorId` | 部分可见 | 是 |
+| Micro Knowledge Inventory | `unitKnowledgeMap` | `microId`、`title`、`role`、`assessmentValue`、`suggestedEvidenceAngles` | 否 | 是 |
 | Student Model | `unitSubObjectives`、`unitLearningClaims` | `subObjectiveId`、`importance`、`claimType`、`learningClaim` | 否 | 是 |
 | Evidence Model | `unitEvidenceAngles`、`unitEvidenceNeeds` | `angleId`、`angleType`、`coverageRequirement`、`evidenceType`、`observableResponse` | 否 | 是 |
 | Task Model | `unitTaskPlan` | `taskPurpose`、`taskAffordance`、`angleIds`、`whyThisTask` | 否 | 是 |

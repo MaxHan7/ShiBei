@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>v2-unit-knowledge-map-max6-output-preserved - V2 出题质量报告</title>
+  <style>
+    :root {
+      --bg: #f2f5cf;
+      --paper: #fdfaf2;
+      --ink: #44423d;
+      --muted: #807d73;
+      --line: #dde1ac;
+      --brand: #98a84e;
+      --soft: #f2f1da;
+      --danger: #ed765c;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    h1, h2, h3 {
+      line-height: 1.25;
+      margin: 0;
+    }
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 40px 0 16px;
+    }
+    h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(152, 163, 94, 0.18);
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      color: var(--brand);
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 14px 0;
+      background: rgba(253, 250, 242, 0.72);
+    }
+    .stem {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .options, .pairs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .option, .pair {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .correct {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .explanation {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+    .source {
+      margin-top: 12px;
+      border-left: 4px solid var(--line);
+      padding-left: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .source-block {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin: 8px 0;
+      background: rgba(255,255,255,0.45);
+    }
+    .source-block.highlight {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .failure {
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    details {
+      margin-top: 12px;
+    }
+    .diagnostic {
+      border-top: 1px dashed var(--line);
+      padding-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>V2 出题质量报告</h1>
+    <div class="meta">2026-06-21T01:47:10.665Z · v2-unit-knowledge-map-max6-output-preserved · failed_generation</div>
+    <section class="card failure">
+    <h2 style="margin-top:0">生成失败</h2>
+    <p><strong>v2_ecdPlanning</strong> · 可重试</p>
+    <p>模型阶段：ecdPlanning · 重试次数：3</p>
+    <p>模型返回内容不是可解析 JSON，请重试。</p>
+    
+    
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">模型调用记录</h2>
+    
+      <div class="question">
+        <div><strong>#1 v2_reviewPathPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 5200</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#2 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 7200</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#3 v2_ecdPlanning</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 14000</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;articleUnderstanding&quot;: {
+    &quot;coreThesis&quot;: &quot;游戏化通过阶段性目标、挑战与能力动态匹配、成长机制感知设计和情境设计与身份认同建构等机制，构建持续性用户体验；但需警惕挤出效应和娱乐至上风险，并在AI时代探索新可能。&quot;,
+    &quot;articleStructure&quot;: [
+      {&quot;id&quot;: &quot;sec-intro&quot;, &quot;title&quot;: &quot;引言与游戏化概念&quot;, &quot;role&quot;: &quot;奠定理论基础，提出游戏化定义与核心机制&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-014&quot;]},
+      {&quot;id&quot;: &quot;sec-dmc&quot;, &quot;title&quot;: &quot;DMC游戏化模型&quot;, &quot;role&quot;: &quot;提供游戏化要素的结构化分析框架&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-020&quot;]},
+      {&quot;id&quot;: &quot;sec-goal&quot;, &quot;title&quot;: &quot;阶段性目标的设定&quot;, &quot;role&quot;: &quot;第一个设计方法，解释如何分解长期目标&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-024&quot;,&quot;p-025&quot;,&quot;p-026&quot;]},
+      {&quot;id&quot;: &quot;sec-challenge&quot;, &quot;title&quot;: &quot;挑战与能力的动态匹配&quot;, &quot;role&quot;: &quot;第二个设计方法，维持心流体验&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-029&quot;,&quot;p-030&quot;]},
+      {&quot;id&quot;: &quot;sec-growth&quot;, &quot;title&quot;: &quot;成长机制的感知设计&quot;, &quot;role&quot;: &quot;第三个设计方法，可视化进步&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-032&quot;,&quot;p-033&quot;,&quot;p-035&quot;]},
+      {&quot;id&quot;: &quot;sec-context&quot;, &quot;title&quot;: &quot;情境设计与身份认同建构&quot;, &quot;role&quot;: &quot;第四个设计方法，通过叙事增强代入感&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-037&quot;,&quot;p-042&quot;]},
+      {&quot;id&quot;: &quot;sec-risk&quot;, &quot;title&quot;: &quot;游戏化的风险与挑战&quot;, &quot;role&quot;: &quot;警示挤出效应和娱乐至上&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-043&quot;,&quot;p-044&quot;]},
+      {&quot;id&quot;: &quot;sec-ai&quot;, &quot;title&quot;: &quot;AI时代的游戏化新可能&quot;, &quot;role&quot;: &quot;展望生成式AI的影响&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-045&quot;]},
+      {&quot;id&quot;: &quot;sec-conclusion&quot;, &quot;title&quot;: &quot;结论&quot;, &quot;role&quot;: &quot;总结游戏化本质，提出设计原则&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-046&quot;]}
+    ],
+    &quot;reviewableSections&quot;: [&quot;p-014&quot;,&quot;p-020&quot;,&quot;p-021&quot;,&quot;p-024&quot;,&quot;p-025&quot;,&quot;p-026&quot;,&quot;p-029&quot;,&quot;p-030&quot;,&quot;p-032&quot;,&quot;p-033&quot;,&quot;p-035&quot;,&quot;p-037&quot;,&quot;p-042&quot;,&quot;p-043&quot;,&quot;p-044&quot;,&quot;p-045&quot;,&quot;p-046&quot;],
+    &quot;nonReviewableSections&quot;: [
+      {&quot;sourceAnchorId&quot;: &quot;p-001&quot;, &quot;reason&quot;: &quot;文章标题，不包含学习内容&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-002&quot;, &quot;reason&quot;: &quot;版权声明&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-003&quot;, &quot;reason&quot;: &quot;作者信息&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-004&quot;, &quot;reason&quot;: &quot;重复作者信息&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-005&quot;, &quot;reason&quot;: &quot;期刊信息&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-006&quot;, &quot;reason&quot;: &quot;阅读器操作提示&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-007&quot;, &quot;reason&quot;: &quot;链接提示&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-008&quot;, &quot;reason&quot;: &quot;沉浸阅读提示&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-009&quot;, &quot;reason&quot;: &quot;内容摘要标题&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-010&quot;, &quot;reason&quot;: &quot;内容摘要正文，非核心知识点&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-011&quot;, &quot;reason&quot;: &quot;关键词标签&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-012&quot;, &quot;reason&quot;: &quot;引言部分标题&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-013&quot;, &quot;reason&quot;: &quot;引言正文，背景信息而非核心知识点&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-015&quot;, &quot;reason&quot;: &quot;图片说明&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-016&quot;, &quot;reason&quot;: &quot;背景讨论，非核心知识点&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-017&quot;, &quot;reason&quot;: &quot;背景讨论，非核心知识点&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-018&quot;, &quot;reason&quot;: &quot;案例描述，但未纳入核心知识点&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-019&quot;, &quot;reason&quot;: &quot;图片说明&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-022&quot;, &quot;reason&quot;: &quot;过渡段落，非核心知识点&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-023&quot;, &quot;reason&quot;: &quot;阶段性目标标题&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-027&quot;, &quot;reason&quot;: &quot;图片说明&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-028&quot;, &quot;reason&quot;: &quot;动态匹配标题&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-031&quot;, &quot;reason&quot;: &quot;成长机制标题&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-034&quot;, &quot;reason&quot;: &quot;图片说明&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-036&quot;, &quot;reason&quot;: &quot;情境设计标题&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-038&quot;, &quot;reason&quot;: &quot;图片说明&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-039&quot;, &quot;reason&quot;: &quot;图片说明&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-040&quot;, &quot;reason&quot;: &quot;图片说明&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-041&quot;, &quot;reason&quot;: &quot;图片说明&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-047&quot;, &quot;reason&quot;: &quot;参考文献标题&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;p-048&quot;, &quot;reason&quot;: &quot;参考文献内容&quot;}
+    ]
+  },
+  &quot;knowledgeModel&quot;: {
+    &quot;units&quot;: [
+      {
+        &quot;unitId&quot;: &quot;unit-1&quot;,
+        &quot;title&quot;: &quot;游戏化的概念与定义&quot;,
+        &quot;nodeLabel&quot;: &quot;游戏化概念与定义&quot;,
+        &quot;shortSummary&quot;: &quot;游戏化是将游戏设计元素应用于非游戏语境，旨在以乐趣服务现实目标，提升用户参与与持续投入。&quot;,
+        &quot;detailSummary&quot;: &quot;游戏化由Nick Pelling于2002年提出，Sebastian Deterding定义为“在非游戏语境中使用游戏设计元素”。Werbach与Hunter强调其关键在于创造“乐趣”以服务现实目标，使人们更愿意进入、完成并持续活动。如斯德哥尔摩地铁站的钢琴楼梯，将爬楼梯转化为趣味互动，促使健康行为。&quot;,
+        &quot;knowledgeShape&quot;: &quot;core_concept&quot;,
+        &quot;sourceAnchorId&quot;: &quot;anchor-unit-1&quot;
+      },
+      {
+        &quot;unitId&quot;: &quot;unit-2&quot;,
+        &quot;title&quot;: &quot;DMC游戏化模型：动力、机制与组件&quot;,
+        &quot;nodeLabel&quot;: &quot;DMC模型：动力、机制与组件&quot;,
+        &quot;shortSummary&quot;: &quot;DMC模型将游戏化分为动力（体验目标）、机制（行为规则）和组件（具体元素）三层，从抽象到具体。&quot;,
+        &quot;detailSummary&quot;: &quot;Werbach与Hunter提出的金字塔结构：动力层定义整体体验（如约束、情感、叙事、成长）；机制层组织用户行为（如挑战、竞争、反馈、奖励）；组件层是直观界面元素（如徽章、排行榜、点数）。三层协作将抽象目标转化为可交互系统。&quot;,
+        &quot;knowledgeShape&quot;: &quot;layered_framework&quot;,
+        &quot;sourceAnchorId&quot;: &quot;anchor-un</pre></details>
+      </div>
+    
+      <div class="question">
+        <div><strong>#4 v2_ecdPlanning</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 14000</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;articleUnderstanding&quot;: {
+    &quot;coreThesis&quot;: &quot;文章探讨游戏化如何通过阶段性目标、挑战匹配、成长感知和情境设计等机制构建持续性用户体验，并警示外在激励的挤出效应与娱乐至上风险，展望AI时代的新可能。&quot;,
+    &quot;articleStructure&quot;: [
+      {&quot;id&quot;: &quot;sec-intro&quot;, &quot;title&quot;: &quot;引言&quot;, &quot;role&quot;: &quot;background&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-012&quot;,&quot;p-013&quot;,&quot;p-014&quot;,&quot;p-015&quot;,&quot;p-016&quot;,&quot;p-017&quot;,&quot;p-018&quot;,&quot;p-019&quot;]},
+      {&quot;id&quot;: &quot;sec-1&quot;, &quot;title&quot;: &quot;阶段性目标的设定&quot;, &quot;role&quot;: &quot;method&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-023&quot;,&quot;p-024&quot;,&quot;p-025&quot;,&quot;p-026&quot;,&quot;p-027&quot;]},
+      {&quot;id&quot;: &quot;sec-2&quot;, &quot;title&quot;: &quot;挑战与能力的动态匹配&quot;, &quot;role&quot;: &quot;method&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-028&quot;,&quot;p-029&quot;,&quot;p-030&quot;]},
+      {&quot;id&quot;: &quot;sec-3&quot;, &quot;title&quot;: &quot;成长机制的感知设计&quot;, &quot;role&quot;: &quot;method&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-031&quot;,&quot;p-032&quot;,&quot;p-033&quot;,&quot;p-034&quot;,&quot;p-035&quot;]},
+      {&quot;id&quot;: &quot;sec-4&quot;, &quot;title&quot;: &quot;情境设计与身份认同建构&quot;, &quot;role&quot;: &quot;method&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-036&quot;,&quot;p-037&quot;,&quot;p-038&quot;,&quot;p-039&quot;,&quot;p-040&quot;,&quot;p-041&quot;,&quot;p-042&quot;]},
+      {&quot;id&quot;: &quot;sec-5&quot;, &quot;title&quot;: &quot;游戏化的风险与挑战&quot;, &quot;role&quot;: &quot;discussion&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-043&quot;,&quot;p-044&quot;]},
+      {&quot;id&quot;: &quot;sec-6&quot;, &quot;title&quot;: &quot;AI时代的游戏化新可能&quot;, &quot;role&quot;: &quot;future&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-045&quot;]},
+      {&quot;id&quot;: &quot;sec-conclusion&quot;, &quot;title&quot;: &quot;结论&quot;, &quot;role&quot;: &quot;conclusion&quot;, &quot;sourceAnchorIds&quot;: [&quot;p-046&quot;]}
+    ],
+    &quot;reviewableSections&quot;: [&quot;sec-1&quot;,&quot;sec-2&quot;,&quot;sec-3&quot;,&quot;sec-4&quot;,&quot;sec-5&quot;,&quot;sec-6&quot;],
+    &quot;nonReviewableSections&quot;: [
+      {&quot;sourceAnchorId&quot;: &quot;sec-intro&quot;, &quot;reason&quot;: &quot;背景介绍，不包含直接可考知识点&quot;},
+      {&quot;sourceAnchorId&quot;: &quot;sec-conclusion&quot;, &quot;reason&quot;: &quot;总结性陈述，无独立知识点&quot;}
+    ]
+  },
+  &quot;knowledgeModel&quot;: {
+    &quot;units&quot;: [
+      {
+        &quot;unitId&quot;: &quot;unit-1&quot;,
+        &quot;title&quot;: &quot;游戏化的概念与定义&quot;,
+        &quot;nodeLabel&quot;: &quot;游戏化概念与定义&quot;,
+        &quot;shortSummary&quot;: &quot;游戏化是将游戏设计元素应用于非游戏语境，旨在以乐趣服务现实目标，提升用户参与与持续投入。&quot;,
+        &quot;detailSummary&quot;: &quot;游戏化由Nick Pelling于2002年提出，Sebastian Deterding定义为“在非游戏语境中使用游戏设计元素”。Werbach与Hunter强调其关键在于创造“乐趣”以服务现实目标，使人们更愿意进入、完成并持续活动。如斯德哥尔摩地铁站的钢琴楼梯，将爬楼梯转化为趣味互动，促使健康行为。&quot;,
+        &quot;knowledgeShape&quot;: &quot;core_concept&quot;,
+        &quot;sourceAnchorId&quot;: &quot;anchor-unit-1&quot;
+      },
+      {
+        &quot;unitId&quot;: &quot;unit-2&quot;,
+        &quot;title&quot;: &quot;DMC游戏化模型：动力、机制与组件&quot;,
+        &quot;nodeLabel&quot;: &quot;DMC模型：动力、机制与组件&quot;,
+        &quot;shortSummary&quot;: &quot;DMC模型将游戏化分为动力（体验目标）、机制（行为规则）和组件（具体元素）三层，从抽象到具体。&quot;,
+        &quot;detailSummary&quot;: &quot;Werbach与Hunter提出的金字塔结构：动力层定义整体体验（如约束、情感、叙事、成长）；机制层组织用户行为（如挑战、竞争、反馈、奖励）；组件层是直观界面元素（如徽章、排行榜、点数）。三层协作将抽象目标转化为可交互系统。例如，动力层设定成长感，机制层通过挑战和反馈实现，组件层展示经验条和成就。&quot;,
+        &quot;knowledgeShape&quot;: &quot;layered_framework&quot;,
+        &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;
+      },
+      {
+        &quot;unitId&quot;: &quot;unit-3&quot;,
+        &quot;title&quot;: &quot;阶段性目标的设定&quot;,
+        &quot;nodeLabel&quot;: &quot;阶段性目标设定&quot;,
+        &quot;shortSummary&quot;: &quot;将长期目标拆解为可掌控的短期里程碑，通过及时反馈维持动机，防止成就感稀释。&quot;,
+        &quot;detailSummary&quot;: &quot;长期目标反馈周期过长易导致动机衰减。通过设定阶段性目标，将漫长过程分解为短期冲刺，每次闭环带来即时满意，塑造自我效能感。案例：专注森林以树木生长代表专注时长，退出则枯萎，将抽象专注转化为可视化任务；无聊猿的Dookey Dash将长期运营拆为独立活动，保持留存。&quot;,
+        &quot;knowledgeShape&quot;: &quot;process_steps&quot;,
+        &quot;sourceAnchorId&quot;: &quot;anchor-unit-3&quot;
+      },
+      {
+        &quot;unitId&quot;: &quot;unit-4&quot;,
+        &quot;title&quot;: &quot;挑战与能力的动态匹配&quot;,
+        &quot;nodeLabel&quot;: &quot;挑战与能力动态匹配&quot;,
+        &quot;shortSummary&quot;: &quot;通过动态调整难度使任务始终处于“可达到但有挑战”区间，维持心流与沉浸感。&quot;,
+        &quot;detailSummary&quot;: &quot;用户持续投入需适度挑战与激励机制。游戏设计通过难度星级或动态调节保持“可达到但有挑战”。多邻国根据前一天表现调整次日难度，错误多则降低难度，表现好则提高挑战并加奖励，同时结合等级与星级控制节奏。这种匹配使用户能力与任务难度同步增长，避免无聊或焦虑。&quot;,
+        &quot;knowledgeShape&quot;: &quot;process_steps&quot;,
+        &quot;sourceAnchorId&quot;: &quot;anchor-unit-4&quot;
+      },
+      {
+        &quot;unitId&quot;: &quot;unit-5&quot;,
+        &quot;title&quot;: &quot;成长机制的感知设计&quot;,
+        &quot;nodeLabel&quot;: &quot;成长机制感知设计&quot;,
+        &quot;shortSummary&quot;: &quot;通过可视化、易感知的设计让用户清晰看到自身进步，增强持续投入动力。&quot;,
+        &quot;detailSummary&quot;: &quot;将缓慢的成长过程转化为持续变化，如蚂蚁森林将低碳行为可视化为树木生长，蚂蚁庄园将公益参与映射为照料小鸡。成就、排行榜、等级段位等组件使能力可见，里程碑节点增强仪式感。社交嵌入（如帮助好友收能量）增加互动与可见性，使用户获得“我正在产生影响”的成长感。&quot;,
+        &quot;knowledgeShape&quot;: &quot;process_steps&quot;,
+        &quot;sourceAnchorId&quot;: &quot;anchor-unit-5&quot;
+      },
+      {
+        &quot;unitId&quot;: &quot;unit-6&quot;,
+        &quot;title&quot;: &quot;情境设计与身份认同建构&quot;,
+        &quot;nodeLabel&quot;: &quot;情境设计与身份认同&quot;,
+        &quot;shortSummary&quot;: &quot;通过空间结构、环境线索和角色设定构建叙事，使玩家在行动中代入角色，形成身份认同。&quot;,
+        &quot;detailSummary&quot;: &quot;游戏叙事不依赖文本，而嵌入空间、地标、关卡等。如《毛线小精灵2》的毛线角色特性与谜题一致，《宝可梦GO》将现实世界转化为游戏场景。荷兰微生物博物馆营造实验室氛围，观众成为“微生物载体”。角色、环境与行动机制共同组织叙事，使用户在情境中建立深层身份认同。&quot;,
+        &quot;knowledgeShape&quot;: &quot;process_steps&quot;,
+        &quot;sourceAnchorId&quot;: &quot;anchor-unit-6&quot;
+      }
+    ]
+  },
+  &quot;unitSubObjectives&quot;: [</pre></details>
+      </div>
+    
+      <div class="question">
+        <div><strong>#5 v2_ecdPlanning</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 14000</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;articleUnderstanding&quot;: {
+    &quot;coreThesis&quot;: &quot;游戏化方法通过阶段性目标、动态匹配、成长感知和情境设计构建持续性用户体验，需避免外在激励的挤出效应和娱乐至上风险。&quot;,
+    &quot;articleStructure&quot;: [
+      {
+        &quot;id&quot;: &quot;sec-intro&quot;,
+        &quot;title&quot;: &quot;引言&quot;,
+        &quot;role&quot;: &quot;background&quot;,
+        &quot;sourceAnchorIds&quot;: [&quot;p-012&quot;, &quot;p-013&quot;]
+      },
+      {
+        &quot;id&quot;: &quot;sec-concept&quot;,
+        &quot;title&quot;: &quot;游戏化的概念与定义&quot;,
+        &quot;role&quot;: &quot;definition&quot;,
+        &quot;sourceAnchorIds&quot;: [&quot;p-014&quot;]
+      },
+      {
+        &quot;id&quot;: &quot;sec-dmc&quot;,
+        &quot;title&quot;: &quot;DMC游戏化模型&quot;,
+        &quot;role&quot;: &quot;framework&quot;,
+        &quot;sourceAnchorIds&quot;: [&quot;p-020&quot;]
+      },
+      {
+        &quot;id&quot;: &quot;sec-goals&quot;,
+        &quot;title&quot;: &quot;阶段性目标的设定&quot;,
+        &quot;role&quot;: &quot;method&quot;,
+        &quot;sourceAnchorIds&quot;: [&quot;p-024&quot;, &quot;p-025&quot;, &quot;p-026&quot;]
+      },
+      {
+        &quot;id&quot;: &quot;sec-challenge&quot;,
+        &quot;title&quot;: &quot;挑战与能力的动态匹配&quot;,
+        &quot;role&quot;: &quot;method&quot;,
+        &quot;sourceAnchorIds&quot;: [&quot;p-029&quot;, &quot;p-030&quot;]
+      },
+      {
+        &quot;id&quot;: &quot;sec-growth&quot;,
+        &quot;title&quot;: &quot;成长机制的感知设计&quot;,
+        &quot;role&quot;: &quot;method&quot;,
+        &quot;sourceAnchorIds&quot;: [&quot;p-032&quot;, &quot;p-033&quot;, &quot;p-035&quot;]
+      },
+      {
+        &quot;id&quot;: &quot;sec-context&quot;,
+        &quot;title&quot;: &quot;情境设计与身份认同建构&quot;,
+        &quot;role&quot;: &quot;method&quot;,
+        &quot;sourceAnchorIds&quot;: [&quot;p-037&quot;, &quot;p-042&quot;]
+      },
+      {
+        &quot;id&quot;: &quot;sec-risk&quot;,
+        &quot;title&quot;: &quot;游戏化的风险与挑战&quot;,
+        &quot;role&quot;: &quot;critique&quot;,
+        &quot;sourceAnchorIds&quot;: [&quot;p-043&quot;, &quot;p-044&quot;]
+      },
+      {
+        &quot;id&quot;: &quot;sec-ai&quot;,
+        &quot;title&quot;: &quot;AI时代的游戏化新可能&quot;,
+        &quot;role&quot;: &quot;future&quot;,
+        &quot;sourceAnchorIds&quot;: [&quot;p-045&quot;]
+      }
+    ],
+    &quot;reviewableSections&quot;: [
+      &quot;p-014&quot;,
+      &quot;p-020&quot;,
+      &quot;p-024&quot;,
+      &quot;p-025&quot;,
+      &quot;p-026&quot;,
+      &quot;p-029&quot;,
+      &quot;p-030&quot;,
+      &quot;p-032&quot;,
+      &quot;p-033&quot;,
+      &quot;p-035&quot;,
+      &quot;p-037&quot;,
+      &quot;p-042&quot;,
+      &quot;p-043&quot;,
+      &quot;p-044&quot;,
+      &quot;p-045&quot;
+    ],
+    &quot;nonReviewableSections&quot;: [
+      {
+        &quot;sourceAnchorId&quot;: &quot;p-001&quot;,
+        &quot;reason&quot;: &quot;标题，没有可评估内容&quot;
+      },
+      {
+        &quot;sourceAnchorId&quot;: &quot;p-010&quot;,
+        &quot;reason&quot;: &quot;摘要，一般性概述，不适合独立出题&quot;
+      },
+      {
+        &quot;sourceAnchorId&quot;: &quot;p-047&quot;,
+        &quot;reason&quot;: &quot;参考文献列表，无学习内容&quot;
+      }
+    ]
+  },
+  &quot;knowledgeModel&quot;: {
+    &quot;units&quot;: [
+      {
+        &quot;unitId&quot;: &quot;unit-1&quot;,
+        &quot;title&quot;: &quot;游戏化的概念与定义&quot;,
+        &quot;nodeLabel&quot;: &quot;游戏化概念与定义&quot;,
+        &quot;shortSummary&quot;: &quot;游戏化是将游戏设计元素应用于非游戏语境，旨在以乐趣服务现实目标，提升用户参与与持续投入。&quot;,
+        &quot;detailSummary&quot;: &quot;游戏化由Nick Pelling于2002年提出，Sebastian Deterding定义为“在非游戏语境中使用游戏设计元素”。Werbach与Hunter强调其关键在于创造“乐趣”以服务现实目标，使人们更愿意进入、完成并持续活动。如斯德哥尔摩地铁站的钢琴楼梯，将爬楼梯转化为趣味互动，促使健康行为。&quot;,
+        &quot;knowledgeShape&quot;: &quot;core_concept&quot;,
+        &quot;sourceAnchorId&quot;: &quot;anchor-unit-1&quot;
+      },
+      {
+        &quot;unitId&quot;: &quot;unit-2&quot;,
+        &quot;title&quot;: &quot;DMC游戏化模型：动力、机制与组件&quot;,
+        &quot;nodeLabel&quot;: &quot;DMC模型：动力、机制与组件&quot;,
+        &quot;shortSummary&quot;: &quot;DMC模型将游戏化分为动力（体验目标）、机制（行为规则）和组件（具体元素）三层，从抽象到具体。&quot;,
+        &quot;detailSummary&quot;: &quot;Werbach与Hunter提出的金字塔结构：动力层定义整体体验（如约束、情感、叙事、成长）；机制层组织用户行为（如挑战、竞争、反馈、奖励）；组件层是直观界面元素（如徽章、排行榜、点数）。三层协作将抽象目标转化为可交互系统。&quot;,
+        &quot;knowledgeShape&quot;: &quot;layered_framework&quot;,
+        &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;
+      },
+      {
+        &quot;unitId&quot;: &quot;unit-3&quot;,
+        &quot;title&quot;: &quot;阶段性目标的设定&quot;,
+        &quot;nodeLabel&quot;: &quot;阶段性目标设定&quot;,
+        &quot;shortSummary&quot;: &quot;将长期目标拆解为可掌控的短期里程碑，通过及时反馈维持动机，防止成就感稀释。&quot;,
+        &quot;detailSummary&quot;: &quot;长期目标反馈周期过长易导致动机衰减。通过设定阶段性目标，将漫长过程分解为短期冲刺，每次闭环带来即时满意，塑造自我效能感。案例：专注森林以树木生长代表专注时长，退出则枯萎；无聊猿的Dookey Dash将长期运营拆为独立活动，保持留存。&quot;,
+        &quot;knowledgeShape&quot;: &quot;process_steps&quot;,
+        &quot;sourceAnchorId&quot;: &quot;anchor-unit-3&quot;
+      },
+      {
+        &quot;unitId&quot;: &quot;unit-4&quot;,
+        &quot;title&quot;: &quot;挑战与能力的动态匹配&quot;,
+        &quot;nodeLabel&quot;: &quot;挑战与能力动态匹配&quot;,
+        &quot;shortSummary&quot;: &quot;通过动态调整难度使任务始终处于“可达到但有挑战”区间，维持心流与沉浸感。&quot;,
+        &quot;detailSummary&quot;: &quot;用户持续投入需适度挑战与激励机制。游戏设计通过难度星级或动态调节保持“可达到但有挑战”。多邻国根据前一天表现调整次日难度，错误多则降低难度，表现好则提高挑战并加奖励，同时结合等级与星级控制节奏。&quot;,
+        &quot;knowledgeShape&quot;: &quot;process_steps&quot;,
+        &quot;sourceAnchorId&quot;: &quot;anchor-unit-4&quot;
+      },
+      {
+        &quot;unitId&quot;: &quot;unit-5&quot;,
+        &quot;title&quot;: &quot;成长机制的感知设计&quot;,
+        &quot;nodeLabel&quot;: &quot;成长机制感知设计&quot;,
+        &quot;shortSummary&quot;: &quot;通过可视化、易感知的设计让用户清晰看到自身进步，增强持续投入动力。&quot;,
+        &quot;detailSummary&quot;: &quot;将缓慢的成长过程转化为持续变化，如蚂蚁森林将低碳行为可视化为树木生长，蚂蚁庄园将公益参与映射为照料小鸡。成就、排行榜、等级段位等组件使能力可见，里程碑节点增强仪式感。社交嵌入增加互动与可见性。&quot;,
+     </pre></details>
+      </div>
+    
+  </section>
+    <section class="card">
+      <h2 style="margin-top:0">文章与章节</h2>
+      <p><strong>基于游戏化方法的持续性用户体验设计</strong></p>
+      <p class="meta">吴 琼、王婧等 · <a href="https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A">https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A</a></p>
+      <p></p>
+      <div class="grid">
+        <div class="metric"><strong>0</strong>知识点</div>
+        <div class="metric"><strong>0</strong>题目</div>
+        <div class="metric"><strong>0</strong>选择题</div>
+        <div class="metric"><strong>0</strong>连线题</div>
+        <div class="metric"><strong>0</strong>Source blocks</div>
+        <div class="metric"><strong>0</strong>Issues</div>
+        <div class="metric"><strong>0</strong>Diagnostics</div>
+      </div>
+    </section>
+    
+    
+    
+    <section class="card">
+      <h2 style="margin-top:0">章节总结</h2>
+      <p><span class="tag">章节完成</span></p>
+      <p></p>
+    </section>
+    <section class="card">
+      <h2 style="margin-top:0">完整来源块</h2>
+      <p class="meta">暂无 source blocks</p>
+    </section>
+  </main>
+</body>
+</html>

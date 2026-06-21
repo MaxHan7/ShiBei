@@ -36,6 +36,8 @@ test("renders a readable V2 quality HTML report with questions and source anchor
   assert.match(html, /解释：/);
   assert.match(html, /sourceAnchorId: a1/);
   assert.match(html, /source-block highlight/);
+  assert.match(html, /Micro Knowledge Map/);
+  assert.match(html, /micro-u1-1 · high · process_step/);
   assert.match(html, /ECD 证据规划 Shadow Stage/);
   assert.match(html, /Hook 让生命周期触发变成可观察的流程控制/);
   assert.match(html, /Sub Objectives/);
@@ -63,6 +65,8 @@ test("renders generation failures for quality review", () => {
       failedStage: "quality_checking",
       failureReason: "source anchor 不够精准",
       retryable: true,
+      modelStage: "qualityJudge",
+      retryAttempts: 2,
       issues: [{ code: "weak_source_anchor", message: "source anchor 不够精准" }],
       diagnostics: [
         {
@@ -72,6 +76,18 @@ test("renders generation failures for quality review", () => {
           checks: { sourceAnchorPrecision: "missing_or_mismatched" },
           issues: [{ code: "weak_source_anchor", message: "source anchor 不够精准" }]
         }
+      ],
+      modelUsage: [
+        {
+          index: 1,
+          provider: "deepseek",
+          model: "deepseek-v4-flash",
+          stage: "v2_qualityJudge",
+          estimatedOutputTokens: 900,
+          error: "模型返回内容不是可解析 JSON",
+          parseError: "Unexpected token",
+          rawResponsePreview: "{ bad"
+        }
       ]
     }
   });
@@ -80,7 +96,11 @@ test("renders generation failures for quality review", () => {
 
   assert.match(html, /生成失败/);
   assert.match(html, /quality_checking/);
+  assert.match(html, /模型阶段：qualityJudge/);
   assert.match(html, /source anchor 不够精准/);
+  assert.match(html, /模型调用记录/);
+  assert.match(html, /v2_qualityJudge/);
+  assert.match(html, /raw response preview/);
 });
 
 test("writes unique JSON and HTML artifacts", async () => {
@@ -186,6 +206,25 @@ function chapterFixture() {
       encouragementText: "你已经掌握了 hook 的核心用法。"
     },
     generationMeta: {
+      unitKnowledgeMap: {
+        units: [
+          {
+            unitId: "u1",
+            microKnowledgePoints: [
+              {
+                microId: "micro-u1-1",
+                title: "Hook 流程角色",
+                summary: "Hook、Handler、Context、Decision 是流程中的不同角色。",
+                role: "process_step",
+                assessmentValue: "high",
+                suggestedEvidenceAngles: ["structure_mapping"],
+                sourceAnchorId: "a1",
+                sourceSupport: "原文说明 Hook 触发并把上下文传给 handler。"
+              }
+            ]
+          }
+        ]
+      },
       ecdPlanning: {
         articleUnderstanding: {
           coreThesis: "Hook 让生命周期触发变成可观察的流程控制。",

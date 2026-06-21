@@ -1,6 +1,7 @@
 export function buildV2PromptMessages(stage, payload) {
   if (stage === "sourceMap") return buildSourceMapMessages(payload);
   if (stage === "reviewPathPlan") return buildReviewPathPlanMessages(payload);
+  if (stage === "unitKnowledgeMap") return buildUnitKnowledgeMapMessages(payload);
   if (stage === "ecdPlanning") return buildEcdPlanningMessages(payload);
   if (stage === "unitPracticePlan") return buildUnitPracticePlanMessages(payload);
   if (stage === "multipleChoiceDraft") return buildMultipleChoiceDraftMessages(payload);
@@ -80,16 +81,56 @@ function buildReviewPathPlanMessages({ article, source, blocks }) {
   };
 }
 
-function buildEcdPlanningMessages({ article, source, blocks, plan }) {
+function buildUnitKnowledgeMapMessages({ article, source, blocks, plan }) {
+  return {
+    system: baseSystem(),
+    user: [
+      "阶段：unitKnowledgeMap。",
+      "任务：只为每个已确定的 unit 拆出内部 microKnowledgePoints；本阶段不生成题目、不选择题型、不做 selectedTasks。",
+      "为什么需要这一层：",
+      "- 一个 unit 是大知识点，内部通常包含多个可学习的小知识点。",
+      "- 这些小知识点是后续 ECD evidence 和题目生成的上游 inventory。",
+      "- 本阶段的目标是完整发现，不是压缩、筛选或组装题目。",
+      "拆分原则：",
+      "- 对每个 reviewPathPlan.units[] 都输出一个 units[] 对象。",
+      "- microKnowledgePoints 要覆盖该 unit 内所有有学习价值、可被原文支撑的小点。",
+      "- microKnowledgePoints 可以是定义、边界、模型层级、机制、流程步骤、场景应用、误区、案例或关系。",
+      "- 不要因为后续可能题目多，就把多个小点合成一句大话。",
+      "- 不要为了控制题量而删掉原文中重要的小点；题量控制留给后续 assembly。",
+      "- assessmentValue 只描述这个小点的考察价值：high、medium、low、context_only。",
+      "- context_only 只能用于背景、铺垫或不适合直接考察的案例，并要在 summary/sourceSupport 里看得出原因。",
+      "- 对 DMC 这类分层模型，要把整体结构、每一层的作用、层级关系或边界分别拆出来。",
+      "- 对流程、信号、角色、类型集合，要保留能形成 matching 或场景判断的关系小点。",
+      "输出字段：",
+      "- microId 使用稳定 id，例如 micro-<unit id>-001。",
+      "- title 是短标题，可用于人工报告对比。",
+      "- summary 是一两句说明这个小点是什么。",
+      "- role 只能使用 schema enum。",
+      "- suggestedEvidenceAngles 只写建议观察角度，例如 definition_grasp、structure_mapping、boundary_discrimination、misconception_detection、scenario_transfer、mechanism_reasoning。",
+      "- sourceAnchorId 必须引用当前 unit.sourceAnchor.id。",
+      "- sourceSupport 写该小点由原文哪一部分支撑，不粘贴长原文。",
+      "",
+      `reviewPathPlan:\n${JSON.stringify(plan, null, 2)}`,
+      "",
+      renderSource(source, blocks),
+      "",
+      renderArticleMeta(article)
+    ].join("\n")
+  };
+}
+
+function buildEcdPlanningMessages({ article, source, blocks, plan, unitKnowledgeMap }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：ecdPlanning。",
-      "任务：基于 Evidence-Centered Design，为已切好的 unit 建立内部出题规划；本阶段不生成用户可见题目。",
+      "任务：基于 Evidence-Centered Design，只为本次输入的单个 unit 建立内部出题规划；本阶段不生成用户可见题目。",
       "核心原则：",
-      "- 先判断文章核心论点和可复习结构，再判断每个 unit 的学习主张。",
-      "- 对每个 unit，先拆 unitSubObjectives：一个大知识点内部有哪些可考、可观察、可被原文支撑的小目标。",
-      "- unitSubObjectives 不是目录拆分；它们是 ECD 里的 assessment targets，用来避免大 unit 内部漏掉关键 evidence。",
+      "- 先用一句话判断文章核心论点，再聚焦当前 unit 的学习主张；不要展开整篇文章的完整结构分析。",
+      "- unitKnowledgeMap.microKnowledgePoints 是上游已经拆好的小知识点 inventory；不要在本阶段重新压缩它。",
+      "- 对每个 assessmentValue 为 high 或 medium 的 microKnowledgePoint，优先派生一个 unitSubObjective。",
+      "- low 可以合并到相邻 subObjective；context_only 可以不出题，但不能让 high/medium 小点消失。",
+      "- unitSubObjectives 是 ECD 里的 assessment targets，用来避免大 unit 内部漏掉关键 evidence。",
       "- 每个 required subObjective 必须至少产生一个 learningClaim；claim 要回答：用户学完这个小目标后，应该能理解、区分、迁移或识别什么。",
       "- 每个重要 learningClaim 先列 unitEvidenceAngles：同一个知识点可以从 definition_grasp、structure_mapping、boundary_discrimination、misconception_detection、scenario_transfer、mechanism_reasoning、source_grounding 等多角度收集 evidence。",
       "- 多角度 evidence 的目标是形成掌握证据组合：如果一个知识点包含多个不同可观察理解表现，应把这些表现拆成独立 angle，让后续任务分别观察。",
@@ -107,8 +148,11 @@ function buildEcdPlanningMessages({ article, source, blocks, plan }) {
       "- matching 的价值来自关系本身：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度都比孤立名词释义更适合连线。",
       "- 如果一个 unit 内含多个同等重要的小目标，例如“核心定义”“边界误区”“DMC 层级作用”，应分别建立 evidence，并让 selectedTasks 呈现这些互补角度。",
       "字段约束：",
-      "- knowledgeModel.units 必须覆盖并只引用 reviewPathPlan.units 里的 unitId。",
+      "- reviewPathPlan.units 在本阶段只会包含当前这一个 unit；knowledgeModel.units 也只输出这一个 unit。",
+      "- articleUnderstanding.articleStructure 只列与当前 unit 相关的 1-3 个结构片段，避免长篇复述全文章节。",
+      "- articleUnderstanding.reviewableSections 只列当前 unit 相关的可复习结构；nonReviewableSections 可以为空数组。",
       "- knowledgeModel.units[].sourceAnchorId 必须引用对应 unit.sourceAnchor.id。",
+      "- unitSubObjectives[].title 和 learningTarget 应能追溯到 unitKnowledgeMap.microKnowledgePoints，而不是凭空新增或过度合并。",
       "- unitSubObjectives、unitLearningClaims、unitEvidenceAngles、unitEvidenceNeeds、unitTaskPlan、unitAssemblyPlan 都必须使用稳定 id，且引用关系必须闭合。",
       "- unitLearningClaims[].subObjectiveId、unitEvidenceAngles[].subObjectiveId 和 unitEvidenceNeeds[].subObjectiveId 必须引用 unitSubObjectives。",
       "- unitEvidenceAngles[].claimId 必须引用 unitLearningClaims；unitEvidenceNeeds[].angleId 必须引用 unitEvidenceAngles。",
@@ -117,6 +161,8 @@ function buildEcdPlanningMessages({ article, source, blocks, plan }) {
       "- unitAssemblyPlan.selectedTasks[].questionPlanId 是后续题目计划 id，不是最终题目正文。",
       "",
       `reviewPathPlan:\n${JSON.stringify(plan, null, 2)}`,
+      "",
+      `unitKnowledgeMap:\n${JSON.stringify(unitKnowledgeMap || {}, null, 2)}`,
       "",
       renderSource(source, blocks),
       "",

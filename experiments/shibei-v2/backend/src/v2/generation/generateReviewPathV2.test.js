@@ -47,6 +47,8 @@ test("generates a contract-valid V2 review path from split prompt stages", async
   assert.equal(reviewPath.units[0].questions[1].relationGoal, undefined);
   assert.equal(reviewPath.generationMeta.currentStage, "completed");
   assert.equal(reviewPath.generationMeta.ecdPlanning.articleUnderstanding.coreThesis, "Hook 把关键动作前后的提醒变成稳定流程。");
+  assert.equal(reviewPath.generationMeta.unitKnowledgeMap.units[0].microKnowledgePoints.length, 2);
+  assert.deepEqual(reviewPath.generationMeta.ecdPlanning.unitAssemblyPlan[0].selectedTasks[0].angleIds, ["angle-001"]);
   assert.equal(reviewPath.generationMeta.ecdPlanning.unitAssemblyPlan[0].selectedTasks.length, 2);
   assert.equal(reviewPath.generationMeta.unitPracticePlans.length, 1);
   assert.equal(reviewPath.generationMeta.ecdPlanning.unitEvidenceAngles.length, 2);
@@ -175,6 +177,7 @@ test("skips matchingDraft when ECD assembly does not select matching", async () 
   assert.deepEqual(stages, [
     "sourceMap",
     "reviewPathPlan",
+    "unitKnowledgeMap",
     "ecdPlanning",
     "multipleChoiceDraft",
     "unitSummaryDraft",
@@ -266,6 +269,29 @@ test("keeps generated questions when quality judge revises in diagnostic-only mo
   assert.equal(reviewPath.generationMeta.qualityJudge.verdict, "revise");
   assert.equal(reviewPath.generationMeta.qualityGate.blocking, false);
   assert.equal(reviewPath.generationMeta.qualityGate.judgeIssueCount, 1);
+});
+
+test("keeps generated questions when quality judge JSON fails in diagnostic-only mode", async () => {
+  const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
+    promptCaller: async (stage, payload) => {
+      if (stage === "qualityJudge") {
+        const error = new Error("DeepSeek 没有返回结构化文本。");
+        error.stage = "v2_qualityJudge";
+        error.modelStage = "qualityJudge";
+        error.retryAttempts = 3;
+        throw error;
+      }
+      return happyPathPromptCaller(stage, payload);
+    },
+    now: "2026-06-19T00:00:00.000Z"
+  });
+
+  assert.equal(reviewPath.status, "completed");
+  assert.equal(reviewPath.units[0].questions.length, 2);
+  assert.equal(reviewPath.generationMeta.qualityJudge.verdict, "pass");
+  assert.equal(reviewPath.generationMeta.qualityJudgeError.stage, "v2_qualityJudge");
+  assert.equal(reviewPath.generationMeta.qualityGate.blocking, false);
+  assert.equal(reviewPath.generationMeta.qualityGate.judgeError, "DeepSeek 没有返回结构化文本。");
 });
 
 test("normalizes draft question ids from question plan order", async () => {
@@ -422,7 +448,12 @@ async function happyPathPromptCaller(stage, payload, { matching = true } = {}) {
     return practicePlanFixture(payload.unit.id, payload.unit.sourceAnchor.id, { matching });
   }
 
+  if (stage === "unitKnowledgeMap") {
+    return unitKnowledgeMapFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id);
+  }
+
   if (stage === "ecdPlanning") {
+    assert.equal(payload.unitKnowledgeMap.units[0].microKnowledgePoints[0].microId, "micro-unit-01-001");
     return ecdPlanningFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id, { matching });
   }
 
@@ -724,6 +755,38 @@ function ecdPlanningFixture(unitId, sourceAnchorId, { matching }) {
                 reason: "本次 fixture 关闭 matching，用场景选择题覆盖第二个目标。"
               }
             ]
+      }
+    ]
+  };
+}
+
+function unitKnowledgeMapFixture(unitId, sourceAnchorId) {
+  return {
+    units: [
+      {
+        unitId,
+        microKnowledgePoints: [
+          {
+            microId: "micro-unit-01-001",
+            title: "Hook 核心定义",
+            summary: "Hook 是关键动作前后的流程约束。",
+            role: "definition",
+            assessmentValue: "high",
+            suggestedEvidenceAngles: ["definition_grasp", "misconception_detection"],
+            sourceAnchorId,
+            sourceSupport: "原文说明 Hook 是关键动作前后的流程控制器。"
+          },
+          {
+            microId: "micro-unit-01-002",
+            title: "职责边界",
+            summary: "Prompt、Hook、CI 和规则文档在流程中承担不同职责。",
+            role: "relationship",
+            assessmentValue: "medium",
+            suggestedEvidenceAngles: ["structure_mapping", "boundary_discrimination"],
+            sourceAnchorId,
+            sourceSupport: "原文说明 Hook 能稳定触发规则、上下文和验证。"
+          }
+        ]
       }
     ]
   };

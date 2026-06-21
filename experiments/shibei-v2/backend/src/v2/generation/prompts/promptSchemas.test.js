@@ -27,6 +27,10 @@ import {
   validateSourceMapOutput
 } from "./sourceMap.js";
 import {
+  UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA,
+  validateUnitKnowledgeMapOutput
+} from "./unitKnowledgeMap.js";
+import {
   UNIT_PRACTICE_PLAN_OUTPUT_SCHEMA,
   validateUnitPracticePlanOutput
 } from "./unitPracticePlan.js";
@@ -37,6 +41,7 @@ import {
 
 test("exports stable prompt schema names for the V2 generation pipeline", () => {
   assert.equal(SOURCE_MAP_OUTPUT_SCHEMA.name, "shibei_v2_source_map");
+  assert.equal(UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA.name, "shibei_v2_unit_knowledge_map");
   assert.equal(ECD_PLANNING_OUTPUT_SCHEMA.name, "shibei_v2_ecd_planning");
   assert.equal(REVIEW_PATH_PLAN_OUTPUT_SCHEMA.name, "shibei_v2_review_path_plan");
   assert.equal(UNIT_PRACTICE_PLAN_OUTPUT_SCHEMA.name, "shibei_v2_unit_practice_plan");
@@ -44,6 +49,25 @@ test("exports stable prompt schema names for the V2 generation pipeline", () => 
   assert.equal(MATCHING_DRAFT_OUTPUT_SCHEMA.name, "shibei_v2_matching_draft");
   assert.equal(UNIT_SUMMARY_DRAFT_OUTPUT_SCHEMA.name, "shibei_v2_unit_summary_draft");
   assert.equal(QUALITY_JUDGE_OUTPUT_SCHEMA.name, "shibei_v2_quality_judge");
+});
+
+test("validates unit knowledge maps as protected micro knowledge inventory", () => {
+  const result = validateUnitKnowledgeMapOutput(unitKnowledgeMapFixture(), {
+    unitIds: new Set(["unit-01"]),
+    sourceAnchorIds: new Set(["anchor-unit-01"])
+  });
+
+  assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("rejects unit knowledge maps that omit planned units", () => {
+  const result = validateUnitKnowledgeMapOutput({ units: [] }, {
+    unitIds: new Set(["unit-01"]),
+    sourceAnchorIds: new Set(["anchor-unit-01"])
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /units must be a non-empty array/);
 });
 
 test("ECD planning schema exposes nested fields needed by the shadow stage contract", () => {
@@ -664,6 +688,38 @@ function ecdPlanningFixture() {
           }
         ],
         skippedEvidence: []
+      }
+    ]
+  };
+}
+
+function unitKnowledgeMapFixture() {
+  return {
+    units: [
+      {
+        unitId: "unit-01",
+        microKnowledgePoints: [
+          {
+            microId: "micro-unit-01-001",
+            title: "Hook 核心定义",
+            summary: "Hook 是关键动作前后的流程约束，不是更长提示词。",
+            role: "definition",
+            assessmentValue: "high",
+            suggestedEvidenceAngles: ["definition_grasp", "misconception_detection"],
+            sourceAnchorId: "anchor-unit-01",
+            sourceSupport: "原文说明 Hook 是关键动作前后的流程控制器。"
+          },
+          {
+            microId: "micro-unit-01-002",
+            title: "流程职责边界",
+            summary: "Prompt、Hook、CI 和规则文档在流程中承担不同职责。",
+            role: "relationship",
+            assessmentValue: "medium",
+            suggestedEvidenceAngles: ["structure_mapping", "boundary_discrimination"],
+            sourceAnchorId: "anchor-unit-01",
+            sourceSupport: "原文对 Hook 的触发、上下文和验证有连续说明。"
+          }
+        ]
       }
     ]
   };

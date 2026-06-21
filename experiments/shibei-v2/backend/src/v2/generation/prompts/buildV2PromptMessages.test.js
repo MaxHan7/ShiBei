@@ -91,8 +91,8 @@ test("unitPracticePlan prompt uses evidence value instead of fixed question coun
   assert.match(messages.user, /matching 优先表达当前 unit 自身的层级、边界、步骤、信号、角色等关系证据/);
 });
 
-test("ecdPlanning prompt asks for ECD claims evidence and task planning without drafting questions", () => {
-  const messages = buildV2PromptMessages("ecdPlanning", {
+test("unitKnowledgeMap prompt isolates micro knowledge discovery from task assembly", () => {
+  const messages = buildV2PromptMessages("unitKnowledgeMap", {
     article: ARTICLE,
     source: { type: "article", title: ARTICLE.title },
     blocks: [
@@ -106,8 +106,35 @@ test("ecdPlanning prompt asks for ECD claims evidence and task planning without 
     }
   });
 
+  assert.match(messages.user, /unitKnowledgeMap/);
+  assert.match(messages.user, /本阶段不生成题目、不选择题型、不做 selectedTasks/);
+  assert.match(messages.user, /完整发现/);
+  assert.match(messages.user, /不要为了控制题量而删掉/);
+  assert.match(messages.user, /DMC 这类分层模型/);
+  assert.match(messages.user, /microKnowledgePoints/);
+});
+
+test("ecdPlanning prompt asks for ECD claims evidence and task planning without drafting questions", () => {
+  const messages = buildV2PromptMessages("ecdPlanning", {
+    article: ARTICLE,
+    source: { type: "article", title: ARTICLE.title },
+    blocks: [
+      { id: "p-001", type: "paragraph", text: "Hook 是关键动作前后的流程控制器。" }
+    ],
+    plan: {
+      title: ARTICLE.title,
+      summaryCard: { text: "Hook 把关键动作变成稳定流程。" },
+      units: [unitFixture()],
+      chapterSummary: { encouragementText: "你已经理解 Hook 的流程价值。" }
+    },
+    unitKnowledgeMap: unitKnowledgeMapFixture()
+  });
+
   assert.match(messages.user, /ecdPlanning/);
   assert.match(messages.user, /Evidence-Centered Design/);
+  assert.match(messages.user, /unitKnowledgeMap\.microKnowledgePoints/);
+  assert.match(messages.user, /不要在本阶段重新压缩/);
+  assert.match(messages.user, /high 或 medium/);
   assert.match(messages.user, /learningClaim/);
   assert.match(messages.user, /evidenceNeed/);
   assert.match(messages.user, /unitSubObjectives/);
@@ -209,6 +236,28 @@ function unitFixture() {
     shortSummary: "Hook 是流程控制器。",
     detailSummary: "Hook 在关键动作前后稳定执行规则。",
     sourceAnchor: { id: "anchor-unit-01", blockIds: ["p-001"] }
+  };
+}
+
+function unitKnowledgeMapFixture() {
+  return {
+    units: [
+      {
+        unitId: "unit-01",
+        microKnowledgePoints: [
+          {
+            microId: "micro-unit-01-001",
+            title: "Hook 核心定义",
+            summary: "Hook 是关键动作前后的流程约束。",
+            role: "definition",
+            assessmentValue: "high",
+            suggestedEvidenceAngles: ["definition_grasp"],
+            sourceAnchorId: "anchor-unit-01",
+            sourceSupport: "原文说明 Hook 是流程控制器。"
+          }
+        ]
+      }
+    ]
   };
 }
 

@@ -90,6 +90,7 @@ export function buildV2QualityReport({
       ? jobResult.diagnostics
       : [];
   const ecdPlanning = chapter?.generationMeta?.ecdPlanning || null;
+  const unitKnowledgeMap = chapter?.generationMeta?.unitKnowledgeMap || null;
 
   return {
     schemaVersion: "v2_quality_report_1",
@@ -114,8 +115,10 @@ export function buildV2QualityReport({
       diagnosticIssueCount: countDiagnosticIssues(qualityDiagnostics)
     },
     chapter,
+    unitKnowledgeMap,
     ecdPlanning,
     qualityDiagnostics,
+    modelUsage: Array.isArray(jobResult?.modelUsage) ? jobResult.modelUsage : [],
     failure: buildFailure(jobResult)
   };
 }
@@ -132,6 +135,8 @@ function buildFailure(jobResult) {
     failedStage: jobResult?.failedStage || "",
     failureReason: jobResult?.failureReason || "",
     retryable: Boolean(jobResult?.retryable),
+    modelStage: jobResult?.modelStage || "",
+    retryAttempts: jobResult?.retryAttempts || 0,
     issues: jobResult?.issues || [],
     errors: jobResult?.errors || [],
     diagnostics: jobResult?.diagnostics || []
@@ -146,6 +151,7 @@ function countDiagnosticIssues(diagnostics) {
 export function renderV2QualityReportHtml(report) {
   const chapter = report.chapter || {};
   const units = Array.isArray(chapter.units) ? chapter.units : [];
+  const unitKnowledgeMap = report.unitKnowledgeMap || chapter.generationMeta?.unitKnowledgeMap || null;
   const ecdPlanning = report.ecdPlanning || chapter.generationMeta?.ecdPlanning || null;
   const sourceBlocks = Array.isArray(chapter.source?.blocks) ? chapter.source.blocks : [];
   const sourceBlockMap = new Map(sourceBlocks.map((block) => [block.id, block]));
@@ -316,6 +322,7 @@ export function renderV2QualityReportHtml(report) {
     <h1>V2 出题质量报告</h1>
     <div class="meta">${escapeHtml(report.generatedAt)} · ${escapeHtml(report.label)} · ${escapeHtml(report.status)}</div>
     ${renderFailure(report.failure)}
+    ${renderModelUsage(report.modelUsage)}
     <section class="card">
       <h2 style="margin-top:0">文章与章节</h2>
       <p><strong>${escapeHtml(chapter.title || report.source.title || "未命名文章")}</strong></p>
@@ -331,6 +338,7 @@ export function renderV2QualityReportHtml(report) {
         ${metric("Diagnostics", report.metrics.diagnosticIssueCount)}
       </div>
     </section>
+    ${renderUnitKnowledgeMap(unitKnowledgeMap)}
     ${renderEcdPlanning(ecdPlanning)}
     ${units.map((unit, index) => renderUnit(unit, index, sourceBlockMap, diagnosticsByQuestionId)).join("\n")}
     <section class="card">
@@ -345,6 +353,24 @@ export function renderV2QualityReportHtml(report) {
   </main>
 </body>
 </html>`;
+}
+
+function renderUnitKnowledgeMap(unitKnowledgeMap) {
+  if (!unitKnowledgeMap || !Array.isArray(unitKnowledgeMap.units)) return "";
+
+  return `<section class="card">
+    <h2 style="margin-top:0">Micro Knowledge Map</h2>
+    <p class="meta">这一段是内部诊断信息：它只记录每个 unit 内部的小知识点 inventory，不负责选题型或控制题量。</p>
+    ${unitKnowledgeMap.units.map((unit, index) => {
+      const points = Array.isArray(unit.microKnowledgePoints) ? unit.microKnowledgePoints : [];
+      return `<div class="question">
+        <div class="stem">${index + 1}. ${escapeHtml(unit.unitId)}</div>
+        ${renderEcdList("Micro Knowledge Points", points, (item) =>
+          `${item.microId} · ${item.assessmentValue} · ${item.role}：${item.title} / ${item.summary} / angles: ${(item.suggestedEvidenceAngles || []).join(", ")}`
+        )}
+      </div>`;
+    }).join("\n")}
+  </section>`;
 }
 
 function renderEcdPlanning(ecdPlanning) {
@@ -544,9 +570,26 @@ function renderFailure(failure) {
   return `<section class="card failure">
     <h2 style="margin-top:0">生成失败</h2>
     <p><strong>${escapeHtml(failure.failedStage)}</strong> · ${failure.retryable ? "可重试" : "不可重试"}</p>
+    ${failure.modelStage ? `<p>模型阶段：${escapeHtml(failure.modelStage)} · 重试次数：${escapeHtml(failure.retryAttempts || "")}</p>` : ""}
     <p>${escapeHtml(failure.failureReason)}</p>
     ${failure.issues?.length || failure.errors?.length ? `<pre>${escapeHtml(JSON.stringify(failure.issues?.length ? failure.issues : failure.errors, null, 2))}</pre>` : ""}
     ${failure.diagnostics?.length ? `<details open><summary>质量诊断</summary><pre>${escapeHtml(JSON.stringify(failure.diagnostics, null, 2))}</pre></details>` : ""}
+  </section>`;
+}
+
+function renderModelUsage(modelUsage) {
+  if (!Array.isArray(modelUsage) || modelUsage.length === 0) return "";
+  return `<section class="card">
+    <h2 style="margin-top:0">模型调用记录</h2>
+    ${modelUsage.map((record) => `
+      <div class="question">
+        <div><strong>#${escapeHtml(record.index || "")} ${escapeHtml(record.stage || "")}</strong></div>
+        <div class="meta">${escapeHtml(record.provider || "")} · ${escapeHtml(record.model || "")} · estimated output ${escapeHtml(record.estimatedOutputTokens || 0)}</div>
+        ${record.error ? `<p class="meta">error: ${escapeHtml(record.error)}</p>` : ""}
+        ${record.parseError ? `<p class="meta">parse: ${escapeHtml(record.parseError)}</p>` : ""}
+        ${record.rawResponsePreview ? `<details><summary>raw response preview</summary><pre>${escapeHtml(record.rawResponsePreview)}</pre></details>` : ""}
+      </div>
+    `).join("")}
   </section>`;
 }
 

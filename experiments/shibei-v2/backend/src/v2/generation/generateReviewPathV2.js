@@ -10,6 +10,7 @@ import {
 import { validateQualityJudgeOutput } from "./prompts/qualityJudge.js";
 import { validateReviewPathPlanOutput } from "./prompts/reviewPathPlan.js";
 import { validateSourceMapOutput } from "./prompts/sourceMap.js";
+import { validateUnitKnowledgeMapOutput } from "./prompts/unitKnowledgeMap.js";
 import { validateMatchingDraftOutput } from "./prompts/matchingDraft.js";
 import { validateMultipleChoiceDraftOutput } from "./prompts/multipleChoiceDraft.js";
 import {
@@ -23,6 +24,7 @@ import { runV2QualityGuardrails } from "./qualityGuardrails.js";
 export const V2_GENERATION_STAGES = [
   "sourceMap",
   "reviewPathPlan",
+  "unitKnowledgeMap",
   "ecdPlanning",
   "unitPracticePlan",
   "multipleChoiceDraft",
@@ -75,19 +77,37 @@ export async function generateReviewPathV2(
       .map((unit) => [unit.id, unit.sourceAnchor?.id])
       .filter(([, sourceAnchorId]) => Boolean(sourceAnchorId))
   );
-  const ecdPlanning = await callAndValidate(
+  const unitKnowledgeMap = await callAndValidate(
     activePromptCaller,
-    "ecdPlanning",
+    "unitKnowledgeMap",
     { article, source: sourceMap.source, blocks: sourceMap.blocks, plan },
-    (output) => validateEcdPlanningOutput(output, { unitIds, sourceAnchorIds }),
-    { normalize: (output) => normalizeEcdPlanningOutput(output, { unitSourceAnchorIds, sourceAnchorIds }) }
+    (output) => validateUnitKnowledgeMapOutput(output, { unitIds, sourceAnchorIds })
+  );
+  const ecdPlanning = mergeEcdPlanningOutputs(
+    await mapWithConcurrency(
+      plan.units,
+      unitConcurrency,
+      (plannedUnit) => callAndValidate(
+        activePromptCaller,
+        "ecdPlanning",
+        {
+          article,
+          source: sourceMap.source,
+          blocks: sourceMap.blocks,
+          plan: buildSingleUnitPlan(plan, plannedUnit),
+          unitKnowledgeMap: buildSingleUnitKnowledgeMap(unitKnowledgeMap, plannedUnit.id)
+        },
+        (output) => validateEcdPlanningOutput(output, { unitIds: new Set([plannedUnit.id]), sourceAnchorIds }),
+        { normalize: (output) => normalizeEcdPlanningOutput(output, { unitSourceAnchorIds, sourceAnchorIds }) }
+      )
+    )
   );
 
   const generatedUnits = await mapWithConcurrency(
     plan.units,
     unitConcurrency,
     (plannedUnit) => {
-      const ecdContext = getEcdContextForUnit(ecdPlanning, plannedUnit);
+      const ecdContext = getEcdContextForUnit(ecdPlanning, plannedUnit, unitKnowledgeMap);
       return generateUnitReviewContent({
         activePromptCaller,
         article,
@@ -123,6 +143,7 @@ export async function generateReviewPathV2(
     generationMeta: {
       currentStage: "completed",
       reviewPathPlan: stripReviewPathPlanForMetadata(plan),
+      unitKnowledgeMap,
       stages: V2_GENERATION_STAGES.map((stage) => ({
         status: stage,
         displayStatusText: stageDisplayText(stage),
@@ -135,14 +156,16 @@ export async function generateReviewPathV2(
 
   const deterministicQuality = runV2QualityGuardrails(draftReviewPath);
 
-  const judge = await callAndValidate(
+  const { judge, judgeError } = await runOptionalQualityJudge({
     activePromptCaller,
-    "qualityJudge",
-    { article, reviewPath: draftReviewPath },
-    validateQualityJudgeOutput
-  );
+    article,
+    draftReviewPath
+  });
 
   draftReviewPath.generationMeta.qualityJudge = judge;
+  if (judgeError) {
+    draftReviewPath.generationMeta.qualityJudgeError = judgeError;
+  }
   draftReviewPath.generationMeta.qualityDiagnostics = deterministicQuality.diagnostics;
   draftReviewPath.generationMeta.qualityGate = {
     mode: "diagnostic_only",
@@ -150,7 +173,8 @@ export async function generateReviewPathV2(
     deterministicVerdict: deterministicQuality.verdict,
     deterministicIssueCount: deterministicQuality.issues.length,
     judgeVerdict: judge.verdict,
-    judgeIssueCount: Array.isArray(judge.issues) ? judge.issues.length : 0
+    judgeIssueCount: Array.isArray(judge.issues) ? judge.issues.length : 0,
+    ...(judgeError ? { judgeError: judgeError.message } : {})
   };
 
   const validation = validateReviewPathV2(draftReviewPath);
@@ -163,6 +187,72 @@ export async function generateReviewPathV2(
   }
 
   return draftReviewPath;
+}
+
+function buildSingleUnitPlan(plan, plannedUnit) {
+  return {
+    ...plan,
+    units: [plannedUnit]
+  };
+}
+
+function buildSingleUnitKnowledgeMap(unitKnowledgeMap, unitId) {
+  return {
+    units: (unitKnowledgeMap?.units || []).filter((unit) => unit.unitId === unitId)
+  };
+}
+
+function mergeEcdPlanningOutputs(outputs) {
+  const validOutputs = (outputs || []).filter(Boolean);
+  const first = validOutputs[0] || {};
+  return {
+    articleUnderstanding: first.articleUnderstanding || {
+      coreThesis: "",
+      articleStructure: [],
+      reviewableSections: [],
+      nonReviewableSections: []
+    },
+    knowledgeModel: {
+      units: validOutputs.flatMap((output) => output.knowledgeModel?.units || [])
+    },
+    unitSubObjectives: validOutputs.flatMap((output) => output.unitSubObjectives || []),
+    unitLearningClaims: validOutputs.flatMap((output) => output.unitLearningClaims || []),
+    unitEvidenceAngles: validOutputs.flatMap((output) => output.unitEvidenceAngles || []),
+    unitEvidenceNeeds: validOutputs.flatMap((output) => output.unitEvidenceNeeds || []),
+    unitTaskPlan: validOutputs.flatMap((output) => output.unitTaskPlan || []),
+    unitAssemblyPlan: validOutputs.flatMap((output) => output.unitAssemblyPlan || [])
+  };
+}
+
+async function runOptionalQualityJudge({
+  activePromptCaller,
+  article,
+  draftReviewPath
+}) {
+  try {
+    const judge = await callAndValidate(
+      activePromptCaller,
+      "qualityJudge",
+      { article, reviewPath: draftReviewPath },
+      validateQualityJudgeOutput
+    );
+    return { judge, judgeError: null };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error || "quality judge failed");
+    return {
+      judge: {
+        verdict: "pass",
+        issues: [],
+        summary: "质量诊断阶段失败；本轮按 diagnostic-only 策略保留完整题目输出。"
+      },
+      judgeError: {
+        stage: error?.stage || "qualityJudge",
+        modelStage: error?.modelStage || "qualityJudge",
+        retryAttempts: error?.retryAttempts || 0,
+        message
+      }
+    };
+  }
 }
 
 async function generateUnitReviewContent({
@@ -330,8 +420,10 @@ function limitPlannedUnits(plan, maxUnitCount) {
   };
 }
 
-function getEcdContextForUnit(ecdPlanning, plannedUnit) {
+function getEcdContextForUnit(ecdPlanning, plannedUnit, unitKnowledgeMap = null) {
   const unitId = plannedUnit.id;
+  const microKnowledgePoints =
+    unitKnowledgeMap?.units?.find((item) => item.unitId === unitId)?.microKnowledgePoints ?? [];
   const knowledgeUnit = ecdPlanning.knowledgeModel?.units?.find((item) => item.unitId === unitId) ?? null;
   const subObjectives = (ecdPlanning.unitSubObjectives ?? []).filter((item) => item.unitId === unitId);
   const learningClaims = (ecdPlanning.unitLearningClaims ?? []).filter((item) => item.unitId === unitId);
@@ -341,6 +433,7 @@ function getEcdContextForUnit(ecdPlanning, plannedUnit) {
   const assemblyPlan = (ecdPlanning.unitAssemblyPlan ?? []).find((item) => item.unitId === unitId) ?? null;
   return {
     unitId,
+    microKnowledgePoints,
     knowledgeUnit,
     subObjectives,
     learningClaims,

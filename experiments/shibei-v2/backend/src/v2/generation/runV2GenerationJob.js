@@ -50,9 +50,11 @@ function mapV2GenerationError(error) {
   }
 
   return failure({
-    failedStage: "generating_questions",
+    failedStage: error?.stage || "generating_questions",
     failureReason: message,
-    retryable: true
+    retryable: true,
+    ...(error?.modelStage ? { modelStage: error.modelStage } : {}),
+    ...(error?.retryAttempts ? { retryAttempts: error.retryAttempts } : {})
   });
 }
 
@@ -63,7 +65,9 @@ function failure({
   retryable,
   issues,
   errors,
-  diagnostics
+  diagnostics,
+  modelStage,
+  retryAttempts
 }) {
   return {
     status,
@@ -71,6 +75,8 @@ function failure({
     failedStage,
     failureReason,
     retryable,
+    ...(modelStage ? { modelStage } : {}),
+    ...(retryAttempts ? { retryAttempts } : {}),
     ...(issues ? { issues } : {}),
     ...(errors ? { errors } : {}),
     ...(diagnostics ? { diagnostics } : {})

@@ -38,7 +38,15 @@ async function main() {
     rawText: source.rawText,
     cleanedText: source.rawText
   };
-  const jobResult = await runV2GenerationJob(article);
+  const modelUsageRecords = [];
+  const modelUsageRecorder = {
+    record(record) {
+      modelUsageRecords.push(record);
+      return record;
+    }
+  };
+  const jobResult = await runV2GenerationJob(article, { modelUsageRecorder });
+  jobResult.modelUsage = sanitizeModelUsageRecords(modelUsageRecords);
   const report = buildV2QualityReport({
     slug: paths.slug,
     label: paths.label,
@@ -83,6 +91,31 @@ async function resolveSource() {
   }
 
   throw new Error("请设置 QUALITY_ARTICLE_URL 或 QUALITY_ARTICLE_TEXT_FILE。");
+}
+
+function sanitizeModelUsageRecords(records) {
+  return (Array.isArray(records) ? records : []).map((record, index) => ({
+    index: index + 1,
+    provider: record.provider || "",
+    model: record.model || "",
+    stage: record.stage || "",
+    estimatedOutputTokens: record.estimatedOutputTokens || 0,
+    error: record.error || "",
+    parseError: record.parseError || "",
+    rawResponsePreview: record.rawResponsePreview || "",
+    usage: sanitizeUsage(record.usage)
+  }));
+}
+
+function sanitizeUsage(usage) {
+  if (!usage || typeof usage !== "object") return null;
+  return {
+    prompt_tokens: usage.prompt_tokens,
+    completion_tokens: usage.completion_tokens,
+    total_tokens: usage.total_tokens,
+    prompt_cache_hit_tokens: usage.prompt_cache_hit_tokens,
+    prompt_cache_miss_tokens: usage.prompt_cache_miss_tokens
+  };
 }
 
 main().catch((error) => {

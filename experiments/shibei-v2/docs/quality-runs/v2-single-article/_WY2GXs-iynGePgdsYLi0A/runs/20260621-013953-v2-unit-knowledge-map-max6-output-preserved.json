@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-21T01:47:10.665Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-unit-knowledge-map-max6-output-preserved",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11365
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 0,
+    "diagnosticIssueCount": 0
+  },
+  "chapter": null,
+  "unitKnowledgeMap": null,
+  "ecdPlanning": null,
+  "qualityDiagnostics": [],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 5200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 10289,
+        "completion_tokens": 3544,
+        "total_tokens": 13833,
+        "prompt_cache_hit_tokens": 10240,
+        "prompt_cache_miss_tokens": 49
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 7200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 12338,
+        "completion_tokens": 5658,
+        "total_tokens": 17996,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 11570
+      }
+    },
+    {
+      "index": 3,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_ecdPlanning",
+      "estimatedOutputTokens": 14000,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"articleUnderstanding\": {\n    \"coreThesis\": \"游戏化通过阶段性目标、挑战与能力动态匹配、成长机制感知设计和情境设计与身份认同建构等机制，构建持续性用户体验；但需警惕挤出效应和娱乐至上风险，并在AI时代探索新可能。\",\n    \"articleStructure\": [\n      {\"id\": \"sec-intro\", \"title\": \"引言与游戏化概念\", \"role\": \"奠定理论基础，提出游戏化定义与核心机制\", \"sourceAnchorIds\": [\"p-014\"]},\n      {\"id\": \"sec-dmc\", \"title\": \"DMC游戏化模型\", \"role\": \"提供游戏化要素的结构化分析框架\", \"sourceAnchorIds\": [\"p-020\"]},\n      {\"id\": \"sec-goal\", \"title\": \"阶段性目标的设定\", \"role\": \"第一个设计方法，解释如何分解长期目标\", \"sourceAnchorIds\": [\"p-024\",\"p-025\",\"p-026\"]},\n      {\"id\": \"sec-challenge\", \"title\": \"挑战与能力的动态匹配\", \"role\": \"第二个设计方法，维持心流体验\", \"sourceAnchorIds\": [\"p-029\",\"p-030\"]},\n      {\"id\": \"sec-growth\", \"title\": \"成长机制的感知设计\", \"role\": \"第三个设计方法，可视化进步\", \"sourceAnchorIds\": [\"p-032\",\"p-033\",\"p-035\"]},\n      {\"id\": \"sec-context\", \"title\": \"情境设计与身份认同建构\", \"role\": \"第四个设计方法，通过叙事增强代入感\", \"sourceAnchorIds\": [\"p-037\",\"p-042\"]},\n      {\"id\": \"sec-risk\", \"title\": \"游戏化的风险与挑战\", \"role\": \"警示挤出效应和娱乐至上\", \"sourceAnchorIds\": [\"p-043\",\"p-044\"]},\n      {\"id\": \"sec-ai\", \"title\": \"AI时代的游戏化新可能\", \"role\": \"展望生成式AI的影响\", \"sourceAnchorIds\": [\"p-045\"]},\n      {\"id\": \"sec-conclusion\", \"title\": \"结论\", \"role\": \"总结游戏化本质，提出设计原则\", \"sourceAnchorIds\": [\"p-046\"]}\n    ],\n    \"reviewableSections\": [\"p-014\",\"p-020\",\"p-021\",\"p-024\",\"p-025\",\"p-026\",\"p-029\",\"p-030\",\"p-032\",\"p-033\",\"p-035\",\"p-037\",\"p-042\",\"p-043\",\"p-044\",\"p-045\",\"p-046\"],\n    \"nonReviewableSections\": [\n      {\"sourceAnchorId\": \"p-001\", \"reason\": \"文章标题，不包含学习内容\"},\n      {\"sourceAnchorId\": \"p-002\", \"reason\": \"版权声明\"},\n      {\"sourceAnchorId\": \"p-003\", \"reason\": \"作者信息\"},\n      {\"sourceAnchorId\": \"p-004\", \"reason\": \"重复作者信息\"},\n      {\"sourceAnchorId\": \"p-005\", \"reason\": \"期刊信息\"},\n      {\"sourceAnchorId\": \"p-006\", \"reason\": \"阅读器操作提示\"},\n      {\"sourceAnchorId\": \"p-007\", \"reason\": \"链接提示\"},\n      {\"sourceAnchorId\": \"p-008\", \"reason\": \"沉浸阅读提示\"},\n      {\"sourceAnchorId\": \"p-009\", \"reason\": \"内容摘要标题\"},\n      {\"sourceAnchorId\": \"p-010\", \"reason\": \"内容摘要正文，非核心知识点\"},\n      {\"sourceAnchorId\": \"p-011\", \"reason\": \"关键词标签\"},\n      {\"sourceAnchorId\": \"p-012\", \"reason\": \"引言部分标题\"},\n      {\"sourceAnchorId\": \"p-013\", \"reason\": \"引言正文，背景信息而非核心知识点\"},\n      {\"sourceAnchorId\": \"p-015\", \"reason\": \"图片说明\"},\n      {\"sourceAnchorId\": \"p-016\", \"reason\": \"背景讨论，非核心知识点\"},\n      {\"sourceAnchorId\": \"p-017\", \"reason\": \"背景讨论，非核心知识点\"},\n      {\"sourceAnchorId\": \"p-018\", \"reason\": \"案例描述，但未纳入核心知识点\"},\n      {\"sourceAnchorId\": \"p-019\", \"reason\": \"图片说明\"},\n      {\"sourceAnchorId\": \"p-022\", \"reason\": \"过渡段落，非核心知识点\"},\n      {\"sourceAnchorId\": \"p-023\", \"reason\": \"阶段性目标标题\"},\n      {\"sourceAnchorId\": \"p-027\", \"reason\": \"图片说明\"},\n      {\"sourceAnchorId\": \"p-028\", \"reason\": \"动态匹配标题\"},\n      {\"sourceAnchorId\": \"p-031\", \"reason\": \"成长机制标题\"},\n      {\"sourceAnchorId\": \"p-034\", \"reason\": \"图片说明\"},\n      {\"sourceAnchorId\": \"p-036\", \"reason\": \"情境设计标题\"},\n      {\"sourceAnchorId\": \"p-038\", \"reason\": \"图片说明\"},\n      {\"sourceAnchorId\": \"p-039\", \"reason\": \"图片说明\"},\n      {\"sourceAnchorId\": \"p-040\", \"reason\": \"图片说明\"},\n      {\"sourceAnchorId\": \"p-041\", \"reason\": \"图片说明\"},\n      {\"sourceAnchorId\": \"p-047\", \"reason\": \"参考文献标题\"},\n      {\"sourceAnchorId\": \"p-048\", \"reason\": \"参考文献内容\"}\n    ]\n  },\n  \"knowledgeModel\": {\n    \"units\": [\n      {\n        \"unitId\": \"unit-1\",\n        \"title\": \"游戏化的概念与定义\",\n        \"nodeLabel\": \"游戏化概念与定义\",\n        \"shortSummary\": \"游戏化是将游戏设计元素应用于非游戏语境，旨在以乐趣服务现实目标，提升用户参与与持续投入。\",\n        \"detailSummary\": \"游戏化由Nick Pelling于2002年提出，Sebastian Deterding定义为“在非游戏语境中使用游戏设计元素”。Werbach与Hunter强调其关键在于创造“乐趣”以服务现实目标，使人们更愿意进入、完成并持续活动。如斯德哥尔摩地铁站的钢琴楼梯，将爬楼梯转化为趣味互动，促使健康行为。\",\n        \"knowledgeShape\": \"core_concept\",\n        \"sourceAnchorId\": \"anchor-unit-1\"\n      },\n      {\n        \"unitId\": \"unit-2\",\n        \"title\": \"DMC游戏化模型：动力、机制与组件\",\n        \"nodeLabel\": \"DMC模型：动力、机制与组件\",\n        \"shortSummary\": \"DMC模型将游戏化分为动力（体验目标）、机制（行为规则）和组件（具体元素）三层，从抽象到具体。\",\n        \"detailSummary\": \"Werbach与Hunter提出的金字塔结构：动力层定义整体体验（如约束、情感、叙事、成长）；机制层组织用户行为（如挑战、竞争、反馈、奖励）；组件层是直观界面元素（如徽章、排行榜、点数）。三层协作将抽象目标转化为可交互系统。\",\n        \"knowledgeShape\": \"layered_framework\",\n        \"sourceAnchorId\": \"anchor-un",
+      "usage": {
+        "prompt_tokens": 17476,
+        "completion_tokens": 14000,
+        "total_tokens": 31476,
+        "prompt_cache_hit_tokens": 2432,
+        "prompt_cache_miss_tokens": 15044
+      }
+    },
+    {
+      "index": 4,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_ecdPlanning",
+      "estimatedOutputTokens": 14000,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"articleUnderstanding\": {\n    \"coreThesis\": \"文章探讨游戏化如何通过阶段性目标、挑战匹配、成长感知和情境设计等机制构建持续性用户体验，并警示外在激励的挤出效应与娱乐至上风险，展望AI时代的新可能。\",\n    \"articleStructure\": [\n      {\"id\": \"sec-intro\", \"title\": \"引言\", \"role\": \"background\", \"sourceAnchorIds\": [\"p-012\",\"p-013\",\"p-014\",\"p-015\",\"p-016\",\"p-017\",\"p-018\",\"p-019\"]},\n      {\"id\": \"sec-1\", \"title\": \"阶段性目标的设定\", \"role\": \"method\", \"sourceAnchorIds\": [\"p-023\",\"p-024\",\"p-025\",\"p-026\",\"p-027\"]},\n      {\"id\": \"sec-2\", \"title\": \"挑战与能力的动态匹配\", \"role\": \"method\", \"sourceAnchorIds\": [\"p-028\",\"p-029\",\"p-030\"]},\n      {\"id\": \"sec-3\", \"title\": \"成长机制的感知设计\", \"role\": \"method\", \"sourceAnchorIds\": [\"p-031\",\"p-032\",\"p-033\",\"p-034\",\"p-035\"]},\n      {\"id\": \"sec-4\", \"title\": \"情境设计与身份认同建构\", \"role\": \"method\", \"sourceAnchorIds\": [\"p-036\",\"p-037\",\"p-038\",\"p-039\",\"p-040\",\"p-041\",\"p-042\"]},\n      {\"id\": \"sec-5\", \"title\": \"游戏化的风险与挑战\", \"role\": \"discussion\", \"sourceAnchorIds\": [\"p-043\",\"p-044\"]},\n      {\"id\": \"sec-6\", \"title\": \"AI时代的游戏化新可能\", \"role\": \"future\", \"sourceAnchorIds\": [\"p-045\"]},\n      {\"id\": \"sec-conclusion\", \"title\": \"结论\", \"role\": \"conclusion\", \"sourceAnchorIds\": [\"p-046\"]}\n    ],\n    \"reviewableSections\": [\"sec-1\",\"sec-2\",\"sec-3\",\"sec-4\",\"sec-5\",\"sec-6\"],\n    \"nonReviewableSections\": [\n      {\"sourceAnchorId\": \"sec-intro\", \"reason\": \"背景介绍，不包含直接可考知识点\"},\n      {\"sourceAnchorId\": \"sec-conclusion\", \"reason\": \"总结性陈述，无独立知识点\"}\n    ]\n  },\n  \"knowledgeModel\": {\n    \"units\": [\n      {\n        \"unitId\": \"unit-1\",\n        \"title\": \"游戏化的概念与定义\",\n        \"nodeLabel\": \"游戏化概念与定义\",\n        \"shortSummary\": \"游戏化是将游戏设计元素应用于非游戏语境，旨在以乐趣服务现实目标，提升用户参与与持续投入。\",\n        \"detailSummary\": \"游戏化由Nick Pelling于2002年提出，Sebastian Deterding定义为“在非游戏语境中使用游戏设计元素”。Werbach与Hunter强调其关键在于创造“乐趣”以服务现实目标，使人们更愿意进入、完成并持续活动。如斯德哥尔摩地铁站的钢琴楼梯，将爬楼梯转化为趣味互动，促使健康行为。\",\n        \"knowledgeShape\": \"core_concept\",\n        \"sourceAnchorId\": \"anchor-unit-1\"\n      },\n      {\n        \"unitId\": \"unit-2\",\n        \"title\": \"DMC游戏化模型：动力、机制与组件\",\n        \"nodeLabel\": \"DMC模型：动力、机制与组件\",\n        \"shortSummary\": \"DMC模型将游戏化分为动力（体验目标）、机制（行为规则）和组件（具体元素）三层，从抽象到具体。\",\n        \"detailSummary\": \"Werbach与Hunter提出的金字塔结构：动力层定义整体体验（如约束、情感、叙事、成长）；机制层组织用户行为（如挑战、竞争、反馈、奖励）；组件层是直观界面元素（如徽章、排行榜、点数）。三层协作将抽象目标转化为可交互系统。例如，动力层设定成长感，机制层通过挑战和反馈实现，组件层展示经验条和成就。\",\n        \"knowledgeShape\": \"layered_framework\",\n        \"sourceAnchorId\": \"anchor-unit-2\"\n      },\n      {\n        \"unitId\": \"unit-3\",\n        \"title\": \"阶段性目标的设定\",\n        \"nodeLabel\": \"阶段性目标设定\",\n        \"shortSummary\": \"将长期目标拆解为可掌控的短期里程碑，通过及时反馈维持动机，防止成就感稀释。\",\n        \"detailSummary\": \"长期目标反馈周期过长易导致动机衰减。通过设定阶段性目标，将漫长过程分解为短期冲刺，每次闭环带来即时满意，塑造自我效能感。案例：专注森林以树木生长代表专注时长，退出则枯萎，将抽象专注转化为可视化任务；无聊猿的Dookey Dash将长期运营拆为独立活动，保持留存。\",\n        \"knowledgeShape\": \"process_steps\",\n        \"sourceAnchorId\": \"anchor-unit-3\"\n      },\n      {\n        \"unitId\": \"unit-4\",\n        \"title\": \"挑战与能力的动态匹配\",\n        \"nodeLabel\": \"挑战与能力动态匹配\",\n        \"shortSummary\": \"通过动态调整难度使任务始终处于“可达到但有挑战”区间，维持心流与沉浸感。\",\n        \"detailSummary\": \"用户持续投入需适度挑战与激励机制。游戏设计通过难度星级或动态调节保持“可达到但有挑战”。多邻国根据前一天表现调整次日难度，错误多则降低难度，表现好则提高挑战并加奖励，同时结合等级与星级控制节奏。这种匹配使用户能力与任务难度同步增长，避免无聊或焦虑。\",\n        \"knowledgeShape\": \"process_steps\",\n        \"sourceAnchorId\": \"anchor-unit-4\"\n      },\n      {\n        \"unitId\": \"unit-5\",\n        \"title\": \"成长机制的感知设计\",\n        \"nodeLabel\": \"成长机制感知设计\",\n        \"shortSummary\": \"通过可视化、易感知的设计让用户清晰看到自身进步，增强持续投入动力。\",\n        \"detailSummary\": \"将缓慢的成长过程转化为持续变化，如蚂蚁森林将低碳行为可视化为树木生长，蚂蚁庄园将公益参与映射为照料小鸡。成就、排行榜、等级段位等组件使能力可见，里程碑节点增强仪式感。社交嵌入（如帮助好友收能量）增加互动与可见性，使用户获得“我正在产生影响”的成长感。\",\n        \"knowledgeShape\": \"process_steps\",\n        \"sourceAnchorId\": \"anchor-unit-5\"\n      },\n      {\n        \"unitId\": \"unit-6\",\n        \"title\": \"情境设计与身份认同建构\",\n        \"nodeLabel\": \"情境设计与身份认同\",\n        \"shortSummary\": \"通过空间结构、环境线索和角色设定构建叙事，使玩家在行动中代入角色，形成身份认同。\",\n        \"detailSummary\": \"游戏叙事不依赖文本，而嵌入空间、地标、关卡等。如《毛线小精灵2》的毛线角色特性与谜题一致，《宝可梦GO》将现实世界转化为游戏场景。荷兰微生物博物馆营造实验室氛围，观众成为“微生物载体”。角色、环境与行动机制共同组织叙事，使用户在情境中建立深层身份认同。\",\n        \"knowledgeShape\": \"process_steps\",\n        \"sourceAnchorId\": \"anchor-unit-6\"\n      }\n    ]\n  },\n  \"unitSubObjectives\": [",
+      "usage": {
+        "prompt_tokens": 17476,
+        "completion_tokens": 13999,
+        "total_tokens": 31475,
+        "prompt_cache_hit_tokens": 17408,
+        "prompt_cache_miss_tokens": 68
+      }
+    },
+    {
+      "index": 5,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_ecdPlanning",
+      "estimatedOutputTokens": 14000,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"articleUnderstanding\": {\n    \"coreThesis\": \"游戏化方法通过阶段性目标、动态匹配、成长感知和情境设计构建持续性用户体验，需避免外在激励的挤出效应和娱乐至上风险。\",\n    \"articleStructure\": [\n      {\n        \"id\": \"sec-intro\",\n        \"title\": \"引言\",\n        \"role\": \"background\",\n        \"sourceAnchorIds\": [\"p-012\", \"p-013\"]\n      },\n      {\n        \"id\": \"sec-concept\",\n        \"title\": \"游戏化的概念与定义\",\n        \"role\": \"definition\",\n        \"sourceAnchorIds\": [\"p-014\"]\n      },\n      {\n        \"id\": \"sec-dmc\",\n        \"title\": \"DMC游戏化模型\",\n        \"role\": \"framework\",\n        \"sourceAnchorIds\": [\"p-020\"]\n      },\n      {\n        \"id\": \"sec-goals\",\n        \"title\": \"阶段性目标的设定\",\n        \"role\": \"method\",\n        \"sourceAnchorIds\": [\"p-024\", \"p-025\", \"p-026\"]\n      },\n      {\n        \"id\": \"sec-challenge\",\n        \"title\": \"挑战与能力的动态匹配\",\n        \"role\": \"method\",\n        \"sourceAnchorIds\": [\"p-029\", \"p-030\"]\n      },\n      {\n        \"id\": \"sec-growth\",\n        \"title\": \"成长机制的感知设计\",\n        \"role\": \"method\",\n        \"sourceAnchorIds\": [\"p-032\", \"p-033\", \"p-035\"]\n      },\n      {\n        \"id\": \"sec-context\",\n        \"title\": \"情境设计与身份认同建构\",\n        \"role\": \"method\",\n        \"sourceAnchorIds\": [\"p-037\", \"p-042\"]\n      },\n      {\n        \"id\": \"sec-risk\",\n        \"title\": \"游戏化的风险与挑战\",\n        \"role\": \"critique\",\n        \"sourceAnchorIds\": [\"p-043\", \"p-044\"]\n      },\n      {\n        \"id\": \"sec-ai\",\n        \"title\": \"AI时代的游戏化新可能\",\n        \"role\": \"future\",\n        \"sourceAnchorIds\": [\"p-045\"]\n      }\n    ],\n    \"reviewableSections\": [\n      \"p-014\",\n      \"p-020\",\n      \"p-024\",\n      \"p-025\",\n      \"p-026\",\n      \"p-029\",\n      \"p-030\",\n      \"p-032\",\n      \"p-033\",\n      \"p-035\",\n      \"p-037\",\n      \"p-042\",\n      \"p-043\",\n      \"p-044\",\n      \"p-045\"\n    ],\n    \"nonReviewableSections\": [\n      {\n        \"sourceAnchorId\": \"p-001\",\n        \"reason\": \"标题，没有可评估内容\"\n      },\n      {\n        \"sourceAnchorId\": \"p-010\",\n        \"reason\": \"摘要，一般性概述，不适合独立出题\"\n      },\n      {\n        \"sourceAnchorId\": \"p-047\",\n        \"reason\": \"参考文献列表，无学习内容\"\n      }\n    ]\n  },\n  \"knowledgeModel\": {\n    \"units\": [\n      {\n        \"unitId\": \"unit-1\",\n        \"title\": \"游戏化的概念与定义\",\n        \"nodeLabel\": \"游戏化概念与定义\",\n        \"shortSummary\": \"游戏化是将游戏设计元素应用于非游戏语境，旨在以乐趣服务现实目标，提升用户参与与持续投入。\",\n        \"detailSummary\": \"游戏化由Nick Pelling于2002年提出，Sebastian Deterding定义为“在非游戏语境中使用游戏设计元素”。Werbach与Hunter强调其关键在于创造“乐趣”以服务现实目标，使人们更愿意进入、完成并持续活动。如斯德哥尔摩地铁站的钢琴楼梯，将爬楼梯转化为趣味互动，促使健康行为。\",\n        \"knowledgeShape\": \"core_concept\",\n        \"sourceAnchorId\": \"anchor-unit-1\"\n      },\n      {\n        \"unitId\": \"unit-2\",\n        \"title\": \"DMC游戏化模型：动力、机制与组件\",\n        \"nodeLabel\": \"DMC模型：动力、机制与组件\",\n        \"shortSummary\": \"DMC模型将游戏化分为动力（体验目标）、机制（行为规则）和组件（具体元素）三层，从抽象到具体。\",\n        \"detailSummary\": \"Werbach与Hunter提出的金字塔结构：动力层定义整体体验（如约束、情感、叙事、成长）；机制层组织用户行为（如挑战、竞争、反馈、奖励）；组件层是直观界面元素（如徽章、排行榜、点数）。三层协作将抽象目标转化为可交互系统。\",\n        \"knowledgeShape\": \"layered_framework\",\n        \"sourceAnchorId\": \"anchor-unit-2\"\n      },\n      {\n        \"unitId\": \"unit-3\",\n        \"title\": \"阶段性目标的设定\",\n        \"nodeLabel\": \"阶段性目标设定\",\n        \"shortSummary\": \"将长期目标拆解为可掌控的短期里程碑，通过及时反馈维持动机，防止成就感稀释。\",\n        \"detailSummary\": \"长期目标反馈周期过长易导致动机衰减。通过设定阶段性目标，将漫长过程分解为短期冲刺，每次闭环带来即时满意，塑造自我效能感。案例：专注森林以树木生长代表专注时长，退出则枯萎；无聊猿的Dookey Dash将长期运营拆为独立活动，保持留存。\",\n        \"knowledgeShape\": \"process_steps\",\n        \"sourceAnchorId\": \"anchor-unit-3\"\n      },\n      {\n        \"unitId\": \"unit-4\",\n        \"title\": \"挑战与能力的动态匹配\",\n        \"nodeLabel\": \"挑战与能力动态匹配\",\n        \"shortSummary\": \"通过动态调整难度使任务始终处于“可达到但有挑战”区间，维持心流与沉浸感。\",\n        \"detailSummary\": \"用户持续投入需适度挑战与激励机制。游戏设计通过难度星级或动态调节保持“可达到但有挑战”。多邻国根据前一天表现调整次日难度，错误多则降低难度，表现好则提高挑战并加奖励，同时结合等级与星级控制节奏。\",\n        \"knowledgeShape\": \"process_steps\",\n        \"sourceAnchorId\": \"anchor-unit-4\"\n      },\n      {\n        \"unitId\": \"unit-5\",\n        \"title\": \"成长机制的感知设计\",\n        \"nodeLabel\": \"成长机制感知设计\",\n        \"shortSummary\": \"通过可视化、易感知的设计让用户清晰看到自身进步，增强持续投入动力。\",\n        \"detailSummary\": \"将缓慢的成长过程转化为持续变化，如蚂蚁森林将低碳行为可视化为树木生长，蚂蚁庄园将公益参与映射为照料小鸡。成就、排行榜、等级段位等组件使能力可见，里程碑节点增强仪式感。社交嵌入增加互动与可见性。\",\n     ",
+      "usage": {
+        "prompt_tokens": 17476,
+        "completion_tokens": 14000,
+        "total_tokens": 31476,
+        "prompt_cache_hit_tokens": 17408,
+        "prompt_cache_miss_tokens": 68
+      }
+    }
+  ],
+  "failure": {
+    "failedStage": "v2_ecdPlanning",
+    "failureReason": "模型返回内容不是可解析 JSON，请重试。",
+    "retryable": true,
+    "modelStage": "ecdPlanning",
+    "retryAttempts": 3,
+    "issues": [],
+    "errors": [],
+    "diagnostics": []
+  }
+}

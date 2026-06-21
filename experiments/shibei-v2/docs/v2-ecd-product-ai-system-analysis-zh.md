@@ -608,6 +608,59 @@ selectedTasks 只覆盖 required
 
 这不是放弃质量控制，而是把质量控制从“负向防错”改成“正向证据设计”。质量诊断和人工评审仍然负责发现凑数题、弱匹配和浅干扰项。
 
+#### 7. 金字塔结构：保护 unit 内部小知识点清单
+
+ECD 支撑：`Domain Modeling` + `Student Model` + `Evidence Model`
+
+2026-06-21 进一步复盘发现：单纯 prompt 减重后，模型仍可能把每个 unit 压缩成 1 个 sub-objective、1 个 selected task。这个结果说明问题不只是负向约束过多，而是生成链路缺少一层受保护的 micro knowledge inventory。
+
+拾贝 V2 的知识生成应形成金字塔：
+
+```text
+文章主线 / source blocks
+-> knowledge objects
+-> units
+-> unit 内部 micro knowledge points
+-> learning claims
+-> evidence angles / evidence needs
+-> task assembly
+-> concrete questions
+```
+
+关键原则：
+
+- `unit` 是大知识点，不等于最小考察点。
+- `microKnowledgePoints` 是 unit 内部的小知识点清单，应先完整发现，再进入 ECD evidence 设计。
+- micro knowledge discovery 阶段不生成题、不选择题型、不控制题量、不做 `selectedTasks`。
+- `selectedTasks` 只能发生在后续 assembly 阶段，否则会反向压缩前面的知识发现。
+- 对 DMC 模型这类 unit，必须先看见整体结构、各层作用、层级关系和常见误区，后续才有材料生成 matching 与选择题。
+
+本轮代码层新增 `unitKnowledgeMap` 阶段，用来承担这层职责。HTML 质量报告新增 `Micro Knowledge Map` 区域，便于人工判断：
+
+1. 如果 micro knowledge points 缺失，问题在知识发现层。
+2. 如果 micro points 存在但没有 evidence，问题在 ECD evidence 层。
+3. 如果 evidence 存在但没有 selected task，问题在 assembly 层。
+4. 如果 task 存在但题目不好，问题才进入 draft 层。
+
+这让后续调试不再靠猜，而是可以沿金字塔逐层定位。
+
+2026-06-21 后续测试又发现一个结构问题：如果把 6 个 unit 的 `unitKnowledgeMap` 全部塞给同一个 `ecdPlanning`，模型会在 ECD 大规划阶段输出超长 JSON，导致结构化输出被截断。这个问题本质上不是题目质量问题，而是角色边界过大。
+
+因此当前代码实现进一步改为：
+
+```text
+sourceMap
+-> reviewPathPlan
+-> unitKnowledgeMap（全章节 micro inventory）
+-> per-unit ecdPlanning（每次只处理一个 unit）
+-> deterministic unitPracticePlan adapter
+-> visible question drafts
+```
+
+这个调整更符合 ECD 的 task model 思路：每个 unit 都有自己的 learning claims、evidence angles、evidence needs 和 selected tasks。全局阶段负责切分知识边界，逐 unit 阶段负责设计证据任务。这样可以避免全局 planning 反向压缩 unit 内部的小知识点，也能避免单次模型输出过大。
+
+质量诊断也相应调整：`qualityJudge` 保留为 diagnostic-only。如果它自身 JSON 失败，不阻断完整题目输出，而是记录 `qualityJudgeError`，因为当前阶段的目标是先观察全部题目和 ECD 结构，再讨论是否加入独立的质量改写角色。
+
 ### 后续文档化要求
 
 后续每做一个中层规则，都必须同时写清：

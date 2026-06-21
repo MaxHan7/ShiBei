@@ -214,3 +214,71 @@ After the generation prompts are closer to the V2 standard, run a controlled A/B
 - B: same inputs and model, with a rewrite role that only makes small UI/wording repairs.
 
 Do not add this rewrite role to the current structure yet. The immediate priority is still improving the first-pass generation prompts.
+
+## 2026-06-21 Unit Knowledge Map + Per-Unit ECD Planning
+
+### What Changed
+
+This iteration tested the structural hypothesis discussed from ECD:
+
+```text
+article/source blocks
+  -> knowledge objects
+  -> units
+  -> unit micro knowledge points
+  -> per-unit learning claims / evidence angles / evidence needs
+  -> selected tasks
+  -> visible questions
+```
+
+Implementation changes:
+
+- Added `unitKnowledgeMap` as a protected micro knowledge inventory stage.
+- Changed `ecdPlanning` from one all-units global JSON output to per-unit ECD planning, then merged the results.
+- Kept `qualityJudge` diagnostic-only. If it fails to produce valid JSON, the generated questions are still preserved and `qualityJudgeError` is recorded.
+- Added model-call diagnostics to the V2 quality report so failed reports show the exact model stage and parse preview.
+
+### Failed Attempts Before the Fix
+
+- `20260621-005914-v2-unit-knowledge-map-max6-serial.html`
+- `20260621-011515-v2-unit-knowledge-map-max6-serial-rerun.html`
+- `20260621-011808-v2-unit-knowledge-map-max6-retry5.html`
+- `20260621-013202-v2-unit-knowledge-map-max6-diagnostic-report.html`
+- `20260621-013953-v2-unit-knowledge-map-max6-output-preserved.html`
+
+The important failure was `v2_ecdPlanning`: the model hit `14000` completion tokens three times and returned truncated JSON. This showed that the global ECD planning role was still too heavy after adding micro knowledge inventory.
+
+### Successful Run
+
+- JSON: `runs/20260621-014913-v2-unit-ecd-per-unit-max6.json`
+- HTML: `reports/20260621-014913-v2-unit-ecd-per-unit-max6.html`
+
+Metrics:
+
+- 6 units
+- 17 questions
+- 14 multiple-choice questions
+- 3 matching questions
+- 127 source blocks
+- 0 blocking issues
+- 3 deterministic diagnostics
+
+Compared with previous runs:
+
+- `20260620-183009-v2-knowledge-object-boundary-max6-rerun`: 6 units, 9 questions, 2 matching.
+- `20260621-002013-v2-prompt-diet-max6-serial`: 6 units, 6 questions, 1 matching.
+- `20260621-014913-v2-unit-ecd-per-unit-max6`: 6 units, 17 questions, 3 matching.
+
+The successful run restored the missing multi-angle coverage. It also preserved the DMC unit and generated a high-value DMC matching task:
+
+- unit: `DMC模型：动力、机制、组件的分层结构`
+- micro points: model structure, dynamics layer, mechanics layer, components layer, layer relation
+- matching stem: match DMC layers with their role/responsibility
+
+Remaining issues are now downstream draft-quality issues, not macro architecture issues:
+
+- one weak distractor set in `unit-4`
+- one explanation phrase issue in `unit-5`
+- one weak distractor set in `unit-6`
+
+Next iteration should focus on compact distractor quality and explanation wording. It should not add another macro layer until these downstream draft issues are reviewed.

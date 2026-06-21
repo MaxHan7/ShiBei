@@ -25,6 +25,10 @@ import {
   SOURCE_MAP_PROMPT_SCHEMA_NAME
 } from "./prompts/sourceMap.js";
 import {
+  UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA,
+  UNIT_KNOWLEDGE_MAP_PROMPT_SCHEMA_NAME
+} from "./prompts/unitKnowledgeMap.js";
+import {
   UNIT_PRACTICE_PLAN_OUTPUT_SCHEMA,
   UNIT_PRACTICE_PLAN_PROMPT_SCHEMA_NAME
 } from "./prompts/unitPracticePlan.js";
@@ -43,6 +47,11 @@ const STAGE_SCHEMAS = {
     schemaName: REVIEW_PATH_PLAN_PROMPT_SCHEMA_NAME,
     schema: REVIEW_PATH_PLAN_OUTPUT_SCHEMA,
     estimatedOutputTokens: 5200
+  },
+  unitKnowledgeMap: {
+    schemaName: UNIT_KNOWLEDGE_MAP_PROMPT_SCHEMA_NAME,
+    schema: UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 7200
   },
   ecdPlanning: {
     schemaName: ECD_PLANNING_PROMPT_SCHEMA_NAME,
@@ -107,12 +116,21 @@ export function createV2ModelPromptCaller({
       } catch (error) {
         lastError = error;
         if (!isRetryableJsonModelError(error) || attempt >= retryCount) {
+          annotatePromptStageError(error, stage, attempt + 1);
           throw error;
         }
       }
     }
+    annotatePromptStageError(lastError, stage, retryCount + 1);
     throw lastError;
   };
+}
+
+function annotatePromptStageError(error, stage, attemptCount) {
+  if (!error || typeof error !== "object") return;
+  error.stage = `v2_${stage}`;
+  error.modelStage = stage;
+  error.retryAttempts = attemptCount;
 }
 
 function schemaForModel(schema) {
