@@ -2,7 +2,7 @@
 
 本文档记录 V2 出题系统下一轮重构的理论参考、架构原则和角色边界。它不是 prompt 文案本身，而是后续写 prompt、schema 和测试时的上层判断依据。
 
-深入版 ECD 产品分析见：`v2-ecd-product-ai-system-analysis-zh.md`。如果本文件和深入版之间有冲突，以深入版为准。
+深入版 ECD 产品分析见：`v2-ecd-product-ai-system-analysis-zh.md`。LLM pipeline 技术框架调研与落地方案见：`v2-llm-pipeline-technical-framework-zh.md`。如果本文件和深入版之间有冲突，以深入版为准。
 
 ## 当前结论
 
