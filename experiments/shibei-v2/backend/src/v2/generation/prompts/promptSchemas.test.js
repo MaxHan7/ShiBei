@@ -27,6 +27,10 @@ import {
   validateSourceMapOutput
 } from "./sourceMap.js";
 import {
+  TASK_BRIEF_PLAN_OUTPUT_SCHEMA,
+  validateTaskBriefPlanOutput
+} from "./taskBriefPlan.js";
+import {
   normalizeUnitKnowledgeMapOutput,
   UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA,
   validateUnitKnowledgeMapOutput
@@ -44,6 +48,7 @@ test("exports stable prompt schema names for the V2 generation pipeline", () => 
   assert.equal(SOURCE_MAP_OUTPUT_SCHEMA.name, "shibei_v2_source_map");
   assert.equal(UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA.name, "shibei_v2_unit_knowledge_map");
   assert.equal(ECD_PLANNING_OUTPUT_SCHEMA.name, "shibei_v2_ecd_planning");
+  assert.equal(TASK_BRIEF_PLAN_OUTPUT_SCHEMA.name, "shibei_v2_task_brief_plan");
   assert.equal(REVIEW_PATH_PLAN_OUTPUT_SCHEMA.name, "shibei_v2_review_path_plan");
   assert.equal(UNIT_PRACTICE_PLAN_OUTPUT_SCHEMA.name, "shibei_v2_unit_practice_plan");
   assert.equal(MULTIPLE_CHOICE_DRAFT_OUTPUT_SCHEMA.name, "shibei_v2_multiple_choice_draft");
@@ -265,6 +270,51 @@ test("validates unit practice plans with variable question plan counts", () => {
   );
 
   assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("validates batched task brief plans across planned units", () => {
+  const first = unitPracticePlanFixture();
+  const second = {
+    ...unitPracticePlanFixture(),
+    unitId: "unit-02",
+    practiceGoals: unitPracticePlanFixture().practiceGoals.map((goal) => ({
+      ...goal,
+      id: goal.id.replace("goal", "goal-unit-02"),
+      sourceAnchorId: "anchor-unit-02"
+    })),
+    questionPlans: unitPracticePlanFixture().questionPlans.map((plan) => ({
+      ...plan,
+      id: plan.id.replace("q-", "q-unit-02-"),
+      practiceGoalId: plan.practiceGoalId.replace("goal", "goal-unit-02"),
+      sourceAnchorId: "anchor-unit-02"
+    }))
+  };
+
+  const result = validateTaskBriefPlanOutput(
+    { units: [first, second] },
+    {
+      unitIds: new Set(["unit-01", "unit-02"]),
+      sourceAnchorByUnit: new Map([
+        ["unit-01", "anchor-unit-01"],
+        ["unit-02", "anchor-unit-02"]
+      ])
+    }
+  );
+
+  assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("rejects task brief plans that omit a planned unit", () => {
+  const result = validateTaskBriefPlanOutput(
+    { units: [unitPracticePlanFixture()] },
+    {
+      unitIds: new Set(["unit-01", "unit-02"]),
+      sourceAnchorByUnit: new Map([["unit-01", "anchor-unit-01"]])
+    }
+  );
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /missing unitId unit-02/);
 });
 
 test("rejects matching question plans without relationType", () => {

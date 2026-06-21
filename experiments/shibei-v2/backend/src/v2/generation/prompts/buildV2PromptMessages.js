@@ -3,6 +3,7 @@ export function buildV2PromptMessages(stage, payload) {
   if (stage === "reviewPathPlan") return buildReviewPathPlanMessages(payload);
   if (stage === "unitKnowledgeMap") return buildUnitKnowledgeMapMessages(payload);
   if (stage === "ecdPlanning") return buildEcdPlanningMessages(payload);
+  if (stage === "taskBriefPlan") return buildTaskBriefPlanMessages(payload);
   if (stage === "unitPracticePlan") return buildUnitPracticePlanMessages(payload);
   if (stage === "multipleChoiceDraft") return buildMultipleChoiceDraftMessages(payload);
   if (stage === "matchingDraft") return buildMatchingDraftMessages(payload);
@@ -10,6 +11,47 @@ export function buildV2PromptMessages(stage, payload) {
   if (stage === "qualityJudge") return buildQualityJudgeMessages(payload);
 
   throw new Error(`Unsupported V2 prompt stage: ${stage}`);
+}
+
+function buildTaskBriefPlanMessages({ article, source, blocks, sourceContextNote, plan, unitKnowledgeMap }) {
+  return {
+    system: baseSystem(),
+    user: [
+      "阶段：taskBriefPlan。",
+      "任务：为整章所有 unit 一次性生成轻量练习任务简报；本阶段不生成用户可见题目。",
+      "核心设计方式：",
+      "- Evidence-Centered Design 是你的思考方法，不是要输出的字段。",
+      "- 你要自然完成这条链路：学习对象 -> 可观察掌握证据 -> 适合的练习任务 -> 题型计划。",
+      "- 输出只保留 practiceGoals 和 questionPlans；不要输出 ECD 术语字段、推理链、候选矩阵或长篇解释。",
+      "- unitKnowledgeMap.microKnowledgePoints 是上游已经拆好的小知识点 inventory；不要重新压缩成一句大话。",
+      "- 每个 high / medium microKnowledgePoint 都要被某个 practiceGoal 或 questionPlan 覆盖；context_only 可以不出题。",
+      "- 一个 unit 可以有多个题目计划，数量由掌握证据和考察角度自然决定，不写死题目数。",
+      "- 不要为了减少题量漏掉独立的小知识点；也不要为了凑题生成无证据的题。",
+      "题型选择：",
+      "- multiple_choice 适合核心理解、边界判断、误区识别、场景迁移。",
+      "- matching 适合天然关系结构：分层模型、类型集合、流程步骤、信号动作、角色职责、验证维度。",
+      "- DMC 这类“模型层级 -> 设计作用”的知识点，如果 microKnowledgePoints 中有对应关系，应生成 matching 计划。",
+      "- matching 不是机械名词释义；它要考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。",
+      "字段规则：",
+      "- units 数组必须覆盖 reviewPathPlan.units 的每个 unit，且 unitId 一一对应。",
+      "- practiceGoal.id 使用稳定 id，例如 goal-<unit id>-001。",
+      "- questionPlan.id 使用稳定 id，例如 q-<unit order>-001。",
+      "- practiceGoal.target 写用户要掌握的具体理解点，不写泛泛目标。",
+      "- practiceGoal.commonMisconception 写真实误区，供选择题干扰项使用。",
+      "- targetIds 和 microIds 可引用 unitKnowledgeMap 中的小知识点 id；没有 targetIds 时至少要写 microIds。",
+      "- questionPlans[].practiceGoalId 必须引用同一 unit 的 practiceGoals[].id。",
+      "- questionPlans[].sourceAnchorId 和 practiceGoals[].sourceAnchorId 必须等于对应 unit.sourceAnchor.id。",
+      "- questionPlans[].type 为 matching 时必须填写 relationType。",
+      "",
+      `reviewPathPlan:\n${JSON.stringify(plan, null, 2)}`,
+      "",
+      `unitKnowledgeMap:\n${JSON.stringify(unitKnowledgeMap || {}, null, 2)}`,
+      "",
+      renderSource(source, blocks, sourceContextNote),
+      "",
+      renderArticleMeta(article)
+    ].join("\n")
+  };
 }
 
 function baseSystem() {
@@ -190,14 +232,17 @@ function buildUnitPracticePlanMessages({ article, source, blocks, sourceContextN
 }
 
 function buildMultipleChoiceDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, ecdContext }) {
+  const ecdContextSection = ecdContext
+    ? [`ECD context:\n${JSON.stringify(ecdContext, null, 2)}`, ""]
+    : [];
   return {
     system: baseSystem(),
     user: [
       "阶段：multipleChoiceDraft。",
       "任务：按 practice plan 生成当前知识点的选择题。",
-      "ECD 使用方式：",
-      "- 每道题必须服务于对应 questionPlan 背后的 ECD learningClaim、evidenceNeed 和 assemblyReason。",
-      "- 不要重新改变题型或新增题；只把已有 questionPlan 写成可见选择题。",
+      "设计方式：",
+      "- practicePlan 已经体现学习对象、掌握证据和题型选择；本阶段不要重新改变题型或新增题。",
+      "- 每道题必须服务于对应 questionPlan 和 practiceGoal。",
       "生成顺序必须遵守：",
       "1. 先确认每题考察目标。",
       "2. 生成 correctUnderstanding。",
@@ -218,8 +263,7 @@ function buildMultipleChoiceDraftMessages({ article, source, blocks, sourceConte
       "",
       `practicePlan:\n${JSON.stringify(practicePlan, null, 2)}`,
       "",
-      `ECD context:\n${JSON.stringify(ecdContext || {}, null, 2)}`,
-      "",
+      ...ecdContextSection,
       renderSource(source, blocks, sourceContextNote),
       "",
       renderArticleMeta(article)
@@ -228,6 +272,9 @@ function buildMultipleChoiceDraftMessages({ article, source, blocks, sourceConte
 }
 
 function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, ecdContext }) {
+  const ecdContextSection = ecdContext
+    ? [`ECD context:\n${JSON.stringify(ecdContext, null, 2)}`, ""]
+    : [];
   return {
     system: baseSystem(),
     user: [
@@ -235,9 +282,9 @@ function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote
       "任务：只生成 practice plan 中要求的高价值连线题。",
       "输出数量：questions.length 必须等于 practicePlan.questionPlans 中 type=matching 的数量；不要多生成，也不要少生成。",
       "id 对齐：每道题的 id 必须直接使用对应 matching questionPlan.id。",
-      "ECD 使用方式：",
-      "- 只实现 ECD selectedTasks 中已经选择 matching 的题。",
-      "- stem、左右项和 explanation 必须贴合当前 unit 的 evidenceNeed 和 assemblyReason。",
+      "设计方式：",
+      "- 只实现 practicePlan 中已经选择 matching 的题。",
+      "- stem、左右项和 explanation 必须贴合当前 unit 的关系目的和掌握证据。",
       "- matching 应实现当前 unit 自身的关系目的；非 DMC unit 可以使用自己的步骤、边界、信号或角色关系。",
       "连线题规则：",
       "- question.type 只能是 matching。",
@@ -254,8 +301,7 @@ function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote
       "",
       `practicePlan:\n${JSON.stringify(practicePlan, null, 2)}`,
       "",
-      `ECD context:\n${JSON.stringify(ecdContext || {}, null, 2)}`,
-      "",
+      ...ecdContextSection,
       renderSource(source, blocks, sourceContextNote),
       "",
       renderArticleMeta(article)
@@ -264,6 +310,9 @@ function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote
 }
 
 function buildUnitSummaryDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, questions, ecdContext }) {
+  const ecdContextSection = ecdContext
+    ? [`ECD context:\n${JSON.stringify(ecdContext, null, 2)}`, ""]
+    : [];
   return {
     system: baseSystem(),
     user: [
@@ -280,8 +329,7 @@ function buildUnitSummaryDraftMessages({ article, source, blocks, sourceContextN
       "",
       `practicePlan:\n${JSON.stringify(practicePlan, null, 2)}`,
       "",
-      `ECD context:\n${JSON.stringify(ecdContext || {}, null, 2)}`,
-      "",
+      ...ecdContextSection,
       `已生成题目:\n${JSON.stringify(questions, null, 2)}`,
       "",
       renderSource(source, blocks, sourceContextNote),

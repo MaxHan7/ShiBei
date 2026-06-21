@@ -685,3 +685,83 @@ Next iteration should not add another macro layer. It should stabilize the exist
 - make `unitKnowledgeMap` output more compact so it does not overrun JSON;
 - make `ecdPlanning` selected-task output more compact and less likely to truncate;
 - tighten visible draft wording so generated stems follow the golden-sample style instead of exam-style instructions.
+
+## 2026-06-21 Task Brief Pipeline Checkpoint
+
+### What Changed
+
+This checkpoint replaced the heaviest part of the ECD experiment path:
+
+- Removed `ecdPlanning` from the default V2 main chain.
+- Added a single batched `taskBriefPlan` stage after `unitKnowledgeMap`.
+- Kept ECD as a prompt thinking method: learning object -> observable evidence -> fitting task -> question plan.
+- Stopped asking the model to emit heavy ECD JSON fields such as target matrices, selected task rationale, or long internal reasoning.
+- Kept the existing frontend-visible contract stable.
+
+The historical `ecdPlanning` module remains in the codebase for comparison, but the default generator no longer calls it.
+
+### Artifacts
+
+- JSON: `runs/20260621-173146-v2-task-brief-plan-max6.json`
+- HTML: `reports/20260621-173146-v2-task-brief-plan-max6.html`
+
+### Metrics
+
+| Metric | Runtime reliability rerun | Task brief checkpoint |
+| --- | ---: | ---: |
+| Units | 6 | 6 |
+| Questions | 13 | 13 |
+| Multiple choice | 6 | 10 |
+| Matching | 7 | 3 |
+| Diagnostic issues | 0 | 0 |
+| Successful model calls | 24 | 16 |
+| Model usage attempts | 26 | 18 |
+| Prompt tokens | 102,309 | 56,524 |
+| Completion tokens | 44,672 | 28,220 |
+| Total tokens | 146,981 | 84,744 |
+| Prompt cache miss tokens | 65,573 | 37,708 |
+| Runtime failed attempts | 2 | 2 |
+| Runtime retry attempts | 2 | 2 |
+
+Stage totals in the completed run:
+
+| Stage | Calls | Total tokens |
+| --- | ---: | ---: |
+| `reviewPathPlan` | 1 | 11,557 |
+| `unitKnowledgeMap` | 1 | 11,116 |
+| `taskBriefPlan` | 1 | 11,724 |
+| `multipleChoiceDraft` | 5 | 16,002 |
+| `unitSummaryDraft` | 6 | 15,377 |
+| `matchingDraft` | 4 attempts / 2 successful calls | 18,968 |
+
+Unit coverage:
+
+- `游戏化的概念与核心定义`
+- `心流理论：挑战与能力的动态平衡`
+- `DMC模型：游戏化元素的金字塔分层`
+- `阶段性目标的设定`
+- `挑战与能力的动态匹配`
+- `成长机制的感知设计`
+
+### Conclusion
+
+This checkpoint is technically effective but not the final architecture.
+
+What improved:
+
+- The main call count dropped from 24 successful calls to 16.
+- Total token usage dropped from about 147k to about 85k.
+- DMC stayed as an independent unit, so the task-brief layer did not recreate the earlier structural omission.
+- The run still produced matching questions, so matching is not disabled by the new architecture.
+
+What remains:
+
+- Both runtime failures happened in `matchingDraft`: one JSON parse failure and one empty structured text failure before retry success.
+- Draft generation is still per unit, so `multipleChoiceDraft`, `matchingDraft`, and `unitSummaryDraft` remain the performance and stability bottlenecks.
+- Matching count dropped from 7 to 3 compared with the prior runtime rerun. This may be acceptable if the 3 matching questions are higher-value, but it requires manual quality review.
+
+Next checkpoint should batch draft generation:
+
+- `questionDraftBatch`: generate all selected MC and matching questions in one or two batched calls.
+- `unitCopyBatch`: generate all unit overview / summary copy in one call.
+- Keep ECD as prompt guidance inside each stage, not as a separate heavy JSON artifact.

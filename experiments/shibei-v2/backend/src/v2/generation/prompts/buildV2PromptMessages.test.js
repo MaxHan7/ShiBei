@@ -123,6 +123,37 @@ test("unitKnowledgeMap prompt isolates micro knowledge discovery from task assem
   assert.match(messages.user, /microKnowledgePoints/);
 });
 
+test("taskBriefPlan prompt embeds ECD as thinking method without heavy ECD JSON", () => {
+  const messages = buildV2PromptMessages("taskBriefPlan", {
+    article: ARTICLE,
+    source: { type: "article", title: ARTICLE.title },
+    blocks: [
+      { id: "p-001", type: "paragraph", text: "Hook 是关键动作前后的流程控制器。" }
+    ],
+    sourceContextNote: {
+      mode: "plan_union_window",
+      selectedBlockIds: ["p-001"],
+      fullBlockCount: 8,
+      selectedBlockCount: 1
+    },
+    plan: {
+      title: ARTICLE.title,
+      summaryCard: { text: "Hook 把关键动作变成稳定流程。" },
+      units: [unitFixture()],
+      chapterSummary: { encouragementText: "你已经理解 Hook 的流程价值。" }
+    },
+    unitKnowledgeMap: unitKnowledgeMapFixture()
+  });
+
+  assert.match(messages.user, /taskBriefPlan/);
+  assert.match(messages.user, /Evidence-Centered Design 是你的思考方法/);
+  assert.match(messages.user, /只保留 practiceGoals 和 questionPlans/);
+  assert.match(messages.user, /不要输出 ECD 术语字段、推理链、候选矩阵或长篇解释/);
+  assert.match(messages.user, /每个 high \/ medium microKnowledgePoint/);
+  assert.match(messages.user, /DMC 这类“模型层级 -> 设计作用”/);
+  assert.match(messages.user, /matching 不是机械名词释义/);
+});
+
 test("ecdPlanning prompt asks for internal ECD reasoning and compact task planning", () => {
   const messages = buildV2PromptMessages("ecdPlanning", {
     article: ARTICLE,

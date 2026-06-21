@@ -49,15 +49,13 @@ test("generates a contract-valid V2 review path from split prompt stages", async
   assert.equal(reviewPath.generationMeta.unitKnowledgeMap.units[0].microKnowledgePoints.length, 2);
   assert.equal(reviewPath.generationMeta.stageRuntime.schemaVersion, "v2_stage_runtime_1");
   assert.equal(reviewPath.generationMeta.stageRuntime.callCount, 0);
-  assert.equal(reviewPath.generationMeta.ecdPlanning.units[0].assessableTargets.length, 2);
-  assert.deepEqual(reviewPath.generationMeta.ecdPlanning.units[0].selectedTasks[0].targetIds, ["target-001"]);
-  assert.equal(reviewPath.generationMeta.ecdPlanning.units[0].selectedTasks.length, 2);
+  assert.equal(reviewPath.generationMeta.ecdPlanning, undefined);
+  assert.equal(reviewPath.generationMeta.taskBriefPlan.units[0].questionPlans.length, 2);
   assert.equal(reviewPath.generationMeta.unitPracticePlans.length, 1);
-  assert.equal(reviewPath.generationMeta.ecdPlanning.units[0].selectedTasks[1].taskPurpose, "role_responsibility_matching");
-  assert.deepEqual(reviewPath.generationMeta.unitPracticePlans[0].questionPlans[0].targetIds, ["target-001"]);
-  assert.deepEqual(reviewPath.generationMeta.unitPracticePlans[0].questionPlans[0].microIds, ["micro-unit-01-001"]);
-  assert.deepEqual(reviewPath.generationMeta.unitPracticePlans[0].questionPlans[1].targetIds, ["target-002"]);
-  assert.deepEqual(reviewPath.generationMeta.unitPracticePlans[0].questionPlans[1].microIds, ["micro-unit-01-002"]);
+  assert.deepEqual(
+    reviewPath.generationMeta.unitPracticePlans[0].questionPlans.map((plan) => plan.type),
+    ["multiple_choice", "matching"]
+  );
   assert.equal(reviewPath.generationMeta.qualityDiagnostics.length, 2);
   assert.deepEqual(reviewPath.generationMeta.qualityGate, {
     mode: "deterministic_only",
@@ -74,13 +72,15 @@ test("generates a contract-valid V2 review path from split prompt stages", async
   });
 });
 
-test("ECD selected tasks drive downstream practice plans and suppress model-invented matching", async () => {
+test("task briefs drive downstream practice plans and suppress model-invented matching", async () => {
   const stages = [];
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {
       stages.push(stage);
-      if (stage === "ecdPlanning") {
-        return ecdPlanningFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id, { matching: false });
+      if (stage === "taskBriefPlan") {
+        return {
+          units: payload.plan.units.map((unit) => practicePlanFixture(unit.id, unit.sourceAnchor.id, { matching: false }))
+        };
       }
       return happyPathPromptCaller(stage, payload);
     },
@@ -90,18 +90,18 @@ test("ECD selected tasks drive downstream practice plans and suppress model-inve
   assert.equal(stages.includes("matchingDraft"), false);
   assert.deepEqual(
     reviewPath.generationMeta.unitPracticePlans[0].questionPlans.map((plan) => `${plan.id}:${plan.type}`),
-    ["q-001:multiple_choice"]
+    ["q-001:multiple_choice", "q-002:multiple_choice"]
   );
   assert.deepEqual(
     reviewPath.units[0].questions.map((question) => `${question.id}:${question.type}`),
-    ["q-001:multiple_choice"]
+    ["q-001:multiple_choice", "q-002:multiple_choice"]
   );
 });
 
 test("passes only compact source windows into per-unit stages", async () => {
   const captured = {
     unitKnowledgeMap: null,
-    ecdPlanning: [],
+    taskBriefPlan: null,
     multipleChoiceDraft: [],
     unitSummaryDraft: []
   };
@@ -122,9 +122,11 @@ test("passes only compact source windows into per-unit stages", async () => {
         blocks: longBlocks
       };
     }
-    if (stage === "ecdPlanning") {
-      captured.ecdPlanning.push(payload);
-      return ecdPlanningFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id, { matching: false });
+    if (stage === "taskBriefPlan") {
+      captured.taskBriefPlan = payload;
+      return {
+        units: payload.plan.units.map((unit) => practicePlanFixture(unit.id, unit.sourceAnchor.id, { matching: false }))
+      };
     }
     if (stage === "multipleChoiceDraft") {
       captured.multipleChoiceDraft.push(payload);
@@ -183,16 +185,11 @@ test("passes only compact source windows into per-unit stages", async () => {
   );
   assert.equal(captured.unitKnowledgeMap.sourceContextNote.mode, "plan_union_window");
 
-  assert.equal(captured.ecdPlanning.length, 2);
-  assert.deepEqual(captured.ecdPlanning[0].blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
-  assert.deepEqual(captured.ecdPlanning[1].blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
-  assert.equal(captured.ecdPlanning[0].sourceContextNote.mode, "unit_window");
-  assert.equal(captured.ecdPlanning[0].plan.units.length, 1);
-  assert.equal(captured.ecdPlanning[1].plan.units.length, 1);
-  assert.notEqual(captured.ecdPlanning[0].plan.units[0].id, captured.ecdPlanning[1].plan.units[0].id);
-  assert.equal(captured.ecdPlanning[0].plan.knowledgeObjects, undefined);
-  assert.equal(captured.ecdPlanning[1].plan.knowledgeObjects, undefined);
-  assert.equal(Array.isArray(captured.ecdPlanning[0].plan.chapterWideNotes), false);
+  assert.deepEqual(captured.taskBriefPlan.blocks.map((block) => block.id), ["p-002", "p-003", "p-004", "p-006", "p-007", "p-008"]);
+  assert.equal(captured.taskBriefPlan.sourceContextNote.mode, "plan_union_window");
+  assert.equal(captured.taskBriefPlan.plan.units.length, 2);
+  assert.equal(captured.taskBriefPlan.plan.knowledgeObjects, undefined);
+  assert.equal(Array.isArray(captured.taskBriefPlan.plan.chapterWideNotes), false);
 
   assert.deepEqual(captured.multipleChoiceDraft[0].blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
   assert.deepEqual(captured.unitSummaryDraft[1].blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
@@ -252,7 +249,7 @@ test("can build sourceMap deterministically for long article quality experiments
   assert.equal(reviewPath.source.blocks.length, 3);
 });
 
-test("derives matching relationType from ECD selected tasks", async () => {
+test("derives matching relationType from task briefs", async () => {
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: happyPathPromptCaller,
     now: "2026-06-19T00:00:00.000Z"
@@ -268,18 +265,22 @@ test("derives matching relationType from ECD selected tasks", async () => {
   );
 });
 
-test("skips multipleChoiceDraft when ECD assembly selects only matching", async () => {
+test("skips multipleChoiceDraft when task brief selects only matching", async () => {
   const stages = [];
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {
       stages.push(stage);
-      if (stage === "ecdPlanning") {
-        const ecd = ecdPlanningFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id, { matching: true });
-        ecd.units[0].assessableTargets[0].coverageRequirement = "supporting";
-        ecd.units[0].selectedTasks = ecd.units[0].selectedTasks.filter(
-          (task) => task.taskAffordance === "matching"
-        );
-        return ecd;
+      if (stage === "taskBriefPlan") {
+        const plan = practicePlanFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id, { matching: true });
+        return {
+          units: [
+            {
+              ...plan,
+              practiceGoals: plan.practiceGoals.filter((goal) => goal.id === "goal-02"),
+              questionPlans: plan.questionPlans.filter((questionPlan) => questionPlan.type === "matching")
+            }
+          ]
+        };
       }
       return happyPathPromptCaller(stage, payload);
     },
@@ -294,7 +295,7 @@ test("skips multipleChoiceDraft when ECD assembly selects only matching", async 
   );
 });
 
-test("skips matchingDraft when ECD assembly does not select matching", async () => {
+test("skips matchingDraft when task brief does not select matching", async () => {
   const stages = [];
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {
@@ -308,13 +309,13 @@ test("skips matchingDraft when ECD assembly does not select matching", async () 
     "sourceMap",
     "reviewPathPlan",
     "unitKnowledgeMap",
-    "ecdPlanning",
+    "taskBriefPlan",
     "multipleChoiceDraft",
     "unitSummaryDraft"
   ]);
   assert.deepEqual(
     reviewPath.units[0].questions.map((question) => question.type),
-    ["multiple_choice"]
+    ["multiple_choice", "multiple_choice"]
   );
 });
 
@@ -571,6 +572,12 @@ async function happyPathPromptCaller(stage, payload, { matching = true } = {}) {
     return unitKnowledgeMapFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id);
   }
 
+  if (stage === "taskBriefPlan") {
+    return {
+      units: payload.plan.units.map((unit) => practicePlanFixture(unit.id, unit.sourceAnchor.id, { matching }))
+    };
+  }
+
   if (stage === "ecdPlanning") {
     assert.equal(payload.unitKnowledgeMap.units[0].microKnowledgePoints[0].microId, "micro-unit-01-001");
     return ecdPlanningFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id, { matching });
@@ -609,7 +616,7 @@ async function happyPathPromptCaller(stage, payload, { matching = true } = {}) {
           id: "q-002",
           type: "matching",
           practiceGoalId: "goal-02",
-          relationType: "boundary",
+          relationType: "responsibility",
           relationGoal: "区分 Hook 工作流里的职责边界。",
           stem: "把 Hook 工作流中的角色和作用匹配起来。",
           leftItems: [
@@ -690,7 +697,7 @@ function practicePlanFixture(unitId, sourceAnchorId, { matching }) {
             type: "matching",
             purpose: "relationship_matching",
             practiceGoalId: "goal-02",
-            relationType: "boundary",
+            relationType: "responsibility",
             sourceAnchorId
           }
         : {

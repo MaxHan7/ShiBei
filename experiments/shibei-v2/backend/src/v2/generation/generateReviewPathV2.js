@@ -3,13 +3,13 @@ import {
   validateReviewPathV2
 } from "../contracts/reviewPathContract.js";
 import { createV2ModelPromptCaller } from "./modelPromptCaller.js";
-import {
-  normalizeEcdPlanningOutput,
-  validateEcdPlanningOutput
-} from "./prompts/ecdPlanning.js";
 import { validateQualityJudgeOutput } from "./prompts/qualityJudge.js";
 import { validateReviewPathPlanOutput } from "./prompts/reviewPathPlan.js";
 import { validateSourceMapOutput } from "./prompts/sourceMap.js";
+import {
+  getTaskBriefForUnit,
+  validateTaskBriefPlanOutput
+} from "./prompts/taskBriefPlan.js";
 import {
   normalizeUnitKnowledgeMapOutput,
   validateUnitKnowledgeMapOutput
@@ -36,8 +36,7 @@ export const V2_GENERATION_STAGES = [
   "sourceMap",
   "reviewPathPlan",
   "unitKnowledgeMap",
-  "ecdPlanning",
-  "unitPracticePlan",
+  "taskBriefPlan",
   "multipleChoiceDraft",
   "matchingDraft",
   "unitSummaryDraft",
@@ -46,7 +45,6 @@ export const V2_GENERATION_STAGES = [
 
 export function activeV2GenerationStages({ qualityJudgeEnabled = false } = {}) {
   return V2_GENERATION_STAGES.filter((stage) => {
-    if (stage === "unitPracticePlan") return false;
     if (stage === "qualityJudge") return qualityJudgeEnabled;
     return true;
   });
@@ -113,42 +111,31 @@ export async function generateReviewPathV2(
     (output) => validateUnitKnowledgeMapOutput(output, { unitIds, sourceAnchorIds }),
     { normalize: normalizeUnitKnowledgeMapOutput }
   );
-  const ecdPlanning = mergeEcdPlanningOutputs(
-    await mapWithConcurrency(
-      plan.units,
-      unitConcurrency,
-      (plannedUnit) => {
-        const unitSourceContext = buildUnitSourceContext(sourceMap, plannedUnit);
-        return callAndValidate(
-          activePromptCaller,
-          "ecdPlanning",
-          {
-            article,
-            source: unitSourceContext.source,
-            blocks: unitSourceContext.blocks,
-            sourceContextNote: unitSourceContext.sourceContextNote,
-            plan: buildSingleUnitPlan(plan, plannedUnit),
-            unitKnowledgeMap: buildSingleUnitKnowledgeMap(unitKnowledgeMap, plannedUnit.id)
-          },
-          (output) => validateEcdPlanningOutput(output, { unitIds: new Set([plannedUnit.id]), sourceAnchorIds }),
-          { normalize: (output) => normalizeEcdPlanningOutput(output, { unitSourceAnchorIds, sourceAnchorIds }) }
-        );
-      }
-    )
+  const taskBriefPlan = await callAndValidate(
+    activePromptCaller,
+    "taskBriefPlan",
+    {
+      article,
+      source: planSourceContext.source,
+      blocks: planSourceContext.blocks,
+      sourceContextNote: planSourceContext.sourceContextNote,
+      plan: stripReviewPathPlanForMetadata(plan),
+      unitKnowledgeMap
+    },
+    (output) => validateTaskBriefPlanOutput(output, { unitIds, sourceAnchorByUnit: unitSourceAnchorIds })
   );
 
   const generatedUnits = await mapWithConcurrency(
     plan.units,
     unitConcurrency,
     (plannedUnit) => {
-      const ecdContext = getEcdContextForUnit(ecdPlanning, plannedUnit, unitKnowledgeMap);
       return generateUnitReviewContent({
         activePromptCaller,
         article,
         sourceMap,
         sourceContext: buildUnitSourceContext(sourceMap, plannedUnit),
         plannedUnit,
-        ecdContext
+        practicePlan: getTaskBriefForUnit(taskBriefPlan, plannedUnit.id)
       });
     }
   );
@@ -190,7 +177,7 @@ export async function generateReviewPathV2(
         displayStatusText: stageDisplayText(stage),
         at: now
       })),
-      ecdPlanning,
+      taskBriefPlan,
       unitPracticePlans
     }
   };
@@ -307,26 +294,27 @@ async function generateUnitReviewContent({
   sourceMap,
   sourceContext,
   plannedUnit,
-  ecdContext
+  practicePlan,
+  ecdContext = null
 }) {
   const unitSourceContext = sourceContext || buildUnitSourceContext(sourceMap, plannedUnit);
-  const practicePlan = buildPracticePlanFromEcdContext({
+  const resolvedPracticePlan = practicePlan || buildPracticePlanFromEcdContext({
     ecdContext,
     plannedUnit
   });
-  const alignedValidation = validateUnitPracticePlanOutput(practicePlan, {
+  const alignedValidation = validateUnitPracticePlanOutput(resolvedPracticePlan, {
     unitId: plannedUnit.id,
     sourceAnchorId: plannedUnit.sourceAnchor.id
   });
   if (!alignedValidation.ok) {
     const error = new Error(
-      `unitPracticePlan ECD alignment failed validation:\n${alignedValidation.errors.join("\n")}`
+      `taskBriefPlan unit practice plan failed validation:\n${alignedValidation.errors.join("\n")}`
     );
-    error.stage = "unitPracticePlan";
+    error.stage = "taskBriefPlan";
     error.errors = alignedValidation.errors;
     throw error;
   }
-  const multipleChoicePlans = practicePlan.questionPlans.filter((questionPlan) => questionPlan.type === "multiple_choice");
+  const multipleChoicePlans = resolvedPracticePlan.questionPlans.filter((questionPlan) => questionPlan.type === "multiple_choice");
   const multipleChoiceDraft = multipleChoicePlans.length > 0
     ? await callAndValidate(
         activePromptCaller,
@@ -337,22 +325,22 @@ async function generateUnitReviewContent({
           blocks: unitSourceContext.blocks,
           sourceContextNote: unitSourceContext.sourceContextNote,
           unit: plannedUnit,
-          practicePlan,
+          practicePlan: resolvedPracticePlan,
           ecdContext
         },
         (output) =>
           validateMultipleChoiceDraftOutput(output, {
             unitId: plannedUnit.id,
-            plans: practicePlan.questionPlans,
+            plans: resolvedPracticePlan.questionPlans,
             sourceAnchorId: plannedUnit.sourceAnchor.id
           }),
         {
           normalize: (output) =>
-            normalizeDraftQuestionIds(output, practicePlan.questionPlans, "multiple_choice")
+            normalizeDraftQuestionIds(output, resolvedPracticePlan.questionPlans, "multiple_choice")
         }
       )
     : { unitId: plannedUnit.id, questions: [] };
-  const matchingPlans = practicePlan.questionPlans.filter((questionPlan) => questionPlan.type === "matching");
+  const matchingPlans = resolvedPracticePlan.questionPlans.filter((questionPlan) => questionPlan.type === "matching");
   const matchingDraft = matchingPlans.length > 0
     ? await callAndValidate(
         activePromptCaller,
@@ -363,18 +351,18 @@ async function generateUnitReviewContent({
           blocks: unitSourceContext.blocks,
           sourceContextNote: unitSourceContext.sourceContextNote,
           unit: plannedUnit,
-          practicePlan,
+          practicePlan: resolvedPracticePlan,
           ecdContext
         },
         (output) =>
           validateMatchingDraftOutput(output, {
             unitId: plannedUnit.id,
-            plans: practicePlan.questionPlans,
+            plans: resolvedPracticePlan.questionPlans,
             sourceAnchorId: plannedUnit.sourceAnchor.id
           }),
         {
           normalize: (output) =>
-            normalizeDraftQuestionIds(output, practicePlan.questionPlans, "matching")
+            normalizeDraftQuestionIds(output, resolvedPracticePlan.questionPlans, "matching")
         }
       )
     : { unitId: plannedUnit.id, questions: [] };
@@ -383,7 +371,7 @@ async function generateUnitReviewContent({
       ...multipleChoiceDraft.questions.map(stripInternalQuestionFields),
       ...matchingDraft.questions.map(stripInternalQuestionFields)
     ],
-    practicePlan.questionPlans
+    resolvedPracticePlan.questionPlans
   );
   const unitSummary = await callAndValidate(
     activePromptCaller,
@@ -394,7 +382,7 @@ async function generateUnitReviewContent({
       blocks: unitSourceContext.blocks,
       sourceContextNote: unitSourceContext.sourceContextNote,
       unit: plannedUnit,
-      practicePlan,
+      practicePlan: resolvedPracticePlan,
       questions,
       ecdContext
     },
@@ -405,7 +393,7 @@ async function generateUnitReviewContent({
   );
 
   return {
-    practicePlan,
+    practicePlan: resolvedPracticePlan,
     unit: {
       ...stripInternalPlannedUnitFields(plannedUnit),
       overview: unitSummary.overview,
@@ -774,8 +762,7 @@ function stageDisplayText(stage) {
   return {
     sourceMap: "正在提取正文",
     reviewPathPlan: "正在生成知识点",
-    ecdPlanning: "正在建立证据规划",
-    unitPracticePlan: "正在规划练习",
+    taskBriefPlan: "正在规划练习",
     multipleChoiceDraft: "正在生成选择题",
     matchingDraft: "正在生成连线题",
     unitSummaryDraft: "正在生成单元总结",

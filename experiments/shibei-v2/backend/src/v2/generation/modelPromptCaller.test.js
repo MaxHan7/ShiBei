@@ -167,6 +167,64 @@ test("calls the JSON model transport with ecdPlanning schema and messages", asyn
   assert.match(calls[0].user, /compact task model/);
 });
 
+test("calls the JSON model transport with taskBriefPlan schema and messages", async () => {
+  const calls = [];
+  const caller = createV2ModelPromptCaller({
+    modelJsonCaller: async (request) => {
+      calls.push(request);
+      return {
+        units: [
+          {
+            unitId: "unit-01",
+            practiceGoals: [
+              {
+                id: "goal-01",
+                kind: "core_understanding",
+                target: "理解 Hook 是流程约束",
+                commonMisconception: "把 Hook 当成更长提示词",
+                sourceAnchorId: "anchor-unit-01"
+              }
+            ],
+            questionPlans: [
+              {
+                id: "q-001",
+                type: "multiple_choice",
+                purpose: "light_understanding",
+                practiceGoalId: "goal-01",
+                sourceAnchorId: "anchor-unit-01"
+              }
+            ]
+          }
+        ]
+      };
+    }
+  });
+
+  await caller("taskBriefPlan", {
+    article: { id: "chapter-001", title: "Hook", rawText: "Hook" },
+    source: { type: "article", title: "Hook" },
+    blocks: [{ id: "p-001", type: "paragraph", text: "Hook 是流程控制器。" }],
+    plan: {
+      title: "Hook",
+      units: [
+        {
+          id: "unit-01",
+          sourceAnchor: { id: "anchor-unit-01", blockIds: ["p-001"] }
+        }
+      ]
+    },
+    unitKnowledgeMap: { units: [] }
+  });
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].schemaName, "shibei_v2_task_brief_plan");
+  assert.equal(calls[0].schema.name, undefined);
+  assert.equal(calls[0].stage, "v2_taskBriefPlan");
+  assert.equal(calls[0].estimatedOutputTokens, 5600);
+  assert.match(calls[0].user, /Evidence-Centered Design 是你的思考方法/);
+  assert.match(calls[0].user, /不要输出 ECD 术语字段/);
+});
+
 test("rejects unsupported V2 generation stage", async () => {
   const caller = createV2ModelPromptCaller({
     modelJsonCaller: async () => ({})

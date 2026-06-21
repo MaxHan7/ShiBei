@@ -26,6 +26,10 @@ import {
   SOURCE_MAP_PROMPT_SCHEMA_NAME
 } from "./prompts/sourceMap.js";
 import {
+  TASK_BRIEF_PLAN_OUTPUT_SCHEMA,
+  TASK_BRIEF_PLAN_PROMPT_SCHEMA_NAME
+} from "./prompts/taskBriefPlan.js";
+import {
   UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA,
   UNIT_KNOWLEDGE_MAP_PROMPT_SCHEMA_NAME
 } from "./prompts/unitKnowledgeMap.js";
@@ -58,6 +62,11 @@ const STAGE_SCHEMAS = {
     schemaName: ECD_PLANNING_PROMPT_SCHEMA_NAME,
     schema: ECD_PLANNING_OUTPUT_SCHEMA,
     estimatedOutputTokens: 3000
+  },
+  taskBriefPlan: {
+    schemaName: TASK_BRIEF_PLAN_PROMPT_SCHEMA_NAME,
+    schema: TASK_BRIEF_PLAN_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 5600
   },
   unitPracticePlan: {
     schemaName: UNIT_PRACTICE_PLAN_PROMPT_SCHEMA_NAME,
