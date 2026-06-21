@@ -3,10 +3,15 @@ import { generateReviewPathV2 } from "./generateReviewPathV2.js";
 export async function runV2GenerationJob(input, {
   generateReviewPath = generateReviewPathV2,
   modelUsageRecorder = null,
+  createPromptCaller = undefined,
   now = new Date().toISOString()
 } = {}) {
   try {
-    const chapter = await generateReviewPath(input, { modelUsageRecorder, now });
+    const chapter = await generateReviewPath(input, {
+      modelUsageRecorder,
+      ...(createPromptCaller ? { createPromptCaller } : {}),
+      now
+    });
     return {
       status: "completed",
       displayStatusText: "已生成",

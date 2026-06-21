@@ -23,6 +23,27 @@ test("returns completed status with a generated V2 chapter", async () => {
   assert.equal(result.chapter.id, "chapter-001");
 });
 
+test("passes custom prompt caller factory through to V2 generation", async () => {
+  const createPromptCaller = () => async () => ({});
+  const result = await runV2GenerationJob({
+    id: "chapter-001",
+    title: "Hook",
+    rawText: "Hook 是流程控制器。"
+  }, {
+    createPromptCaller,
+    generateReviewPath: async (_input, options) => ({
+      schemaVersion: "v2_review_path_1",
+      id: "chapter-001",
+      status: "completed",
+      title: options.createPromptCaller === createPromptCaller ? "factory passed" : "factory missing",
+      units: []
+    })
+  });
+
+  assert.equal(result.status, "completed");
+  assert.equal(result.chapter.title, "factory passed");
+});
+
 test("maps missing API key errors to a retryable generation failure", async () => {
   const result = await runV2GenerationJob({
     id: "chapter-001",

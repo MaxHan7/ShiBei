@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-21T03:08:10.643Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-runner-progress-max1-timeout90s",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11365
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 0,
+    "diagnosticIssueCount": 0
+  },
+  "chapter": null,
+  "unitKnowledgeMap": null,
+  "ecdPlanning": null,
+  "qualityDiagnostics": [
+    {
+      "code": "v2_quality_experiment_timeout",
+      "message": "质量实验超过 90000ms；最后阶段：ecdPlanning"
+    }
+  ],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 5200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 10289,
+        "completion_tokens": 4323,
+        "total_tokens": 14612,
+        "prompt_cache_hit_tokens": 10240,
+        "prompt_cache_miss_tokens": 49
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 7200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 10949,
+        "completion_tokens": 1788,
+        "total_tokens": 12737,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 10181
+      }
+    }
+  ],
+  "failure": {
+    "failedStage": "quality_experiment_timeout",
+    "failureReason": "质量实验超过 90000ms；最后阶段：ecdPlanning",
+    "retryable": true,
+    "modelStage": "ecdPlanning",
+    "retryAttempts": 0,
+    "issues": [],
+    "errors": [],
+    "diagnostics": [
+      {
+        "code": "v2_quality_experiment_timeout",
+        "message": "质量实验超过 90000ms；最后阶段：ecdPlanning"
+      }
+    ]
+  }
+}

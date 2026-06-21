@@ -326,3 +326,38 @@ Two live DeepSeek quality smoke runs were attempted after this change:
 They were manually interrupted because the CLI runner produced no stage progress output and did not finish within the expected smoke-test window. No new quality JSON/HTML artifact was recorded from these interrupted runs.
 
 This is an engineering observability issue, not a quality conclusion. Before the next long live experiment, the runner should expose stage-level progress and/or an experiment-level timeout so a stuck model request is visible immediately.
+
+## 2026-06-21 Quality Runner Progress + Timeout
+
+### What Changed
+
+The V2 quality runner now prints stage-level progress to stderr:
+
+```text
+run_start
+stage_start
+stage_done
+stage_failed
+run_timeout
+run_done
+```
+
+It also supports `QUALITY_EXPERIMENT_TIMEOUT_MS`. When the experiment-level timeout is reached, the runner writes a failed JSON/HTML artifact instead of silently waiting forever.
+
+### Verification Run
+
+Smoke run with a 90 second total experiment timeout:
+
+- JSON: `runs/20260621-030640-v2-runner-progress-max1-timeout90s.json`
+- HTML: `reports/20260621-030640-v2-runner-progress-max1-timeout90s.html`
+
+Observed progress:
+
+- `reviewPathPlan`: completed in about 39s.
+- `unitKnowledgeMap`: completed in about 14s.
+- `ecdPlanning`: still running when the 90s experiment timeout fired.
+
+Conclusion:
+
+- The previous “silent hang” was not caused by `qualityJudge`; after disabling `qualityJudge`, the runner still needed visibility because a normal stage can be slow.
+- The next backend iteration should inspect why per-unit `ecdPlanning` can be slow even with `V2_GENERATION_MAX_UNITS=1`, before running another full max6 quality comparison.
