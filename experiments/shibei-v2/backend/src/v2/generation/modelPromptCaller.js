@@ -18,6 +18,10 @@ import {
   QUALITY_JUDGE_PROMPT_SCHEMA_NAME
 } from "./prompts/qualityJudge.js";
 import {
+  QUESTION_DRAFT_BATCH_OUTPUT_SCHEMA,
+  QUESTION_DRAFT_BATCH_PROMPT_SCHEMA_NAME
+} from "./prompts/questionDraftBatch.js";
+import {
   REVIEW_PATH_PLAN_OUTPUT_SCHEMA,
   REVIEW_PATH_PLAN_PROMPT_SCHEMA_NAME
 } from "./prompts/reviewPathPlan.js";
@@ -33,6 +37,10 @@ import {
   UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA,
   UNIT_KNOWLEDGE_MAP_PROMPT_SCHEMA_NAME
 } from "./prompts/unitKnowledgeMap.js";
+import {
+  UNIT_COPY_BATCH_OUTPUT_SCHEMA,
+  UNIT_COPY_BATCH_PROMPT_SCHEMA_NAME
+} from "./prompts/unitCopyBatch.js";
 import {
   UNIT_PRACTICE_PLAN_OUTPUT_SCHEMA,
   UNIT_PRACTICE_PLAN_PROMPT_SCHEMA_NAME
@@ -67,6 +75,16 @@ const STAGE_SCHEMAS = {
     schemaName: TASK_BRIEF_PLAN_PROMPT_SCHEMA_NAME,
     schema: TASK_BRIEF_PLAN_OUTPUT_SCHEMA,
     estimatedOutputTokens: 5600
+  },
+  questionDraftBatch: {
+    schemaName: QUESTION_DRAFT_BATCH_PROMPT_SCHEMA_NAME,
+    schema: QUESTION_DRAFT_BATCH_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 9000
+  },
+  unitCopyBatch: {
+    schemaName: UNIT_COPY_BATCH_PROMPT_SCHEMA_NAME,
+    schema: UNIT_COPY_BATCH_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 2400
   },
   unitPracticePlan: {
     schemaName: UNIT_PRACTICE_PLAN_PROMPT_SCHEMA_NAME,

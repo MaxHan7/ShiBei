@@ -88,6 +88,7 @@ test("task briefs drive downstream practice plans and suppress model-invented ma
   });
 
   assert.equal(stages.includes("matchingDraft"), false);
+  assert.equal(stages.includes("questionDraftBatch"), true);
   assert.deepEqual(
     reviewPath.generationMeta.unitPracticePlans[0].questionPlans.map((plan) => `${plan.id}:${plan.type}`),
     ["q-001:multiple_choice", "q-002:multiple_choice"]
@@ -102,8 +103,8 @@ test("passes only compact source windows into per-unit stages", async () => {
   const captured = {
     unitKnowledgeMap: null,
     taskBriefPlan: null,
-    multipleChoiceDraft: [],
-    unitSummaryDraft: []
+    questionDraftBatch: null,
+    unitCopyBatch: null
   };
   const longBlocks = Array.from({ length: 8 }, (_, index) => ({
     id: `p-${String(index + 1).padStart(3, "0")}`,
@@ -128,15 +129,14 @@ test("passes only compact source windows into per-unit stages", async () => {
         units: payload.plan.units.map((unit) => practicePlanFixture(unit.id, unit.sourceAnchor.id, { matching: false }))
       };
     }
-    if (stage === "multipleChoiceDraft") {
-      captured.multipleChoiceDraft.push(payload);
+    if (stage === "questionDraftBatch") {
+      captured.questionDraftBatch = payload;
       return happyPathPromptCaller(stage, payload);
     }
-    if (stage === "unitSummaryDraft") {
-      captured.unitSummaryDraft.push(payload);
+    if (stage === "unitCopyBatch") {
+      captured.unitCopyBatch = payload;
       return happyPathPromptCaller(stage, payload);
     }
-    if (stage === "matchingDraft") return null;
     if (stage === "reviewPathPlan") {
       const plan = await happyPathPromptCaller(stage, payload);
       return {
@@ -191,8 +191,10 @@ test("passes only compact source windows into per-unit stages", async () => {
   assert.equal(captured.taskBriefPlan.plan.knowledgeObjects, undefined);
   assert.equal(Array.isArray(captured.taskBriefPlan.plan.chapterWideNotes), false);
 
-  assert.deepEqual(captured.multipleChoiceDraft[0].blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
-  assert.deepEqual(captured.unitSummaryDraft[1].blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
+  assert.deepEqual(captured.questionDraftBatch.units[0].sourceContext.blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
+  assert.deepEqual(captured.questionDraftBatch.units[1].sourceContext.blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
+  assert.deepEqual(captured.unitCopyBatch.units[0].sourceContext.blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
+  assert.deepEqual(captured.unitCopyBatch.units[1].sourceContext.blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
   assert.deepEqual(reviewPath.generationMeta.sourceContextStats, {
     fullBlockCount: 8,
     unitKnowledgeMap: {
@@ -288,7 +290,8 @@ test("skips multipleChoiceDraft when task brief selects only matching", async ()
   });
 
   assert.equal(stages.includes("multipleChoiceDraft"), false);
-  assert.equal(stages.includes("matchingDraft"), true);
+  assert.equal(stages.includes("matchingDraft"), false);
+  assert.equal(stages.includes("questionDraftBatch"), true);
   assert.deepEqual(
     reviewPath.units[0].questions.map((question) => `${question.id}:${question.type}`),
     ["q-002:matching"]
@@ -310,8 +313,8 @@ test("skips matchingDraft when task brief does not select matching", async () =>
     "reviewPathPlan",
     "unitKnowledgeMap",
     "taskBriefPlan",
-    "multipleChoiceDraft",
-    "unitSummaryDraft"
+    "questionDraftBatch",
+    "unitCopyBatch"
   ]);
   assert.deepEqual(
     reviewPath.units[0].questions.map((question) => question.type),
@@ -352,6 +355,8 @@ test("can limit planned units for bounded quality experiments", async () => {
   assert.equal(reviewPath.generationConstraints.originalUnitCount, 2);
   assert.equal(reviewPath.generationConstraints.maxUnitCount, 1);
   assert.equal(stages.filter((stage) => stage === "unitPracticePlan").length, 0);
+  assert.equal(stages.filter((stage) => stage === "multipleChoiceDraft").length, 0);
+  assert.equal(stages.filter((stage) => stage === "unitSummaryDraft").length, 0);
 });
 
 test("throws a stage-specific error when sourceMap output is invalid", async () => {
@@ -431,17 +436,15 @@ test("normalizes draft question ids from question plan order", async () => {
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {
       const output = await happyPathPromptCaller(stage, payload);
-      if (stage === "multipleChoiceDraft") {
-        output.questions[0].id = "model-made-up-id";
-        delete output.questions[0].sourceAnchorId;
-        output.questions.push({
-          ...output.questions[0],
+      if (stage === "questionDraftBatch") {
+        output.units[0].questions[0].id = "model-made-up-id";
+        delete output.units[0].questions[0].sourceAnchorId;
+        output.units[0].questions.push({
+          ...output.units[0].questions[0],
           id: "model-extra-question"
         });
-      }
-      if (stage === "matchingDraft") {
-        output.questions[0].id = "another-made-up-id";
-        delete output.questions[0].practiceGoalId;
+        output.units[0].questions[1].id = "another-made-up-id";
+        delete output.units[0].questions[1].practiceGoalId;
       }
       return output;
     },
@@ -461,9 +464,9 @@ test("normalizes draft question ids from question plan order", async () => {
 test("keeps generated questions when deterministic guardrails find forbidden phrases", async () => {
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {
-      if (stage === "multipleChoiceDraft") {
+      if (stage === "questionDraftBatch") {
         const draft = await happyPathPromptCaller(stage, payload);
-        draft.questions[0].stem = "根据本文，Hook 更接近哪种机制？";
+        draft.units[0].questions[0].stem = "根据本文，Hook 更接近哪种机制？";
         return draft;
       }
       return happyPathPromptCaller(stage, payload);
@@ -583,64 +586,39 @@ async function happyPathPromptCaller(stage, payload, { matching = true } = {}) {
     return ecdPlanningFixture(payload.plan.units[0].id, payload.plan.units[0].sourceAnchor.id, { matching });
   }
 
+  if (stage === "questionDraftBatch") {
+    return {
+      units: payload.units.map((input) => ({
+        unitId: input.unit.id,
+        questions: input.practicePlan.questionPlans.map((plan, index) =>
+          plan.type === "matching"
+            ? matchingQuestionForPlan(input.unit, plan)
+            : multipleChoiceQuestionForPlan(input.unit, plan, index)
+        )
+      }))
+    };
+  }
+
+  if (stage === "unitCopyBatch") {
+    return {
+      units: payload.units.map((input) => unitCopyForUnit(input.unit))
+    };
+  }
+
   if (stage === "multipleChoiceDraft") {
     const choicePlans = payload.practicePlan.questionPlans.filter((plan) => plan.type === "multiple_choice");
     return {
       unitId: payload.unit.id,
-      questions: choicePlans.map((plan, index) => ({
-        id: plan.id,
-        type: "multiple_choice",
-        practiceGoalId: plan.practiceGoalId,
-        stem: index === 0 ? "Hook 更接近哪种机制？" : "团队想减少重复提醒时，更适合怎么做？",
-        correctUnderstanding: "Hook 是关键动作前后的固定流程约束。",
-        misconception: "把 Hook 当成更长提示词。",
-        distractorRationale: "干扰项覆盖把约束交给提示词、人工复查或摘要的误区。",
-        options: [
-          { id: "A", text: "关键动作前后的固定流程" },
-          { id: "B", text: "让提示词承担所有提醒" },
-          { id: "C", text: "每次都依赖人工复查" },
-          { id: "D", text: "只把文章内容做成摘要" }
-        ],
-        correctOptionId: "A",
-        explanation: "Hook 的重点是稳定触发流程，而不是让模型自己记住。",
-        sourceAnchorId: payload.unit.sourceAnchor.id
-      }))
+      questions: choicePlans.map((plan, index) => multipleChoiceQuestionForPlan(payload.unit, plan, index))
     };
   }
 
   if (stage === "matchingDraft") {
     return {
       unitId: payload.unit.id,
-      questions: [
-        {
-          id: "q-002",
-          type: "matching",
-          practiceGoalId: "goal-02",
-          relationType: "responsibility",
-          relationGoal: "区分 Hook 工作流里的职责边界。",
-          stem: "把 Hook 工作流中的角色和作用匹配起来。",
-          leftItems: [
-            { id: "L1", text: "Prompt" },
-            { id: "L2", text: "Hook" },
-            { id: "L3", text: "CI" },
-            { id: "L4", text: "规则文档" }
-          ],
-          rightItems: [
-            { id: "R1", text: "为模型提供任务上下文" },
-            { id: "R2", text: "在关键动作前后稳定执行" },
-            { id: "R3", text: "在交付前验证结果是否达标" },
-            { id: "R4", text: "把反复提醒沉淀成规则" }
-          ],
-          pairs: [
-            { leftId: "L1", rightId: "R1" },
-            { leftId: "L2", rightId: "R2" },
-            { leftId: "L3", rightId: "R3" },
-            { leftId: "L4", rightId: "R4" }
-          ],
-          explanation: "这组关系区分的是流程中的职责边界，不是背名词定义。",
-          sourceAnchorId: payload.unit.sourceAnchor.id
-        }
-      ]
+      questions: payload.practicePlan.questionPlans
+        .filter((plan) => plan.type === "matching")
+        .map((plan) => matchingQuestionForPlan(payload.unit, plan))
     };
   }
 
@@ -664,7 +642,74 @@ async function happyPathPromptCaller(stage, payload, { matching = true } = {}) {
   throw new Error(`Unexpected stage: ${stage}`);
 }
 
+function multipleChoiceQuestionForPlan(unit, plan, index = 0) {
+  return {
+    id: plan.id,
+    type: "multiple_choice",
+    practiceGoalId: plan.practiceGoalId,
+    stem: index === 0 ? "Hook 更接近哪种机制？" : "团队想减少重复提醒时，更适合怎么做？",
+    correctUnderstanding: "Hook 是关键动作前后的固定流程约束。",
+    misconception: "把 Hook 当成更长提示词。",
+    distractorRationale: "干扰项覆盖把约束交给提示词、人工复查或摘要的误区。",
+    options: [
+      { id: "A", text: "关键动作前后的固定流程" },
+      { id: "B", text: "让提示词承担所有提醒" },
+      { id: "C", text: "每次都依赖人工复查" },
+      { id: "D", text: "只把文章内容做成摘要" }
+    ],
+    correctOptionId: "A",
+    explanation: "Hook 的重点是稳定触发流程，而不是让模型自己记住。",
+    sourceAnchorId: unit.sourceAnchor.id
+  };
+}
+
+function matchingQuestionForPlan(unit, plan) {
+  return {
+    id: plan.id,
+    type: "matching",
+    practiceGoalId: plan.practiceGoalId,
+    relationType: plan.relationType,
+    relationGoal: "区分 Hook 工作流里的职责边界。",
+    stem: "把 Hook 工作流中的角色和作用匹配起来。",
+    leftItems: [
+      { id: "L1", text: "Prompt" },
+      { id: "L2", text: "Hook" },
+      { id: "L3", text: "CI" },
+      { id: "L4", text: "规则文档" }
+    ],
+    rightItems: [
+      { id: "R1", text: "为模型提供任务上下文" },
+      { id: "R2", text: "在关键动作前后稳定执行" },
+      { id: "R3", text: "在交付前验证结果是否达标" },
+      { id: "R4", text: "把反复提醒沉淀成规则" }
+    ],
+    pairs: [
+      { leftId: "L1", rightId: "R1" },
+      { leftId: "L2", rightId: "R2" },
+      { leftId: "L3", rightId: "R3" },
+      { leftId: "L4", rightId: "R4" }
+    ],
+    explanation: "这组关系区分的是流程中的职责边界，不是背名词定义。",
+    sourceAnchorId: unit.sourceAnchor.id
+  };
+}
+
+function unitCopyForUnit(unit) {
+  return {
+    unitId: unit.id,
+    overview: {
+      text: "Hook 更像一段固定流程，负责在关键动作前后稳定补上规则和验证。"
+    },
+    summary: {
+      title: "单元完成",
+      text: "你已经理解 Hook 的基本机制。"
+    }
+  };
+}
+
 function practicePlanFixture(unitId, sourceAnchorId, { matching }) {
+  const firstMicroId = `micro-${unitId}-001`;
+  const secondMicroId = `micro-${unitId}-002`;
   return {
     unitId,
     practiceGoals: [
@@ -673,6 +718,7 @@ function practicePlanFixture(unitId, sourceAnchorId, { matching }) {
         kind: "core_understanding",
         target: "理解 Hook 是流程约束",
         commonMisconception: "把 Hook 当成更长提示词",
+        microIds: [firstMicroId],
         sourceAnchorId
       },
       {
@@ -680,6 +726,7 @@ function practicePlanFixture(unitId, sourceAnchorId, { matching }) {
         kind: matching ? "relationship_mapping" : "scenario_application",
         target: matching ? "区分 Prompt、Hook、CI 的职责边界" : "把重复提醒沉淀成固定动作",
         commonMisconception: "把所有约束都交给 Prompt",
+        microIds: [secondMicroId],
         sourceAnchorId
       }
     ],
@@ -689,6 +736,7 @@ function practicePlanFixture(unitId, sourceAnchorId, { matching }) {
         type: "multiple_choice",
         purpose: "light_understanding",
         practiceGoalId: "goal-01",
+        microIds: [firstMicroId],
         sourceAnchorId
       },
       matching
@@ -698,6 +746,7 @@ function practicePlanFixture(unitId, sourceAnchorId, { matching }) {
             purpose: "relationship_matching",
             practiceGoalId: "goal-02",
             relationType: "responsibility",
+            microIds: [secondMicroId],
             sourceAnchorId
           }
         : {
@@ -705,6 +754,7 @@ function practicePlanFixture(unitId, sourceAnchorId, { matching }) {
             type: "multiple_choice",
             purpose: "scenario_application",
             practiceGoalId: "goal-02",
+            microIds: [secondMicroId],
             sourceAnchorId
           }
     ]

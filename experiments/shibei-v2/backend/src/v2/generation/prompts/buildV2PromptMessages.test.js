@@ -154,6 +154,61 @@ test("taskBriefPlan prompt embeds ECD as thinking method without heavy ECD JSON"
   assert.match(messages.user, /matching 不是机械名词释义/);
 });
 
+test("questionDraftBatch prompt generates all planned questions without ECD JSON", () => {
+  const messages = buildV2PromptMessages("questionDraftBatch", {
+    article: ARTICLE,
+    source: { type: "article", title: ARTICLE.title },
+    units: [
+      {
+        unit: unitFixture(),
+        practicePlan: {
+          unitId: "unit-01",
+          practiceGoals: [],
+          questionPlans: []
+        },
+        sourceContext: {
+          blocks: [{ id: "p-001", type: "paragraph", text: "Hook 是流程控制器。" }],
+          sourceContextNote: { mode: "unit_window", unitId: "unit-01" }
+        }
+      }
+    ]
+  });
+
+  assert.match(messages.user, /questionDraftBatch/);
+  assert.match(messages.user, /整章所有 unit 的选择题和连线题/);
+  assert.match(messages.user, /不要输出 ECD 字段、推理链、候选矩阵或批注/);
+  assert.match(messages.user, /不要新增 questionPlan；不要漏掉任何 questionPlan/);
+  assert.match(messages.user, /unitDraftInputs/);
+  assert.match(messages.user, /sourceContext/);
+});
+
+test("unitCopyBatch prompt generates all unit overview and summary copy", () => {
+  const messages = buildV2PromptMessages("unitCopyBatch", {
+    article: ARTICLE,
+    source: { type: "article", title: ARTICLE.title },
+    units: [
+      {
+        unit: unitFixture(),
+        practicePlan: {
+          unitId: "unit-01",
+          practiceGoals: [],
+          questionPlans: []
+        },
+        questions: [],
+        sourceContext: {
+          blocks: [{ id: "p-001", type: "paragraph", text: "Hook 是流程控制器。" }],
+          sourceContextNote: { mode: "unit_window", unitId: "unit-01" }
+        }
+      }
+    ]
+  });
+
+  assert.match(messages.user, /unitCopyBatch/);
+  assert.match(messages.user, /整章所有 unit/);
+  assert.match(messages.user, /overview\.text/);
+  assert.match(messages.user, /不输出题目，不输出 ECD 字段/);
+});
+
 test("ecdPlanning prompt asks for internal ECD reasoning and compact task planning", () => {
   const messages = buildV2PromptMessages("ecdPlanning", {
     article: ARTICLE,

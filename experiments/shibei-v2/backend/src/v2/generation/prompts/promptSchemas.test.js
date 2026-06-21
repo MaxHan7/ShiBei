@@ -19,6 +19,10 @@ import {
   validateQualityJudgeOutput
 } from "./qualityJudge.js";
 import {
+  QUESTION_DRAFT_BATCH_OUTPUT_SCHEMA,
+  validateQuestionDraftBatchOutput
+} from "./questionDraftBatch.js";
+import {
   REVIEW_PATH_PLAN_OUTPUT_SCHEMA,
   validateReviewPathPlanOutput
 } from "./reviewPathPlan.js";
@@ -36,6 +40,10 @@ import {
   validateUnitKnowledgeMapOutput
 } from "./unitKnowledgeMap.js";
 import {
+  UNIT_COPY_BATCH_OUTPUT_SCHEMA,
+  validateUnitCopyBatchOutput
+} from "./unitCopyBatch.js";
+import {
   UNIT_PRACTICE_PLAN_OUTPUT_SCHEMA,
   validateUnitPracticePlanOutput
 } from "./unitPracticePlan.js";
@@ -49,6 +57,8 @@ test("exports stable prompt schema names for the V2 generation pipeline", () => 
   assert.equal(UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA.name, "shibei_v2_unit_knowledge_map");
   assert.equal(ECD_PLANNING_OUTPUT_SCHEMA.name, "shibei_v2_ecd_planning");
   assert.equal(TASK_BRIEF_PLAN_OUTPUT_SCHEMA.name, "shibei_v2_task_brief_plan");
+  assert.equal(QUESTION_DRAFT_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_question_draft_batch");
+  assert.equal(UNIT_COPY_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_unit_copy_batch");
   assert.equal(REVIEW_PATH_PLAN_OUTPUT_SCHEMA.name, "shibei_v2_review_path_plan");
   assert.equal(UNIT_PRACTICE_PLAN_OUTPUT_SCHEMA.name, "shibei_v2_unit_practice_plan");
   assert.equal(MULTIPLE_CHOICE_DRAFT_OUTPUT_SCHEMA.name, "shibei_v2_multiple_choice_draft");
@@ -377,6 +387,47 @@ test("validates matching drafts against question plans", () => {
       sourceAnchorId: "anchor-unit-01",
       plans: unitPracticePlanFixture().questionPlans
     }
+  );
+
+  assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("validates batched question drafts against per-unit plans", () => {
+  const result = validateQuestionDraftBatchOutput(
+    {
+      units: [
+        {
+          unitId: "unit-01",
+          questions: [multipleChoiceQuestionFixture(), matchingQuestionFixture()]
+        }
+      ]
+    },
+    {
+      practicePlansByUnit: new Map([["unit-01", unitPracticePlanFixture().questionPlans.length
+        ? {
+            ...unitPracticePlanFixture(),
+            questionPlans: unitPracticePlanFixture().questionPlans.filter((plan) => plan.id !== "q-003")
+          }
+        : unitPracticePlanFixture()]]),
+      sourceAnchorByUnit: new Map([["unit-01", "anchor-unit-01"]])
+    }
+  );
+
+  assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("validates batched unit copy outputs", () => {
+  const result = validateUnitCopyBatchOutput(
+    {
+      units: [
+        {
+          unitId: "unit-01",
+          overview: { text: "Hook 是稳定流程。" },
+          summary: { title: "单元完成", text: "你已经理解 Hook。" }
+        }
+      ]
+    },
+    { unitIds: new Set(["unit-01"]) }
   );
 
   assert.deepEqual(result, { ok: true, errors: [] });

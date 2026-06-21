@@ -765,3 +765,91 @@ Next checkpoint should batch draft generation:
 - `questionDraftBatch`: generate all selected MC and matching questions in one or two batched calls.
 - `unitCopyBatch`: generate all unit overview / summary copy in one call.
 - Keep ECD as prompt guidance inside each stage, not as a separate heavy JSON artifact.
+
+## 2026-06-21 Batched Draft Checkpoint
+
+### What Changed
+
+This checkpoint tested the second slimming step after `taskBriefPlan`:
+
+- Added `questionDraftBatch` to generate all planned multiple-choice and matching questions in one batched stage.
+- Added `unitCopyBatch` to generate all unit overview and summary copy in one batched stage.
+- Tightened `taskBriefPlan` after an initial failed run:
+  - `practiceGoals` and `questionPlans` now use only `microIds`, not both `targetIds` and `microIds`.
+  - `practiceGoal.target` and `commonMisconception` are length-bounded so the plan stage stays a true brief.
+  - ECD remains an implicit thinking method, not a heavy emitted JSON artifact.
+
+### Artifacts
+
+Initial failed batch run:
+
+- JSON: `runs/20260621-175416-v2-batched-draft-max6.json`
+- HTML: `reports/20260621-175416-v2-batched-draft-max6.html`
+
+Completed compact-brief rerun:
+
+- JSON: `runs/20260621-180107-v2-batched-draft-compact-brief-max6.json`
+- HTML: `reports/20260621-180107-v2-batched-draft-compact-brief-max6.html`
+
+### Metrics
+
+| Metric | Task brief checkpoint | Batched draft compact-brief |
+| --- | ---: | ---: |
+| Units | 6 | 6 |
+| Questions | 13 | 11 |
+| Multiple choice | 10 | 10 |
+| Matching | 3 | 1 |
+| Diagnostic issues | 0 | 0 |
+| Successful model calls | 16 | 5 |
+| Model usage attempts | 18 | 8 |
+| Prompt tokens | 56,524 | 69,510 |
+| Completion tokens | 28,220 | 39,612 |
+| Total tokens | 84,744 | 109,122 |
+| Runtime failed attempts | 2 | 3 |
+| Runtime retry attempts | 2 | 3 |
+
+Stage totals in the completed compact-brief rerun:
+
+| Stage | Attempts | Total tokens | Note |
+| --- | ---: | ---: | --- |
+| `reviewPathPlan` | 2 | 25,333 | 1 retry |
+| `unitKnowledgeMap` | 1 | 11,888 | success |
+| `taskBriefPlan` | 2 | 26,918 | 1 retry, succeeded after compact schema |
+| `questionDraftBatch` | 2 | 33,065 | 1 retry, largest bottleneck |
+| `unitCopyBatch` | 1 | 11,918 | success |
+
+Unit coverage in the completed compact-brief rerun:
+
+- `游戏化的概念与核心定义`: 2 multiple-choice questions.
+- `DMC模型：游戏化的金字塔分层结构`: 1 matching question.
+- `阶段性目标设定`: 2 multiple-choice questions.
+- `挑战与能力的动态匹配`: 2 multiple-choice questions.
+- `成长机制的感知设计`: 2 multiple-choice questions.
+- `情境设计与身份认同`: 2 multiple-choice questions.
+
+### Conclusion
+
+This checkpoint proves that batched draft generation is technically possible, but this exact batch size is not yet better than the previous checkpoint.
+
+What improved:
+
+- Successful model calls dropped from 16 to 5.
+- The chain still completed after tightening `taskBriefPlan`.
+- DMC stayed as an independent unit and still received a matching question.
+- `unitCopyBatch` looks structurally stable.
+
+What regressed:
+
+- Total token usage increased from about 85k to about 109k because retry cost and batched JSON size outweighed call-count savings.
+- Runtime retries increased from 2 to 3.
+- Matching coverage dropped from 3 questions to 1 question.
+- `questionDraftBatch` became the new largest stability and latency risk.
+
+Decision:
+
+- Keep the code and artifact as a checkpoint, because it gives useful evidence.
+- Do not treat this exact architecture as final.
+- The next iteration should avoid a single huge `questionDraftBatch`. A better candidate is two medium stages:
+  - `multipleChoiceDraftBatch`, batched across units but only for MC questions.
+  - `matchingDraftBatch`, batched only for selected matching tasks, or kept per matching group if JSON stability remains poor.
+- `unitCopyBatch` can likely stay batched.

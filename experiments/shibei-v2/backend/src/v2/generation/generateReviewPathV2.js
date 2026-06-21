@@ -7,6 +7,10 @@ import { validateQualityJudgeOutput } from "./prompts/qualityJudge.js";
 import { validateReviewPathPlanOutput } from "./prompts/reviewPathPlan.js";
 import { validateSourceMapOutput } from "./prompts/sourceMap.js";
 import {
+  getQuestionDraftForUnit,
+  validateQuestionDraftBatchOutput
+} from "./prompts/questionDraftBatch.js";
+import {
   getTaskBriefForUnit,
   validateTaskBriefPlanOutput
 } from "./prompts/taskBriefPlan.js";
@@ -22,6 +26,10 @@ import {
   validateUnitPracticePlanOutput
 } from "./prompts/unitPracticePlan.js";
 import { validateUnitSummaryDraftOutput } from "./prompts/unitSummaryDraft.js";
+import {
+  getUnitCopyForUnit,
+  validateUnitCopyBatchOutput
+} from "./prompts/unitCopyBatch.js";
 import { runV2QualityGuardrails } from "./qualityGuardrails.js";
 import {
   attachStageRuntimeToError,
@@ -37,9 +45,8 @@ export const V2_GENERATION_STAGES = [
   "reviewPathPlan",
   "unitKnowledgeMap",
   "taskBriefPlan",
-  "multipleChoiceDraft",
-  "matchingDraft",
-  "unitSummaryDraft",
+  "questionDraftBatch",
+  "unitCopyBatch",
   "qualityJudge"
 ];
 
@@ -124,20 +131,51 @@ export async function generateReviewPathV2(
     },
     (output) => validateTaskBriefPlanOutput(output, { unitIds, sourceAnchorByUnit: unitSourceAnchorIds })
   );
-
-  const generatedUnits = await mapWithConcurrency(
-    plan.units,
-    unitConcurrency,
-    (plannedUnit) => {
-      return generateUnitReviewContent({
-        activePromptCaller,
-        article,
-        sourceMap,
-        sourceContext: buildUnitSourceContext(sourceMap, plannedUnit),
-        plannedUnit,
-        practicePlan: getTaskBriefForUnit(taskBriefPlan, plannedUnit.id)
-      });
+  const unitDraftInputs = buildUnitDraftInputs({ sourceMap, plan, taskBriefPlan });
+  const practicePlansByUnit = new Map(unitDraftInputs.map((input) => [input.unit.id, input.practicePlan]));
+  const questionDraftBatch = await callAndValidate(
+    activePromptCaller,
+    "questionDraftBatch",
+    {
+      article,
+      source: sourceMap.source,
+      units: unitDraftInputs
+    },
+    (output) =>
+      validateQuestionDraftBatchOutput(output, {
+        practicePlansByUnit,
+        sourceAnchorByUnit: unitSourceAnchorIds
+      }),
+    {
+      normalize: (output) => normalizeQuestionDraftBatchIds(output, unitDraftInputs)
     }
+  );
+  const questionDraftsByUnit = new Map(
+    plan.units.map((unit) => [unit.id, getQuestionDraftForUnit(questionDraftBatch, unit.id)])
+  );
+  const unitCopyBatch = await callAndValidate(
+    activePromptCaller,
+    "unitCopyBatch",
+    {
+      article,
+      source: sourceMap.source,
+      units: unitDraftInputs.map((input) => ({
+        unit: input.unit,
+        practicePlan: input.practicePlan,
+        questions: getQuestionDraftForUnit(questionDraftBatch, input.unit.id)?.questions || [],
+        sourceContext: input.sourceContext
+      }))
+    },
+    (output) => validateUnitCopyBatchOutput(output, { unitIds })
+  );
+
+  const generatedUnits = plan.units.map((plannedUnit) =>
+    buildGeneratedUnitFromBatches({
+      plannedUnit,
+      practicePlan: practicePlansByUnit.get(plannedUnit.id),
+      questionDraft: questionDraftsByUnit.get(plannedUnit.id),
+      unitCopy: getUnitCopyForUnit(unitCopyBatch, plannedUnit.id)
+    })
   );
   const units = generatedUnits.map((item) => item.unit);
   const unitPracticePlans = generatedUnits.map((item) => item.practicePlan);
@@ -178,6 +216,8 @@ export async function generateReviewPathV2(
         at: now
       })),
       taskBriefPlan,
+      questionDraftBatch,
+      unitCopyBatch,
       unitPracticePlans
     }
   };
@@ -246,6 +286,77 @@ function mergeEcdPlanningOutputs(outputs) {
   const validOutputs = (outputs || []).filter(Boolean);
   return {
     units: validOutputs.flatMap((output) => output.units || [])
+  };
+}
+
+function buildUnitDraftInputs({ sourceMap, plan, taskBriefPlan }) {
+  return plan.units.map((plannedUnit) => {
+    const practicePlan = getTaskBriefForUnit(taskBriefPlan, plannedUnit.id);
+    const sourceContext = buildUnitSourceContext(sourceMap, plannedUnit);
+    return {
+      unit: stripInternalPlannedUnitFields(plannedUnit),
+      practicePlan,
+      sourceContext: {
+        blocks: sourceContext.blocks,
+        sourceContextNote: sourceContext.sourceContextNote
+      }
+    };
+  });
+}
+
+function normalizeQuestionDraftBatchIds(output, unitDraftInputs) {
+  if (!output || !Array.isArray(output.units)) return output;
+  const inputsByUnitId = new Map(unitDraftInputs.map((input) => [input.unit.id, input]));
+  return {
+    ...output,
+    units: output.units.map((unitDraft) => {
+      const input = inputsByUnitId.get(unitDraft?.unitId);
+      if (!input || !Array.isArray(unitDraft.questions)) return unitDraft;
+      const normalizedMultipleChoice = normalizeDraftQuestionIds(
+        {
+          unitId: unitDraft.unitId,
+          questions: unitDraft.questions.filter((question) => question?.type === "multiple_choice")
+        },
+        input.practicePlan.questionPlans,
+        "multiple_choice"
+      ).questions;
+      const normalizedMatching = normalizeDraftQuestionIds(
+        {
+          unitId: unitDraft.unitId,
+          questions: unitDraft.questions.filter((question) => question?.type === "matching")
+        },
+        input.practicePlan.questionPlans,
+        "matching"
+      ).questions;
+      return {
+        ...unitDraft,
+        questions: sortQuestionsByPlan(
+          [...normalizedMultipleChoice, ...normalizedMatching],
+          input.practicePlan.questionPlans
+        )
+      };
+    })
+  };
+}
+
+function buildGeneratedUnitFromBatches({
+  plannedUnit,
+  practicePlan,
+  questionDraft,
+  unitCopy
+}) {
+  const questions = sortQuestionsByPlan(
+    (questionDraft?.questions || []).map(stripInternalQuestionFields),
+    practicePlan.questionPlans
+  );
+  return {
+    practicePlan,
+    unit: {
+      ...stripInternalPlannedUnitFields(plannedUnit),
+      overview: unitCopy.overview,
+      questions,
+      summary: unitCopy.summary
+    }
   };
 }
 
@@ -763,6 +874,8 @@ function stageDisplayText(stage) {
     sourceMap: "正在提取正文",
     reviewPathPlan: "正在生成知识点",
     taskBriefPlan: "正在规划练习",
+    questionDraftBatch: "正在生成题目",
+    unitCopyBatch: "正在生成单元文案",
     multipleChoiceDraft: "正在生成选择题",
     matchingDraft: "正在生成连线题",
     unitSummaryDraft: "正在生成单元总结",

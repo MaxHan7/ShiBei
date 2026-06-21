@@ -225,6 +225,47 @@ test("calls the JSON model transport with taskBriefPlan schema and messages", as
   assert.match(calls[0].user, /不要输出 ECD 术语字段/);
 });
 
+test("calls the JSON model transport with batched draft schemas and messages", async () => {
+  const calls = [];
+  const caller = createV2ModelPromptCaller({
+    modelJsonCaller: async (request) => {
+      calls.push(request);
+      if (request.stage === "v2_questionDraftBatch") {
+        return { units: [{ unitId: "unit-01", questions: [] }] };
+      }
+      return {
+        units: [
+          {
+            unitId: "unit-01",
+            overview: { text: "Hook 是稳定流程。" },
+            summary: { title: "单元完成", text: "你已经理解 Hook。" }
+          }
+        ]
+      };
+    }
+  });
+
+  await caller("questionDraftBatch", {
+    article: { id: "chapter-001", title: "Hook", rawText: "Hook" },
+    source: { type: "article", title: "Hook" },
+    units: []
+  });
+  await caller("unitCopyBatch", {
+    article: { id: "chapter-001", title: "Hook", rawText: "Hook" },
+    source: { type: "article", title: "Hook" },
+    units: []
+  });
+
+  assert.equal(calls[0].schemaName, "shibei_v2_question_draft_batch");
+  assert.equal(calls[0].stage, "v2_questionDraftBatch");
+  assert.equal(calls[0].estimatedOutputTokens, 9000);
+  assert.match(calls[0].user, /不要新增 questionPlan/);
+  assert.equal(calls[1].schemaName, "shibei_v2_unit_copy_batch");
+  assert.equal(calls[1].stage, "v2_unitCopyBatch");
+  assert.equal(calls[1].estimatedOutputTokens, 2400);
+  assert.match(calls[1].user, /不输出题目，不输出 ECD 字段/);
+});
+
 test("rejects unsupported V2 generation stage", async () => {
   const caller = createV2ModelPromptCaller({
     modelJsonCaller: async () => ({})

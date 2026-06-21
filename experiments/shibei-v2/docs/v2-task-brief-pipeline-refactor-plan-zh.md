@@ -44,10 +44,33 @@
 
 **目标：** 如果 Checkpoint 1 质量不退步，再把选择题、连线题、单元文案从 per-unit 调用改为批量调用。
 
-- [ ] 新增 `questionDraftBatch` schema：一次生成多个 unit 的 MC / matching 题。
-- [ ] 新增 `unitCopyBatch` schema：一次生成多个 unit 的 overview / summary。
-- [ ] 把总调用数压到接近：`sourceMap/deterministic + reviewPathPlan + unitKnowledgeMap + taskBriefPlan + questionDraftBatch + unitCopyBatch`。
-- [ ] 保留调试字段，但不把大段 source 和 ECD 思考重复传给每个 unit。
+- [x] 新增 `questionDraftBatch` schema：一次生成多个 unit 的 MC / matching 题。
+- [x] 新增 `unitCopyBatch` schema：一次生成多个 unit 的 overview / summary。
+- [x] 把总调用数压到接近：`sourceMap/deterministic + reviewPathPlan + unitKnowledgeMap + taskBriefPlan + questionDraftBatch + unitCopyBatch`。
+- [x] 保留调试字段，但不把大段 source 和 ECD 思考重复传给每个 unit。
+
+**结果：**
+
+- 第一次 batch run 失败在 `taskBriefPlan`：模型输出过长，三次都没有闭合 JSON。
+- 因此先对 `taskBriefPlan` 做了一次小瘦身：
+  - 只允许 `microIds`，不再让模型同时输出 `targetIds` 和 `microIds`。
+  - 对 `practiceGoal.target` 和 `commonMisconception` 加长度边界。
+  - 明确 multiple-choice 不输出 `relationType`。
+- compact-brief rerun 完成，证明 batch draft 可运行：
+  - 成功模型调用从 16 降到 5。
+  - 但总 token 从约 85k 升到约 109k。
+  - retry 从 2 次升到 3 次。
+  - matching 从 3 道降到 1 道。
+
+**判断：**
+
+- 这个 checkpoint 是有价值的技术验证，但不是最终推荐架构。
+- 单个 `questionDraftBatch` 太大，容易把结构化 JSON 稳定性和 completion token 推高。
+- `unitCopyBatch` 表现相对稳定，可以继续保留。
+- 下一轮不应继续把所有题目塞进一个 batch；更合理的是拆成中等粒度：
+  - `multipleChoiceDraftBatch`：只批量生成 MC。
+  - `matchingDraftBatch`：只批量生成 selected matching，或在 matching 少量时保留 per-matching 调用。
+  - 保持 `taskBriefPlan` 的 compact contract。
 
 ## Checkpoint 3: Quality Comparison
 

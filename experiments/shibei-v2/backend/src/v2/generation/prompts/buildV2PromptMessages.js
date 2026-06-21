@@ -4,6 +4,8 @@ export function buildV2PromptMessages(stage, payload) {
   if (stage === "unitKnowledgeMap") return buildUnitKnowledgeMapMessages(payload);
   if (stage === "ecdPlanning") return buildEcdPlanningMessages(payload);
   if (stage === "taskBriefPlan") return buildTaskBriefPlanMessages(payload);
+  if (stage === "questionDraftBatch") return buildQuestionDraftBatchMessages(payload);
+  if (stage === "unitCopyBatch") return buildUnitCopyBatchMessages(payload);
   if (stage === "unitPracticePlan") return buildUnitPracticePlanMessages(payload);
   if (stage === "multipleChoiceDraft") return buildMultipleChoiceDraftMessages(payload);
   if (stage === "matchingDraft") return buildMatchingDraftMessages(payload);
@@ -11,6 +13,65 @@ export function buildV2PromptMessages(stage, payload) {
   if (stage === "qualityJudge") return buildQualityJudgeMessages(payload);
 
   throw new Error(`Unsupported V2 prompt stage: ${stage}`);
+}
+
+function buildQuestionDraftBatchMessages({ article, source, units }) {
+  return {
+    system: baseSystem(),
+    user: [
+      "阶段：questionDraftBatch。",
+      "任务：按 taskBriefPlan 生成整章所有 unit 的选择题和连线题。",
+      "核心设计方式：",
+      "- ECD 是你的隐性思考方法：每道题都要服务于对应 practiceGoal 的可观察掌握证据。",
+      "- 不要输出 ECD 字段、推理链、候选矩阵或批注。",
+      "- 不要新增 questionPlan；不要漏掉任何 questionPlan。",
+      "- 每个 unit 输出一个 units[] 对象，unitId 必须原样对应输入。",
+      "- questions 数量必须等于该 unit 的 practicePlan.questionPlans 数量。",
+      "选择题规则：",
+      "- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。",
+      "- 先抓正确理解，再用真实误区设计干扰项。",
+      "- 4 个选项只能有一个正确答案；正确选项不能明显更长。",
+      "- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。",
+      "连线题规则：",
+      "- 左右必须各 4 项，pairs 正好 4 对，一一对应。",
+      "- matching 只考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。",
+      "- 如果某个 matching 计划看起来只有 3 组，第四组必须来自同一 unit 中有原文支撑的同级边界项、对照项、步骤项或角色项；不要虚构。",
+      "- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。",
+      "source 使用规则：",
+      "- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。",
+      "- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。",
+      "",
+      `source:\n${JSON.stringify(source || {}, null, 2)}`,
+      "",
+      `unitDraftInputs:\n${JSON.stringify(units || [], null, 2)}`,
+      "",
+      renderArticleMeta(article)
+    ].join("\n")
+  };
+}
+
+function buildUnitCopyBatchMessages({ article, source, units }) {
+  return {
+    system: baseSystem(),
+    user: [
+      "阶段：unitCopyBatch。",
+      "任务：为整章所有 unit 生成单元开场 overview 和单元完成 summary。",
+      "规则：",
+      "- 每个输入 unit 输出一个 units[] 对象，unitId 必须原样对应。",
+      "- overview.text 是知识点开场页正文，帮助用户进入当前知识点。",
+      "- overview 不要泄露题目答案，也不要复述第一题。",
+      "- summary.title 通常写“单元完成”。",
+      "- summary.text 只总结当前知识点，不总结整篇文章。",
+      "- 文案短、具体、适合移动端卡片。",
+      "- 不输出题目，不输出 ECD 字段。",
+      "",
+      `source:\n${JSON.stringify(source || {}, null, 2)}`,
+      "",
+      `unitCopyInputs:\n${JSON.stringify(units || [], null, 2)}`,
+      "",
+      renderArticleMeta(article)
+    ].join("\n")
+  };
 }
 
 function buildTaskBriefPlanMessages({ article, source, blocks, sourceContextNote, plan, unitKnowledgeMap }) {
@@ -36,12 +97,13 @@ function buildTaskBriefPlanMessages({ article, source, blocks, sourceContextNote
       "- units 数组必须覆盖 reviewPathPlan.units 的每个 unit，且 unitId 一一对应。",
       "- practiceGoal.id 使用稳定 id，例如 goal-<unit id>-001。",
       "- questionPlan.id 使用稳定 id，例如 q-<unit order>-001。",
-      "- practiceGoal.target 写用户要掌握的具体理解点，不写泛泛目标。",
-      "- practiceGoal.commonMisconception 写真实误区，供选择题干扰项使用。",
-      "- targetIds 和 microIds 可引用 unitKnowledgeMap 中的小知识点 id；没有 targetIds 时至少要写 microIds。",
+      "- practiceGoal.target 写成短句，最长约 30 个中文字，只描述用户要掌握什么。",
+      "- practiceGoal.commonMisconception 写真实误区，最长约 20 个中文字。",
+      "- practiceGoals 和 questionPlans 都只用 microIds 引用 unitKnowledgeMap.microKnowledgePoints；不要输出 targetIds。",
+      "- 不要输出 microKnowledgePoint 的正文、定义或解释；只输出它们的 id。",
       "- questionPlans[].practiceGoalId 必须引用同一 unit 的 practiceGoals[].id。",
       "- questionPlans[].sourceAnchorId 和 practiceGoals[].sourceAnchorId 必须等于对应 unit.sourceAnchor.id。",
-      "- questionPlans[].type 为 matching 时必须填写 relationType。",
+      "- questionPlans[].type 为 matching 时必须填写 relationType；multiple_choice 不要填写 relationType。",
       "",
       `reviewPathPlan:\n${JSON.stringify(plan, null, 2)}`,
       "",
