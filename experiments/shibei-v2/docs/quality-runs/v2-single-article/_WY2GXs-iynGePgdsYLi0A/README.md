@@ -491,3 +491,107 @@ Remaining risks:
 - `ecdPlanning` and `matchingDraft` can still be slow for individual units.
 - One DMC multiple-choice item was flagged for weak distractors.
 - The next quality pass should inspect the generated report manually before changing more architecture.
+
+## 2026-06-21 Source Context Window Slimming
+
+### What Changed
+
+The generation pipeline now passes source context by stage:
+
+```text
+reviewPathPlan
+  -> full deterministic source blocks
+unitKnowledgeMap
+  -> union window around all planned unit anchors
+per-unit ecdPlanning / question drafts / unit summaries
+  -> current unit source window only
+```
+
+Implementation details:
+
+- Added `sourceContext.js` with deterministic source-window helpers.
+- Added `sourceContextStats` to `generationMeta` and the HTML report.
+- Prompt messages now include `sourceContextNote` when a stage receives a selected source window.
+- Long source blocks in the HTML quality report are previewed by default and expandable for audit.
+
+### Verification
+
+- Code check: `npm --prefix experiments/shibei-v2/backend run check`
+- Result: 202 tests passed.
+
+Focused tests added/updated:
+
+- `src/v2/generation/sourceContext.test.js`
+- `generateReviewPathV2.test.js` verifies per-unit stages no longer receive the full source block array.
+- `v2QualityExperiment.test.js` verifies source context stats render in the HTML report.
+
+### Live Run Attempts
+
+First run:
+
+- JSON: `runs/20260621-150112-v2-source-context-window-max6-serial.json`
+- HTML: `reports/20260621-150112-v2-source-context-window-max6-serial.html`
+- Status: failed at `v2_ecdPlanning`.
+- Reason: DeepSeek returned no structured text on the second per-unit ECD call after internal retries.
+- Interpretation: provider structured-output instability, not source-window validation failure.
+
+Rerun:
+
+- JSON: `runs/20260621-150409-v2-source-context-window-max6-serial-rerun.json`
+- HTML: `reports/20260621-150409-v2-source-context-window-max6-serial-rerun.html`
+- Status: completed.
+- Metrics: 6 units, 14 questions, 10 multiple choice, 4 matching, 127 source blocks, 1 deterministic diagnostic issue.
+
+### Token / Context Comparison
+
+Compared with `20260621-122718-v2-slim-review-plan-max6-rerun`:
+
+| Metric | Slim review plan | Source context window |
+| --- | ---: | ---: |
+| Units | 6 | 6 |
+| Questions | 14 | 14 |
+| Multiple choice | 9 | 10 |
+| Matching | 5 | 4 |
+| Diagnostic issues | 1 | 1 |
+| Model calls | 27 | 26 |
+| Prompt tokens | 313,015 | 103,951 |
+| Completion tokens | 40,460 | 41,323 |
+| Total tokens | 353,475 | 145,274 |
+| Prompt cache miss tokens | 266,679 | 67,599 |
+
+Stage-level prompt token changes:
+
+| Stage | Before | After |
+| --- | ---: | ---: |
+| `unitKnowledgeMap` | 11,646 | 5,867 |
+| `ecdPlanning` | 79,521 | 25,539 |
+| `multipleChoiceDraft` | 81,021 | 22,883 |
+| `unitSummaryDraft` | 71,819 | 24,385 |
+| `matchingDraft` | 59,057 | 15,326 |
+
+Source window stats in the completed run:
+
+- Full source blocks: 127.
+- `unitKnowledgeMap` plan-union window: 23 blocks.
+- Per-unit windows:
+  - `unit-1`: 4 blocks.
+  - `unit-2`: 3 blocks.
+  - `unit-3`: 3 blocks.
+  - `unit-4`: 5 blocks.
+  - `unit-5`: 3 blocks.
+  - `unit-6`: 6 blocks.
+
+### Conclusion
+
+This was a successful performance/stability architecture pass.
+
+- The full-article repetition problem is materially reduced.
+- Prompt tokens dropped by about two thirds while preserving 6 units and 14 total questions.
+- Matching did not disappear; the run still produced 4 matching questions.
+- DMC should be manually checked in the HTML report, but the source-window change did not structurally disable DMC-style matching.
+
+Remaining risks:
+
+- DeepSeek still occasionally returns no structured text in `ecdPlanning`, even with smaller context.
+- The next architecture pass should inspect whether provider retry strategy, stage-specific output budgets, or per-unit fallback/retry isolation can reduce these transient failures.
+- Quality still needs manual inspection; token slimming alone does not prove pedagogical quality improved.
