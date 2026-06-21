@@ -25,6 +25,7 @@
 - `unitEvidenceNeeds[].coverageRequirement` 已加入代码级 schema。`required` evidence 必须被 `unitAssemblyPlan[].selectedTasks[]` 覆盖；`supporting` / `optional` 可以不覆盖，但仍应在 HTML 报告里可见。
 - `unitTaskPlan[].angleIds[]` 和 `unitAssemblyPlan[].selectedTasks[].angleIds[]` 已加入代码级 schema。`required` angle 必须被 selected task 覆盖。
 - V2 HTML 质量报告已展示 Coverage Matrix 和 Angle Coverage Matrix，用来人工检查每个 sub-objective、claim、angle、evidence 和 selected task 的覆盖关系。
+- 2026-06-21 prompt 减重方向：schema 保持稳定，但 prompt 不再把教学质量主要写成“不要/避免/跳过”。工程合同继续硬约束；教学判断改成正向证据目标，例如掌握证据组合、高价值 supporting angle、selectedTasks 不以最低覆盖为目标。
 
 ## 总览
 
@@ -291,7 +292,8 @@ source_grounding
 - `importance: "required"` 的 angle 必须被 `unitAssemblyPlan.selectedTasks[].angleIds[]` 覆盖。
 - `unitEvidenceNeeds[].angleId` 必须引用一个已存在的 `unitEvidenceAngles[].angleId`。
 - 一个知识点可以有多个 required angle，例如 DMC 可以同时需要 `structure_mapping` 和 `misconception_detection`。
-- 不要为了增加题量机械拆 angle。只有当新 angle 能观察到不同的用户理解表现时，才应该加入。
+- supporting angle 不是默认跳过项；如果它能观察到不同理解表现、误区、场景迁移或结构关系，应优先进入 `selectedTasks`。
+- 题目数量由 evidence value 和掌握证据组合自然决定。prompt 应避免让模型以“最低 required 覆盖”为目标。
 
 ## 6. `unitEvidenceNeeds`
 
@@ -442,8 +444,9 @@ ECD 对应：`Assembly Model`
 - 一个 task 可以覆盖多个 evidence。
 - `coverageRequirement: "required"` 的 evidence 不能跳过。
 - `importance: "required"` 的 evidence angle 不能跳过。
-- `supporting` / `optional` evidence 如果没有高价值 task，可以跳过，但应进入 `skippedEvidence[]` 或在报告中可见。
-- 数量不是质量目标，evidence value 才是质量目标。
+- `supporting` evidence 如果能补充不同理解角度，应优先进入 `selectedTasks`；如果不进入，需要在报告中能解释为什么。
+- `selectedTasks` 不以最低覆盖为目标，而是要形成足以判断用户掌握程度的任务组合。
+- 数量不是独立质量目标，但 evidence value 和掌握证据组合可以自然带来更多题目。
 
 ## 9. `questionDraft`
 

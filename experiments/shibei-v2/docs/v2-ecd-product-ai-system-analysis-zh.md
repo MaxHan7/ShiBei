@@ -579,6 +579,35 @@ ECD 支撑：`Evidence Model` + `Task Model` + `Assembly Model`
 - 题型选择发生在 angle/evidence 之后：先判断该知识点有哪些可观察角度，再选择选择题、连线题或未来题型承载它。
 - 对 DMC 模型这类知识点，`structure_mapping` 很自然适合连线题；`misconception_detection` 则更适合选择题或场景辨析题。
 
+#### 6. Prompt 减重：把教学判断写成正向证据目标
+
+ECD 支撑：`Evidence Model` + `Assembly Model`
+
+2026-06-21 复盘发现：当前管线已经能生成 `unitSubObjectives[]`、`unitEvidenceAngles[]` 和 `unitEvidenceNeeds[]`，但最终题目仍然偏少。问题可能不是“结构层不够”，而是多轮负向约束叠加后，模型选择了最低合规输出：
+
+```text
+少标 required
+多标 supporting
+selectedTasks 只覆盖 required
+后续 deterministic adapter 严格执行 selectedTasks
+```
+
+后续 prompt 设计需要区分两类约束：
+
+| 类型 | 是否硬约束 | 示例 |
+| --- | --- | --- |
+| 工程合同 | 是 | JSON schema、sourceAnchor、题目 id、4 个选项、4x4 matching |
+| 教学质量 | 尽量用正向目标 | 充分发现可观察理解点、形成掌握证据组合、优先覆盖高价值 supporting angle |
+
+新的表达原则：
+
+- 不把“不要机械增加题量”作为核心提示；改为“题目数量由 evidence value 和掌握证据组合自然决定”。
+- 不把 `supporting` 写成默认可跳过；改为“如果 supporting angle 能观察不同理解，应优先进入 selectedTasks”。
+- 不把 matching 主要写成禁止条件；改为“当存在层级-作用、步骤-目的、信号-动作、角色-职责等关系时，matching 是高价值任务”。
+- `selectedTasks` 不以最低覆盖为目标，而是要形成足以判断用户掌握程度的任务组合。
+
+这不是放弃质量控制，而是把质量控制从“负向防错”改成“正向证据设计”。质量诊断和人工评审仍然负责发现凑数题、弱匹配和浅干扰项。
+
 ### 后续文档化要求
 
 后续每做一个中层规则，都必须同时写清：

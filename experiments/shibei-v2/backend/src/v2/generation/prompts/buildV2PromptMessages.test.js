@@ -84,11 +84,11 @@ test("unitPracticePlan prompt uses evidence value instead of fixed question coun
   assert.match(messages.user, /unitPracticePlan/);
   assert.match(messages.user, /ECD context/);
   assert.match(messages.user, /selectedTasks/);
-  assert.match(messages.user, /不要重新选择题型/);
+  assert.match(messages.user, /保持 ECD assembly 已选择的任务组合/);
   assert.match(messages.user, /questionPlan.id 必须等于 selectedTask.questionPlanId/);
   assert.match(messages.user, /questionPlan.type 为 matching 时，必须填写 relationType/);
   assert.match(messages.user, /layer_role_matching \/ role_responsibility_matching 通常是 responsibility/);
-  assert.match(messages.user, /避免空泛“名词 -> 定义\/贡献\/描述”的机械配对/);
+  assert.match(messages.user, /matching 优先表达当前 unit 自身的层级、边界、步骤、信号、角色等关系证据/);
 });
 
 test("ecdPlanning prompt asks for ECD claims evidence and task planning without drafting questions", () => {
@@ -113,17 +113,20 @@ test("ecdPlanning prompt asks for ECD claims evidence and task planning without 
   assert.match(messages.user, /unitSubObjectives/);
   assert.match(messages.user, /unitEvidenceAngles/);
   assert.match(messages.user, /多角度 evidence/);
+  assert.match(messages.user, /掌握证据组合/);
+  assert.match(messages.user, /不同可观察理解表现/);
+  assert.match(messages.user, /高价值 supporting/);
   assert.match(messages.user, /definition_grasp/);
   assert.match(messages.user, /scenario_transfer/);
   assert.match(messages.user, /misconception_detection/);
   assert.match(messages.user, /assessment targets/);
   assert.match(messages.user, /coverage matrix/);
-  assert.match(messages.user, /selectedTasks 覆盖所有 required evidence/);
+  assert.match(messages.user, /不以最低覆盖为目标/);
   assert.match(messages.user, /required angles/);
   assert.match(messages.user, /先列 evidence，再选 task affordance/);
   assert.match(messages.user, /taskPlan/);
   assert.match(messages.user, /本阶段不生成用户可见题目/);
-  assert.match(messages.user, /题目数量不写死/);
+  assert.match(messages.user, /题目数量由 evidence value 和掌握证据组合自然决定/);
   assert.match(messages.user, /DMC 这类“模型层级 -> 设计作用”/);
 });
 
@@ -159,7 +162,7 @@ test("matchingDraft prompt only allows relation-value matching", () => {
 
   assert.match(messages.user, /matchingDraft/);
   assert.match(messages.user, /职责、边界、使用时机、场景作用、验证维度或流程信号/);
-  assert.match(messages.user, /禁止只做“概念\/名词\/人物\/案例 -> 定义\/贡献\/描述\/特征”/);
+  assert.match(messages.user, /优先生成层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度/);
 });
 
 test("unitSummaryDraft prompt separates overview from first answer", () => {

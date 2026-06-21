@@ -66,6 +66,18 @@ The V2 prompt pipeline should produce a contract-valid review path with stable s
 - Increased `matchingDraft` output budget to reduce truncation when the selected task requires a 4x4 matching question.
 - The full `max6 + concurrency3` run still failed on DeepSeek structured-output instability. The completed run used `V2_GENERATION_UNIT_CONCURRENCY=1`; use serial mode for this provider until the model path is more stable.
 
+### 2026-06-21 prompt-diet experiment
+
+- Hypothesis: the system may be under-generating because pedagogical prompts contain too many negative constraints such as “do not mechanically add questions,” “supporting can be skipped,” and “avoid weak matching.”
+- Changed only prompt wording and documentation; no schema or orchestration structure was changed.
+- Kept engineering contract constraints hard: JSON schema, stable ids, source anchors, four-option multiple choice, and 4x4 matching.
+- Rewrote ECD planning as positive goals:
+  - `selectedTasks` should form a mastery evidence set, not the minimum compliant coverage set.
+  - High-value `supporting` angles should enter selected tasks when they observe different understanding.
+  - Matching should be framed as a positive affordance for natural structure/role/step/signal relationships.
+- Result: the hypothesis was only partially right. The old negative wording was likely not the only cause. After removing/softening it, the model became even more conservative: each unit collapsed to one required angle and one selected task.
+- New diagnosis: the system now needs a positive expansion target, not just fewer negative constraints. The prompt should explicitly ask the model to enumerate the full set of assessable sub-objectives and only then choose the mastery evidence set.
+
 ### Earlier baseline fixes
 
 - Added support for extracted article metadata aliases so prompt messages include `sourceAccount` and `sourceUrl`.
@@ -107,11 +119,14 @@ The V2 prompt pipeline should produce a contract-valid review path with stable s
 | `20260620-220519-v2-evidence-angle-coverage-max6-deterministic-source-adapter-anchor-draft-retry` | failed | Narrow JSON retry helped isolate the issue but the provider still failed to return structured text. |
 | `20260620-221513-v2-evidence-angle-coverage-max6-deterministic-source-final` | failed | Full `max6 + concurrency3` still failed on provider structured-output instability. |
 | `20260620-222608-v2-evidence-angle-coverage-max6-deterministic-source-final-serial` | completed | 6 units, 12 questions, 11 multiple choice, 1 matching, 127 source blocks, 2 diagnostic issues. DMC remains a standalone unit and receives a 4x4 matching task. |
+| `20260621-002013-v2-prompt-diet-max6-serial` | completed | Prompt-diet experiment completed: 6 units, 6 questions, 5 multiple choice, 1 matching, 127 source blocks, 0 diagnostic issues. Quantity and coverage dropped because each unit collapsed to 1 required angle and 1 selected task. |
 
 ## Artifacts
 
-- Latest JSON: `runs/20260620-222608-v2-evidence-angle-coverage-max6-deterministic-source-final-serial.json`
-- Latest HTML: `reports/20260620-222608-v2-evidence-angle-coverage-max6-deterministic-source-final-serial.html`
+- Latest prompt-diet JSON: `runs/20260621-002013-v2-prompt-diet-max6-serial.json`
+- Latest prompt-diet HTML: `reports/20260621-002013-v2-prompt-diet-max6-serial.html`
+- Previous evidence-angle JSON: `runs/20260620-222608-v2-evidence-angle-coverage-max6-deterministic-source-final-serial.json`
+- Previous evidence-angle HTML: `reports/20260620-222608-v2-evidence-angle-coverage-max6-deterministic-source-final-serial.html`
 - Previous coverage-first JSON: `runs/20260620-205026-v2-coverage-first-ecd-max6-deterministic-source-rerun.json`
 - Previous coverage-first HTML: `reports/20260620-205026-v2-coverage-first-ecd-max6-deterministic-source-rerun.html`
 - Previous knowledge-boundary JSON: `runs/20260620-183009-v2-knowledge-object-boundary-max6-rerun.json`
@@ -129,7 +144,7 @@ The V2 prompt pipeline should produce a contract-valid review path with stable s
 
 The evidence-angle iteration moves the V2 ECD pipeline one layer deeper. Coverage-first planning ensured required evidence was represented; evidence-angle planning now asks *how* each important claim should be observed. This lets one knowledge point be assessed from multiple complementary angles without hard-coding a fixed question count.
 
-The latest completed run has:
+The evidence-angle run has:
 
 - 6 visible units and 12 questions.
 - `游戏化的概念与核心定义` as an independent core-concept unit.
@@ -159,20 +174,28 @@ The run also exposed two engineering constraints:
 
 The next prompt iteration should focus on the quality of angle-to-task mapping and distractor construction. The system can now represent multiple evidence angles, but the model still needs better guidance for turning each angle into a compact, high-value question rather than a shallow or obvious multiple-choice item.
 
+The prompt-diet run tested whether excessive negative wording was the main cause of under-generation. It did **not** improve coverage. It reduced output to 6 questions:
+
+- every unit kept only 1 selected task;
+- every unit kept only 1 required angle;
+- DMC still got a matching task, but lost the follow-up multiple-choice angle;
+- diagnostic issues dropped to 0 largely because there were fewer questions to inspect, not because coverage improved.
+
+This means prompt dieting alone is not enough. The next iteration should keep the lighter wording, but add a positive expansion objective: before assembly, the model must enumerate the full set of assessable sub-objectives and evidence angles for the unit, then select a mastery evidence set that is sufficient to judge learning, not merely the smallest required set.
+
 Detailed audit: `../../../v2-prompt-quality-gap-audit-zh.md`
 
 ## Next Experiment
 
-Manually review the latest HTML report against the V2 golden-sample rules before adding more articles. Focus on:
+Manually review the prompt-diet HTML report against the previous evidence-angle report before adding more articles. Focus on:
 
-- Whether every evidence angle is truly different, or whether some angles merely restate the same check.
-- Whether `angleType` predicts the right interaction type: matching for structure/role/boundary relationships, multiple choice for misconception or scenario transfer, and future interactions for sorting/classification if needed.
-- Whether multiple-choice distractors represent real misconceptions rather than short obvious wrong answers.
-- Whether `nodeLabel` is short enough for the home node popover.
-- Whether the DMC matching task preserves the golden sample's layer-role value.
-- Whether serial generation remains necessary for DeepSeek, or whether a later model/retry path can safely restore concurrency.
+- Why each unit collapsed to one required angle and one selected task.
+- Whether `supporting` angles were still treated as non-actionable despite softer wording.
+- Whether assembly needs a positive “mastery evidence set” objective rather than more negative constraints.
+- Whether the next prompt should require enumerating assessable sub-objectives before assigning importance.
+- Whether DMC lost useful follow-up coverage compared with the previous evidence-angle run.
 
-The next implementation iteration should refine angle-to-task instructions and distractor-generation rules while preserving the ECD pyramid:
+The next implementation iteration should refine positive expansion instructions while preserving the ECD pyramid:
 
 ```text
 article understanding
