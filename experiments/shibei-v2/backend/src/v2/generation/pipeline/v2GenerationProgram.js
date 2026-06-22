@@ -473,7 +473,10 @@ function buildGeneratedUnitFromBatches({
       ...stripInternalPlannedUnitFields(plannedUnit),
       overview: unitCopy.overview,
       questions,
-      summary: unitCopy.summary
+      summary: {
+        title: "单元完成",
+        text: unitCopy.summary.text
+      }
     }
   };
 }
@@ -627,7 +630,10 @@ async function generateUnitReviewContent({
       ...stripInternalPlannedUnitFields(plannedUnit),
       overview: unitSummary.overview,
       questions,
-      summary: unitSummary.summary
+      summary: {
+        title: "单元完成",
+        text: unitSummary.summary.text
+      }
     }
   };
 }

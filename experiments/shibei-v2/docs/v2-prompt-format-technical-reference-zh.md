@@ -24,6 +24,169 @@
   https://developers.openai.com/api/docs/guides/structured-outputs
 - OpenAI Structured Outputs announcement  
   https://openai.com/index/introducing-structured-outputs-in-the-api/
+- OpenAI prompt engineering best practices  
+  https://help.openai.com/en/articles/6654000-best-practices-for-prompt-engineering-with-openai-api
+- Microsoft prompt engineering techniques  
+  https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/prompt-engineering
+- Prompt Engineering Guide: Few-shot prompting  
+  https://www.promptingguide.ai/techniques/fewshot
+
+## 拾贝 V2 自己沉淀出的 prompt 写法准则
+
+本节不是外部文档的翻译，也不是某个官方最佳实践的搬运。它是拾贝 V2 在黄金样稿、HTML 质量报告、ECD/DSPy 架构重构和多轮失败复盘中沉淀出来的内部写法标准。
+
+### 1. Prompt 先服务 stage，不服务“角色表演”
+
+每段 prompt 先回答：
+
+- 这个 stage 在整个 pipeline 里负责什么。
+- 它消费上游哪些信息。
+- 它必须产出下游真正需要的哪些字段。
+- 它不允许重做哪些上游任务。
+
+允许有短角色，但短角色必须服务 stage 目标。例如：
+
+```text
+短角色：你在这一阶段扮演练习任务设计者；不写题，只把 micro knowledge 转成可观察掌握目标和题型计划。
+```
+
+不再使用旧版那种很长的“专家身份设定”。角色感可以帮助模型进入任务，但不能替代输入输出合同。
+
+### 2. ECD 要写成具体判断动作，不写成口号
+
+无效写法：
+
+```text
+请按照 ECD 思考。
+```
+
+有效写法：
+
+```text
+先判断这个知识点希望用户掌握什么，再判断什么回答表现可以证明掌握，最后选择能暴露这种表现的题型。
+```
+
+ECD 在 prompt 中应该表现为具体问题：
+
+- 这个 unit 的学习对象边界是什么。
+- 这个 micro knowledge 要观察什么掌握证据。
+- 这道题暴露的是理解、边界、误区、迁移还是关系判断。
+- 这个题型为什么能产生对应证据。
+
+不要让模型输出完整 ECD 推理链；只保留对下游有用、短而稳定的结构化工作票据。
+
+### 3. DSPy-style 的核心是清晰签名，不是越拆越多调用
+
+每个 stage 都应该像一个小函数：
+
+```text
+input -> transformation -> output
+```
+
+但这不等于每个小动作都单独调用模型。拆分的标准是：
+
+- 语义职责是否不同。
+- 输入上下文是否明显不同。
+- 输出 schema 是否可以保持小而稳定。
+- 是否能帮助定位质量下降。
+
+如果拆分后每个 stage 都重复读取全文、重复输出大 JSON，就违背了 DSPy-style 的初衷。
+
+### 4. 上游做结构，下游做生成
+
+不能让写题 prompt 重新决定整篇文章怎么切分，也不能让知识点切分 prompt 提前写题。
+
+标准链路应该是：
+
+```text
+文章理解
+-> unit 切分
+-> micro knowledge inventory
+-> practice goal / question plan
+-> 具体题目生成
+-> copy / summary
+```
+
+每一层只把下一层需要的最小信息往下传。这样既保留金字塔结构，又避免上下文膨胀。
+
+### 5. 用正向行为规范，少用负面过度约束
+
+之前多轮测试说明，类似“不要为了增加体量重复考同一个表现”这种负面约束，容易让模型误以为应该主动减少题目或减少多角度考察。
+
+更好的写法是正向描述：
+
+```text
+多个 questionPlans 应分别服务于不同 evidence angle。
+如果同一 micro knowledge 有多个关键掌握角度，可以设计多个任务分别观察。
+```
+
+也就是说，尽量告诉模型“应该怎样做”，不要堆太多“不要怎样做”。
+
+### 6. 不写固定数量，除非它是产品约束
+
+不能在通用 prompt 中写：
+
+- 保留 4-7 个 unit。
+- 每个 unit 必须 2 道题。
+- matching 必须 4 对 4。
+
+这些会让模型在不同文章长度和知识密度下输出僵化结果。
+
+如果数量来自产品 UI 限制，要写清楚它是 UI 上限或展示约束，而不是知识结构判断。例如：
+
+```text
+如果可考关系自然少于 4 对，可以生成 2-3 对；不要为了凑数发明关系。
+```
+
+### 7. 示例只解释格式，不驱动内容
+
+禁止把黄金测试文章里的专有例子写入通用 prompt。比如不能把某篇文章里的具体模型层级直接写成 matching 示例。
+
+如果需要示例，优先使用抽象类别：
+
+```text
+matching 可以用于结构、流程、角色、条件、场景、因果、特征、判断依据或适用边界等稳定对应关系。
+```
+
+示例要帮助模型理解“关系类型”，不能诱导它复制某篇文章的题型。
+
+### 8. 题目生成要围绕 evidence target，不围绕原文复述
+
+选择题和连线题都必须回答：
+
+- 它要证明用户掌握了什么。
+- 错误选项或错误匹配暴露了什么误区。
+- 题干是否像移动端复习任务，而不是阅读理解考试。
+- explanation 是否适合答后浮窗，而不是逐项长解析。
+
+题目不是“从文中找一句话问用户”，而是制造一个能观察理解证据的小任务。
+
+### 9. 输出字段越少越好，但关键工作票据不能丢
+
+为了稳定 JSON，不能让模型输出长篇思维链、候选矩阵、完整 ECD 分析。
+
+但也不能把中间结构删到只剩用户可见字段，否则模型容易直接从原文跳到题目。
+
+当前标准是保留短结构化工作票据，例如：
+
+- micro knowledge id；
+- evidence target；
+- common misconception；
+- task purpose；
+- source anchor id；
+- question type plan。
+
+这些字段不是给用户看的，而是为了让下游生成有结构、有证据、有可追踪来源。
+
+### 10. Prompt 改动必须能被结构页和质量报告审查
+
+每次重要 prompt 改动后都应更新：
+
+- `prompt-system/v2-prompt-system-structure.html`：看结构和 prompt 文案是否真的改了。
+- quality run HTML：看输出质量是否变好。
+- stage contract / field contract：看字段含义是否仍然一致。
+
+如果一个写法只存在于对话里，没有进入文档、prompt 或结构页，就等于没有真正沉淀。
 
 ## 1. 旧版长角色 prompt 的问题
 
@@ -201,7 +364,22 @@ ECD 是教育设计原则，不是一个要整块输出的 JSON 对象。
 - 用“请按 ECD 思考”代替具体判断标准。
 - 用“你是专家”代替输入输出合同。
 
-## 9. 当前结构是否需要大改
+## 9. 示例与类别提示的使用原则
+
+示例、few-shot 和类别提示是有效工具，但它们也是很强的行为锚点。写得太具体时，模型容易把示例当成固定模板，而不是理解背后的判断原则。
+
+对拾贝 V2 来说，使用示例时遵守以下规则：
+
+- 可以用示例说明输出格式，但不要把某篇测试文章里的专有内容写进通用 prompt。
+- 可以给“关系类别”或“题型适配原则”，但不要把类别写成唯一可选清单。
+- 优先写抽象判断标准，例如“稳定对应关系”“可观察掌握证据”“真实误区”，再补少量非穷尽类别。
+- 如果确实需要举例，使用“例如 / 包括但不限于 / 可以是”这类开放表述，并确保示例不来自当前黄金测试文章。
+- 不要为了说明 matching，把“某模型某层级 -> 某作用”这类文章特例写进 prompt；应该写“结构、流程、角色、条件、场景、因果、特征、判断依据或适用边界”等抽象关系类别。
+- 不要为了说明选择题，把题目固定成某几个场景模板；应该写清它要暴露的 evidence target、边界判断或常见误区。
+
+一句话：**示例用于解释格式，原则用于驱动判断。** 如果一个示例会让模型在别的文章里复制同一种切分、题型或关系，它就不应该进入通用 prompt。
+
+## 10. 当前结构是否需要大改
 
 当前结构大方向不用大改：
 
@@ -219,12 +397,13 @@ ECD 是教育设计原则，不是一个要整块输出的 JSON 对象。
 - 保持 schema 小而稳定。
 - 用质量 run 比较每次改动，而不是凭感觉判断。
 
-## 10. 和现有文档的关系
+## 11. 和现有文档的关系
 
 - `v2-llm-pipeline-technical-framework-zh.md`：解释整体技术框架。
 - `v2-llm-pipeline-framework-explained-zh.md`：给非工程读者看的通俗解释。
 - `v2-llm-stage-contracts-zh.md`：定义每个 stage 的工程合同。
 - `v2-ecd-theory-background-zh.md`：解释 ECD 理论来源和产品转化。
+- `prompt-system/v2-prompt-system-structure.html`：长期保存的 prompt 系统结构可视化审查页。
 - 本文档：定义每个 prompt 应该采用什么格式、为什么这样写、哪些写法禁止。
 
 如果这些文档出现冲突，优先级建议为：

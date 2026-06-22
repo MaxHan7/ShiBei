@@ -247,7 +247,7 @@ test("calls the JSON model transport with batched draft schemas and messages", a
           {
             unitId: "unit-01",
             overview: { text: "Hook 是稳定流程。" },
-            summary: { title: "单元完成", text: "你已经理解 Hook。" }
+            summary: { text: "你已经理解 Hook。" }
           }
         ]
       };

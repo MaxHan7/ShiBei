@@ -162,15 +162,25 @@ test("taskBriefPlan prompt embeds ECD as thinking method without heavy ECD JSON"
   });
 
   assert.match(messages.user, /taskBriefPlan/);
+  assert.match(messages.user, /练习任务设计者/);
   assert.match(messages.user, /Evidence-Centered Design 是你的思考方法/);
+  assert.match(messages.user, /learning target -> observable evidence -> practiceGoal -> questionPlan/);
+  assert.match(messages.user, /practiceGoal 不是 micro 的改写，而是可观察掌握目标/);
   assert.match(messages.user, /只保留 practiceGoals 和 questionPlans/);
   assert.match(messages.user, /不要输出 ECD 术语字段、推理链、候选矩阵或长篇解释/);
   assert.match(messages.user, /不要输出 practiceGoal\.id、questionPlan\.id、practiceGoalId 或 sourceAnchorId/);
   assert.match(messages.user, /goalIndex 是 1-based 数字/);
-  assert.match(messages.user, /每个 high \/ medium microKnowledgePoint/);
-  assert.match(messages.user, /模型层级 -> 对应作用/);
+  assert.match(messages.user, /每个 high \/ medium microKnowledgePoint 都应进入覆盖判断/);
+  assert.match(messages.user, /多角度 evidence coverage/);
+  assert.match(messages.user, /互补角度包括：核心理解、边界辨析、误区识别、场景迁移、关系映射/);
+  assert.match(messages.user, /可以为同一个 practiceGoal 设计多个 questionPlans/);
+  assert.match(messages.user, /多个 questionPlans 应分别服务于不同 evidence angle/);
+  assert.match(messages.user, /先判断 evidence 需要用户表现什么，再选择题型/);
+  assert.match(messages.user, /matching 适合需要用户建立多个元素之间稳定对应关系的 evidence/);
+  assert.match(messages.user, /结构、流程、角色、条件、场景、因果、特征、判断依据或适用边界/);
+  assert.match(messages.user, /同级、可并列、可一一对应的关系/);
   assert.match(messages.user, /matching 不是机械名词释义/);
-  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐/);
+  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐|每个 unit 必须.*题|至少.*questionPlans|不要为了增加体量重复|模型层级 -> 对应作用|流程步骤 -> 目的|角色 -> 职责/);
 });
 
 test("questionDraftBatch prompt generates all planned questions without ECD JSON", () => {
@@ -230,6 +240,46 @@ test("multipleChoiceDraftBatch prompt only generates planned multiple choice que
   assert.match(messages.user, /unitDraftInputs/);
 });
 
+test("multipleChoiceDraftUnitBatch prompt turns current unit briefs into evidence-based choices", () => {
+  const messages = buildV2PromptMessages("multipleChoiceDraftUnitBatch", {
+    article: ARTICLE,
+    source: { type: "article", title: ARTICLE.title },
+    unit: unitFixture(),
+    questionBriefs: [
+      {
+        questionPlanId: "q-001",
+        sourceAnchorId: "anchor-unit-01",
+        practiceGoal: {
+          id: "goal-001",
+          target: "用户能区分 Hook 的流程控制价值。",
+          commonMisconception: "把 Hook 当成普通提示词。"
+        },
+        evidence: {
+          microSummaries: ["Hook 在关键动作前后稳定触发规则和验证。"],
+          evidenceAngles: ["boundary_discrimination", "misconception_detection"]
+        }
+      }
+    ],
+    sourceContext: {
+      blocks: [{ id: "p-001", type: "paragraph", text: "Hook 是流程控制器。" }],
+      sourceContextNote: { mode: "unit_window", unitId: "unit-01" }
+    }
+  });
+
+  assert.match(messages.user, /multipleChoiceDraftUnitBatch/);
+  assert.match(messages.user, /选择题任务生成器/);
+  assert.match(messages.user, /掌握证据和常见误区/);
+  assert.match(messages.user, /写题前先确认/);
+  assert.match(messages.user, /定义理解、边界判断、误区识别、结构理解，还是场景迁移/);
+  assert.match(messages.user, /表面合理/);
+  assert.match(messages.user, /混淆边界、因果、适用条件、结构关系或场景迁移/);
+  assert.match(messages.user, /像一个理解判断任务/);
+  assert.match(messages.user, /不能为了变短牺牲关键区分点/);
+  assert.match(messages.user, /把 correctUnderstanding 和 misconception 融合成一句短解释/);
+  assert.match(messages.user, /不写逐项解析/);
+  assert.doesNotMatch(messages.user, /移动端复习题设计者|世界顶级|请按 ECD 思考/);
+});
+
 test("matchingDraftBatch prompt only generates planned matching questions", () => {
   const messages = buildV2PromptMessages("matchingDraftBatch", {
     article: ARTICLE,
@@ -251,12 +301,24 @@ test("matchingDraftBatch prompt only generates planned matching questions", () =
   });
 
   assert.match(messages.user, /matchingDraftBatch/);
+  assert.match(messages.user, /连线关系题生成器/);
+  assert.match(messages.user, /观察关系理解/);
   assert.match(messages.user, /只生成整章各 unit 的连线匹配题/);
+  assert.match(messages.user, /写题前先确认/);
+  assert.match(messages.user, /结构、边界、流程、角色、条件、因果或适用关系/);
+  assert.match(messages.user, /questionPlan\.relationType、questionPlan\.purpose 和 practiceGoal\.target/);
+  assert.match(messages.user, /稳定对应关系/);
+  assert.match(messages.user, /结构、流程、角色、条件、场景、因果、特征、判断依据或适用边界/);
+  assert.match(messages.user, /左右项不是名词释义卡片/);
   assert.match(messages.user, /不要输出 ECD 字段、推理链、候选矩阵或批注/);
   assert.match(messages.user, /不要新增 questionPlan；不要漏掉任何 matching questionPlan/);
   assert.match(messages.user, /2-4 对匹配项/);
   assert.match(messages.user, /不要为了凑满 4 对/);
+  assert.match(messages.user, /不能为了变短丢掉区分点/);
+  assert.match(messages.user, /说明这组对应关系的核心理解/);
+  assert.match(messages.user, /不逐项解析每一对/);
   assert.match(messages.user, /unitDraftInputs/);
+  assert.doesNotMatch(messages.user, /ECD 是你的隐性思考方法|matching 只考关系：|层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度|适合移动端连线卡片/);
 });
 
 test("unitCopyBatch prompt generates all unit overview and summary copy", () => {
@@ -282,7 +344,15 @@ test("unitCopyBatch prompt generates all unit overview and summary copy", () => 
 
   assert.match(messages.user, /unitCopyBatch/);
   assert.match(messages.user, /整章所有 unit/);
+  assert.match(messages.user, /单元文案编辑/);
+  assert.match(messages.user, /适合移动端卡片的开场和收尾文案/);
   assert.match(messages.user, /overview\.text/);
+  assert.match(messages.user, /为什么值得学/);
+  assert.match(messages.user, /不泄露题目答案/);
+  assert.match(messages.user, /完成当前 unit 后的一句收束反馈/);
+  assert.match(messages.user, /sourceContext、practiceGoals 和 questionPlans/);
+  assert.match(messages.user, /不要输出题目、题干、选项或答案/);
+  assert.match(messages.user, /不要写成论文摘要或长段解析/);
   assert.match(messages.user, /不输出题目，不输出 ECD 字段/);
 });
 

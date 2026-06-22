@@ -266,6 +266,26 @@ ChapterPlan + MicroKnowledgeMap + PlanSourceWindow -> TaskBriefPlan
 - 不复制 microKnowledgePoint 的正文解释，只引用 micro id。
 - 模型不要输出 `practiceGoal.id`、`questionPlan.id`、`practiceGoalId` 或 `sourceAnchorId`；这些字段由后端根据 unit 顺序、`goalIndex` 和 unit anchor 确定性生成。
 
+**ECD task design 标准**
+
+- 本阶段扮演练习任务设计者：不写题，只把 micro knowledge 转成可观察掌握目标和题型计划。
+- 按 `learning target -> observable evidence -> practiceGoal -> questionPlan` 的顺序做短判断。
+- `practiceGoal` 不是 micro 的改写，而是可观察掌握目标；一个 `practiceGoal` 可以覆盖一个 micro，也可以合并多个指向同一掌握表现的 micro。
+- 每个 high / medium `microKnowledgePoint` 都应进入覆盖判断；如果不直接形成 `questionPlan`，也要被合并进相关 `practiceGoal`。
+- 对 high-value `practiceGoal`，优先寻找互补的 evidence angles：核心理解、边界辨析、误区识别、场景迁移、关系映射。
+- 当不同角度能观察到不同掌握表现时，可以为同一个 `practiceGoal` 设计多个 `questionPlans`。
+- 多个 `questionPlans` 应分别服务于不同 evidence angle。
+- 题目数量由 evidence angles 自然决定；不写死题目数。
+
+**题型选择标准**
+
+- 先判断 evidence 需要用户表现什么，再选择题型；不要先默认选择题，再反推考察目标。
+- 如果 evidence 是辨认概念边界、识别误区、迁移到场景，优先 `multiple_choice`。
+- 如果 evidence 需要用户建立多个元素之间稳定对应关系，优先 `matching`。
+- matching 关系可以是结构、流程、角色、条件、场景、因果、特征、判断依据或适用边界。
+- 如果 microKnowledgePoints 中存在一组同级、可并列、可一一对应的关系，应优先生成 matching 计划。
+- matching 不是机械名词释义；它要考用户是否理解元素之间为什么这样对应。
+
 **关键质量点**
 
 - high/medium micro points 不应被漏掉。
@@ -427,8 +447,9 @@ TaskBriefPlan + UnitSourceWindows -> UnitCopyBatch
 **输出**
 
 - `units[].overview.text`
-- `units[].summary.title`
 - `units[].summary.text`
+
+`unit.summary.title` 不由模型生成；主链路由后端固定注入为“单元完成”，仅作为最终前端合同的兼容字段。
 
 **禁止职责**
 
@@ -657,8 +678,9 @@ Unit + Questions + UnitSourceWindow -> UnitOverviewAndSummary
 **输出**
 
 - `overview.text`
-- `summary.title`
 - `summary.text`
+
+`summary.title` 同样不由模型生成；如果使用该历史路径，也由后端固定注入为“单元完成”。
 
 **source context policy**
 

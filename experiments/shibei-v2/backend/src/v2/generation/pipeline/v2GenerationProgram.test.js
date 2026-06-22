@@ -75,6 +75,8 @@ test("calls scoped MC unit batches with only current unit briefs and source cont
     reviewPath.generationMeta.multipleChoiceDraftBatch.units.map((unit) => unit.unitId),
     ["unit-01", "unit-02"]
   );
+  assert.equal(reviewPath.units[0].summary.title, "单元完成");
+  assert.equal(reviewPath.units[0].summary.text, "你已经能区分 Hook 和单纯提示词。");
 });
 
 function makeArticleFixture() {
@@ -169,7 +171,6 @@ function fixtureOutputForStage(stage, payload) {
         unitId: unitInput.unit.id,
         overview: { text: "Hook 把关键动作前后的控制变成稳定流程。" },
         summary: {
-          title: "Hook 的核心",
           text: "你已经能区分 Hook 和单纯提示词。"
         }
       }))

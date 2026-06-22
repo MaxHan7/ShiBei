@@ -127,7 +127,7 @@
 <body>
 <main>
   <h1>拾贝 V2 Prompt 初级系统结构图</h1>
-  <div class="meta">Generated at 2026-06-22T19:55:47.045Z from current source files. This page is an inspection artifact, not a prompt runtime.</div>
+  <div class="meta">Generated at 2026-06-22T23:47:38.236Z from current source files. This page is an inspection artifact, not a prompt runtime.</div>
   <div class="toc">
     <a href="#flow">主链路结构</a>
     <a href="#active-stages">当前主链路 prompt</a>
@@ -900,7 +900,7 @@ function normalizeAssessmentValue(value) {
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：taskBriefPlan。</li><li>任务：为整章所有 unit 一次性生成轻量练习任务简报；本阶段不生成用户可见题目。</li><li>核心设计方式：</li><li>- Evidence-Centered Design 是你的思考方法，不是要输出的字段。</li><li>- 你要自然完成这条链路：学习对象 -&gt; 可观察掌握证据 -&gt; 适合的练习任务 -&gt; 题型计划。</li><li>- 输出只保留 practiceGoals 和 questionPlans；不要输出 ECD 术语字段、推理链、候选矩阵或长篇解释。</li><li>- unitKnowledgeMap.microKnowledgePoints 是上游已经拆好的小知识点 inventory；不要重新压缩成一句大话。</li><li>- 每个 high / medium microKnowledgePoint 都要被某个 practiceGoal 或 questionPlan 覆盖；context_only 可以不出题。</li><li>- 一个 unit 可以有多个题目计划，数量由掌握证据和考察角度自然决定，不写死题目数。</li><li>- 不要为了减少题量漏掉独立的小知识点；也不要为了凑题生成无证据的题。</li><li>题型选择：</li><li>- multiple_choice 适合核心理解、边界判断、误区识别、场景迁移。</li><li>- matching 适合天然关系结构：分层模型、类型集合、流程步骤、信号动作、角色职责、验证维度。</li><li>- “模型层级 -&gt; 对应作用”“流程步骤 -&gt; 目的”“角色 -&gt; 职责”这类结构关系，如果 microKnowledgePoints 中有对应关系，应生成 matching 计划。</li><li>- matching 不是机械名词释义；它要考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。</li><li>字段规则：</li><li>- units 数组必须覆盖 reviewPathPlan.units 的每个 unit，且 unitId 一一对应。</li><li>- 不要输出 practiceGoal.id、questionPlan.id、practiceGoalId 或 sourceAnchorId；这些稳定字段由后端 adapter 自动补齐。</li><li>- practiceGoal.target 写成短句，最长约 30 个中文字，只描述用户要掌握什么。</li><li>- practiceGoal.commonMisconception 写真实误区，最长约 20 个中文字。</li><li>- practiceGoals 和 questionPlans 都只用 microIds 引用 unitKnowledgeMap.microKnowledgePoints；不要输出 targetIds。</li><li>- 不要输出 microKnowledgePoint 的正文、定义或解释；只输出它们的 id。</li><li>- questionPlans[].goalIndex 是 1-based 数字，指向同一 unit 的第几个 practiceGoal。</li><li>- questionPlans[].type 为 matching 时必须填写 relationType；multiple_choice 不要填写 relationType。</li></ol>
+          <ol><li>阶段：taskBriefPlan。</li><li>任务：为整章所有 unit 一次性生成轻量练习任务简报；本阶段不生成用户可见题目。</li><li>短角色：你在这一阶段扮演练习任务设计者；不写题，只把 micro knowledge 转成可观察掌握目标和题型计划。</li><li>核心设计方式：</li><li>- Evidence-Centered Design 是你的思考方法，不是要输出的字段。</li><li>- 你要自然完成这条链路：learning target -&gt; observable evidence -&gt; practiceGoal -&gt; questionPlan。</li><li>- 对每个 unit 先判断：用户需要掌握什么；什么表现能证明掌握；哪些 micro 应合并成同一个可观察目标；哪种任务最能观察这个 evidence。</li><li>- 输出只保留 practiceGoals 和 questionPlans；不要输出 ECD 术语字段、推理链、候选矩阵或长篇解释。</li><li>- unitKnowledgeMap.microKnowledgePoints 是上游已经拆好的小知识点 inventory；不要重新压缩成一句大话。</li><li>- practiceGoal 不是 micro 的改写，而是可观察掌握目标；一个 practiceGoal 可以覆盖一个 micro，也可以合并多个指向同一掌握表现的 micro。</li><li>- 每个 high / medium microKnowledgePoint 都应进入覆盖判断；如果不直接形成 questionPlan，也要被合并进相关 practiceGoal；context_only 可以不出题。</li><li>- 一个 unit 可以有多个题目计划，数量由掌握证据和考察角度自然决定，不写死题目数。</li><li>- 多角度 evidence coverage：对 high-value practiceGoal，优先寻找互补的 evidence angles。</li><li>- 互补角度包括：核心理解、边界辨析、误区识别、场景迁移、关系映射。</li><li>- 当不同角度能观察到不同掌握表现时，可以为同一个 practiceGoal 设计多个 questionPlans。</li><li>- 多个 questionPlans 应分别服务于不同 evidence angle。</li><li>- 不要为了减少题量漏掉独立的小知识点；题目数量由 evidence angles 自然决定。</li><li>题型选择：</li><li>- multiple_choice 适合核心理解、边界判断、误区识别、场景迁移。</li><li>- matching 适合需要用户建立多个元素之间稳定对应关系的 evidence。</li><li>- 先判断 evidence 需要用户表现什么，再选择题型；不要先默认选择题，再反推考察目标。</li><li>- 如果 evidence 是辨认概念边界、识别误区、迁移到场景，优先 multiple_choice。</li><li>- matching 关系可以是结构、流程、角色、条件、场景、因果、特征、判断依据或适用边界。</li><li>- 如果 microKnowledgePoints 中存在一组同级、可并列、可一一对应的关系，应优先生成 matching 计划。</li><li>- matching 不是机械名词释义；它要考用户是否理解元素之间为什么这样对应。</li><li>字段规则：</li><li>- units 数组必须覆盖 reviewPathPlan.units 的每个 unit，且 unitId 一一对应。</li><li>- 不要输出 practiceGoal.id、questionPlan.id、practiceGoalId 或 sourceAnchorId；这些稳定字段由后端 adapter 自动补齐。</li><li>- practiceGoal.target 写成短句，最长约 30 个中文字，只描述用户要掌握什么。</li><li>- practiceGoal.commonMisconception 写真实误区，最长约 20 个中文字。</li><li>- practiceGoals 和 questionPlans 都只用 microIds 引用 unitKnowledgeMap.microKnowledgePoints；不要输出 targetIds。</li><li>- 不要输出 microKnowledgePoint 的正文、定义或解释；只输出它们的 id。</li><li>- questionPlans[].goalIndex 是 1-based 数字，指向同一 unit 的第几个 practiceGoal。</li><li>- questionPlans[].type 为 matching 时必须填写 relationType；multiple_choice 不要填写 relationType。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildTaskBriefPlanMessages({ article, source, blocks, sourceContextNote, plan, unitKnowledgeMap }) {
   return {
@@ -908,19 +908,29 @@ function normalizeAssessmentValue(value) {
     user: [
       &quot;阶段：taskBriefPlan。&quot;,
       &quot;任务：为整章所有 unit 一次性生成轻量练习任务简报；本阶段不生成用户可见题目。&quot;,
+      &quot;短角色：你在这一阶段扮演练习任务设计者；不写题，只把 micro knowledge 转成可观察掌握目标和题型计划。&quot;,
       &quot;核心设计方式：&quot;,
       &quot;- Evidence-Centered Design 是你的思考方法，不是要输出的字段。&quot;,
-      &quot;- 你要自然完成这条链路：学习对象 -&gt; 可观察掌握证据 -&gt; 适合的练习任务 -&gt; 题型计划。&quot;,
+      &quot;- 你要自然完成这条链路：learning target -&gt; observable evidence -&gt; practiceGoal -&gt; questionPlan。&quot;,
+      &quot;- 对每个 unit 先判断：用户需要掌握什么；什么表现能证明掌握；哪些 micro 应合并成同一个可观察目标；哪种任务最能观察这个 evidence。&quot;,
       &quot;- 输出只保留 practiceGoals 和 questionPlans；不要输出 ECD 术语字段、推理链、候选矩阵或长篇解释。&quot;,
       &quot;- unitKnowledgeMap.microKnowledgePoints 是上游已经拆好的小知识点 inventory；不要重新压缩成一句大话。&quot;,
-      &quot;- 每个 high / medium microKnowledgePoint 都要被某个 practiceGoal 或 questionPlan 覆盖；context_only 可以不出题。&quot;,
+      &quot;- practiceGoal 不是 micro 的改写，而是可观察掌握目标；一个 practiceGoal 可以覆盖一个 micro，也可以合并多个指向同一掌握表现的 micro。&quot;,
+      &quot;- 每个 high / medium microKnowledgePoint 都应进入覆盖判断；如果不直接形成 questionPlan，也要被合并进相关 practiceGoal；context_only 可以不出题。&quot;,
       &quot;- 一个 unit 可以有多个题目计划，数量由掌握证据和考察角度自然决定，不写死题目数。&quot;,
-      &quot;- 不要为了减少题量漏掉独立的小知识点；也不要为了凑题生成无证据的题。&quot;,
+      &quot;- 多角度 evidence coverage：对 high-value practiceGoal，优先寻找互补的 evidence angles。&quot;,
+      &quot;- 互补角度包括：核心理解、边界辨析、误区识别、场景迁移、关系映射。&quot;,
+      &quot;- 当不同角度能观察到不同掌握表现时，可以为同一个 practiceGoal 设计多个 questionPlans。&quot;,
+      &quot;- 多个 questionPlans 应分别服务于不同 evidence angle。&quot;,
+      &quot;- 不要为了减少题量漏掉独立的小知识点；题目数量由 evidence angles 自然决定。&quot;,
       &quot;题型选择：&quot;,
       &quot;- multiple_choice 适合核心理解、边界判断、误区识别、场景迁移。&quot;,
-      &quot;- matching 适合天然关系结构：分层模型、类型集合、流程步骤、信号动作、角色职责、验证维度。&quot;,
-      &quot;- “模型层级 -&gt; 对应作用”“流程步骤 -&gt; 目的”“角色 -&gt; 职责”这类结构关系，如果 microKnowledgePoints 中有对应关系，应生成 matching 计划。&quot;,
-      &quot;- matching 不是机械名词释义；它要考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。&quot;,
+      &quot;- matching 适合需要用户建立多个元素之间稳定对应关系的 evidence。&quot;,
+      &quot;- 先判断 evidence 需要用户表现什么，再选择题型；不要先默认选择题，再反推考察目标。&quot;,
+      &quot;- 如果 evidence 是辨认概念边界、识别误区、迁移到场景，优先 multiple_choice。&quot;,
+      &quot;- matching 关系可以是结构、流程、角色、条件、场景、因果、特征、判断依据或适用边界。&quot;,
+      &quot;- 如果 microKnowledgePoints 中存在一组同级、可并列、可一一对应的关系，应优先生成 matching 计划。&quot;,
+      &quot;- matching 不是机械名词释义；它要考用户是否理解元素之间为什么这样对应。&quot;,
       &quot;字段规则：&quot;,
       &quot;- units 数组必须覆盖 reviewPathPlan.units 的每个 unit，且 unitId 一一对应。&quot;,
       &quot;- 不要输出 practiceGoal.id、questionPlan.id、practiceGoalId 或 sourceAnchorId；这些稳定字段由后端 adapter 自动补齐。&quot;,
@@ -1289,7 +1299,7 @@ function compactSourceContext(sourceContext) {
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：multipleChoiceDraftUnitBatch。</li><li>任务：只为当前 unit 生成选择题小批次；不要生成其他 unit 的题。</li><li>输入边界：</li><li>- 当前调用只包含一个 unit、这个 unit 的 multiple_choice questionBriefs、以及这个 unit 的 sourceContext。</li><li>- 不要重做知识点规划；每个 questionBrief 生成一题。</li><li>- 输出 unitId 必须等于当前 unit.id。</li><li>- questions 数量必须等于 questionBriefs 数量，题目 id 必须等于 questionBrief.questionPlanId。</li><li>ECD 设计约束：</li><li>- 每题必须围绕 questionBrief.practiceGoal.target 的可观察掌握证据来写。</li><li>- 每题必须使用 questionBrief.practiceGoal.commonMisconception 设计至少一个真实干扰项。</li><li>- 干扰项还要参考 evidence.microSummaries 和 evidence.evidenceAngles，体现边界、误区、结构或迁移混淆。</li><li>- 不要输出完整 ECD JSON，不要输出推理链、候选矩阵或批注。</li><li>选择题规则：</li><li>- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。</li><li>- 4 个选项只能有一个正确答案；正确选项不能明显更长。</li><li>- 选项尽量短，考理解、边界、误区或场景迁移，不做阅读理解复述。</li><li>- correctUnderstanding 写正确理解，misconception 写本题主要误区。</li><li>- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。</li><li>source 使用规则：</li><li>- 只能引用当前 sourceContext.blocks，不要使用整章全文或其他 unit 的 source blocks。</li><li>- sourceAnchorId 必须等于 questionBrief.sourceAnchorId。</li></ol>
+          <ol><li>阶段：multipleChoiceDraftUnitBatch。</li><li>短角色：你在这一阶段扮演选择题任务生成器；目标是把 questionBrief 中的掌握证据和常见误区转成一题可作答的选择题。</li><li>任务：只为当前 unit 生成选择题小批次；不要生成其他 unit 的题。</li><li>输入边界：</li><li>- 当前调用只包含一个 unit、这个 unit 的 multiple_choice questionBriefs、以及这个 unit 的 sourceContext。</li><li>- 不要重做知识点规划；每个 questionBrief 生成一题。</li><li>- 输出 unitId 必须等于当前 unit.id。</li><li>- questions 数量必须等于 questionBriefs 数量，题目 id 必须等于 questionBrief.questionPlanId。</li><li>ECD 设计约束：</li><li>- 写题前先确认：这题要观察的 evidence 是定义理解、边界判断、误区识别、结构理解，还是场景迁移。</li><li>- 每题必须围绕 questionBrief.practiceGoal.target 的可观察掌握证据来写。</li><li>- 每题必须使用 questionBrief.practiceGoal.commonMisconception 设计至少一个真实干扰项。</li><li>- 干扰项应表面合理，但混淆边界、因果、适用条件、结构关系或场景迁移。</li><li>- 干扰项还要参考 evidence.microSummaries 和 evidence.evidenceAngles，体现边界、误区、结构或迁移混淆。</li><li>- 不要输出完整 ECD JSON，不要输出推理链、候选矩阵或批注。</li><li>选择题规则：</li><li>- 题干要自足，像一个理解判断任务，不写“根据本文/根据文章/文中提到/上述/以下哪”。</li><li>- 4 个选项只能有一个正确答案；正确选项不能明显更长。</li><li>- 选项应适合小屏阅读：优先短句，但不能为了变短牺牲关键区分点。</li><li>- correctUnderstanding 写正确理解，misconception 写本题主要误区。</li><li>- explanation 是用户答后看到的一句纠偏反馈：把 correctUnderstanding 和 misconception 融合成一句短解释，帮助用户形成正确理解并避开容易混淆的点。</li><li>- explanation 不写逐项解析，不写“正确选项A/B/C/D”。</li><li>source 使用规则：</li><li>- 只能引用当前 sourceContext.blocks，不要使用整章全文或其他 unit 的 source blocks。</li><li>- sourceAnchorId 必须等于 questionBrief.sourceAnchorId。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildMultipleChoiceDraftUnitBatchMessages({
   article,
@@ -1302,6 +1312,7 @@ function compactSourceContext(sourceContext) {
     system: baseSystem(),
     user: [
       &quot;阶段：multipleChoiceDraftUnitBatch。&quot;,
+      &quot;短角色：你在这一阶段扮演选择题任务生成器；目标是把 questionBrief 中的掌握证据和常见误区转成一题可作答的选择题。&quot;,
       &quot;任务：只为当前 unit 生成选择题小批次；不要生成其他 unit 的题。&quot;,
       &quot;输入边界：&quot;,
       &quot;- 当前调用只包含一个 unit、这个 unit 的 multiple_choice questionBriefs、以及这个 unit 的 sourceContext。&quot;,
@@ -1309,16 +1320,19 @@ function compactSourceContext(sourceContext) {
       &quot;- 输出 unitId 必须等于当前 unit.id。&quot;,
       &quot;- questions 数量必须等于 questionBriefs 数量，题目 id 必须等于 questionBrief.questionPlanId。&quot;,
       &quot;ECD 设计约束：&quot;,
+      &quot;- 写题前先确认：这题要观察的 evidence 是定义理解、边界判断、误区识别、结构理解，还是场景迁移。&quot;,
       &quot;- 每题必须围绕 questionBrief.practiceGoal.target 的可观察掌握证据来写。&quot;,
       &quot;- 每题必须使用 questionBrief.practiceGoal.commonMisconception 设计至少一个真实干扰项。&quot;,
+      &quot;- 干扰项应表面合理，但混淆边界、因果、适用条件、结构关系或场景迁移。&quot;,
       &quot;- 干扰项还要参考 evidence.microSummaries 和 evidence.evidenceAngles，体现边界、误区、结构或迁移混淆。&quot;,
       &quot;- 不要输出完整 ECD JSON，不要输出推理链、候选矩阵或批注。&quot;,
       &quot;选择题规则：&quot;,
-      &quot;- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。&quot;,
+      &quot;- 题干要自足，像一个理解判断任务，不写“根据本文/根据文章/文中提到/上述/以下哪”。&quot;,
       &quot;- 4 个选项只能有一个正确答案；正确选项不能明显更长。&quot;,
-      &quot;- 选项尽量短，考理解、边界、误区或场景迁移，不做阅读理解复述。&quot;,
+      &quot;- 选项应适合小屏阅读：优先短句，但不能为了变短牺牲关键区分点。&quot;,
       &quot;- correctUnderstanding 写正确理解，misconception 写本题主要误区。&quot;,
-      &quot;- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。&quot;,
+      &quot;- explanation 是用户答后看到的一句纠偏反馈：把 correctUnderstanding 和 misconception 融合成一句短解释，帮助用户形成正确理解并避开容易混淆的点。&quot;,
+      &quot;- explanation 不写逐项解析，不写“正确选项A/B/C/D”。&quot;,
       &quot;source 使用规则：&quot;,
       &quot;- 只能引用当前 sourceContext.blocks，不要使用整章全文或其他 unit 的 source blocks。&quot;,
       &quot;- sourceAnchorId 必须等于 questionBrief.sourceAnchorId。&quot;,
@@ -1401,27 +1415,30 @@ export function validateMultipleChoiceDraftUnitBatchOutput(
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：matchingDraftBatch。</li><li>任务：按 taskBriefPlan 只生成整章各 unit 的连线匹配题。</li><li>核心设计方式：</li><li>- ECD 是你的隐性思考方法：连线题要观察用户是否理解结构关系。</li><li>- 不要输出 ECD 字段、推理链、候选矩阵或批注。</li><li>- 不要新增 questionPlan；不要漏掉任何 matching questionPlan。</li><li>- 每个输出 unitId 必须原样对应输入。</li><li>- questions 数量必须等于该 unit 的 matching questionPlans 数量。</li><li>连线题规则：</li><li>- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。</li><li>- matching 只考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。</li><li>- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。</li><li>- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。</li><li>- 左右项文字要短，适合移动端连线卡片；不是长定义粘贴。</li><li>- explanation 是答后浮窗里的一段短解释，说明这组关系为什么重要。</li><li>source 使用规则：</li><li>- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。</li><li>- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。</li></ol>
+          <ol><li>阶段：matchingDraftBatch。</li><li>短角色：你在这一阶段扮演连线关系题生成器；目标是把已有 matching questionPlan 转成一题能观察关系理解的连线题。</li><li>任务：按 taskBriefPlan 只生成整章各 unit 的连线匹配题。</li><li>关系任务设计：</li><li>- 写题前先确认：这组匹配关系能证明用户理解了什么结构、边界、流程、角色、条件、因果或适用关系。</li><li>- 每道题必须围绕对应 questionPlan.relationType、questionPlan.purpose 和 practiceGoal.target 来写。</li><li>- matching 只适合稳定对应关系，例如结构、流程、角色、条件、场景、因果、特征、判断依据或适用边界。</li><li>- 左右项不是名词释义卡片；用户正确匹配后，应能证明他理解元素之间为什么这样对应。</li><li>- 不要输出 ECD 字段、推理链、候选矩阵或批注。</li><li>- 不要新增 questionPlan；不要漏掉任何 matching questionPlan。</li><li>- 每个输出 unitId 必须原样对应输入。</li><li>- questions 数量必须等于该 unit 的 matching questionPlans 数量。</li><li>连线题规则：</li><li>- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。</li><li>- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。</li><li>- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。</li><li>- 左右项应适合小屏卡片阅读：短、清楚、可比较，但不能为了变短丢掉区分点。</li><li>- explanation 是答后的一句纠偏反馈：说明这组对应关系的核心理解，并指出容易混淆的关系边界；不逐项解析每一对。</li><li>source 使用规则：</li><li>- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。</li><li>- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildMatchingDraftBatchMessages({ article, source, units }) {
   return {
     system: baseSystem(),
     user: [
       &quot;阶段：matchingDraftBatch。&quot;,
+      &quot;短角色：你在这一阶段扮演连线关系题生成器；目标是把已有 matching questionPlan 转成一题能观察关系理解的连线题。&quot;,
       &quot;任务：按 taskBriefPlan 只生成整章各 unit 的连线匹配题。&quot;,
-      &quot;核心设计方式：&quot;,
-      &quot;- ECD 是你的隐性思考方法：连线题要观察用户是否理解结构关系。&quot;,
+      &quot;关系任务设计：&quot;,
+      &quot;- 写题前先确认：这组匹配关系能证明用户理解了什么结构、边界、流程、角色、条件、因果或适用关系。&quot;,
+      &quot;- 每道题必须围绕对应 questionPlan.relationType、questionPlan.purpose 和 practiceGoal.target 来写。&quot;,
+      &quot;- matching 只适合稳定对应关系，例如结构、流程、角色、条件、场景、因果、特征、判断依据或适用边界。&quot;,
+      &quot;- 左右项不是名词释义卡片；用户正确匹配后，应能证明他理解元素之间为什么这样对应。&quot;,
       &quot;- 不要输出 ECD 字段、推理链、候选矩阵或批注。&quot;,
       &quot;- 不要新增 questionPlan；不要漏掉任何 matching questionPlan。&quot;,
       &quot;- 每个输出 unitId 必须原样对应输入。&quot;,
       &quot;- questions 数量必须等于该 unit 的 matching questionPlans 数量。&quot;,
       &quot;连线题规则：&quot;,
       &quot;- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。&quot;,
-      &quot;- matching 只考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。&quot;,
       &quot;- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。&quot;,
       &quot;- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。&quot;,
-      &quot;- 左右项文字要短，适合移动端连线卡片；不是长定义粘贴。&quot;,
-      &quot;- explanation 是答后浮窗里的一段短解释，说明这组关系为什么重要。&quot;,
+      &quot;- 左右项应适合小屏卡片阅读：短、清楚、可比较，但不能为了变短丢掉区分点。&quot;,
+      &quot;- explanation 是答后的一句纠偏反馈：说明这组对应关系的核心理解，并指出容易混淆的关系边界；不逐项解析每一对。&quot;,
       &quot;source 使用规则：&quot;,
       &quot;- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。&quot;,
       &quot;- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。&quot;,
@@ -1584,7 +1601,7 @@ function expectedUnitIdsWithQuestionType(practicePlansByUnit, type) {
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：unitCopyBatch。</li><li>任务：为整章所有 unit 生成单元开场 overview 和单元完成 summary。</li><li>规则：</li><li>- 每个输入 unit 输出一个 units[] 对象，unitId 必须原样对应。</li><li>- overview.text 是知识点开场页正文，帮助用户进入当前知识点。</li><li>- overview 不要泄露题目答案，也不要复述第一题。</li><li>- summary.title 通常写“单元完成”。</li><li>- summary.text 只总结当前知识点，不总结整篇文章。</li><li>- 文案短、具体、适合移动端卡片。</li><li>- 不输出题目，不输出 ECD 字段。</li></ol>
+          <ol><li>阶段：unitCopyBatch。</li><li>任务：为整章所有 unit 生成单元开场 overview 和单元完成 summary。</li><li>短角色：你在这一阶段扮演单元文案编辑；目标是把当前知识点写成适合移动端卡片的开场和收尾文案。</li><li>规则：</li><li>- 每个输入 unit 输出一个 units[] 对象，unitId 必须原样对应。</li><li>- overview.text 是知识点开场页正文，帮助用户知道这个知识点在讲什么、为什么值得学。</li><li>- overview 只铺垫当前 unit 的核心，不泄露题目答案，也不复述第一题。</li><li>- summary.text 是完成当前 unit 后的一句收束反馈，只总结当前知识点，不总结整篇文章。</li><li>- 可以参考该 unit 的 sourceContext、practiceGoals 和 questionPlans 来把握重点，但不要输出题目、题干、选项或答案。</li><li>- 文案短、具体、温和，适合移动端卡片；不要写成论文摘要或长段解析。</li><li>- 不输出题目，不输出 ECD 字段。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildUnitCopyBatchMessages({ article, source, units }) {
   return {
@@ -1592,13 +1609,14 @@ function expectedUnitIdsWithQuestionType(practicePlansByUnit, type) {
     user: [
       &quot;阶段：unitCopyBatch。&quot;,
       &quot;任务：为整章所有 unit 生成单元开场 overview 和单元完成 summary。&quot;,
+      &quot;短角色：你在这一阶段扮演单元文案编辑；目标是把当前知识点写成适合移动端卡片的开场和收尾文案。&quot;,
       &quot;规则：&quot;,
       &quot;- 每个输入 unit 输出一个 units[] 对象，unitId 必须原样对应。&quot;,
-      &quot;- overview.text 是知识点开场页正文，帮助用户进入当前知识点。&quot;,
-      &quot;- overview 不要泄露题目答案，也不要复述第一题。&quot;,
-      &quot;- summary.title 通常写“单元完成”。&quot;,
-      &quot;- summary.text 只总结当前知识点，不总结整篇文章。&quot;,
-      &quot;- 文案短、具体、适合移动端卡片。&quot;,
+      &quot;- overview.text 是知识点开场页正文，帮助用户知道这个知识点在讲什么、为什么值得学。&quot;,
+      &quot;- overview 只铺垫当前 unit 的核心，不泄露题目答案，也不复述第一题。&quot;,
+      &quot;- summary.text 是完成当前 unit 后的一句收束反馈，只总结当前知识点，不总结整篇文章。&quot;,
+      &quot;- 可以参考该 unit 的 sourceContext、practiceGoals 和 questionPlans 来把握重点，但不要输出题目、题干、选项或答案。&quot;,
+      &quot;- 文案短、具体、温和，适合移动端卡片；不要写成论文摘要或长段解析。&quot;,
       &quot;- 不输出题目，不输出 ECD 字段。&quot;,
       &quot;&quot;,
       `source:\n${JSON.stringify(source || {}, null, 2)}`,
@@ -1615,7 +1633,6 @@ function expectedUnitIdsWithQuestionType(practicePlansByUnit, type) {
   isNonEmptyString,
   isPlainObject
 } from &quot;./schemaValidation.js&quot;;
-import { validateUnitSummaryDraftOutput } from &quot;./unitSummaryDraft.js&quot;;
 
 export const UNIT_COPY_BATCH_PROMPT_SCHEMA_NAME = &quot;shibei_v2_unit_copy_batch&quot;;
 
@@ -1640,9 +1657,8 @@ export const UNIT_COPY_BATCH_OUTPUT_SCHEMA = {
           },
           summary: {
             type: &quot;object&quot;,
-            required: [&quot;title&quot;, &quot;text&quot;],
+            required: [&quot;text&quot;],
             properties: {
-              title: { type: &quot;string&quot; },
               text: { type: &quot;string&quot; }
             }
           }
@@ -1683,9 +1699,16 @@ export function validateUnitCopyBatchOutput(output, { unitIds } = {}) {
       errors.push(`${path}.unitId must reference a planned unit`);
     }
 
-    const validation = validateUnitSummaryDraftOutput(unitCopy, { unitId: unitCopy.unitId });
-    if (!validation.ok) {
-      validation.errors.forEach((error) =&gt; errors.push(`${path}: ${error}`));
+    if (!isPlainObject(unitCopy.overview)) {
+      errors.push(`${path}.overview must be an object`);
+    } else if (!isNonEmptyString(unitCopy.overview.text)) {
+      errors.push(`${path}.overview.text is required`);
+    }
+
+    if (!isPlainObject(unitCopy.summary)) {
+      errors.push(`${path}.summary must be an object`);
+    } else if (!isNonEmptyString(unitCopy.summary.text)) {
+      errors.push(`${path}.summary.text is required`);
     }
   });
 
@@ -4158,7 +4181,7 @@ function validateMatchingItems(question, path, errors) {
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：unitSummaryDraft。</li><li>任务：为当前知识点生成单元开场和单元总结，不生成题目。</li><li>生成规则：</li><li>- overview.text 是知识点开场页正文，帮助用户知道接下来复习哪个核心理念、方法、判断或关系。</li><li>- overview 要和第一题分工明确，不能把第一题答案原样写成开场。</li><li>- summary.title 通常写“单元完成”。</li><li>- summary.text 只总结当前知识点，不总结整篇文章。</li><li>- 文案要短、具体、适合移动端卡片。</li></ol>
+          <ol><li>阶段：unitSummaryDraft。</li><li>任务：为当前知识点生成单元开场和单元总结，不生成题目。</li><li>生成规则：</li><li>- overview.text 是知识点开场页正文，帮助用户知道接下来复习哪个核心理念、方法、判断或关系。</li><li>- overview 要和第一题分工明确，不能把第一题答案原样写成开场。</li><li>- summary.text 只总结当前知识点，不总结整篇文章。</li><li>- 文案要短、具体、适合移动端卡片。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildUnitSummaryDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, questions, ecdContext }) {
   const ecdContextSection = ecdContext
@@ -4172,7 +4195,6 @@ function validateMatchingItems(question, path, errors) {
       &quot;生成规则：&quot;,
       &quot;- overview.text 是知识点开场页正文，帮助用户知道接下来复习哪个核心理念、方法、判断或关系。&quot;,
       &quot;- overview 要和第一题分工明确，不能把第一题答案原样写成开场。&quot;,
-      &quot;- summary.title 通常写“单元完成”。&quot;,
       &quot;- summary.text 只总结当前知识点，不总结整篇文章。&quot;,
       &quot;- 文案要短、具体、适合移动端卡片。&quot;,
       &quot;&quot;,
@@ -4214,9 +4236,8 @@ export const UNIT_SUMMARY_DRAFT_OUTPUT_SCHEMA = {
     },
     summary: {
       type: &quot;object&quot;,
-      required: [&quot;title&quot;, &quot;text&quot;],
+      required: [&quot;text&quot;],
       properties: {
-        title: { type: &quot;string&quot; },
         text: { type: &quot;string&quot; }
       }
     }
@@ -4245,7 +4266,7 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
   if (!isPlainObject(output.summary)) {
     errors.push(&quot;unitSummaryDraft.summary must be an object&quot;);
   } else {
-    requireFields(output.summary, [&quot;title&quot;, &quot;text&quot;], &quot;unitSummaryDraft.summary&quot;, errors);
+    requireFields(output.summary, [&quot;text&quot;], &quot;unitSummaryDraft.summary&quot;, errors);
   }
 
   return createValidationResult(errors);

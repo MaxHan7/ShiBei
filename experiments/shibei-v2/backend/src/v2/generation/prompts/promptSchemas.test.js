@@ -643,7 +643,7 @@ test("validates batched unit copy outputs", () => {
         {
           unitId: "unit-01",
           overview: { text: "Hook 是稳定流程。" },
-          summary: { title: "单元完成", text: "你已经理解 Hook。" }
+          summary: { text: "你已经理解 Hook。" }
         }
       ]
     },
@@ -659,7 +659,6 @@ test("validates unit summary drafts", () => {
       unitId: "unit-01",
       overview: { text: "Hook 不是提示词，而是稳定触发的流程约束。" },
       summary: {
-        title: "单元完成",
         text: "你已经理解 Hook 的基本机制。"
       }
     },

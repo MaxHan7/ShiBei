@@ -721,7 +721,6 @@ async function happyPathPromptCaller(stage, payload, { matching = true } = {}) {
         text: "Hook 更像一段固定流程，负责在关键动作前后稳定补上规则和验证。"
       },
       summary: {
-        title: "单元完成",
         text: "你已经理解 Hook 的基本机制。"
       }
     };

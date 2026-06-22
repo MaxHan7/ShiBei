@@ -22,9 +22,8 @@ export const UNIT_SUMMARY_DRAFT_OUTPUT_SCHEMA = {
     },
     summary: {
       type: "object",
-      required: ["title", "text"],
+      required: ["text"],
       properties: {
-        title: { type: "string" },
         text: { type: "string" }
       }
     }
@@ -53,7 +52,7 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
   if (!isPlainObject(output.summary)) {
     errors.push("unitSummaryDraft.summary must be an object");
   } else {
-    requireFields(output.summary, ["title", "text"], "unitSummaryDraft.summary", errors);
+    requireFields(output.summary, ["text"], "unitSummaryDraft.summary", errors);
   }
 
   return createValidationResult(errors);

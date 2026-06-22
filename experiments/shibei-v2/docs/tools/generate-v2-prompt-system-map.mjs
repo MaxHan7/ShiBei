@@ -491,7 +491,7 @@ function extractPromptStringLines(functionSource) {
       .trim();
     if (!value) continue;
     if (value.includes(":\\n")) continue;
-    if (value.startsWith("阶段：") || value.startsWith("任务：") || value.startsWith("-") || value.endsWith("：") || /^[0-9]+\\./.test(value)) {
+    if (value.startsWith("阶段：") || value.startsWith("任务：") || value.startsWith("短角色：") || value.startsWith("-") || value.endsWith("：") || /^[0-9]+\\./.test(value)) {
       lines.push(value);
     }
   }

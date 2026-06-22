@@ -3,7 +3,6 @@ import {
   isNonEmptyString,
   isPlainObject
 } from "./schemaValidation.js";
-import { validateUnitSummaryDraftOutput } from "./unitSummaryDraft.js";
 
 export const UNIT_COPY_BATCH_PROMPT_SCHEMA_NAME = "shibei_v2_unit_copy_batch";
 
@@ -28,9 +27,8 @@ export const UNIT_COPY_BATCH_OUTPUT_SCHEMA = {
           },
           summary: {
             type: "object",
-            required: ["title", "text"],
+            required: ["text"],
             properties: {
-              title: { type: "string" },
               text: { type: "string" }
             }
           }
@@ -71,9 +69,16 @@ export function validateUnitCopyBatchOutput(output, { unitIds } = {}) {
       errors.push(`${path}.unitId must reference a planned unit`);
     }
 
-    const validation = validateUnitSummaryDraftOutput(unitCopy, { unitId: unitCopy.unitId });
-    if (!validation.ok) {
-      validation.errors.forEach((error) => errors.push(`${path}: ${error}`));
+    if (!isPlainObject(unitCopy.overview)) {
+      errors.push(`${path}.overview must be an object`);
+    } else if (!isNonEmptyString(unitCopy.overview.text)) {
+      errors.push(`${path}.overview.text is required`);
+    }
+
+    if (!isPlainObject(unitCopy.summary)) {
+      errors.push(`${path}.summary must be an object`);
+    } else if (!isNonEmptyString(unitCopy.summary.text)) {
+      errors.push(`${path}.summary.text is required`);
     }
   });
 
