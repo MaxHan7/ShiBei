@@ -61,10 +61,18 @@ test("reviewPathPlan prompt separates chapter summary and unit summaries", () =>
   assert.match(messages.user, /章节完成页鼓励文案/);
   assert.match(messages.user, /不能用 section\/outline\/目录项\/骨架对象替代/);
   assert.match(messages.user, /缺 nodeLabel、shortSummary、detailSummary、why 或 sourceAnchor/);
-  assert.match(messages.user, /最值得复习、能形成 evidence 的核心知识点/);
-  assert.match(messages.user, /通常保留 4-7 个高价值完整 unit/);
-  assert.match(messages.user, /DMC 模型/);
+  assert.match(messages.user, /先识别文章核心命题和阅读主线/);
+  assert.match(messages.user, /unit 是可复习的独立学习对象/);
+  assert.match(messages.user, /判断一个内容是否成为 unit/);
+  assert.match(messages.user, /背景、例子、铺垫不自动成为 unit/);
+  assert.match(messages.user, /某段承载独立学习对象并有 source evidence/);
+  assert.match(messages.user, /unit 数量由文章长度、结构密度、独立学习对象数量和可观察 evidence 决定/);
+  assert.match(messages.user, /不要使用固定范围控制产量/);
+  assert.match(messages.user, /独立分层结构、流程步骤、类型集合或边界规则/);
   assert.match(messages.user, /不能把相关但独立的大知识点合并/);
+  assert.match(messages.user, /sourceAnchor 必须能支撑该 unit 的 title、shortSummary、detailSummary 和 why/);
+  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐/);
+  assert.doesNotMatch(messages.user, /4-7|4 到 7|4到7/);
   assert.doesNotMatch(messages.user, /knowledgeObjects/);
   assert.doesNotMatch(messages.user, /standalone_unit/);
 });
@@ -118,9 +126,17 @@ test("unitKnowledgeMap prompt isolates micro knowledge discovery from task assem
   assert.match(messages.user, /plan_union_window/);
   assert.match(messages.user, /本阶段不生成题目、不选择题型、不做 selectedTasks/);
   assert.match(messages.user, /完整发现/);
+  assert.match(messages.user, /最小的有意义学习对象/);
+  assert.match(messages.user, /如果一句内容包含两个不同掌握表现/);
+  assert.match(messages.user, /根据原文自然存在的内容判断 role/);
+  assert.match(messages.user, /assessmentValue 只描述这个小点的考察价值，不表达题目数量/);
+  assert.match(messages.user, /high：缺少它会导致用户无法掌握该 unit 的核心/);
+  assert.match(messages.user, /suggestedEvidenceAngles 只写建议观察角度，不选择题型/);
+  assert.match(messages.user, /sourceSupport 写该 source 如何支撑这个 micro/);
   assert.match(messages.user, /不要为了控制题量而删掉/);
-  assert.match(messages.user, /DMC 这类分层模型/);
+  assert.match(messages.user, /分层模型、结构框架或层级体系/);
   assert.match(messages.user, /microKnowledgePoints/);
+  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐|每个 unit 必须|至少.*micro|至少.*definition|至少.*boundary|4-7/);
 });
 
 test("taskBriefPlan prompt embeds ECD as thinking method without heavy ECD JSON", () => {
@@ -149,9 +165,12 @@ test("taskBriefPlan prompt embeds ECD as thinking method without heavy ECD JSON"
   assert.match(messages.user, /Evidence-Centered Design 是你的思考方法/);
   assert.match(messages.user, /只保留 practiceGoals 和 questionPlans/);
   assert.match(messages.user, /不要输出 ECD 术语字段、推理链、候选矩阵或长篇解释/);
+  assert.match(messages.user, /不要输出 practiceGoal\.id、questionPlan\.id、practiceGoalId 或 sourceAnchorId/);
+  assert.match(messages.user, /goalIndex 是 1-based 数字/);
   assert.match(messages.user, /每个 high \/ medium microKnowledgePoint/);
-  assert.match(messages.user, /DMC 这类“模型层级 -> 设计作用”/);
+  assert.match(messages.user, /模型层级 -> 对应作用/);
   assert.match(messages.user, /matching 不是机械名词释义/);
+  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐/);
 });
 
 test("questionDraftBatch prompt generates all planned questions without ECD JSON", () => {
@@ -206,6 +225,8 @@ test("multipleChoiceDraftBatch prompt only generates planned multiple choice que
   assert.match(messages.user, /只生成整章各 unit 的选择题/);
   assert.match(messages.user, /不要输出 ECD 字段、推理链、候选矩阵或批注/);
   assert.match(messages.user, /不要新增 questionPlan；不要漏掉任何 multiple_choice questionPlan/);
+  assert.match(messages.user, /至少一个干扰项必须承载真实常见误区或混淆点/);
+  assert.match(messages.user, /边界辨析/);
   assert.match(messages.user, /unitDraftInputs/);
 });
 
@@ -233,6 +254,8 @@ test("matchingDraftBatch prompt only generates planned matching questions", () =
   assert.match(messages.user, /只生成整章各 unit 的连线匹配题/);
   assert.match(messages.user, /不要输出 ECD 字段、推理链、候选矩阵或批注/);
   assert.match(messages.user, /不要新增 questionPlan；不要漏掉任何 matching questionPlan/);
+  assert.match(messages.user, /2-4 对匹配项/);
+  assert.match(messages.user, /不要为了凑满 4 对/);
   assert.match(messages.user, /unitDraftInputs/);
 });
 
@@ -303,7 +326,8 @@ test("ecdPlanning prompt asks for internal ECD reasoning and compact task planni
   assert.match(messages.user, /required 的 assessableTargets/);
   assert.match(messages.user, /不要输出 skippedEvidence、learningClaims、evidenceNeeds、taskPlan 或 articleUnderstanding/);
   assert.match(messages.user, /本阶段不生成用户可见题目/);
-  assert.match(messages.user, /DMC 这类“模型层级 -> 设计作用”/);
+  assert.match(messages.user, /模型层级 -> 对应作用/);
+  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐/);
 });
 
 test("multipleChoiceDraft prompt requires misconception-first distractors", () => {

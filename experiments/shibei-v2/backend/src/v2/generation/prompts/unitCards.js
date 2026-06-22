@@ -172,17 +172,36 @@ function validateMultipleChoiceQuestion(question, path, errors) {
 }
 
 function validateMatchingQuestion(question, path, errors) {
-  if (!Array.isArray(question.leftItems) || question.leftItems.length !== 4) {
-    errors.push(`${path}.leftItems must contain exactly 4 items`);
+  if (!Array.isArray(question.leftItems)) {
+    errors.push(`${path}.leftItems must be an array`);
   }
 
-  if (!Array.isArray(question.rightItems) || question.rightItems.length !== 4) {
-    errors.push(`${path}.rightItems must contain exactly 4 items`);
+  if (!Array.isArray(question.rightItems)) {
+    errors.push(`${path}.rightItems must be an array`);
   }
 
-  if (!Array.isArray(question.pairs) || question.pairs.length !== 4) {
-    errors.push(`${path}.pairs must contain exactly 4 pairs`);
+  if (!Array.isArray(question.pairs)) {
+    errors.push(`${path}.pairs must be an array`);
     return;
+  }
+  if (!Array.isArray(question.leftItems) || !Array.isArray(question.rightItems)) {
+    return;
+  }
+  if (question.leftItems.length < 2 || question.leftItems.length > 4) {
+    errors.push(`${path}.leftItems must contain 2 to 4 items`);
+  }
+  if (question.rightItems.length < 2 || question.rightItems.length > 4) {
+    errors.push(`${path}.rightItems must contain 2 to 4 items`);
+  }
+  if (question.pairs.length < 2 || question.pairs.length > 4) {
+    errors.push(`${path}.pairs must contain 2 to 4 pairs`);
+    return;
+  }
+  if (question.leftItems.length !== question.rightItems.length) {
+    errors.push(`${path}.leftItems and rightItems must contain the same number of items`);
+  }
+  if (question.pairs.length !== question.leftItems.length || question.pairs.length !== question.rightItems.length) {
+    errors.push(`${path}.pairs must contain one pair for each left/right item`);
   }
 
   const leftIds = Array.isArray(question.leftItems)

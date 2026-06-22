@@ -71,7 +71,7 @@ Prompt 里的规则分三类，不应全部写成硬性禁令。
 示例：
 
 - 选择题必须 4 个选项。
-- 连线题当前 UI 左右各 4 项。
+- 连线题左右各 2-4 项，数量必须一致。
 - `sourceAnchorId` 必须指向存在的 source anchor。
 - 输出必须符合 JSON schema。
 
@@ -210,6 +210,29 @@ QualityDiagnostics
 }
 ```
 
+### Typed Adapter Boundary
+
+目标：让模型只负责语义判断，让代码负责稳定、可确定、可验证的结构字段。
+
+当前 `taskBriefPlan` 已采用这个边界：
+
+- 模型输出：
+  - 练习目标的类型、目标、常见误区、关联 microIds。
+  - 题目计划的题型、目的、goalIndex、关联 microIds。
+- 代码补齐：
+  - `practiceGoal.id`
+  - `questionPlan.id`
+  - `practiceGoalId`
+  - `sourceAnchorId`
+
+判断原则：
+
+- 如果字段可以由已有上下文确定性推导，就不要让模型输出。
+- 如果字段是教学语义判断，例如“考什么、为什么考、用什么题型考”，才交给模型。
+- 如果某个 stage 开始频繁触发 JSON 截断，优先检查是否让模型输出了太多 deterministic metadata，而不是继续堆 prompt 禁令。
+
+黄金文章 `20260621-193327-v2-compact-task-brief-max6` 证明这个方向有效：`taskBriefPlan` 从一次 JSON parse failure + retry 改善为一次通过，completion tokens 从失败路径的 5,601 截断区间降到 2,403。
+
 ### QuestionDraft
 
 目标：生成用户可见题目。
@@ -230,6 +253,35 @@ QualityDiagnostics
 - UI 需要的 4 组限制
 
 如果知识点天然只有 3 组强关系，例如 DMC 三层模型，可以补一组高价值整体判断、常见误区或设计风险，而不是凑一个弱关系。
+
+### DSPy-style Pyramid Implementation Checkpoint
+
+当前主链路已经从“一个大 prompt 生成所有题”推进到更清晰的金字塔结构：
+
+```text
+Article
+  -> ReviewPathPlan: 切 unit 与章节概要
+  -> UnitKnowledgeMap: 找每个 unit 内的小知识点和证据
+  -> TaskBriefPlan: 把小知识点映射为 practice goals / question plans
+  -> QuestionBriefAdapter: 用代码压成每个 unit 的题目 brief
+  -> Draft stages: 按题型生成用户可见题目
+```
+
+这里的关键边界：
+
+- ECD 是模型思考方式，不是一个需要完整输出给下游的大 JSON。
+- DSPy-style 的 module 要有清晰 signature，但不等于每个小字段都要单独调用模型。
+- `QuestionBriefAdapter` 是 deterministic adapter：它不调用模型，只把上游语义计划整理成下游需要的 compact input。
+- 选择题现在用 `multipleChoiceDraftUnitBatch`，每次只接收当前 unit 的 MC brief 和 source window，避免全章 MC 大 JSON 截断。
+
+黄金文章 `20260621-201141-v2-dspy-pyramid-scoped-mc-max6` 验证：
+
+- total tokens 从上一轮 `83,001` 降到 `66,367`。
+- runtime retry 从 `1` 降到 `0`。
+- diagnostic issues 从 `1` 降到 `0`。
+- DMC 没有被合并或漏掉，仍作为独立 unit，并产出 matching。
+
+这个 checkpoint 说明“技术端按 DSPy-style 收窄 signature，设计端保留 ECD 证据链”的方向是有效的。后续如果继续改架构，应优先量化每个 stage 的 input/output tokens、retry 和题目质量，而不是继续凭感觉堆 prompt。
 
 ### QualityDiagnostics
 
@@ -279,4 +331,4 @@ QualityDiagnostics
 
 - 把 `layered_framework`、`type_set`、`process_steps`、`signal_set`、`role_boundary` 明确列为 matching 高适配结构。
 - 把“模型层级 -> 对应作用”明确列为好 matching，不属于机械名词解释。
-- 保留 UI 左右各 4 项的硬约束，但允许从 3 个核心关系补充 1 个高价值整体判断或误区项。
+- 放开“必须 4 对”的硬约束，允许 2-4 对自然关系；2/3 对高价值关系优先于 4 对低价值凑数关系。

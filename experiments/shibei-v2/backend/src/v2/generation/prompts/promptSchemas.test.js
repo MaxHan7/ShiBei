@@ -23,6 +23,10 @@ import {
   validateMultipleChoiceDraftBatchOutput
 } from "./multipleChoiceDraftBatch.js";
 import {
+  MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_OUTPUT_SCHEMA,
+  validateMultipleChoiceDraftUnitBatchOutput
+} from "./multipleChoiceDraftUnitBatch.js";
+import {
   QUALITY_JUDGE_OUTPUT_SCHEMA,
   validateQualityJudgeOutput
 } from "./qualityJudge.js";
@@ -39,6 +43,7 @@ import {
   validateSourceMapOutput
 } from "./sourceMap.js";
 import {
+  normalizeTaskBriefPlanOutput,
   TASK_BRIEF_PLAN_OUTPUT_SCHEMA,
   validateTaskBriefPlanOutput
 } from "./taskBriefPlan.js";
@@ -52,6 +57,8 @@ import {
   validateUnitCopyBatchOutput
 } from "./unitCopyBatch.js";
 import {
+  normalizeQuestionPlanPurpose,
+  normalizeUnitPracticePlanOutput,
   UNIT_PRACTICE_PLAN_OUTPUT_SCHEMA,
   validateUnitPracticePlanOutput
 } from "./unitPracticePlan.js";
@@ -67,6 +74,7 @@ test("exports stable prompt schema names for the V2 generation pipeline", () => 
   assert.equal(TASK_BRIEF_PLAN_OUTPUT_SCHEMA.name, "shibei_v2_task_brief_plan");
   assert.equal(QUESTION_DRAFT_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_question_draft_batch");
   assert.equal(MULTIPLE_CHOICE_DRAFT_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_multiple_choice_draft_batch");
+  assert.equal(MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_multiple_choice_draft_unit_batch");
   assert.equal(MATCHING_DRAFT_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_matching_draft_batch");
   assert.equal(UNIT_COPY_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_unit_copy_batch");
   assert.equal(REVIEW_PATH_PLAN_OUTPUT_SCHEMA.name, "shibei_v2_review_path_plan");
@@ -112,6 +120,22 @@ test("validates multiple choice draft batches by unit practice plans", () => {
   assert.deepEqual(result, { ok: true, errors: [] });
 });
 
+test("validates scoped multiple choice unit batches", () => {
+  const result = validateMultipleChoiceDraftUnitBatchOutput(
+    {
+      unitId: "unit-01",
+      questions: [multipleChoiceQuestionFixture()]
+    },
+    {
+      unitId: "unit-01",
+      questionPlanIds: new Set(["q-001"]),
+      sourceAnchorId: "anchor-unit-01"
+    }
+  );
+
+  assert.deepEqual(result, { ok: true, errors: [] });
+});
+
 test("validates matching draft batches by unit practice plans", () => {
   const practicePlansByUnit = new Map([["unit-01", unitPracticePlanFixture()]]);
   const sourceAnchorByUnit = new Map([["unit-01", "anchor-unit-01"]]);
@@ -128,6 +152,52 @@ test("validates matching draft batches by unit practice plans", () => {
   );
 
   assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("allows matching drafts to use natural 2 to 4 pair counts", () => {
+  const practicePlansByUnit = new Map([["unit-01", unitPracticePlanFixture()]]);
+  const sourceAnchorByUnit = new Map([["unit-01", "anchor-unit-01"]]);
+  const threePairQuestion = matchingQuestionFixture();
+  threePairQuestion.leftItems = threePairQuestion.leftItems.slice(0, 3);
+  threePairQuestion.rightItems = threePairQuestion.rightItems.slice(0, 3);
+  threePairQuestion.pairs = threePairQuestion.pairs.slice(0, 3);
+
+  const result = validateMatchingDraftBatchOutput(
+    {
+      units: [
+        {
+          unitId: "unit-01",
+          questions: [threePairQuestion]
+        }
+      ]
+    },
+    { practicePlansByUnit, sourceAnchorByUnit }
+  );
+
+  assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("rejects matching drafts with mismatched item and pair counts", () => {
+  const practicePlansByUnit = new Map([["unit-01", unitPracticePlanFixture()]]);
+  const sourceAnchorByUnit = new Map([["unit-01", "anchor-unit-01"]]);
+  const mismatchedQuestion = matchingQuestionFixture();
+  mismatchedQuestion.rightItems = mismatchedQuestion.rightItems.slice(0, 3);
+
+  const result = validateMatchingDraftBatchOutput(
+    {
+      units: [
+        {
+          unitId: "unit-01",
+          questions: [mismatchedQuestion]
+        }
+      ]
+    },
+    { practicePlansByUnit, sourceAnchorByUnit }
+  );
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /leftItems and rightItems must contain the same number of items/);
+  assert.match(result.errors.join("\n"), /pairs must contain one pair for each left\/right item/);
 });
 
 test("normalizes unit knowledge map taxonomy aliases before validation", () => {
@@ -332,6 +402,102 @@ test("validates unit practice plans with variable question plan counts", () => {
     unitPracticePlanFixture(),
     { unitId: "unit-01", sourceAnchorId: "anchor-unit-01" }
   );
+
+  assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("normalizes task brief purpose aliases before validation", () => {
+  const fixture = unitPracticePlanFixture();
+  fixture.questionPlans[0].purpose = "concept_understanding";
+  fixture.questionPlans[1].purpose = "model_layer_matching";
+
+  const normalized = normalizeUnitPracticePlanOutput(fixture);
+
+  assert.equal(normalized.questionPlans[0].purpose, "light_understanding");
+  assert.equal(normalized.questionPlans[0].originalPurpose, "concept_understanding");
+  assert.equal(normalized.questionPlans[1].purpose, "layer_role_matching");
+  assert.equal(normalized.questionPlans[1].originalPurpose, "model_layer_matching");
+  assert.equal(normalizeQuestionPlanPurpose("scenario_transfer"), "scenario_application");
+
+  const result = validateUnitPracticePlanOutput(normalized, {
+    unitId: "unit-01",
+    sourceAnchorId: "anchor-unit-01"
+  });
+
+  assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("normalizes batched task brief purpose aliases", () => {
+  const fixture = unitPracticePlanFixture();
+  fixture.questionPlans[0].purpose = "definition_grasp";
+
+  const normalized = normalizeTaskBriefPlanOutput(
+    { units: [fixture] },
+    { sourceAnchorByUnit: new Map([["unit-01", "anchor-unit-01"]]) }
+  );
+
+  assert.equal(normalized.units[0].questionPlans[0].purpose, "light_understanding");
+  assert.equal(normalized.units[0].questionPlans[0].originalPurpose, "definition_grasp");
+});
+
+test("hydrates compact task brief plans before validation", () => {
+  const compact = {
+    units: [
+      {
+        unitId: "unit-01",
+        practiceGoals: [
+          {
+            kind: "core_understanding",
+            target: "理解 Hook 是流程约束",
+            commonMisconception: "把 Hook 当成更长提示词",
+            microIds: ["micro-unit-01-001"]
+          },
+          {
+            kind: "relationship_mapping",
+            target: "区分 Prompt、Hook、CI 的职责边界",
+            commonMisconception: "把所有约束都交给 Prompt",
+            microIds: ["micro-unit-01-002"]
+          }
+        ],
+        questionPlans: [
+          {
+            type: "multiple_choice",
+            purpose: "definition_grasp",
+            goalIndex: 1,
+            microIds: ["micro-unit-01-001"]
+          },
+          {
+            type: "matching",
+            purpose: "role_responsibility_mapping",
+            goalIndex: 2,
+            relationType: "responsibility",
+            microIds: ["micro-unit-01-002"]
+          }
+        ]
+      }
+    ]
+  };
+
+  const normalized = normalizeTaskBriefPlanOutput(compact, {
+    sourceAnchorByUnit: new Map([["unit-01", "anchor-unit-01"]])
+  });
+
+  assert.deepEqual(
+    normalized.units[0].practiceGoals.map((goal) => `${goal.id}:${goal.sourceAnchorId}`),
+    ["goal-unit-01-001:anchor-unit-01", "goal-unit-01-002:anchor-unit-01"]
+  );
+  assert.deepEqual(
+    normalized.units[0].questionPlans.map((plan) => `${plan.id}:${plan.practiceGoalId}:${plan.purpose}:${plan.sourceAnchorId}`),
+    [
+      "q-unit-01-001:goal-unit-01-001:light_understanding:anchor-unit-01",
+      "q-unit-01-002:goal-unit-01-002:role_responsibility_matching:anchor-unit-01"
+    ]
+  );
+
+  const result = validateTaskBriefPlanOutput(normalized, {
+    unitIds: new Set(["unit-01"]),
+    sourceAnchorByUnit: new Map([["unit-01", "anchor-unit-01"]])
+  });
 
   assert.deepEqual(result, { ok: true, errors: [] });
 });

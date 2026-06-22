@@ -285,12 +285,16 @@ function validateMatchingQuestion(question, path, errors) {
     return;
   }
 
-  if (question.leftItems.length !== 4) {
-    errors.push(`${path}.leftItems must contain exactly 4 items`);
+  if (question.leftItems.length < 2 || question.leftItems.length > 4) {
+    errors.push(`${path}.leftItems must contain 2 to 4 items`);
   }
 
-  if (question.rightItems.length !== 4) {
-    errors.push(`${path}.rightItems must contain exactly 4 items`);
+  if (question.rightItems.length < 2 || question.rightItems.length > 4) {
+    errors.push(`${path}.rightItems must contain 2 to 4 items`);
+  }
+
+  if (question.leftItems.length !== question.rightItems.length) {
+    errors.push(`${path}.leftItems and rightItems must contain the same number of items`);
   }
 
   if (question.pairs.length !== question.leftItems.length) {

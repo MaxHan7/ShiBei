@@ -119,6 +119,7 @@ Adapter                 -> structured output caller + schema validator
 配套的阶段级工程契约见：
 
 - `v2-llm-stage-contracts-zh.md`：定义每个 V2 LLM stage 的 signature、输入输出、source context 策略、禁止职责、指标和当前实现差距。
+- `v2-prompt-format-technical-reference-zh.md`：定义每个 prompt 的标准格式、技术依据、短角色边界、schema-first 写法和禁止写法。
 
 ## 2026-06-21：对照 DSPy 后的架构校准
 
@@ -166,7 +167,7 @@ DSPy 的 optimizer 不是单纯减少调用次数，而是用 metric 比较 prog
 
 如果调用数下降但 token、retry、题型覆盖变差，这不是有效优化。`v2-batched-draft-compact-brief-max6` 就属于这种情况：成功调用从 16 降到 5，但 total tokens 从约 85k 升到约 109k，matching 从 3 降到 1。
 
-### 3. ECD 的位置：是 module 内的设计准则，不是独立重型输出
+### 3. ECD 的位置：短结构化工作票据，而不是独立重型输出
 
 ECD 应该被嵌入每个 module 的少量关键规则里：
 
@@ -174,7 +175,15 @@ ECD 应该被嵌入每个 module 的少量关键规则里：
 - `taskBriefPlan`：把小知识点映射到可观察掌握证据与题型任务。
 - `QuestionDraft`：让题干、干扰项和解释服务于证据目标。
 
-不应该把完整 ECD 论文式字段输出成一大段 JSON。当前 `taskBriefPlan` 的 compact contract 是正确方向：只保留下游生成题目真正需要的 `practiceGoals / questionPlans / microIds`。
+但这不等于 ECD 只能作为一句“请按 ECD 思考”的口号。主链路应该允许模型显式输出少量 bounded ECD design artifacts，用作跨阶段工作票据。合格的工作票据必须短、结构化、可验证，并且能直接服务于下游题目生成或质量诊断。
+
+推荐保留：
+
+- micro knowledge inventory：防止漏掉 unit 内部小知识点。
+- compact assessable target / selected task：说明要观察什么掌握证据，以及用什么任务观察。
+- question brief：把每道题需要的 target、evidence、misconception 和 source window 压缩后传给 draft stage。
+
+不应该把完整 ECD 论文式字段输出成一大段 JSON，也不应该默认输出长篇 Chain-of-Thought、候选矩阵或完整 rationale。当前 `taskBriefPlan` 的 compact contract 是正确方向：只保留下游生成题目真正需要的 `practiceGoals / questionPlans / microIds`。
 
 ### 4. Adapter 的职责：格式和解析属于 runtime，不属于 prompt 补丁
 
@@ -213,10 +222,48 @@ model raw response
 
 1. 保留 compact `taskBriefPlan`。
 2. 拆掉单个超大的 `questionDraftBatch`。
-3. 新增中等粒度的 `multipleChoiceDraftBatch` 和 `matchingDraftBatch`。
+3. 新增中等粒度的 `matchingDraftBatch`，并把选择题从全单元 `multipleChoiceDraftBatch` 进一步收敛为 `QuestionBriefAdapter + multipleChoiceDraftUnitBatch`。
 4. 保留 `unitCopyBatch`。
 5. 每个 batch stage 都有独立 signature、schema、validator、prompt text test 和质量指标。
 6. 每轮只比较一个架构变化，不混入新的教学规则补丁。
+
+### 2026-06-21 DSPy Pyramid Scoped MC Update
+
+这一轮把选择题生成从“全章所有 MC 一次大 batch”改为更符合 DSPy-style 的金字塔结构：
+
+```text
+ReviewPathPlan
+  -> UnitKnowledgeMap
+  -> TaskBriefPlan
+  -> QuestionBriefAdapter (deterministic, no model call)
+  -> multipleChoiceDraftUnitBatch (current unit only)
+  -> matchingDraftBatch
+  -> unitCopyBatch
+```
+
+这个结构的重点不是把调用数无限拆多，而是让每个模型 stage 的 signature 更清楚：
+
+- 上层负责“文章 -> unit -> micro knowledge -> practice goal -> question plan”。
+- adapter 负责把稳定 ID、goal 引用、micro evidence 压成当前 unit 的 compact brief。
+- 选择题模型调用只看当前 unit 的 brief 和 source window，不再接收其他 unit 的计划，也不再接收全文。
+
+黄金文章实验 `20260621-201141-v2-dspy-pyramid-scoped-mc-max6` 的结果：
+
+| Metric | Compact task brief / all-unit MC | Scoped unit MC |
+| --- | ---: | ---: |
+| Units | 6 | 6 |
+| Questions | 13 | 12 |
+| Multiple choice | 12 | 10 |
+| Matching | 1 | 2 |
+| Diagnostic issues | 1 | 0 |
+| Runtime retry attempts | 1 | 0 |
+| Total tokens | 83,001 | 66,367 |
+
+结论：
+
+- 这轮没有因为瘦身导致题型结构塌掉；DMC 保持独立 unit，并获得 matching。
+- JSON 稳定性明显改善，选择题 scoped batch 没有 retry。
+- 下一轮不应再回到“大 prompt 一次吃全章所有字段”的方式；如果继续优化，应优先补架构指标和质量报告对比，而不是堆更多 prompt 禁令。
 
 ## DSPy-style 到拾贝 V2 的具体技术标准
 

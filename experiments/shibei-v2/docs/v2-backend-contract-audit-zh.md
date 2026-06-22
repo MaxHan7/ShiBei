@@ -88,7 +88,7 @@
 需要注意：
 
 - `correctUnderstanding` 和 `misconception` 可以持久化用于 QA/debug，也可以只存在于生成链路内部；前端默认不展示。
-- 匹配题左右各 4 项是当前真实 UI 目标；后端 validator 应当先按 4 对 4 校验。
+- 匹配题应允许 2-4 对自然关系；后端 validator 校验左右项数量与 pairs 数量一致，避免为了凑满 4 对生成弱关系。
 
 ### Home Path
 

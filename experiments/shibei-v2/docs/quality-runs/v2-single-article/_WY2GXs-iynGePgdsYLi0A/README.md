@@ -8,7 +8,7 @@
 
 ## Hypothesis
 
-The V2 prompt pipeline should produce a contract-valid review path with stable source blocks, unit-level summaries, one visible explanation per question, four-option multiple choice questions, and four-by-four matching questions.
+The V2 prompt pipeline should produce a contract-valid review path with stable source blocks, unit-level summaries, one visible explanation per question, four-option multiple choice questions, and natural matching questions with 2-4 meaningful pairs when the source supports them.
 
 ## Prompt And Schema Changes
 
@@ -933,3 +933,253 @@ Decision:
 - Treat typed draft batches as the current default candidate chain.
 - Keep mixed `questionDraftBatch` only as a historical checkpoint / rollback reference.
 - Continue iterating with DSPy-style discipline: clear signature boundaries, smaller output schemas, validation, and metric comparison after each change.
+
+## 2026-06-21 MC Misconception + Flexible Matching Test Attempt
+
+### What Changed
+
+- Restored the misconception-first selection flow inside `multipleChoiceDraftBatch` without rolling back the typed batch architecture.
+- Relaxed matching output contracts from fixed 4x4 to natural 2-4 pairs, with equal left/right/pair counts.
+
+### Artifacts
+
+- Failed sourceMap JSON: `runs/20260621-190022-v2-mc-misconception-matching-flex-max6.json`
+- Failed sourceMap HTML: `reports/20260621-190022-v2-mc-misconception-matching-flex-max6.html`
+- Failed taskBriefPlan JSON: `runs/20260621-190244-v2-mc-misconception-matching-flex-max6-rerun.json`
+- Failed taskBriefPlan HTML: `reports/20260621-190244-v2-mc-misconception-matching-flex-max6-rerun.html`
+- Failed sourceMap rerun JSON: `runs/20260621-190534-v2-mc-misconception-matching-flex-max6-rerun2.json`
+- Failed sourceMap rerun HTML: `reports/20260621-190534-v2-mc-misconception-matching-flex-max6-rerun2.html`
+
+### Result
+
+No completed question-quality result was produced.
+
+- Attempt 1 failed at `sourceMap` after 3 structured-output attempts.
+- Attempt 2 passed `sourceMap`, `reviewPathPlan`, `unitKnowledgeMap`, and `taskBriefPlan`, then failed final contract validation because several `taskBriefPlan.questionPlans[].purpose` values were outside the supported taxonomy.
+- Attempt 3 failed again at `sourceMap` after 3 structured-output attempts.
+
+### Conclusion
+
+This run does not prove whether the misconception-first MC prompt improved question quality, because no attempt reached visible question drafting.
+
+The immediate blocker is run stability:
+
+- `sourceMap` still depends on provider structured-output behavior for article-link runs and can fail before any prompt-quality change is exercised.
+- `taskBriefPlan` needs taxonomy normalization or tighter model-facing enum guidance so harmless purpose aliases do not block the whole run.
+
+Next experiment should first stabilize those two points, then rerun the same MC/matching-flex change and compare unit 1 option quality against `20260621-183909-v2-typed-draft-batches-max6`.
+
+### Deterministic Source Rerun
+
+Because two of the three normal article-link runs failed before question drafting at `sourceMap`, the same MC/matching-flex change was rerun with `V2_SOURCE_MAP_MODE=deterministic`.
+
+- JSON: `runs/20260621-190911-v2-mc-misconception-matching-flex-max6-deterministic-source.json`
+- HTML: `reports/20260621-190911-v2-mc-misconception-matching-flex-max6-deterministic-source.html`
+
+Metrics:
+
+| Metric | Previous typed draft batches | MC misconception + flexible matching, deterministic source |
+| --- | ---: | ---: |
+| Units | 6 | 6 |
+| Questions | 12 | 16 |
+| Multiple choice | 10 | 13 |
+| Matching | 2 | 3 |
+| Diagnostic issues | 5 | 1 |
+| Runtime failed attempts | 0 | 0 |
+| Runtime retry attempts | 0 | 0 |
+| Total tokens | 68,299 | 73,183 |
+
+Observations:
+
+- The run completed once source mapping was deterministic, confirming that the previous sourceMap failures were a structured-output stability problem rather than a downstream question-quality problem.
+- Unit 1 option quality improved compared with `20260621-183909-v2-typed-draft-batches-max6`: distractors now target “directly moving game mechanics,” “points/badges only,” “pure entertainment,” and “game context vs non-game context” misconceptions more clearly.
+- Matching output now uses natural pair counts: DMC produced 3 pairs, growth-design cases produced 2 pairs, and narrative/identity cases produced 3 pairs.
+
+Conclusion:
+
+- The MC misconception prompt repair and flexible matching contract are directionally effective.
+- The P0 blocker is now structured-output stability. The normal article-link path still failed repeatedly at sourceMap or taxonomy validation, while deterministic source mode completed. The next architecture pass should prioritize a DSPy-style adapter/typed-parser layer and deterministic preprocessing for large source maps before further prompt-quality tuning.
+
+## 2026-06-21 Default Deterministic SourceMap + Purpose Normalization
+
+### What Changed
+
+- Changed V2 generation default `sourceMapMode` from model-generated to deterministic source splitting.
+- Kept `V2_SOURCE_MAP_MODE=model` as an explicit historical/contrast path.
+- Added normalization for common `taskBriefPlan.questionPlans[].purpose` aliases, preserving `originalPurpose` for diagnostics while mapping harmless labels back to the supported taxonomy.
+- Updated stage-contract docs to state that source blocks and anchors are engineering-owned, not model-owned.
+
+### Artifacts
+
+- JSON: `runs/20260621-192159-v2-default-deterministic-source-purpose-normalized-max6.json`
+- HTML: `reports/20260621-192159-v2-default-deterministic-source-purpose-normalized-max6.html`
+
+### Result
+
+| Metric | Deterministic source rerun | Default deterministic source + purpose normalization |
+| --- | ---: | ---: |
+| Units | 6 | 6 |
+| Questions | 16 | 12 |
+| Multiple choice | 13 | 9 |
+| Matching | 3 | 3 |
+| Diagnostic issues | 1 | 0 |
+| Runtime failed attempts | 0 | 1 |
+| Runtime retry attempts | 0 | 1 |
+| Model calls | 6 | 6 successful / 7 attempts |
+| Total tokens | 73,183 | 79,307 |
+
+Stage stability:
+
+- `sourceMap` no longer called the model in the default path.
+- `reviewPathPlan`, `unitKnowledgeMap`, `multipleChoiceDraftBatch`, `matchingDraftBatch`, and `unitCopyBatch` succeeded on the first attempt.
+- `taskBriefPlan` failed once with `json_parse_error` after a long partial JSON response, then succeeded on retry.
+
+Visible output notes:
+
+- DMC remained an independent unit and received a natural 3-pair matching question.
+- Matching questions used natural pair counts rather than forced 4x4.
+- Unit 1 option quality remained acceptable but produced fewer total questions than the previous deterministic-source run.
+
+### Conclusion
+
+This checkpoint fixes the unreliable source-map architecture: the model no longer has to re-output the full article as JSON before generation can begin.
+
+The remaining P0 reliability issue is now concentrated in `taskBriefPlan`. Its first failed attempt consumed a large completion before JSON parsing failed, which explains the higher total token count despite removing model sourceMap. The next reliability iteration should reduce `taskBriefPlan` output size or split/streamline that stage, rather than adding more prompt rules.
+
+## 2026-06-21 Compact TaskBriefPlan Contract
+
+### What Changed
+
+- Slimmed the model-facing `taskBriefPlan` schema.
+- The model now outputs semantic planning only:
+  - `practiceGoals[].kind`
+  - `practiceGoals[].target`
+  - `practiceGoals[].commonMisconception`
+  - `practiceGoals[].microIds`
+  - `questionPlans[].type`
+  - `questionPlans[].purpose`
+  - `questionPlans[].goalIndex`
+  - `questionPlans[].microIds`
+  - optional `relationType`
+- The backend adapter hydrates deterministic fields:
+  - `practiceGoal.id`
+  - `questionPlan.id`
+  - `questionPlan.practiceGoalId`
+  - `sourceAnchorId`
+- Reduced `taskBriefPlan` estimated output budget from `5600` to `3800`.
+
+This follows the current DSPy-style direction: keep the model responsible for semantic decisions, and move stable IDs / source anchors into typed code adapters.
+
+### Artifacts
+
+- JSON: `runs/20260621-193327-v2-compact-task-brief-max6.json`
+- HTML: `reports/20260621-193327-v2-compact-task-brief-max6.html`
+
+### Result
+
+| Metric | Previous deterministic + purpose normalized | Compact taskBriefPlan |
+| --- | ---: | ---: |
+| Units | 6 | 6 |
+| Questions | 12 | 13 |
+| Multiple choice | 9 | 12 |
+| Matching | 3 | 1 |
+| Diagnostic issues | 0 | 1 |
+| Runtime failed attempts | 1 | 1 |
+| Runtime retry attempts | 1 | 1 |
+| Model calls | 6 successful / 7 attempts | 6 successful / 7 attempts |
+| Total tokens | 79,307 | 83,001 |
+
+`taskBriefPlan` stage comparison:
+
+| Run | Attempts | Prompt tokens | Completion tokens | Total tokens | Notes |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Previous | 2 | 17,366 | 8,336 | 25,702 | first attempt hit `json_parse_error` at 5,601 completion tokens |
+| Compact | 1 | 9,823 | 2,403 | 12,226 | passed on first attempt |
+
+Stage stability:
+
+- `taskBriefPlan` passed on the first attempt in 17s.
+- The remaining retry moved to `multipleChoiceDraftBatch`.
+- `multipleChoiceDraftBatch` first attempt hit `json_parse_error` at the full 6,500 completion-token budget, then succeeded on retry with 5,858 completion tokens.
+
+Visible output notes:
+
+- DMC remained an independent unit and received a natural matching question.
+- The run produced 13 questions across 6 units.
+- One diagnostic issue remains: `u5 / q-u5-002` had weak distractors because the correct option was visibly more complete than the alternatives.
+
+### Conclusion
+
+The compact `taskBriefPlan` contract fixed the targeted P0 instability for this stage: deterministic IDs and anchors no longer need to be model-generated, and the stage no longer retries or approaches the old 5,600-token truncation zone.
+
+This did not reduce total run cost because the new bottleneck is `multipleChoiceDraftBatch`. The next reliability checkpoint should apply the same typed-adapter principle to MC draft output: keep the model focused on question semantics, reduce repeated deterministic fields, and consider smaller batches if one all-unit MC batch continues to hit JSON truncation.
+
+## 2026-06-21 DSPy Pyramid Scoped Multiple Choice
+
+### What Changed
+
+- Extracted the V2 orchestration into a named `v2GenerationProgram` so the generation path is easier to reason about as a DSPy-style workflow.
+- Added a deterministic `QuestionBriefAdapter` layer:
+  - carries `practiceGoal.target`
+  - carries `practiceGoal.commonMisconception`
+  - carries only relevant micro evidence
+  - does not carry full article text or all-unit source context
+- Replaced the all-unit `multipleChoiceDraftBatch` main path with scoped `multipleChoiceDraftUnitBatch` calls.
+- Kept matching as a separate typed batch so relationship-heavy units can still select matching naturally.
+
+This is the first run that matches the intended pyramid shape more closely:
+
+```text
+Article
+  -> reviewPathPlan
+  -> unitKnowledgeMap
+  -> taskBriefPlan
+  -> QuestionBriefAdapter
+  -> unit-scoped multipleChoiceDraftUnitBatch
+  -> matchingDraftBatch
+  -> unitCopyBatch
+```
+
+### Artifacts
+
+- JSON: `runs/20260621-201141-v2-dspy-pyramid-scoped-mc-max6.json`
+- HTML: `reports/20260621-201141-v2-dspy-pyramid-scoped-mc-max6.html`
+
+### Result
+
+| Metric | Compact taskBriefPlan / all-unit MC | DSPy pyramid scoped MC |
+| --- | ---: | ---: |
+| Units | 6 | 6 |
+| Questions | 13 | 12 |
+| Multiple choice | 12 | 10 |
+| Matching | 1 | 2 |
+| Diagnostic issues | 1 | 0 |
+| Runtime failed attempts | 1 | 0 |
+| Runtime retry attempts | 1 | 0 |
+| Total tokens | 83,001 | 66,367 |
+
+Stage stability:
+
+- `reviewPathPlan`: success on first attempt.
+- `unitKnowledgeMap`: success on first attempt.
+- `taskBriefPlan`: success on first attempt.
+- `multipleChoiceDraftUnitBatch`: 5 scoped calls, all success on first attempt.
+- `matchingDraftBatch`: success on first attempt.
+- `unitCopyBatch`: success on first attempt.
+
+Visible output notes:
+
+- DMC stayed as an independent unit and received 2 matching questions.
+- No diagnostic issues were reported.
+- The output avoided the previous all-unit MC JSON retry.
+- Manual review still needed: this run combines `心流理论` and `实用-享乐框架` into one unit, and does not surface the growth-mechanism unit that appeared in some earlier runs. This is not a current P0 stability failure, but it should remain a knowledge-coverage watch item.
+
+### Conclusion
+
+This checkpoint supports the current architecture direction:
+
+- Keep ECD as an embedded design method, not a heavy model-visible JSON artifact.
+- Keep DSPy-style signatures, but avoid one model call per tiny deterministic field.
+- Use typed adapters for stable metadata and scoped model calls for semantic drafting.
+
+The next checkpoint should add architecture metrics to the HTML report and README: per-stage call count, prompt/completion tokens, retry count, and question-quality notes. That will make future architecture choices less subjective.

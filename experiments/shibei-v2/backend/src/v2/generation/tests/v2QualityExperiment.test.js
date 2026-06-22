@@ -19,7 +19,23 @@ test("renders a readable V2 quality HTML report with questions and source anchor
     source: { sourceTitle: "Hook 测试文章", sourceUrl: "https://example.com/a", rawText: "原文" },
     jobResult: {
       status: "completed",
-      chapter: chapterFixture()
+      chapter: chapterFixture(),
+      modelUsage: [
+        {
+          index: 1,
+          provider: "deepseek",
+          model: "deepseek-v4-flash",
+          stage: "v2_ecdPlanning",
+          estimatedOutputTokens: 900,
+          usage: {
+            prompt_tokens: 1200,
+            completion_tokens: 345,
+            total_tokens: 1545,
+            prompt_cache_hit_tokens: 1000,
+            prompt_cache_miss_tokens: 200
+          }
+        }
+      ]
     },
     generatedAt: "2026-06-19T00:00:00.000Z"
   });
@@ -52,6 +68,10 @@ test("renders a readable V2 quality HTML report with questions and source anchor
   assert.match(html, /Source Context Stats/);
   assert.match(html, /unitKnowledgeMap: b1, b2/);
   assert.match(html, /Stage Runtime Reliability/);
+  assert.match(html, /Architecture Metrics/);
+  assert.match(html, /Total tokens/);
+  assert.match(html, /1,545/);
+  assert.match(html, /1,000 \/ 200/);
   assert.match(html, /v2_ecdPlanning/);
   assert.match(html, /Runtime retries/);
   assert.match(html, /展开完整 source block/);

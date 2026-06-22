@@ -22,6 +22,10 @@ import {
   MULTIPLE_CHOICE_DRAFT_BATCH_PROMPT_SCHEMA_NAME
 } from "./prompts/multipleChoiceDraftBatch.js";
 import {
+  MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_OUTPUT_SCHEMA,
+  MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_PROMPT_SCHEMA_NAME
+} from "./prompts/multipleChoiceDraftUnitBatch.js";
+import {
   QUALITY_JUDGE_OUTPUT_SCHEMA,
   QUALITY_JUDGE_PROMPT_SCHEMA_NAME
 } from "./prompts/qualityJudge.js";
@@ -82,7 +86,7 @@ const STAGE_SCHEMAS = {
   taskBriefPlan: {
     schemaName: TASK_BRIEF_PLAN_PROMPT_SCHEMA_NAME,
     schema: TASK_BRIEF_PLAN_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 5600
+    estimatedOutputTokens: 3800
   },
   questionDraftBatch: {
     schemaName: QUESTION_DRAFT_BATCH_PROMPT_SCHEMA_NAME,
@@ -93,6 +97,11 @@ const STAGE_SCHEMAS = {
     schemaName: MULTIPLE_CHOICE_DRAFT_BATCH_PROMPT_SCHEMA_NAME,
     schema: MULTIPLE_CHOICE_DRAFT_BATCH_OUTPUT_SCHEMA,
     estimatedOutputTokens: 6500
+  },
+  multipleChoiceDraftUnitBatch: {
+    schemaName: MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_PROMPT_SCHEMA_NAME,
+    schema: MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 2200
   },
   matchingDraftBatch: {
     schemaName: MATCHING_DRAFT_BATCH_PROMPT_SCHEMA_NAME,

@@ -232,7 +232,40 @@ test("multiple_choice with fewer than 4 options fails", () => {
   assert.match(result.errors.join("\n"), /options must contain exactly 4 options/);
 });
 
-test("matching with fewer than 4 pairs fails", () => {
+test("matching with three natural pairs passes", () => {
+  const payload = validReviewPath({
+    units: [
+      {
+        questions: [
+          {},
+          {
+            leftItems: [
+              { id: "L1", text: "Prompt" },
+              { id: "L2", text: "Hook" },
+              { id: "L3", text: "CI" }
+            ],
+            rightItems: [
+              { id: "R1", text: "提供任务上下文" },
+              { id: "R2", text: "稳定执行流程" },
+              { id: "R3", text: "验证交付结果" }
+            ],
+            pairs: [
+              { leftId: "L1", rightId: "R1" },
+              { leftId: "L2", rightId: "R2" },
+              { leftId: "L3", rightId: "R3" }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+
+  const result = validateReviewPathV2(payload);
+
+  assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("matching with mismatched pair count fails", () => {
   const payload = validReviewPath({
     units: [
       {

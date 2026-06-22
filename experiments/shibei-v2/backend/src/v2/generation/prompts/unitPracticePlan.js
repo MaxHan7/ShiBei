@@ -32,6 +32,33 @@ export const QUESTION_PLAN_PURPOSES = [
   "role_responsibility_matching"
 ];
 
+const QUESTION_PLAN_PURPOSE_ALIASES = new Map([
+  ["definition_grasp", "light_understanding"],
+  ["definition_understanding", "light_understanding"],
+  ["concept_understanding", "light_understanding"],
+  ["core_concept", "light_understanding"],
+  ["core_understanding", "light_understanding"],
+  ["basic_understanding", "light_understanding"],
+  ["scenario_transfer", "scenario_application"],
+  ["case_application", "scenario_application"],
+  ["application", "scenario_application"],
+  ["boundary_detection", "boundary_clarification"],
+  ["boundary_understanding", "boundary_clarification"],
+  ["misconception_detection", "misconception_check"],
+  ["counterexample_detection", "counterexample_check"],
+  ["relationship_mapping", "relationship_matching"],
+  ["relation_matching", "relationship_matching"],
+  ["structure_mapping", "relationship_matching"],
+  ["map_structure_relation", "relationship_matching"],
+  ["model_layer_matching", "layer_role_matching"],
+  ["layer_function_matching", "layer_role_matching"],
+  ["layer_role_mapping", "layer_role_matching"],
+  ["type_feature_mapping", "type_feature_matching"],
+  ["step_purpose_mapping", "step_purpose_matching"],
+  ["signal_action_mapping", "signal_action_matching"],
+  ["role_responsibility_mapping", "role_responsibility_matching"]
+]);
+
 export const MATCHING_RELATION_TYPES = [
   "responsibility",
   "boundary",
@@ -94,6 +121,35 @@ export const UNIT_PRACTICE_PLAN_OUTPUT_SCHEMA = {
     }
   }
 };
+
+export function normalizeQuestionPlanPurpose(value) {
+  if (typeof value !== "string") return value;
+  const normalized = value.trim();
+  if (QUESTION_PLAN_PURPOSES.includes(normalized)) return normalized;
+  return QUESTION_PLAN_PURPOSE_ALIASES.get(normalized) || normalized;
+}
+
+export function normalizeUnitPracticePlanOutput(output) {
+  if (!isPlainObject(output)) return output;
+  return {
+    ...output,
+    questionPlans: Array.isArray(output.questionPlans)
+      ? output.questionPlans.map(normalizeQuestionPlan)
+      : output.questionPlans
+  };
+}
+
+function normalizeQuestionPlan(plan) {
+  if (!isPlainObject(plan)) return plan;
+  const normalizedPurpose = normalizeQuestionPlanPurpose(plan.purpose);
+  return {
+    ...plan,
+    purpose: normalizedPurpose,
+    ...(normalizedPurpose !== plan.purpose && plan.originalPurpose === undefined
+      ? { originalPurpose: plan.purpose }
+      : {})
+  };
+}
 
 export function validateUnitPracticePlanOutput(output, { unitId, sourceAnchorId } = {}) {
   const errors = [];

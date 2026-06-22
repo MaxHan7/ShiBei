@@ -17,8 +17,8 @@
 - 2026-06-21 更新：`ecdPlanning` 已改成 **逐 unit 运行**，再由编排层合并为 `generationMeta.ecdPlanning`。这样避免把 6 个 unit 的 ECD 证据规划塞进一个巨型 JSON，减少模型输出截断，同时也让每个 unit 的 evidence 设计更像 ECD 的独立任务模型。
 - 当前真实 V2 orchestration：`sourceMap -> reviewPathPlan -> unitKnowledgeMap -> per-unit ecdPlanning -> deterministic unitPracticePlan adapter -> multipleChoiceDraft / matchingDraft -> unitSummaryDraft`。`qualityJudge` 已从默认主链路移除，只在显式设置 `V2_ENABLE_QUALITY_JUDGE=1` 时作为后续 A/B 实验阶段运行。
 - `unitKnowledgeMap` 输出会写入 `generationMeta.unitKnowledgeMap`，并展示在 V2 HTML 质量报告中，用来人工检查每个 unit 内部的小知识点是否先被完整发现。
-- 2026-06-21 下一轮减重原则：ECD 仍然是系统理论，但不再把完整 ECD 思考链全部持久化为 JSON。`unitKnowledgeMap` 负责防止漏小知识点；`ecdPlanning` 默认只保留 compact task model：`assessableTargets[]` 和 `selectedTasks[]`。
-- `learningClaim / evidenceAngle / evidenceNeed / taskPlan / assemblyPlan` 作为概念继续存在于 prompt 推理中，但不再作为默认持久化字段。只有未来显式 debug mode 才允许输出 verbose ECD。
+- 2026-06-21 下一轮减重原则：ECD 仍然是系统理论，但不再把完整 ECD 思考链全部持久化为 JSON。主链路允许短结构化 ECD 工作票据：`unitKnowledgeMap` 负责防止漏小知识点；`ecdPlanning` 默认只保留 compact task model：`assessableTargets[]` 和 `selectedTasks[]`。
+- `learningClaim / evidenceAngle / evidenceNeed / taskPlan / assemblyPlan` 作为概念继续存在于 prompt 推理中；其中能服务下游生成、覆盖检查或 HTML 质量诊断的部分，可以压缩成 enum、id、短句或 compact object。完整 verbose ECD / 长 CoT 只允许在显式 debug mode 中输出。
 - compact `ecdPlanning.units[].selectedTasks[]` 会驱动下游 `unitPracticePlan`：编排层只把当前题真正需要的 `targetIds`、`microIds`、`evidenceGoal`、`commonMisconception`、`taskPurpose` 和 `sourceAnchorId` 传入后续阶段，不再反复传整包 ECD context。
 - 旧 `unitPracticePlan` 仍作为过渡 adapter 保留，但不再由模型重新规划：它确定性地把 ECD 的 `selectedTasks` 转成现有 `practiceGoals` 和 `questionPlans`，从而保持 SwiftUI 可见字段合同稳定，并减少一层 JSON 生成不稳定性。
 - 如果 ECD 只选择 matching，则跳过 `multipleChoiceDraft`；如果 ECD 不选择 matching，则跳过 `matchingDraft`。模型额外发明的 `questionPlans` 会被过滤掉。

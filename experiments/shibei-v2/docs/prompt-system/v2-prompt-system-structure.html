@@ -1,0 +1,4720 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>拾贝 V2 Prompt 初级系统结构图</title>
+  <style>
+    :root {
+      --bg: #f2f5cf;
+      --paper: #fdfaf2;
+      --ink: #44423d;
+      --muted: #7d7a70;
+      --brand: #98a84e;
+      --line: #dde1ac;
+      --soft: #f2f1da;
+      --danger: #ed765c;
+      --blue: #6b8dbf;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    main { max-width: 1320px; margin: 0 auto; padding: 32px 20px 72px; }
+    h1 { margin: 0 0 8px; font-size: 32px; line-height: 1.2; }
+    h2 { margin: 40px 0 14px; font-size: 23px; }
+    h3 { margin: 0 0 10px; font-size: 18px; }
+    .meta { color: var(--muted); font-size: 14px; }
+    .card {
+      background: var(--paper);
+      border: 1px solid rgba(152,168,78,0.22);
+      box-shadow: 0 4px 12px rgba(152,163,94,0.16);
+      border-radius: 16px;
+      padding: 18px;
+      margin: 16px 0;
+    }
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .toc a, .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      padding: 5px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+    }
+    .flow-node {
+      min-height: 150px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: rgba(253,250,242,0.9);
+      position: relative;
+    }
+    .flow-node::after {
+      content: "→";
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      color: var(--brand);
+      font-weight: 800;
+    }
+    .flow-node:last-child::after { content: ""; }
+    .status-active_model { color: var(--brand); }
+    .status-active_model_conditional { color: var(--blue); }
+    .status-deterministic_default, .status-deterministic_adapter { color: #8b8c42; }
+    .status-optional_disabled, .status-legacy_or_rollback { color: var(--danger); }
+    .stage-grid {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.75fr) minmax(0, 1.25fr);
+      gap: 16px;
+    }
+    @media (max-width: 900px) { .stage-grid { grid-template-columns: 1fr; } }
+    dl { margin: 0; }
+    dt { color: var(--muted); font-weight: 700; margin-top: 10px; }
+    dd { margin: 2px 0 0; }
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #fff;
+      border: 1px solid #ede8d8;
+      border-radius: 12px;
+      padding: 14px;
+      overflow: auto;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; font-weight: 800; color: var(--ink); }
+    .prompt-lines {
+      background: white;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .prompt-lines ol { margin: 0 0 0 22px; padding: 0; }
+    .prompt-lines li { margin: 4px 0; }
+    .warning {
+      border-left: 4px solid var(--danger);
+      padding-left: 12px;
+      color: var(--muted);
+    }
+    .columns {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>拾贝 V2 Prompt 初级系统结构图</h1>
+  <div class="meta">Generated at 2026-06-22T19:55:47.045Z from current source files. This page is an inspection artifact, not a prompt runtime.</div>
+  <div class="toc">
+    <a href="#flow">主链路结构</a>
+    <a href="#active-stages">当前主链路 prompt</a>
+    <a href="#legacy-stages">历史/回滚 prompt</a>
+    <a href="#runtime">Runtime 与 schema 映射</a>
+    <a href="#code">关键编排代码</a>
+  </div>
+
+  <section id="flow" class="card">
+    <h2 style="margin-top:0">当前主链路，可视化数据流</h2>
+    <p class="meta">绿色是当前默认模型 stage；橄榄色是确定性代码层；蓝色是有条件调用；红色是默认停用或历史路径。</p>
+    <div class="flow">
+      <div class="flow-node">
+    <div class="pill status-deterministic_default">deterministic_default</div>
+    <h3>Source Map</h3>
+    <p class="meta">默认不调用模型；V2_SOURCE_MAP_MODE=model 时才使用 prompt</p>
+    <p>把文章切成稳定 source blocks，作为所有 source anchors 的工程基础。</p>
+  </div>
+<div class="flow-node">
+    <div class="pill status-active_model">active_model</div>
+    <h3>Review Path Plan</h3>
+    <p class="meta">1 call / chapter</p>
+    <p>生成整章概要、unit 切分、短/长知识点摘要、章节完成鼓励语。</p>
+  </div>
+<div class="flow-node">
+    <div class="pill status-active_model">active_model</div>
+    <h3>Unit Knowledge Map</h3>
+    <p class="meta">1 call / chapter plan union window</p>
+    <p>在每个大知识点 unit 内拆出 microKnowledgePoints，防止后续漏掉小知识点。</p>
+  </div>
+<div class="flow-node">
+    <div class="pill status-active_model">active_model</div>
+    <h3>Task Brief Plan</h3>
+    <p class="meta">1 call / chapter</p>
+    <p>把 micro knowledge 映射成 practice goals 和 question plans；ECD 是隐性思考方式，不输出重 ECD JSON。</p>
+  </div>
+<div class="flow-node">
+    <div class="pill status-deterministic_adapter">deterministic_adapter</div>
+    <h3>Question Brief Adapter</h3>
+    <p class="meta">0 model calls</p>
+    <p>用代码把 taskBriefPlan 和 micro evidence 压成每个 unit 的 compact questionBriefs。</p>
+  </div>
+<div class="flow-node">
+    <div class="pill status-active_model">active_model</div>
+    <h3>Multiple Choice Draft Unit Batch</h3>
+    <p class="meta">N calls / units with MC briefs</p>
+    <p>只为当前 unit 生成选择题，避免全章 MC 大 JSON 截断。</p>
+  </div>
+<div class="flow-node">
+    <div class="pill status-active_model_conditional">active_model_conditional</div>
+    <h3>Matching Draft Batch</h3>
+    <p class="meta">0/1 call / chapter, only if matching plans exist</p>
+    <p>为天然关系结构生成连线题，允许自然 2-4 对关系。</p>
+  </div>
+<div class="flow-node">
+    <div class="pill status-active_model">active_model</div>
+    <h3>Unit Copy Batch</h3>
+    <p class="meta">1 call / chapter</p>
+    <p>生成单元开场 overview 和单元完成 summary。</p>
+  </div>
+<div class="flow-node">
+    <div class="pill status-optional_disabled">optional_disabled</div>
+    <h3>Quality Judge</h3>
+    <p class="meta">默认 0 calls；V2_ENABLE_QUALITY_JUDGE=1 时启用</p>
+    <p>实验性诊断，不在当前默认主链路拦截题目。</p>
+  </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 style="margin-top:0">一句话总览</h2>
+    <div class="columns">
+      <div>
+        <h3>设计原则</h3>
+        <p>ECD 是隐性出题思考方法：学习对象 → 可观察证据 → 合适任务 → 题目。它不应被整体输出成重 JSON。</p>
+      </div>
+      <div>
+        <h3>技术结构</h3>
+        <p>DSPy-style 金字塔：上游规划，下游 typed draft；每个模型 stage 有清晰 signature、schema、validator 和质量指标。</p>
+      </div>
+      <div>
+        <h3>当前瘦身点</h3>
+        <p>选择题已从全章大 batch 改为当前 unit scoped batch；QuestionBriefAdapter 用代码传递 compact evidence。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="active-stages">
+    <h2>当前主链路 Prompt / Adapter 明细</h2>
+    <article id="sourceMap" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-deterministic_default">deterministic_default</div>
+        <h3>Source Map</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>sourceMap</code></dd>
+          <dt>调用方式</dt><dd>默认不调用模型；V2_SOURCE_MAP_MODE=model 时才使用 prompt</dd>
+          <dt>职责</dt><dd>把文章切成稳定 source blocks，作为所有 source anchors 的工程基础。</dd>
+          <dt>输入</dt><dd>article.rawText / cleanedText</dd>
+          <dt>输出</dt><dd>source + blocks[]</dd>
+          <dt>下一步</dt><dd>reviewPathPlan</dd>
+          <dt>Prompt builder</dt><dd><code>buildSourceMapMessages</code></dd>
+          <dt>Schema file</dt><dd><code>prompts/sourceMap.js</code></dd>
+          
+        </dl>
+      </div>
+      <div>
+        <div class="prompt-lines">
+          <strong>Prompt 文案逐句预览</strong>
+          <ol><li>阶段：sourceMap。</li><li>任务：把原文切成稳定的 source block，供后续知识点和题目引用。</li><li>要求：</li><li>- 每个 block 必须有稳定 id，例如 p-001。</li><li>- block.type 只能是 heading、paragraph、quote。</li><li>- 保留原文语义顺序。</li><li>- 不要生成知识点或题目。</li></ol>
+        </div>
+        <details open><summary>Prompt builder 源码</summary><pre>function buildSourceMapMessages({ article }) {
+  return {
+    system: baseSystem(),
+    user: [
+      &quot;阶段：sourceMap。&quot;,
+      &quot;任务：把原文切成稳定的 source block，供后续知识点和题目引用。&quot;,
+      &quot;要求：&quot;,
+      &quot;- 每个 block 必须有稳定 id，例如 p-001。&quot;,
+      &quot;- block.type 只能是 heading、paragraph、quote。&quot;,
+      &quot;- 保留原文语义顺序。&quot;,
+      &quot;- 不要生成知识点或题目。&quot;,
+      &quot;&quot;,
+      renderArticle(article)
+    ].join(&quot;\n&quot;)
+  };
+}</pre></details>
+        
+        <details><summary>Schema / validator 源码</summary><pre>import {
+  createValidationResult,
+  isNonEmptyString,
+  isPlainObject,
+  validateUniqueIds
+} from &quot;./schemaValidation.js&quot;;
+
+export const SOURCE_MAP_PROMPT_SCHEMA_NAME = &quot;shibei_v2_source_map&quot;;
+
+export const SOURCE_MAP_OUTPUT_SCHEMA = {
+  name: SOURCE_MAP_PROMPT_SCHEMA_NAME,
+  type: &quot;object&quot;,
+  required: [&quot;source&quot;, &quot;blocks&quot;],
+  properties: {
+    source: {
+      type: &quot;object&quot;,
+      required: [&quot;type&quot;, &quot;title&quot;],
+      properties: {
+        type: { type: &quot;string&quot; },
+        title: { type: &quot;string&quot; },
+        author: { type: &quot;string&quot; },
+        url: { type: &quot;string&quot; }
+      }
+    },
+    blocks: {
+      type: &quot;array&quot;,
+      items: {
+        type: &quot;object&quot;,
+        required: [&quot;id&quot;, &quot;type&quot;, &quot;text&quot;],
+        properties: {
+          id: { type: &quot;string&quot; },
+          type: { enum: [&quot;heading&quot;, &quot;paragraph&quot;, &quot;quote&quot;] },
+          text: { type: &quot;string&quot; }
+        }
+      }
+    }
+  }
+};
+
+const SOURCE_BLOCK_TYPES = new Set([&quot;heading&quot;, &quot;paragraph&quot;, &quot;quote&quot;]);
+
+export function validateSourceMapOutput(output) {
+  const errors = [];
+
+  if (!isPlainObject(output)) {
+    return createValidationResult([&quot;sourceMap output must be an object&quot;]);
+  }
+
+  if (!isPlainObject(output.source)) {
+    errors.push(&quot;sourceMap.source must be an object&quot;);
+  } else {
+    if (!isNonEmptyString(output.source.type)) {
+      errors.push(&quot;sourceMap.source.type is required&quot;);
+    }
+    if (!isNonEmptyString(output.source.title)) {
+      errors.push(&quot;sourceMap.source.title is required&quot;);
+    }
+  }
+
+  if (!Array.isArray(output.blocks) || output.blocks.length === 0) {
+    errors.push(&quot;sourceMap.blocks must be a non-empty array&quot;);
+    return createValidationResult(errors);
+  }
+
+  validateUniqueIds(output.blocks, &quot;sourceMap.blocks&quot;, errors);
+
+  output.blocks.forEach((block, index) =&gt; {
+    const path = `sourceMap.blocks[${index}]`;
+
+    if (!isPlainObject(block)) {
+      return;
+    }
+
+    if (!SOURCE_BLOCK_TYPES.has(block.type)) {
+      errors.push(`${path}.type must be heading, paragraph, or quote`);
+    }
+
+    if (!isNonEmptyString(block.text)) {
+      errors.push(`${path}.text is required`);
+    }
+  });
+
+  return createValidationResult(errors);
+}
+</pre></details>
+      </div>
+    </div>
+  </article>
+<article id="reviewPathPlan" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-active_model">active_model</div>
+        <h3>Review Path Plan</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>reviewPathPlan</code></dd>
+          <dt>调用方式</dt><dd>1 call / chapter</dd>
+          <dt>职责</dt><dd>生成整章概要、unit 切分、短/长知识点摘要、章节完成鼓励语。</dd>
+          <dt>输入</dt><dd>article + source + full source blocks</dd>
+          <dt>输出</dt><dd>chapter plan + units + source anchors</dd>
+          <dt>下一步</dt><dd>unitKnowledgeMap</dd>
+          <dt>Prompt builder</dt><dd><code>buildReviewPathPlanMessages</code></dd>
+          <dt>Schema file</dt><dd><code>prompts/reviewPathPlan.js</code></dd>
+          
+        </dl>
+      </div>
+      <div>
+        <div class="prompt-lines">
+          <strong>Prompt 文案逐句预览</strong>
+          <ol><li>阶段：reviewPathPlan。</li><li>任务：生成整章概要、知识点计划、章节完成页鼓励文案。</li><li>字段语义：</li><li>- chapter summary 是整章概要，解释整篇文章的主旨，不是知识点详情。</li><li>- unit.nodeLabel 是主页路径节点弹窗里的知识点标题短语，可以直接复用合适的 unit.title；它不是完整摘要。</li><li>- unit.shortSummary 是知识点短摘要，用于章节详情折叠态和列表预览，不用于主页节点弹窗。</li><li>- unit.detailSummary 是知识点完整总结，用于展开态和出题上下文。</li><li>- unit.overview 不在本阶段生成，留给 unitSummaryDraft 阶段。</li><li>- 每个 unit.sourceAnchor 必须包含稳定 id 和 blockIds；id 建议使用 anchor-&lt;unit id&gt;。</li><li>- 每个 unit.sourceAnchor.blockIds 必须引用 sourceMap 已有 block id。</li><li>- chapterSummary.encouragementText 是章节完成页鼓励文案，要结合本章内容，不要空泛。</li><li>- 每个 units[] 都必须是完整知识点对象，不能用 section/outline/目录项/骨架对象替代。</li><li>- 每个 units[] 必须同时包含 id、order、title、nodeLabel、shortSummary、detailSummary、why、sourceAnchor。</li><li>- 如果某段只能写成目录项，宁可不生成该 unit；不要输出缺字段的半成品 unit。</li><li>质量规则：</li><li>- 先识别文章核心命题和阅读主线，再按原文顺序切分 unit。</li><li>- summaryCard 要先点核心命题，再轻量带出展开方向，不要写成目录。</li><li>- unit 是可复习的独立学习对象，不是目录项、段落标题或普通摘要。</li><li>- 判断一个内容是否成为 unit 时，依次检查：它是否有清晰学习对象；是否由具体 source blocks 支撑；用户掌握它后是否能形成可观察 evidence；它和相邻 unit 是依赖关系还是同一个学习对象。</li><li>- 背景、例子、铺垫不自动成为 unit；但如果它承载独立概念、机制、边界、流程、模型或方法，也应成为 unit。</li><li>- 不能把相关但独立的大知识点合并成一个 unit。相关不等于可合并。</li><li>- layered_framework、process_steps、type_set、boundary_rule 如果有自己的原文证据和后续可观察 evidence，通常应该拆成独立 unit。</li><li>- 具有独立分层结构、流程步骤、类型集合或边界规则的知识对象，如果有自己的原文证据和后续可观察 evidence，通常应作为独立 unit，不应被合并进相邻的宽泛概念 unit。</li><li>- 不要把每个段落机械切成 unit；但只要某段承载独立学习对象并有 source evidence，就应保留，不因压缩数量而合并或删除。</li><li>- unit 数量由文章长度、结构密度、独立学习对象数量和可观察 evidence 决定；不要使用固定范围控制产量。</li><li>- 短文可以只有少量 unit；长文或结构密集文章可以有更多 unit。合并只发生在学习对象确实相同或高度依赖时，不为压缩数量而合并独立知识点。</li><li>- 每个 unit 只围绕一个清晰学习对象，不混入多个独立观点。</li><li>- sourceAnchor 必须能支撑该 unit 的 title、shortSummary、detailSummary 和 why；不要只挂一个附近但不能支撑学习对象的段落。</li><li>- unit.nodeLabel 适合在节点浮窗中显示一到两行；通常是 4-24 个汉字或等价长度，例如“核心概念与边界”“流程步骤与作用”“模型层级与职责”。</li><li>- 输出前自检：units 数组里任意一个对象缺 nodeLabel、shortSummary、detailSummary、why 或 sourceAnchor，就删除或补完整该对象后再输出。</li></ol>
+        </div>
+        <details open><summary>Prompt builder 源码</summary><pre>function buildReviewPathPlanMessages({ article, source, blocks }) {
+  return {
+    system: baseSystem(),
+    user: [
+      &quot;阶段：reviewPathPlan。&quot;,
+      &quot;任务：生成整章概要、知识点计划、章节完成页鼓励文案。&quot;,
+      &quot;字段语义：&quot;,
+      &quot;- chapter summary 是整章概要，解释整篇文章的主旨，不是知识点详情。&quot;,
+      &quot;- unit.nodeLabel 是主页路径节点弹窗里的知识点标题短语，可以直接复用合适的 unit.title；它不是完整摘要。&quot;,
+      &quot;- unit.shortSummary 是知识点短摘要，用于章节详情折叠态和列表预览，不用于主页节点弹窗。&quot;,
+      &quot;- unit.detailSummary 是知识点完整总结，用于展开态和出题上下文。&quot;,
+      &quot;- unit.overview 不在本阶段生成，留给 unitSummaryDraft 阶段。&quot;,
+      &quot;- 每个 unit.sourceAnchor 必须包含稳定 id 和 blockIds；id 建议使用 anchor-&lt;unit id&gt;。&quot;,
+      &quot;- 每个 unit.sourceAnchor.blockIds 必须引用 sourceMap 已有 block id。&quot;,
+      &quot;- chapterSummary.encouragementText 是章节完成页鼓励文案，要结合本章内容，不要空泛。&quot;,
+      &quot;- 每个 units[] 都必须是完整知识点对象，不能用 section/outline/目录项/骨架对象替代。&quot;,
+      &quot;- 每个 units[] 必须同时包含 id、order、title、nodeLabel、shortSummary、detailSummary、why、sourceAnchor。&quot;,
+      &quot;- 如果某段只能写成目录项，宁可不生成该 unit；不要输出缺字段的半成品 unit。&quot;,
+      &quot;质量规则：&quot;,
+      &quot;- 先识别文章核心命题和阅读主线，再按原文顺序切分 unit。&quot;,
+      &quot;- summaryCard 要先点核心命题，再轻量带出展开方向，不要写成目录。&quot;,
+      &quot;- unit 是可复习的独立学习对象，不是目录项、段落标题或普通摘要。&quot;,
+      &quot;- 判断一个内容是否成为 unit 时，依次检查：它是否有清晰学习对象；是否由具体 source blocks 支撑；用户掌握它后是否能形成可观察 evidence；它和相邻 unit 是依赖关系还是同一个学习对象。&quot;,
+      &quot;- 背景、例子、铺垫不自动成为 unit；但如果它承载独立概念、机制、边界、流程、模型或方法，也应成为 unit。&quot;,
+      &quot;- 不能把相关但独立的大知识点合并成一个 unit。相关不等于可合并。&quot;,
+      &quot;- layered_framework、process_steps、type_set、boundary_rule 如果有自己的原文证据和后续可观察 evidence，通常应该拆成独立 unit。&quot;,
+      &quot;- 具有独立分层结构、流程步骤、类型集合或边界规则的知识对象，如果有自己的原文证据和后续可观察 evidence，通常应作为独立 unit，不应被合并进相邻的宽泛概念 unit。&quot;,
+      &quot;- 不要把每个段落机械切成 unit；但只要某段承载独立学习对象并有 source evidence，就应保留，不因压缩数量而合并或删除。&quot;,
+      &quot;- unit 数量由文章长度、结构密度、独立学习对象数量和可观察 evidence 决定；不要使用固定范围控制产量。&quot;,
+      &quot;- 短文可以只有少量 unit；长文或结构密集文章可以有更多 unit。合并只发生在学习对象确实相同或高度依赖时，不为压缩数量而合并独立知识点。&quot;,
+      &quot;- 每个 unit 只围绕一个清晰学习对象，不混入多个独立观点。&quot;,
+      &quot;- sourceAnchor 必须能支撑该 unit 的 title、shortSummary、detailSummary 和 why；不要只挂一个附近但不能支撑学习对象的段落。&quot;,
+      &quot;- unit.nodeLabel 适合在节点浮窗中显示一到两行；通常是 4-24 个汉字或等价长度，例如“核心概念与边界”“流程步骤与作用”“模型层级与职责”。&quot;,
+      &quot;- 输出前自检：units 数组里任意一个对象缺 nodeLabel、shortSummary、detailSummary、why 或 sourceAnchor，就删除或补完整该对象后再输出。&quot;,
+      &quot;&quot;,
+      renderSource(source, blocks),
+      &quot;&quot;,
+      renderArticleMeta(article)
+    ].join(&quot;\n&quot;)
+  };
+}</pre></details>
+        
+        <details><summary>Schema / validator 源码</summary><pre>import {
+  createValidationResult,
+  isNonEmptyString,
+  isPlainObject,
+  requireFields,
+  validateUniqueIds
+} from &quot;./schemaValidation.js&quot;;
+
+export const REVIEW_PATH_PLAN_PROMPT_SCHEMA_NAME = &quot;shibei_v2_review_path_plan&quot;;
+
+export const REVIEW_PATH_PLAN_OUTPUT_SCHEMA = {
+  name: REVIEW_PATH_PLAN_PROMPT_SCHEMA_NAME,
+  type: &quot;object&quot;,
+  required: [&quot;title&quot;, &quot;summaryCard&quot;, &quot;units&quot;, &quot;chapterSummary&quot;],
+  properties: {
+    title: { type: &quot;string&quot; },
+    summaryCard: {
+      type: &quot;object&quot;,
+      required: [&quot;text&quot;],
+      properties: { text: { type: &quot;string&quot; } }
+    },
+    units: {
+      type: &quot;array&quot;,
+      items: {
+        type: &quot;object&quot;,
+        required: [
+          &quot;id&quot;,
+          &quot;order&quot;,
+          &quot;title&quot;,
+          &quot;nodeLabel&quot;,
+          &quot;shortSummary&quot;,
+          &quot;detailSummary&quot;,
+          &quot;why&quot;,
+          &quot;sourceAnchor&quot;
+        ],
+        properties: {
+          id: { type: &quot;string&quot; },
+          order: { type: &quot;integer&quot; },
+          title: { type: &quot;string&quot; },
+          nodeLabel: { type: &quot;string&quot; },
+          shortSummary: { type: &quot;string&quot; },
+          detailSummary: { type: &quot;string&quot; },
+          why: { type: &quot;string&quot; },
+          sourceAnchor: {
+            type: &quot;object&quot;,
+            required: [&quot;id&quot;, &quot;blockIds&quot;],
+            properties: {
+              id: { type: &quot;string&quot; },
+              blockIds: {
+                type: &quot;array&quot;,
+                items: { type: &quot;string&quot; }
+              }
+            }
+          }
+        }
+      }
+    },
+    chapterSummary: {
+      type: &quot;object&quot;,
+      required: [&quot;encouragementText&quot;],
+      properties: { encouragementText: { type: &quot;string&quot; } }
+    }
+  }
+};
+
+export function validateReviewPathPlanOutput(output, { sourceBlockIds = new Set() } = {}) {
+  const errors = [];
+
+  if (!isPlainObject(output)) {
+    return createValidationResult([&quot;reviewPathPlan output must be an object&quot;]);
+  }
+
+  if (!isNonEmptyString(output.title)) {
+    errors.push(&quot;reviewPathPlan.title is required&quot;);
+  }
+
+  if (!isPlainObject(output.summaryCard) || !isNonEmptyString(output.summaryCard.text)) {
+    errors.push(&quot;reviewPathPlan.summaryCard.text is required&quot;);
+  }
+
+  if (
+    !isPlainObject(output.chapterSummary) ||
+    !isNonEmptyString(output.chapterSummary.encouragementText)
+  ) {
+    errors.push(&quot;reviewPathPlan.chapterSummary.encouragementText is required&quot;);
+  }
+
+  if (!Array.isArray(output.units) || output.units.length === 0) {
+    errors.push(&quot;reviewPathPlan.units must be a non-empty array&quot;);
+    return createValidationResult(errors);
+  }
+
+  validateUniqueIds(output.units, &quot;reviewPathPlan.units&quot;, errors);
+
+  output.units.forEach((unit, index) =&gt; {
+    const path = `reviewPathPlan.units[${index}]`;
+
+    if (!isPlainObject(unit)) {
+      return;
+    }
+
+    requireFields(
+      unit,
+      [&quot;id&quot;, &quot;title&quot;, &quot;nodeLabel&quot;, &quot;shortSummary&quot;, &quot;detailSummary&quot;, &quot;why&quot;],
+      path,
+      errors
+    );
+
+    if (!Number.isInteger(unit.order) || unit.order &lt;= 0) {
+      errors.push(`${path}.order must be a positive integer`);
+    }
+
+    validatePlannedSourceAnchor(unit.sourceAnchor, {
+      path: `${path}.sourceAnchor`,
+      sourceBlockIds,
+      errors
+    });
+  });
+
+  return createValidationResult(errors);
+}
+
+function validatePlannedSourceAnchor(sourceAnchor, { path, sourceBlockIds, errors }) {
+  if (!isPlainObject(sourceAnchor)) {
+    errors.push(`${path} must be an object`);
+    return;
+  }
+
+  requireFields(sourceAnchor, [&quot;id&quot;], path, errors);
+
+  if (!Array.isArray(sourceAnchor.blockIds) || sourceAnchor.blockIds.length === 0) {
+    errors.push(`${path}.blockIds must be a non-empty array`);
+    return;
+  }
+
+  sourceAnchor.blockIds.forEach((blockId, index) =&gt; {
+    if (!isNonEmptyString(blockId)) {
+      errors.push(`${path}.blockIds[${index}] is required`);
+      return;
+    }
+
+    if (sourceBlockIds.size &gt; 0 &amp;&amp; !sourceBlockIds.has(blockId)) {
+      errors.push(`${path}.blockIds[${index}] references missing source block ${blockId}`);
+    }
+  });
+}
+</pre></details>
+      </div>
+    </div>
+  </article>
+<article id="unitKnowledgeMap" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-active_model">active_model</div>
+        <h3>Unit Knowledge Map</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>unitKnowledgeMap</code></dd>
+          <dt>调用方式</dt><dd>1 call / chapter plan union window</dd>
+          <dt>职责</dt><dd>在每个大知识点 unit 内拆出 microKnowledgePoints，防止后续漏掉小知识点。</dd>
+          <dt>输入</dt><dd>reviewPathPlan + selected source window</dd>
+          <dt>输出</dt><dd>units[].microKnowledgePoints[]</dd>
+          <dt>下一步</dt><dd>taskBriefPlan</dd>
+          <dt>Prompt builder</dt><dd><code>buildUnitKnowledgeMapMessages</code></dd>
+          <dt>Schema file</dt><dd><code>prompts/unitKnowledgeMap.js</code></dd>
+          
+        </dl>
+      </div>
+      <div>
+        <div class="prompt-lines">
+          <strong>Prompt 文案逐句预览</strong>
+          <ol><li>阶段：unitKnowledgeMap。</li><li>任务：只为每个已确定的 unit 拆出内部 microKnowledgePoints；本阶段不生成题目、不选择题型、不做 selectedTasks。</li><li>为什么需要这一层：</li><li>- 一个 unit 是大知识点，内部通常包含多个可学习的小知识点。</li><li>- 这些小知识点是后续 ECD evidence 和题目生成的上游 inventory。</li><li>- 本阶段的目标是完整发现，不是压缩、筛选或组装题目。</li><li>拆分原则：</li><li>- 对每个 reviewPathPlan.units[] 都输出一个 units[] 对象。</li><li>- microKnowledgePoints 要覆盖该 unit 内所有有学习价值、可被原文支撑的小点。</li><li>- microKnowledgePoint 是 unit 内最小的有意义学习对象，应能在后续形成 learning target 或 evidence angle。</li><li>- microKnowledgePoints 可以是定义、边界、模型层级、机制、流程步骤、场景应用、误区、案例或关系。</li><li>- 如果一句内容包含两个不同掌握表现，例如定义与边界、机制与误区、步骤与目的，应拆成多个 micro。</li><li>- 如果多个表述只是同一个意思的重复解释，应合并成一个 micro。</li><li>- 不要因为后续可能题目多，就把多个小点合成一句大话。</li><li>- 不要为了控制题量而删掉原文中重要的小点；题量控制留给后续 assembly。</li><li>- 根据原文自然存在的内容判断 role；不要为了填满某种 role 而虚构 micro。</li><li>- 案例只有在承载可迁移判断、误区或机制说明时才作为 micro；纯举例使用 context_only。</li><li>- assessmentValue 只描述这个小点的考察价值，不表达题目数量。</li><li>- high：缺少它会导致用户无法掌握该 unit 的核心，后续通常应进入覆盖判断。</li><li>- medium：能补充重要角度、边界、误区或应用，但不是该 unit 的唯一核心。</li><li>- low：有学习价值，但不一定需要直接考察。</li><li>- context_only：背景、铺垫、普通例子或只帮助理解上下文，不直接形成题目。</li><li>- 对分层模型、结构框架或层级体系，要把整体结构、每一层的作用、层级关系或边界分别拆出来。</li><li>- 对流程、信号、角色、类型集合，要保留能形成 matching 或场景判断的关系小点。</li><li>输出字段：</li><li>- microId 使用稳定 id，例如 micro-&lt;unit id&gt;-001。</li><li>- title 是短标题，可用于人工报告对比。</li><li>- summary 是一两句说明这个小点是什么。</li><li>- role 只能使用 schema enum。</li><li>- suggestedEvidenceAngles 只写建议观察角度，不选择题型；常见映射：definition -&gt; definition_grasp，boundary -&gt; boundary_discrimination，model_layer/relationship -&gt; structure_mapping，mechanism -&gt; mechanism_reasoning，process_step -&gt; step_purpose_mapping，scenario_application -&gt; scenario_transfer，misconception -&gt; misconception_detection。</li><li>- sourceAnchorId 必须引用当前 unit.sourceAnchor.id。</li><li>- sourceSupport 写该 source 如何支撑这个 micro，不粘贴长原文；它应该能解释为什么该 micro 不是模型臆造。</li></ol>
+        </div>
+        <details open><summary>Prompt builder 源码</summary><pre>function buildUnitKnowledgeMapMessages({ article, source, blocks, sourceContextNote, plan }) {
+  return {
+    system: baseSystem(),
+    user: [
+      &quot;阶段：unitKnowledgeMap。&quot;,
+      &quot;任务：只为每个已确定的 unit 拆出内部 microKnowledgePoints；本阶段不生成题目、不选择题型、不做 selectedTasks。&quot;,
+      &quot;为什么需要这一层：&quot;,
+      &quot;- 一个 unit 是大知识点，内部通常包含多个可学习的小知识点。&quot;,
+      &quot;- 这些小知识点是后续 ECD evidence 和题目生成的上游 inventory。&quot;,
+      &quot;- 本阶段的目标是完整发现，不是压缩、筛选或组装题目。&quot;,
+      &quot;拆分原则：&quot;,
+      &quot;- 对每个 reviewPathPlan.units[] 都输出一个 units[] 对象。&quot;,
+      &quot;- microKnowledgePoints 要覆盖该 unit 内所有有学习价值、可被原文支撑的小点。&quot;,
+      &quot;- microKnowledgePoint 是 unit 内最小的有意义学习对象，应能在后续形成 learning target 或 evidence angle。&quot;,
+      &quot;- microKnowledgePoints 可以是定义、边界、模型层级、机制、流程步骤、场景应用、误区、案例或关系。&quot;,
+      &quot;- 如果一句内容包含两个不同掌握表现，例如定义与边界、机制与误区、步骤与目的，应拆成多个 micro。&quot;,
+      &quot;- 如果多个表述只是同一个意思的重复解释，应合并成一个 micro。&quot;,
+      &quot;- 不要因为后续可能题目多，就把多个小点合成一句大话。&quot;,
+      &quot;- 不要为了控制题量而删掉原文中重要的小点；题量控制留给后续 assembly。&quot;,
+      &quot;- 根据原文自然存在的内容判断 role；不要为了填满某种 role 而虚构 micro。&quot;,
+      &quot;- 案例只有在承载可迁移判断、误区或机制说明时才作为 micro；纯举例使用 context_only。&quot;,
+      &quot;- assessmentValue 只描述这个小点的考察价值，不表达题目数量。&quot;,
+      &quot;- high：缺少它会导致用户无法掌握该 unit 的核心，后续通常应进入覆盖判断。&quot;,
+      &quot;- medium：能补充重要角度、边界、误区或应用，但不是该 unit 的唯一核心。&quot;,
+      &quot;- low：有学习价值，但不一定需要直接考察。&quot;,
+      &quot;- context_only：背景、铺垫、普通例子或只帮助理解上下文，不直接形成题目。&quot;,
+      &quot;- 对分层模型、结构框架或层级体系，要把整体结构、每一层的作用、层级关系或边界分别拆出来。&quot;,
+      &quot;- 对流程、信号、角色、类型集合，要保留能形成 matching 或场景判断的关系小点。&quot;,
+      &quot;输出字段：&quot;,
+      &quot;- microId 使用稳定 id，例如 micro-&lt;unit id&gt;-001。&quot;,
+      &quot;- title 是短标题，可用于人工报告对比。&quot;,
+      &quot;- summary 是一两句说明这个小点是什么。&quot;,
+      &quot;- role 只能使用 schema enum。&quot;,
+      &quot;- suggestedEvidenceAngles 只写建议观察角度，不选择题型；常见映射：definition -&gt; definition_grasp，boundary -&gt; boundary_discrimination，model_layer/relationship -&gt; structure_mapping，mechanism -&gt; mechanism_reasoning，process_step -&gt; step_purpose_mapping，scenario_application -&gt; scenario_transfer，misconception -&gt; misconception_detection。&quot;,
+      &quot;- sourceAnchorId 必须引用当前 unit.sourceAnchor.id。&quot;,
+      &quot;- sourceSupport 写该 source 如何支撑这个 micro，不粘贴长原文；它应该能解释为什么该 micro 不是模型臆造。&quot;,
+      &quot;&quot;,
+      `reviewPathPlan:\n${JSON.stringify(plan, null, 2)}`,
+      &quot;&quot;,
+      renderSource(source, blocks, sourceContextNote),
+      &quot;&quot;,
+      renderArticleMeta(article)
+    ].join(&quot;\n&quot;)
+  };
+}</pre></details>
+        
+        <details><summary>Schema / validator 源码</summary><pre>import {
+  createValidationResult,
+  isNonEmptyString,
+  isPlainObject,
+  requireFields
+} from &quot;./schemaValidation.js&quot;;
+
+export const UNIT_KNOWLEDGE_MAP_PROMPT_SCHEMA_NAME = &quot;shibei_v2_unit_knowledge_map&quot;;
+
+export const MICRO_ASSESSMENT_VALUES = [
+  &quot;high&quot;,
+  &quot;medium&quot;,
+  &quot;low&quot;,
+  &quot;context_only&quot;
+];
+
+export const MICRO_KNOWLEDGE_ROLES = [
+  &quot;definition&quot;,
+  &quot;boundary&quot;,
+  &quot;model_layer&quot;,
+  &quot;mechanism&quot;,
+  &quot;process_step&quot;,
+  &quot;scenario_application&quot;,
+  &quot;misconception&quot;,
+  &quot;example_case&quot;,
+  &quot;relationship&quot;
+];
+
+export const UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA = {
+  name: UNIT_KNOWLEDGE_MAP_PROMPT_SCHEMA_NAME,
+  type: &quot;object&quot;,
+  required: [&quot;units&quot;],
+  properties: {
+    units: {
+      type: &quot;array&quot;,
+      items: {
+        type: &quot;object&quot;,
+        required: [&quot;unitId&quot;, &quot;microKnowledgePoints&quot;],
+        properties: {
+          unitId: { type: &quot;string&quot; },
+          microKnowledgePoints: {
+            type: &quot;array&quot;,
+            items: {
+              type: &quot;object&quot;,
+              required: [
+                &quot;microId&quot;,
+                &quot;title&quot;,
+                &quot;summary&quot;,
+                &quot;role&quot;,
+                &quot;assessmentValue&quot;,
+                &quot;suggestedEvidenceAngles&quot;,
+                &quot;sourceAnchorId&quot;,
+                &quot;sourceSupport&quot;
+              ],
+              properties: {
+                microId: { type: &quot;string&quot; },
+                title: { type: &quot;string&quot; },
+                summary: { type: &quot;string&quot; },
+                role: { enum: MICRO_KNOWLEDGE_ROLES },
+                assessmentValue: { enum: MICRO_ASSESSMENT_VALUES },
+                suggestedEvidenceAngles: {
+                  type: &quot;array&quot;,
+                  items: { type: &quot;string&quot; }
+                },
+                sourceAnchorId: { type: &quot;string&quot; },
+                sourceSupport: { type: &quot;string&quot; }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+export function validateUnitKnowledgeMapOutput(output, { unitIds = new Set(), sourceAnchorIds = new Set() } = {}) {
+  const errors = [];
+
+  if (!isPlainObject(output)) {
+    return createValidationResult([&quot;unitKnowledgeMap output must be an object&quot;]);
+  }
+
+  if (!Array.isArray(output.units) || output.units.length === 0) {
+    errors.push(&quot;unitKnowledgeMap.units must be a non-empty array&quot;);
+    return createValidationResult(errors);
+  }
+
+  const seenUnits = new Set();
+  const seenMicroIds = new Set();
+
+  output.units.forEach((unit, unitIndex) =&gt; {
+    const path = `unitKnowledgeMap.units[${unitIndex}]`;
+    if (!isPlainObject(unit)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    requireFields(unit, [&quot;unitId&quot;], path, errors);
+
+    if (isNonEmptyString(unit.unitId)) {
+      if (seenUnits.has(unit.unitId)) {
+        errors.push(`${path}.unitId must be unique`);
+      }
+      seenUnits.add(unit.unitId);
+      if (unitIds.size &gt; 0 &amp;&amp; !unitIds.has(unit.unitId)) {
+        errors.push(`${path}.unitId must reference a reviewPathPlan unit`);
+      }
+    }
+
+    if (!Array.isArray(unit.microKnowledgePoints) || unit.microKnowledgePoints.length === 0) {
+      errors.push(`${path}.microKnowledgePoints must be a non-empty array`);
+      return;
+    }
+
+    unit.microKnowledgePoints.forEach((micro, microIndex) =&gt; {
+      const microPath = `${path}.microKnowledgePoints[${microIndex}]`;
+      if (!isPlainObject(micro)) {
+        errors.push(`${microPath} must be an object`);
+        return;
+      }
+      requireFields(
+        micro,
+        [
+          &quot;microId&quot;,
+          &quot;title&quot;,
+          &quot;summary&quot;,
+          &quot;role&quot;,
+          &quot;assessmentValue&quot;,
+          &quot;sourceAnchorId&quot;,
+          &quot;sourceSupport&quot;
+        ],
+        microPath,
+        errors
+      );
+
+      if (isNonEmptyString(micro.microId)) {
+        if (seenMicroIds.has(micro.microId)) {
+          errors.push(`${microPath}.microId must be unique`);
+        }
+        seenMicroIds.add(micro.microId);
+      }
+      if (isNonEmptyString(micro.role) &amp;&amp; !MICRO_KNOWLEDGE_ROLES.includes(micro.role)) {
+        errors.push(`${microPath}.role must be one of ${MICRO_KNOWLEDGE_ROLES.join(&quot;, &quot;)}`);
+      }
+      if (
+        isNonEmptyString(micro.assessmentValue) &amp;&amp;
+        !MICRO_ASSESSMENT_VALUES.includes(micro.assessmentValue)
+      ) {
+        errors.push(`${microPath}.assessmentValue must be one of ${MICRO_ASSESSMENT_VALUES.join(&quot;, &quot;)}`);
+      }
+      if (!Array.isArray(micro.suggestedEvidenceAngles)) {
+        errors.push(`${microPath}.suggestedEvidenceAngles must be an array`);
+      }
+      if (
+        isNonEmptyString(micro.sourceAnchorId) &amp;&amp;
+        sourceAnchorIds.size &gt; 0 &amp;&amp;
+        !sourceAnchorIds.has(micro.sourceAnchorId)
+      ) {
+        errors.push(`${microPath}.sourceAnchorId must reference a reviewPathPlan sourceAnchor`);
+      }
+    });
+  });
+
+  for (const unitId of unitIds) {
+    if (!seenUnits.has(unitId)) {
+      errors.push(`unitKnowledgeMap.units must include unit ${unitId}`);
+    }
+  }
+
+  return createValidationResult(errors);
+}
+
+export function normalizeUnitKnowledgeMapOutput(output) {
+  if (!isPlainObject(output) || !Array.isArray(output.units)) return output;
+
+  return {
+    ...output,
+    units: output.units.map((unit) =&gt; {
+      if (!isPlainObject(unit) || !Array.isArray(unit.microKnowledgePoints)) return unit;
+      return {
+        ...unit,
+        microKnowledgePoints: unit.microKnowledgePoints.map((micro) =&gt; normalizeMicroKnowledgePoint(micro))
+      };
+    })
+  };
+}
+
+function normalizeMicroKnowledgePoint(micro) {
+  if (!isPlainObject(micro)) return micro;
+  const normalizedRole = normalizeMicroRole(micro.role);
+  const normalizedAssessmentValue = normalizeAssessmentValue(micro.assessmentValue);
+  return {
+    ...micro,
+    ...(micro.role !== normalizedRole ? { rawRole: micro.role } : {}),
+    ...(micro.assessmentValue !== normalizedAssessmentValue ? { rawAssessmentValue: micro.assessmentValue } : {}),
+    role: normalizedRole,
+    assessmentValue: normalizedAssessmentValue,
+    suggestedEvidenceAngles: Array.isArray(micro.suggestedEvidenceAngles)
+      ? micro.suggestedEvidenceAngles
+      : []
+  };
+}
+
+function normalizeMicroRole(value) {
+  if (MICRO_KNOWLEDGE_ROLES.includes(value)) return value;
+  const normalized = String(value || &quot;&quot;).trim().toLowerCase();
+  if (!normalized) return &quot;relationship&quot;;
+  if (normalized.includes(&quot;definition&quot;) || normalized.includes(&quot;concept&quot;) || normalized.includes(&quot;概念&quot;) || normalized.includes(&quot;定义&quot;)) {
+    return &quot;definition&quot;;
+  }
+  if (normalized.includes(&quot;boundary&quot;) || normalized.includes(&quot;limit&quot;) || normalized.includes(&quot;边界&quot;)) {
+    return &quot;boundary&quot;;
+  }
+  if (normalized.includes(&quot;layer&quot;) || normalized.includes(&quot;model&quot;) || normalized.includes(&quot;层&quot;)) {
+    return &quot;model_layer&quot;;
+  }
+  if (normalized.includes(&quot;mechanism&quot;) || normalized.includes(&quot;cause&quot;) || normalized.includes(&quot;effect&quot;) || normalized.includes(&quot;机制&quot;) || normalized.includes(&quot;因果&quot;)) {
+    return &quot;mechanism&quot;;
+  }
+  if (normalized.includes(&quot;process&quot;) || normalized.includes(&quot;step&quot;) || normalized.includes(&quot;流程&quot;) || normalized.includes(&quot;步骤&quot;)) {
+    return &quot;process_step&quot;;
+  }
+  if (normalized.includes(&quot;scenario&quot;) || normalized.includes(&quot;application&quot;) || normalized.includes(&quot;场景&quot;) || normalized.includes(&quot;应用&quot;)) {
+    return &quot;scenario_application&quot;;
+  }
+  if (normalized.includes(&quot;misconception&quot;) || normalized.includes(&quot;mistake&quot;) || normalized.includes(&quot;误区&quot;)) {
+    return &quot;misconception&quot;;
+  }
+  if (normalized.includes(&quot;example&quot;) || normalized.includes(&quot;case&quot;) || normalized.includes(&quot;案例&quot;) || normalized.includes(&quot;例子&quot;)) {
+    return &quot;example_case&quot;;
+  }
+  return &quot;relationship&quot;;
+}
+
+function normalizeAssessmentValue(value) {
+  if (MICRO_ASSESSMENT_VALUES.includes(value)) return value;
+  const normalized = String(value || &quot;&quot;).trim().toLowerCase();
+  if ([&quot;required&quot;, &quot;important&quot;, &quot;core&quot;, &quot;high_value&quot;, &quot;核心&quot;, &quot;重要&quot;].some((item) =&gt; normalized.includes(item))) {
+    return &quot;high&quot;;
+  }
+  if ([&quot;supporting&quot;, &quot;medium&quot;, &quot;secondary&quot;, &quot;辅助&quot;, &quot;中&quot;].some((item) =&gt; normalized.includes(item))) {
+    return &quot;medium&quot;;
+  }
+  if ([&quot;context&quot;, &quot;background&quot;, &quot;背景&quot;].some((item) =&gt; normalized.includes(item))) {
+    return &quot;context_only&quot;;
+  }
+  if ([&quot;low&quot;, &quot;optional&quot;, &quot;低&quot;].some((item) =&gt; normalized.includes(item))) {
+    return &quot;low&quot;;
+  }
+  return &quot;medium&quot;;
+}
+</pre></details>
+      </div>
+    </div>
+  </article>
+<article id="taskBriefPlan" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-active_model">active_model</div>
+        <h3>Task Brief Plan</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>taskBriefPlan</code></dd>
+          <dt>调用方式</dt><dd>1 call / chapter</dd>
+          <dt>职责</dt><dd>把 micro knowledge 映射成 practice goals 和 question plans；ECD 是隐性思考方式，不输出重 ECD JSON。</dd>
+          <dt>输入</dt><dd>reviewPathPlan + unitKnowledgeMap + selected source window</dd>
+          <dt>输出</dt><dd>practiceGoals + questionPlans</dd>
+          <dt>下一步</dt><dd>QuestionBriefAdapter</dd>
+          <dt>Prompt builder</dt><dd><code>buildTaskBriefPlanMessages</code></dd>
+          <dt>Schema file</dt><dd><code>prompts/taskBriefPlan.js</code></dd>
+          
+        </dl>
+      </div>
+      <div>
+        <div class="prompt-lines">
+          <strong>Prompt 文案逐句预览</strong>
+          <ol><li>阶段：taskBriefPlan。</li><li>任务：为整章所有 unit 一次性生成轻量练习任务简报；本阶段不生成用户可见题目。</li><li>核心设计方式：</li><li>- Evidence-Centered Design 是你的思考方法，不是要输出的字段。</li><li>- 你要自然完成这条链路：学习对象 -&gt; 可观察掌握证据 -&gt; 适合的练习任务 -&gt; 题型计划。</li><li>- 输出只保留 practiceGoals 和 questionPlans；不要输出 ECD 术语字段、推理链、候选矩阵或长篇解释。</li><li>- unitKnowledgeMap.microKnowledgePoints 是上游已经拆好的小知识点 inventory；不要重新压缩成一句大话。</li><li>- 每个 high / medium microKnowledgePoint 都要被某个 practiceGoal 或 questionPlan 覆盖；context_only 可以不出题。</li><li>- 一个 unit 可以有多个题目计划，数量由掌握证据和考察角度自然决定，不写死题目数。</li><li>- 不要为了减少题量漏掉独立的小知识点；也不要为了凑题生成无证据的题。</li><li>题型选择：</li><li>- multiple_choice 适合核心理解、边界判断、误区识别、场景迁移。</li><li>- matching 适合天然关系结构：分层模型、类型集合、流程步骤、信号动作、角色职责、验证维度。</li><li>- “模型层级 -&gt; 对应作用”“流程步骤 -&gt; 目的”“角色 -&gt; 职责”这类结构关系，如果 microKnowledgePoints 中有对应关系，应生成 matching 计划。</li><li>- matching 不是机械名词释义；它要考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。</li><li>字段规则：</li><li>- units 数组必须覆盖 reviewPathPlan.units 的每个 unit，且 unitId 一一对应。</li><li>- 不要输出 practiceGoal.id、questionPlan.id、practiceGoalId 或 sourceAnchorId；这些稳定字段由后端 adapter 自动补齐。</li><li>- practiceGoal.target 写成短句，最长约 30 个中文字，只描述用户要掌握什么。</li><li>- practiceGoal.commonMisconception 写真实误区，最长约 20 个中文字。</li><li>- practiceGoals 和 questionPlans 都只用 microIds 引用 unitKnowledgeMap.microKnowledgePoints；不要输出 targetIds。</li><li>- 不要输出 microKnowledgePoint 的正文、定义或解释；只输出它们的 id。</li><li>- questionPlans[].goalIndex 是 1-based 数字，指向同一 unit 的第几个 practiceGoal。</li><li>- questionPlans[].type 为 matching 时必须填写 relationType；multiple_choice 不要填写 relationType。</li></ol>
+        </div>
+        <details open><summary>Prompt builder 源码</summary><pre>function buildTaskBriefPlanMessages({ article, source, blocks, sourceContextNote, plan, unitKnowledgeMap }) {
+  return {
+    system: baseSystem(),
+    user: [
+      &quot;阶段：taskBriefPlan。&quot;,
+      &quot;任务：为整章所有 unit 一次性生成轻量练习任务简报；本阶段不生成用户可见题目。&quot;,
+      &quot;核心设计方式：&quot;,
+      &quot;- Evidence-Centered Design 是你的思考方法，不是要输出的字段。&quot;,
+      &quot;- 你要自然完成这条链路：学习对象 -&gt; 可观察掌握证据 -&gt; 适合的练习任务 -&gt; 题型计划。&quot;,
+      &quot;- 输出只保留 practiceGoals 和 questionPlans；不要输出 ECD 术语字段、推理链、候选矩阵或长篇解释。&quot;,
+      &quot;- unitKnowledgeMap.microKnowledgePoints 是上游已经拆好的小知识点 inventory；不要重新压缩成一句大话。&quot;,
+      &quot;- 每个 high / medium microKnowledgePoint 都要被某个 practiceGoal 或 questionPlan 覆盖；context_only 可以不出题。&quot;,
+      &quot;- 一个 unit 可以有多个题目计划，数量由掌握证据和考察角度自然决定，不写死题目数。&quot;,
+      &quot;- 不要为了减少题量漏掉独立的小知识点；也不要为了凑题生成无证据的题。&quot;,
+      &quot;题型选择：&quot;,
+      &quot;- multiple_choice 适合核心理解、边界判断、误区识别、场景迁移。&quot;,
+      &quot;- matching 适合天然关系结构：分层模型、类型集合、流程步骤、信号动作、角色职责、验证维度。&quot;,
+      &quot;- “模型层级 -&gt; 对应作用”“流程步骤 -&gt; 目的”“角色 -&gt; 职责”这类结构关系，如果 microKnowledgePoints 中有对应关系，应生成 matching 计划。&quot;,
+      &quot;- matching 不是机械名词释义；它要考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。&quot;,
+      &quot;字段规则：&quot;,
+      &quot;- units 数组必须覆盖 reviewPathPlan.units 的每个 unit，且 unitId 一一对应。&quot;,
+      &quot;- 不要输出 practiceGoal.id、questionPlan.id、practiceGoalId 或 sourceAnchorId；这些稳定字段由后端 adapter 自动补齐。&quot;,
+      &quot;- practiceGoal.target 写成短句，最长约 30 个中文字，只描述用户要掌握什么。&quot;,
+      &quot;- practiceGoal.commonMisconception 写真实误区，最长约 20 个中文字。&quot;,
+      &quot;- practiceGoals 和 questionPlans 都只用 microIds 引用 unitKnowledgeMap.microKnowledgePoints；不要输出 targetIds。&quot;,
+      &quot;- 不要输出 microKnowledgePoint 的正文、定义或解释；只输出它们的 id。&quot;,
+      &quot;- questionPlans[].goalIndex 是 1-based 数字，指向同一 unit 的第几个 practiceGoal。&quot;,
+      &quot;- questionPlans[].type 为 matching 时必须填写 relationType；multiple_choice 不要填写 relationType。&quot;,
+      &quot;&quot;,
+      `reviewPathPlan:\n${JSON.stringify(plan, null, 2)}`,
+      &quot;&quot;,
+      `unitKnowledgeMap:\n${JSON.stringify(unitKnowledgeMap || {}, null, 2)}`,
+      &quot;&quot;,
+      renderSource(source, blocks, sourceContextNote),
+      &quot;&quot;,
+      renderArticleMeta(article)
+    ].join(&quot;\n&quot;)
+  };
+}</pre></details>
+        
+        <details><summary>Schema / validator 源码</summary><pre>import {
+  createValidationResult,
+  isNonEmptyString,
+  isPlainObject
+} from &quot;./schemaValidation.js&quot;;
+import {
+  PRACTICE_GOAL_KINDS,
+  QUESTION_PLAN_PURPOSES,
+  QUESTION_PLAN_TYPES,
+  MATCHING_RELATION_TYPES,
+  normalizeUnitPracticePlanOutput,
+  validateUnitPracticePlanOutput
+} from &quot;./unitPracticePlan.js&quot;;
+
+export const TASK_BRIEF_PLAN_PROMPT_SCHEMA_NAME = &quot;shibei_v2_task_brief_plan&quot;;
+
+export const TASK_BRIEF_PLAN_OUTPUT_SCHEMA = {
+  name: TASK_BRIEF_PLAN_PROMPT_SCHEMA_NAME,
+  type: &quot;object&quot;,
+  required: [&quot;units&quot;],
+  additionalProperties: false,
+  properties: {
+    units: {
+      type: &quot;array&quot;,
+      items: {
+        type: &quot;object&quot;,
+        required: [&quot;unitId&quot;, &quot;practiceGoals&quot;, &quot;questionPlans&quot;],
+        additionalProperties: false,
+        properties: {
+          unitId: { type: &quot;string&quot; },
+          practiceGoals: {
+            type: &quot;array&quot;,
+            items: {
+              type: &quot;object&quot;,
+              required: [&quot;kind&quot;, &quot;target&quot;, &quot;commonMisconception&quot;, &quot;microIds&quot;],
+              additionalProperties: false,
+              properties: {
+                kind: { enum: PRACTICE_GOAL_KINDS },
+                target: { type: &quot;string&quot;, maxLength: 80 },
+                commonMisconception: { type: &quot;string&quot;, maxLength: 48 },
+                microIds: {
+                  type: &quot;array&quot;,
+                  minItems: 1,
+                  items: { type: &quot;string&quot; }
+                }
+              }
+            }
+          },
+          questionPlans: {
+            type: &quot;array&quot;,
+            items: {
+              type: &quot;object&quot;,
+              required: [&quot;type&quot;, &quot;purpose&quot;, &quot;goalIndex&quot;, &quot;microIds&quot;],
+              additionalProperties: false,
+              properties: {
+                type: { enum: QUESTION_PLAN_TYPES },
+                purpose: { enum: QUESTION_PLAN_PURPOSES },
+                goalIndex: { type: &quot;integer&quot;, minimum: 1 },
+                relationType: { enum: MATCHING_RELATION_TYPES },
+                microIds: {
+                  type: &quot;array&quot;,
+                  minItems: 1,
+                  items: { type: &quot;string&quot; }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+export function normalizeTaskBriefPlanOutput(output, { sourceAnchorByUnit } = {}) {
+  if (!isPlainObject(output)) return output;
+  return {
+    ...output,
+    units: Array.isArray(output.units)
+      ? output.units.map((unitPlan) =&gt;
+          normalizeHydratedUnitPracticePlan(unitPlan, {
+            sourceAnchorId: sourceAnchorByUnit instanceof Map
+              ? sourceAnchorByUnit.get(unitPlan?.unitId)
+              : undefined
+          })
+        )
+      : output.units
+  };
+}
+
+function normalizeHydratedUnitPracticePlan(unitPlan, { sourceAnchorId } = {}) {
+  if (!isPlainObject(unitPlan)) return unitPlan;
+  const unitId = typeof unitPlan.unitId === &quot;string&quot; ? unitPlan.unitId : &quot;unit&quot;;
+  const hydratedGoals = Array.isArray(unitPlan.practiceGoals)
+    ? unitPlan.practiceGoals.map((goal, index) =&gt;
+        hydratePracticeGoal(goal, {
+          unitId,
+          index,
+          sourceAnchorId
+        })
+      )
+    : unitPlan.practiceGoals;
+  const goalIds = Array.isArray(hydratedGoals) ? hydratedGoals.map((goal) =&gt; goal?.id) : [];
+  const hydratedPlans = Array.isArray(unitPlan.questionPlans)
+    ? unitPlan.questionPlans.map((plan, index) =&gt;
+        hydrateQuestionPlan(plan, {
+          unitId,
+          index,
+          goalIds,
+          sourceAnchorId
+        })
+      )
+    : unitPlan.questionPlans;
+  return normalizeUnitPracticePlanOutput({
+    ...unitPlan,
+    practiceGoals: hydratedGoals,
+    questionPlans: hydratedPlans
+  });
+}
+
+function hydratePracticeGoal(goal, { unitId, index, sourceAnchorId }) {
+  if (!isPlainObject(goal)) return goal;
+  return {
+    ...goal,
+    id: isNonEmptyString(goal.id) ? goal.id : `goal-${unitId}-${String(index + 1).padStart(3, &quot;0&quot;)}`,
+    sourceAnchorId: isNonEmptyString(goal.sourceAnchorId) ? goal.sourceAnchorId : sourceAnchorId
+  };
+}
+
+function hydrateQuestionPlan(plan, { unitId, index, goalIds, sourceAnchorId }) {
+  if (!isPlainObject(plan)) return plan;
+  const goalIndex = Number.isInteger(plan.goalIndex) ? plan.goalIndex : 1;
+  const practiceGoalId = isNonEmptyString(plan.practiceGoalId)
+    ? plan.practiceGoalId
+    : goalIds[Math.max(0, goalIndex - 1)] || goalIds[0];
+  return {
+    ...plan,
+    id: isNonEmptyString(plan.id) ? plan.id : `q-${unitId}-${String(index + 1).padStart(3, &quot;0&quot;)}`,
+    practiceGoalId,
+    sourceAnchorId: isNonEmptyString(plan.sourceAnchorId) ? plan.sourceAnchorId : sourceAnchorId
+  };
+}
+
+export function validateTaskBriefPlanOutput(output, { unitIds, sourceAnchorByUnit } = {}) {
+  const errors = [];
+
+  if (!isPlainObject(output)) {
+    return createValidationResult([&quot;taskBriefPlan output must be an object&quot;]);
+  }
+  if (!Array.isArray(output.units) || output.units.length === 0) {
+    return createValidationResult([&quot;taskBriefPlan.units must be a non-empty array&quot;]);
+  }
+
+  const expectedUnitIds = unitIds instanceof Set ? unitIds : new Set();
+  const seenUnitIds = new Set();
+
+  output.units.forEach((unitPlan, index) =&gt; {
+    const path = `taskBriefPlan.units[${index}]`;
+    if (!isPlainObject(unitPlan)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    if (!isNonEmptyString(unitPlan.unitId)) {
+      errors.push(`${path}.unitId is required`);
+      return;
+    }
+    if (seenUnitIds.has(unitPlan.unitId)) {
+      errors.push(`${path}.unitId must be unique`);
+    }
+    seenUnitIds.add(unitPlan.unitId);
+    if (expectedUnitIds.size &gt; 0 &amp;&amp; !expectedUnitIds.has(unitPlan.unitId)) {
+      errors.push(`${path}.unitId must reference reviewPathPlan.units`);
+    }
+
+    const sourceAnchorId = sourceAnchorByUnit instanceof Map
+      ? sourceAnchorByUnit.get(unitPlan.unitId)
+      : undefined;
+    const validation = validateUnitPracticePlanOutput(unitPlan, {
+      unitId: unitPlan.unitId,
+      sourceAnchorId
+    });
+    if (!validation.ok) {
+      validation.errors.forEach((error) =&gt; errors.push(`${path}: ${error}`));
+    }
+    validateCompactTaskBrief(unitPlan, path, errors);
+  });
+
+  expectedUnitIds.forEach((unitId) =&gt; {
+    if (!seenUnitIds.has(unitId)) {
+      errors.push(`taskBriefPlan.units missing unitId ${unitId}`);
+    }
+  });
+
+  return createValidationResult(errors);
+}
+
+export function getTaskBriefForUnit(taskBriefPlan, unitId) {
+  return (taskBriefPlan?.units || []).find((unitPlan) =&gt; unitPlan?.unitId === unitId) || null;
+}
+
+function validateCompactTaskBrief(unitPlan, path, errors) {
+  if (Array.isArray(unitPlan.practiceGoals)) {
+    unitPlan.practiceGoals.forEach((goal, index) =&gt; {
+      const goalPath = `${path}.practiceGoals[${index}]`;
+      validateRequiredMicroIds(goal?.microIds, `${goalPath}.microIds`, errors);
+      validateMaxLength(goal?.target, 80, `${goalPath}.target`, errors);
+      validateMaxLength(goal?.commonMisconception, 48, `${goalPath}.commonMisconception`, errors);
+    });
+  }
+  if (Array.isArray(unitPlan.questionPlans)) {
+    unitPlan.questionPlans.forEach((plan, index) =&gt; {
+      validateRequiredMicroIds(plan?.microIds, `${path}.questionPlans[${index}].microIds`, errors);
+    });
+  }
+}
+
+function validateRequiredMicroIds(items, path, errors) {
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push(`${path} must be a non-empty array`);
+  }
+}
+
+function validateMaxLength(value, maxLength, path, errors) {
+  if (typeof value === &quot;string&quot; &amp;&amp; value.length &gt; maxLength) {
+    errors.push(`${path} must be at most ${maxLength} characters`);
+  }
+}
+</pre></details>
+      </div>
+    </div>
+  </article>
+<article id="QuestionBriefAdapter" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-deterministic_adapter">deterministic_adapter</div>
+        <h3>Question Brief Adapter</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>QuestionBriefAdapter</code></dd>
+          <dt>调用方式</dt><dd>0 model calls</dd>
+          <dt>职责</dt><dd>用代码把 taskBriefPlan 和 micro evidence 压成每个 unit 的 compact questionBriefs。</dd>
+          <dt>输入</dt><dd>taskBriefPlan + unitKnowledgeMap + unitSourceContexts</dd>
+          <dt>输出</dt><dd>Map&lt;unitId, questionBriefs[]&gt;</dd>
+          <dt>下一步</dt><dd>multipleChoiceDraftUnitBatch / matchingDraftBatch</dd>
+          
+          
+          <dt>Code file</dt><dd><code>pipeline/questionBriefs.js</code></dd>
+        </dl>
+      </div>
+      <div>
+        <p class="meta">这个阶段没有模型 prompt；它是确定性代码层。</p>
+        
+        <details open><summary>Adapter 源码</summary><pre>export function buildQuestionBriefsByUnit({
+  taskBriefPlan,
+  unitKnowledgeMap,
+  unitSourceContexts
+}) {
+  const microByUnit = new Map(
+    (unitKnowledgeMap?.units || []).map((unit) =&gt; [
+      unit.unitId,
+      new Map((unit.microKnowledgePoints || []).map((micro) =&gt; [micro.microId, micro]))
+    ])
+  );
+  const sourceContextByUnit = unitSourceContexts instanceof Map
+    ? unitSourceContexts
+    : new Map(Object.entries(unitSourceContexts || {}));
+
+  return new Map(
+    (taskBriefPlan?.units || []).map((unitPlan) =&gt; {
+      const goalsById = new Map((unitPlan.practiceGoals || []).map((goal) =&gt; [goal.id, goal]));
+      const unitMicro = microByUnit.get(unitPlan.unitId) || new Map();
+      const sourceContext = compactSourceContext(sourceContextByUnit.get(unitPlan.unitId));
+
+      return [
+        unitPlan.unitId,
+        {
+          unitId: unitPlan.unitId,
+          sourceContext,
+          questionBriefs: (unitPlan.questionPlans || []).map((questionPlan) =&gt; {
+            const goal = goalsById.get(questionPlan.practiceGoalId);
+            const micros = (questionPlan.microIds || [])
+              .map((id) =&gt; unitMicro.get(id))
+              .filter(Boolean);
+
+            return {
+              questionPlanId: questionPlan.id,
+              type: questionPlan.type,
+              purpose: questionPlan.purpose,
+              ...(questionPlan.relationType ? { relationType: questionPlan.relationType } : {}),
+              practiceGoal: {
+                id: goal?.id,
+                kind: goal?.kind,
+                target: goal?.target,
+                commonMisconception: goal?.commonMisconception
+              },
+              evidence: {
+                microIds: Array.isArray(questionPlan.microIds) ? questionPlan.microIds : [],
+                microTitles: micros.map((micro) =&gt; micro.title).filter(Boolean),
+                microSummaries: micros.map((micro) =&gt; micro.summary).filter(Boolean),
+                evidenceAngles: micros.flatMap((micro) =&gt;
+                  Array.isArray(micro.suggestedEvidenceAngles)
+                    ? micro.suggestedEvidenceAngles
+                    : []
+                )
+              },
+              sourceAnchorId: questionPlan.sourceAnchorId
+            };
+          })
+        }
+      ];
+    })
+  );
+}
+
+function compactSourceContext(sourceContext) {
+  return {
+    blocks: (sourceContext?.blocks || []).map((block) =&gt; ({
+      id: block.id,
+      type: block.type,
+      text: block.text
+    })),
+    sourceContextNote: sourceContext?.sourceContextNote || {}
+  };
+}
+</pre></details>
+        
+      </div>
+    </div>
+  </article>
+<article id="multipleChoiceDraftUnitBatch" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-active_model">active_model</div>
+        <h3>Multiple Choice Draft Unit Batch</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>multipleChoiceDraftUnitBatch</code></dd>
+          <dt>调用方式</dt><dd>N calls / units with MC briefs</dd>
+          <dt>职责</dt><dd>只为当前 unit 生成选择题，避免全章 MC 大 JSON 截断。</dd>
+          <dt>输入</dt><dd>current unit + current unit questionBriefs + current unit sourceContext</dd>
+          <dt>输出</dt><dd>unitId + questions[] type=multiple_choice</dd>
+          <dt>下一步</dt><dd>mergeTypedQuestionDrafts</dd>
+          <dt>Prompt builder</dt><dd><code>buildMultipleChoiceDraftUnitBatchMessages</code></dd>
+          <dt>Schema file</dt><dd><code>prompts/multipleChoiceDraftUnitBatch.js</code></dd>
+          
+        </dl>
+      </div>
+      <div>
+        <div class="prompt-lines">
+          <strong>Prompt 文案逐句预览</strong>
+          <ol><li>阶段：multipleChoiceDraftUnitBatch。</li><li>任务：只为当前 unit 生成选择题小批次；不要生成其他 unit 的题。</li><li>输入边界：</li><li>- 当前调用只包含一个 unit、这个 unit 的 multiple_choice questionBriefs、以及这个 unit 的 sourceContext。</li><li>- 不要重做知识点规划；每个 questionBrief 生成一题。</li><li>- 输出 unitId 必须等于当前 unit.id。</li><li>- questions 数量必须等于 questionBriefs 数量，题目 id 必须等于 questionBrief.questionPlanId。</li><li>ECD 设计约束：</li><li>- 每题必须围绕 questionBrief.practiceGoal.target 的可观察掌握证据来写。</li><li>- 每题必须使用 questionBrief.practiceGoal.commonMisconception 设计至少一个真实干扰项。</li><li>- 干扰项还要参考 evidence.microSummaries 和 evidence.evidenceAngles，体现边界、误区、结构或迁移混淆。</li><li>- 不要输出完整 ECD JSON，不要输出推理链、候选矩阵或批注。</li><li>选择题规则：</li><li>- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。</li><li>- 4 个选项只能有一个正确答案；正确选项不能明显更长。</li><li>- 选项尽量短，考理解、边界、误区或场景迁移，不做阅读理解复述。</li><li>- correctUnderstanding 写正确理解，misconception 写本题主要误区。</li><li>- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。</li><li>source 使用规则：</li><li>- 只能引用当前 sourceContext.blocks，不要使用整章全文或其他 unit 的 source blocks。</li><li>- sourceAnchorId 必须等于 questionBrief.sourceAnchorId。</li></ol>
+        </div>
+        <details open><summary>Prompt builder 源码</summary><pre>function buildMultipleChoiceDraftUnitBatchMessages({
+  article,
+  source,
+  unit,
+  questionBriefs,
+  sourceContext
+}) {
+  return {
+    system: baseSystem(),
+    user: [
+      &quot;阶段：multipleChoiceDraftUnitBatch。&quot;,
+      &quot;任务：只为当前 unit 生成选择题小批次；不要生成其他 unit 的题。&quot;,
+      &quot;输入边界：&quot;,
+      &quot;- 当前调用只包含一个 unit、这个 unit 的 multiple_choice questionBriefs、以及这个 unit 的 sourceContext。&quot;,
+      &quot;- 不要重做知识点规划；每个 questionBrief 生成一题。&quot;,
+      &quot;- 输出 unitId 必须等于当前 unit.id。&quot;,
+      &quot;- questions 数量必须等于 questionBriefs 数量，题目 id 必须等于 questionBrief.questionPlanId。&quot;,
+      &quot;ECD 设计约束：&quot;,
+      &quot;- 每题必须围绕 questionBrief.practiceGoal.target 的可观察掌握证据来写。&quot;,
+      &quot;- 每题必须使用 questionBrief.practiceGoal.commonMisconception 设计至少一个真实干扰项。&quot;,
+      &quot;- 干扰项还要参考 evidence.microSummaries 和 evidence.evidenceAngles，体现边界、误区、结构或迁移混淆。&quot;,
+      &quot;- 不要输出完整 ECD JSON，不要输出推理链、候选矩阵或批注。&quot;,
+      &quot;选择题规则：&quot;,
+      &quot;- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。&quot;,
+      &quot;- 4 个选项只能有一个正确答案；正确选项不能明显更长。&quot;,
+      &quot;- 选项尽量短，考理解、边界、误区或场景迁移，不做阅读理解复述。&quot;,
+      &quot;- correctUnderstanding 写正确理解，misconception 写本题主要误区。&quot;,
+      &quot;- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。&quot;,
+      &quot;source 使用规则：&quot;,
+      &quot;- 只能引用当前 sourceContext.blocks，不要使用整章全文或其他 unit 的 source blocks。&quot;,
+      &quot;- sourceAnchorId 必须等于 questionBrief.sourceAnchorId。&quot;,
+      &quot;&quot;,
+      `source:\n${JSON.stringify(source || {}, null, 2)}`,
+      &quot;&quot;,
+      `unit:\n${JSON.stringify(unit || {}, null, 2)}`,
+      &quot;&quot;,
+      `questionBriefs:\n${JSON.stringify(questionBriefs || [], null, 2)}`,
+      &quot;&quot;,
+      `sourceContext:\n${JSON.stringify(sourceContext || {}, null, 2)}`,
+      &quot;&quot;,
+      renderArticleMeta(article)
+    ].join(&quot;\n&quot;)
+  };
+}</pre></details>
+        
+        <details><summary>Schema / validator 源码</summary><pre>import {
+  MULTIPLE_CHOICE_DRAFT_OUTPUT_SCHEMA,
+  validateMultipleChoiceDraftOutput
+} from &quot;./multipleChoiceDraft.js&quot;;
+
+export const MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_PROMPT_SCHEMA_NAME =
+  &quot;shibei_v2_multiple_choice_draft_unit_batch&quot;;
+
+const MULTIPLE_CHOICE_QUESTION_SCHEMA =
+  MULTIPLE_CHOICE_DRAFT_OUTPUT_SCHEMA.properties.questions.items;
+
+export const MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_OUTPUT_SCHEMA = {
+  name: MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_PROMPT_SCHEMA_NAME,
+  type: &quot;object&quot;,
+  required: [&quot;unitId&quot;, &quot;questions&quot;],
+  additionalProperties: false,
+  properties: {
+    unitId: { type: &quot;string&quot; },
+    questions: {
+      type: &quot;array&quot;,
+      items: MULTIPLE_CHOICE_QUESTION_SCHEMA
+    }
+  }
+};
+
+export function validateMultipleChoiceDraftUnitBatchOutput(
+  output,
+  { unitId, questionPlanIds = new Set(), sourceAnchorId } = {}
+) {
+  const plans = Array.from(questionPlanIds).map((id) =&gt; ({
+    id,
+    type: &quot;multiple_choice&quot;,
+    sourceAnchorId
+  }));
+
+  return validateMultipleChoiceDraftOutput(output, {
+    unitId,
+    plans,
+    sourceAnchorId
+  });
+}
+</pre></details>
+      </div>
+    </div>
+  </article>
+<article id="matchingDraftBatch" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-active_model_conditional">active_model_conditional</div>
+        <h3>Matching Draft Batch</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>matchingDraftBatch</code></dd>
+          <dt>调用方式</dt><dd>0/1 call / chapter, only if matching plans exist</dd>
+          <dt>职责</dt><dd>为天然关系结构生成连线题，允许自然 2-4 对关系。</dd>
+          <dt>输入</dt><dd>matching unit draft inputs + compact source windows</dd>
+          <dt>输出</dt><dd>units[].questions[] type=matching</dd>
+          <dt>下一步</dt><dd>mergeTypedQuestionDrafts</dd>
+          <dt>Prompt builder</dt><dd><code>buildMatchingDraftBatchMessages</code></dd>
+          <dt>Schema file</dt><dd><code>prompts/matchingDraftBatch.js</code></dd>
+          
+        </dl>
+      </div>
+      <div>
+        <div class="prompt-lines">
+          <strong>Prompt 文案逐句预览</strong>
+          <ol><li>阶段：matchingDraftBatch。</li><li>任务：按 taskBriefPlan 只生成整章各 unit 的连线匹配题。</li><li>核心设计方式：</li><li>- ECD 是你的隐性思考方法：连线题要观察用户是否理解结构关系。</li><li>- 不要输出 ECD 字段、推理链、候选矩阵或批注。</li><li>- 不要新增 questionPlan；不要漏掉任何 matching questionPlan。</li><li>- 每个输出 unitId 必须原样对应输入。</li><li>- questions 数量必须等于该 unit 的 matching questionPlans 数量。</li><li>连线题规则：</li><li>- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。</li><li>- matching 只考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。</li><li>- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。</li><li>- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。</li><li>- 左右项文字要短，适合移动端连线卡片；不是长定义粘贴。</li><li>- explanation 是答后浮窗里的一段短解释，说明这组关系为什么重要。</li><li>source 使用规则：</li><li>- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。</li><li>- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。</li></ol>
+        </div>
+        <details open><summary>Prompt builder 源码</summary><pre>function buildMatchingDraftBatchMessages({ article, source, units }) {
+  return {
+    system: baseSystem(),
+    user: [
+      &quot;阶段：matchingDraftBatch。&quot;,
+      &quot;任务：按 taskBriefPlan 只生成整章各 unit 的连线匹配题。&quot;,
+      &quot;核心设计方式：&quot;,
+      &quot;- ECD 是你的隐性思考方法：连线题要观察用户是否理解结构关系。&quot;,
+      &quot;- 不要输出 ECD 字段、推理链、候选矩阵或批注。&quot;,
+      &quot;- 不要新增 questionPlan；不要漏掉任何 matching questionPlan。&quot;,
+      &quot;- 每个输出 unitId 必须原样对应输入。&quot;,
+      &quot;- questions 数量必须等于该 unit 的 matching questionPlans 数量。&quot;,
+      &quot;连线题规则：&quot;,
+      &quot;- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。&quot;,
+      &quot;- matching 只考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。&quot;,
+      &quot;- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。&quot;,
+      &quot;- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。&quot;,
+      &quot;- 左右项文字要短，适合移动端连线卡片；不是长定义粘贴。&quot;,
+      &quot;- explanation 是答后浮窗里的一段短解释，说明这组关系为什么重要。&quot;,
+      &quot;source 使用规则：&quot;,
+      &quot;- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。&quot;,
+      &quot;- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。&quot;,
+      &quot;&quot;,
+      `source:\n${JSON.stringify(source || {}, null, 2)}`,
+      &quot;&quot;,
+      `unitDraftInputs:\n${JSON.stringify(units || [], null, 2)}`,
+      &quot;&quot;,
+      renderArticleMeta(article)
+    ].join(&quot;\n&quot;)
+  };
+}</pre></details>
+        
+        <details><summary>Schema / validator 源码</summary><pre>import {
+  createValidationResult,
+  isNonEmptyString,
+  isPlainObject,
+  validateUniqueIds
+} from &quot;./schemaValidation.js&quot;;
+import {
+  MATCHING_DRAFT_OUTPUT_SCHEMA,
+  validateMatchingDraftOutput
+} from &quot;./matchingDraft.js&quot;;
+
+export const MATCHING_DRAFT_BATCH_PROMPT_SCHEMA_NAME = &quot;shibei_v2_matching_draft_batch&quot;;
+
+const MATCHING_QUESTION_SCHEMA = MATCHING_DRAFT_OUTPUT_SCHEMA.properties.questions.items;
+
+export const MATCHING_DRAFT_BATCH_OUTPUT_SCHEMA = {
+  name: MATCHING_DRAFT_BATCH_PROMPT_SCHEMA_NAME,
+  type: &quot;object&quot;,
+  required: [&quot;units&quot;],
+  properties: {
+    units: {
+      type: &quot;array&quot;,
+      items: {
+        type: &quot;object&quot;,
+        required: [&quot;unitId&quot;, &quot;questions&quot;],
+        properties: {
+          unitId: { type: &quot;string&quot; },
+          questions: {
+            type: &quot;array&quot;,
+            items: MATCHING_QUESTION_SCHEMA
+          }
+        }
+      }
+    }
+  }
+};
+
+export function validateMatchingDraftBatchOutput(
+  output,
+  { practicePlansByUnit, sourceAnchorByUnit } = {}
+) {
+  const errors = [];
+
+  if (!isPlainObject(output)) {
+    return createValidationResult([&quot;matchingDraftBatch output must be an object&quot;]);
+  }
+  if (!Array.isArray(output.units)) {
+    return createValidationResult([&quot;matchingDraftBatch.units must be an array&quot;]);
+  }
+
+  const expectedUnitIds = expectedUnitIdsWithQuestionType(practicePlansByUnit, &quot;matching&quot;);
+  const seenUnitIds = new Set();
+
+  output.units.forEach((unitDraft, index) =&gt; {
+    const path = `matchingDraftBatch.units[${index}]`;
+    if (!isPlainObject(unitDraft)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    if (!isNonEmptyString(unitDraft.unitId)) {
+      errors.push(`${path}.unitId is required`);
+      return;
+    }
+    if (seenUnitIds.has(unitDraft.unitId)) {
+      errors.push(`${path}.unitId must be unique`);
+    }
+    seenUnitIds.add(unitDraft.unitId);
+    if (expectedUnitIds.size &gt; 0 &amp;&amp; !expectedUnitIds.has(unitDraft.unitId)) {
+      errors.push(`${path}.unitId must reference a planned unit with matching plans`);
+    }
+    if (!Array.isArray(unitDraft.questions)) {
+      errors.push(`${path}.questions must be an array`);
+      return;
+    }
+    validateUniqueIds(unitDraft.questions, `${path}.questions`, errors);
+    unitDraft.questions.forEach((question, questionIndex) =&gt; {
+      if (!isPlainObject(question)) {
+        errors.push(`${path}.questions[${questionIndex}] must be an object`);
+      } else if (question.type !== &quot;matching&quot;) {
+        errors.push(`${path}.questions[${questionIndex}].type must be matching`);
+      }
+    });
+
+    const practicePlan = practicePlansByUnit?.get(unitDraft.unitId);
+    if (!practicePlan) return;
+    const sourceAnchorId = sourceAnchorByUnit?.get(unitDraft.unitId);
+    const validation = validateMatchingDraftOutput(
+      {
+        unitId: unitDraft.unitId,
+        questions: unitDraft.questions
+      },
+      {
+        unitId: unitDraft.unitId,
+        plans: practicePlan.questionPlans,
+        sourceAnchorId
+      }
+    );
+    if (!validation.ok) {
+      validation.errors.forEach((error) =&gt; errors.push(`${path}: ${error}`));
+    }
+  });
+
+  expectedUnitIds.forEach((unitId) =&gt; {
+    if (!seenUnitIds.has(unitId)) {
+      errors.push(`matchingDraftBatch.units missing unitId ${unitId}`);
+    }
+  });
+
+  return createValidationResult(errors);
+}
+
+export function getMatchingDraftForUnit(matchingDraftBatch, unitId) {
+  return (matchingDraftBatch?.units || []).find((unitDraft) =&gt; unitDraft?.unitId === unitId) || null;
+}
+
+function expectedUnitIdsWithQuestionType(practicePlansByUnit, type) {
+  if (!(practicePlansByUnit instanceof Map)) return new Set();
+  return new Set(
+    Array.from(practicePlansByUnit.entries())
+      .filter(([, practicePlan]) =&gt;
+        (practicePlan?.questionPlans || []).some((questionPlan) =&gt; questionPlan.type === type)
+      )
+      .map(([unitId]) =&gt; unitId)
+  );
+}
+</pre></details>
+      </div>
+    </div>
+  </article>
+<article id="unitCopyBatch" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-active_model">active_model</div>
+        <h3>Unit Copy Batch</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>unitCopyBatch</code></dd>
+          <dt>调用方式</dt><dd>1 call / chapter</dd>
+          <dt>职责</dt><dd>生成单元开场 overview 和单元完成 summary。</dd>
+          <dt>输入</dt><dd>unit + practicePlan + generated questions + sourceContext</dd>
+          <dt>输出</dt><dd>overview + summary</dd>
+          <dt>下一步</dt><dd>final reviewPath</dd>
+          <dt>Prompt builder</dt><dd><code>buildUnitCopyBatchMessages</code></dd>
+          <dt>Schema file</dt><dd><code>prompts/unitCopyBatch.js</code></dd>
+          
+        </dl>
+      </div>
+      <div>
+        <div class="prompt-lines">
+          <strong>Prompt 文案逐句预览</strong>
+          <ol><li>阶段：unitCopyBatch。</li><li>任务：为整章所有 unit 生成单元开场 overview 和单元完成 summary。</li><li>规则：</li><li>- 每个输入 unit 输出一个 units[] 对象，unitId 必须原样对应。</li><li>- overview.text 是知识点开场页正文，帮助用户进入当前知识点。</li><li>- overview 不要泄露题目答案，也不要复述第一题。</li><li>- summary.title 通常写“单元完成”。</li><li>- summary.text 只总结当前知识点，不总结整篇文章。</li><li>- 文案短、具体、适合移动端卡片。</li><li>- 不输出题目，不输出 ECD 字段。</li></ol>
+        </div>
+        <details open><summary>Prompt builder 源码</summary><pre>function buildUnitCopyBatchMessages({ article, source, units }) {
+  return {
+    system: baseSystem(),
+    user: [
+      &quot;阶段：unitCopyBatch。&quot;,
+      &quot;任务：为整章所有 unit 生成单元开场 overview 和单元完成 summary。&quot;,
+      &quot;规则：&quot;,
+      &quot;- 每个输入 unit 输出一个 units[] 对象，unitId 必须原样对应。&quot;,
+      &quot;- overview.text 是知识点开场页正文，帮助用户进入当前知识点。&quot;,
+      &quot;- overview 不要泄露题目答案，也不要复述第一题。&quot;,
+      &quot;- summary.title 通常写“单元完成”。&quot;,
+      &quot;- summary.text 只总结当前知识点，不总结整篇文章。&quot;,
+      &quot;- 文案短、具体、适合移动端卡片。&quot;,
+      &quot;- 不输出题目，不输出 ECD 字段。&quot;,
+      &quot;&quot;,
+      `source:\n${JSON.stringify(source || {}, null, 2)}`,
+      &quot;&quot;,
+      `unitCopyInputs:\n${JSON.stringify(units || [], null, 2)}`,
+      &quot;&quot;,
+      renderArticleMeta(article)
+    ].join(&quot;\n&quot;)
+  };
+}</pre></details>
+        
+        <details><summary>Schema / validator 源码</summary><pre>import {
+  createValidationResult,
+  isNonEmptyString,
+  isPlainObject
+} from &quot;./schemaValidation.js&quot;;
+import { validateUnitSummaryDraftOutput } from &quot;./unitSummaryDraft.js&quot;;
+
+export const UNIT_COPY_BATCH_PROMPT_SCHEMA_NAME = &quot;shibei_v2_unit_copy_batch&quot;;
+
+export const UNIT_COPY_BATCH_OUTPUT_SCHEMA = {
+  name: UNIT_COPY_BATCH_PROMPT_SCHEMA_NAME,
+  type: &quot;object&quot;,
+  required: [&quot;units&quot;],
+  properties: {
+    units: {
+      type: &quot;array&quot;,
+      items: {
+        type: &quot;object&quot;,
+        required: [&quot;unitId&quot;, &quot;overview&quot;, &quot;summary&quot;],
+        properties: {
+          unitId: { type: &quot;string&quot; },
+          overview: {
+            type: &quot;object&quot;,
+            required: [&quot;text&quot;],
+            properties: {
+              text: { type: &quot;string&quot; }
+            }
+          },
+          summary: {
+            type: &quot;object&quot;,
+            required: [&quot;title&quot;, &quot;text&quot;],
+            properties: {
+              title: { type: &quot;string&quot; },
+              text: { type: &quot;string&quot; }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+export function validateUnitCopyBatchOutput(output, { unitIds } = {}) {
+  const errors = [];
+
+  if (!isPlainObject(output)) {
+    return createValidationResult([&quot;unitCopyBatch output must be an object&quot;]);
+  }
+  if (!Array.isArray(output.units) || output.units.length === 0) {
+    return createValidationResult([&quot;unitCopyBatch.units must be a non-empty array&quot;]);
+  }
+
+  const expectedUnitIds = unitIds instanceof Set ? unitIds : new Set();
+  const seenUnitIds = new Set();
+
+  output.units.forEach((unitCopy, index) =&gt; {
+    const path = `unitCopyBatch.units[${index}]`;
+    if (!isPlainObject(unitCopy)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    if (!isNonEmptyString(unitCopy.unitId)) {
+      errors.push(`${path}.unitId is required`);
+      return;
+    }
+    if (seenUnitIds.has(unitCopy.unitId)) {
+      errors.push(`${path}.unitId must be unique`);
+    }
+    seenUnitIds.add(unitCopy.unitId);
+    if (expectedUnitIds.size &gt; 0 &amp;&amp; !expectedUnitIds.has(unitCopy.unitId)) {
+      errors.push(`${path}.unitId must reference a planned unit`);
+    }
+
+    const validation = validateUnitSummaryDraftOutput(unitCopy, { unitId: unitCopy.unitId });
+    if (!validation.ok) {
+      validation.errors.forEach((error) =&gt; errors.push(`${path}: ${error}`));
+    }
+  });
+
+  expectedUnitIds.forEach((unitId) =&gt; {
+    if (!seenUnitIds.has(unitId)) {
+      errors.push(`unitCopyBatch.units missing unitId ${unitId}`);
+    }
+  });
+
+  return createValidationResult(errors);
+}
+
+export function getUnitCopyForUnit(unitCopyBatch, unitId) {
+  return (unitCopyBatch?.units || []).find((unitCopy) =&gt; unitCopy?.unitId === unitId) || null;
+}
+</pre></details>
+      </div>
+    </div>
+  </article>
+<article id="qualityJudge" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-optional_disabled">optional_disabled</div>
+        <h3>Quality Judge</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>qualityJudge</code></dd>
+          <dt>调用方式</dt><dd>默认 0 calls；V2_ENABLE_QUALITY_JUDGE=1 时启用</dd>
+          <dt>职责</dt><dd>实验性诊断，不在当前默认主链路拦截题目。</dd>
+          <dt>输入</dt><dd>candidate reviewPath</dd>
+          <dt>输出</dt><dd>verdict + issues</dd>
+          <dt>下一步</dt><dd>quality diagnostics</dd>
+          <dt>Prompt builder</dt><dd><code>buildQualityJudgeMessages</code></dd>
+          <dt>Schema file</dt><dd><code>prompts/qualityJudge.js</code></dd>
+          
+        </dl>
+      </div>
+      <div>
+        <div class="prompt-lines">
+          <strong>Prompt 文案逐句预览</strong>
+          <ol><li>阶段：qualityJudge。</li><li>任务：检查候选 review path 是否适合进入前端。</li><li>检查重点：</li><li>- source anchor 是否真实支撑每个知识点和题目。</li><li>- 选择题是否只有一个正确答案。</li><li>- 干扰项是否承载真实误区，正确选项是否过于像标准答案。</li><li>- 连线题是否一一对应，且匹配的是职责、边界、时机、作用或验证维度，不是机械名词解释。</li><li>- explanation 是否短、清晰、能解释题目核心，且不包含“正确选项A/B/C/D”。</li><li>- 题干是否自足，是否避免“根据本文/根据文章/这里的/上述”等原文回忆词。</li><li>- UI 是否能承载：选择题 4 项，连线题左右 2-4 项且数量一致。</li><li>判定规则：</li><li>- 发现上述任一严重问题时 verdict 必须是 revise 或 discard，不能 pass。</li></ol>
+        </div>
+        <details open><summary>Prompt builder 源码</summary><pre>function buildQualityJudgeMessages({ article, reviewPath }) {
+  return {
+    system: baseSystem(),
+    user: [
+      &quot;阶段：qualityJudge。&quot;,
+      &quot;任务：检查候选 review path 是否适合进入前端。&quot;,
+      &quot;检查重点：&quot;,
+      &quot;- source anchor 是否真实支撑每个知识点和题目。&quot;,
+      &quot;- 选择题是否只有一个正确答案。&quot;,
+      &quot;- 干扰项是否承载真实误区，正确选项是否过于像标准答案。&quot;,
+      &quot;- 连线题是否一一对应，且匹配的是职责、边界、时机、作用或验证维度，不是机械名词解释。&quot;,
+      &quot;- explanation 是否短、清晰、能解释题目核心，且不包含“正确选项A/B/C/D”。&quot;,
+      &quot;- 题干是否自足，是否避免“根据本文/根据文章/这里的/上述”等原文回忆词。&quot;,
+      &quot;- UI 是否能承载：选择题 4 项，连线题左右 2-4 项且数量一致。&quot;,
+      &quot;判定规则：&quot;,
+      &quot;- 发现上述任一严重问题时 verdict 必须是 revise 或 discard，不能 pass。&quot;,
+      &quot;&quot;,
+      renderArticleMeta(article),
+      &quot;&quot;,
+      `候选 reviewPath:\n${JSON.stringify(reviewPath, null, 2)}`
+    ].join(&quot;\n&quot;)
+  };
+}</pre></details>
+        
+        <details><summary>Schema / validator 源码</summary><pre>import {
+  createValidationResult,
+  isNonEmptyString,
+  isPlainObject
+} from &quot;./schemaValidation.js&quot;;
+
+export const QUALITY_JUDGE_PROMPT_SCHEMA_NAME = &quot;shibei_v2_quality_judge&quot;;
+
+export const QUALITY_JUDGE_OUTPUT_SCHEMA = {
+  name: QUALITY_JUDGE_PROMPT_SCHEMA_NAME,
+  type: &quot;object&quot;,
+  required: [&quot;verdict&quot;, &quot;issues&quot;],
+  properties: {
+    verdict: { enum: [&quot;pass&quot;, &quot;revise&quot;, &quot;discard&quot;] },
+    issues: {
+      type: &quot;array&quot;,
+      items: {
+        type: &quot;object&quot;,
+        required: [&quot;code&quot;, &quot;severity&quot;, &quot;message&quot;],
+        properties: {
+          code: { type: &quot;string&quot; },
+          severity: { enum: [&quot;info&quot;, &quot;warning&quot;, &quot;error&quot;] },
+          message: { type: &quot;string&quot; },
+          targetId: { type: &quot;string&quot; }
+        }
+      }
+    }
+  }
+};
+
+const VERDICTS = new Set([&quot;pass&quot;, &quot;revise&quot;, &quot;discard&quot;]);
+const SEVERITIES = new Set([&quot;info&quot;, &quot;warning&quot;, &quot;error&quot;]);
+
+export function validateQualityJudgeOutput(output) {
+  const errors = [];
+
+  if (!isPlainObject(output)) {
+    return createValidationResult([&quot;qualityJudge output must be an object&quot;]);
+  }
+
+  if (!VERDICTS.has(output.verdict)) {
+    errors.push(&quot;qualityJudge.verdict must be pass, revise, or discard&quot;);
+  }
+
+  if (!Array.isArray(output.issues)) {
+    errors.push(&quot;qualityJudge.issues must be an array&quot;);
+    return createValidationResult(errors);
+  }
+
+  output.issues.forEach((issue, index) =&gt; {
+    const path = `qualityJudge.issues[${index}]`;
+
+    if (!isPlainObject(issue)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+
+    if (!isNonEmptyString(issue.code)) {
+      errors.push(`${path}.code is required`);
+    }
+    if (!SEVERITIES.has(issue.severity)) {
+      errors.push(`${path}.severity must be info, warning, or error`);
+    }
+    if (!isNonEmptyString(issue.message)) {
+      errors.push(`${path}.message is required`);
+    }
+  });
+
+  return createValidationResult(errors);
+}
+</pre></details>
+      </div>
+    </div>
+  </article>
+  </section>
+
+  <section id="legacy-stages">
+    <h2>历史 / 回滚 Prompt 明细</h2>
+    <p class="warning">这些 prompt 文件仍保留在代码中，方便回滚或对照实验；它们不是当前默认主链路的一部分。</p>
+    <article id="ecdPlanning" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-legacy_or_rollback">legacy_or_rollback</div>
+        <h3>ecdPlanning</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>ecdPlanning</code></dd>
+          <dt>调用方式</dt><dd></dd>
+          <dt>职责</dt><dd>历史 per-unit ECD compact plan 路径；当前主链路不用。</dd>
+          <dt>输入</dt><dd></dd>
+          <dt>输出</dt><dd></dd>
+          <dt>下一步</dt><dd></dd>
+          <dt>Prompt builder</dt><dd><code>buildEcdPlanningMessages</code></dd>
+          <dt>Schema file</dt><dd><code>prompts/ecdPlanning.js</code></dd>
+          
+        </dl>
+      </div>
+      <div>
+        <div class="prompt-lines">
+          <strong>Prompt 文案逐句预览</strong>
+          <ol><li>阶段：ecdPlanning。</li><li>任务：基于 Evidence-Centered Design，只为本次输入的单个 unit 建立 compact task model；本阶段不生成用户可见题目。</li><li>核心原则：</li><li>- 你需要在内部按 ECD 推理：micro knowledge point -&gt; assessable target -&gt; evidence goal -&gt; selected task。</li><li>- 不要把内部推理链、文章结构分析、learningClaim 草稿、evidenceNeed 草稿或候选任务矩阵输出到 JSON。</li><li>- unitKnowledgeMap.microKnowledgePoints 是上游已经拆好的小知识点 inventory；不要在本阶段重新压缩它。</li><li>- 对每个 assessmentValue 为 high 或 medium 的 microKnowledgePoint，优先保留为 assessableTargets；low 可合并到相邻 target；context_only 通常不进入 selectedTasks。</li><li>- assessableTargets 是可考察目标，不是完整 ECD 论文；每个 target 只写学习目标、证据目标、覆盖级别和所覆盖 microIds。</li><li>- selectedTasks 是最终选择的题目计划；题型服务于 evidenceGoal，不要先选题型再反推目标。</li><li>- selectedTasks 必须覆盖所有 coverageRequirement=required 的 assessableTargets，并优先纳入有独立观察价值的 supporting target。</li><li>- 题目数量由 evidence value 和掌握证据组合自然决定；一个 unit 可以因为多个可观察理解点而生成多道题，但不要输出未被选择的候选任务。</li><li>- matching 应被积极用于天然结构关系：分层模型、类型集合、流程步骤、信号动作、角色职责等关系，如果原文有证据支撑，就是高价值候选。</li><li>- “模型层级 -&gt; 对应作用”这类分层结构知识点，通常适合 layer_role_matching。</li><li>- matching 的价值来自关系本身：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度都比孤立名词释义更适合连线。</li><li>- 如果一个 unit 内含多个同等重要的小目标，例如“核心定义”“边界误区”“层级作用”，应分别建立 assessableTargets，并让 selectedTasks 呈现这些互补角度。</li><li>字段约束：</li><li>- reviewPathPlan.units 在本阶段只会包含当前这一个 unit；只输出 units 数组中的这一个 unit。</li><li>- units[].unitId 必须等于当前 unit.id；units[].sourceAnchorId 必须等于当前 unit.sourceAnchor.id。</li><li>- units[].assessableTargets[].targetId 使用稳定 id，例如 target-&lt;unit id&gt;-001。</li><li>- units[].assessableTargets[].microIds 必须引用 unitKnowledgeMap 中当前 unit 的 microKnowledgePoints[].microId。</li><li>- units[].assessableTargets[].coverageRequirement 只能是 required、supporting、optional；required 代表本轮必须覆盖。</li><li>- units[].selectedTasks[].questionPlanId 是后续题目计划 id，不是最终题目正文，例如 q-001。</li><li>- units[].selectedTasks[].targetIds 必须引用同一 unit 的 assessableTargets[].targetId。</li><li>- units[].selectedTasks[].microIds 必须汇总该任务覆盖的 microKnowledgePoints[].microId。</li><li>- units[].selectedTasks[].evidenceGoal 写可观察证据目标，用于后续 practiceGoal.target 和题目生成。</li><li>- units[].selectedTasks[].commonMisconception 写该任务最可能暴露的误区，用于后续选择题干扰项和答后解释。</li><li>- 如跳过非 required target，可写 skippedTargets；不要输出 skippedEvidence、learningClaims、evidenceNeeds、taskPlan 或 articleUnderstanding。</li></ol>
+        </div>
+        <details open><summary>Prompt builder 源码</summary><pre>function buildEcdPlanningMessages({ article, source, blocks, sourceContextNote, plan, unitKnowledgeMap }) {
+  return {
+    system: baseSystem(),
+    user: [
+      &quot;阶段：ecdPlanning。&quot;,
+      &quot;任务：基于 Evidence-Centered Design，只为本次输入的单个 unit 建立 compact task model；本阶段不生成用户可见题目。&quot;,
+      &quot;核心原则：&quot;,
+      &quot;- 你需要在内部按 ECD 推理：micro knowledge point -&gt; assessable target -&gt; evidence goal -&gt; selected task。&quot;,
+      &quot;- 不要把内部推理链、文章结构分析、learningClaim 草稿、evidenceNeed 草稿或候选任务矩阵输出到 JSON。&quot;,
+      &quot;- unitKnowledgeMap.microKnowledgePoints 是上游已经拆好的小知识点 inventory；不要在本阶段重新压缩它。&quot;,
+      &quot;- 对每个 assessmentValue 为 high 或 medium 的 microKnowledgePoint，优先保留为 assessableTargets；low 可合并到相邻 target；context_only 通常不进入 selectedTasks。&quot;,
+      &quot;- assessableTargets 是可考察目标，不是完整 ECD 论文；每个 target 只写学习目标、证据目标、覆盖级别和所覆盖 microIds。&quot;,
+      &quot;- selectedTasks 是最终选择的题目计划；题型服务于 evidenceGoal，不要先选题型再反推目标。&quot;,
+      &quot;- selectedTasks 必须覆盖所有 coverageRequirement=required 的 assessableTargets，并优先纳入有独立观察价值的 supporting target。&quot;,
+      &quot;- 题目数量由 evidence value 和掌握证据组合自然决定；一个 unit 可以因为多个可观察理解点而生成多道题，但不要输出未被选择的候选任务。&quot;,
+      &quot;- matching 应被积极用于天然结构关系：分层模型、类型集合、流程步骤、信号动作、角色职责等关系，如果原文有证据支撑，就是高价值候选。&quot;,
+      &quot;- “模型层级 -&gt; 对应作用”这类分层结构知识点，通常适合 layer_role_matching。&quot;,
+      &quot;- matching 的价值来自关系本身：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度都比孤立名词释义更适合连线。&quot;,
+      &quot;- 如果一个 unit 内含多个同等重要的小目标，例如“核心定义”“边界误区”“层级作用”，应分别建立 assessableTargets，并让 selectedTasks 呈现这些互补角度。&quot;,
+      &quot;字段约束：&quot;,
+      &quot;- reviewPathPlan.units 在本阶段只会包含当前这一个 unit；只输出 units 数组中的这一个 unit。&quot;,
+      &quot;- units[].unitId 必须等于当前 unit.id；units[].sourceAnchorId 必须等于当前 unit.sourceAnchor.id。&quot;,
+      &quot;- units[].assessableTargets[].targetId 使用稳定 id，例如 target-&lt;unit id&gt;-001。&quot;,
+      &quot;- units[].assessableTargets[].microIds 必须引用 unitKnowledgeMap 中当前 unit 的 microKnowledgePoints[].microId。&quot;,
+      &quot;- units[].assessableTargets[].coverageRequirement 只能是 required、supporting、optional；required 代表本轮必须覆盖。&quot;,
+      &quot;- units[].selectedTasks[].questionPlanId 是后续题目计划 id，不是最终题目正文，例如 q-001。&quot;,
+      &quot;- units[].selectedTasks[].targetIds 必须引用同一 unit 的 assessableTargets[].targetId。&quot;,
+      &quot;- units[].selectedTasks[].microIds 必须汇总该任务覆盖的 microKnowledgePoints[].microId。&quot;,
+      &quot;- units[].selectedTasks[].evidenceGoal 写可观察证据目标，用于后续 practiceGoal.target 和题目生成。&quot;,
+      &quot;- units[].selectedTasks[].commonMisconception 写该任务最可能暴露的误区，用于后续选择题干扰项和答后解释。&quot;,
+      &quot;- 如跳过非 required target，可写 skippedTargets；不要输出 skippedEvidence、learningClaims、evidenceNeeds、taskPlan 或 articleUnderstanding。&quot;,
+      &quot;&quot;,
+      `reviewPathPlan:\n${JSON.stringify(plan, null, 2)}`,
+      &quot;&quot;,
+      `unitKnowledgeMap:\n${JSON.stringify(unitKnowledgeMap || {}, null, 2)}`,
+      &quot;&quot;,
+      renderSource(source, blocks, sourceContextNote),
+      &quot;&quot;,
+      renderArticleMeta(article)
+    ].join(&quot;\n&quot;)
+  };
+}</pre></details>
+        
+        <details><summary>Schema / validator 源码</summary><pre>import {
+  createValidationResult,
+  isNonEmptyString,
+  isPlainObject,
+  requireFields
+} from &quot;./schemaValidation.js&quot;;
+
+export const ECD_PLANNING_PROMPT_SCHEMA_NAME = &quot;shibei_v2_ecd_planning&quot;;
+
+export const KNOWLEDGE_SHAPES = [
+  &quot;core_concept&quot;,
+  &quot;layered_framework&quot;,
+  &quot;process_steps&quot;,
+  &quot;type_set&quot;,
+  &quot;boundary_rule&quot;,
+  &quot;scenario_rule&quot;,
+  &quot;cause_effect&quot;,
+  &quot;comparison_pair&quot;,
+  &quot;signal_action&quot;,
+  &quot;role_boundary&quot;,
+  &quot;misconception&quot;
+];
+
+export const CLAIM_TYPES = [
+  &quot;concept_understanding&quot;,
+  &quot;structure_understanding&quot;,
+  &quot;boundary_understanding&quot;,
+  &quot;process_understanding&quot;,
+  &quot;cause_effect_understanding&quot;,
+  &quot;scenario_transfer&quot;,
+  &quot;misconception_recognition&quot;,
+  &quot;source_grounded_understanding&quot;
+];
+
+export const EVIDENCE_TYPES = [
+  &quot;select_core_claim&quot;,
+  &quot;distinguish_boundary&quot;,
+  &quot;map_structure_relation&quot;,
+  &quot;apply_to_scenario&quot;,
+  &quot;identify_misconception&quot;,
+  &quot;map_step_purpose&quot;,
+  &quot;map_signal_action&quot;,
+  &quot;ground_answer_in_source&quot;
+];
+
+export const SUB_OBJECTIVE_IMPORTANCE = [
+  &quot;required&quot;,
+  &quot;supporting&quot;,
+  &quot;optional&quot;
+];
+
+export const SUB_OBJECTIVE_TYPES = [
+  &quot;definition&quot;,
+  &quot;boundary&quot;,
+  &quot;layer&quot;,
+  &quot;element_classification&quot;,
+  &quot;mechanism&quot;,
+  &quot;process_step&quot;,
+  &quot;scenario_application&quot;,
+  &quot;misconception&quot;,
+  &quot;example_case&quot;
+];
+
+export const COVERAGE_REQUIREMENTS = [
+  &quot;required&quot;,
+  &quot;supporting&quot;,
+  &quot;optional&quot;
+];
+
+export const EVIDENCE_ANGLE_TYPES = [
+  &quot;definition_grasp&quot;,
+  &quot;structure_mapping&quot;,
+  &quot;boundary_discrimination&quot;,
+  &quot;misconception_detection&quot;,
+  &quot;scenario_transfer&quot;,
+  &quot;mechanism_reasoning&quot;,
+  &quot;source_grounding&quot;
+];
+
+export const EVIDENCE_ANGLE_IMPORTANCE = [
+  &quot;required&quot;,
+  &quot;supporting&quot;,
+  &quot;optional&quot;
+];
+
+export const TASK_AFFORDANCES = [
+  &quot;multiple_choice&quot;,
+  &quot;matching&quot;,
+  &quot;future_sorting&quot;,
+  &quot;future_correction&quot;,
+  &quot;future_source_location&quot;
+];
+
+export const TASK_PURPOSES = [
+  &quot;light_understanding&quot;,
+  &quot;boundary_check&quot;,
+  &quot;misconception_check&quot;,
+  &quot;scenario_application&quot;,
+  &quot;counterexample_check&quot;,
+  &quot;layer_role_matching&quot;,
+  &quot;type_feature_matching&quot;,
+  &quot;step_purpose_matching&quot;,
+  &quot;signal_action_matching&quot;,
+  &quot;role_responsibility_matching&quot;
+];
+
+const sourceAnchorIdsSchema = {
+  type: &quot;array&quot;,
+  items: { type: &quot;string&quot; }
+};
+
+const evidenceIdsSchema = {
+  type: &quot;array&quot;,
+  items: { type: &quot;string&quot; }
+};
+
+const angleIdsSchema = {
+  type: &quot;array&quot;,
+  items: { type: &quot;string&quot; }
+};
+
+const targetIdsSchema = {
+  type: &quot;array&quot;,
+  items: { type: &quot;string&quot; }
+};
+
+const microIdsSchema = {
+  type: &quot;array&quot;,
+  items: { type: &quot;string&quot; }
+};
+
+const assessableTargetSchema = {
+  type: &quot;object&quot;,
+  required: [
+    &quot;targetId&quot;,
+    &quot;microIds&quot;,
+    &quot;title&quot;,
+    &quot;learningTarget&quot;,
+    &quot;evidenceGoal&quot;,
+    &quot;evidenceType&quot;,
+    &quot;coverageRequirement&quot;,
+    &quot;sourceAnchorId&quot;
+  ],
+  properties: {
+    targetId: { type: &quot;string&quot; },
+    microIds: microIdsSchema,
+    title: { type: &quot;string&quot; },
+    learningTarget: { type: &quot;string&quot; },
+    evidenceGoal: { type: &quot;string&quot; },
+    evidenceType: { enum: EVIDENCE_TYPES },
+    coverageRequirement: { enum: COVERAGE_REQUIREMENTS },
+    sourceAnchorId: { type: &quot;string&quot; }
+  }
+};
+
+const selectedTaskSchema = {
+  type: &quot;object&quot;,
+  required: [
+    &quot;questionPlanId&quot;,
+    &quot;targetIds&quot;,
+    &quot;microIds&quot;,
+    &quot;taskAffordance&quot;,
+    &quot;taskPurpose&quot;,
+    &quot;evidenceGoal&quot;,
+    &quot;assemblyReason&quot;
+  ],
+  properties: {
+    questionPlanId: { type: &quot;string&quot; },
+    targetIds: targetIdsSchema,
+    microIds: microIdsSchema,
+    taskAffordance: { enum: TASK_AFFORDANCES },
+    taskPurpose: { enum: TASK_PURPOSES },
+    evidenceGoal: { type: &quot;string&quot; },
+    commonMisconception: { type: &quot;string&quot; },
+    assemblyReason: { type: &quot;string&quot; }
+  }
+};
+
+export const ECD_PLANNING_OUTPUT_SCHEMA = {
+  name: ECD_PLANNING_PROMPT_SCHEMA_NAME,
+  type: &quot;object&quot;,
+  required: [&quot;units&quot;],
+  properties: {
+    units: {
+      type: &quot;array&quot;,
+      items: {
+        type: &quot;object&quot;,
+        required: [&quot;unitId&quot;, &quot;sourceAnchorId&quot;, &quot;assessableTargets&quot;, &quot;selectedTasks&quot;],
+        properties: {
+          unitId: { type: &quot;string&quot; },
+          sourceAnchorId: { type: &quot;string&quot; },
+          assessableTargets: {
+            type: &quot;array&quot;,
+            items: assessableTargetSchema
+          },
+          selectedTasks: {
+            type: &quot;array&quot;,
+            items: selectedTaskSchema
+          },
+          skippedTargets: {
+            type: &quot;array&quot;,
+            items: {
+              type: &quot;object&quot;,
+              required: [&quot;targetId&quot;, &quot;reason&quot;],
+              properties: {
+                targetId: { type: &quot;string&quot; },
+                reason: { type: &quot;string&quot; }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+export function validateEcdPlanningOutput(output, { unitIds = new Set(), sourceAnchorIds = new Set() } = {}) {
+  const errors = [];
+
+  if (!isPlainObject(output)) {
+    return createValidationResult([&quot;ecdPlanning output must be an object&quot;]);
+  }
+
+  validateCompactUnits(output.units, { unitIds, sourceAnchorIds, errors });
+
+  return createValidationResult(errors);
+}
+
+export function normalizeEcdPlanningOutput(output, {
+  unitSourceAnchorIds = new Map(),
+  sourceAnchorIds = new Set(unitSourceAnchorIds.values())
+} = {}) {
+  if (!isPlainObject(output)) return output;
+
+  const normalized = {
+    ...output,
+    units: normalizeCompactUnits(output.units)
+  };
+
+  return normalizeCompactUnitSourceAnchors(normalized, {
+    unitSourceAnchorIds,
+    sourceAnchorIds
+  });
+}
+
+function normalizeCompactUnits(units) {
+  if (!Array.isArray(units)) return units;
+  return units.map((unit) =&gt; {
+    if (!isPlainObject(unit)) return unit;
+    const assessableTargets = normalizeEnumItems(unit.assessableTargets, {
+      field: &quot;evidenceType&quot;,
+      originalField: &quot;originalEvidenceType&quot;,
+      allowedValues: EVIDENCE_TYPES,
+      fallback: &quot;ground_answer_in_source&quot;
+    });
+    return {
+      ...unit,
+      assessableTargets: Array.isArray(assessableTargets)
+        ? assessableTargets.map((target) =&gt; normalizeEnumField(target, {
+            field: &quot;coverageRequirement&quot;,
+            originalField: &quot;originalCoverageRequirement&quot;,
+            allowedValues: COVERAGE_REQUIREMENTS,
+            fallback: &quot;required&quot;
+          }))
+        : assessableTargets,
+      selectedTasks: normalizeEnumItems(
+        normalizeEnumItems(unit.selectedTasks, {
+          field: &quot;taskAffordance&quot;,
+          originalField: &quot;originalTaskAffordance&quot;,
+          allowedValues: TASK_AFFORDANCES,
+          fallback: &quot;multiple_choice&quot;
+        }),
+        {
+          field: &quot;taskPurpose&quot;,
+          originalField: &quot;originalTaskPurpose&quot;,
+          allowedValues: TASK_PURPOSES,
+          fallback: &quot;light_understanding&quot;
+        }
+      )
+    };
+  });
+}
+
+function normalizeCompactUnitSourceAnchors(output, { unitSourceAnchorIds, sourceAnchorIds }) {
+  if (!isPlainObject(output) || !(unitSourceAnchorIds instanceof Map) || !Array.isArray(output.units)) return output;
+  return {
+    ...output,
+    units: output.units.map((unit) =&gt; {
+      if (!isPlainObject(unit) || !isNonEmptyString(unit.unitId)) return unit;
+      const normalizedUnit = normalizeUnitScopedSourceAnchor(unit, { unitSourceAnchorIds, sourceAnchorIds });
+      return {
+        ...normalizedUnit,
+        assessableTargets: normalizeCompactTargetSourceAnchors(normalizedUnit.assessableTargets, {
+          unitId: normalizedUnit.unitId,
+          unitSourceAnchorIds,
+          sourceAnchorIds
+        })
+      };
+    })
+  };
+}
+
+function normalizeCompactTargetSourceAnchors(targets, { unitId, unitSourceAnchorIds, sourceAnchorIds }) {
+  if (!Array.isArray(targets)) return targets;
+  return targets.map((target) =&gt; {
+    const normalized = normalizeUnitScopedSourceAnchor(
+      isPlainObject(target) ? { ...target, unitId } : target,
+      { unitSourceAnchorIds, sourceAnchorIds }
+    );
+    if (!isPlainObject(normalized)) return normalized;
+    const { unitId: _unitId, ...targetWithoutUnitId } = normalized;
+    return targetWithoutUnitId;
+  });
+}
+
+function validateCompactUnits(units, { unitIds, sourceAnchorIds, errors }) {
+  if (!Array.isArray(units) || units.length === 0) {
+    errors.push(&quot;ecdPlanning.units must be a non-empty array&quot;);
+    return;
+  }
+
+  const seenUnitIds = new Set();
+  units.forEach((unit, index) =&gt; {
+    const path = `ecdPlanning.units[${index}]`;
+    if (!isPlainObject(unit)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+
+    requireFields(unit, [&quot;unitId&quot;, &quot;sourceAnchorId&quot;], path, errors);
+    if (seenUnitIds.has(unit.unitId)) errors.push(`${path}.unitId must be unique`);
+    seenUnitIds.add(unit.unitId);
+    if (unitIds.size &gt; 0 &amp;&amp; !unitIds.has(unit.unitId)) {
+      errors.push(`${path}.unitId must reference a known unit`);
+    }
+    if (sourceAnchorIds.size &gt; 0 &amp;&amp; !sourceAnchorIds.has(unit.sourceAnchorId)) {
+      errors.push(`${path}.sourceAnchorId must reference a known source anchor`);
+    }
+
+    const targetIds = validateAssessableTargets(unit.assessableTargets, {
+      path: `${path}.assessableTargets`,
+      unitId: unit.unitId,
+      sourceAnchorIds,
+      errors
+    });
+    validateCompactSelectedTasks(unit.selectedTasks, {
+      path: `${path}.selectedTasks`,
+      targetIds,
+      errors
+    });
+    validateRequiredTargetCoverage(unit, { path, errors });
+    validateSkippedTargets(unit.skippedTargets, {
+      path: `${path}.skippedTargets`,
+      targetIds,
+      errors
+    });
+  });
+}
+
+function validateAssessableTargets(targets, { path, unitId, sourceAnchorIds, errors }) {
+  const targetIds = new Set();
+  if (!Array.isArray(targets) || targets.length === 0) {
+    errors.push(`${path} must be a non-empty array`);
+    return targetIds;
+  }
+
+  targets.forEach((target, index) =&gt; {
+    const targetPath = `${path}[${index}]`;
+    if (!isPlainObject(target)) {
+      errors.push(`${targetPath} must be an object`);
+      return;
+    }
+    requireFields(
+      target,
+      [
+        &quot;targetId&quot;,
+        &quot;title&quot;,
+        &quot;learningTarget&quot;,
+        &quot;evidenceGoal&quot;,
+        &quot;evidenceType&quot;,
+        &quot;coverageRequirement&quot;,
+        &quot;sourceAnchorId&quot;
+      ],
+      targetPath,
+      errors
+    );
+    if (targetIds.has(target.targetId)) errors.push(`${targetPath}.targetId must be unique`);
+    targetIds.add(target.targetId);
+    validateNonEmptyStringArray(target.microIds, `${targetPath}.microIds`, errors);
+    if (isNonEmptyString(target.evidenceType) &amp;&amp; !EVIDENCE_TYPES.includes(target.evidenceType)) {
+      errors.push(`${targetPath}.evidenceType must be one of ${EVIDENCE_TYPES.join(&quot;, &quot;)}`);
+    }
+    if (
+      isNonEmptyString(target.coverageRequirement) &amp;&amp;
+      !COVERAGE_REQUIREMENTS.includes(target.coverageRequirement)
+    ) {
+      errors.push(`${targetPath}.coverageRequirement must be one of ${COVERAGE_REQUIREMENTS.join(&quot;, &quot;)}`);
+    }
+    if (sourceAnchorIds.size &gt; 0 &amp;&amp; !sourceAnchorIds.has(target.sourceAnchorId)) {
+      errors.push(`${targetPath}.sourceAnchorId must reference a known source anchor`);
+    }
+    if (isNonEmptyString(target.unitId) &amp;&amp; target.unitId !== unitId) {
+      errors.push(`${targetPath}.unitId must match ${unitId}`);
+    }
+  });
+
+  return targetIds;
+}
+
+function validateCompactSelectedTasks(tasks, { path, targetIds, errors }) {
+  if (!Array.isArray(tasks) || tasks.length === 0) {
+    errors.push(`${path} must be a non-empty array`);
+    return;
+  }
+
+  const questionPlanIds = new Set();
+  tasks.forEach((task, index) =&gt; {
+    const taskPath = `${path}[${index}]`;
+    if (!isPlainObject(task)) {
+      errors.push(`${taskPath} must be an object`);
+      return;
+    }
+    requireFields(
+      task,
+      [&quot;questionPlanId&quot;, &quot;taskAffordance&quot;, &quot;taskPurpose&quot;, &quot;evidenceGoal&quot;, &quot;assemblyReason&quot;],
+      taskPath,
+      errors
+    );
+    if (questionPlanIds.has(task.questionPlanId)) errors.push(`${taskPath}.questionPlanId must be unique`);
+    questionPlanIds.add(task.questionPlanId);
+    validateTargetIdArray(task.targetIds, `${taskPath}.targetIds`, targetIds, errors);
+    validateNonEmptyStringArray(task.microIds, `${taskPath}.microIds`, errors);
+    if (isNonEmptyString(task.taskAffordance) &amp;&amp; !TASK_AFFORDANCES.includes(task.taskAffordance)) {
+      errors.push(`${taskPath}.taskAffordance must be one of ${TASK_AFFORDANCES.join(&quot;, &quot;)}`);
+    }
+    if (isNonEmptyString(task.taskPurpose) &amp;&amp; !TASK_PURPOSES.includes(task.taskPurpose)) {
+      errors.push(`${taskPath}.taskPurpose must be one of ${TASK_PURPOSES.join(&quot;, &quot;)}`);
+    }
+  });
+}
+
+function validateTargetIdArray(items, path, targetIds, errors) {
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push(`${path} must be a non-empty array`);
+    return;
+  }
+  items.forEach((targetId, index) =&gt; {
+    if (!targetIds.has(targetId)) {
+      errors.push(`${path}[${index}] must reference an assessableTargets item`);
+    }
+  });
+}
+
+function validateNonEmptyStringArray(items, path, errors) {
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push(`${path} must be a non-empty array`);
+    return;
+  }
+  items.forEach((item, index) =&gt; {
+    if (!isNonEmptyString(item)) errors.push(`${path}[${index}] must be a non-empty string`);
+  });
+}
+
+function validateRequiredTargetCoverage(unit, { path, errors }) {
+  if (!Array.isArray(unit.assessableTargets) || !Array.isArray(unit.selectedTasks)) return;
+  const selectedTargetIds = new Set();
+  unit.selectedTasks.forEach((task) =&gt; {
+    (Array.isArray(task?.targetIds) ? task.targetIds : []).forEach((targetId) =&gt; selectedTargetIds.add(targetId));
+  });
+
+  unit.assessableTargets.forEach((target) =&gt; {
+    if (!isPlainObject(target) || target.coverageRequirement !== &quot;required&quot;) return;
+    if (!selectedTargetIds.has(target.targetId)) {
+      errors.push(`${path}.selectedTasks must cover required target ${target.targetId}`);
+    }
+  });
+}
+
+function validateSkippedTargets(skippedTargets, { path, targetIds, errors }) {
+  if (skippedTargets === undefined) return;
+  if (!Array.isArray(skippedTargets)) {
+    errors.push(`${path} must be an array`);
+    return;
+  }
+  skippedTargets.forEach((item, index) =&gt; {
+    const itemPath = `${path}[${index}]`;
+    if (!isPlainObject(item)) {
+      errors.push(`${itemPath} must be an object`);
+      return;
+    }
+    requireFields(item, [&quot;targetId&quot;, &quot;reason&quot;], itemPath, errors);
+    if (isNonEmptyString(item.targetId) &amp;&amp; !targetIds.has(item.targetId)) {
+      errors.push(`${itemPath}.targetId must reference an assessableTargets item`);
+    }
+  });
+}
+
+function normalizeKnowledgeModel(knowledgeModel) {
+  if (!isPlainObject(knowledgeModel) || !Array.isArray(knowledgeModel.units)) return knowledgeModel;
+  return {
+    ...knowledgeModel,
+    units: normalizeEnumItems(knowledgeModel.units, {
+      field: &quot;knowledgeShape&quot;,
+      originalField: &quot;originalKnowledgeShape&quot;,
+      allowedValues: KNOWLEDGE_SHAPES,
+      fallback: &quot;core_concept&quot;
+    })
+  };
+}
+
+function normalizeAssemblyPlan(items) {
+  if (!Array.isArray(items)) return items;
+  return items.map((assembly) =&gt; {
+    if (!isPlainObject(assembly) || !Array.isArray(assembly.selectedTasks)) return assembly;
+    const selectedTasks = normalizeEnumItems(
+      normalizeEnumItems(assembly.selectedTasks, {
+        field: &quot;taskAffordance&quot;,
+        originalField: &quot;originalTaskAffordance&quot;,
+        allowedValues: TASK_AFFORDANCES,
+        fallback: &quot;multiple_choice&quot;
+      }),
+      {
+        field: &quot;taskPurpose&quot;,
+        originalField: &quot;originalTaskPurpose&quot;,
+        allowedValues: TASK_PURPOSES,
+        fallback: &quot;light_understanding&quot;
+      }
+    );
+    return { ...assembly, selectedTasks };
+  });
+}
+
+function normalizeEnumItems(items, { field, originalField, allowedValues, fallback }) {
+  if (!Array.isArray(items)) return items;
+  return items.map((item) =&gt; normalizeEnumField(item, { field, originalField, allowedValues, fallback }));
+}
+
+function normalizeEnumField(item, { field, originalField, allowedValues, fallback }) {
+  if (!isPlainObject(item)) return item;
+  const value = item[field];
+  if (!isNonEmptyString(value) || allowedValues.includes(value)) return item;
+  return {
+    ...item,
+    [originalField]: value,
+    [field]: fallback
+  };
+}
+
+function normalizeUnitScopedSourceAnchors(output, { unitSourceAnchorIds, sourceAnchorIds }) {
+  if (!isPlainObject(output) || !(unitSourceAnchorIds instanceof Map)) return output;
+  return {
+    ...output,
+    knowledgeModel: isPlainObject(output.knowledgeModel) &amp;&amp; Array.isArray(output.knowledgeModel.units)
+      ? {
+          ...output.knowledgeModel,
+          units: output.knowledgeModel.units.map((item) =&gt;
+            normalizeUnitScopedSourceAnchor(item, { unitSourceAnchorIds, sourceAnchorIds })
+          )
+        }
+      : output.knowledgeModel,
+    unitSubObjectives: normalizeSourceAnchorItems(output.unitSubObjectives, { unitSourceAnchorIds, sourceAnchorIds }),
+    unitLearningClaims: normalizeSourceAnchorItems(output.unitLearningClaims, { unitSourceAnchorIds, sourceAnchorIds }),
+    unitEvidenceAngles: normalizeSourceAnchorItems(output.unitEvidenceAngles, { unitSourceAnchorIds, sourceAnchorIds }),
+    unitEvidenceNeeds: normalizeSourceAnchorItems(output.unitEvidenceNeeds, { unitSourceAnchorIds, sourceAnchorIds })
+  };
+}
+
+function normalizeSourceAnchorItems(items, options) {
+  if (!Array.isArray(items)) return items;
+  return items.map((item) =&gt; normalizeUnitScopedSourceAnchor(item, options));
+}
+
+function normalizeUnitScopedSourceAnchor(item, { unitSourceAnchorIds, sourceAnchorIds }) {
+  if (!isPlainObject(item) || !isNonEmptyString(item.unitId)) return item;
+  const fallbackSourceAnchorId = unitSourceAnchorIds.get(item.unitId);
+  if (!isNonEmptyString(fallbackSourceAnchorId)) return item;
+  if (item.sourceAnchorId === fallbackSourceAnchorId) return item;
+  return {
+    ...item,
+    ...(isNonEmptyString(item.sourceAnchorId) ? { originalSourceAnchorId: item.sourceAnchorId } : {}),
+    sourceAnchorId: fallbackSourceAnchorId
+  };
+}
+
+function requireAnyFields(value, fields, path, errors) {
+  for (const field of fields) {
+    if (value[field] === undefined || value[field] === null) {
+      errors.push(`${path}.${field} is required`);
+    }
+  }
+}
+
+function validateArticleUnderstanding(value, errors) {
+  if (!isPlainObject(value)) {
+    errors.push(&quot;ecdPlanning.articleUnderstanding must be an object&quot;);
+    return;
+  }
+
+  requireFields(value, [&quot;coreThesis&quot;], &quot;ecdPlanning.articleUnderstanding&quot;, errors);
+
+  if (!Array.isArray(value.articleStructure) || value.articleStructure.length === 0) {
+    errors.push(&quot;ecdPlanning.articleUnderstanding.articleStructure must be a non-empty array&quot;);
+  }
+  if (!Array.isArray(value.reviewableSections)) {
+    errors.push(&quot;ecdPlanning.articleUnderstanding.reviewableSections must be an array&quot;);
+  }
+  if (!Array.isArray(value.nonReviewableSections)) {
+    errors.push(&quot;ecdPlanning.articleUnderstanding.nonReviewableSections must be an array&quot;);
+  }
+}
+
+function validateKnowledgeModel(value, { unitIds, sourceAnchorIds, errors }) {
+  if (!isPlainObject(value)) {
+    errors.push(&quot;ecdPlanning.knowledgeModel must be an object&quot;);
+    return;
+  }
+  if (!Array.isArray(value.units) || value.units.length === 0) {
+    errors.push(&quot;ecdPlanning.knowledgeModel.units must be a non-empty array&quot;);
+    return;
+  }
+
+  const seen = new Set();
+  value.units.forEach((unit, index) =&gt; {
+    const path = `ecdPlanning.knowledgeModel.units[${index}]`;
+    if (!isPlainObject(unit)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    requireFields(
+      unit,
+      [&quot;unitId&quot;, &quot;title&quot;, &quot;nodeLabel&quot;, &quot;shortSummary&quot;, &quot;detailSummary&quot;, &quot;knowledgeShape&quot;, &quot;sourceAnchorId&quot;],
+      path,
+      errors
+    );
+    if (seen.has(unit.unitId)) errors.push(`${path}.unitId must be unique`);
+    seen.add(unit.unitId);
+    if (unitIds.size &gt; 0 &amp;&amp; !unitIds.has(unit.unitId)) errors.push(`${path}.unitId must reference a known unit`);
+    if (isNonEmptyString(unit.knowledgeShape) &amp;&amp; !KNOWLEDGE_SHAPES.includes(unit.knowledgeShape)) {
+      errors.push(`${path}.knowledgeShape must be one of ${KNOWLEDGE_SHAPES.join(&quot;, &quot;)}`);
+    }
+    if (sourceAnchorIds.size &gt; 0 &amp;&amp; !sourceAnchorIds.has(unit.sourceAnchorId)) {
+      errors.push(`${path}.sourceAnchorId must reference a known source anchor`);
+    }
+  });
+}
+
+function validateSubObjectives(items, { unitIds, sourceAnchorIds, errors }) {
+  const ids = new Set();
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push(&quot;ecdPlanning.unitSubObjectives must be a non-empty array&quot;);
+    return ids;
+  }
+
+  items.forEach((item, index) =&gt; {
+    const path = `ecdPlanning.unitSubObjectives[${index}]`;
+    if (!isPlainObject(item)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    requireFields(
+      item,
+      [&quot;unitId&quot;, &quot;subObjectiveId&quot;, &quot;title&quot;, &quot;type&quot;, &quot;importance&quot;, &quot;learningTarget&quot;, &quot;sourceAnchorId&quot;],
+      path,
+      errors
+    );
+    if (ids.has(item.subObjectiveId)) errors.push(`${path}.subObjectiveId must be unique`);
+    ids.add(item.subObjectiveId);
+    if (unitIds.size &gt; 0 &amp;&amp; !unitIds.has(item.unitId)) errors.push(`${path}.unitId must reference a known unit`);
+    if (isNonEmptyString(item.type) &amp;&amp; !SUB_OBJECTIVE_TYPES.includes(item.type)) {
+      errors.push(`${path}.type must be one of ${SUB_OBJECTIVE_TYPES.join(&quot;, &quot;)}`);
+    }
+    if (isNonEmptyString(item.importance) &amp;&amp; !SUB_OBJECTIVE_IMPORTANCE.includes(item.importance)) {
+      errors.push(`${path}.importance must be one of ${SUB_OBJECTIVE_IMPORTANCE.join(&quot;, &quot;)}`);
+    }
+    if (sourceAnchorIds.size &gt; 0 &amp;&amp; !sourceAnchorIds.has(item.sourceAnchorId)) {
+      errors.push(`${path}.sourceAnchorId must reference a known source anchor`);
+    }
+  });
+
+  return ids;
+}
+
+function validateLearningClaims(items, { unitIds, sourceAnchorIds, subObjectiveIds, errors }) {
+  const ids = new Set();
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push(&quot;ecdPlanning.unitLearningClaims must be a non-empty array&quot;);
+    return ids;
+  }
+
+  items.forEach((claim, index) =&gt; {
+    const path = `ecdPlanning.unitLearningClaims[${index}]`;
+    if (!isPlainObject(claim)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    requireFields(
+      claim,
+      [&quot;unitId&quot;, &quot;subObjectiveId&quot;, &quot;claimId&quot;, &quot;claimType&quot;, &quot;learningClaim&quot;, &quot;sourceAnchorId&quot;],
+      path,
+      errors
+    );
+    if (ids.has(claim.claimId)) errors.push(`${path}.claimId must be unique`);
+    ids.add(claim.claimId);
+    if (unitIds.size &gt; 0 &amp;&amp; !unitIds.has(claim.unitId)) errors.push(`${path}.unitId must reference a known unit`);
+    if (isNonEmptyString(claim.subObjectiveId) &amp;&amp; !subObjectiveIds.has(claim.subObjectiveId)) {
+      errors.push(`${path}.subObjectiveId must reference a unitSubObjectives item`);
+    }
+    if (isNonEmptyString(claim.claimType) &amp;&amp; !CLAIM_TYPES.includes(claim.claimType)) {
+      errors.push(`${path}.claimType must be one of ${CLAIM_TYPES.join(&quot;, &quot;)}`);
+    }
+    if (sourceAnchorIds.size &gt; 0 &amp;&amp; !sourceAnchorIds.has(claim.sourceAnchorId)) {
+      errors.push(`${path}.sourceAnchorId must reference a known source anchor`);
+    }
+  });
+
+  return ids;
+}
+
+function validateEvidenceAngles(items, { unitIds, sourceAnchorIds, claimIds, subObjectiveIds, errors }) {
+  const ids = new Set();
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push(&quot;ecdPlanning.unitEvidenceAngles must be a non-empty array&quot;);
+    return ids;
+  }
+
+  items.forEach((angle, index) =&gt; {
+    const path = `ecdPlanning.unitEvidenceAngles[${index}]`;
+    if (!isPlainObject(angle)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    requireFields(
+      angle,
+      [&quot;unitId&quot;, &quot;angleId&quot;, &quot;subObjectiveId&quot;, &quot;claimId&quot;, &quot;angleType&quot;, &quot;importance&quot;, &quot;anglePurpose&quot;, &quot;sourceAnchorId&quot;],
+      path,
+      errors
+    );
+    if (ids.has(angle.angleId)) errors.push(`${path}.angleId must be unique`);
+    ids.add(angle.angleId);
+    if (unitIds.size &gt; 0 &amp;&amp; !unitIds.has(angle.unitId)) errors.push(`${path}.unitId must reference a known unit`);
+    if (isNonEmptyString(angle.subObjectiveId) &amp;&amp; !subObjectiveIds.has(angle.subObjectiveId)) {
+      errors.push(`${path}.subObjectiveId must reference a unitSubObjectives item`);
+    }
+    if (isNonEmptyString(angle.claimId) &amp;&amp; !claimIds.has(angle.claimId)) {
+      errors.push(`${path}.claimId must reference a unitLearningClaims item`);
+    }
+    if (isNonEmptyString(angle.angleType) &amp;&amp; !EVIDENCE_ANGLE_TYPES.includes(angle.angleType)) {
+      errors.push(`${path}.angleType must be one of ${EVIDENCE_ANGLE_TYPES.join(&quot;, &quot;)}`);
+    }
+    if (isNonEmptyString(angle.importance) &amp;&amp; !EVIDENCE_ANGLE_IMPORTANCE.includes(angle.importance)) {
+      errors.push(`${path}.importance must be one of ${EVIDENCE_ANGLE_IMPORTANCE.join(&quot;, &quot;)}`);
+    }
+    if (sourceAnchorIds.size &gt; 0 &amp;&amp; !sourceAnchorIds.has(angle.sourceAnchorId)) {
+      errors.push(`${path}.sourceAnchorId must reference a known source anchor`);
+    }
+  });
+
+  return ids;
+}
+
+function validateEvidenceNeeds(items, { unitIds, sourceAnchorIds, claimIds, subObjectiveIds, angleIds, errors }) {
+  const ids = new Set();
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push(&quot;ecdPlanning.unitEvidenceNeeds must be a non-empty array&quot;);
+    return ids;
+  }
+
+  items.forEach((evidence, index) =&gt; {
+    const path = `ecdPlanning.unitEvidenceNeeds[${index}]`;
+    if (!isPlainObject(evidence)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    requireFields(
+      evidence,
+      [
+        &quot;unitId&quot;,
+        &quot;evidenceId&quot;,
+        &quot;subObjectiveId&quot;,
+        &quot;claimId&quot;,
+        &quot;angleId&quot;,
+        &quot;evidenceType&quot;,
+        &quot;coverageRequirement&quot;,
+        &quot;evidenceNeed&quot;,
+        &quot;observableResponse&quot;,
+        &quot;sourceAnchorId&quot;
+      ],
+      path,
+      errors
+    );
+    if (ids.has(evidence.evidenceId)) errors.push(`${path}.evidenceId must be unique`);
+    ids.add(evidence.evidenceId);
+    if (unitIds.size &gt; 0 &amp;&amp; !unitIds.has(evidence.unitId)) {
+      errors.push(`${path}.unitId must reference a known unit`);
+    }
+    if (isNonEmptyString(evidence.claimId) &amp;&amp; !claimIds.has(evidence.claimId)) {
+      errors.push(`${path}.claimId must reference a unitLearningClaims item`);
+    }
+    if (isNonEmptyString(evidence.subObjectiveId) &amp;&amp; !subObjectiveIds.has(evidence.subObjectiveId)) {
+      errors.push(`${path}.subObjectiveId must reference a unitSubObjectives item`);
+    }
+    if (isNonEmptyString(evidence.angleId) &amp;&amp; !angleIds.has(evidence.angleId)) {
+      errors.push(`${path}.angleId must reference a unitEvidenceAngles item`);
+    }
+    if (isNonEmptyString(evidence.evidenceType) &amp;&amp; !EVIDENCE_TYPES.includes(evidence.evidenceType)) {
+      errors.push(`${path}.evidenceType must be one of ${EVIDENCE_TYPES.join(&quot;, &quot;)}`);
+    }
+    if (
+      isNonEmptyString(evidence.coverageRequirement) &amp;&amp;
+      !COVERAGE_REQUIREMENTS.includes(evidence.coverageRequirement)
+    ) {
+      errors.push(`${path}.coverageRequirement must be one of ${COVERAGE_REQUIREMENTS.join(&quot;, &quot;)}`);
+    }
+    if (sourceAnchorIds.size &gt; 0 &amp;&amp; !sourceAnchorIds.has(evidence.sourceAnchorId)) {
+      errors.push(`${path}.sourceAnchorId must reference a known source anchor`);
+    }
+  });
+
+  return ids;
+}
+
+function validateTaskPlan(items, { unitIds, evidenceIds, angleIds, errors }) {
+  const ids = new Set();
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push(&quot;ecdPlanning.unitTaskPlan must be a non-empty array&quot;);
+    return ids;
+  }
+
+  items.forEach((task, index) =&gt; {
+    const path = `ecdPlanning.unitTaskPlan[${index}]`;
+    if (!isPlainObject(task)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    requireFields(task, [&quot;unitId&quot;, &quot;taskPlanId&quot;, &quot;taskAffordance&quot;, &quot;taskPurpose&quot;, &quot;whyThisTask&quot;], path, errors);
+    if (ids.has(task.taskPlanId)) errors.push(`${path}.taskPlanId must be unique`);
+    ids.add(task.taskPlanId);
+    if (unitIds.size &gt; 0 &amp;&amp; !unitIds.has(task.unitId)) errors.push(`${path}.unitId must reference a known unit`);
+    if (!Array.isArray(task.evidenceIds) || task.evidenceIds.length === 0) {
+      errors.push(`${path}.evidenceIds must be a non-empty array`);
+    } else {
+      task.evidenceIds.forEach((evidenceId, evidenceIndex) =&gt; {
+        if (!evidenceIds.has(evidenceId)) {
+          errors.push(`${path}.evidenceIds[${evidenceIndex}] must reference a unitEvidenceNeeds item`);
+        }
+      });
+    }
+    validateAngleIdArray(task.angleIds, `${path}.angleIds`, angleIds, errors);
+    if (isNonEmptyString(task.taskAffordance) &amp;&amp; !TASK_AFFORDANCES.includes(task.taskAffordance)) {
+      errors.push(`${path}.taskAffordance must be one of ${TASK_AFFORDANCES.join(&quot;, &quot;)}`);
+    }
+    if (isNonEmptyString(task.taskPurpose) &amp;&amp; !TASK_PURPOSES.includes(task.taskPurpose)) {
+      errors.push(`${path}.taskPurpose must be one of ${TASK_PURPOSES.join(&quot;, &quot;)}`);
+    }
+  });
+
+  return ids;
+}
+
+function validateAssemblyPlan(items, { unitIds, evidenceItems, evidenceIds, angleItems, angleIds, taskPlanIds, errors }) {
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push(&quot;ecdPlanning.unitAssemblyPlan must be a non-empty array&quot;);
+    return;
+  }
+
+  const requiredEvidenceByUnit = groupRequiredEvidenceByUnit(evidenceItems);
+  const requiredAnglesByUnit = groupRequiredAnglesByUnit(angleItems);
+
+  items.forEach((assembly, index) =&gt; {
+    const path = `ecdPlanning.unitAssemblyPlan[${index}]`;
+    if (!isPlainObject(assembly)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    requireFields(assembly, [&quot;unitId&quot;], path, errors);
+    if (unitIds.size &gt; 0 &amp;&amp; !unitIds.has(assembly.unitId)) errors.push(`${path}.unitId must reference a known unit`);
+    if (!Array.isArray(assembly.selectedTasks)) {
+      errors.push(`${path}.selectedTasks must be an array`);
+    } else {
+      assembly.selectedTasks.forEach((task, taskIndex) =&gt; {
+        validateSelectedTask(task, `${path}.selectedTasks[${taskIndex}]`, { evidenceIds, angleIds, taskPlanIds, errors });
+      });
+      validateRequiredEvidenceCoverage(assembly, {
+        path,
+        requiredEvidenceByUnit,
+        errors
+      });
+      validateRequiredAngleCoverage(assembly, {
+        path,
+        requiredAnglesByUnit,
+        errors
+      });
+    }
+    if (!Array.isArray(assembly.skippedEvidence)) {
+      errors.push(`${path}.skippedEvidence must be an array`);
+    }
+  });
+}
+
+function validateAngleIdArray(items, path, angleIds, errors) {
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push(`${path} must be a non-empty array`);
+    return;
+  }
+  items.forEach((angleId, index) =&gt; {
+    if (!angleIds.has(angleId)) {
+      errors.push(`${path}[${index}] must reference a unitEvidenceAngles item`);
+    }
+  });
+}
+
+function groupRequiredEvidenceByUnit(evidenceItems) {
+  const map = new Map();
+  for (const evidence of Array.isArray(evidenceItems) ? evidenceItems : []) {
+    if (!isPlainObject(evidence) || evidence.coverageRequirement !== &quot;required&quot;) continue;
+    const list = map.get(evidence.unitId) || [];
+    list.push(evidence.evidenceId);
+    map.set(evidence.unitId, list);
+  }
+  return map;
+}
+
+function groupRequiredAnglesByUnit(angleItems) {
+  const map = new Map();
+  for (const angle of Array.isArray(angleItems) ? angleItems : []) {
+    if (!isPlainObject(angle) || angle.importance !== &quot;required&quot;) continue;
+    const list = map.get(angle.unitId) || [];
+    list.push(angle.angleId);
+    map.set(angle.unitId, list);
+  }
+  return map;
+}
+
+function validateRequiredEvidenceCoverage(assembly, { path, requiredEvidenceByUnit, errors }) {
+  const requiredEvidence = requiredEvidenceByUnit.get(assembly.unitId) || [];
+  if (requiredEvidence.length === 0) return;
+
+  const selectedEvidence = new Set();
+  for (const task of assembly.selectedTasks) {
+    for (const evidenceId of Array.isArray(task?.evidenceIds) ? task.evidenceIds : []) {
+      selectedEvidence.add(evidenceId);
+    }
+  }
+
+  for (const evidenceId of requiredEvidence) {
+    if (!selectedEvidence.has(evidenceId)) {
+      errors.push(`${path}.selectedTasks must cover required evidence ${evidenceId}`);
+    }
+  }
+}
+
+function validateRequiredAngleCoverage(assembly, { path, requiredAnglesByUnit, errors }) {
+  const requiredAngles = requiredAnglesByUnit.get(assembly.unitId) || [];
+  if (requiredAngles.length === 0) return;
+
+  const selectedAngles = new Set();
+  for (const task of assembly.selectedTasks) {
+    for (const angleId of Array.isArray(task?.angleIds) ? task.angleIds : []) {
+      selectedAngles.add(angleId);
+    }
+  }
+
+  for (const angleId of requiredAngles) {
+    if (!selectedAngles.has(angleId)) {
+      errors.push(`${path}.selectedTasks must cover required angle ${angleId}`);
+    }
+  }
+}
+
+function validateSelectedTask(task, path, { evidenceIds, angleIds, taskPlanIds, errors }) {
+  if (!isPlainObject(task)) {
+    errors.push(`${path} must be an object`);
+    return;
+  }
+
+  requireFields(task, [&quot;questionPlanId&quot;, &quot;taskPlanId&quot;, &quot;taskAffordance&quot;, &quot;taskPurpose&quot;, &quot;assemblyReason&quot;], path, errors);
+
+  if (isNonEmptyString(task.taskPlanId) &amp;&amp; !taskPlanIds.has(task.taskPlanId)) {
+    errors.push(`${path}.taskPlanId must reference a unitTaskPlan item`);
+  }
+  if (!Array.isArray(task.evidenceIds) || task.evidenceIds.length === 0) {
+    errors.push(`${path}.evidenceIds must be a non-empty array`);
+  } else {
+    task.evidenceIds.forEach((evidenceId, evidenceIndex) =&gt; {
+      if (!evidenceIds.has(evidenceId)) {
+        errors.push(`${path}.evidenceIds[${evidenceIndex}] must reference a unitEvidenceNeeds item`);
+      }
+    });
+  }
+  validateAngleIdArray(task.angleIds, `${path}.angleIds`, angleIds, errors);
+  if (isNonEmptyString(task.taskAffordance) &amp;&amp; !TASK_AFFORDANCES.includes(task.taskAffordance)) {
+    errors.push(`${path}.taskAffordance must be one of ${TASK_AFFORDANCES.join(&quot;, &quot;)}`);
+  }
+  if (isNonEmptyString(task.taskPurpose) &amp;&amp; !TASK_PURPOSES.includes(task.taskPurpose)) {
+    errors.push(`${path}.taskPurpose must be one of ${TASK_PURPOSES.join(&quot;, &quot;)}`);
+  }
+}
+</pre></details>
+      </div>
+    </div>
+  </article>
+<article id="unitPracticePlan" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-legacy_or_rollback">legacy_or_rollback</div>
+        <h3>unitPracticePlan</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>unitPracticePlan</code></dd>
+          <dt>调用方式</dt><dd></dd>
+          <dt>职责</dt><dd>历史 per-unit practice plan 转换路径；当前主链路不用。</dd>
+          <dt>输入</dt><dd></dd>
+          <dt>输出</dt><dd></dd>
+          <dt>下一步</dt><dd></dd>
+          <dt>Prompt builder</dt><dd><code>buildUnitPracticePlanMessages</code></dd>
+          <dt>Schema file</dt><dd><code>prompts/unitPracticePlan.js</code></dd>
+          
+        </dl>
+      </div>
+      <div>
+        <div class="prompt-lines">
+          <strong>Prompt 文案逐句预览</strong>
+          <ol><li>阶段：unitPracticePlan。</li><li>任务：把当前 unit 的 ECD context 转换为现有 practiceGoals 和 questionPlans；不生成用户可见题目。</li><li>转换规则：</li><li>- 输出 practiceGoals 和 questionPlans。</li><li>- 以 ECD context.selectedTasks 为计划来源，保持 ECD 已选择的 compact task 组合。</li><li>- questionPlans 的数量、顺序和 id 应跟 selectedTasks 对齐。</li><li>- questionPlan.id 必须等于 selectedTask.questionPlanId。</li><li>- selectedTask.taskAffordance 为 matching 时，questionPlan.type 写 matching；其他当前前端未支持的 affordance 先转换为 multiple_choice。</li><li>- questionPlan.purpose 必须继承 selectedTask.taskPurpose。</li><li>- practiceGoals 和 questionPlans 都要保留 selectedTask.targetIds 与 selectedTask.microIds。</li><li>- questionPlan.type 为 matching 时，必须填写 relationType；relationType 只能是 responsibility、boundary、usage_timing、scenario_effect、verification_dimension、process_signal。</li><li>- relationType 要从 selectedTask.taskPurpose 推导：layer_role_matching / role_responsibility_matching 通常是 responsibility；step_purpose_matching / signal_action_matching 通常是 process_signal；type_feature_matching 通常是 boundary 或 verification_dimension。</li><li>- practiceGoal 要服务于 selectedTask.evidenceGoal 和 targetIds 对应的 assessableTargets。</li><li>- 选择题可承担 light_understanding、scenario_application、boundary_check、misconception_check 等目的。</li><li>- matching 跟随 ECD selectedTasks：当 selectedTask 已选择 matching，要保留它的关系目的。</li><li>- matching 优先表达当前 unit 自身的层级、边界、步骤、信号、角色等关系证据。</li><li>- 每个 practiceGoal 要写明 target 和 commonMisconception，供后续选择题生成真实干扰项。</li><li>- questionPlans[].sourceAnchorId 必须等于当前 unit.sourceAnchor.id。</li></ol>
+        </div>
+        <details open><summary>Prompt builder 源码</summary><pre>function buildUnitPracticePlanMessages({ article, source, blocks, sourceContextNote, unit, ecdContext }) {
+  return {
+    system: baseSystem(),
+    user: [
+      &quot;阶段：unitPracticePlan。&quot;,
+      &quot;任务：把当前 unit 的 ECD context 转换为现有 practiceGoals 和 questionPlans；不生成用户可见题目。&quot;,
+      &quot;转换规则：&quot;,
+      &quot;- 输出 practiceGoals 和 questionPlans。&quot;,
+      &quot;- 以 ECD context.selectedTasks 为计划来源，保持 ECD 已选择的 compact task 组合。&quot;,
+      &quot;- questionPlans 的数量、顺序和 id 应跟 selectedTasks 对齐。&quot;,
+      &quot;- questionPlan.id 必须等于 selectedTask.questionPlanId。&quot;,
+      &quot;- selectedTask.taskAffordance 为 matching 时，questionPlan.type 写 matching；其他当前前端未支持的 affordance 先转换为 multiple_choice。&quot;,
+      &quot;- questionPlan.purpose 必须继承 selectedTask.taskPurpose。&quot;,
+      &quot;- practiceGoals 和 questionPlans 都要保留 selectedTask.targetIds 与 selectedTask.microIds。&quot;,
+      &quot;- questionPlan.type 为 matching 时，必须填写 relationType；relationType 只能是 responsibility、boundary、usage_timing、scenario_effect、verification_dimension、process_signal。&quot;,
+      &quot;- relationType 要从 selectedTask.taskPurpose 推导：layer_role_matching / role_responsibility_matching 通常是 responsibility；step_purpose_matching / signal_action_matching 通常是 process_signal；type_feature_matching 通常是 boundary 或 verification_dimension。&quot;,
+      &quot;- practiceGoal 要服务于 selectedTask.evidenceGoal 和 targetIds 对应的 assessableTargets。&quot;,
+      &quot;- 选择题可承担 light_understanding、scenario_application、boundary_check、misconception_check 等目的。&quot;,
+      &quot;- matching 跟随 ECD selectedTasks：当 selectedTask 已选择 matching，要保留它的关系目的。&quot;,
+      &quot;- matching 优先表达当前 unit 自身的层级、边界、步骤、信号、角色等关系证据。&quot;,
+      &quot;- 每个 practiceGoal 要写明 target 和 commonMisconception，供后续选择题生成真实干扰项。&quot;,
+      &quot;- questionPlans[].sourceAnchorId 必须等于当前 unit.sourceAnchor.id。&quot;,
+      &quot;&quot;,
+      `当前 unit:\n${JSON.stringify(unit, null, 2)}`,
+      &quot;&quot;,
+      `ECD context:\n${JSON.stringify(ecdContext || {}, null, 2)}`,
+      &quot;&quot;,
+      renderSource(source, blocks, sourceContextNote),
+      &quot;&quot;,
+      renderArticleMeta(article)
+    ].join(&quot;\n&quot;)
+  };
+}</pre></details>
+        
+        <details><summary>Schema / validator 源码</summary><pre>import {
+  createValidationResult,
+  isNonEmptyString,
+  isPlainObject,
+  requireFields,
+  validateUniqueIds
+} from &quot;./schemaValidation.js&quot;;
+
+export const UNIT_PRACTICE_PLAN_PROMPT_SCHEMA_NAME = &quot;shibei_v2_unit_practice_plan&quot;;
+
+export const PRACTICE_GOAL_KINDS = [
+  &quot;core_understanding&quot;,
+  &quot;boundary_clarification&quot;,
+  &quot;scenario_application&quot;,
+  &quot;relationship_mapping&quot;
+];
+
+export const QUESTION_PLAN_TYPES = [&quot;multiple_choice&quot;, &quot;matching&quot;];
+
+export const QUESTION_PLAN_PURPOSES = [
+  &quot;light_understanding&quot;,
+  &quot;scenario_application&quot;,
+  &quot;boundary_clarification&quot;,
+  &quot;relationship_matching&quot;,
+  &quot;boundary_check&quot;,
+  &quot;misconception_check&quot;,
+  &quot;counterexample_check&quot;,
+  &quot;layer_role_matching&quot;,
+  &quot;type_feature_matching&quot;,
+  &quot;step_purpose_matching&quot;,
+  &quot;signal_action_matching&quot;,
+  &quot;role_responsibility_matching&quot;
+];
+
+const QUESTION_PLAN_PURPOSE_ALIASES = new Map([
+  [&quot;definition_grasp&quot;, &quot;light_understanding&quot;],
+  [&quot;definition_understanding&quot;, &quot;light_understanding&quot;],
+  [&quot;concept_understanding&quot;, &quot;light_understanding&quot;],
+  [&quot;core_concept&quot;, &quot;light_understanding&quot;],
+  [&quot;core_understanding&quot;, &quot;light_understanding&quot;],
+  [&quot;basic_understanding&quot;, &quot;light_understanding&quot;],
+  [&quot;scenario_transfer&quot;, &quot;scenario_application&quot;],
+  [&quot;case_application&quot;, &quot;scenario_application&quot;],
+  [&quot;application&quot;, &quot;scenario_application&quot;],
+  [&quot;boundary_detection&quot;, &quot;boundary_clarification&quot;],
+  [&quot;boundary_understanding&quot;, &quot;boundary_clarification&quot;],
+  [&quot;misconception_detection&quot;, &quot;misconception_check&quot;],
+  [&quot;counterexample_detection&quot;, &quot;counterexample_check&quot;],
+  [&quot;relationship_mapping&quot;, &quot;relationship_matching&quot;],
+  [&quot;relation_matching&quot;, &quot;relationship_matching&quot;],
+  [&quot;structure_mapping&quot;, &quot;relationship_matching&quot;],
+  [&quot;map_structure_relation&quot;, &quot;relationship_matching&quot;],
+  [&quot;model_layer_matching&quot;, &quot;layer_role_matching&quot;],
+  [&quot;layer_function_matching&quot;, &quot;layer_role_matching&quot;],
+  [&quot;layer_role_mapping&quot;, &quot;layer_role_matching&quot;],
+  [&quot;type_feature_mapping&quot;, &quot;type_feature_matching&quot;],
+  [&quot;step_purpose_mapping&quot;, &quot;step_purpose_matching&quot;],
+  [&quot;signal_action_mapping&quot;, &quot;signal_action_matching&quot;],
+  [&quot;role_responsibility_mapping&quot;, &quot;role_responsibility_matching&quot;]
+]);
+
+export const MATCHING_RELATION_TYPES = [
+  &quot;responsibility&quot;,
+  &quot;boundary&quot;,
+  &quot;usage_timing&quot;,
+  &quot;scenario_effect&quot;,
+  &quot;verification_dimension&quot;,
+  &quot;process_signal&quot;
+];
+
+export const UNIT_PRACTICE_PLAN_OUTPUT_SCHEMA = {
+  name: UNIT_PRACTICE_PLAN_PROMPT_SCHEMA_NAME,
+  type: &quot;object&quot;,
+  required: [&quot;unitId&quot;, &quot;practiceGoals&quot;, &quot;questionPlans&quot;],
+  properties: {
+    unitId: { type: &quot;string&quot; },
+    practiceGoals: {
+      type: &quot;array&quot;,
+      items: {
+        type: &quot;object&quot;,
+        required: [&quot;id&quot;, &quot;kind&quot;, &quot;target&quot;, &quot;commonMisconception&quot;, &quot;sourceAnchorId&quot;],
+        properties: {
+          id: { type: &quot;string&quot; },
+          kind: { enum: PRACTICE_GOAL_KINDS },
+          target: { type: &quot;string&quot; },
+          commonMisconception: { type: &quot;string&quot; },
+          targetIds: {
+            type: &quot;array&quot;,
+            items: { type: &quot;string&quot; }
+          },
+          microIds: {
+            type: &quot;array&quot;,
+            items: { type: &quot;string&quot; }
+          },
+          sourceAnchorId: { type: &quot;string&quot; }
+        }
+      }
+    },
+    questionPlans: {
+      type: &quot;array&quot;,
+      items: {
+        type: &quot;object&quot;,
+        required: [&quot;id&quot;, &quot;type&quot;, &quot;purpose&quot;, &quot;practiceGoalId&quot;, &quot;sourceAnchorId&quot;],
+        properties: {
+          id: { type: &quot;string&quot; },
+          type: { enum: QUESTION_PLAN_TYPES },
+          purpose: { enum: QUESTION_PLAN_PURPOSES },
+          practiceGoalId: { type: &quot;string&quot; },
+          relationType: { enum: MATCHING_RELATION_TYPES },
+          targetIds: {
+            type: &quot;array&quot;,
+            items: { type: &quot;string&quot; }
+          },
+          microIds: {
+            type: &quot;array&quot;,
+            items: { type: &quot;string&quot; }
+          },
+          sourceAnchorId: { type: &quot;string&quot; }
+        }
+      }
+    }
+  }
+};
+
+export function normalizeQuestionPlanPurpose(value) {
+  if (typeof value !== &quot;string&quot;) return value;
+  const normalized = value.trim();
+  if (QUESTION_PLAN_PURPOSES.includes(normalized)) return normalized;
+  return QUESTION_PLAN_PURPOSE_ALIASES.get(normalized) || normalized;
+}
+
+export function normalizeUnitPracticePlanOutput(output) {
+  if (!isPlainObject(output)) return output;
+  return {
+    ...output,
+    questionPlans: Array.isArray(output.questionPlans)
+      ? output.questionPlans.map(normalizeQuestionPlan)
+      : output.questionPlans
+  };
+}
+
+function normalizeQuestionPlan(plan) {
+  if (!isPlainObject(plan)) return plan;
+  const normalizedPurpose = normalizeQuestionPlanPurpose(plan.purpose);
+  return {
+    ...plan,
+    purpose: normalizedPurpose,
+    ...(normalizedPurpose !== plan.purpose &amp;&amp; plan.originalPurpose === undefined
+      ? { originalPurpose: plan.purpose }
+      : {})
+  };
+}
+
+export function validateUnitPracticePlanOutput(output, { unitId, sourceAnchorId } = {}) {
+  const errors = [];
+
+  if (!isPlainObject(output)) {
+    return createValidationResult([&quot;unitPracticePlan output must be an object&quot;]);
+  }
+
+  if (!isNonEmptyString(output.unitId)) {
+    errors.push(&quot;unitPracticePlan.unitId is required&quot;);
+  } else if (unitId &amp;&amp; output.unitId !== unitId) {
+    errors.push(`unitPracticePlan.unitId must match ${unitId}`);
+  }
+
+  validatePracticeGoals(output.practiceGoals, { sourceAnchorId, errors });
+  const practiceGoalIds = Array.isArray(output.practiceGoals)
+    ? new Set(output.practiceGoals.map((goal) =&gt; goal?.id).filter(Boolean))
+    : new Set();
+  validateQuestionPlans(output.questionPlans, {
+    practiceGoalIds,
+    sourceAnchorId,
+    errors
+  });
+
+  return createValidationResult(errors);
+}
+
+function validatePracticeGoals(goals, { sourceAnchorId, errors }) {
+  if (!Array.isArray(goals) || goals.length === 0) {
+    errors.push(&quot;unitPracticePlan.practiceGoals must be a non-empty array&quot;);
+    return;
+  }
+
+  validateUniqueIds(goals, &quot;unitPracticePlan.practiceGoals&quot;, errors);
+
+  goals.forEach((goal, index) =&gt; {
+    const path = `unitPracticePlan.practiceGoals[${index}]`;
+
+    if (!isPlainObject(goal)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+
+    requireFields(goal, [&quot;id&quot;, &quot;kind&quot;, &quot;target&quot;, &quot;commonMisconception&quot;, &quot;sourceAnchorId&quot;], path, errors);
+
+    if (isNonEmptyString(goal.kind) &amp;&amp; !PRACTICE_GOAL_KINDS.includes(goal.kind)) {
+      errors.push(`${path}.kind must be one of ${PRACTICE_GOAL_KINDS.join(&quot;, &quot;)}`);
+    }
+    if (sourceAnchorId &amp;&amp; goal.sourceAnchorId !== sourceAnchorId) {
+      errors.push(`${path}.sourceAnchorId must match ${sourceAnchorId}`);
+    }
+    validateOptionalStringArray(goal.targetIds, `${path}.targetIds`, errors);
+    validateOptionalStringArray(goal.microIds, `${path}.microIds`, errors);
+  });
+}
+
+function validateQuestionPlans(plans, { practiceGoalIds, sourceAnchorId, errors }) {
+  if (!Array.isArray(plans) || plans.length === 0) {
+    errors.push(&quot;unitPracticePlan.questionPlans must be a non-empty array&quot;);
+    return;
+  }
+
+  validateUniqueIds(plans, &quot;unitPracticePlan.questionPlans&quot;, errors);
+
+  plans.forEach((plan, index) =&gt; {
+    const path = `unitPracticePlan.questionPlans[${index}]`;
+
+    if (!isPlainObject(plan)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+
+    requireFields(plan, [&quot;id&quot;, &quot;type&quot;, &quot;purpose&quot;, &quot;practiceGoalId&quot;, &quot;sourceAnchorId&quot;], path, errors);
+
+    if (isNonEmptyString(plan.type) &amp;&amp; !QUESTION_PLAN_TYPES.includes(plan.type)) {
+      errors.push(`${path}.type must be multiple_choice or matching`);
+    }
+    if (isNonEmptyString(plan.purpose) &amp;&amp; !QUESTION_PLAN_PURPOSES.includes(plan.purpose)) {
+      errors.push(`${path}.purpose must be one of ${QUESTION_PLAN_PURPOSES.join(&quot;, &quot;)}`);
+    }
+    if (isNonEmptyString(plan.practiceGoalId) &amp;&amp; !practiceGoalIds.has(plan.practiceGoalId)) {
+      errors.push(`${path}.practiceGoalId must reference a practice goal`);
+    }
+    if (sourceAnchorId &amp;&amp; plan.sourceAnchorId !== sourceAnchorId) {
+      errors.push(`${path}.sourceAnchorId must match ${sourceAnchorId}`);
+    }
+    if (plan.type === &quot;matching&quot; &amp;&amp; !MATCHING_RELATION_TYPES.includes(plan.relationType)) {
+      errors.push(`${path}.relationType is required for matching plans`);
+    }
+    validateOptionalStringArray(plan.targetIds, `${path}.targetIds`, errors);
+    validateOptionalStringArray(plan.microIds, `${path}.microIds`, errors);
+  });
+}
+
+function validateOptionalStringArray(items, path, errors) {
+  if (items === undefined) return;
+  if (!Array.isArray(items)) {
+    errors.push(`${path} must be an array`);
+    return;
+  }
+  items.forEach((item, index) =&gt; {
+    if (!isNonEmptyString(item)) errors.push(`${path}[${index}] must be a non-empty string`);
+  });
+}
+</pre></details>
+      </div>
+    </div>
+  </article>
+<article id="questionDraftBatch" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-legacy_or_rollback">legacy_or_rollback</div>
+        <h3>questionDraftBatch</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>questionDraftBatch</code></dd>
+          <dt>调用方式</dt><dd></dd>
+          <dt>职责</dt><dd>历史混合题型大 batch；当前主链路不用。</dd>
+          <dt>输入</dt><dd></dd>
+          <dt>输出</dt><dd></dd>
+          <dt>下一步</dt><dd></dd>
+          <dt>Prompt builder</dt><dd><code>buildQuestionDraftBatchMessages</code></dd>
+          <dt>Schema file</dt><dd><code>prompts/questionDraftBatch.js</code></dd>
+          
+        </dl>
+      </div>
+      <div>
+        <div class="prompt-lines">
+          <strong>Prompt 文案逐句预览</strong>
+          <ol><li>阶段：questionDraftBatch。</li><li>任务：按 taskBriefPlan 生成整章所有 unit 的选择题和连线题。</li><li>核心设计方式：</li><li>- ECD 是你的隐性思考方法：每道题都要服务于对应 practiceGoal 的可观察掌握证据。</li><li>- 不要输出 ECD 字段、推理链、候选矩阵或批注。</li><li>- 不要新增 questionPlan；不要漏掉任何 questionPlan。</li><li>- 每个 unit 输出一个 units[] 对象，unitId 必须原样对应输入。</li><li>- questions 数量必须等于该 unit 的 practicePlan.questionPlans 数量。</li><li>选择题规则：</li><li>- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。</li><li>- 生成每道题时按这个内部顺序执行：先确认 questionPlan 的考察目标，再确认正确理解，再确认 commonMisconception 或容易混淆点，最后生成 1 个正确选项与 3 个干扰项。</li><li>- 至少一个干扰项必须承载真实常见误区或混淆点，不能只是明显错误、无关事实或为了凑数。</li><li>- 4 个选项只能有一个正确答案；正确选项不能明显更长。</li><li>- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。</li><li>- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。</li><li>连线题规则：</li><li>- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。</li><li>- matching 只考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。</li><li>- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。</li><li>- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。</li><li>source 使用规则：</li><li>- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。</li><li>- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。</li></ol>
+        </div>
+        <details open><summary>Prompt builder 源码</summary><pre>function buildQuestionDraftBatchMessages({ article, source, units }) {
+  return {
+    system: baseSystem(),
+    user: [
+      &quot;阶段：questionDraftBatch。&quot;,
+      &quot;任务：按 taskBriefPlan 生成整章所有 unit 的选择题和连线题。&quot;,
+      &quot;核心设计方式：&quot;,
+      &quot;- ECD 是你的隐性思考方法：每道题都要服务于对应 practiceGoal 的可观察掌握证据。&quot;,
+      &quot;- 不要输出 ECD 字段、推理链、候选矩阵或批注。&quot;,
+      &quot;- 不要新增 questionPlan；不要漏掉任何 questionPlan。&quot;,
+      &quot;- 每个 unit 输出一个 units[] 对象，unitId 必须原样对应输入。&quot;,
+      &quot;- questions 数量必须等于该 unit 的 practicePlan.questionPlans 数量。&quot;,
+      &quot;选择题规则：&quot;,
+      &quot;- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。&quot;,
+      &quot;- 生成每道题时按这个内部顺序执行：先确认 questionPlan 的考察目标，再确认正确理解，再确认 commonMisconception 或容易混淆点，最后生成 1 个正确选项与 3 个干扰项。&quot;,
+      &quot;- 至少一个干扰项必须承载真实常见误区或混淆点，不能只是明显错误、无关事实或为了凑数。&quot;,
+      &quot;- 4 个选项只能有一个正确答案；正确选项不能明显更长。&quot;,
+      &quot;- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。&quot;,
+      &quot;- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。&quot;,
+      &quot;连线题规则：&quot;,
+      &quot;- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。&quot;,
+      &quot;- matching 只考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。&quot;,
+      &quot;- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。&quot;,
+      &quot;- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。&quot;,
+      &quot;source 使用规则：&quot;,
+      &quot;- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。&quot;,
+      &quot;- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。&quot;,
+      &quot;&quot;,
+      `source:\n${JSON.stringify(source || {}, null, 2)}`,
+      &quot;&quot;,
+      `unitDraftInputs:\n${JSON.stringify(units || [], null, 2)}`,
+      &quot;&quot;,
+      renderArticleMeta(article)
+    ].join(&quot;\n&quot;)
+  };
+}</pre></details>
+        
+        <details><summary>Schema / validator 源码</summary><pre>import {
+  createValidationResult,
+  isNonEmptyString,
+  isPlainObject,
+  validateUniqueIds
+} from &quot;./schemaValidation.js&quot;;
+import {
+  MATCHING_DRAFT_OUTPUT_SCHEMA,
+  validateMatchingDraftOutput
+} from &quot;./matchingDraft.js&quot;;
+import {
+  MULTIPLE_CHOICE_DRAFT_OUTPUT_SCHEMA,
+  validateMultipleChoiceDraftOutput
+} from &quot;./multipleChoiceDraft.js&quot;;
+
+export const QUESTION_DRAFT_BATCH_PROMPT_SCHEMA_NAME = &quot;shibei_v2_question_draft_batch&quot;;
+
+const MULTIPLE_CHOICE_QUESTION_SCHEMA = MULTIPLE_CHOICE_DRAFT_OUTPUT_SCHEMA.properties.questions.items;
+const MATCHING_QUESTION_SCHEMA = MATCHING_DRAFT_OUTPUT_SCHEMA.properties.questions.items;
+
+export const QUESTION_DRAFT_BATCH_OUTPUT_SCHEMA = {
+  name: QUESTION_DRAFT_BATCH_PROMPT_SCHEMA_NAME,
+  type: &quot;object&quot;,
+  required: [&quot;units&quot;],
+  properties: {
+    units: {
+      type: &quot;array&quot;,
+      items: {
+        type: &quot;object&quot;,
+        required: [&quot;unitId&quot;, &quot;questions&quot;],
+        properties: {
+          unitId: { type: &quot;string&quot; },
+          questions: {
+            type: &quot;array&quot;,
+            items: {
+              type: &quot;object&quot;,
+              properties: {
+                ...MULTIPLE_CHOICE_QUESTION_SCHEMA.properties,
+                ...MATCHING_QUESTION_SCHEMA.properties
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+export function validateQuestionDraftBatchOutput(
+  output,
+  { practicePlansByUnit, sourceAnchorByUnit } = {}
+) {
+  const errors = [];
+
+  if (!isPlainObject(output)) {
+    return createValidationResult([&quot;questionDraftBatch output must be an object&quot;]);
+  }
+  if (!Array.isArray(output.units) || output.units.length === 0) {
+    return createValidationResult([&quot;questionDraftBatch.units must be a non-empty array&quot;]);
+  }
+
+  const expectedUnitIds = practicePlansByUnit instanceof Map
+    ? new Set(practicePlansByUnit.keys())
+    : new Set();
+  const seenUnitIds = new Set();
+
+  output.units.forEach((unitDraft, index) =&gt; {
+    const path = `questionDraftBatch.units[${index}]`;
+    if (!isPlainObject(unitDraft)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    if (!isNonEmptyString(unitDraft.unitId)) {
+      errors.push(`${path}.unitId is required`);
+      return;
+    }
+    if (seenUnitIds.has(unitDraft.unitId)) {
+      errors.push(`${path}.unitId must be unique`);
+    }
+    seenUnitIds.add(unitDraft.unitId);
+    if (expectedUnitIds.size &gt; 0 &amp;&amp; !expectedUnitIds.has(unitDraft.unitId)) {
+      errors.push(`${path}.unitId must reference a planned unit`);
+    }
+    if (!Array.isArray(unitDraft.questions)) {
+      errors.push(`${path}.questions must be an array`);
+      return;
+    }
+    validateUniqueIds(unitDraft.questions, `${path}.questions`, errors);
+    unitDraft.questions.forEach((question, questionIndex) =&gt; {
+      if (!isPlainObject(question)) {
+        errors.push(`${path}.questions[${questionIndex}] must be an object`);
+      } else if (question.type !== &quot;multiple_choice&quot; &amp;&amp; question.type !== &quot;matching&quot;) {
+        errors.push(`${path}.questions[${questionIndex}].type must be multiple_choice or matching`);
+      }
+    });
+
+    const practicePlan = practicePlansByUnit?.get(unitDraft.unitId);
+    if (!practicePlan) return;
+    const sourceAnchorId = sourceAnchorByUnit?.get(unitDraft.unitId);
+    const multipleChoiceValidation = validateMultipleChoiceDraftOutput(
+      {
+        unitId: unitDraft.unitId,
+        questions: unitDraft.questions.filter((question) =&gt; question?.type === &quot;multiple_choice&quot;)
+      },
+      {
+        unitId: unitDraft.unitId,
+        plans: practicePlan.questionPlans,
+        sourceAnchorId
+      }
+    );
+    const matchingValidation = validateMatchingDraftOutput(
+      {
+        unitId: unitDraft.unitId,
+        questions: unitDraft.questions.filter((question) =&gt; question?.type === &quot;matching&quot;)
+      },
+      {
+        unitId: unitDraft.unitId,
+        plans: practicePlan.questionPlans,
+        sourceAnchorId
+      }
+    );
+
+    if (!multipleChoiceValidation.ok) {
+      multipleChoiceValidation.errors.forEach((error) =&gt; errors.push(`${path}: ${error}`));
+    }
+    if (!matchingValidation.ok) {
+      matchingValidation.errors.forEach((error) =&gt; errors.push(`${path}: ${error}`));
+    }
+  });
+
+  expectedUnitIds.forEach((unitId) =&gt; {
+    if (!seenUnitIds.has(unitId)) {
+      errors.push(`questionDraftBatch.units missing unitId ${unitId}`);
+    }
+  });
+
+  return createValidationResult(errors);
+}
+
+export function getQuestionDraftForUnit(questionDraftBatch, unitId) {
+  return (questionDraftBatch?.units || []).find((unitDraft) =&gt; unitDraft?.unitId === unitId) || null;
+}
+</pre></details>
+      </div>
+    </div>
+  </article>
+<article id="multipleChoiceDraftBatch" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-legacy_or_rollback">legacy_or_rollback</div>
+        <h3>multipleChoiceDraftBatch</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>multipleChoiceDraftBatch</code></dd>
+          <dt>调用方式</dt><dd></dd>
+          <dt>职责</dt><dd>历史全章选择题大 batch；已被 unit scoped batch 替代。</dd>
+          <dt>输入</dt><dd></dd>
+          <dt>输出</dt><dd></dd>
+          <dt>下一步</dt><dd></dd>
+          <dt>Prompt builder</dt><dd><code>buildMultipleChoiceDraftBatchMessages</code></dd>
+          <dt>Schema file</dt><dd><code>prompts/multipleChoiceDraftBatch.js</code></dd>
+          
+        </dl>
+      </div>
+      <div>
+        <div class="prompt-lines">
+          <strong>Prompt 文案逐句预览</strong>
+          <ol><li>阶段：multipleChoiceDraftBatch。</li><li>任务：按 taskBriefPlan 只生成整章各 unit 的选择题。</li><li>核心设计方式：</li><li>- ECD 是你的隐性思考方法：题目要让用户表现出对应 practiceGoal 的可观察掌握证据。</li><li>- 不要输出 ECD 字段、推理链、候选矩阵或批注。</li><li>- 不要新增 questionPlan；不要漏掉任何 multiple_choice questionPlan。</li><li>- 每个输出 unitId 必须原样对应输入。</li><li>- questions 数量必须等于该 unit 的 multiple_choice questionPlans 数量。</li><li>选择题规则：</li><li>- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。</li><li>- 生成每道题时按这个内部顺序执行：先确认 questionPlan 的考察目标，再确认正确理解，再确认 commonMisconception 或容易混淆点，最后生成 1 个正确选项与 3 个干扰项。</li><li>- 至少一个干扰项必须承载真实常见误区或混淆点，不能只是明显错误、无关事实或为了凑数。</li><li>- 4 个选项只能有一个正确答案；正确选项不能明显更长。</li><li>- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。</li><li>- 选项尽量短，考理解、边界、误区或场景迁移，不做阅读理解复述。</li><li>- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。</li><li>source 使用规则：</li><li>- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。</li><li>- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。</li></ol>
+        </div>
+        <details open><summary>Prompt builder 源码</summary><pre>function buildMultipleChoiceDraftBatchMessages({ article, source, units }) {
+  return {
+    system: baseSystem(),
+    user: [
+      &quot;阶段：multipleChoiceDraftBatch。&quot;,
+      &quot;任务：按 taskBriefPlan 只生成整章各 unit 的选择题。&quot;,
+      &quot;核心设计方式：&quot;,
+      &quot;- ECD 是你的隐性思考方法：题目要让用户表现出对应 practiceGoal 的可观察掌握证据。&quot;,
+      &quot;- 不要输出 ECD 字段、推理链、候选矩阵或批注。&quot;,
+      &quot;- 不要新增 questionPlan；不要漏掉任何 multiple_choice questionPlan。&quot;,
+      &quot;- 每个输出 unitId 必须原样对应输入。&quot;,
+      &quot;- questions 数量必须等于该 unit 的 multiple_choice questionPlans 数量。&quot;,
+      &quot;选择题规则：&quot;,
+      &quot;- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。&quot;,
+      &quot;- 生成每道题时按这个内部顺序执行：先确认 questionPlan 的考察目标，再确认正确理解，再确认 commonMisconception 或容易混淆点，最后生成 1 个正确选项与 3 个干扰项。&quot;,
+      &quot;- 至少一个干扰项必须承载真实常见误区或混淆点，不能只是明显错误、无关事实或为了凑数。&quot;,
+      &quot;- 4 个选项只能有一个正确答案；正确选项不能明显更长。&quot;,
+      &quot;- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。&quot;,
+      &quot;- 选项尽量短，考理解、边界、误区或场景迁移，不做阅读理解复述。&quot;,
+      &quot;- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。&quot;,
+      &quot;source 使用规则：&quot;,
+      &quot;- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。&quot;,
+      &quot;- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。&quot;,
+      &quot;&quot;,
+      `source:\n${JSON.stringify(source || {}, null, 2)}`,
+      &quot;&quot;,
+      `unitDraftInputs:\n${JSON.stringify(units || [], null, 2)}`,
+      &quot;&quot;,
+      renderArticleMeta(article)
+    ].join(&quot;\n&quot;)
+  };
+}</pre></details>
+        
+        <details><summary>Schema / validator 源码</summary><pre>import {
+  createValidationResult,
+  isNonEmptyString,
+  isPlainObject,
+  validateUniqueIds
+} from &quot;./schemaValidation.js&quot;;
+import {
+  MULTIPLE_CHOICE_DRAFT_OUTPUT_SCHEMA,
+  validateMultipleChoiceDraftOutput
+} from &quot;./multipleChoiceDraft.js&quot;;
+
+export const MULTIPLE_CHOICE_DRAFT_BATCH_PROMPT_SCHEMA_NAME = &quot;shibei_v2_multiple_choice_draft_batch&quot;;
+
+const MULTIPLE_CHOICE_QUESTION_SCHEMA = MULTIPLE_CHOICE_DRAFT_OUTPUT_SCHEMA.properties.questions.items;
+
+export const MULTIPLE_CHOICE_DRAFT_BATCH_OUTPUT_SCHEMA = {
+  name: MULTIPLE_CHOICE_DRAFT_BATCH_PROMPT_SCHEMA_NAME,
+  type: &quot;object&quot;,
+  required: [&quot;units&quot;],
+  properties: {
+    units: {
+      type: &quot;array&quot;,
+      items: {
+        type: &quot;object&quot;,
+        required: [&quot;unitId&quot;, &quot;questions&quot;],
+        properties: {
+          unitId: { type: &quot;string&quot; },
+          questions: {
+            type: &quot;array&quot;,
+            items: MULTIPLE_CHOICE_QUESTION_SCHEMA
+          }
+        }
+      }
+    }
+  }
+};
+
+export function validateMultipleChoiceDraftBatchOutput(
+  output,
+  { practicePlansByUnit, sourceAnchorByUnit } = {}
+) {
+  const errors = [];
+
+  if (!isPlainObject(output)) {
+    return createValidationResult([&quot;multipleChoiceDraftBatch output must be an object&quot;]);
+  }
+  if (!Array.isArray(output.units)) {
+    return createValidationResult([&quot;multipleChoiceDraftBatch.units must be an array&quot;]);
+  }
+
+  const expectedUnitIds = expectedUnitIdsWithQuestionType(practicePlansByUnit, &quot;multiple_choice&quot;);
+  const seenUnitIds = new Set();
+
+  output.units.forEach((unitDraft, index) =&gt; {
+    const path = `multipleChoiceDraftBatch.units[${index}]`;
+    if (!isPlainObject(unitDraft)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    if (!isNonEmptyString(unitDraft.unitId)) {
+      errors.push(`${path}.unitId is required`);
+      return;
+    }
+    if (seenUnitIds.has(unitDraft.unitId)) {
+      errors.push(`${path}.unitId must be unique`);
+    }
+    seenUnitIds.add(unitDraft.unitId);
+    if (expectedUnitIds.size &gt; 0 &amp;&amp; !expectedUnitIds.has(unitDraft.unitId)) {
+      errors.push(`${path}.unitId must reference a planned unit with multiple_choice plans`);
+    }
+    if (!Array.isArray(unitDraft.questions)) {
+      errors.push(`${path}.questions must be an array`);
+      return;
+    }
+    validateUniqueIds(unitDraft.questions, `${path}.questions`, errors);
+    unitDraft.questions.forEach((question, questionIndex) =&gt; {
+      if (!isPlainObject(question)) {
+        errors.push(`${path}.questions[${questionIndex}] must be an object`);
+      } else if (question.type !== &quot;multiple_choice&quot;) {
+        errors.push(`${path}.questions[${questionIndex}].type must be multiple_choice`);
+      }
+    });
+
+    const practicePlan = practicePlansByUnit?.get(unitDraft.unitId);
+    if (!practicePlan) return;
+    const sourceAnchorId = sourceAnchorByUnit?.get(unitDraft.unitId);
+    const validation = validateMultipleChoiceDraftOutput(
+      {
+        unitId: unitDraft.unitId,
+        questions: unitDraft.questions
+      },
+      {
+        unitId: unitDraft.unitId,
+        plans: practicePlan.questionPlans,
+        sourceAnchorId
+      }
+    );
+    if (!validation.ok) {
+      validation.errors.forEach((error) =&gt; errors.push(`${path}: ${error}`));
+    }
+  });
+
+  expectedUnitIds.forEach((unitId) =&gt; {
+    if (!seenUnitIds.has(unitId)) {
+      errors.push(`multipleChoiceDraftBatch.units missing unitId ${unitId}`);
+    }
+  });
+
+  return createValidationResult(errors);
+}
+
+export function getMultipleChoiceDraftForUnit(multipleChoiceDraftBatch, unitId) {
+  return (multipleChoiceDraftBatch?.units || []).find((unitDraft) =&gt; unitDraft?.unitId === unitId) || null;
+}
+
+function expectedUnitIdsWithQuestionType(practicePlansByUnit, type) {
+  if (!(practicePlansByUnit instanceof Map)) return new Set();
+  return new Set(
+    Array.from(practicePlansByUnit.entries())
+      .filter(([, practicePlan]) =&gt;
+        (practicePlan?.questionPlans || []).some((questionPlan) =&gt; questionPlan.type === type)
+      )
+      .map(([unitId]) =&gt; unitId)
+  );
+}
+</pre></details>
+      </div>
+    </div>
+  </article>
+<article id="multipleChoiceDraft" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-legacy_or_rollback">legacy_or_rollback</div>
+        <h3>multipleChoiceDraft</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>multipleChoiceDraft</code></dd>
+          <dt>调用方式</dt><dd></dd>
+          <dt>职责</dt><dd>历史 per-unit 选择题路径；当前主链路不用。</dd>
+          <dt>输入</dt><dd></dd>
+          <dt>输出</dt><dd></dd>
+          <dt>下一步</dt><dd></dd>
+          <dt>Prompt builder</dt><dd><code>buildMultipleChoiceDraftMessages</code></dd>
+          <dt>Schema file</dt><dd><code>prompts/multipleChoiceDraft.js</code></dd>
+          
+        </dl>
+      </div>
+      <div>
+        <div class="prompt-lines">
+          <strong>Prompt 文案逐句预览</strong>
+          <ol><li>阶段：multipleChoiceDraft。</li><li>任务：按 practice plan 生成当前知识点的选择题。</li><li>设计方式：</li><li>- practicePlan 已经体现学习对象、掌握证据和题型选择；本阶段不要重新改变题型或新增题。</li><li>- 每道题必须服务于对应 questionPlan 和 practiceGoal。</li><li>生成顺序必须遵守：</li><li>用户可见规则：</li><li>- question.type 只能是 multiple_choice。</li><li>- 题干要自足，不能写“根据本文/根据文章/根据原文/文中提到/这篇文章里/这里的/上述”。</li><li>- 优先正向提问，不写没必要的“哪一项不是/最不应该”。</li><li>- 选择题必须 4 个选项，只有一个正确答案。</li><li>- 至少一个干扰项承载真实常见误区或混淆点，不能明显凑数。</li><li>- 正确选项不能明显更长、更像标准答案。</li><li>- explanation 要短、明确，适合底部反馈浮窗；不要写“正确选项A/B/C/D”。</li><li>- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。</li></ol>
+        </div>
+        <details open><summary>Prompt builder 源码</summary><pre>function buildMultipleChoiceDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, ecdContext }) {
+  const ecdContextSection = ecdContext
+    ? [`ECD context:\n${JSON.stringify(ecdContext, null, 2)}`, &quot;&quot;]
+    : [];
+  return {
+    system: baseSystem(),
+    user: [
+      &quot;阶段：multipleChoiceDraft。&quot;,
+      &quot;任务：按 practice plan 生成当前知识点的选择题。&quot;,
+      &quot;设计方式：&quot;,
+      &quot;- practicePlan 已经体现学习对象、掌握证据和题型选择；本阶段不要重新改变题型或新增题。&quot;,
+      &quot;- 每道题必须服务于对应 questionPlan 和 practiceGoal。&quot;,
+      &quot;生成顺序必须遵守：&quot;,
+      &quot;1. 先确认每题考察目标。&quot;,
+      &quot;2. 生成 correctUnderstanding。&quot;,
+      &quot;3. 生成 misconception 或容易混淆点。&quot;,
+      &quot;4. 基于正确理解和误区生成 1 个正确选项与 3 个干扰项。&quot;,
+      &quot;5. 生成用户可见的单段 explanation。&quot;,
+      &quot;用户可见规则：&quot;,
+      &quot;- question.type 只能是 multiple_choice。&quot;,
+      &quot;- 题干要自足，不能写“根据本文/根据文章/根据原文/文中提到/这篇文章里/这里的/上述”。&quot;,
+      &quot;- 优先正向提问，不写没必要的“哪一项不是/最不应该”。&quot;,
+      &quot;- 选择题必须 4 个选项，只有一个正确答案。&quot;,
+      &quot;- 至少一个干扰项承载真实常见误区或混淆点，不能明显凑数。&quot;,
+      &quot;- 正确选项不能明显更长、更像标准答案。&quot;,
+      &quot;- explanation 要短、明确，适合底部反馈浮窗；不要写“正确选项A/B/C/D”。&quot;,
+      &quot;- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。&quot;,
+      &quot;&quot;,
+      `当前 unit:\n${JSON.stringify(unit, null, 2)}`,
+      &quot;&quot;,
+      `practicePlan:\n${JSON.stringify(practicePlan, null, 2)}`,
+      &quot;&quot;,
+      ...ecdContextSection,
+      renderSource(source, blocks, sourceContextNote),
+      &quot;&quot;,
+      renderArticleMeta(article)
+    ].join(&quot;\n&quot;)
+  };
+}</pre></details>
+        
+        <details><summary>Schema / validator 源码</summary><pre>import {
+  createValidationResult,
+  isNonEmptyString,
+  isPlainObject,
+  requireFields,
+  validateUniqueIds
+} from &quot;./schemaValidation.js&quot;;
+
+export const MULTIPLE_CHOICE_DRAFT_PROMPT_SCHEMA_NAME = &quot;shibei_v2_multiple_choice_draft&quot;;
+
+export const MULTIPLE_CHOICE_DRAFT_OUTPUT_SCHEMA = {
+  name: MULTIPLE_CHOICE_DRAFT_PROMPT_SCHEMA_NAME,
+  type: &quot;object&quot;,
+  required: [&quot;unitId&quot;, &quot;questions&quot;],
+  properties: {
+    unitId: { type: &quot;string&quot; },
+    questions: {
+      type: &quot;array&quot;,
+      items: {
+        type: &quot;object&quot;,
+        required: [
+          &quot;id&quot;,
+          &quot;type&quot;,
+          &quot;practiceGoalId&quot;,
+          &quot;stem&quot;,
+          &quot;correctUnderstanding&quot;,
+          &quot;misconception&quot;,
+          &quot;options&quot;,
+          &quot;correctOptionId&quot;,
+          &quot;explanation&quot;,
+          &quot;sourceAnchorId&quot;
+        ],
+        properties: {
+          id: { type: &quot;string&quot; },
+          type: { enum: [&quot;multiple_choice&quot;] },
+          practiceGoalId: { type: &quot;string&quot; },
+          stem: { type: &quot;string&quot; },
+          correctUnderstanding: { type: &quot;string&quot; },
+          misconception: { type: &quot;string&quot; },
+          distractorRationale: { type: &quot;string&quot; },
+          options: {
+            type: &quot;array&quot;,
+            minItems: 4,
+            maxItems: 4,
+            items: {
+              type: &quot;object&quot;,
+              required: [&quot;id&quot;, &quot;text&quot;],
+              properties: {
+                id: { type: &quot;string&quot; },
+                text: { type: &quot;string&quot; }
+              }
+            }
+          },
+          correctOptionId: { type: &quot;string&quot; },
+          explanation: { type: &quot;string&quot; },
+          sourceAnchorId: { type: &quot;string&quot; }
+        }
+      }
+    }
+  }
+};
+
+export function validateMultipleChoiceDraftOutput(
+  output,
+  { unitId, plans = [], sourceAnchorId } = {}
+) {
+  const errors = [];
+
+  if (!isPlainObject(output)) {
+    return createValidationResult([&quot;multipleChoiceDraft output must be an object&quot;]);
+  }
+
+  if (!isNonEmptyString(output.unitId)) {
+    errors.push(&quot;multipleChoiceDraft.unitId is required&quot;);
+  } else if (unitId &amp;&amp; output.unitId !== unitId) {
+    errors.push(`multipleChoiceDraft.unitId must match ${unitId}`);
+  }
+
+  const expectedPlanIds = new Set(
+    plans.filter((plan) =&gt; plan.type === &quot;multiple_choice&quot;).map((plan) =&gt; plan.id)
+  );
+
+  if (!Array.isArray(output.questions)) {
+    errors.push(&quot;multipleChoiceDraft.questions must be an array&quot;);
+    return createValidationResult(errors);
+  }
+
+  if (output.questions.length !== expectedPlanIds.size) {
+    errors.push(`multipleChoiceDraft.questions must contain ${expectedPlanIds.size} multiple choice questions`);
+  }
+
+  validateUniqueIds(output.questions, &quot;multipleChoiceDraft.questions&quot;, errors);
+
+  output.questions.forEach((question, index) =&gt; {
+    validateMultipleChoiceQuestion(question, {
+      path: `multipleChoiceDraft.questions[${index}]`,
+      expectedPlanIds,
+      sourceAnchorId,
+      errors
+    });
+  });
+
+  return createValidationResult(errors);
+}
+
+function validateMultipleChoiceQuestion(question, {
+  path,
+  expectedPlanIds,
+  sourceAnchorId,
+  errors
+}) {
+  if (!isPlainObject(question)) {
+    errors.push(`${path} must be an object`);
+    return;
+  }
+
+  requireFields(
+    question,
+    [
+      &quot;id&quot;,
+      &quot;type&quot;,
+      &quot;practiceGoalId&quot;,
+      &quot;stem&quot;,
+      &quot;correctUnderstanding&quot;,
+      &quot;misconception&quot;,
+      &quot;correctOptionId&quot;,
+      &quot;explanation&quot;,
+      &quot;sourceAnchorId&quot;
+    ],
+    path,
+    errors
+  );
+
+  if (question.type !== &quot;multiple_choice&quot;) {
+    errors.push(`${path}.type must be multiple_choice`);
+  }
+  if (isNonEmptyString(question.id) &amp;&amp; !expectedPlanIds.has(question.id)) {
+    errors.push(`${path}.id must match a multiple_choice question plan id`);
+  }
+  if (sourceAnchorId &amp;&amp; question.sourceAnchorId !== sourceAnchorId) {
+    errors.push(`${path}.sourceAnchorId must match ${sourceAnchorId}`);
+  }
+  validateOptions(question, path, errors);
+}
+
+function validateOptions(question, path, errors) {
+  if (!Array.isArray(question.options)) {
+    errors.push(`${path}.options must be an array`);
+    return;
+  }
+
+  if (question.options.length !== 4) {
+    errors.push(`${path}.options must contain exactly 4 options`);
+  }
+
+  const optionIds = validateUniqueIds(question.options, `${path}.options`, errors);
+  question.options.forEach((option, index) =&gt; {
+    if (isPlainObject(option) &amp;&amp; !isNonEmptyString(option.text)) {
+      errors.push(`${path}.options[${index}].text is required`);
+    }
+  });
+
+  if (!isNonEmptyString(question.correctOptionId)) {
+    errors.push(`${path}.correctOptionId is required`);
+  } else if (!optionIds.has(question.correctOptionId)) {
+    errors.push(`${path}.correctOptionId must reference an existing option id`);
+  }
+}
+</pre></details>
+      </div>
+    </div>
+  </article>
+<article id="matchingDraft" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-legacy_or_rollback">legacy_or_rollback</div>
+        <h3>matchingDraft</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>matchingDraft</code></dd>
+          <dt>调用方式</dt><dd></dd>
+          <dt>职责</dt><dd>历史 per-unit 连线题路径；当前主链路不用。</dd>
+          <dt>输入</dt><dd></dd>
+          <dt>输出</dt><dd></dd>
+          <dt>下一步</dt><dd></dd>
+          <dt>Prompt builder</dt><dd><code>buildMatchingDraftMessages</code></dd>
+          <dt>Schema file</dt><dd><code>prompts/matchingDraft.js</code></dd>
+          
+        </dl>
+      </div>
+      <div>
+        <div class="prompt-lines">
+          <strong>Prompt 文案逐句预览</strong>
+          <ol><li>阶段：matchingDraft。</li><li>任务：只生成 practice plan 中要求的高价值连线题。</li><li>设计方式：</li><li>- 只实现 practicePlan 中已经选择 matching 的题。</li><li>- stem、左右项和 explanation 必须贴合当前 unit 的关系目的和掌握证据。</li><li>- matching 应实现当前 unit 自身的关系目的；不同 unit 可以使用自己的步骤、边界、信号或角色关系。</li><li>连线题规则：</li><li>- question.type 只能是 matching。</li><li>- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。</li><li>- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。</li><li>- stem 必须说明匹配的关系：职责、边界、使用时机、场景作用、验证维度或流程信号。</li><li>- 右侧必须是具体作用、处理方式、职责边界、判断结果、典型场景或验证维度。</li><li>- 优先生成层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度这类有关系价值的 matching。</li><li>- 如果 selected task 是 matching，应尽量实现它的关系目的，并从当前 unit 的同级证据中补足 4 组。</li><li>- explanation 要短、明确，适合底部反馈浮窗。</li><li>- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。</li></ol>
+        </div>
+        <details open><summary>Prompt builder 源码</summary><pre>function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, ecdContext }) {
+  const ecdContextSection = ecdContext
+    ? [`ECD context:\n${JSON.stringify(ecdContext, null, 2)}`, &quot;&quot;]
+    : [];
+  return {
+    system: baseSystem(),
+    user: [
+      &quot;阶段：matchingDraft。&quot;,
+      &quot;任务：只生成 practice plan 中要求的高价值连线题。&quot;,
+      &quot;输出数量：questions.length 必须等于 practicePlan.questionPlans 中 type=matching 的数量；不要多生成，也不要少生成。&quot;,
+      &quot;id 对齐：每道题的 id 必须直接使用对应 matching questionPlan.id。&quot;,
+      &quot;设计方式：&quot;,
+      &quot;- 只实现 practicePlan 中已经选择 matching 的题。&quot;,
+      &quot;- stem、左右项和 explanation 必须贴合当前 unit 的关系目的和掌握证据。&quot;,
+      &quot;- matching 应实现当前 unit 自身的关系目的；不同 unit 可以使用自己的步骤、边界、信号或角色关系。&quot;,
+      &quot;连线题规则：&quot;,
+      &quot;- question.type 只能是 matching。&quot;,
+      &quot;- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。&quot;,
+      &quot;- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。&quot;,
+      &quot;- stem 必须说明匹配的关系：职责、边界、使用时机、场景作用、验证维度或流程信号。&quot;,
+      &quot;- 右侧必须是具体作用、处理方式、职责边界、判断结果、典型场景或验证维度。&quot;,
+      &quot;- 优先生成层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度这类有关系价值的 matching。&quot;,
+      &quot;- 如果 selected task 是 matching，应尽量实现它的关系目的，并从当前 unit 的同级证据中补足 4 组。&quot;,
+      &quot;- explanation 要短、明确，适合底部反馈浮窗。&quot;,
+      &quot;- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。&quot;,
+      &quot;&quot;,
+      `当前 unit:\n${JSON.stringify(unit, null, 2)}`,
+      &quot;&quot;,
+      `practicePlan:\n${JSON.stringify(practicePlan, null, 2)}`,
+      &quot;&quot;,
+      ...ecdContextSection,
+      renderSource(source, blocks, sourceContextNote),
+      &quot;&quot;,
+      renderArticleMeta(article)
+    ].join(&quot;\n&quot;)
+  };
+}</pre></details>
+        
+        <details><summary>Schema / validator 源码</summary><pre>import {
+  createValidationResult,
+  isNonEmptyString,
+  isPlainObject,
+  requireFields,
+  validateUniqueIds
+} from &quot;./schemaValidation.js&quot;;
+import { MATCHING_RELATION_TYPES } from &quot;./unitPracticePlan.js&quot;;
+
+export const MATCHING_DRAFT_PROMPT_SCHEMA_NAME = &quot;shibei_v2_matching_draft&quot;;
+
+export const MATCHING_DRAFT_OUTPUT_SCHEMA = {
+  name: MATCHING_DRAFT_PROMPT_SCHEMA_NAME,
+  type: &quot;object&quot;,
+  required: [&quot;unitId&quot;, &quot;questions&quot;],
+  properties: {
+    unitId: { type: &quot;string&quot; },
+    questions: {
+      type: &quot;array&quot;,
+      items: {
+        type: &quot;object&quot;,
+        required: [
+          &quot;id&quot;,
+          &quot;type&quot;,
+          &quot;practiceGoalId&quot;,
+          &quot;relationType&quot;,
+          &quot;relationGoal&quot;,
+          &quot;stem&quot;,
+          &quot;leftItems&quot;,
+          &quot;rightItems&quot;,
+          &quot;pairs&quot;,
+          &quot;explanation&quot;,
+          &quot;sourceAnchorId&quot;
+        ],
+        properties: {
+          id: { type: &quot;string&quot; },
+          type: { enum: [&quot;matching&quot;] },
+          practiceGoalId: { type: &quot;string&quot; },
+          relationType: { enum: MATCHING_RELATION_TYPES },
+          relationGoal: { type: &quot;string&quot; },
+          stem: { type: &quot;string&quot; },
+          leftItems: {
+            type: &quot;array&quot;,
+            minItems: 2,
+            maxItems: 4,
+            items: {
+              type: &quot;object&quot;,
+              required: [&quot;id&quot;, &quot;text&quot;],
+              properties: {
+                id: { type: &quot;string&quot; },
+                text: { type: &quot;string&quot; }
+              }
+            }
+          },
+          rightItems: {
+            type: &quot;array&quot;,
+            minItems: 2,
+            maxItems: 4,
+            items: {
+              type: &quot;object&quot;,
+              required: [&quot;id&quot;, &quot;text&quot;],
+              properties: {
+                id: { type: &quot;string&quot; },
+                text: { type: &quot;string&quot; }
+              }
+            }
+          },
+          pairs: {
+            type: &quot;array&quot;,
+            minItems: 2,
+            maxItems: 4,
+            items: {
+              type: &quot;object&quot;,
+              required: [&quot;leftId&quot;, &quot;rightId&quot;],
+              properties: {
+                leftId: { type: &quot;string&quot; },
+                rightId: { type: &quot;string&quot; }
+              }
+            }
+          },
+          explanation: { type: &quot;string&quot; },
+          sourceAnchorId: { type: &quot;string&quot; }
+        }
+      }
+    }
+  }
+};
+
+export function validateMatchingDraftOutput(
+  output,
+  { unitId, plans = [], sourceAnchorId } = {}
+) {
+  const errors = [];
+
+  if (!isPlainObject(output)) {
+    return createValidationResult([&quot;matchingDraft output must be an object&quot;]);
+  }
+
+  if (!isNonEmptyString(output.unitId)) {
+    errors.push(&quot;matchingDraft.unitId is required&quot;);
+  } else if (unitId &amp;&amp; output.unitId !== unitId) {
+    errors.push(`matchingDraft.unitId must match ${unitId}`);
+  }
+
+  const expectedPlanIds = new Set(
+    plans.filter((plan) =&gt; plan.type === &quot;matching&quot;).map((plan) =&gt; plan.id)
+  );
+
+  if (!Array.isArray(output.questions)) {
+    errors.push(&quot;matchingDraft.questions must be an array&quot;);
+    return createValidationResult(errors);
+  }
+
+  if (output.questions.length !== expectedPlanIds.size) {
+    errors.push(`matchingDraft.questions must contain ${expectedPlanIds.size} matching questions`);
+  }
+
+  validateUniqueIds(output.questions, &quot;matchingDraft.questions&quot;, errors);
+
+  output.questions.forEach((question, index) =&gt; {
+    validateMatchingQuestion(question, {
+      path: `matchingDraft.questions[${index}]`,
+      expectedPlanIds,
+      sourceAnchorId,
+      errors
+    });
+  });
+
+  return createValidationResult(errors);
+}
+
+function validateMatchingQuestion(question, {
+  path,
+  expectedPlanIds,
+  sourceAnchorId,
+  errors
+}) {
+  if (!isPlainObject(question)) {
+    errors.push(`${path} must be an object`);
+    return;
+  }
+
+  requireFields(
+    question,
+    [
+      &quot;id&quot;,
+      &quot;type&quot;,
+      &quot;practiceGoalId&quot;,
+      &quot;relationType&quot;,
+      &quot;relationGoal&quot;,
+      &quot;stem&quot;,
+      &quot;explanation&quot;,
+      &quot;sourceAnchorId&quot;
+    ],
+    path,
+    errors
+  );
+
+  if (question.type !== &quot;matching&quot;) {
+    errors.push(`${path}.type must be matching`);
+  }
+  if (isNonEmptyString(question.id) &amp;&amp; !expectedPlanIds.has(question.id)) {
+    errors.push(`${path}.id must match a matching question plan id`);
+  }
+  if (isNonEmptyString(question.relationType) &amp;&amp; !MATCHING_RELATION_TYPES.includes(question.relationType)) {
+    errors.push(`${path}.relationType must be one of ${MATCHING_RELATION_TYPES.join(&quot;, &quot;)}`);
+  }
+  if (sourceAnchorId &amp;&amp; question.sourceAnchorId !== sourceAnchorId) {
+    errors.push(`${path}.sourceAnchorId must match ${sourceAnchorId}`);
+  }
+  validateMatchingItems(question, path, errors);
+}
+
+function validateMatchingItems(question, path, errors) {
+  if (!Array.isArray(question.leftItems)) {
+    errors.push(`${path}.leftItems must be an array`);
+  }
+  if (!Array.isArray(question.rightItems)) {
+    errors.push(`${path}.rightItems must be an array`);
+  }
+  if (!Array.isArray(question.pairs)) {
+    errors.push(`${path}.pairs must be an array`);
+    return;
+  }
+  if (!Array.isArray(question.leftItems) || !Array.isArray(question.rightItems)) {
+    return;
+  }
+  if (question.leftItems.length &lt; 2 || question.leftItems.length &gt; 4) {
+    errors.push(`${path}.leftItems must contain 2 to 4 items`);
+  }
+  if (question.rightItems.length &lt; 2 || question.rightItems.length &gt; 4) {
+    errors.push(`${path}.rightItems must contain 2 to 4 items`);
+  }
+  if (question.pairs.length &lt; 2 || question.pairs.length &gt; 4) {
+    errors.push(`${path}.pairs must contain 2 to 4 pairs`);
+    return;
+  }
+  if (question.leftItems.length !== question.rightItems.length) {
+    errors.push(`${path}.leftItems and rightItems must contain the same number of items`);
+  }
+  if (question.pairs.length !== question.leftItems.length || question.pairs.length !== question.rightItems.length) {
+    errors.push(`${path}.pairs must contain one pair for each left/right item`);
+  }
+
+  const leftIds = Array.isArray(question.leftItems)
+    ? validateUniqueIds(question.leftItems, `${path}.leftItems`, errors)
+    : new Set();
+  const rightIds = Array.isArray(question.rightItems)
+    ? validateUniqueIds(question.rightItems, `${path}.rightItems`, errors)
+    : new Set();
+  const seenLeftIds = new Set();
+  const seenRightIds = new Set();
+
+  question.pairs.forEach((pair, index) =&gt; {
+    const pairPath = `${path}.pairs[${index}]`;
+
+    if (!isPlainObject(pair)) {
+      errors.push(`${pairPath} must be an object`);
+      return;
+    }
+
+    requireFields(pair, [&quot;leftId&quot;, &quot;rightId&quot;], pairPath, errors);
+
+    if (!leftIds.has(pair.leftId)) {
+      errors.push(`${pairPath}.leftId must reference an existing left item`);
+    }
+    if (!rightIds.has(pair.rightId)) {
+      errors.push(`${pairPath}.rightId must reference an existing right item`);
+    }
+    if (seenLeftIds.has(pair.leftId)) {
+      errors.push(`${pairPath}.leftId must be used only once`);
+    }
+    if (seenRightIds.has(pair.rightId)) {
+      errors.push(`${pairPath}.rightId must be used only once`);
+    }
+    seenLeftIds.add(pair.leftId);
+    seenRightIds.add(pair.rightId);
+  });
+}
+</pre></details>
+      </div>
+    </div>
+  </article>
+<article id="unitSummaryDraft" class="card">
+    <div class="stage-grid">
+      <div>
+        <div class="pill status-legacy_or_rollback">legacy_or_rollback</div>
+        <h3>unitSummaryDraft</h3>
+        <dl>
+          <dt>Stage id</dt><dd><code>unitSummaryDraft</code></dd>
+          <dt>调用方式</dt><dd></dd>
+          <dt>职责</dt><dd>历史 per-unit 文案路径；当前主链路不用。</dd>
+          <dt>输入</dt><dd></dd>
+          <dt>输出</dt><dd></dd>
+          <dt>下一步</dt><dd></dd>
+          <dt>Prompt builder</dt><dd><code>buildUnitSummaryDraftMessages</code></dd>
+          <dt>Schema file</dt><dd><code>prompts/unitSummaryDraft.js</code></dd>
+          
+        </dl>
+      </div>
+      <div>
+        <div class="prompt-lines">
+          <strong>Prompt 文案逐句预览</strong>
+          <ol><li>阶段：unitSummaryDraft。</li><li>任务：为当前知识点生成单元开场和单元总结，不生成题目。</li><li>生成规则：</li><li>- overview.text 是知识点开场页正文，帮助用户知道接下来复习哪个核心理念、方法、判断或关系。</li><li>- overview 要和第一题分工明确，不能把第一题答案原样写成开场。</li><li>- summary.title 通常写“单元完成”。</li><li>- summary.text 只总结当前知识点，不总结整篇文章。</li><li>- 文案要短、具体、适合移动端卡片。</li></ol>
+        </div>
+        <details open><summary>Prompt builder 源码</summary><pre>function buildUnitSummaryDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, questions, ecdContext }) {
+  const ecdContextSection = ecdContext
+    ? [`ECD context:\n${JSON.stringify(ecdContext, null, 2)}`, &quot;&quot;]
+    : [];
+  return {
+    system: baseSystem(),
+    user: [
+      &quot;阶段：unitSummaryDraft。&quot;,
+      &quot;任务：为当前知识点生成单元开场和单元总结，不生成题目。&quot;,
+      &quot;生成规则：&quot;,
+      &quot;- overview.text 是知识点开场页正文，帮助用户知道接下来复习哪个核心理念、方法、判断或关系。&quot;,
+      &quot;- overview 要和第一题分工明确，不能把第一题答案原样写成开场。&quot;,
+      &quot;- summary.title 通常写“单元完成”。&quot;,
+      &quot;- summary.text 只总结当前知识点，不总结整篇文章。&quot;,
+      &quot;- 文案要短、具体、适合移动端卡片。&quot;,
+      &quot;&quot;,
+      `当前 unit:\n${JSON.stringify(unit, null, 2)}`,
+      &quot;&quot;,
+      `practicePlan:\n${JSON.stringify(practicePlan, null, 2)}`,
+      &quot;&quot;,
+      ...ecdContextSection,
+      `已生成题目:\n${JSON.stringify(questions, null, 2)}`,
+      &quot;&quot;,
+      renderSource(source, blocks, sourceContextNote),
+      &quot;&quot;,
+      renderArticleMeta(article)
+    ].join(&quot;\n&quot;)
+  };
+}</pre></details>
+        
+        <details><summary>Schema / validator 源码</summary><pre>import {
+  createValidationResult,
+  isNonEmptyString,
+  isPlainObject,
+  requireFields
+} from &quot;./schemaValidation.js&quot;;
+
+export const UNIT_SUMMARY_DRAFT_PROMPT_SCHEMA_NAME = &quot;shibei_v2_unit_summary_draft&quot;;
+
+export const UNIT_SUMMARY_DRAFT_OUTPUT_SCHEMA = {
+  name: UNIT_SUMMARY_DRAFT_PROMPT_SCHEMA_NAME,
+  type: &quot;object&quot;,
+  required: [&quot;unitId&quot;, &quot;overview&quot;, &quot;summary&quot;],
+  properties: {
+    unitId: { type: &quot;string&quot; },
+    overview: {
+      type: &quot;object&quot;,
+      required: [&quot;text&quot;],
+      properties: {
+        text: { type: &quot;string&quot; }
+      }
+    },
+    summary: {
+      type: &quot;object&quot;,
+      required: [&quot;title&quot;, &quot;text&quot;],
+      properties: {
+        title: { type: &quot;string&quot; },
+        text: { type: &quot;string&quot; }
+      }
+    }
+  }
+};
+
+export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
+  const errors = [];
+
+  if (!isPlainObject(output)) {
+    return createValidationResult([&quot;unitSummaryDraft output must be an object&quot;]);
+  }
+
+  if (!isNonEmptyString(output.unitId)) {
+    errors.push(&quot;unitSummaryDraft.unitId is required&quot;);
+  } else if (unitId &amp;&amp; output.unitId !== unitId) {
+    errors.push(`unitSummaryDraft.unitId must match ${unitId}`);
+  }
+
+  if (!isPlainObject(output.overview)) {
+    errors.push(&quot;unitSummaryDraft.overview must be an object&quot;);
+  } else {
+    requireFields(output.overview, [&quot;text&quot;], &quot;unitSummaryDraft.overview&quot;, errors);
+  }
+
+  if (!isPlainObject(output.summary)) {
+    errors.push(&quot;unitSummaryDraft.summary must be an object&quot;);
+  } else {
+    requireFields(output.summary, [&quot;title&quot;, &quot;text&quot;], &quot;unitSummaryDraft.summary&quot;, errors);
+  }
+
+  return createValidationResult(errors);
+}
+</pre></details>
+      </div>
+    </div>
+  </article>
+  </section>
+
+  <section id="runtime" class="card">
+    <h2 style="margin-top:0">Runtime 与 Schema 映射</h2>
+    <p class="meta">这里展示 <code>modelPromptCaller.js</code> 中的模型调用配置，包括每个 stage 的 schemaName 和 estimatedOutputTokens。完整源码如下。</p>
+    <pre>const STAGE_SCHEMAS = {
+  sourceMap: {
+    schemaName: SOURCE_MAP_PROMPT_SCHEMA_NAME,
+    schema: SOURCE_MAP_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 7600
+  },
+  reviewPathPlan: {
+    schemaName: REVIEW_PATH_PLAN_PROMPT_SCHEMA_NAME,
+    schema: REVIEW_PATH_PLAN_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 3200
+  },
+  unitKnowledgeMap: {
+    schemaName: UNIT_KNOWLEDGE_MAP_PROMPT_SCHEMA_NAME,
+    schema: UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 7200
+  },
+  ecdPlanning: {
+    schemaName: ECD_PLANNING_PROMPT_SCHEMA_NAME,
+    schema: ECD_PLANNING_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 3000
+  },
+  taskBriefPlan: {
+    schemaName: TASK_BRIEF_PLAN_PROMPT_SCHEMA_NAME,
+    schema: TASK_BRIEF_PLAN_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 3800
+  },
+  questionDraftBatch: {
+    schemaName: QUESTION_DRAFT_BATCH_PROMPT_SCHEMA_NAME,
+    schema: QUESTION_DRAFT_BATCH_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 9000
+  },
+  multipleChoiceDraftBatch: {
+    schemaName: MULTIPLE_CHOICE_DRAFT_BATCH_PROMPT_SCHEMA_NAME,
+    schema: MULTIPLE_CHOICE_DRAFT_BATCH_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 6500
+  },
+  multipleChoiceDraftUnitBatch: {
+    schemaName: MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_PROMPT_SCHEMA_NAME,
+    schema: MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 2200
+  },
+  matchingDraftBatch: {
+    schemaName: MATCHING_DRAFT_BATCH_PROMPT_SCHEMA_NAME,
+    schema: MATCHING_DRAFT_BATCH_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 5200
+  },
+  unitCopyBatch: {
+    schemaName: UNIT_COPY_BATCH_PROMPT_SCHEMA_NAME,
+    schema: UNIT_COPY_BATCH_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 2400
+  },
+  unitPracticePlan: {
+    schemaName: UNIT_PRACTICE_PLAN_PROMPT_SCHEMA_NAME,
+    schema: UNIT_PRACTICE_PLAN_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 1600
+  },
+  multipleChoiceDraft: {
+    schemaName: MULTIPLE_CHOICE_DRAFT_PROMPT_SCHEMA_NAME,
+    schema: MULTIPLE_CHOICE_DRAFT_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 2200
+  },
+  matchingDraft: {
+    schemaName: MATCHING_DRAFT_PROMPT_SCHEMA_NAME,
+    schema: MATCHING_DRAFT_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 3200
+  },
+  unitSummaryDraft: {
+    schemaName: UNIT_SUMMARY_DRAFT_PROMPT_SCHEMA_NAME,
+    schema: UNIT_SUMMARY_DRAFT_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 900
+  },
+  qualityJudge: {
+    schemaName: QUALITY_JUDGE_PROMPT_SCHEMA_NAME,
+    schema: QUALITY_JUDGE_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 900
+  }
+};</pre>
+  </section>
+
+  <section id="code" class="card">
+    <h2 style="margin-top:0">关键编排代码</h2>
+    <details open>
+      <summary>runV2GenerationProgram 主流程源码</summary>
+      <pre>function runV2GenerationProgram(
+  article,
+  {
+    promptCaller,
+    createPromptCaller = createV2ModelPromptCaller,
+    modelUsageRecorder = null,
+    maxUnitCount = readOptionalPositiveInt(process.env.V2_GENERATION_MAX_UNITS),
+    unitConcurrency = readOptionalPositiveInt(process.env.V2_GENERATION_UNIT_CONCURRENCY) ?? 1,
+    qualityJudgeEnabled = readOptionalBoolean(process.env.V2_ENABLE_QUALITY_JUDGE) ?? false,
+    sourceMapMode = process.env.V2_SOURCE_MAP_MODE || &quot;deterministic&quot;,
+    now = new Date().toISOString()
+  } = {}
+) {
+  const runtimeRecorder = createStageRuntimeRecorder();
+  const activePromptCaller =
+    typeof promptCaller === &quot;function&quot;
+      ? promptCaller
+      : createPromptCaller({ modelUsageRecorder, runtimeRecorder });
+
+  if (typeof activePromptCaller !== &quot;function&quot;) {
+    throw new Error(&quot;runV2GenerationProgram requires a promptCaller function or createPromptCaller factory&quot;);
+  }
+
+  try {
+  const sourceMap = sourceMapMode === &quot;deterministic&quot;
+    ? buildDeterministicSourceMap(article)
+    : await callAndValidate(
+        activePromptCaller,
+        &quot;sourceMap&quot;,
+        { article },
+        validateSourceMapOutput
+      );
+  const sourceBlockIds = new Set(sourceMap.blocks.map((block) =&gt; block.id));
+  const rawPlan = await callAndValidate(
+    activePromptCaller,
+    &quot;reviewPathPlan&quot;,
+    { article, source: sourceMap.source, blocks: sourceMap.blocks },
+    (output) =&gt; validateReviewPathPlanOutput(output, { sourceBlockIds })
+  );
+  const plan = limitPlannedUnits(rawPlan, maxUnitCount);
+  const planSourceContext = buildPlanSourceContext(sourceMap, plan);
+  const unitIds = new Set(plan.units.map((unit) =&gt; unit.id));
+  const sourceAnchorIds = new Set(plan.units.map((unit) =&gt; unit.sourceAnchor?.id).filter(Boolean));
+  const unitSourceAnchorIds = new Map(
+    plan.units
+      .map((unit) =&gt; [unit.id, unit.sourceAnchor?.id])
+      .filter(([, sourceAnchorId]) =&gt; Boolean(sourceAnchorId))
+  );
+  const unitKnowledgeMap = await callAndValidate(
+    activePromptCaller,
+    &quot;unitKnowledgeMap&quot;,
+    {
+      article,
+      source: planSourceContext.source,
+      blocks: planSourceContext.blocks,
+      sourceContextNote: planSourceContext.sourceContextNote,
+      plan
+    },
+    (output) =&gt; validateUnitKnowledgeMapOutput(output, { unitIds, sourceAnchorIds }),
+    { normalize: normalizeUnitKnowledgeMapOutput }
+  );
+  const taskBriefPlan = await callAndValidate(
+    activePromptCaller,
+    &quot;taskBriefPlan&quot;,
+    {
+      article,
+      source: planSourceContext.source,
+      blocks: planSourceContext.blocks,
+      sourceContextNote: planSourceContext.sourceContextNote,
+      plan: stripReviewPathPlanForMetadata(plan),
+      unitKnowledgeMap
+    },
+    (output) =&gt; validateTaskBriefPlanOutput(output, { unitIds, sourceAnchorByUnit: unitSourceAnchorIds }),
+    { normalize: (output) =&gt; normalizeTaskBriefPlanOutput(output, { sourceAnchorByUnit: unitSourceAnchorIds }) }
+  );
+  const unitSourceContexts = buildUnitSourceContexts({ sourceMap, plan });
+  const questionBriefsByUnit = buildQuestionBriefsByUnit({
+    taskBriefPlan,
+    unitKnowledgeMap,
+    unitSourceContexts
+  });
+  const unitDraftInputs = buildUnitDraftInputs({
+    sourceMap,
+    plan,
+    taskBriefPlan,
+    questionBriefsByUnit,
+    unitSourceContexts
+  });
+  const practicePlansByUnit = new Map(unitDraftInputs.map((input) =&gt; [input.unit.id, input.practicePlan]));
+  const multipleChoiceDraftInputs = buildTypedDraftInputs(unitDraftInputs, &quot;multiple_choice&quot;);
+  const matchingDraftInputs = buildTypedDraftInputs(unitDraftInputs, &quot;matching&quot;);
+  const multipleChoiceDraftBatch = {
+    units: await mapWithConcurrency(
+      multipleChoiceDraftInputs,
+      unitConcurrency,
+      async (input) =&gt; {
+        const questionBriefs = (input.questionBriefs || []).filter((brief) =&gt; brief.type === &quot;multiple_choice&quot;);
+        const questionPlanIds = new Set(questionBriefs.map((brief) =&gt; brief.questionPlanId));
+        return callAndValidate(
+          activePromptCaller,
+          &quot;multipleChoiceDraftUnitBatch&quot;,
+          {
+            article,
+            source: sourceMap.source,
+            unit: input.unit,
+            questionBriefs,
+            sourceContext: input.sourceContext
+          },
+          (output) =&gt;
+            validateMultipleChoiceDraftUnitBatchOutput(output, {
+              unitId: input.unit.id,
+              questionPlanIds,
+              sourceAnchorId: input.unit.sourceAnchor?.id
+            }),
+          {
+            normalize: (output) =&gt;
+              normalizeDraftQuestionIds(
+                output,
+                input.practicePlan.questionPlans,
+                &quot;multiple_choice&quot;
+              )
+          }
+        );
+      }
+    )
+  };
+  const matchingDraftBatch = matchingDraftInputs.length &gt; 0
+    ? await callAndValidate(
+        activePromptCaller,
+        &quot;matchingDraftBatch&quot;,
+        {
+          article,
+          source: sourceMap.source,
+          units: matchingDraftInputs
+        },
+        (output) =&gt;
+          validateMatchingDraftBatchOutput(output, {
+            practicePlansByUnit,
+            sourceAnchorByUnit: unitSourceAnchorIds
+          }),
+        {
+          normalize: (output) =&gt;
+            normalizeTypedQuestionDraftBatchIds(output, unitDraftInputs, &quot;matching&quot;)
+        }
+      )
+    : { units: [] };
+  const questionDraftsByUnit = mergeTypedQuestionDrafts({
+    unitDraftInputs,
+    multipleChoiceDraftBatch,
+    matchingDraftBatch
+  });
+  const unitCopyBatch = await callAndValidate(
+    activePromptCaller,
+    &quot;unitCopyBatch&quot;,
+    {
+      article,
+      source: sourceMap.source,
+      units: unitDraftInputs.map((input) =&gt; ({
+        unit: input.unit,
+        practicePlan: input.practicePlan,
+        questions: questionDraftsByUnit.get(input.unit.id)?.questions || [],
+        sourceContext: input.sourceContext
+      }))
+    },
+    (output) =&gt; validateUnitCopyBatchOutput(output, { unitIds })
+  );
+
+  const generatedUnits = plan.units.map((plannedUnit) =&gt;
+    buildGeneratedUnitFromBatches({
+      plannedUnit,
+      practicePlan: practicePlansByUnit.get(plannedUnit.id),
+      questionDraft: questionDraftsByUnit.get(plannedUnit.id),
+      unitCopy: getUnitCopyForUnit(unitCopyBatch, plannedUnit.id)
+    })
+  );
+  const units = generatedUnits.map((item) =&gt; item.unit);
+  const unitPracticePlans = generatedUnits.map((item) =&gt; item.practicePlan);
+
+  const draftReviewPath = {
+    schemaVersion: V2_REVIEW_PATH_SCHEMA_VERSION,
+    id: article.id,
+    status: &quot;completed&quot;,
+    displayStatusText: &quot;已生成&quot;,
+    title: plan.title,
+    source: {
+      ...sourceMap.source,
+      rawText: article.rawText,
+      cleanedText: article.cleanedText ?? article.rawText,
+      blocks: sourceMap.blocks
+    },
+    summaryCard: plan.summaryCard,
+    units,
+    chapterSummary: {
+      title: &quot;章节完成&quot;,
+      statsText: `共 ${units.length} 个核心知识点，${countQuestions(units)} 道题目`,
+      encouragementText: plan.chapterSummary.encouragementText
+    },
+    ...(plan.generationConstraints ? { generationConstraints: plan.generationConstraints } : {}),
+    generationMeta: {
+      currentStage: &quot;completed&quot;,
+      reviewPathPlan: stripReviewPathPlanForMetadata(plan),
+      unitKnowledgeMap,
+      sourceContextStats: buildSourceContextStats({
+        sourceMap,
+        plan,
+        planSourceContext
+      }),
+      stageRuntime: runtimeRecorder.summary(),
+      stages: activeV2GenerationStages({ qualityJudgeEnabled }).map((stage) =&gt; ({
+        status: stage,
+        displayStatusText: stageDisplayText(stage),
+        at: now
+      })),
+      taskBriefPlan,
+      multipleChoiceDraftBatch,
+      matchingDraftBatch,
+      unitCopyBatch,
+      unitPracticePlans
+    }
+  };
+
+  const deterministicQuality = runV2QualityGuardrails(draftReviewPath);
+
+  const { judge, judgeError } = qualityJudgeEnabled
+    ? await runOptionalQualityJudge({
+        activePromptCaller,
+        article,
+        draftReviewPath
+      })
+    : { judge: skippedQualityJudge(), judgeError: null };
+
+  draftReviewPath.generationMeta.qualityJudge = judge;
+  if (judgeError) {
+    draftReviewPath.generationMeta.qualityJudgeError = judgeError;
+  }
+  draftReviewPath.generationMeta.qualityDiagnostics = deterministicQuality.diagnostics;
+  draftReviewPath.generationMeta.qualityGate = {
+    mode: qualityJudgeEnabled ? &quot;diagnostic_only&quot; : &quot;deterministic_only&quot;,
+    blocking: false,
+    qualityJudgeEnabled,
+    deterministicVerdict: deterministicQuality.verdict,
+    deterministicIssueCount: deterministicQuality.issues.length,
+    judgeVerdict: judge.verdict,
+    judgeIssueCount: Array.isArray(judge.issues) ? judge.issues.length : 0,
+    ...(judgeError ? { judgeError: judgeError.message } : {})
+  };
+  draftReviewPath.generationMeta.stageRuntime = runtimeRecorder.summary();
+
+  const validation = validateReviewPathV2(draftReviewPath);
+  if (!validation.ok) {
+    const error = new Error(
+      `Generated V2 review path failed contract validation:\n${validation.errors.join(&quot;\n&quot;)}`
+    );
+    error.errors = validation.errors;
+    throw error;
+  }
+
+  return draftReviewPath;
+  } catch (error) {
+    attachStageRuntimeToError(error, runtimeRecorder.summary());
+    throw error;
+  }
+}</pre>
+    </details>
+    <details>
+      <summary>QuestionBriefAdapter 源码</summary>
+      <pre>export function buildQuestionBriefsByUnit({
+  taskBriefPlan,
+  unitKnowledgeMap,
+  unitSourceContexts
+}) {
+  const microByUnit = new Map(
+    (unitKnowledgeMap?.units || []).map((unit) =&gt; [
+      unit.unitId,
+      new Map((unit.microKnowledgePoints || []).map((micro) =&gt; [micro.microId, micro]))
+    ])
+  );
+  const sourceContextByUnit = unitSourceContexts instanceof Map
+    ? unitSourceContexts
+    : new Map(Object.entries(unitSourceContexts || {}));
+
+  return new Map(
+    (taskBriefPlan?.units || []).map((unitPlan) =&gt; {
+      const goalsById = new Map((unitPlan.practiceGoals || []).map((goal) =&gt; [goal.id, goal]));
+      const unitMicro = microByUnit.get(unitPlan.unitId) || new Map();
+      const sourceContext = compactSourceContext(sourceContextByUnit.get(unitPlan.unitId));
+
+      return [
+        unitPlan.unitId,
+        {
+          unitId: unitPlan.unitId,
+          sourceContext,
+          questionBriefs: (unitPlan.questionPlans || []).map((questionPlan) =&gt; {
+            const goal = goalsById.get(questionPlan.practiceGoalId);
+            const micros = (questionPlan.microIds || [])
+              .map((id) =&gt; unitMicro.get(id))
+              .filter(Boolean);
+
+            return {
+              questionPlanId: questionPlan.id,
+              type: questionPlan.type,
+              purpose: questionPlan.purpose,
+              ...(questionPlan.relationType ? { relationType: questionPlan.relationType } : {}),
+              practiceGoal: {
+                id: goal?.id,
+                kind: goal?.kind,
+                target: goal?.target,
+                commonMisconception: goal?.commonMisconception
+              },
+              evidence: {
+                microIds: Array.isArray(questionPlan.microIds) ? questionPlan.microIds : [],
+                microTitles: micros.map((micro) =&gt; micro.title).filter(Boolean),
+                microSummaries: micros.map((micro) =&gt; micro.summary).filter(Boolean),
+                evidenceAngles: micros.flatMap((micro) =&gt;
+                  Array.isArray(micro.suggestedEvidenceAngles)
+                    ? micro.suggestedEvidenceAngles
+                    : []
+                )
+              },
+              sourceAnchorId: questionPlan.sourceAnchorId
+            };
+          })
+        }
+      ];
+    })
+  );
+}
+
+function compactSourceContext(sourceContext) {
+  return {
+    blocks: (sourceContext?.blocks || []).map((block) =&gt; ({
+      id: block.id,
+      type: block.type,
+      text: block.text
+    })),
+    sourceContextNote: sourceContext?.sourceContextNote || {}
+  };
+}
+</pre>
+    </details>
+    <details>
+      <summary>baseSystem 与 render helpers</summary>
+      <pre>function baseSystem() {
+  return [
+    &quot;你是拾贝 V2 的学习路径生成器。&quot;,
+    &quot;你必须优先遵守产品字段契约：字段要稳定、可验证、可被 SwiftUI 直接消费。&quot;,
+    &quot;不要输出 Markdown，不要输出解释文字，只输出符合调用方 JSON schema 的对象。&quot;
+  ].join(&quot;\n&quot;);
+}\n\nfunction renderArticle(article) {
+  return [
+    renderArticleMeta(article),
+    &quot;&quot;,
+    &quot;原文：&quot;,
+    article.rawText || article.cleanedText || &quot;&quot;
+  ].join(&quot;\n&quot;);
+}\n\nfunction renderArticleMeta(article) {
+  return [
+    `文章 id：${article.id || &quot;&quot;}`,
+    `标题：${article.title || article.sourceTitle || &quot;&quot;}`,
+    `作者：${article.author || article.sourceAccount || &quot;&quot;}`,
+    `链接：${article.url || article.sourceUrl || &quot;&quot;}`
+  ].join(&quot;\n&quot;);
+}\n\nfunction renderSource(source, blocks = [], sourceContextNote = null) {
+  return [
+    `source:\n${JSON.stringify(source || {}, null, 2)}`,
+    sourceContextNote
+      ? `sourceContextNote:\n${JSON.stringify(sourceContextNote, null, 2)}`
+      : &quot;&quot;,
+    `blocks:\n${JSON.stringify(blocks, null, 2)}`
+  ].filter(Boolean).join(&quot;\n&quot;);
+}</pre>
+    </details>
+  </section>
+</main>
+</body>
+</html>

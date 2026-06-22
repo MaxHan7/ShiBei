@@ -4,6 +4,8 @@
 
 当前结论：ECD 非常适合拾贝 V2，因为拾贝不是单纯“生成几道题”，而是在帮助用户复习一篇文章后，逐步形成对文章核心知识的理解。V2 的 AI 系统应该先建立“我们希望用户理解什么”的证据链，再决定“用什么题目让用户表现出这种理解”。
 
+ECD 理论背景与转译原则见：`v2-ecd-theory-background-zh.md`。该文档记录 ECD 原理论点、拾贝对 ECD 的理解，以及如何把 ECD 从理论转成 prompt stage 的具体动作。
+
 中层出题框架见：`v2-ecd-middle-layer-framework-zh.md`。该文档把 ECD 进一步落成拾贝的 `Learning Claim -> Evidence Need -> Task Purpose -> Assembly Reason` 四层表。
 
 ## 阅读来源

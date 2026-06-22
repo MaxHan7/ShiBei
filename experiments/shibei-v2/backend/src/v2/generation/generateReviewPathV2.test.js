@@ -12,7 +12,7 @@ const ARTICLE_INPUT = {
   title: "Hook 如何让 AI 工作流稳定",
   url: "https://example.com/hook",
   author: "MetaTown",
-  rawText: "Hook 是关键动作前后的流程控制器。它能稳定触发规则、上下文和验证。"
+  rawText: "Hook 是关键动作前后的流程控制器。\n它能稳定触发规则、上下文和验证。"
 };
 
 test("generates a contract-valid V2 review path from split prompt stages", async () => {
@@ -29,7 +29,7 @@ test("generates a contract-valid V2 review path from split prompt stages", async
 
   assert.deepEqual(
     calls.map((call) => call.stage),
-    activeV2GenerationStages()
+    activeV2GenerationStages().filter((stage) => stage !== "sourceMap")
   );
   assert.equal(reviewPath.schemaVersion, "v2_review_path_1");
   assert.equal(reviewPath.id, ARTICLE_INPUT.id);
@@ -92,7 +92,7 @@ test("task briefs drive downstream practice plans and suppress model-invented ma
 
   assert.equal(stages.includes("matchingDraft"), false);
   assert.equal(stages.includes("questionDraftBatch"), false);
-  assert.equal(stages.includes("multipleChoiceDraftBatch"), true);
+  assert.equal(stages.includes("multipleChoiceDraftUnitBatch"), true);
   assert.equal(stages.includes("matchingDraftBatch"), false);
   assert.deepEqual(
     reviewPath.generationMeta.unitPracticePlans[0].questionPlans.map((plan) => `${plan.id}:${plan.type}`),
@@ -104,11 +104,49 @@ test("task briefs drive downstream practice plans and suppress model-invented ma
   );
 });
 
+test("hydrates compact task brief plans before downstream draft stages", async () => {
+  const captured = { multipleChoiceDraftUnitBatch: null, matchingDraftBatch: null };
+  const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
+    promptCaller: async (stage, payload) => {
+      if (stage === "taskBriefPlan") {
+        return {
+          units: payload.plan.units.map((unit) => compactPracticePlanFixture(unit.id, { matching: true }))
+        };
+      }
+      if (stage === "multipleChoiceDraftUnitBatch") {
+        captured.multipleChoiceDraftUnitBatch = payload;
+      }
+      if (stage === "matchingDraftBatch") {
+        captured.matchingDraftBatch = payload;
+      }
+      return happyPathPromptCaller(stage, payload);
+    },
+    now: "2026-06-19T00:00:00.000Z"
+  });
+
+  assert.deepEqual(
+    captured.multipleChoiceDraftUnitBatch.questionBriefs.map((brief) => `${brief.practiceGoal.id}:${brief.sourceAnchorId}`),
+    ["goal-unit-01-001:anchor-unit-01"]
+  );
+  assert.deepEqual(
+    captured.matchingDraftBatch.units[0].practicePlan.practiceGoals.map((goal) => `${goal.id}:${goal.sourceAnchorId}`),
+    ["goal-unit-01-002:anchor-unit-01"]
+  );
+  assert.deepEqual(
+    captured.matchingDraftBatch.units[0].practicePlan.questionPlans.map((plan) => `${plan.id}:${plan.practiceGoalId}:${plan.sourceAnchorId}`),
+    ["q-unit-01-002:goal-unit-01-002:anchor-unit-01"]
+  );
+  assert.deepEqual(
+    reviewPath.units[0].questions.map((question) => `${question.id}:${question.type}`),
+    ["q-unit-01-001:multiple_choice", "q-unit-01-002:matching"]
+  );
+});
+
 test("passes only compact source windows into per-unit stages", async () => {
   const captured = {
     unitKnowledgeMap: null,
     taskBriefPlan: null,
-    multipleChoiceDraftBatch: null,
+    multipleChoiceDraftUnitBatch: [],
     matchingDraftBatch: null,
     unitCopyBatch: null
   };
@@ -135,8 +173,8 @@ test("passes only compact source windows into per-unit stages", async () => {
         units: payload.plan.units.map((unit) => practicePlanFixture(unit.id, unit.sourceAnchor.id, { matching: false }))
       };
     }
-    if (stage === "multipleChoiceDraftBatch") {
-      captured.multipleChoiceDraftBatch = payload;
+    if (stage === "multipleChoiceDraftUnitBatch") {
+      captured.multipleChoiceDraftUnitBatch.push(payload);
       return happyPathPromptCaller(stage, payload);
     }
     if (stage === "matchingDraftBatch") {
@@ -185,6 +223,7 @@ test("passes only compact source windows into per-unit stages", async () => {
 
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller,
+    sourceMapMode: "model",
     unitConcurrency: 1,
     now: "2026-06-19T00:00:00.000Z"
   });
@@ -201,8 +240,8 @@ test("passes only compact source windows into per-unit stages", async () => {
   assert.equal(captured.taskBriefPlan.plan.knowledgeObjects, undefined);
   assert.equal(Array.isArray(captured.taskBriefPlan.plan.chapterWideNotes), false);
 
-  assert.deepEqual(captured.multipleChoiceDraftBatch.units[0].sourceContext.blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
-  assert.deepEqual(captured.multipleChoiceDraftBatch.units[1].sourceContext.blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
+  assert.deepEqual(captured.multipleChoiceDraftUnitBatch[0].sourceContext.blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
+  assert.deepEqual(captured.multipleChoiceDraftUnitBatch[1].sourceContext.blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
   assert.equal(captured.matchingDraftBatch, null);
   assert.deepEqual(captured.unitCopyBatch.units[0].sourceContext.blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
   assert.deepEqual(captured.unitCopyBatch.units[1].sourceContext.blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
@@ -278,7 +317,7 @@ test("derives matching relationType from task briefs", async () => {
   );
 });
 
-test("skips multipleChoiceDraftBatch when task brief selects only matching", async () => {
+test("skips multipleChoiceDraftUnitBatch when task brief selects only matching", async () => {
   const stages = [];
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {
@@ -303,7 +342,7 @@ test("skips multipleChoiceDraftBatch when task brief selects only matching", asy
   assert.equal(stages.includes("multipleChoiceDraft"), false);
   assert.equal(stages.includes("matchingDraft"), false);
   assert.equal(stages.includes("questionDraftBatch"), false);
-  assert.equal(stages.includes("multipleChoiceDraftBatch"), false);
+  assert.equal(stages.includes("multipleChoiceDraftUnitBatch"), false);
   assert.equal(stages.includes("matchingDraftBatch"), true);
   assert.deepEqual(
     reviewPath.units[0].questions.map((question) => `${question.id}:${question.type}`),
@@ -322,11 +361,10 @@ test("skips matchingDraftBatch when task brief does not select matching", async 
   });
 
   assert.deepEqual(stages, [
-    "sourceMap",
     "reviewPathPlan",
     "unitKnowledgeMap",
     "taskBriefPlan",
-    "multipleChoiceDraftBatch",
+    "multipleChoiceDraftUnitBatch",
     "unitCopyBatch"
   ]);
   assert.deepEqual(
@@ -385,6 +423,7 @@ test("throws a stage-specific error when sourceMap output is invalid", async () 
           }
           throw new Error(`Unexpected stage ${stage}`);
         },
+        sourceMapMode: "model",
         now: "2026-06-19T00:00:00.000Z"
       }),
     (error) => {
@@ -449,15 +488,15 @@ test("normalizes draft question ids from question plan order", async () => {
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {
       const output = await happyPathPromptCaller(stage, payload);
-      if (stage === "multipleChoiceDraftBatch") {
-        output.units[0].questions[0].id = "model-made-up-id";
-        delete output.units[0].questions[0].sourceAnchorId;
-        output.units[0].questions.push({
-          ...output.units[0].questions[0],
+      if (stage === "multipleChoiceDraftUnitBatch") {
+        output.questions[0].id = "model-made-up-id";
+        delete output.questions[0].sourceAnchorId;
+        output.questions.push({
+          ...output.questions[0],
           id: "model-extra-question"
         });
-        output.units[0].questions[1].id = "another-made-up-id";
-        delete output.units[0].questions[1].practiceGoalId;
+        output.questions[1].id = "another-made-up-id";
+        delete output.questions[1].practiceGoalId;
       }
       return output;
     },
@@ -477,9 +516,9 @@ test("normalizes draft question ids from question plan order", async () => {
 test("keeps generated questions when deterministic guardrails find forbidden phrases", async () => {
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {
-      if (stage === "multipleChoiceDraftBatch") {
+      if (stage === "multipleChoiceDraftUnitBatch") {
         const draft = await happyPathPromptCaller(stage, payload);
-        draft.units[0].questions[0].stem = "根据本文，Hook 更接近哪种机制？";
+        draft.questions[0].stem = "根据本文，Hook 更接近哪种机制？";
         return draft;
       }
       return happyPathPromptCaller(stage, payload);
@@ -522,7 +561,7 @@ test("uses a default prompt caller factory when promptCaller is omitted", async 
     now: "2026-06-19T00:00:00.000Z"
   });
 
-  assert.deepEqual(stages, activeV2GenerationStages());
+  assert.deepEqual(stages, activeV2GenerationStages().filter((stage) => stage !== "sourceMap"));
   assert.equal(reviewPath.status, "completed");
 });
 
@@ -620,6 +659,24 @@ async function happyPathPromptCaller(stage, payload, { matching = true } = {}) {
           .filter((plan) => plan.type === "multiple_choice")
           .map((plan, index) => multipleChoiceQuestionForPlan(input.unit, plan, index))
       }))
+    };
+  }
+
+  if (stage === "multipleChoiceDraftUnitBatch") {
+    return {
+      unitId: payload.unit.id,
+      questions: payload.questionBriefs.map((brief, index) =>
+        multipleChoiceQuestionForPlan(
+          payload.unit,
+          {
+            id: brief.questionPlanId,
+            type: brief.type,
+            practiceGoalId: brief.practiceGoal?.id,
+            sourceAnchorId: brief.sourceAnchorId
+          },
+          index
+        )
+      )
     };
   }
 
@@ -791,6 +848,50 @@ function practicePlanFixture(unitId, sourceAnchorId, { matching }) {
             practiceGoalId: "goal-02",
             microIds: [secondMicroId],
             sourceAnchorId
+          }
+    ]
+  };
+}
+
+function compactPracticePlanFixture(unitId, { matching }) {
+  const firstMicroId = `micro-${unitId}-001`;
+  const secondMicroId = `micro-${unitId}-002`;
+  return {
+    unitId,
+    practiceGoals: [
+      {
+        kind: "core_understanding",
+        target: "理解 Hook 是流程约束",
+        commonMisconception: "把 Hook 当成更长提示词",
+        microIds: [firstMicroId]
+      },
+      {
+        kind: matching ? "relationship_mapping" : "scenario_application",
+        target: matching ? "区分 Prompt、Hook、CI 的职责边界" : "把重复提醒沉淀成固定动作",
+        commonMisconception: "把所有约束都交给 Prompt",
+        microIds: [secondMicroId]
+      }
+    ],
+    questionPlans: [
+      {
+        type: "multiple_choice",
+        purpose: "light_understanding",
+        goalIndex: 1,
+        microIds: [firstMicroId]
+      },
+      matching
+        ? {
+            type: "matching",
+            purpose: "relationship_matching",
+            goalIndex: 2,
+            relationType: "responsibility",
+            microIds: [secondMicroId]
+          }
+        : {
+            type: "multiple_choice",
+            purpose: "scenario_application",
+            goalIndex: 2,
+            microIds: [secondMicroId]
           }
     ]
   };

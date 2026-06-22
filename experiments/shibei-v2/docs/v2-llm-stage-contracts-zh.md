@@ -7,8 +7,10 @@
 - **ECD 是教育设计原则**：先明确学习对象、可观察证据和任务形态，再生成题目。
 - **DSPy-style 是工程组织方式**：把大 prompt 拆成稳定模块，每个模块有 signature、schema、validator 和 eval 指标。
 - **默认主链路不使用 qualityJudge 拦截**：当前只保留 deterministic diagnostics 和 HTML 报告，用户要先看完整题目输出。
-- **不要全量输出 ECD 中间思考**：只保留能防止漏知识点、方便调试的中间层，例如 micro knowledge、assessable targets、selected tasks。
+- **ECD 可以显式化，但必须短结构化**：主链路允许输出 bounded ECD design artifacts，例如 micro knowledge、assessable targets、selected tasks、question briefs；不输出长篇 Chain-of-Thought、候选矩阵或完整 ECD 论文式推理。
+- **短结构化工作票据优先**：凡是保留的 ECD 中间字段，都必须服务于下游题目生成、覆盖检查或 HTML 质量诊断；字段应优先使用 enum、id、短句和 compact object。
 - **source context 要逐层变窄**：整章规划可以看全文；每个 unit 的 ECD 和题目生成只看当前 unit 的原文窗口。
+- **sourceMap 默认确定性生成**：原文切块、block id 和 source anchors 是工程任务，不让模型重新输出整篇文章。模型版 `sourceMap` 只保留作历史回滚和对照实验。
 - **runtime 稳定性不写进 prompt**：structured output 空返回、JSON 破损、timeout、provider error 由 `v2-llm-runtime-reliability-contract-zh.md` 里的 adapter/runtime 策略处理。
 - **DSPy-style 不等于越拆越多**：stage 粒度以 signature 是否清晰、输出是否稳定、metric 是否变好为准。调用数下降但 token/retry/质量变差，不算架构进步。
 
@@ -16,11 +18,12 @@
 
 | Stage | Signature | 默认 source context | 输出去向 |
 | --- | --- | --- | --- |
-| `sourceMap` | `ArticleInput -> SourceMap` | 原始全文 | 后续所有 source anchor 的基础 |
+| `sourceMap` | `ArticleInput -> SourceMap` | 原始全文 | 后续所有 source anchor 的基础；默认由代码确定性切分 |
 | `reviewPathPlan` | `ArticleMeta + FullSourceBlocks -> ChapterPlan` | 全文 blocks | 前端章节结构 + unit 切分 |
 | `unitKnowledgeMap` | `ChapterPlan + PlanSourceWindow -> MicroKnowledgeMap` | 所有 unit anchor 的 union window | ECD 规划 |
 | `taskBriefPlan` | `ChapterPlan + MicroKnowledgeMap + PlanSourceWindow -> TaskBriefPlan` | plan union window | 题目 draft stages |
-| `multipleChoiceDraftBatch` | `MCPlans + UnitSourceWindows -> MultipleChoiceDraftBatch` | 每个 unit 的 compact window | 前端选择题 |
+| `QuestionBriefAdapter` | `TaskBriefPlan + MicroKnowledgeMap -> QuestionBriefsByUnit` | 不调用模型；只用计划层结构 | scoped draft stages |
+| `multipleChoiceDraftUnitBatch` | `CurrentUnitMCBriefs + CurrentUnitSourceWindow -> MultipleChoiceDraftUnitBatch` | 当前 unit 的 compact window | 前端选择题 |
 | `matchingDraftBatch` | `MatchingPlans + UnitSourceWindows -> MatchingDraftBatch` | 每个 unit 的 compact window | 前端连线题 |
 | `unitCopyBatch` | `TaskBriefPlan + UnitSourceWindows -> UnitCopyBatch` | 每个 unit 的 compact window | 前端单元页 |
 | `questionDraftBatch` | `TaskBriefPlan + UnitSourceWindows -> QuestionDraftBatch` | 每个 unit 的 compact window | 历史/回滚路径 |
@@ -29,6 +32,8 @@
 | `qualityDiagnostics` | `ReviewPath -> DiagnosticReport` | 已生成 reviewPath | HTML 质量报告 |
 
 ## 1. `sourceMap`
+
+> 主链路默认使用 deterministic source map。只有在显式设置 `V2_SOURCE_MAP_MODE=model` 时，才会调用模型版 `sourceMap` prompt。这个阶段不应再消耗模型 token 去复述原文。
 
 **Signature**
 
@@ -58,9 +63,9 @@ ArticleInput -> SourceMap
 
 **代码位置**
 
-- Prompt: `experiments/shibei-v2/backend/src/v2/generation/prompts/buildV2PromptMessages.js`
+- Deterministic source map: `buildDeterministicSourceMap()` in `generateReviewPathV2.js`
+- Model prompt（历史/对照路径）: `experiments/shibei-v2/backend/src/v2/generation/prompts/buildV2PromptMessages.js`
 - Schema/validator: `experiments/shibei-v2/backend/src/v2/generation/prompts/sourceMap.js`
-- Deterministic fallback: `buildDeterministicSourceMap()` in `generateReviewPathV2.js`
 
 **指标**
 
@@ -110,7 +115,7 @@ ArticleMeta + FullSourceBlocks -> ChapterPlan
 
 **关键质量点**
 
-- 相关但独立的大知识点不能合并成一个 unit，例如 DMC 模型不应被吞进“游戏化核心概念”。
+- 相关但独立的大知识点不能合并成一个 unit，例如独立分层模型不应被吞进相邻的宽泛概念 unit。
 - `nodeLabel` 是主页节点浮窗短语，不是长摘要。
 - `detailSummary` 是知识点完整总结，不是整章概要。
 
@@ -122,7 +127,7 @@ ArticleMeta + FullSourceBlocks -> ChapterPlan
 **指标**
 
 - unit count 是否合理。
-- DMC/分层模型/流程等独立对象是否被保留。
+- 分层模型、流程、类型集合、边界规则等独立对象是否被保留。
 - `sourceAnchor.blockIds` 是否有效。
 - `nodeLabel` 是否适合首页浮窗。
 
@@ -164,6 +169,28 @@ ChapterPlan + PlanSourceWindow -> MicroKnowledgeMap
 - 不做 selectedTasks。
 - 不为了控制题量删掉重要小知识点。
 
+**micro 拆分标准**
+
+- `microKnowledgePoint` 是 unit 内最小的有意义学习对象，应能在后续形成 learning target 或 evidence angle。
+- 如果一句内容包含两个不同掌握表现，例如定义与边界、机制与误区、步骤与目的，应拆成多个 micro。
+- 如果多个表述只是同一个意思的重复解释，应合并成一个 micro。
+- 根据原文自然存在的内容判断 `role`；不要为了填满某种 role 而虚构 micro。
+- 案例只有在承载可迁移判断、误区或机制说明时才作为 micro；纯举例使用 `context_only`。
+
+**assessmentValue 标准**
+
+- `assessmentValue` 只描述小点的考察价值，不表达题目数量。
+- `high`：缺少它会导致用户无法掌握该 unit 的核心，后续通常应进入覆盖判断。
+- `medium`：能补充重要角度、边界、误区或应用，但不是该 unit 的唯一核心。
+- `low`：有学习价值，但不一定需要直接考察。
+- `context_only`：背景、铺垫、普通例子或只帮助理解上下文，不直接形成题目。
+
+**evidence angle 标准**
+
+- `suggestedEvidenceAngles` 只写建议观察角度，不选择题型。
+- 常见映射：`definition -> definition_grasp`，`boundary -> boundary_discrimination`，`model_layer / relationship -> structure_mapping`，`mechanism -> mechanism_reasoning`，`process_step -> step_purpose_mapping`，`scenario_application -> scenario_transfer`，`misconception -> misconception_detection`。
+- `sourceSupport` 写 source 如何支撑这个 micro，不粘贴长原文；它应该能解释为什么该 micro 不是模型臆造。
+
 **代码位置**
 
 - Prompt: `buildUnitKnowledgeMapMessages()`
@@ -173,7 +200,7 @@ ChapterPlan + PlanSourceWindow -> MicroKnowledgeMap
 
 - 每个 unit 都有对应 micro map。
 - high/medium 小知识点不被漏掉。
-- DMC 这类结构型知识点能拆出整体结构、层级作用、关系边界。
+- 分层模型、流程步骤、类型集合等结构型知识点能拆出整体结构、层级作用、关系边界。
 
 ## 4. `taskBriefPlan`（当前默认）
 
@@ -190,6 +217,25 @@ ChapterPlan + MicroKnowledgeMap + PlanSourceWindow -> TaskBriefPlan
 - plan-level source window
 
 **输出**
+
+模型直接输出的是 compact task brief，稳定工程字段由后端 adapter 补齐。
+
+模型输出：
+
+- `units[].unitId`
+- `units[].practiceGoals[]`
+  - `kind`
+  - `target`
+  - `commonMisconception`
+  - `microIds`
+- `units[].questionPlans[]`
+  - `type`
+  - `purpose`
+  - `goalIndex`，1-based，指向同一 unit 内的 `practiceGoals`
+  - `microIds`
+  - `relationType` only when `type = matching`
+
+后端 hydration 后的内部合同：
 
 - `units[].unitId`
 - `units[].practiceGoals[]`
@@ -218,6 +264,7 @@ ChapterPlan + MicroKnowledgeMap + PlanSourceWindow -> TaskBriefPlan
 - 不输出 ECD 术语字段、推理链、候选矩阵或长篇解释。
 - 不同时输出 `targetIds` 和 `microIds`；当前 compact contract 只保留 `microIds`。
 - 不复制 microKnowledgePoint 的正文解释，只引用 micro id。
+- 模型不要输出 `practiceGoal.id`、`questionPlan.id`、`practiceGoalId` 或 `sourceAnchorId`；这些字段由后端根据 unit 顺序、`goalIndex` 和 unit anchor 确定性生成。
 
 **关键质量点**
 
@@ -233,36 +280,44 @@ ChapterPlan + MicroKnowledgeMap + PlanSourceWindow -> TaskBriefPlan
 
 **指标**
 
-- DMC 这类结构型 unit 是否仍能选择 matching。
+- 分层模型、流程步骤、类型集合等结构型 unit 是否仍能选择 matching。
 - questionPlans 是否覆盖关键 microIds。
-- stage completion tokens 是否低于截断风险区间。
+- stage completion tokens 是否低于截断风险区间；当前黄金文章 compact run 为 2,403 completion tokens，一次通过。
 - JSON 成功率和 retry 次数。
 
-## 5. `multipleChoiceDraftBatch`（当前默认）
+## 5. `QuestionBriefAdapter` + `multipleChoiceDraftUnitBatch`（当前默认）
 
 **Signature**
 
 ```text
-MCPlans + UnitSourceWindows -> MultipleChoiceDraftBatch
+TaskBriefPlan + MicroKnowledgeMap -> QuestionBriefsByUnit
+CurrentUnitMCBriefs + CurrentUnitSourceWindow -> MultipleChoiceDraftUnitBatch
 ```
 
 **输入**
 
-- 每个含 multiple-choice plan 的 unit。
-- 该题型实际引用的 `practiceGoals`。
-- 该题型的 `questionPlans`。
+- `TaskBriefPlan` 中每个 unit 的 `practiceGoals` 和 `questionPlans`。
+- `MicroKnowledgeMap` 中与题目相关的 micro evidence。
 - 当前 unit 的 compact source window。
 
 **输出**
 
-- `units[].unitId`
-- `units[].questions[]`
+- `QuestionBriefAdapter` 输出按 unit 分组的 brief，不调用模型：
+  - `unitId`
+  - `questionBriefs[]`
+  - `practiceGoal.target`
+  - `practiceGoal.commonMisconception`
+  - `microEvidence[]`
+- `multipleChoiceDraftUnitBatch` 输出当前 unit 的选择题：
+  - `unitId`
+  - `questions[]`
   - 只允许 `type = multiple_choice`
 
 **source context policy**
 
-- 每个 unit 只携带自身 compact source window。
+- 每次模型调用只携带当前 unit 的 compact source window。
 - 不接收完整 ECD 字段、候选矩阵或全文章。
+- 不接收其他 unit 的题目计划，避免跨 unit 混写和过长 JSON。
 
 **禁止职责**
 
@@ -274,8 +329,10 @@ MCPlans + UnitSourceWindows -> MultipleChoiceDraftBatch
 
 **当前实验结论**
 
-- `20260621-183909-v2-typed-draft-batches-max6` 中一次通过，无 retry。
-- 与 mixed `questionDraftBatch` 相比，typed batch 显著降低 total tokens 和 JSON 风险。
+- `20260621-201141-v2-dspy-pyramid-scoped-mc-max6` 中，5 次 `multipleChoiceDraftUnitBatch` 调用全部一次通过，无 retry。
+- 与 `20260621-193327-v2-compact-task-brief-max6` 相比，总 tokens 从 `83,001` 降到 `66,367`，runtime retry 从 `1` 降到 `0`。
+- 结构型 unit 仍保持独立，并产出 matching；说明 scoped MC 没有破坏结构型题型选择。
+- 这轮验证了当前更接近 DSPy-style 金字塔：上游负责知识/任务计划，下游按 unit scoped signature 生成题目。
 
 ## 6. `matchingDraftBatch`（当前默认，有 matching plan 时调用）
 
@@ -297,7 +354,7 @@ MatchingPlans + UnitSourceWindows -> MatchingDraftBatch
 - `units[].unitId`
 - `units[].questions[]`
   - 只允许 `type = matching`
-  - 每题左右各 4 项，pairs 正好 4 对
+  - 每题左右各 2-4 项，pairs 数量与左右项数量一致
 
 **source context policy**
 
@@ -314,7 +371,7 @@ MatchingPlans + UnitSourceWindows -> MatchingDraftBatch
 **当前实验结论**
 
 - `20260621-183909-v2-typed-draft-batches-max6` 中一次通过，无 retry。
-- DMC unit 生成 2 道 matching，说明题型覆盖比 mixed `questionDraftBatch` 更健康。
+- 结构型 unit 生成 matching，说明题型覆盖比 mixed `questionDraftBatch` 更健康。
 - 后续仍要优化题干语气，避免“请匹配/以下”这类考试感表达过重。
 
 ## 7. `questionDraftBatch`（历史实验/回滚路径，当前默认主链路不调用）
@@ -442,7 +499,7 @@ SingleUnitPlan + MicroKnowledge + UnitSourceWindow -> UnitTaskModel
 
 - required targets 是否都进入 selectedTasks。
 - selectedTasks 是否覆盖 high/medium micro points。
-- DMC 这类结构型 unit 是否能选择 matching affordance。
+- 分层模型、流程步骤、类型集合等结构型 unit 是否能选择 matching affordance。
 
 ## 8. deterministic `unitPracticePlan` adapter（历史实验/回滚路径）
 
@@ -555,9 +612,9 @@ MatchingPlans + UnitSourceWindow + ECDContext -> MatchingDraft
   - `type = matching`
   - `relationType`
   - `stem`
-  - `leftItems[4]`
-  - `rightItems[4]`
-  - `pairs[4]`
+  - `leftItems[2-4]`
+  - `rightItems[2-4]`
+  - `pairs[2-4]`
   - `explanation`
   - `sourceAnchorId`
 
@@ -568,7 +625,7 @@ MatchingPlans + UnitSourceWindow + ECDContext -> MatchingDraft
 **禁止职责**
 
 - 不生成机械“名词 -> 定义”配对。
-- 不生成少于 4 对的题。
+- 不为了凑满 4 对而生成低价值或无原文支撑的关系。
 - 不在没有 matching plan 时强行出 matching。
 
 **代码位置**
@@ -578,10 +635,10 @@ MatchingPlans + UnitSourceWindow + ECDContext -> MatchingDraft
 
 **指标**
 
-- 左右各 4 项。
+- 左右各 2-4 项，数量一致。
 - relationType 能体现关系价值。
 - pairs 一一对应。
-- DMC 层级-作用这类结构能稳定生成 matching。
+- 层级-作用、步骤-目的、类型-特征这类结构能稳定生成 matching。
 
 ## 11. `unitSummaryDraft`（历史 per-unit 路径，当前由 `unitCopyBatch` 替代）
 
@@ -644,8 +701,8 @@ Unit + Questions + UnitSourceWindow -> UnitOverviewAndSummary
 
 ## 当前实现差距
 
-1. `multipleChoiceDraftBatch` 与 `matchingDraftBatch` 已替代 `questionDraftBatch` 成为当前默认候选链路；这轮证明中等粒度 typed signature 比混合大 batch 更稳。
-2. `taskBriefPlan` 已 compact 化，但仍是高负载阶段；需要继续观察它是否会在更长文章里成为瓶颈。
+1. `QuestionBriefAdapter` + `multipleChoiceDraftUnitBatch` 与 `matchingDraftBatch` 已替代 `questionDraftBatch` 成为当前默认候选链路；这轮证明“typed adapter + 当前 unit scoped draft”比全单元大 batch 更稳。
+2. `taskBriefPlan` 已 compact 化，并在黄金文章中从一次失败重试改善为一次通过；后续仍需在更长文章里观察。
 3. 题干语气仍有考试感表达，例如“以下/下列表述”；这属于题干文案层问题，不是当前主链路架构失败。
 4. HTML report 还可以更清楚地区分“架构指标”和“题目文案指标”，例如单独统计 forbidden stem phrase。
 5. `qualityJudge` prompt 仍存在于代码中，但默认不启用；后续若保留，应改名或迁移为实验性小审查模块，避免误解为主链路。

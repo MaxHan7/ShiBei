@@ -93,6 +93,8 @@ export function buildV2QualityReport({
   const unitKnowledgeMap = chapter?.generationMeta?.unitKnowledgeMap || null;
   const sourceContextStats = chapter?.generationMeta?.sourceContextStats || null;
   const stageRuntime = chapter?.generationMeta?.stageRuntime || jobResult?.stageRuntime || null;
+  const modelUsage = Array.isArray(jobResult?.modelUsage) ? jobResult.modelUsage : [];
+  const architectureMetrics = buildArchitectureMetrics({ modelUsage, stageRuntime });
 
   return {
     schemaVersion: "v2_quality_report_1",
@@ -116,17 +118,94 @@ export function buildV2QualityReport({
       issueCount: countQualityIssues(jobResult),
       diagnosticIssueCount: countDiagnosticIssues(qualityDiagnostics),
       runtimeFailedAttemptCount: stageRuntime?.failedAttemptCount || 0,
-      runtimeRetryAttemptCount: stageRuntime?.retryAttemptCount || 0
+      runtimeRetryAttemptCount: stageRuntime?.retryAttemptCount || 0,
+      modelCallCount: architectureMetrics.total.modelCallCount,
+      promptTokenCount: architectureMetrics.total.promptTokens,
+      completionTokenCount: architectureMetrics.total.completionTokens,
+      totalTokenCount: architectureMetrics.total.totalTokens
     },
     chapter,
     unitKnowledgeMap,
     ecdPlanning,
     sourceContextStats,
     stageRuntime,
+    architectureMetrics,
     qualityDiagnostics,
-    modelUsage: Array.isArray(jobResult?.modelUsage) ? jobResult.modelUsage : [],
+    modelUsage,
     failure: buildFailure(jobResult)
   };
+}
+
+export function buildArchitectureMetrics({ modelUsage = [], stageRuntime = null } = {}) {
+  const stageMap = new Map();
+  for (const stage of Array.isArray(stageRuntime?.stages) ? stageRuntime.stages : []) {
+    const key = String(stage.stage || "unknown");
+    stageMap.set(key, {
+      stage: key,
+      modelCallCount: 0,
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0,
+      promptCacheHitTokens: 0,
+      promptCacheMissTokens: 0,
+      estimatedOutputTokens: 0,
+      runtimeCallCount: stage.callCount || 0,
+      attemptCount: stage.attemptCount || 0,
+      retryAttemptCount: stage.retryAttemptCount || 0,
+      failedAttemptCount: stage.transientFailureCount || 0,
+      durationMs: stage.totalDurationMs || 0
+    });
+  }
+
+  for (const record of Array.isArray(modelUsage) ? modelUsage : []) {
+    const key = String(record?.stage || "unknown");
+    const row = stageMap.get(key) || {
+      stage: key,
+      modelCallCount: 0,
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0,
+      promptCacheHitTokens: 0,
+      promptCacheMissTokens: 0,
+      estimatedOutputTokens: 0,
+      runtimeCallCount: 0,
+      attemptCount: 0,
+      retryAttemptCount: 0,
+      failedAttemptCount: 0,
+      durationMs: 0
+    };
+    row.modelCallCount += 1;
+    row.promptTokens += tokenNumber(record?.usage?.prompt_tokens);
+    row.completionTokens += tokenNumber(record?.usage?.completion_tokens);
+    row.totalTokens += tokenNumber(record?.usage?.total_tokens);
+    row.promptCacheHitTokens += tokenNumber(record?.usage?.prompt_cache_hit_tokens);
+    row.promptCacheMissTokens += tokenNumber(record?.usage?.prompt_cache_miss_tokens);
+    row.estimatedOutputTokens += tokenNumber(record?.estimatedOutputTokens);
+    stageMap.set(key, row);
+  }
+
+  const stages = Array.from(stageMap.values()).sort((a, b) => a.stage.localeCompare(b.stage));
+  return {
+    schemaVersion: "v2_architecture_metrics_1",
+    total: {
+      modelCallCount: stages.reduce((sum, stage) => sum + stage.modelCallCount, 0),
+      runtimeCallCount: stages.reduce((sum, stage) => sum + stage.runtimeCallCount, 0),
+      attemptCount: stages.reduce((sum, stage) => sum + stage.attemptCount, 0),
+      retryAttemptCount: stages.reduce((sum, stage) => sum + stage.retryAttemptCount, 0),
+      failedAttemptCount: stages.reduce((sum, stage) => sum + stage.failedAttemptCount, 0),
+      promptTokens: stages.reduce((sum, stage) => sum + stage.promptTokens, 0),
+      completionTokens: stages.reduce((sum, stage) => sum + stage.completionTokens, 0),
+      totalTokens: stages.reduce((sum, stage) => sum + stage.totalTokens, 0),
+      promptCacheHitTokens: stages.reduce((sum, stage) => sum + stage.promptCacheHitTokens, 0),
+      promptCacheMissTokens: stages.reduce((sum, stage) => sum + stage.promptCacheMissTokens, 0),
+      durationMs: stages.reduce((sum, stage) => sum + stage.durationMs, 0)
+    },
+    stages
+  };
+}
+
+function tokenNumber(value) {
+  return Number.isFinite(Number(value)) ? Number(value) : 0;
 }
 
 function countQualityIssues(jobResult) {
@@ -164,6 +243,10 @@ export function renderV2QualityReportHtml(report) {
   const diagnosticsByQuestionId = new Map(
     (report.qualityDiagnostics || []).map((diagnostic) => [diagnostic.questionId, diagnostic])
   );
+  const architectureMetrics = report.architectureMetrics || buildArchitectureMetrics({
+    modelUsage: report.modelUsage,
+    stageRuntime: report.stageRuntime
+  });
 
   return `<!doctype html>
 <html lang="zh-CN">
@@ -321,6 +404,25 @@ export function renderV2QualityReportHtml(report) {
       padding: 12px;
       overflow: auto;
     }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 6px;
+      text-align: right;
+      vertical-align: top;
+    }
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
@@ -328,6 +430,7 @@ export function renderV2QualityReportHtml(report) {
     <h1>V2 出题质量报告</h1>
     <div class="meta">${escapeHtml(report.generatedAt)} · ${escapeHtml(report.label)} · ${escapeHtml(report.status)}</div>
     ${renderFailure(report.failure)}
+    ${renderArchitectureMetrics(architectureMetrics)}
     ${renderModelUsage(report.modelUsage)}
     ${renderStageRuntime(report.stageRuntime)}
     ${renderSourceContextStats(report.sourceContextStats)}
@@ -611,6 +714,51 @@ function renderFailure(failure) {
   </section>`;
 }
 
+function renderArchitectureMetrics(architectureMetrics) {
+  if (!architectureMetrics || !Array.isArray(architectureMetrics.stages)) return "";
+  const total = architectureMetrics.total || {};
+  return `<section class="card">
+    <h2 style="margin-top:0">Architecture Metrics</h2>
+    <p class="meta">这一段是架构仪表盘：不改变生成链路，只量化每个 stage 的调用数、token、重试和耗时，用来判断下一轮是变轻、变重、变稳还是变脆。</p>
+    <div class="grid">
+      ${metric("Model calls", total.modelCallCount || 0)}
+      ${metric("Total tokens", formatNumber(total.totalTokens || 0))}
+      ${metric("Prompt tokens", formatNumber(total.promptTokens || 0))}
+      ${metric("Completion tokens", formatNumber(total.completionTokens || 0))}
+      ${metric("Retries", total.retryAttemptCount || 0)}
+      ${metric("Duration", `${formatNumber(Math.round((total.durationMs || 0) / 1000))}s`)}
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Stage</th>
+          <th>Calls</th>
+          <th>Attempts</th>
+          <th>Retries</th>
+          <th>Prompt</th>
+          <th>Completion</th>
+          <th>Total</th>
+          <th>Cache hit/miss</th>
+          <th>Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${architectureMetrics.stages.map((stage) => `<tr>
+          <td>${escapeHtml(stage.stage)}</td>
+          <td>${escapeHtml(stage.modelCallCount || stage.runtimeCallCount || 0)}</td>
+          <td>${escapeHtml(stage.attemptCount || 0)}</td>
+          <td>${escapeHtml(stage.retryAttemptCount || 0)}</td>
+          <td>${escapeHtml(formatNumber(stage.promptTokens || 0))}</td>
+          <td>${escapeHtml(formatNumber(stage.completionTokens || 0))}</td>
+          <td>${escapeHtml(formatNumber(stage.totalTokens || 0))}</td>
+          <td>${escapeHtml(`${formatNumber(stage.promptCacheHitTokens || 0)} / ${formatNumber(stage.promptCacheMissTokens || 0)}`)}</td>
+          <td>${escapeHtml(`${formatNumber(Math.round((stage.durationMs || 0) / 1000))}s`)}</td>
+        </tr>`).join("\n")}
+      </tbody>
+    </table>
+  </section>`;
+}
+
 function renderModelUsage(modelUsage) {
   if (!Array.isArray(modelUsage) || modelUsage.length === 0) return "";
   return `<section class="card">
@@ -651,6 +799,10 @@ function formatErrorTypes(errorTypes) {
   return Object.entries(errorTypes || {})
     .map(([type, count]) => `${type}=${count}`)
     .join(", ");
+}
+
+function formatNumber(value) {
+  return Number(value || 0).toLocaleString("en-US");
 }
 
 function renderSourceContextStats(sourceContextStats) {
