@@ -48,18 +48,17 @@ export const UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA = {
                 "summary",
                 "role",
                 "assessmentValue",
-                "suggestedEvidenceAngles",
-                "sourceAnchorId",
-                "sourceSupport"
+                "suggestedEvidenceAngles"
               ],
               properties: {
                 microId: { type: "string" },
-                title: { type: "string" },
-                summary: { type: "string" },
+                title: { type: "string", maxLength: 32 },
+                summary: { type: "string", maxLength: 96 },
                 role: { enum: MICRO_KNOWLEDGE_ROLES },
                 assessmentValue: { enum: MICRO_ASSESSMENT_VALUES },
                 suggestedEvidenceAngles: {
                   type: "array",
+                  maxItems: 3,
                   items: { type: "string" }
                 },
                 sourceAnchorId: { type: "string" },
@@ -124,9 +123,7 @@ export function validateUnitKnowledgeMapOutput(output, { unitIds = new Set(), so
           "title",
           "summary",
           "role",
-          "assessmentValue",
-          "sourceAnchorId",
-          "sourceSupport"
+          "assessmentValue"
         ],
         microPath,
         errors

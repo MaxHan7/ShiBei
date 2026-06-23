@@ -1,0 +1,249 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-23T00:04:30.001Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-task-brief-slim-regression-fix",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11365
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 0,
+    "diagnosticIssueCount": 0,
+    "runtimeFailedAttemptCount": 3,
+    "runtimeRetryAttemptCount": 2,
+    "modelCallCount": 4,
+    "promptTokenCount": 37284,
+    "completionTokenCount": 24069,
+    "totalTokenCount": 61353
+  },
+  "chapter": null,
+  "unitKnowledgeMap": null,
+  "ecdPlanning": null,
+  "sourceContextStats": null,
+  "stageRuntime": {
+    "schemaVersion": "v2_stage_runtime_1",
+    "callCount": 2,
+    "attemptCount": 4,
+    "failedAttemptCount": 3,
+    "retryAttemptCount": 2,
+    "stages": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 38794,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "callCount": 1,
+        "successCallCount": 0,
+        "failedCallCount": 1,
+        "attemptCount": 3,
+        "retryAttemptCount": 2,
+        "transientFailureCount": 3,
+        "totalDurationMs": 204082,
+        "errorTypes": {
+          "json_parse_error": 3
+        },
+        "lastErrorType": "json_parse_error",
+        "lastErrorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      }
+    ],
+    "attempts": [
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 38794,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-2",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 67055,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "unitKnowledgeMap-2",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 2,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 69173,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "unitKnowledgeMap-2",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 3,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 67854,
+        "retryable": false,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      }
+    ]
+  },
+  "architectureMetrics": {
+    "schemaVersion": "v2_architecture_metrics_1",
+    "total": {
+      "modelCallCount": 4,
+      "runtimeCallCount": 2,
+      "attemptCount": 4,
+      "retryAttemptCount": 2,
+      "failedAttemptCount": 3,
+      "promptTokens": 37284,
+      "completionTokens": 24069,
+      "totalTokens": 61353,
+      "promptCacheHitTokens": 28416,
+      "promptCacheMissTokens": 8868,
+      "durationMs": 242876
+    },
+    "stages": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "modelCallCount": 1,
+        "promptTokens": 10131,
+        "completionTokens": 2472,
+        "totalTokens": 12603,
+        "promptCacheHitTokens": 10112,
+        "promptCacheMissTokens": 19,
+        "estimatedOutputTokens": 3200,
+        "runtimeCallCount": 1,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 38794
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "modelCallCount": 3,
+        "promptTokens": 27153,
+        "completionTokens": 21597,
+        "totalTokens": 48750,
+        "promptCacheHitTokens": 18304,
+        "promptCacheMissTokens": 8849,
+        "estimatedOutputTokens": 21600,
+        "runtimeCallCount": 1,
+        "attemptCount": 3,
+        "retryAttemptCount": 2,
+        "failedAttemptCount": 3,
+        "durationMs": 204082
+      }
+    ]
+  },
+  "qualityDiagnostics": [],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 3200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 10131,
+        "completion_tokens": 2472,
+        "total_tokens": 12603,
+        "prompt_cache_hit_tokens": 10112,
+        "prompt_cache_miss_tokens": 19
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 7200,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"units\": [\n    {\n      \"unitId\": \"game-concept\",\n      \"microKnowledgePoints\": [\n        {\n          \"microId\": \"micro-game-concept-001\",\n          \"title\": \"游戏的定义\",\n          \"summary\": \"游戏是基于规则的交互性系统，是自愿尝试克服不必要的挑战的人类活动。\",\n          \"role\": \"definition\",\n          \"assessmentValue\": \"context_only\",\n          \"suggestedEvidenceAngles\": [\"definition_grasp\"],\n          \"sourceAnchorId\": \"anchor-game-concept\",\n          \"sourceSupport\": \"p-013引用简·麦格尼格尔和游戏定义，作为理解游戏化的背景。\"\n        },\n        {\n          \"microId\": \"micro-game-concept-002\",\n          \"title\": \"游戏化定义（德特丁）\",\n          \"summary\": \"游戏化是在非游戏语境中使用游戏设计元素。\",\n          \"role\": \"definition\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"definition_grasp\"],\n          \"sourceAnchorId\": \"anchor-game-concept\",\n          \"sourceSupport\": \"p-014引用德特丁的经典定义。\"\n        },\n        {\n          \"microId\": \"micro-game-concept-003\",\n          \"title\": \"游戏化目的（韦巴赫）\",\n          \"summary\": \"游戏化的关键在于以创造乐趣的方式服务现实目标。\",\n          \"role\": \"definition\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvidenceAngles\": [\"definition_grasp\"],\n          \"sourceAnchorId\": \"anchor-game-concept\",\n          \"sourceSupport\": \"p-014引用韦巴赫对游戏化目的的阐述。\"\n        },\n        {\n          \"microId\": \"micro-game-concept-004\",\n          \"title\": \"游戏化与持续性用户体验的关系\",\n          \"summary\": \"游戏化方法能够成为构建持续性用户体验的重要策略，通过反馈、挑战与意义建构提升用户持续投入意愿。\",\n          \"role\": \"relationship\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-game-concept\",\n          \"sourceSupport\": \"p-017指出游戏化是构建持续性用户体验的策略。\"\n        }\n      ]\n    },\n    {\n      \"unitId\": \"dmc-model\",\n      \"microKnowledgePoints\": [\n        {\n          \"microId\": \"micro-dmc-model-001\",\n          \"title\": \"DMC模型整体结构\",\n          \"summary\": \"DMC模型是游戏化元素的金字塔分层结构，分为动力、机制、组件三层。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-dmc-model\",\n          \"sourceSupport\": \"p-020提出DMC金字塔模型，分三层。\"\n        },\n        {\n          \"microId\": \"micro-dmc-model-002\",\n          \"title\": \"动力层（Dynamics）\",\n          \"summary\": \"动力层界定系统整体体验，包括约束、情感、叙事、成长或进展关系。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-dmc-model\",\n          \"sourceSupport\": \"p-020详细描述动力层内容。\"\n        },\n        {\n          \"microId\": \"micro-dmc-model-003\",\n          \"title\": \"机制层（Mechanics）\",\n          \"summary\": \"机制层组织用户行为与推进参与的规则流程，如挑战、竞争、反馈、奖励等。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-dmc-model\",\n          \"sourceSupport\": \"p-020详细描述机制层内容。\"\n        },\n        {\n          \"microId\": \"micro-dmc-model-004\",\n          \"title\": \"组件层（Components）\",\n          \"summary\": \"组件层是用户直接感知和操作的具体功能，如成就、徽章、排行榜、点数等。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-dmc-model\",\n          \"sourceSupport\": \"p-020详细描述组件层内容。\"\n        },\n        {\n          \"microId\": \"micro-dmc-model-005\",\n          \"title\": \"三层协同关系\",\n          \"summary\": \"动力层规定方向，机制层构成操作循环，组件层落实为具体功能，三者协同实现游戏化设计。\",\n          \"role\": \"relationship\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-dmc-model\",\n          \"sourceSupport\": \"p-020末尾说明三层关系。\"\n        }\n      ]\n    },\n    {\n      \"unitId\": \"flow-interaction\",\n      \"microKnowledgePoints\": [\n        {\n          \"microId\": \"micro-flow-interaction-001\",\n          \"title\": \"心流定义与条件\",\n          \"summary\": \"心流是个体能力与挑战动态平衡、目标清晰、反馈即时时的沉浸状态。\",\n          \"role\": \"mechanism\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"mechanism",
+      "usage": {
+        "prompt_tokens": 9051,
+        "completion_tokens": 7199,
+        "total_tokens": 16250,
+        "prompt_cache_hit_tokens": 384,
+        "prompt_cache_miss_tokens": 8667
+      }
+    },
+    {
+      "index": 3,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 7200,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"units\": [\n    {\n      \"unitId\": \"game-concept\",\n      \"microKnowledgePoints\": [\n        {\n          \"microId\": \"micro-game-001\",\n          \"title\": \"游戏化的学术定义\",\n          \"summary\": \"游戏化被界定为在非游戏语境中使用游戏设计元素。\",\n          \"role\": \"definition\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"definition_grasp\"],\n          \"sourceAnchorId\": \"anchor-game-concept\",\n          \"sourceSupport\": \"原文p-014引用了Deterding的界定，并指出该表述是后续研究最常引用的定义。\"\n        },\n        {\n          \"microId\": \"micro-game-002\",\n          \"title\": \"游戏化的核心理念\",\n          \"summary\": \"游戏化的关键在于以创造乐趣的方式服务现实目标，使人们更愿意进入并持续活动。\",\n          \"role\": \"definition\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"definition_grasp\"],\n          \"sourceAnchorId\": \"anchor-game-concept\",\n          \"sourceSupport\": \"原文p-014引用Werbach的观点，强调创造乐趣服务现实目标。\"\n        },\n        {\n          \"microId\": \"micro-game-003\",\n          \"title\": \"持续性用户体验的定义\",\n          \"summary\": \"持续性用户体验关注长期使用中的情感联结、习惯养成与意义建构，不仅包括阶段性目标的效率和过程，还包括认知、行为和情感联结。\",\n          \"role\": \"definition\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvidenceAngles\": [\"definition_grasp\"],\n          \"sourceAnchorId\": \"anchor-game-concept\",\n          \"sourceSupport\": \"原文p-017描述持续性用户体验设计的内涵，强调情感联结、习惯养成与意义建构。\"\n        }\n      ]\n    },\n    {\n      \"unitId\": \"dmc-model\",\n      \"microKnowledgePoints\": [\n        {\n          \"microId\": \"micro-dmc-001\",\n          \"title\": \"DMC模型整体结构\",\n          \"summary\": \"DMC金字塔模型将游戏化分为动力、机制、组件三个层次。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-dmc-model\",\n          \"sourceSupport\": \"原文p-020描述了DMC模型的三层结构。\"\n        },\n        {\n          \"microId\": \"micro-dmc-002\",\n          \"title\": \"动力层定义与要素\",\n          \"summary\": \"动力层回答用户最终体验到什么，包括约束、情感、叙事、成长或进展关系。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-dmc-model\",\n          \"sourceSupport\": \"原文p-020列举了动力层的具体要素。\"\n        },\n        {\n          \"microId\": \"micro-dmc-003\",\n          \"title\": \"机制层定义与要素\",\n          \"summary\": \"机制层是组织用户行为与推进参与的规则与流程，包括挑战、机会、竞争、合作、反馈、资源获取、奖励等。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-dmc-model\",\n          \"sourceSupport\": \"原文p-020列举了机制层的要素。\"\n        },\n        {\n          \"microId\": \"micro-dmc-004\",\n          \"title\": \"组件层定义与要素\",\n          \"summary\": \"组件层是用户最易感知的界面元素或功能模块，包括成就、徽章、排行榜、点数、任务、虚拟商品等。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-dmc-model\",\n          \"sourceSupport\": \"原文p-020列举了组件层的要素。\"\n        },\n        {\n          \"microId\": \"micro-dmc-005\",\n          \"title\": \"三层之间的协同关系\",\n          \"summary\": \"动力层规定体验目标与方向，机制层构成持续运转的操作循环，组件层将前两者落实为具体功能。\",\n          \"role\": \"relationship\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-dmc-model\",\n          \"sourceSupport\": \"原文p-020最后一句描述了三层协同关系。\"\n        }\n      ]\n    },\n    {\n      \"unitId\": \"flow-interaction\",\n      \"microKnowledgePoints\": [\n        {\n          \"microId\": \"micro-flow-001\",\n          \"title\": \"心流理论\",\n          \"summary\": \"当个体能力与挑战难度保持动态平衡，且具备清晰目标与即时反馈时，用户进入高度专注且愉悦的沉浸状态。\",\n          \"role\": \"mechanism\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"mechanism_reasoning\"],\n          \"sourceAnchorId\": \"anchor-flow-interaction\",\n          \"sourceSupport\": \"原文p-016介绍了心流理论的核心条件。\"\n        },\n        {\n          \"microId\": \"micro-flow-002\",\n          \"title\": \"交互设计的三个基本问题\",\n          \"summary\": \"交互设计需解决用户的可行动性、可感知性与可理解性。\",\n          \"role\": \"mechanism\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvi",
+      "usage": {
+        "prompt_tokens": 9051,
+        "completion_tokens": 7200,
+        "total_tokens": 16251,
+        "prompt_cache_hit_tokens": 8960,
+        "prompt_cache_miss_tokens": 91
+      }
+    },
+    {
+      "index": 4,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 7200,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"units\": [\n    {\n      \"unitId\": \"game-concept\",\n      \"microKnowledgePoints\": [\n        {\n          \"microId\": \"micro-game-concept-001\",\n          \"title\": \"游戏的定义\",\n          \"summary\": \"游戏是基于规则的交互性系统，是自愿尝试去克服的不必要的挑战，追求体验而非效率。\",\n          \"role\": \"definition\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"definition_grasp\"],\n          \"sourceAnchorId\": \"anchor-game-concept\",\n          \"sourceSupport\": \"原文p-013引用简·麦格尼格尔的定义，并强调规则、交互、愉悦和吸引力是核心关键词。\"\n        },\n        {\n          \"microId\": \"micro-game-concept-002\",\n          \"title\": \"游戏化的定义（Deterding）\",\n          \"summary\": \"游戏化是在非游戏语境中使用游戏设计元素。\",\n          \"role\": \"definition\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"definition_grasp\"],\n          \"sourceAnchorId\": \"anchor-game-concept\",\n          \"sourceSupport\": \"原文p-014引用塞巴斯蒂安·德特丁2011年的定义，为后续研究最常引用。\"\n        },\n        {\n          \"microId\": \"micro-game-concept-003\",\n          \"title\": \"游戏化的关键（Werbach）\",\n          \"summary\": \"游戏化关键在于以创造乐趣的方式服务现实目标，使人们更愿意进入、完成并持续进行某一活动。\",\n          \"role\": \"definition\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvidenceAngles\": [\"definition_grasp\"],\n          \"sourceAnchorId\": \"anchor-game-concept\",\n          \"sourceSupport\": \"原文p-014引用凯文·韦巴赫与丹·亨特的观点。\"\n        },\n        {\n          \"microId\": \"micro-game-concept-004\",\n          \"title\": \"持续性用户体验概念\",\n          \"summary\": \"持续性用户体验设计是一种面向长期使用情境的系统设计，包括阶段性目标达成效率、过程感受、逐渐形成的认知、行为习惯与情感联结。\",\n          \"role\": \"definition\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"definition_grasp\"],\n          \"sourceAnchorId\": \"anchor-game-concept\",\n          \"sourceSupport\": \"原文p-017明确表述“本文所强调的持续性用户体验设计，是一种面向长期使用情境的系统设计”。\"\n        },\n        {\n          \"microId\": \"micro-game-concept-005\",\n          \"title\": \"游戏化作为构建持续性用户体验的策略\",\n          \"summary\": \"游戏化通过增强沉浸感、心流体验、反馈、挑战和意义建构，提升用户持续投入意愿，成为构建持续性用户体验的重要策略。\",\n          \"role\": \"relationship\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-game-concept\",\n          \"sourceSupport\": \"原文p-017指出“游戏化的设计方法能够成为构建持续性用户体验的一种重要策略”，并解释了其作用。\"\n        }\n      ]\n    },\n    {\n      \"unitId\": \"dmc-model\",\n      \"microKnowledgePoints\": [\n        {\n          \"microId\": \"micro-dmc-model-001\",\n          \"title\": \"DMC模型整体架构\",\n          \"summary\": \"DMC模型将游戏化分为动力、机制、组件三个层级，是金字塔式结构。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-dmc-model\",\n          \"sourceSupport\": \"原文p-020介绍DMC模型为金字塔式分层结构。\"\n        },\n        {\n          \"microId\": \"micro-dmc-model-002\",\n          \"title\": \"动力层：界定整体体验\",\n          \"summary\": \"动力层回答用户最终体验到什么，包括约束、情感、叙事、成长或进展关系等。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-dmc-model\",\n          \"sourceSupport\": \"原文p-020详细说明动力层的内容。\"\n        },\n        {\n          \"microId\": \"micro-dmc-model-003\",\n          \"title\": \"机制层：组织用户行为的规则与流程\",\n          \"summary\": \"机制层包括挑战、机会、竞争、合作、反馈、资源获取、奖励、交易、回合与获胜状态等，把操作编排成可重复的参与。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-dmc-model\",\n          \"sourceSupport\": \"原文p-020列举机制层元素及其作用。\"\n        },\n        {\n          \"microId\": \"micro-dmc-model-004\",\n          \"title\": \"组件层：可视交互入口\",\n          \"summary\": \"组件层包括成就、徽章、战斗、排行榜、点数、任务、社交图谱和虚拟商品等，是用户直接感知操作的具体功能。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-dmc-model\",\n          \"sourceSupport\": \"原文p-020描述组件层为最底层，用户最容易直接感知。\"\n        },\n        {\n          \"microId\": \"micro-dmc-model-005\",\n          \"title\": \"三层协同关系\",\n          \"summary\": \"动力层规定体验方向，机制层构成操作循环，组件层落实具体功能，三层协同",
+      "usage": {
+        "prompt_tokens": 9051,
+        "completion_tokens": 7198,
+        "total_tokens": 16249,
+        "prompt_cache_hit_tokens": 8960,
+        "prompt_cache_miss_tokens": 91
+      }
+    }
+  ],
+  "failure": {
+    "failedStage": "v2_unitKnowledgeMap",
+    "failureReason": "模型返回内容不是可解析 JSON，请重试。",
+    "retryable": true,
+    "modelStage": "unitKnowledgeMap",
+    "retryAttempts": 3,
+    "issues": [],
+    "errors": [],
+    "diagnostics": []
+  }
+}

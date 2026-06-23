@@ -131,8 +131,8 @@ test("unitKnowledgeMap prompt isolates micro knowledge discovery from task assem
   assert.match(messages.user, /根据原文自然存在的内容判断 role/);
   assert.match(messages.user, /assessmentValue 只描述这个小点的考察价值，不表达题目数量/);
   assert.match(messages.user, /high：缺少它会导致用户无法掌握该 unit 的核心/);
-  assert.match(messages.user, /suggestedEvidenceAngles 只写建议观察角度，不选择题型/);
-  assert.match(messages.user, /sourceSupport 写该 source 如何支撑这个 micro/);
+  assert.match(messages.user, /suggestedEvidenceAngles 只写 1-3 个建议观察角度，不选择题型/);
+  assert.match(messages.user, /不要输出 sourceAnchorId 或 sourceSupport/);
   assert.match(messages.user, /不要为了控制题量而删掉/);
   assert.match(messages.user, /分层模型、结构框架或层级体系/);
   assert.match(messages.user, /microKnowledgePoints/);
@@ -162,23 +162,15 @@ test("taskBriefPlan prompt embeds ECD as thinking method without heavy ECD JSON"
   });
 
   assert.match(messages.user, /taskBriefPlan/);
-  assert.match(messages.user, /练习任务设计者/);
   assert.match(messages.user, /Evidence-Centered Design 是你的思考方法/);
-  assert.match(messages.user, /learning target -> observable evidence -> practiceGoal -> questionPlan/);
-  assert.match(messages.user, /practiceGoal 不是 micro 的改写，而是可观察掌握目标/);
+  assert.match(messages.user, /学习对象 -> 可观察掌握证据 -> 适合的练习任务 -> 题型计划/);
   assert.match(messages.user, /只保留 practiceGoals 和 questionPlans/);
   assert.match(messages.user, /不要输出 ECD 术语字段、推理链、候选矩阵或长篇解释/);
   assert.match(messages.user, /不要输出 practiceGoal\.id、questionPlan\.id、practiceGoalId 或 sourceAnchorId/);
   assert.match(messages.user, /goalIndex 是 1-based 数字/);
-  assert.match(messages.user, /每个 high \/ medium microKnowledgePoint 都应进入覆盖判断/);
-  assert.match(messages.user, /多角度 evidence coverage/);
-  assert.match(messages.user, /互补角度包括：核心理解、边界辨析、误区识别、场景迁移、关系映射/);
-  assert.match(messages.user, /可以为同一个 practiceGoal 设计多个 questionPlans/);
-  assert.match(messages.user, /多个 questionPlans 应分别服务于不同 evidence angle/);
-  assert.match(messages.user, /先判断 evidence 需要用户表现什么，再选择题型/);
-  assert.match(messages.user, /matching 适合需要用户建立多个元素之间稳定对应关系的 evidence/);
-  assert.match(messages.user, /结构、流程、角色、条件、场景、因果、特征、判断依据或适用边界/);
-  assert.match(messages.user, /同级、可并列、可一一对应的关系/);
+  assert.match(messages.user, /每个 high \/ medium microKnowledgePoint 都要被某个 practiceGoal 或 questionPlan 覆盖/);
+  assert.match(messages.user, /一个 unit 可以有多个题目计划，数量由掌握证据和考察角度自然决定/);
+  assert.match(messages.user, /如果 microKnowledgePoints 中存在清晰的结构、流程、角色、条件、特征或判断依据等对应关系/);
   assert.match(messages.user, /matching 不是机械名词释义/);
   assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐|每个 unit 必须.*题|至少.*questionPlans|不要为了增加体量重复|模型层级 -> 对应作用|流程步骤 -> 目的|角色 -> 职责/);
 });

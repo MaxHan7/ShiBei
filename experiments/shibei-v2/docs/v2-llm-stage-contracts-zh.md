@@ -154,8 +154,9 @@ ChapterPlan + PlanSourceWindow -> MicroKnowledgeMap
   - `role`
   - `assessmentValue`
   - `suggestedEvidenceAngles`
-  - `sourceAnchorId`
-  - `sourceSupport`
+
+`sourceAnchorId` 默认从当前 unit 继承，主链路不再要求模型为每个 micro 单独输出。
+`sourceSupport` 不再是主链路必填字段；如需诊断，可在离线审查或后续小型 verifier 中补充，不应拖重默认生成路径。
 
 **source context policy**
 
@@ -187,9 +188,8 @@ ChapterPlan + PlanSourceWindow -> MicroKnowledgeMap
 
 **evidence angle 标准**
 
-- `suggestedEvidenceAngles` 只写建议观察角度，不选择题型。
+- `suggestedEvidenceAngles` 只写 1-3 个建议观察角度，不选择题型。
 - 常见映射：`definition -> definition_grasp`，`boundary -> boundary_discrimination`，`model_layer / relationship -> structure_mapping`，`mechanism -> mechanism_reasoning`，`process_step -> step_purpose_mapping`，`scenario_application -> scenario_transfer`，`misconception -> misconception_detection`。
-- `sourceSupport` 写 source 如何支撑这个 micro，不粘贴长原文；它应该能解释为什么该 micro 不是模型臆造。
 
 **代码位置**
 

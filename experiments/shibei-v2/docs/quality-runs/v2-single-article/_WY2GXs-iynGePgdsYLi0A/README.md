@@ -1183,3 +1183,124 @@ This checkpoint supports the current architecture direction:
 - Use typed adapters for stable metadata and scoped model calls for semantic drafting.
 
 The next checkpoint should add architecture metrics to the HTML report and README: per-stage call count, prompt/completion tokens, retry count, and question-quality notes. That will make future architecture choices less subjective.
+
+## 2026-06-22 Prompt Copy Cleanup Regression
+
+### What Changed
+
+- Cleaned the prompt architecture after the prompt-system review:
+  - `unitCopyBatch` no longer asks the model to generate the fixed unit completion title.
+  - Historical `unitSummaryDraft` was aligned with the same rule.
+  - The backend injects the fixed user-visible title `单元完成` instead of asking the model to output it.
+- Updated stage contracts and field contracts so fixed UI copy is not treated as model-generated content.
+- Regenerated the prompt structure documentation page after the prompt edits.
+
+### Artifacts
+
+- JSON: `runs/20260622-234906-v2-prompt-copy-cleanup-regression.json`
+- HTML: `reports/20260622-234906-v2-prompt-copy-cleanup-regression.html`
+
+### Result
+
+| Metric | DSPy pyramid scoped MC | Prompt copy cleanup regression |
+| --- | ---: | ---: |
+| Status | completed | failed_generation |
+| Questions | 12 | 0 |
+| Runtime failed attempts | 0 | 6 |
+| Runtime retry attempts | 0 | 5 |
+| Model calls | not recorded in this README row | 8 |
+| Total tokens | 66,367 | 119,487 |
+
+Stage notes:
+
+- `reviewPathPlan` completed.
+- `unitKnowledgeMap` completed.
+- `taskBriefPlan` failed after structured-output retries.
+- The run did not reach question drafting, so visible question quality cannot be judged from this experiment.
+
+### Conclusion
+
+This checkpoint successfully preserved a code/documentation rollback point for the prompt-copy cleanup, but the quality run exposed a remaining P0 reliability issue in `taskBriefPlan`: structured JSON output is still unstable enough to fail the whole generation path and burn retry tokens.
+
+The next checkpoint should focus narrowly on `taskBriefPlan` stability and payload design before judging question quality again. The likely direction is to keep the DSPy-style pyramid, but make `taskBriefPlan` either smaller, more deterministic, or split into a stable adapter boundary that does not require one large, fragile JSON response.
+
+## 2026-06-23 Task Brief Slim Regression Fix
+
+### What Changed
+
+- Slimmed `taskBriefPlan` back into a lightweight task-brief stage after the failed prompt-copy cleanup regression.
+- Removed the heavier planning wording that asked the same stage to handle detailed coverage reasoning, multi-angle evidence planning, and relationship-selection rationale in one large all-unit JSON.
+- Kept the downstream MC/matching draft prompts as the place where detailed question-writing quality rules live.
+
+### Artifacts
+
+- JSON: `runs/20260623-000027-v2-task-brief-slim-regression-fix.json`
+- HTML: `reports/20260623-000027-v2-task-brief-slim-regression-fix.html`
+
+### Result
+
+| Metric | Prompt copy cleanup regression | Task brief slim regression fix |
+| --- | ---: | ---: |
+| Status | failed_generation | failed_generation |
+| Failed stage | `v2_taskBriefPlan` | `v2_unitKnowledgeMap` |
+| Questions | 0 | 0 |
+| Runtime failed attempts | 6 | 3 |
+| Runtime retry attempts | 5 | 2 |
+| Model calls | 8 | 4 |
+| Total tokens | 119,487 | 61,353 |
+
+### Conclusion
+
+The task-brief slimming fixed the immediate failure mode enough that the next run reached earlier-stage diagnosis instead of failing at `taskBriefPlan`. However, it exposed that `unitKnowledgeMap` had the same class of issue: a large all-unit JSON stage with heavy per-micro fields can fail structured output and burn retry tokens before question drafting starts.
+
+## 2026-06-23 Knowledge Map Slim Regression Fix
+
+### What Changed
+
+- Slimmed `unitKnowledgeMap` model output:
+  - `sourceAnchorId` and `sourceSupport` are no longer required model outputs for every micro knowledge point.
+  - `sourceAnchorId` is inherited from the unit where needed downstream.
+  - `sourceSupport` is removed from the main generation path because it is useful for diagnostics but not required for question drafting.
+  - Added tighter schema guidance for short `title`, short `summary`, and 1-3 `suggestedEvidenceAngles`.
+- Kept the DSPy-style pyramid intact:
+  - `reviewPathPlan -> unitKnowledgeMap -> taskBriefPlan -> QuestionBriefAdapter -> scoped draft stages`.
+- Regenerated the prompt-system structure HTML after the prompt/schema changes.
+
+### Artifacts
+
+- JSON: `runs/20260623-000646-v2-knowledge-map-slim-regression-fix.json`
+- HTML: `reports/20260623-000646-v2-knowledge-map-slim-regression-fix.html`
+
+### Result
+
+| Metric | DSPy pyramid scoped MC | Prompt copy cleanup regression | Knowledge map slim regression fix |
+| --- | ---: | ---: | ---: |
+| Status | completed | failed_generation | completed |
+| Units | 6 | 0 | 9 |
+| Questions | 12 | 0 | 21 |
+| Multiple choice | 10 | 0 | 17 |
+| Matching | 2 | 0 | 4 |
+| Diagnostic issues | 0 | 0 | 1 |
+| Runtime failed attempts | 0 | 6 | 3 |
+| Runtime retry attempts | 0 | 5 | 3 |
+| Model calls | not recorded in this README row | 8 | 16 |
+| Total tokens | 66,367 | 119,487 | 120,669 |
+
+Stage notes:
+
+- `reviewPathPlan` failed once, then succeeded.
+- `unitKnowledgeMap` failed twice, then succeeded.
+- `taskBriefPlan` succeeded on the first attempt after slimming.
+- All scoped `multipleChoiceDraftUnitBatch` calls succeeded on the first attempt.
+- `matchingDraftBatch` and `unitCopyBatch` succeeded on the first attempt.
+
+Visible output notes:
+
+- The output recovered broad coverage: 9 units and 21 questions.
+- DMC stayed independent and received matching questions.
+- The run produced 4 matching questions, so matching selection still works after the slim fix.
+- One diagnostic issue remains: `q-unit-4-002` has weak distractors because the correct option is visibly more complete than alternatives.
+
+### Conclusion
+
+The slim fix restored end-to-end generation, but it did not fully solve reliability or cost. The architectural lesson is important: the default path can tolerate detailed ECD-inspired reasoning inside small scoped draft stages, but large all-unit JSON stages (`reviewPathPlan`, `unitKnowledgeMap`) still need either smaller schemas, deterministic adapters, or per-unit/scoped calls. The next stability checkpoint should focus on reducing retries in `reviewPathPlan` and `unitKnowledgeMap`, not on adding more prompt rules.
