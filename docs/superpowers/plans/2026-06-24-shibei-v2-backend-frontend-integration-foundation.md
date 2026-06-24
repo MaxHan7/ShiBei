@@ -364,9 +364,9 @@ const V2_MAX_ARTICLE_CHARS = 6000;
 
 优先级第二，因为它决定用户退出/重启后能否继续看到生成状态。
 
-- [ ] 复用或扩展 `generation_jobs`。
-- [ ] 设计 V2 `clientRequestId/contentHash`。
-- [ ] 实现同一 device + contentHash 的 pending job 去重。
+- [x] 复用并扩展 `generation_jobs`，新增 `idempotency_key`。
+- [x] 设计 V2 `clientRequestId/sourceUrl/contentHash/rawText` 幂等 key 构造。
+- [x] 实现同一 device + idempotency key 的 pending job 去重基础能力。
 - [ ] App 重启后仍能读到当前生成状态。
 - [ ] 测试通过后提交。
 

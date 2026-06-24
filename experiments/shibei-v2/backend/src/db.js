@@ -87,13 +87,22 @@ export async function initDatabase() {
       ADD COLUMN IF NOT EXISTS available_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       ADD COLUMN IF NOT EXISTS locked_by TEXT NOT NULL DEFAULT '',
       ADD COLUMN IF NOT EXISTS locked_until TIMESTAMPTZ,
-      ADD COLUMN IF NOT EXISTS last_error TEXT NOT NULL DEFAULT '';
+      ADD COLUMN IF NOT EXISTS last_error TEXT NOT NULL DEFAULT '',
+      ADD COLUMN IF NOT EXISTS idempotency_key TEXT NOT NULL DEFAULT '';
 
     CREATE INDEX IF NOT EXISTS generation_jobs_queue_idx
       ON generation_jobs(queue_status, available_at, updated_at);
 
     CREATE INDEX IF NOT EXISTS generation_jobs_lock_idx
       ON generation_jobs(queue_status, locked_until);
+
+    CREATE INDEX IF NOT EXISTS generation_jobs_idempotency_idx
+      ON generation_jobs(device_id, idempotency_key, updated_at DESC)
+      WHERE idempotency_key <> '';
+
+    CREATE UNIQUE INDEX IF NOT EXISTS generation_jobs_pending_idempotency_uidx
+      ON generation_jobs(device_id, idempotency_key)
+      WHERE idempotency_key <> '' AND queue_status IN ('queued', 'running');
 
     CREATE TABLE IF NOT EXISTS device_push_tokens (
       device_id TEXT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
@@ -424,16 +433,18 @@ export async function enqueueGenerationJob(deviceId, job) {
        locked_by,
        locked_until,
        last_error,
+       idempotency_key,
        started_at,
        updated_at
      )
-     VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, 'queued', 0, $8, $9, '', NULL, '', NOW(), NOW())
+     VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, 'queued', 0, $8, $9, '', NULL, '', $10, NOW(), NOW())
      ON CONFLICT (id)
      DO UPDATE SET
        status = EXCLUDED.status,
        current_stage = EXCLUDED.current_stage,
        job_type = EXCLUDED.job_type,
        payload_json = EXCLUDED.payload_json,
+       idempotency_key = EXCLUDED.idempotency_key,
        queue_status = 'queued',
        attempt_count = 0,
        max_attempts = EXCLUDED.max_attempts,
@@ -452,10 +463,57 @@ export async function enqueueGenerationJob(deviceId, job) {
       record.jobType,
       JSON.stringify(record.payload),
       record.maxAttempts,
-      record.availableAt
+      record.availableAt,
+      record.idempotencyKey
     ]
   );
   return getGenerationJob(deviceId, record.id);
+}
+
+export async function enqueueIdempotentGenerationJob(deviceId, job) {
+  await ensureDevice(deviceId);
+  const record = normalizeGenerationJobInput(job);
+  if (!record.idempotencyKey) {
+    return {
+      job: await enqueueGenerationJob(deviceId, record),
+      reused: false
+    };
+  }
+
+  const existing = await getPendingGenerationJobByIdempotencyKey(deviceId, record.idempotencyKey);
+  if (existing) {
+    return { job: existing, reused: true };
+  }
+
+  try {
+    return {
+      job: await enqueueGenerationJob(deviceId, record),
+      reused: false
+    };
+  } catch (error) {
+    if (error?.code !== "23505") throw error;
+    const raced = await getPendingGenerationJobByIdempotencyKey(deviceId, record.idempotencyKey);
+    if (raced) return { job: raced, reused: true };
+    throw error;
+  }
+}
+
+export async function getPendingGenerationJobByIdempotencyKey(deviceId, idempotencyKey) {
+  await ensureDevice(deviceId);
+  const key = String(idempotencyKey || "").trim();
+  if (!key) return null;
+
+  const result = await pool.query(
+    `SELECT *
+       FROM generation_jobs
+      WHERE device_id = $1
+        AND idempotency_key = $2
+        AND queue_status IN ('queued', 'running')
+      ORDER BY updated_at DESC
+      LIMIT 1`,
+    [deviceId, key]
+  );
+  return result.rows[0] ? normalizeGenerationJobRow(result.rows[0]) : null;
 }
 
 export async function getGenerationJob(deviceId, jobId) {
@@ -652,6 +710,7 @@ export function normalizeGenerationJobInput(job = {}) {
     currentStage: String(job.currentStage || job.current_stage || job.status || "submitted"),
     jobType: normalizeGenerationJobType(job.jobType || job.job_type),
     payload: job.payload && typeof job.payload === "object" && !Array.isArray(job.payload) ? job.payload : {},
+    idempotencyKey: String(job.idempotencyKey || job.idempotency_key || ""),
     maxAttempts: readPositiveInt(job.maxAttempts ?? job.max_attempts, DEFAULT_GENERATION_JOB_MAX_ATTEMPTS),
     availableAt: job.availableAt || job.available_at || new Date().toISOString()
   };
@@ -667,6 +726,7 @@ export function normalizeGenerationJobRow(row = {}) {
     errorMessage: String(row.error_message || row.errorMessage || ""),
     jobType: normalizeGenerationJobType(row.job_type || row.jobType),
     payload: normalizePayloadJson(row.payload_json ?? row.payloadJson ?? row.payload),
+    idempotencyKey: String(row.idempotency_key || row.idempotencyKey || ""),
     queueStatus: normalizeQueueStatus(row.queue_status || row.queueStatus),
     attemptCount: Number.isFinite(Number(row.attempt_count ?? row.attemptCount)) ? Number(row.attempt_count ?? row.attemptCount) : 0,
     maxAttempts: readPositiveInt(row.max_attempts ?? row.maxAttempts, DEFAULT_GENERATION_JOB_MAX_ATTEMPTS),

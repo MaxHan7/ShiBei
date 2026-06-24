@@ -62,6 +62,26 @@ V2 前端不直接消费内部 prompt stage。后端通过 `generationProgress` 
 
 `progress` 只是粗略 UI 进度，不承诺真实剩余时间。
 
+## 持久化与幂等提交
+
+V2 生成任务采用“job queue + 幂等 key + worker lock”的成熟后台任务模型。它参考的行业共识包括：
+
+- API producer 侧使用 idempotency key，避免网络重试或用户重复点击造成重复任务。
+- Queue consumer 侧假设任务可能被重复投递，handler 必须能安全重入。
+- 使用 visibility timeout / lock timeout，worker 崩溃后任务可以重新变为可处理。
+- 使用有限 `maxAttempts`，超过上限进入 failed / dead-letter 等待人工或用户重试，不无限循环。
+
+当前 V2 落地方式：
+
+- `generation_jobs.idempotency_key` 保存请求幂等键。
+- `generation_jobs_pending_idempotency_uidx` 保证同一 device 下同一 pending key 只能有一个 queued/running job。
+- `enqueueIdempotentGenerationJob()` 先查 pending job；并发 race 时依赖数据库唯一索引兜底，再回查已存在 job。
+- 幂等 key 建议由 `deviceId + jobType + sourceUrl/contentHash` 构造；如果前端能提供 `clientRequestId`，优先使用它。
+- `claimNextGenerationJob()` 已使用 `FOR UPDATE SKIP LOCKED` 和 `locked_until`，相当于本地实现的 visibility timeout。
+- `attempt_count/max_attempts` 继续作为 poison message / failed 终态的基础。
+
+这一步只解决“重复提交和任务恢复”的基础设施，不改变题目质量链路。
+
 ## 失败类型
 
 | code | 含义 | 典型表现 | 默认处理 |

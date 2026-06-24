@@ -11,6 +11,7 @@ test("normalizes enqueued generation job defaults", () => {
   const job = normalizeGenerationJobInput({
     id: "generation-1",
     chapterId: "chapter-1",
+    idempotencyKey: "v2-generation:device-1:create_chapter:text:abc",
     payload: { body: { sourceType: "text", rawText: "hello" } }
   });
 
@@ -19,6 +20,7 @@ test("normalizes enqueued generation job defaults", () => {
   assert.equal(job.status, "submitted");
   assert.equal(job.currentStage, "submitted");
   assert.equal(job.jobType, "create_chapter");
+  assert.equal(job.idempotencyKey, "v2-generation:device-1:create_chapter:text:abc");
   assert.equal(job.maxAttempts, 2);
   assert.deepEqual(job.payload, { body: { sourceType: "text", rawText: "hello" } });
 });
@@ -32,6 +34,7 @@ test("normalizes database queue rows into worker-friendly objects", () => {
     current_stage: "generating_questions",
     job_type: "regenerate_chapter",
     payload_json: { chapterId: "chapter-1" },
+    idempotency_key: "v2-generation:device-1:create_chapter:text:abc",
     queue_status: "running",
     attempt_count: 1,
     max_attempts: 2,
@@ -44,6 +47,7 @@ test("normalizes database queue rows into worker-friendly objects", () => {
   assert.equal(row.chapterId, "chapter-1");
   assert.equal(row.currentStage, "generating_questions");
   assert.equal(row.jobType, "regenerate_chapter");
+  assert.equal(row.idempotencyKey, "v2-generation:device-1:create_chapter:text:abc");
   assert.equal(row.queueStatus, "running");
   assert.equal(row.attemptCount, 1);
   assert.equal(row.lockedBy, "worker-1");
