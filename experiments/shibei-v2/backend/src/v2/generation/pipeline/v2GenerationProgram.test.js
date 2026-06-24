@@ -23,7 +23,7 @@ test("runs the V2 pyramid stages in stable order", async () => {
     "taskBriefPlan",
     "multipleChoiceDraftUnitBatch",
     "multipleChoiceDraftUnitBatch",
-    "matchingDraftBatch",
+    "matchingDraft",
     "unitCopyBatch"
   ]);
 });
@@ -33,7 +33,7 @@ test("calls scoped MC unit batches with only current unit briefs and source cont
     unitKnowledgeMap: [],
     taskBriefPlan: [],
     multipleChoiceDraftUnitBatch: [],
-    matchingDraftBatch: null,
+    matchingDraft: [],
     unitCopyBatch: null
   };
   const promptCaller = async (stage, payload) => {
@@ -46,8 +46,8 @@ test("calls scoped MC unit batches with only current unit briefs and source cont
     if (stage === "multipleChoiceDraftUnitBatch") {
       captured.multipleChoiceDraftUnitBatch.push(payload);
     }
-    if (stage === "matchingDraftBatch") {
-      captured.matchingDraftBatch = payload;
+    if (stage === "matchingDraft") {
+      captured.matchingDraft.push(payload);
     }
     if (stage === "unitCopyBatch") {
       captured.unitCopyBatch = payload;
@@ -86,7 +86,7 @@ test("calls scoped MC unit batches with only current unit briefs and source cont
   const secondMcPayload = captured.multipleChoiceDraftUnitBatch[1];
   const firstMcBrief = firstMcPayload.questionBriefs[0];
   const secondMcBrief = secondMcPayload.questionBriefs[0];
-  const matchingBrief = captured.matchingDraftBatch.units[0].questionBriefs[0];
+  const matchingPlan = captured.matchingDraft[0].practicePlan.questionPlans.find((plan) => plan.type === "matching");
 
   assert.equal(firstMcPayload.unit.id, "unit-01");
   assert.deepEqual(firstMcPayload.questionBriefs.map((brief) => brief.questionPlanId), ["q-001"]);
@@ -101,7 +101,11 @@ test("calls scoped MC unit batches with only current unit briefs and source cont
   assert.equal(secondMcBrief.practiceGoal.target, "理解验证规则让流程可复查");
   assert.deepEqual(secondMcPayload.sourceContext.blocks.map((block) => block.id), ["p-002", "p-003"]);
   assert.doesNotMatch(JSON.stringify(secondMcPayload), /unit-01/);
-  assert.equal(matchingBrief.relationType, "responsibility");
+  assert.equal(captured.matchingDraft.length, 1);
+  assert.equal(captured.matchingDraft[0].unit.id, "unit-01");
+  assert.deepEqual(captured.matchingDraft[0].blocks.map((block) => block.id), ["p-001", "p-002", "p-003"]);
+  assert.equal(matchingPlan.relationType, "responsibility");
+  assert.doesNotMatch(JSON.stringify(captured.matchingDraft[0]), /unit-02/);
   assert.equal(firstMcBrief.fullArticleText, undefined);
   assert.doesNotMatch(JSON.stringify(firstMcPayload.questionBriefs), /rawText/);
   assert.equal(captured.unitCopyBatch.units.length, 2);
@@ -198,35 +202,31 @@ function fixtureOutputForStage(stage, payload) {
       ]
     };
   }
-  if (stage === "matchingDraftBatch") {
+  if (stage === "matchingDraft") {
     return {
-      units: [
+      unitId: payload.unit.id,
+      questions: [
         {
-          unitId: "unit-01",
-          questions: [
-            {
-              id: "q-002",
-              type: "matching",
-              practiceGoalId: "goal-02",
-              relationType: "responsibility",
-              relationGoal: "区分规则、上下文和验证在 Hook 中的职责。",
-              stem: "把 Hook 稳定流程中的元素与职责连起来。",
-              leftItems: [
-                { id: "l1", text: "规则" },
-                { id: "l2", text: "上下文" }
-              ],
-              rightItems: [
-                { id: "r1", text: "约束动作边界" },
-                { id: "r2", text: "提供判断依据" }
-              ],
-              pairs: [
-                { leftId: "l1", rightId: "r1" },
-                { leftId: "l2", rightId: "r2" }
-              ],
-              explanation: "Hook 通过规则和上下文把动作变成可控流程。",
-              sourceAnchorId: "anchor-unit-01"
-            }
-          ]
+          id: "q-002",
+          type: "matching",
+          practiceGoalId: "goal-02",
+          relationType: "responsibility",
+          relationGoal: "区分规则、上下文和验证在 Hook 中的职责。",
+          stem: "把 Hook 稳定流程中的元素与职责连起来。",
+          leftItems: [
+            { id: "l1", text: "规则" },
+            { id: "l2", text: "上下文" }
+          ],
+          rightItems: [
+            { id: "r1", text: "约束动作边界" },
+            { id: "r2", text: "提供判断依据" }
+          ],
+          pairs: [
+            { leftId: "l1", rightId: "r1" },
+            { leftId: "l2", rightId: "r2" }
+          ],
+          explanation: "Hook 通过规则和上下文把动作变成可控流程。",
+          sourceAnchorId: "anchor-unit-01"
         }
       ]
     };

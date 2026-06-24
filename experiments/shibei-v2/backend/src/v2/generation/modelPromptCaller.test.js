@@ -227,7 +227,7 @@ test("uses reduced output budgets for early planning stages", async () => {
   });
 
   assert.equal(calls[0].stage, "v2_reviewPathPlan");
-  assert.equal(calls[0].estimatedOutputTokens, 3200);
+  assert.equal(calls[0].estimatedOutputTokens, 4000);
   assert.equal(calls[1].stage, "v2_unitKnowledgeMap");
   assert.equal(calls[1].estimatedOutputTokens, 1700);
 });
@@ -357,7 +357,7 @@ test("calls the JSON model transport with batched draft schemas and messages", a
   assert.match(calls[1].user, /只生成整章各 unit 的选择题/);
   assert.equal(calls[2].schemaName, "shibei_v2_multiple_choice_draft_unit_batch");
   assert.equal(calls[2].stage, "v2_multipleChoiceDraftUnitBatch");
-  assert.equal(calls[2].estimatedOutputTokens, 1900);
+  assert.equal(calls[2].estimatedOutputTokens, 2400);
   assert.match(calls[2].user, /只为当前 unit 生成选择题小批次/);
   assert.match(calls[2].user, /questionBrief.practiceGoal.target/);
   assert.equal(calls[3].schemaName, "shibei_v2_matching_draft_batch");

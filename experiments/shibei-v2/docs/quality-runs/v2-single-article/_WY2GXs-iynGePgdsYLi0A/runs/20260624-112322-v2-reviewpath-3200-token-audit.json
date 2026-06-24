@@ -1,0 +1,1224 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-24T11:35:42.610Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-reviewpath-3200-token-audit",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11327
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 0,
+    "diagnosticIssueCount": 0,
+    "runtimeFailedAttemptCount": 4,
+    "runtimeRetryAttemptCount": 3,
+    "modelCallCount": 34,
+    "promptTokenCount": 131280,
+    "completionTokenCount": 56777,
+    "totalTokenCount": 188057
+  },
+  "chapter": null,
+  "unitKnowledgeMap": null,
+  "ecdPlanning": null,
+  "sourceContextStats": null,
+  "stageRuntime": {
+    "schemaVersion": "v2_stage_runtime_1",
+    "callCount": 31,
+    "attemptCount": 34,
+    "failedAttemptCount": 4,
+    "retryAttemptCount": 3,
+    "stages": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 23975,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "callCount": 10,
+        "successCallCount": 10,
+        "failedCallCount": 0,
+        "attemptCount": 10,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 108577,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_taskBriefPlan",
+        "callCount": 10,
+        "successCallCount": 10,
+        "failedCallCount": 0,
+        "attemptCount": 10,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 284402,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "callCount": 9,
+        "successCallCount": 9,
+        "failedCallCount": 0,
+        "attemptCount": 10,
+        "retryAttemptCount": 1,
+        "transientFailureCount": 1,
+        "totalDurationMs": 154630,
+        "errorTypes": {
+          "json_parse_error": 1
+        },
+        "lastErrorType": "json_parse_error",
+        "lastErrorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "stage": "v2_matchingDraftBatch",
+        "callCount": 1,
+        "successCallCount": 0,
+        "failedCallCount": 1,
+        "attemptCount": 3,
+        "retryAttemptCount": 2,
+        "transientFailureCount": 3,
+        "totalDurationMs": 168525,
+        "errorTypes": {
+          "json_parse_error": 3
+        },
+        "lastErrorType": "json_parse_error",
+        "lastErrorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      }
+    ],
+    "attempts": [
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 23975,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-2",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 10071,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-3",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 10476,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-4",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 12602,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-5",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 8042,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-6",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 9182,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-7",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 6691,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-8",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 15359,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-9",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 15878,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-10",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 10217,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-11",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 10059,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-12",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 15854,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-13",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 34760,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-14",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 34280,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-15",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 45098,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-16",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 22398,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-17",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 24924,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-18",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 18378,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-19",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 14376,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-20",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 41154,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-21",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 33180,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-22",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 17668,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-23",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 15609,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-24",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 20628,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-25",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 9842,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-26",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 8810,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-27",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 16611,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-28",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 12965,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-29",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 25677,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-29",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 2,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 16570,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-30",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 10250,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "matchingDraftBatch-31",
+        "stage": "v2_matchingDraftBatch",
+        "modelStage": "matchingDraftBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 55200,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "matchingDraftBatch-31",
+        "stage": "v2_matchingDraftBatch",
+        "modelStage": "matchingDraftBatch",
+        "attempt": 2,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 69098,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "matchingDraftBatch-31",
+        "stage": "v2_matchingDraftBatch",
+        "modelStage": "matchingDraftBatch",
+        "attempt": 3,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 44227,
+        "retryable": false,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      }
+    ]
+  },
+  "architectureMetrics": {
+    "schemaVersion": "v2_architecture_metrics_1",
+    "total": {
+      "modelCallCount": 34,
+      "runtimeCallCount": 31,
+      "attemptCount": 34,
+      "retryAttemptCount": 3,
+      "failedAttemptCount": 4,
+      "promptTokens": 131280,
+      "completionTokens": 56777,
+      "totalTokens": 188057,
+      "promptCacheHitTokens": 71808,
+      "promptCacheMissTokens": 59472,
+      "durationMs": 740109
+    },
+    "stages": [
+      {
+        "stage": "v2_matchingDraftBatch",
+        "modelCallCount": 3,
+        "promptTokens": 47715,
+        "completionTokens": 13801,
+        "totalTokens": 61516,
+        "promptCacheHitTokens": 32640,
+        "promptCacheMissTokens": 15075,
+        "estimatedOutputTokens": 13800,
+        "runtimeCallCount": 1,
+        "attemptCount": 3,
+        "retryAttemptCount": 2,
+        "failedAttemptCount": 3,
+        "durationMs": 168525,
+        "errorTypes": {
+          "json_parse_error": 3
+        },
+        "lastErrorType": "json_parse_error",
+        "lastErrorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelCallCount": 10,
+        "promptTokens": 25020,
+        "completionTokens": 11957,
+        "totalTokens": 36977,
+        "promptCacheHitTokens": 10112,
+        "promptCacheMissTokens": 14908,
+        "estimatedOutputTokens": 19000,
+        "runtimeCallCount": 9,
+        "attemptCount": 10,
+        "retryAttemptCount": 1,
+        "failedAttemptCount": 1,
+        "durationMs": 154630,
+        "errorTypes": {
+          "json_parse_error": 1
+        },
+        "lastErrorType": "json_parse_error",
+        "lastErrorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "stage": "v2_reviewPathPlan",
+        "modelCallCount": 1,
+        "promptTokens": 10146,
+        "completionTokens": 2125,
+        "totalTokens": 12271,
+        "promptCacheHitTokens": 10112,
+        "promptCacheMissTokens": 34,
+        "estimatedOutputTokens": 3200,
+        "runtimeCallCount": 1,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 23975,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_taskBriefPlan",
+        "modelCallCount": 10,
+        "promptTokens": 27037,
+        "completionTokens": 20791,
+        "totalTokens": 47828,
+        "promptCacheHitTokens": 10240,
+        "promptCacheMissTokens": 16797,
+        "estimatedOutputTokens": 38000,
+        "runtimeCallCount": 10,
+        "attemptCount": 10,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 284402,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "modelCallCount": 10,
+        "promptTokens": 21362,
+        "completionTokens": 8103,
+        "totalTokens": 29465,
+        "promptCacheHitTokens": 8704,
+        "promptCacheMissTokens": 12658,
+        "estimatedOutputTokens": 17000,
+        "runtimeCallCount": 10,
+        "attemptCount": 10,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 108577,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      }
+    ]
+  },
+  "qualityDiagnostics": [],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 3200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 10146,
+        "completion_tokens": 2125,
+        "total_tokens": 12271,
+        "prompt_cache_hit_tokens": 10112,
+        "prompt_cache_miss_tokens": 34
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 1928,
+        "completion_tokens": 651,
+        "total_tokens": 2579,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 1160
+      }
+    },
+    {
+      "index": 3,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2303,
+        "completion_tokens": 869,
+        "total_tokens": 3172,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 1535
+      }
+    },
+    {
+      "index": 4,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2176,
+        "completion_tokens": 969,
+        "total_tokens": 3145,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 1280
+      }
+    },
+    {
+      "index": 5,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 1856,
+        "completion_tokens": 633,
+        "total_tokens": 2489,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 960
+      }
+    },
+    {
+      "index": 6,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2436,
+        "completion_tokens": 793,
+        "total_tokens": 3229,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 1540
+      }
+    },
+    {
+      "index": 7,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 1776,
+        "completion_tokens": 634,
+        "total_tokens": 2410,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 880
+      }
+    },
+    {
+      "index": 8,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2038,
+        "completion_tokens": 892,
+        "total_tokens": 2930,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 1142
+      }
+    },
+    {
+      "index": 9,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2562,
+        "completion_tokens": 1057,
+        "total_tokens": 3619,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 1666
+      }
+    },
+    {
+      "index": 10,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2006,
+        "completion_tokens": 923,
+        "total_tokens": 2929,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 1110
+      }
+    },
+    {
+      "index": 11,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2281,
+        "completion_tokens": 682,
+        "total_tokens": 2963,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 1385
+      }
+    },
+    {
+      "index": 12,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2393,
+        "completion_tokens": 1656,
+        "total_tokens": 4049,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 1369
+      }
+    },
+    {
+      "index": 13,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2851,
+        "completion_tokens": 3100,
+        "total_tokens": 5951,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 1827
+      }
+    },
+    {
+      "index": 14,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2816,
+        "completion_tokens": 1563,
+        "total_tokens": 4379,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 1792
+      }
+    },
+    {
+      "index": 15,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2392,
+        "completion_tokens": 1844,
+        "total_tokens": 4236,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 1368
+      }
+    },
+    {
+      "index": 16,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 3063,
+        "completion_tokens": 1925,
+        "total_tokens": 4988,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 2039
+      }
+    },
+    {
+      "index": 17,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2294,
+        "completion_tokens": 1789,
+        "total_tokens": 4083,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 1270
+      }
+    },
+    {
+      "index": 18,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2692,
+        "completion_tokens": 1671,
+        "total_tokens": 4363,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 1668
+      }
+    },
+    {
+      "index": 19,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 3148,
+        "completion_tokens": 1219,
+        "total_tokens": 4367,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 2124
+      }
+    },
+    {
+      "index": 20,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2636,
+        "completion_tokens": 3606,
+        "total_tokens": 6242,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 1612
+      }
+    },
+    {
+      "index": 21,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2752,
+        "completion_tokens": 2418,
+        "total_tokens": 5170,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 1728
+      }
+    },
+    {
+      "index": 22,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "estimatedOutputTokens": 1900,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2189,
+        "completion_tokens": 1107,
+        "total_tokens": 3296,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 1293
+      }
+    },
+    {
+      "index": 23,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "estimatedOutputTokens": 1900,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2762,
+        "completion_tokens": 1433,
+        "total_tokens": 4195,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 1866
+      }
+    },
+    {
+      "index": 24,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "estimatedOutputTokens": 1900,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2352,
+        "completion_tokens": 1777,
+        "total_tokens": 4129,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 1456
+      }
+    },
+    {
+      "index": 25,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "estimatedOutputTokens": 1900,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2794,
+        "completion_tokens": 812,
+        "total_tokens": 3606,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 1898
+      }
+    },
+    {
+      "index": 26,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "estimatedOutputTokens": 1900,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 1888,
+        "completion_tokens": 700,
+        "total_tokens": 2588,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 992
+      }
+    },
+    {
+      "index": 27,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "estimatedOutputTokens": 1900,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2334,
+        "completion_tokens": 1144,
+        "total_tokens": 3478,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 1438
+      }
+    },
+    {
+      "index": 28,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "estimatedOutputTokens": 1900,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2891,
+        "completion_tokens": 866,
+        "total_tokens": 3757,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 2123
+      }
+    },
+    {
+      "index": 29,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "estimatedOutputTokens": 1900,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"unitId\": \"unit-9\",\n  \"questions\": [\n    {\n      \"id\": \"q-unit-9-001\",\n      \"type\": \"multiple_choice\",\n      \"practiceGoalId\": \"goal-unit-9-001\",\n      \"stem\": \"挤出效应指的是下列哪种现象？\",\n      \"correctUnderstanding\": \"挤出效应是指外在激励削弱内在动机，用户行为原因从内在转向外在，导致仅在有奖励时才行动。\",\n      \"misconception\": \"认为外在激励总是有效。\",\n      \"distractorRationale\": \"B是常见误区，认为外在激励总是提升积极性；C混淆了依赖与正面效果；D忽视交互作用。\",\n      \"options\": [\n        {\"id\": \"a\", \"text\": \"外在激励导致用户对任务的内在兴趣下降，行为原因从",
+      "usage": {
+        "prompt_tokens": 2505,
+        "completion_tokens": 1900,
+        "total_tokens": 4405,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 1737
+      }
+    },
+    {
+      "index": 30,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "estimatedOutputTokens": 1900,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2505,
+        "completion_tokens": 1350,
+        "total_tokens": 3855,
+        "prompt_cache_hit_tokens": 2432,
+        "prompt_cache_miss_tokens": 73
+      }
+    },
+    {
+      "index": 31,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "estimatedOutputTokens": 1900,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2800,
+        "completion_tokens": 868,
+        "total_tokens": 3668,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 2032
+      }
+    },
+    {
+      "index": 32,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_matchingDraftBatch",
+      "estimatedOutputTokens": 4600,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"units\": [\n    {\n      \"unitId\": \"unit-1\",\n      \"questions\": [\n        {\n          \"id\": \"q-unit-1-001\",\n          \"type\": \"matching\",\n          \"practiceGoalId\": \"goal-unit-1-001\",\n          \"relationType\": \"responsibility\",\n          \"relationGoal\": \"将游戏化的关键人物与其贡献对应起来\",\n          \"stem\": \"匹配游戏化的提出者和定义者与他们的核心贡献\",\n          \"leftItems\": [\n            { \"id\": \"l1\", \"text\": \"尼克·佩林\" },\n            { \"id\": \"l2\", \"text\": \"塞巴斯蒂安·德特丁\" },\n            { \"id\": \"l3\", \"text\": \"凯文·韦巴赫\" }\n          ],\n          \"rightItems\": [\n            { \"id\": \"r1\", \"text\": \"2002年首次提出“游戏化”术语\" },\n            { \"id\": \"r2\", \"text\": \"将游戏化界定为“在非游戏语境中使用游戏设计元素”\" },\n            { \"id\": \"r3\", \"text\": \"强调以创造“乐趣”的方式服务现实目标\" }\n          ],\n          \"pairs\": [\n            { \"leftId\": \"l1\", \"rightId\": \"r1\" },\n            { \"leftId\": \"l2\", \"rightId\": \"r2\" },\n            { \"leftId\": \"l3\", \"rightId\": \"r3\" }\n          ],\n          \"explanation\": \"佩林在2002年首次提出“游戏化”；德特丁给出了学界最常引用的定义，即“在非游戏语境中使用游戏设计元素”；韦巴赫则指出了游戏化的关键在于以创造乐趣服务现实目标。注意：德特丁的定义与韦巴赫的视角不同，但互补，不要混淆。\",\n          \"sourceAnchorId\": \"anchor-unit-1\"\n        }\n      ]\n    },\n    {\n      \"unitId\": \"unit-2\",\n      \"questions\": [\n        {\n          \"id\": \"q-unit-2-002\",\n          \"type\": \"matching\",\n          \"practiceGoalId\": \"goal-unit-2-002\",\n          \"relationType\": \"process_signal\",\n          \"relationGoal\": \"将心流产生的条件与它们的作用匹配起来\",\n          \"stem\": \"匹配心流产生的每个条件与其在沉浸体验中的作用\",\n          \"leftItems\": [\n            { \"id\": \"l1\", \"text\": \"能力与挑战动态平衡\" },\n            { \"id\": \"l2\", \"text\": \"清晰的目标\" },\n            { \"id\": \"l3\", \"text\": \"即时反馈\" }\n          ],\n          \"rightItems\": [\n            { \"id\": \"r1\", \"text\": \"避免焦虑或无聊，维持沉浸状态\" },\n            { \"id\": \"r2\", \"text\": \"提供方向感，知道下一步做什么\" },\n            { \"id\": \"r3\", \"text\": \"让用户及时了解进展情况\" }\n          ],\n          \"pairs\": [\n            { \"leftId\": \"l1\", \"rightId\": \"r1\" },\n            { \"leftId\": \"l2\", \"rightId\": \"r2\" },\n            { \"leftId\": \"l3\", \"rightId\": \"r3\" }\n          ],\n          \"explanation\": \"心流需要能力与挑战的平衡（避免焦虑或无聊）、清晰的目标（提供方向）以及即时反馈（动态调整行动）。三者缺一不可，不能只强调高挑战，平衡才是关键。\",\n          \"sourceAnchorId\": \"anchor-unit-2\"\n        },\n        {\n          \"id\": \"q-unit-2-003\",\n          \"type\": \"matching\",\n          \"practiceGoalId\": \"goal-unit-2-003\",\n          \"relationType\": \"boundary\",\n          \"relationGoal\": \"将实用质量与享乐质量分别对应到它们的核心关注点\",\n          \"stem\": \"区分实用质量与享乐质量的关注维度\",\n          \"leftItems\": [\n            { \"id\": \"l1\", \"text\": \"实用质量\" },\n            { \"id\": \"l2\", \"text\": \"享乐质量\" }\n          ],\n          \"rightItems\": [\n            { \"id\": \"r1\", \"text\": \"关注任务完成的效率、可控性与可理解性\" },\n            { \"id\": \"r2\", \"text\": \"关注身份认同、审美愉悦与深层心理需求\" }\n          ],\n          \"pairs\": [\n            { \"leftId\": \"l1\", \"rightId\": \"r1\" },\n            { \"leftId\": \"l2\", \"rightId\": \"r2\" }\n          ],\n          \"explanation\": \"实用质量强调产品对“完成目标”的支持，享乐质量则关注“成为目标”的体验，如身份认同与意义。享乐质量并非次要，而是与实用质量互补，共同构成完整的用户体验。\",\n          \"sourceAnchorId\": \"anchor-unit-2\"\n        }\n      ]\n    },\n    {\n      \"unitId\": \"unit-3\",\n      \"questions\": [\n        {\n          \"id\": \"q-unit-3-001\",\n          \"type\": \"matching\",\n          \"practiceGoalId\": \"goal-unit-3-001\",\n          \"relationType\": \"responsibility\",\n          \"relationGoal\": \"将DMC模型的三层与其各自的职责匹配起来\",\n          \"stem\": \"匹配DMC模型中每层金字塔结构与其核心作用\",\n          \"leftItems\": [\n            { \"id\": \"l1\", \"text\": \"动力层\" },\n            { \"id\": \"l2\", \"text\": \"机制层\" },\n            { \"id\": \"l3\", \"text\": \"组件层\" }\n          ],\n          \"rightItems\": [\n            { \"id\": \"r1\", \"text\": \"界定系统整体体验，回答“用户最终体验到什么”\" },\n            { \"id\": \"r2\", \"text\": \"组织用户行为与参与循环，编排持续运转的操作流程\" },\n            { \"id\": \"r3\", \"text\": \"落实为可感知的界面元素与功能模块\" }\n          ],\n          \"pairs\": [\n            { \"leftId\": \"l1\", \"rightId\": \"r1\" },\n            { \"leftId\": \"l2\", \"rightId\": \"r2\" },\n            { \"leftId\": \"l3\", \"rightId\": \"r3\" }\n          ],\n          \"explanation\": \"动力层决定体验目标与方向，机制层构成可重复的参与循环，组件层将前两者转化为可视交互元素。三者是递进关系，组件服务于机制，机制服务于动力，不可并列看待。\",\n          \"sourceAnchorId\": \"anchor-unit-3\"\n        },\n        {\n          ",
+      "usage": {
+        "prompt_tokens": 15905,
+        "completion_tokens": 4600,
+        "total_tokens": 20505,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 15009
+      }
+    },
+    {
+      "index": 33,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_matchingDraftBatch",
+      "estimatedOutputTokens": 4600,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"units\": [\n    {\n      \"unitId\": \"unit-1\",\n      \"questions\": [\n        {\n          \"id\": \"q-unit-1-001\",\n          \"type\": \"matching\",\n          \"practiceGoalId\": \"goal-unit-1-001\",\n          \"relationType\": \"responsibility\",\n          \"relationGoal\": \"匹配游戏化概念的提出者与各自的经典表述\",\n          \"stem\": \"请将游戏化领域的提出者与他们的核心贡献逐一对应\",\n          \"leftItems\": [\n            {\"id\": \"l1\", \"text\": \"尼克·佩林 (Nick Pelling)\"},\n            {\"id\": \"l2\", \"text\": \"塞巴斯蒂安·德特丁 (Sebastian Deterding)\"},\n            {\"id\": \"l3\", \"text\": \"凯文·韦巴赫 (Kevin Werbach)\"}\n          ],\n          \"rightItems\": [\n            {\"id\": \"r1\", \"text\": \"2002年首次提出'游戏化'这一术语\"},\n            {\"id\": \"r2\", \"text\": \"界定为'在非游戏语境中使用游戏设计元素'\"},\n            {\"id\": \"r3\", \"text\": \"强调以创造'乐趣'的方式服务现实目标\"}\n          ],\n          \"pairs\": [\n            {\"leftId\": \"l1\", \"rightId\": \"r1\"},\n            {\"leftId\": \"l2\", \"rightId\": \"r2\"},\n            {\"leftId\": \"l3\", \"rightId\": \"r3\"}\n          ],\n          \"explanation\": \"佩林是游戏化概念的提出者，德特丁给出了最常引用的定义，韦巴赫则强调了乐趣与目标的关联。注意区分提出者与定义者，避免将韦巴赫的'乐趣目标'与德特丁的'设计元素'混淆。\",\n          \"sourceAnchorId\": \"anchor-unit-1\"\n        }\n      ]\n    },\n    {\n      \"unitId\": \"unit-2\",\n      \"questions\": [\n        {\n          \"id\": \"q-unit-2-002\",\n          \"type\": \"matching\",\n          \"practiceGoalId\": \"goal-unit-2-002\",\n          \"relationType\": \"process_signal\",\n          \"relationGoal\": \"匹配心流产生的条件与对应的描述\",\n          \"stem\": \"心流状态需要哪些条件同时满足？将条件与说明匹配\",\n          \"leftItems\": [\n            {\"id\": \"l1\", \"text\": \"能力与挑战动态平衡\"},\n            {\"id\": \"l2\", \"text\": \"清晰的目标\"},\n            {\"id\": \"l3\", \"text\": \"即时反馈\"}\n          ],\n          \"rightItems\": [\n            {\"id\": \"r1\", \"text\": \"任务难度随技能增长而提升，保持张力\"},\n            {\"id\": \"r2\", \"text\": \"用户明确知道下一步该做什么\"},\n            {\"id\": \"r3\", \"text\": \"操作后迅速获得系统回应\"},\n            {\"id\": \"r4\", \"text\": \"（干扰项）任务本身具有趣味性\"}\n          ],\n          \"pairs\": [\n            {\"leftId\": \"l1\", \"rightId\": \"r1\"},\n            {\"leftId\": \"l2\", \"rightId\": \"r2\"},\n            {\"leftId\": \"l3\", \"rightId\": \"r3\"}\n          ],\n          \"explanation\": \"心流依赖能力与挑战的匹配、清晰的目标和即时反馈三个核心条件，缺一不可。注意不要将'趣味性'本身误认为是心流条件，趣味是心流的结果而非原因。干扰项r4不匹配任何左侧，确保正确匹配。\",\n          \"sourceAnchorId\": \"anchor-unit-2\"\n        },\n        {\n          \"id\": \"q-unit-2-003\",\n          \"type\": \"matching\",\n          \"practiceGoalId\": \"goal-unit-2-003\",\n          \"relationType\": \"boundary\",\n          \"relationGoal\": \"区分实用质量与享乐质量的关注焦点\",\n          \"stem\": \"将质量类型与其对应的关注点相匹配，区分实用与享乐\",\n          \"leftItems\": [\n            {\"id\": \"l1\", \"text\": \"实用质量 (Pragmatic Quality)\"},\n            {\"id\": \"l2\", \"text\": \"享乐质量 (Hedonic Quality)\"}\n          ],\n          \"rightItems\": [\n            {\"id\": \"r1\", \"text\": \"关注目标完成、效率与可控性\"},\n            {\"id\": \"r2\", \"text\": \"关注身份认同、审美与自我表达\"}\n          ],\n          \"pairs\": [\n            {\"leftId\": \"l1\", \"rightId\": \"r1\"},\n            {\"leftId\": \"l2\", \"rightId\": \"r2\"}\n          ],\n          \"explanation\": \"实用质量围绕'完成目标'（Do-goals），强调效率和任务达成；享乐质量围绕'成为目标'（Be-goals），涉及深层心理需求。注意不要将两者对立，好的体验需要平衡。\",\n          \"sourceAnchorId\": \"anchor-unit-2\"\n        }\n      ]\n    },\n    {\n      \"unitId\": \"unit-3\",\n      \"questions\": [\n        {\n          \"id\": \"q-unit-3-001\",\n          \"type\": \"matching\",\n          \"practiceGoalId\": \"goal-unit-3-001\",\n          \"relationType\": \"responsibility\",\n          \"relationGoal\": \"匹配DMC模型各层的核心作用\",\n          \"stem\": \"DMC模型三层金字塔中，每层承担什么角色？将层级与作用对应\",\n          \"leftItems\": [\n            {\"id\": \"l1\", \"text\": \"动力层 (Dynamics)\"},\n            {\"id\": \"l2\", \"text\": \"机制层 (Mechanics)\"},\n            {\"id\": \"l3\", \"text\": \"组件层 (Components)\"}\n          ],\n          \"rightItems\": [\n            {\"id\": \"r1\", \"text\": \"界定系统整体体验，回答'用户最终体验到什么'\"},\n            {\"id\": \"r2\", \"text\": \"组织用户行为与参与循环，把操作编排成可重复的参与\"},\n            {\"id\": \"r3\", \"text\": \"提供用户直接感知的界面元素，把抽象目标转化为具体功能\"}\n          ],\n          \"pairs\": [\n            {\"leftId\": \"l1\", \"rightId\": \"r1\"},\n            {\"leftId\": \"l2\", \"rightId\": \"r2\"},\n            {\"leftId\": \"l3\", \"rightId\": \"r3\"}\n          ],\n          \"explanation\": \"DMC模型是递进关系：动力层驱动机制层，机制层落实为组件层。注意不",
+      "usage": {
+        "prompt_tokens": 15905,
+        "completion_tokens": 4601,
+        "total_tokens": 20506,
+        "prompt_cache_hit_tokens": 15872,
+        "prompt_cache_miss_tokens": 33
+      }
+    },
+    {
+      "index": 34,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_matchingDraftBatch",
+      "estimatedOutputTokens": 4600,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"units\": [\n    {\n      \"unitId\": \"unit-1\",\n      \"questions\": [\n        {\n          \"id\": \"q-unit-1-001\",\n          \"type\": \"matching\",\n          \"practiceGoalId\": \"goal-unit-1-001\",\n          \"relationType\": \"responsibility\",\n          \"relationGoal\": \"匹配游戏化概念提出者与核心贡献\",\n          \"stem\": \"请将左侧的游戏化相关人物与右侧他们的核心贡献配对\",\n          \"leftItems\": [\n            {\"id\": \"left-1\", \"text\": \"尼克·佩林\"},\n            {\"id\": \"left-2\", \"text\": \"塞巴斯蒂安·德特丁\"},\n            {\"id\": \"left-3\", \"text\": \"凯文·韦巴赫\"}\n          ],\n          \"rightItems\": [\n            {\"id\": \"right-1\", \"text\": \"2002年首次提出“游戏化”术语\"},\n            {\"id\": \"right-2\", \"text\": \"将游戏化界定为“在非游戏语境中使用游戏设计元素”\"},\n            {\"id\": \"right-3\", \"text\": \"强调游戏化以创造乐趣服务现实目标\"}\n          ],\n          \"pairs\": [\n            {\"leftId\": \"left-1\", \"rightId\": \"right-1\"},\n            {\"leftId\": \"left-2\", \"rightId\": \"right-2\"},\n            {\"leftId\": \"left-3\", \"rightId\": \"right-3\"}\n          ],\n          \"explanation\": \"这三组配对明确了游戏化概念发展中的关键人物及其核心观点。注意：佩林是概念提出者，德特丁给出了被广泛引用的定义，而韦巴赫则突出了乐趣与服务目标的关系。容易混淆的是将德特丁的定义与韦巴赫的观点互换，但定义强调“非游戏语境”和“游戏设计元素”，而韦巴赫侧重“乐趣”与“服务现实目标”。\",\n          \"sourceAnchorId\": \"anchor-unit-1\"\n        }\n      ]\n    },\n    {\n      \"unitId\": \"unit-2\",\n      \"questions\": [\n        {\n          \"id\": \"q-unit-2-002\",\n          \"type\": \"matching\",\n          \"practiceGoalId\": \"goal-unit-2-002\",\n          \"relationType\": \"process_signal\",\n          \"relationGoal\": \"匹配心流体验的产生条件及其结果\",\n          \"stem\": \"请将左侧的心流条件与右侧对应的体验结果配对\",\n          \"leftItems\": [\n            {\"id\": \"left-1\", \"text\": \"能力与挑战动态平衡\"},\n            {\"id\": \"left-2\", \"text\": \"清晰目标与即时反馈\"}\n          ],\n          \"rightItems\": [\n            {\"id\": \"right-1\", \"text\": \"高度专注且愉悦的沉浸状态\"},\n            {\"id\": \"right-2\", \"text\": \"将挑战视为内在回报，持续投入\"}\n          ],\n          \"pairs\": [\n            {\"leftId\": \"left-1\", \"rightId\": \"right-1\"},\n            {\"leftId\": \"left-2\", \"rightId\": \"right-2\"}\n          ],\n          \"explanation\": \"心流理论中，能力与挑战的平衡直接带来沉浸专注，而清晰目标与即时反馈则使用户感受到内在奖励，从而愿意持续。常见误解是认为只需高挑战就能产生心流，但平衡才是关键。\",\n          \"sourceAnchorId\": \"anchor-unit-2\"\n        },\n        {\n          \"id\": \"q-unit-2-003\",\n          \"type\": \"matching\",\n          \"practiceGoalId\": \"goal-unit-2-003\",\n          \"relationType\": \"boundary\",\n          \"relationGoal\": \"区分实用质量与享乐质量的关注重点\",\n          \"stem\": \"请将左侧的质量类型与右侧对应的关注点配对\",\n          \"leftItems\": [\n            {\"id\": \"left-1\", \"text\": \"实用质量\"},\n            {\"id\": \"left-2\", \"text\": \"享乐质量\"}\n          ],\n          \"rightItems\": [\n            {\"id\": \"right-1\", \"text\": \"可控性、效率、任务完成\"},\n            {\"id\": \"right-2\", \"text\": \"身份认同、审美愉悦、自我表达\"}\n          ],\n          \"pairs\": [\n            {\"leftId\": \"left-1\", \"rightId\": \"right-1\"},\n            {\"leftId\": \"left-2\", \"rightId\": \"right-2\"}\n          ],\n          \"explanation\": \"实用质量聚焦于工具性目标（如效率），而享乐质量则关乎心理需求（如身份与审美）。常见误区是认为享乐质量次要，但二者在持续性体验中同等重要。\",\n          \"sourceAnchorId\": \"anchor-unit-2\"\n        }\n      ]\n    },\n    {\n      \"unitId\": \"unit-3\",\n      \"questions\": [\n        {\n          \"id\": \"q-unit-3-001\",\n          \"type\": \"matching\",\n          \"practiceGoalId\": \"goal-unit-3-001\",\n          \"relationType\": \"responsibility\",\n          \"relationGoal\": \"匹配DMC模型各层的作用\",\n          \"stem\": \"请将左侧的DMC层级与右侧对应的核心作用配对\",\n          \"leftItems\": [\n            {\"id\": \"left-1\", \"text\": \"动力层\"},\n            {\"id\": \"left-2\", \"text\": \"机制层\"},\n            {\"id\": \"left-3\", \"text\": \"组件层\"}\n          ],\n          \"rightItems\": [\n            {\"id\": \"right-1\", \"text\": \"规定体验目标与方向\"},\n            {\"id\": \"right-2\", \"text\": \"组织行为规则与参与循环\"},\n            {\"id\": \"right-3\", \"text\": \"提供用户直接感知的具体功能\"}\n          ],\n          \"pairs\": [\n            {\"leftId\": \"left-1\", \"rightId\": \"right-1\"},\n            {\"leftId\": \"left-2\", \"rightId\": \"right-2\"},\n            {\"leftId\": \"left-3\", \"rightId\": \"right-3\"}\n          ],\n          \"explanation\": \"DMC模型是金字塔结构：动力层定义体验目标，机制层通过规则驱动参与，组件层落实为界面元素。注意三层是递进关系，而非并列，动力层指导机制层，机制层指导组件层。\",\n          \"sourceAnchorId\": \"anchor-unit-3\"\n        },\n        {\n          \"id\": \"q-unit-3-002\",\n          \"type\": \"m",
+      "usage": {
+        "prompt_tokens": 15905,
+        "completion_tokens": 4600,
+        "total_tokens": 20505,
+        "prompt_cache_hit_tokens": 15872,
+        "prompt_cache_miss_tokens": 33
+      }
+    }
+  ],
+  "failure": {
+    "failedStage": "v2_matchingDraftBatch",
+    "failureReason": "模型返回内容不是可解析 JSON，请重试。",
+    "retryable": true,
+    "modelStage": "matchingDraftBatch",
+    "retryAttempts": 3,
+    "issues": [],
+    "errors": [],
+    "diagnostics": []
+  }
+}

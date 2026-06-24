@@ -6,7 +6,6 @@ import { createV2ModelPromptCaller } from "../modelPromptCaller.js";
 import { validateQualityJudgeOutput } from "../prompts/qualityJudge.js";
 import { validateReviewPathPlanOutput } from "../prompts/reviewPathPlan.js";
 import { validateSourceMapOutput } from "../prompts/sourceMap.js";
-import { validateMatchingDraftBatchOutput } from "../prompts/matchingDraftBatch.js";
 import { validateMultipleChoiceDraftUnitBatchOutput } from "../prompts/multipleChoiceDraftUnitBatch.js";
 import {
   getTaskBriefForUnit,
@@ -46,7 +45,7 @@ export const V2_GENERATION_STAGES = [
   "unitKnowledgeMap",
   "taskBriefPlan",
   "multipleChoiceDraftUnitBatch",
-  "matchingDraftBatch",
+  "matchingDraft",
   "unitCopyBatch",
   "qualityJudge"
 ];
@@ -102,11 +101,6 @@ export async function runV2GenerationProgram(
   const planSourceContext = buildPlanSourceContext(sourceMap, plan);
   const unitIds = new Set(plan.units.map((unit) => unit.id));
   const sourceAnchorIds = new Set(plan.units.map((unit) => unit.sourceAnchor?.id).filter(Boolean));
-  const unitSourceAnchorIds = new Map(
-    plan.units
-      .map((unit) => [unit.id, unit.sourceAnchor?.id])
-      .filter(([, sourceAnchorId]) => Boolean(sourceAnchorId))
-  );
   const unitSourceContexts = buildUnitSourceContexts({ sourceMap, plan });
   const unitKnowledgeMap = mergeUnitKnowledgeMapOutputs(
     await mapWithConcurrency(plan.units, unitConcurrency, async (plannedUnit) => {
@@ -212,26 +206,39 @@ export async function runV2GenerationProgram(
       }
     )
   };
-  const matchingDraftBatch = matchingDraftInputs.length > 0
-    ? await callAndValidate(
-        activePromptCaller,
-        "matchingDraftBatch",
-        {
-          article,
-          source: sourceMap.source,
-          units: matchingDraftInputs
-        },
-        (output) =>
-          validateMatchingDraftBatchOutput(output, {
-            practicePlansByUnit,
-            sourceAnchorByUnit: unitSourceAnchorIds
-          }),
-        {
-          normalize: (output) =>
-            normalizeTypedQuestionDraftBatchIds(output, unitDraftInputs, "matching")
-        }
-      )
-    : { units: [] };
+  const matchingDraftBatch = {
+    units: await mapWithConcurrency(
+      matchingDraftInputs,
+      unitConcurrency,
+      async (input) =>
+        callAndValidate(
+          activePromptCaller,
+          "matchingDraft",
+          {
+            article,
+            source: input.sourceContext.source,
+            blocks: input.sourceContext.blocks,
+            sourceContextNote: input.sourceContext.sourceContextNote,
+            unit: input.unit,
+            practicePlan: input.practicePlan
+          },
+          (output) =>
+            validateMatchingDraftOutput(output, {
+              unitId: input.unit.id,
+              plans: input.practicePlan.questionPlans,
+              sourceAnchorId: input.unit.sourceAnchor?.id
+            }),
+          {
+            normalize: (output) =>
+              normalizeDraftQuestionIds(
+                output,
+                input.practicePlan.questionPlans,
+                "matching"
+              )
+          }
+        )
+    )
+  };
   const questionDraftsByUnit = mergeTypedQuestionDrafts({
     unitDraftInputs,
     multipleChoiceDraftBatch,

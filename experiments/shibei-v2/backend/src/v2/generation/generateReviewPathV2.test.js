@@ -131,7 +131,7 @@ test("task briefs drive downstream practice plans and suppress model-invented ma
 });
 
 test("hydrates compact task brief plans before downstream draft stages", async () => {
-  const captured = { multipleChoiceDraftUnitBatch: null, matchingDraftBatch: null };
+  const captured = { multipleChoiceDraftUnitBatch: null, matchingDraft: null };
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {
       if (stage === "taskBriefPlan") {
@@ -142,8 +142,8 @@ test("hydrates compact task brief plans before downstream draft stages", async (
       if (stage === "multipleChoiceDraftUnitBatch") {
         captured.multipleChoiceDraftUnitBatch = payload;
       }
-      if (stage === "matchingDraftBatch") {
-        captured.matchingDraftBatch = payload;
+      if (stage === "matchingDraft") {
+        captured.matchingDraft = payload;
       }
       return happyPathPromptCaller(stage, payload);
     },
@@ -155,11 +155,11 @@ test("hydrates compact task brief plans before downstream draft stages", async (
     ["goal-unit-01-001:anchor-unit-01"]
   );
   assert.deepEqual(
-    captured.matchingDraftBatch.units[0].practicePlan.practiceGoals.map((goal) => `${goal.id}:${goal.sourceAnchorId}`),
+    captured.matchingDraft.practicePlan.practiceGoals.map((goal) => `${goal.id}:${goal.sourceAnchorId}`),
     ["goal-unit-01-002:anchor-unit-01"]
   );
   assert.deepEqual(
-    captured.matchingDraftBatch.units[0].practicePlan.questionPlans.map((plan) => `${plan.id}:${plan.practiceGoalId}:${plan.sourceAnchorId}`),
+    captured.matchingDraft.practicePlan.questionPlans.map((plan) => `${plan.id}:${plan.practiceGoalId}:${plan.sourceAnchorId}`),
     ["q-unit-01-002:goal-unit-01-002:anchor-unit-01"]
   );
   assert.deepEqual(
@@ -173,7 +173,7 @@ test("passes only compact source windows into per-unit stages", async () => {
     unitKnowledgeMap: [],
     taskBriefPlan: [],
     multipleChoiceDraftUnitBatch: [],
-    matchingDraftBatch: null,
+    matchingDraft: null,
     unitCopyBatch: null
   };
   const longBlocks = Array.from({ length: 8 }, (_, index) => ({
@@ -203,8 +203,8 @@ test("passes only compact source windows into per-unit stages", async () => {
       captured.multipleChoiceDraftUnitBatch.push(payload);
       return happyPathPromptCaller(stage, payload);
     }
-    if (stage === "matchingDraftBatch") {
-      captured.matchingDraftBatch = payload;
+    if (stage === "matchingDraft") {
+      captured.matchingDraft = payload;
       return happyPathPromptCaller(stage, payload);
     }
     if (stage === "unitCopyBatch") {
@@ -280,7 +280,7 @@ test("passes only compact source windows into per-unit stages", async () => {
 
   assert.deepEqual(captured.multipleChoiceDraftUnitBatch[0].sourceContext.blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
   assert.deepEqual(captured.multipleChoiceDraftUnitBatch[1].sourceContext.blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
-  assert.equal(captured.matchingDraftBatch, null);
+  assert.equal(captured.matchingDraft, null);
   assert.deepEqual(
     captured.unitCopyBatch.units.map((input) => input.unit.id),
     ["unit-01", "unit-02"]
@@ -386,17 +386,17 @@ test("skips multipleChoiceDraftUnitBatch when task brief selects only matching",
   });
 
   assert.equal(stages.includes("multipleChoiceDraft"), false);
-  assert.equal(stages.includes("matchingDraft"), false);
+  assert.equal(stages.includes("matchingDraft"), true);
   assert.equal(stages.includes("questionDraftBatch"), false);
   assert.equal(stages.includes("multipleChoiceDraftUnitBatch"), false);
-  assert.equal(stages.includes("matchingDraftBatch"), true);
+  assert.equal(stages.includes("matchingDraftBatch"), false);
   assert.deepEqual(
     reviewPath.units[0].questions.map((question) => `${question.id}:${question.type}`),
     ["q-002:matching"]
   );
 });
 
-test("skips matchingDraftBatch when task brief does not select matching", async () => {
+test("skips matchingDraft when task brief does not select matching", async () => {
   const stages = [];
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {

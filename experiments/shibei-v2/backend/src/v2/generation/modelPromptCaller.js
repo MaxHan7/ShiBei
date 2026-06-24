@@ -71,7 +71,7 @@ const STAGE_SCHEMAS = {
   reviewPathPlan: {
     schemaName: REVIEW_PATH_PLAN_PROMPT_SCHEMA_NAME,
     schema: REVIEW_PATH_PLAN_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 3200
+    estimatedOutputTokens: 4000
   },
   unitKnowledgeMap: {
     schemaName: UNIT_KNOWLEDGE_MAP_PROMPT_SCHEMA_NAME,
@@ -101,7 +101,7 @@ const STAGE_SCHEMAS = {
   multipleChoiceDraftUnitBatch: {
     schemaName: MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_PROMPT_SCHEMA_NAME,
     schema: MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 1900
+    estimatedOutputTokens: 2400
   },
   matchingDraftBatch: {
     schemaName: MATCHING_DRAFT_BATCH_PROMPT_SCHEMA_NAME,

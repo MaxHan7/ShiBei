@@ -1809,3 +1809,110 @@ Keep the corrected budget guardrail as a small stability-oriented change, not as
 - Output-budget tuning alone will not materially solve cost; structural scoping and payload design matter more.
 
 Next optimization should avoid more broad budget cuts. Prefer a targeted input-shape or stage-structure checkpoint with a rollback point.
+
+## 2026-06-24 ReviewPath Budget And Scoped Matching Checkpoint
+
+### Hypothesis
+
+The `v2-meta-mode-split-rerun` completed, but earlier failure data showed `reviewPathPlan` could be truncated at its reduced output budget. This checkpoint tested two stability fixes without changing ECD task selection or question-quality rules:
+
+- slightly raise `reviewPathPlan` output room;
+- if the rerun exposes another oversized stage, prefer scoped structure over simply raising a whole-chapter batch budget.
+
+### First Attempt: `reviewPathPlan` 3200
+
+Artifacts:
+
+- JSON: `runs/20260624-112322-v2-reviewpath-3200-token-audit.json`
+- HTML: `reports/20260624-112322-v2-reviewpath-3200-token-audit.html`
+
+Result:
+
+- `reviewPathPlan` succeeded on the first attempt, so `2600 -> 3200` fixed the immediate previous truncation.
+- The run then failed at `matchingDraftBatch`.
+- All three `matchingDraftBatch` attempts produced valid-looking JSON starts but hit the `4600` completion cap and were truncated before the object closed.
+
+Conclusion: the new bottleneck was not `reviewPathPlan`; it was the whole-chapter matching batch. Raising the whole-chapter matching budget would make a large JSON larger, so the safer structural fix is to generate matching questions per unit, mirroring the scoped multiple-choice path.
+
+### Scoped Matching Attempt
+
+Artifacts:
+
+- JSON: `runs/20260624-114144-v2-scoped-matching-token-audit.json`
+- HTML: `reports/20260624-114144-v2-scoped-matching-token-audit.html`
+
+Result:
+
+| Metric | Previous completed `v2-meta-mode-split-rerun` | Scoped matching attempt |
+| --- | ---: | ---: |
+| Status | completed | completed |
+| Units | 7 | 8 |
+| Questions | 22 | 23 |
+| Multiple choice | 16 | 17 |
+| Matching | 6 | 6 |
+| Runtime failed attempts | 2 | 2 |
+| Runtime retry attempts | 2 | 2 |
+| Model calls | 26 | 34 |
+| Total tokens | 119,687 | 137,820 |
+
+Important observation:
+
+- `matchingDraft` ran as six small unit-scoped calls and all succeeded.
+- Remaining retries were in `reviewPathPlan` and `multipleChoiceDraftUnitBatch`, both caused by completion output hitting the stage budget.
+
+### Final Budget Rerun
+
+Artifacts:
+
+- JSON: `runs/20260624-114942-v2-scoped-matching-budget-rerun.json`
+- HTML: `reports/20260624-114942-v2-scoped-matching-budget-rerun.html`
+
+Changes:
+
+- `reviewPathPlan` output budget: `3200 -> 4000`.
+- `multipleChoiceDraftUnitBatch` output budget: `1900 -> 2400`.
+- `matchingDraftBatch` orchestration replaced by per-unit `matchingDraft`; `generationMeta.matchingDraftBatch` remains the merged debug artifact.
+
+Result:
+
+| Metric | Final budget rerun |
+| --- | ---: |
+| Status | completed |
+| Units | 7 |
+| Questions | 20 |
+| Multiple choice | 12 |
+| Matching | 8 |
+| Runtime failed attempts | 1 |
+| Runtime retry attempts | 1 |
+| Model calls | 30 |
+| Prompt tokens | 80,258 |
+| Completion tokens | 36,091 |
+| Total tokens | 116,349 |
+| Diagnostic issue count | 1 |
+
+Stage token summary:
+
+| Stage | Calls | Total tokens | Notes |
+| --- | ---: | ---: | --- |
+| `taskBriefPlan` | 7 | 30,581 | Still the largest cost center; no retries. |
+| `unitKnowledgeMap` | 8 attempts for 7 calls | 25,628 | One provider `empty_structured_text` retry, then success. |
+| `multipleChoiceDraftUnitBatch` | 7 | 23,628 | No retries after the budget increase. |
+| `matchingDraft` | 6 | 20,562 | Scoped matching succeeded without JSON truncation. |
+| `reviewPathPlan` | 1 | 12,230 | No retry after the budget increase. |
+| `unitCopyBatch` | 1 | 3,720 | Small and stable. |
+
+### Conclusion
+
+Keep the scoped matching change and the two budget adjustments. This checkpoint confirms:
+
+- `reviewPathPlan 4000` is safer than `3200` for this article.
+- `multipleChoiceDraftUnitBatch 2400` avoids the observed unit-level truncation without changing question rules.
+- Whole-chapter `matchingDraftBatch` is structurally risky when many matching tasks are selected. Per-unit `matchingDraft` is a better fit for the DSPy-style pyramid workflow and keeps JSON outputs small.
+
+The remaining retry was a provider-side `empty_structured_text` in `unitKnowledgeMap`, not a completion truncation or schema failure. That is a lower-priority reliability issue because retry recovered successfully.
+
+Next token optimization should not cut output budgets again. The clearest remaining cost centers are:
+
+- `taskBriefPlan`: still the largest stage by total tokens, but stable and quality-sensitive.
+- `unitKnowledgeMap`: one provider empty-text retry; review whether the unit micro-knowledge output can be shortened without losing coverage.
+- `matchingDraft`: now stable, but total token share increased because it is split into multiple calls; keep it unless future reports show matching quality/cost is disproportionate.
