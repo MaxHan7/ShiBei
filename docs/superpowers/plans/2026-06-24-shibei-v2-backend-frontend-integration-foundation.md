@@ -347,13 +347,13 @@ const V2_MAX_ARTICLE_CHARS = 6000;
 
 优先级最高，因为它直接 unblock SwiftUI 接后端。
 
-- [ ] 新增 `generationProgress.js`。
-- [ ] 新增 `generationLimits.js`。
-- [ ] 把 V2 pipeline stage 映射成用户可见阶段。
-- [ ] 在 V2 job runner/pipeline 里记录 progress。
-- [ ] 加 6000 字上限。
-- [ ] 更新字段合同文档。
-- [ ] 测试通过后提交。
+- [x] 新增 `generationProgress.js`。
+- [x] 新增 `generationLimits.js`。
+- [x] 把 V2 pipeline stage 映射成用户可见阶段。
+- [x] 在 V2 job runner/pipeline 里记录 progress。
+- [x] 加 6000 字上限。
+- [x] 更新字段合同文档。
+- [x] 测试通过后提交。
 
 验收：
 
@@ -367,8 +367,8 @@ const V2_MAX_ARTICLE_CHARS = 6000;
 - [x] 复用并扩展 `generation_jobs`，新增 `idempotency_key`。
 - [x] 设计 V2 `clientRequestId/sourceUrl/contentHash/rawText` 幂等 key 构造。
 - [x] 实现同一 device + idempotency key 的 pending job 去重基础能力。
-- [ ] App 重启后仍能读到当前生成状态。
-- [ ] 测试通过后提交。
+- [x] App 重启后仍能读到当前生成状态。
+- [x] 测试通过后提交。
 
 验收：
 

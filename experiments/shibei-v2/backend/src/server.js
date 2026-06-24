@@ -955,6 +955,12 @@ function ensureChapterRecord(chapter) {
     questions,
     qualitySummary: normalizeQualitySummary(chapter.qualitySummary),
     generationMeta: normalizeGenerationMeta(chapter.generationMeta),
+    generationProgress: normalizeGenerationProgress(
+      chapter.generationProgress ||
+      chapter.generationMeta?.v2Progress ||
+      chapter.generationMeta?.generationProgress,
+      id
+    ),
     reviewSession: chapter.reviewSession ? normalizeReviewSession(chapter.reviewSession, baseChapter) : null,
     masteredPoints: toIntegerValue(chapter.masteredPoints, 0),
     removedQuestionIds: Array.isArray(chapter.removedQuestionIds) ? chapter.removedQuestionIds.map((id) => toStringValue(id)).filter(Boolean) : [],
@@ -972,6 +978,28 @@ function serializeChapterForClient(chapter) {
 
 function serializeChaptersForClient(chapters = []) {
   return chapters.map(serializeChapterForClient);
+}
+
+function normalizeGenerationProgress(progress, chapterId = "") {
+  if (!progress || typeof progress !== "object" || Array.isArray(progress)) return null;
+  return {
+    jobId: toStringValue(progress.jobId || ""),
+    chapterId: toStringValue(progress.chapterId || chapterId),
+    status: toStringValue(progress.status || ""),
+    stage: toStringValue(progress.stage || ""),
+    displayText: toStringValue(progress.displayText || ""),
+    progress:
+      progress.progress === null || progress.progress === undefined
+        ? null
+        : Number.isFinite(Number(progress.progress))
+          ? Number(progress.progress)
+          : null,
+    retryCount: toIntegerValue(progress.retryCount, 0),
+    canRetry: Boolean(progress.canRetry),
+    updatedAt: toStringValue(progress.updatedAt || ""),
+    ...(progress.failureCode ? { failureCode: toStringValue(progress.failureCode) } : {}),
+    ...(progress.failureMessage ? { failureMessage: toStringValue(progress.failureMessage) } : {})
+  };
 }
 
 function normalizeGenerationMeta(generationMeta) {

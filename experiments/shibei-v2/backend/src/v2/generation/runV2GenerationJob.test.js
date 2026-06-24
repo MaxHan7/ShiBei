@@ -24,6 +24,7 @@ test("returns completed status with a generated V2 chapter", async () => {
   assert.equal(result.displayStatusText, "已生成");
   assert.equal(result.chapter.id, "chapter-001");
   assert.equal(result.generationProgress.status, "completed");
+  assert.equal(result.chapter.generationMeta.v2Progress.status, "completed");
   assert.equal(progressEvents[0].stage, "accepted");
   assert.equal(progressEvents.at(-1).stage, "completed");
 });

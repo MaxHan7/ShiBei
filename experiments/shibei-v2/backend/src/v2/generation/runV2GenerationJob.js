@@ -43,12 +43,19 @@ export async function runV2GenerationJob(input, {
       updatedAt: now
     });
     await emitV2GenerationProgress(onProgress, generationProgress);
+    const chapterWithProgress = {
+      ...chapter,
+      generationMeta: {
+        ...(chapter.generationMeta || {}),
+        v2Progress: generationProgress
+      }
+    };
 
     return {
       status: "completed",
       displayStatusText: "已生成",
-      chapter,
-      generationMeta: chapter.generationMeta ?? null,
+      chapter: chapterWithProgress,
+      generationMeta: chapterWithProgress.generationMeta ?? null,
       generationProgress
     };
   } catch (error) {
