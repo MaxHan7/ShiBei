@@ -75,6 +75,32 @@ test("generates a contract-valid V2 review path from split prompt stages", async
   });
 });
 
+test("can return production-light generation metadata without debug draft batches", async () => {
+  const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
+    promptCaller: happyPathPromptCaller,
+    now: "2026-06-24T00:00:00.000Z",
+    generationMetaMode: "production"
+  });
+
+  assert.equal(reviewPath.generationMeta.currentStage, "completed");
+  assert.equal(reviewPath.generationMeta.stageRuntime.schemaVersion, "v2_stage_runtime_1");
+  assert.equal(reviewPath.generationMeta.sourceContextStats.fullBlockCount > 0, true);
+  assert.equal(reviewPath.generationMeta.qualityGate.blocking, false);
+  assert.equal(reviewPath.generationMeta.reviewPathPlan, undefined);
+  assert.equal(reviewPath.generationMeta.unitKnowledgeMap, undefined);
+  assert.equal(reviewPath.generationMeta.taskBriefPlan, undefined);
+  assert.equal(reviewPath.generationMeta.multipleChoiceDraftBatch, undefined);
+  assert.equal(reviewPath.generationMeta.matchingDraftBatch, undefined);
+  assert.equal(reviewPath.generationMeta.unitCopyBatch, undefined);
+  assert.equal(reviewPath.generationMeta.unitPracticePlans, undefined);
+  assert.equal(reviewPath.generationMeta.qualityDiagnostics, undefined);
+  assert.equal(reviewPath.generationMeta.qualityJudge, undefined);
+  assert.deepEqual(validateReviewPathV2(reviewPath), {
+    ok: true,
+    errors: []
+  });
+});
+
 test("task briefs drive downstream practice plans and suppress model-invented matching", async () => {
   const stages = [];
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {

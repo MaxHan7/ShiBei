@@ -35,13 +35,37 @@ test("passes custom prompt caller factory through to V2 generation", async () =>
       schemaVersion: "v2_review_path_1",
       id: "chapter-001",
       status: "completed",
-      title: options.createPromptCaller === createPromptCaller ? "factory passed" : "factory missing",
+      title:
+        options.createPromptCaller === createPromptCaller &&
+        options.generationMetaMode === "production"
+          ? "factory passed"
+          : "factory missing",
       units: []
     })
   });
 
   assert.equal(result.status, "completed");
   assert.equal(result.chapter.title, "factory passed");
+});
+
+test("allows quality callers to request full generation metadata", async () => {
+  const result = await runV2GenerationJob({
+    id: "chapter-001",
+    title: "Hook",
+    rawText: "Hook 是流程控制器。"
+  }, {
+    generationMetaMode: "quality",
+    generateReviewPath: async (_input, options) => ({
+      schemaVersion: "v2_review_path_1",
+      id: "chapter-001",
+      status: "completed",
+      title: options.generationMetaMode === "quality" ? "quality meta" : "wrong meta",
+      units: []
+    })
+  });
+
+  assert.equal(result.status, "completed");
+  assert.equal(result.chapter.title, "quality meta");
 });
 
 test("maps missing API key errors to a retryable generation failure", async () => {

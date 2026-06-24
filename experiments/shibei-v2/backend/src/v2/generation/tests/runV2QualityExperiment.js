@@ -62,6 +62,7 @@ async function main() {
   const jobResult = await withExperimentTimeout(
     runV2GenerationJob(article, {
       modelUsageRecorder,
+      generationMetaMode: "quality",
       createPromptCaller: createProgressPromptCallerFactory({
         modelUsageRecorder,
         progressEvents,

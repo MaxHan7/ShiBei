@@ -215,6 +215,67 @@ After the generation prompts are closer to the V2 standard, run a controlled A/B
 
 Do not add this rewrite role to the current structure yet. The immediate priority is still improving the first-pass generation prompts.
 
+## 2026-06-24 Generation Meta Mode Split
+
+### Hypothesis
+
+Production generation should not persist full prompt-debug artifacts by default. Quality experiments still need the full intermediate metadata so we can inspect unit knowledge maps, task briefs, draft batches, and diagnostics.
+
+### Code Changes
+
+- Added `generationMetaMode`.
+- Product entrypoint `runV2GenerationJob` now defaults to `production`, keeping lightweight operational metadata.
+- V2 quality runner passes `generationMetaMode: "quality"`, preserving full debug metadata for reports.
+- Added tests for production-light metadata and quality/debug metadata behavior.
+- Documented metadata modes in `v2-backend-field-contract-zh.md`.
+
+### Key Metrics
+
+First V2 run:
+
+- Label: `v2-meta-mode-split`
+- Status: failed at `reviewPathPlan`
+- Runtime retries: 2
+- Total tokens before failure: 38,237
+- Diagnosis: provider returned unparseable JSON during `reviewPathPlan`; this happened before metadata mode could affect output persistence.
+
+Rerun:
+
+- Label: `v2-meta-mode-split-rerun`
+- Status: completed
+- Units: 7
+- Questions: 22
+- Multiple choice: 16
+- Matching: 6
+- Runtime retries: 2
+- Total tokens: 119,687
+- Quality issues: 0
+- Full quality metadata present: `reviewPathPlan`, `unitKnowledgeMap`, `taskBriefPlan`, draft batches, `unitCopyBatch`, `unitPracticePlans`, and `qualityDiagnostics`.
+
+Stage costs in the completed rerun:
+
+| Stage | Total tokens | Retries |
+| --- | ---: | ---: |
+| `v2_taskBriefPlan` | 33,796 | 0 |
+| `v2_multipleChoiceDraftUnitBatch` | 29,111 | 1 |
+| `v2_unitKnowledgeMap` | 26,262 | 1 |
+| `v2_matchingDraftBatch` | 14,767 | 0 |
+| `v2_reviewPathPlan` | 11,891 | 0 |
+| `v2_unitCopyBatch` | 3,860 | 0 |
+
+### Conclusion
+
+The metadata split is safe for product architecture: it does not change prompt inputs or generated user-facing fields. It reduces formal production payload coupling while preserving full experiment traceability.
+
+The rerun confirms that quality mode keeps full debug metadata. The completed run also shows that the next true cost/stability targets are still `taskBriefPlan`, `multipleChoiceDraftUnitBatch`, and `unitKnowledgeMap`; metadata splitting itself does not reduce model token usage.
+
+### Artifacts
+
+- Failed V2 JSON: `runs/20260624-104304-v2-meta-mode-split.json`
+- Failed V2 HTML: `reports/20260624-104304-v2-meta-mode-split.html`
+- Completed V2 JSON: `runs/20260624-105111-v2-meta-mode-split-rerun.json`
+- Completed V2 HTML: `reports/20260624-105111-v2-meta-mode-split-rerun.html`
+
 ## 2026-06-21 Unit Knowledge Map + Per-Unit ECD Planning
 
 ### What Changed

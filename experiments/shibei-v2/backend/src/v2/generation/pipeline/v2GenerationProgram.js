@@ -67,6 +67,7 @@ export async function runV2GenerationProgram(
     maxUnitCount = readOptionalPositiveInt(process.env.V2_GENERATION_MAX_UNITS),
     unitConcurrency = readOptionalPositiveInt(process.env.V2_GENERATION_UNIT_CONCURRENCY) ?? 1,
     qualityJudgeEnabled = readOptionalBoolean(process.env.V2_ENABLE_QUALITY_JUDGE) ?? false,
+    generationMetaMode = process.env.V2_GENERATION_META_MODE || "debug",
     sourceMapMode = process.env.V2_SOURCE_MAP_MODE || "deterministic",
     now = new Date().toISOString()
   } = {}
@@ -258,6 +259,7 @@ export async function runV2GenerationProgram(
   const units = generatedUnits.map((item) => item.unit);
   const unitPracticePlans = generatedUnits.map((item) => item.practicePlan);
 
+  const includeDebugGenerationMeta = shouldIncludeDebugGenerationMeta(generationMetaMode);
   const draftReviewPath = {
     schemaVersion: V2_REVIEW_PATH_SCHEMA_VERSION,
     id: article.id,
@@ -280,8 +282,6 @@ export async function runV2GenerationProgram(
     ...(plan.generationConstraints ? { generationConstraints: plan.generationConstraints } : {}),
     generationMeta: {
       currentStage: "completed",
-      reviewPathPlan: stripReviewPathPlanForMetadata(plan),
-      unitKnowledgeMap,
       sourceContextStats: buildSourceContextStats({
         sourceMap,
         plan,
@@ -293,11 +293,17 @@ export async function runV2GenerationProgram(
         displayStatusText: stageDisplayText(stage),
         at: now
       })),
-      taskBriefPlan,
-      multipleChoiceDraftBatch,
-      matchingDraftBatch,
-      unitCopyBatch,
-      unitPracticePlans
+      ...(includeDebugGenerationMeta
+        ? {
+            reviewPathPlan: stripReviewPathPlanForMetadata(plan),
+            unitKnowledgeMap,
+            taskBriefPlan,
+            multipleChoiceDraftBatch,
+            matchingDraftBatch,
+            unitCopyBatch,
+            unitPracticePlans
+          }
+        : {})
     }
   };
 
@@ -311,11 +317,13 @@ export async function runV2GenerationProgram(
       })
     : { judge: skippedQualityJudge(), judgeError: null };
 
-  draftReviewPath.generationMeta.qualityJudge = judge;
-  if (judgeError) {
+  if (includeDebugGenerationMeta) {
+    draftReviewPath.generationMeta.qualityJudge = judge;
+    draftReviewPath.generationMeta.qualityDiagnostics = deterministicQuality.diagnostics;
+  }
+  if (includeDebugGenerationMeta && judgeError) {
     draftReviewPath.generationMeta.qualityJudgeError = judgeError;
   }
-  draftReviewPath.generationMeta.qualityDiagnostics = deterministicQuality.diagnostics;
   draftReviewPath.generationMeta.qualityGate = {
     mode: qualityJudgeEnabled ? "diagnostic_only" : "deterministic_only",
     blocking: false,
@@ -342,6 +350,10 @@ export async function runV2GenerationProgram(
     attachStageRuntimeToError(error, runtimeRecorder.summary());
     throw error;
   }
+}
+
+function shouldIncludeDebugGenerationMeta(mode) {
+  return mode === "debug" || mode === "quality";
 }
 
 function buildSingleUnitPlan(plan, plannedUnit) {

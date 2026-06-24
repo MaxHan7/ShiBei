@@ -4,12 +4,14 @@ export async function runV2GenerationJob(input, {
   generateReviewPath = generateReviewPathV2,
   modelUsageRecorder = null,
   createPromptCaller = undefined,
+  generationMetaMode = "production",
   now = new Date().toISOString()
 } = {}) {
   try {
     const chapter = await generateReviewPath(input, {
       modelUsageRecorder,
       ...(createPromptCaller ? { createPromptCaller } : {}),
+      generationMetaMode,
       now
     });
     return {
