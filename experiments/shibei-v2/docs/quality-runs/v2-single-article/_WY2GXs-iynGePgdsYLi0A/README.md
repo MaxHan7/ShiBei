@@ -1674,3 +1674,77 @@ Action taken: revert matching brief-slim code, keep this report as a negative ch
 - per-unit `matchingDraft` with strict concurrency and per-unit token measurement;
 - smaller matching prompt wording while keeping hydrated `practicePlan`;
 - leave matching unchanged and focus on higher-cost stages first.
+
+## 2026-06-24 Output Budget Slim Checkpoint
+
+### Hypothesis
+
+The latest stable run showed several stage output budgets were larger than the actual completions. This checkpoint tested whether lower `estimatedOutputTokens` could reduce structured-output drift without changing prompts, schema, ECD rules, or question strategy.
+
+### First Attempt: Too Aggressive for `taskBriefPlan`
+
+Artifacts:
+
+- JSON: `runs/20260624-061355-v2-output-budget-slim.json`
+- HTML: `reports/20260624-061355-v2-output-budget-slim.html`
+
+Result:
+
+| Metric | `v2-unit-copy-slim` | `v2-output-budget-slim` |
+| --- | ---: | ---: |
+| Units | 8 | 8 |
+| Questions | 23 | 26 |
+| Multiple choice | 16 | 18 |
+| Matching | 7 | 8 |
+| Runtime failed attempts | 0 | 2 |
+| Runtime retry attempts | 0 | 2 |
+| Model calls | 27 | 29 |
+| Prompt tokens | 78,960 | 85,345 |
+| Completion tokens | 34,196 | 42,045 |
+| Total tokens | 113,156 | 127,390 |
+| Diagnostic issue count | 1 | 1 |
+
+The failures were both `taskBriefPlan` JSON parse retries. Conclusion: lowering `taskBriefPlan` from `3800` to `2500` was too aggressive and made the run more expensive.
+
+### Corrected Attempt: Restore `taskBriefPlan`
+
+Artifacts:
+
+- JSON: `runs/20260624-062159-v2-output-budget-slim-taskbrief-restored.json`
+- HTML: `reports/20260624-062159-v2-output-budget-slim-taskbrief-restored.html`
+
+Result:
+
+| Metric | `v2-unit-copy-slim` | `v2-output-budget-slim-taskbrief-restored` |
+| --- | ---: | ---: |
+| Units | 8 | 8 |
+| Questions | 23 | 20 |
+| Multiple choice | 16 | 13 |
+| Matching | 7 | 7 |
+| Runtime failed attempts | 0 | 0 |
+| Runtime retry attempts | 0 | 0 |
+| Model calls | 27 | 27 |
+| Prompt tokens | 78,960 | 83,226 |
+| Completion tokens | 34,196 | 31,916 |
+| Total tokens | 113,156 | 115,142 |
+| Diagnostic issue count | 1 | 0 |
+
+Stage token comparison:
+
+| Stage | `v2-unit-copy-slim` total | Corrected total | Notes |
+| --- | ---: | ---: | --- |
+| `reviewPathPlan` | 11,908 | 12,226 | Similar. |
+| `unitKnowledgeMap` | 23,355 | 24,324 | Similar and stable. |
+| `taskBriefPlan` | 32,118 | 34,043 | Restored budget; no retries. |
+| `multipleChoiceDraftUnitBatch` | 27,257 | 25,070 | Lower completion tokens. |
+| `matchingDraftBatch` | 14,271 | 15,493 | Similar and stable. |
+| `unitCopyBatch` | 4,247 | 3,986 | Slightly lower. |
+
+### Conclusion
+
+Keep the corrected budget guardrail as a small stability-oriented change, not as a major cost win. It confirms two useful rules:
+
+- `taskBriefPlan` needs more output room than its average successful completion suggests.
+- Output-budget tuning alone will not materially solve cost; structural scoping and payload design matter more.
+
+Next optimization should avoid more broad budget cuts. Prefer a targeted input-shape or stage-structure checkpoint with a rollback point.

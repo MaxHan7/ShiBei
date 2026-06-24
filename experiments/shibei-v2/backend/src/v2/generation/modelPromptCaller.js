@@ -71,12 +71,12 @@ const STAGE_SCHEMAS = {
   reviewPathPlan: {
     schemaName: REVIEW_PATH_PLAN_PROMPT_SCHEMA_NAME,
     schema: REVIEW_PATH_PLAN_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 3200
+    estimatedOutputTokens: 2600
   },
   unitKnowledgeMap: {
     schemaName: UNIT_KNOWLEDGE_MAP_PROMPT_SCHEMA_NAME,
     schema: UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 1800
+    estimatedOutputTokens: 1700
   },
   ecdPlanning: {
     schemaName: ECD_PLANNING_PROMPT_SCHEMA_NAME,
@@ -101,17 +101,17 @@ const STAGE_SCHEMAS = {
   multipleChoiceDraftUnitBatch: {
     schemaName: MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_PROMPT_SCHEMA_NAME,
     schema: MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 2200
+    estimatedOutputTokens: 1900
   },
   matchingDraftBatch: {
     schemaName: MATCHING_DRAFT_BATCH_PROMPT_SCHEMA_NAME,
     schema: MATCHING_DRAFT_BATCH_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 5200
+    estimatedOutputTokens: 4600
   },
   unitCopyBatch: {
     schemaName: UNIT_COPY_BATCH_PROMPT_SCHEMA_NAME,
     schema: UNIT_COPY_BATCH_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 2400
+    estimatedOutputTokens: 1400
   },
   unitPracticePlan: {
     schemaName: UNIT_PRACTICE_PLAN_PROMPT_SCHEMA_NAME,
