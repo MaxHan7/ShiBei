@@ -1620,3 +1620,57 @@ The unit copy slimming checkpoint worked and should be kept. The next cost/stabi
 - `matchingDraftBatch`: still one broader whole-chapter batch, and token cost rises when more matching plans exist.
 - `multipleChoiceDraftUnitBatch`: stable in this run, but still one call per unit and remains a major token consumer.
 - `reviewPathPlan`: still determines unit boundary quality; do not change it for runtime reasons unless quality review requires it.
+
+## 2026-06-24 Matching Brief Slim Negative Checkpoint
+
+### Hypothesis
+
+Because `questionBriefs` already contain relation type, practice goal, micro evidence, and source anchor, `matchingDraftBatch` might not need the full filtered `practicePlan`. This checkpoint tried to keep `matchingDraftBatch` as one whole-chapter call but pass only:
+
+- unit metadata;
+- matching `questionBriefs`;
+- compact source window.
+
+The goal was to reduce duplicated input without increasing model call count.
+
+### Artifacts
+
+- JSON: `runs/20260624-055559-v2-matching-brief-slim.json`
+- HTML: `reports/20260624-055559-v2-matching-brief-slim.html`
+
+### Result
+
+| Metric | Unit copy slim run | Matching brief slim run |
+| --- | ---: | ---: |
+| Status | completed | completed |
+| Units | 8 | 9 |
+| Questions | 23 | 25 |
+| Multiple choice | 16 | 18 |
+| Matching | 7 | 7 |
+| Runtime failed attempts | 0 | 6 |
+| Runtime retry attempts | 0 | 6 |
+| Model calls | 27 | 36 |
+| Prompt tokens | 78,960 | 114,208 |
+| Completion tokens | 34,196 | 59,922 |
+| Total tokens | 113,156 | 174,130 |
+| Diagnostic issue count | 1 | 1 |
+
+Stage token comparison:
+
+| Stage | Unit copy slim total tokens | Matching brief slim total tokens | Notes |
+| --- | ---: | ---: | --- |
+| `unitKnowledgeMap` | 23,355 | 32,120 | One retry and one extra unit |
+| `taskBriefPlan` | 32,118 | 39,984 | One extra unit |
+| `multipleChoiceDraftUnitBatch` | 27,257 | 44,467 | Three transient failures/retries |
+| `matchingDraftBatch` | 14,271 | 40,771 | Two JSON parse retries |
+| `unitCopyBatch` | 4,247 | 4,581 | Similar |
+
+### Conclusion
+
+Do not keep the matching brief-slim code change. The run completed, but it made structured-output stability worse and increased cost significantly. The matching stage appears to benefit from the hydrated filtered `practicePlan` even if it looks redundant on paper.
+
+Action taken: revert matching brief-slim code, keep this report as a negative checkpoint. Future matching optimization should avoid the exact brief-only input shape. If matching becomes a true bottleneck later, test one of these instead:
+
+- per-unit `matchingDraft` with strict concurrency and per-unit token measurement;
+- smaller matching prompt wording while keeping hydrated `practicePlan`;
+- leave matching unchanged and focus on higher-cost stages first.
