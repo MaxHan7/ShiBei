@@ -70,3 +70,30 @@ test("allows retry only before max attempts", () => {
   assert.equal(shouldRetryGenerationJob({ attemptCount: 2, maxAttempts: 2 }), false);
   assert.equal(shouldRetryGenerationJob({ attempt_count: 3, max_attempts: 3 }), false);
 });
+
+test("normalizes V2 generation job types without changing unknown fallback", () => {
+  assert.equal(
+    normalizeGenerationJobInput({
+      id: "generation-v2",
+      chapterId: "chapter-v2",
+      jobType: "v2_create_chapter"
+    }).jobType,
+    "v2_create_chapter"
+  );
+  assert.equal(
+    normalizeGenerationJobInput({
+      id: "generation-v2-regenerate",
+      chapterId: "chapter-v2",
+      jobType: "v2_regenerate_chapter"
+    }).jobType,
+    "v2_regenerate_chapter"
+  );
+  assert.equal(
+    normalizeGenerationJobInput({
+      id: "generation-unknown",
+      chapterId: "chapter-1",
+      jobType: "surprise"
+    }).jobType,
+    "create_chapter"
+  );
+});

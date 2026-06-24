@@ -749,7 +749,14 @@ export function shouldRetryGenerationJob(job = {}) {
 }
 
 function normalizeGenerationJobType(type) {
-  return type === "regenerate_chapter" ? "regenerate_chapter" : "create_chapter";
+  return [
+    "create_chapter",
+    "regenerate_chapter",
+    "v2_create_chapter",
+    "v2_regenerate_chapter"
+  ].includes(type)
+    ? type
+    : "create_chapter";
 }
 
 function normalizeQueueStatus(status) {

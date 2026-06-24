@@ -20,10 +20,18 @@ import {
   regenerateFromChapter,
   withTimeout
 } from "./chapterGeneration.js";
+import {
+  isV2GenerationJob,
+  runV2GenerationQueuedJob
+} from "./v2/generation/v2GenerationJobRunner.js";
 
 const GENERATION_JOB_TIMEOUT_MS = readPositiveInt(process.env.GENERATION_JOB_TIMEOUT_MS, 360_000);
 
 export async function runGenerationJob(job, options = {}) {
+  if (isV2GenerationJob(job)) {
+    return runV2GenerationQueuedJob(job);
+  }
+
   const timeoutMs = readPositiveInt(options.timeoutMs, GENERATION_JOB_TIMEOUT_MS);
   const body = job.payload?.body || job.payload || {};
   const updateStage = (status) => updateStoredChapterStage(job, status).catch((error) => {
