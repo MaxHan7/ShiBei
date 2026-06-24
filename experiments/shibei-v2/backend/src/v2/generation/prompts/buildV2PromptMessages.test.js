@@ -138,13 +138,39 @@ test("unitKnowledgeMap prompt isolates micro knowledge discovery from task assem
   assert.match(messages.user, /assessmentValue 只描述这个小点的考察价值，不表达题目数量/);
   assert.match(messages.user, /high：缺少它会导致用户无法掌握该 unit 的核心/);
   assert.match(messages.user, /title 是短标题/);
-  assert.match(messages.user, /summary 是一句短索引/);
-  assert.match(messages.user, /不超过 72 字符/);
-  assert.match(messages.user, /primaryEvidenceAngle 写一个最主要的可观察理解角度/);
-  assert.match(messages.user, /不超过 24 字符/);
+  assert.match(messages.user, /summary 是知识索引句/);
+  assert.match(messages.user, /最多 48 字符/);
+  assert.match(messages.user, /primaryEvidenceAngle 是可观察理解角度标签/);
+  assert.match(messages.user, /最多 16 字符/);
   assert.match(messages.user, /不要输出 sourceAnchorId 或 sourceSupport/);
   assert.match(messages.user, /microKnowledgePoints/);
   assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐|每个 unit 必须|至少.*micro|至少.*definition|至少.*boundary|4-7|完整发现|最小的有意义|不要为了控制题量/);
+});
+
+test("unitKnowledgeMap retry prompt switches to compact index mode", () => {
+  const messages = buildV2PromptMessages("unitKnowledgeMap", {
+    article: ARTICLE,
+    source: { type: "article", title: ARTICLE.title },
+    blocks: [
+      { id: "p-001", type: "paragraph", text: "Hook 是关键动作前后的流程控制器。" }
+    ],
+    sourceContextNote: {
+      mode: "unit_window",
+      selectedBlockIds: ["p-001"],
+      fullBlockCount: 8,
+      selectedBlockCount: 1
+    },
+    plan: {
+      title: ARTICLE.title,
+      units: [unitFixture()]
+    },
+    compactRetry: true
+  });
+
+  assert.match(messages.user, /重试压缩模式/);
+  assert.match(messages.user, /保持同样的核心覆盖/);
+  assert.match(messages.user, /summary 优先控制在 32 个中文字以内/);
+  assert.match(messages.user, /primaryEvidenceAngle 控制在 12 个中文字以内/);
 });
 
 test("taskBriefPlan prompt embeds ECD as thinking method without heavy ECD JSON", () => {

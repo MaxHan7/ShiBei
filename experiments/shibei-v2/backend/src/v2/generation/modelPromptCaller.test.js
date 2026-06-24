@@ -84,6 +84,50 @@ test("retries transient structured JSON transport failures", async () => {
   assert.equal(runtime.stages[0].errorTypes.json_parse_error, 1);
 });
 
+test("uses compact retry prompt for unit knowledge map JSON retries", async () => {
+  const calls = [];
+  const caller = createV2ModelPromptCaller({
+    modelJsonCaller: async (request) => {
+      calls.push(request);
+      if (calls.length === 1) {
+        throw new Error("模型返回内容不是可解析 JSON，请重试。");
+      }
+      return {
+        units: [
+          {
+            unitId: "unit-01",
+            microKnowledgePoints: [
+              {
+                microId: "micro-unit-01-001",
+                title: "Hook 定义",
+                summary: "Hook 是流程约束",
+                role: "definition",
+                assessmentValue: "high",
+                primaryEvidenceAngle: "定义识别"
+              }
+            ]
+          }
+        ]
+      };
+    }
+  });
+
+  await caller("unitKnowledgeMap", {
+    article: { id: "chapter-001", title: "Hook", rawText: "Hook" },
+    source: { type: "article", title: "Hook" },
+    blocks: [{ id: "p-001", type: "paragraph", text: "Hook 是流程控制器。" }],
+    plan: {
+      title: "Hook",
+      units: [{ id: "unit-01", title: "Hook 是什么" }]
+    }
+  });
+
+  assert.equal(calls.length, 2);
+  assert.doesNotMatch(calls[0].user, /重试压缩模式/);
+  assert.match(calls[1].user, /重试压缩模式/);
+  assert.match(calls[1].user, /summary 优先控制在 32 个中文字以内/);
+});
+
 test("does not retry non-transient model transport failures", async () => {
   let callCount = 0;
   const runtimeRecorder = createStageRuntimeRecorder();

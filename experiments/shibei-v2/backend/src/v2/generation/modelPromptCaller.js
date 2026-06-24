@@ -154,17 +154,6 @@ export function createV2ModelPromptCaller({
       throw new Error(`Unsupported V2 model prompt stage: ${stage}`);
     }
 
-    const messages = buildV2PromptMessages(stage, payload);
-    const request = {
-      system: messages.system,
-      user: messages.user,
-      schemaName: stageConfig.schemaName,
-      schema: schemaForModel(stageConfig.schema),
-      stage: `v2_${stage}`,
-      modelUsageRecorder,
-      estimatedOutputTokens: stageConfig.estimatedOutputTokens
-    };
-
     let lastError;
     const callId = runtimeRecorder && typeof runtimeRecorder.nextCallId === "function"
       ? runtimeRecorder.nextCallId(stage)
@@ -172,6 +161,16 @@ export function createV2ModelPromptCaller({
     const maxAttempts = retryCount + 1;
     for (let attempt = 0; attempt <= retryCount; attempt += 1) {
       const startedAt = Date.now();
+      const messages = buildV2PromptMessages(stage, promptPayloadForAttempt(stage, payload, attempt));
+      const request = {
+        system: messages.system,
+        user: messages.user,
+        schemaName: stageConfig.schemaName,
+        schema: schemaForModel(stageConfig.schema),
+        stage: `v2_${stage}`,
+        modelUsageRecorder,
+        estimatedOutputTokens: stageConfig.estimatedOutputTokens
+      };
       try {
         const output = await modelJsonCaller(request);
         recordRuntimeAttempt(runtimeRecorder, {
@@ -208,6 +207,16 @@ export function createV2ModelPromptCaller({
     annotatePromptStageError(lastError, stage, retryCount + 1);
     throw lastError;
   };
+}
+
+function promptPayloadForAttempt(stage, payload, attempt) {
+  if (stage === "unitKnowledgeMap" && attempt > 0) {
+    return {
+      ...payload,
+      compactRetry: true
+    };
+  }
+  return payload;
 }
 
 function annotatePromptStageError(error, stage, attemptCount) {

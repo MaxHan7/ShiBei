@@ -28,8 +28,8 @@ export const MICRO_KNOWLEDGE_ROLES = [
 
 export const UNIT_KNOWLEDGE_MAP_TEXT_LIMITS = {
   microTitle: 28,
-  microSummary: 72,
-  primaryEvidenceAngle: 24
+  microSummary: 48,
+  primaryEvidenceAngle: 16
 };
 
 export const UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA = {
@@ -214,10 +214,21 @@ function normalizeMicroKnowledgePoint(micro) {
     ...micro,
     ...(micro.role !== normalizedRole ? { rawRole: micro.role } : {}),
     ...(micro.assessmentValue !== normalizedAssessmentValue ? { rawAssessmentValue: micro.assessmentValue } : {}),
+    title: trimToMaxLength(micro.title, UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.microTitle),
+    summary: trimToMaxLength(micro.summary, UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.microSummary),
     role: normalizedRole,
     assessmentValue: normalizedAssessmentValue,
-    primaryEvidenceAngle: normalizePrimaryEvidenceAngle(micro)
+    primaryEvidenceAngle: trimToMaxLength(
+      normalizePrimaryEvidenceAngle(micro),
+      UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.primaryEvidenceAngle
+    )
   };
+}
+
+function trimToMaxLength(value, maxLength) {
+  if (typeof value !== "string") return value;
+  const trimmed = value.trim();
+  return trimmed.length > maxLength ? trimmed.slice(0, maxLength) : trimmed;
 }
 
 function normalizePrimaryEvidenceAngle(micro) {

@@ -313,7 +313,7 @@ function buildReviewPathPlanMessages({ article, source, blocks }) {
   };
 }
 
-function buildUnitKnowledgeMapMessages({ article, source, blocks, sourceContextNote, plan }) {
+function buildUnitKnowledgeMapMessages({ article, source, blocks, sourceContextNote, plan, compactRetry = false }) {
   return {
     system: baseSystem(),
     user: [
@@ -340,10 +340,18 @@ function buildUnitKnowledgeMapMessages({ article, source, blocks, sourceContextN
       "输出字段：",
       "- microId 使用稳定 id，例如 micro-<unit id>-001。",
       "- title 是短标题，可用于人工报告对比，不超过 28 字符。",
-      "- summary 是一句短索引，只说明这个小点是什么，不超过 72 字符；不要粘贴长原文，不写解释段落。",
+      "- summary 是知识索引句，只说明这个小点指向什么学习对象，建议 20-40 个中文字，最多 48 字符；不要粘贴原文，不展开解释。",
       "- role 只能使用 schema enum。",
-      "- primaryEvidenceAngle 写一个最主要的可观察理解角度，不超过 24 字符，不选择题型。",
+      "- primaryEvidenceAngle 是可观察理解角度标签，建议 6-12 个中文字，最多 16 字符；不选择题型，不写句子。",
       "- 不要输出 sourceAnchorId 或 sourceSupport；micro 默认继承当前 unit 的 sourceAnchor。",
+      ...(compactRetry
+        ? [
+            "重试压缩模式：",
+            "- 上一次输出过长或 JSON 没闭合；这次必须保持同样的核心覆盖，但用更短索引字段。",
+            "- summary 优先控制在 32 个中文字以内；primaryEvidenceAngle 控制在 12 个中文字以内。",
+            "- 不输出任何解释性长句，不增加 schema 外字段。"
+          ]
+        : []),
       "",
       `reviewPathPlan:\n${JSON.stringify(plan, null, 2)}`,
       "",

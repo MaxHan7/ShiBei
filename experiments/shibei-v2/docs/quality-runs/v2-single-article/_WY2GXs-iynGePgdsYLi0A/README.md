@@ -2005,3 +2005,66 @@ What this run tells us:
 - `reviewPathPlan`, `taskBriefPlan`, MC draft, matching draft, and copy stages are structurally stable in this run.
 - The only recurring technical instability is still `unitKnowledgeMap` JSON parse reliability. It recovered, but it is now the clearest remaining architecture-level reliability point.
 - Token cost is now dominated more by selected content volume and recovered retries than by obvious duplicated meta. Further token optimization should focus on `unitKnowledgeMap` output stability/compactness and avoid weakening ECD task quality.
+
+## 2026-06-24 Unit Knowledge Map Compact Retry Rerun
+
+### Hypothesis
+
+The previous completed run showed two `unitKnowledgeMap` JSON parse retries. Inspection showed both failures were caused by completion output hitting the `1700` token cap before the JSON object closed, not by schema mismatch or empty provider output.
+
+This checkpoint tested a stability-oriented compacting change that should not alter the downstream question logic:
+
+- tighten `unitKnowledgeMap` field semantics from explanation text to index-card text;
+- reduce internal limits from `summary <= 72` / `primaryEvidenceAngle <= 24` to `summary <= 48` / `primaryEvidenceAngle <= 16`;
+- trim normalized internal micro fields to the contract limits before downstream prompts consume them;
+- on `unitKnowledgeMap` retry only, rebuild the prompt in compact retry mode with stricter guidance (`summary` around 32 Chinese characters and angle around 12 Chinese characters).
+
+### Artifacts
+
+- JSON: `runs/20260624-165557-v2-unit-map-compact-retry-rerun.json`
+- HTML: `reports/20260624-165557-v2-unit-map-compact-retry-rerun.html`
+
+### Result
+
+| Metric | Previous completed `v2-scoped-matching-budget-rerun` | Previous input-slim rerun | Compact retry rerun |
+| --- | ---: | ---: | ---: |
+| Status | completed | completed | completed |
+| Units | 7 | 8 | 7 |
+| Questions | 20 | 21 | 21 |
+| Multiple choice | 12 | 12 | 15 |
+| Matching | 8 | 9 | 6 |
+| Runtime failed attempts | 1 | 2 | 2 |
+| Runtime retry attempts | 1 | 2 | 2 |
+| Model calls | 30 | 36 | 29 |
+| Prompt tokens | 80,258 | 86,601 | 75,078 |
+| Completion tokens | 36,091 | 45,123 | 37,299 |
+| Total tokens | 116,349 | 131,724 | 112,377 |
+| Tokens / question | 5,817 | 6,273 | 5,351 |
+
+Stage token summary:
+
+| Stage | Calls | Total tokens | Notes |
+| --- | ---: | ---: | --- |
+| `reviewPathPlan` | 1 | 11,737 | Stable; no retry. |
+| `unitKnowledgeMap` | 8 attempts for 7 calls | 25,804 | One JSON truncation retry; compact retry succeeded. |
+| `taskBriefPlan` | 7 | 28,621 | Stable; no retry. |
+| `multipleChoiceDraftUnitBatch` | 7 | 26,530 | One provider empty structured text retry; recovered. |
+| `matchingDraft` | 5 | 15,877 | Stable; fewer selected matching units in this run. |
+| `unitCopyBatch` | 1 | 3,808 | Small and stable. |
+
+### Notes
+
+The compact retry mode was exercised once. The first `unitKnowledgeMap` attempt for `unit-1` hit `completion_tokens=1700` and failed with `no_json_object`. The retry used the compact prompt and succeeded with `completion_tokens=1674`. The resulting micro fields were compact: summaries were roughly 15-29 Chinese characters and evidence angles were roughly 4-8 Chinese characters.
+
+The second retry in this run was not a truncation caused by this change. It was a provider-side empty structured text in `multipleChoiceDraftUnitBatch`, and it recovered on retry.
+
+### Conclusion
+
+Keep the compact `unitKnowledgeMap` field contract and compact retry mode. This run suggests the change is beneficial:
+
+- total tokens decreased versus both recent completed baselines;
+- generated output still completed with 21 questions;
+- `unitKnowledgeMap` no longer required multiple retries on the same unit;
+- downstream stages remained stable.
+
+This does not prove question quality improved; it only supports the technical goal of making the upstream micro inventory more compact and less likely to cause JSON truncation. Manual review should still compare the HTML report for quality before treating this as a final prompt-quality improvement.

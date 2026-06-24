@@ -105,8 +105,8 @@ test("rejects overlong unit knowledge map micro copy", () => {
   });
 
   assert.equal(result.ok, false);
-  assert.match(result.errors.join("\n"), /summary must be at most 72 characters/);
-  assert.match(result.errors.join("\n"), /primaryEvidenceAngle must be at most 24 characters/);
+  assert.match(result.errors.join("\n"), /summary must be at most 48 characters/);
+  assert.match(result.errors.join("\n"), /primaryEvidenceAngle must be at most 16 characters/);
 });
 
 test("validates multiple choice draft batches by unit practice plans", () => {
@@ -219,6 +219,8 @@ test("normalizes unit knowledge map taxonomy aliases before validation", () => {
   const fixture = unitKnowledgeMapFixture();
   fixture.units[0].microKnowledgePoints[0].role = "model_layer_classification";
   fixture.units[0].microKnowledgePoints[0].assessmentValue = "core";
+  fixture.units[0].microKnowledgePoints[0].summary = "这是一段明显过长的知识索引句，应该在归一化阶段被收束，避免后续 prompt 和合同校验被冗长解释拖垮。";
+  fixture.units[0].microKnowledgePoints[0].primaryEvidenceAngle = "这是一个明显过长的可观察理解角度标签";
   fixture.units[0].microKnowledgePoints[1].role = "概念边界";
   fixture.units[0].microKnowledgePoints[1].assessmentValue = "supporting";
 
@@ -226,6 +228,8 @@ test("normalizes unit knowledge map taxonomy aliases before validation", () => {
 
   assert.equal(normalized.units[0].microKnowledgePoints[0].role, "model_layer");
   assert.equal(normalized.units[0].microKnowledgePoints[0].assessmentValue, "high");
+  assert.ok(normalized.units[0].microKnowledgePoints[0].summary.length <= 48);
+  assert.ok(normalized.units[0].microKnowledgePoints[0].primaryEvidenceAngle.length <= 16);
   assert.equal(normalized.units[0].microKnowledgePoints[0].rawRole, "model_layer_classification");
   assert.equal(normalized.units[0].microKnowledgePoints[0].rawAssessmentValue, "core");
   assert.equal(normalized.units[0].microKnowledgePoints[1].role, "definition");
@@ -877,7 +881,7 @@ function unitKnowledgeMapFixture() {
             summary: "Hook 是关键动作前后的流程约束，不是更长提示词。",
             role: "definition",
             assessmentValue: "high",
-            primaryEvidenceAngle: "definition_grasp",
+            primaryEvidenceAngle: "定义识别",
             sourceAnchorId: "anchor-unit-01",
             sourceSupport: "原文说明 Hook 是关键动作前后的流程控制器。"
           },
@@ -887,7 +891,7 @@ function unitKnowledgeMapFixture() {
             summary: "Prompt、Hook、CI 和规则文档在流程中承担不同职责。",
             role: "relationship",
             assessmentValue: "medium",
-            primaryEvidenceAngle: "structure_mapping",
+            primaryEvidenceAngle: "职责区分",
             sourceAnchorId: "anchor-unit-01",
             sourceSupport: "原文对 Hook 的触发、上下文和验证有连续说明。"
           }

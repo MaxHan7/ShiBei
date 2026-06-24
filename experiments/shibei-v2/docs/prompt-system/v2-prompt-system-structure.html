@@ -127,7 +127,7 @@
 <body>
 <main>
   <h1>拾贝 V2 Prompt 初级系统结构图</h1>
-  <div class="meta">Generated at 2026-06-24T15:56:38.425Z from current source files. This page is an inspection artifact, not a prompt runtime.</div>
+  <div class="meta">Generated at 2026-06-24T17:02:47.102Z from current source files. This page is an inspection artifact, not a prompt runtime.</div>
   <div class="toc">
     <a href="#flow">主链路结构</a>
     <a href="#active-stages">当前主链路 prompt</a>
@@ -629,9 +629,9 @@ function validateStringMaxLength(value, maxLength, path, errors) {
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：unitKnowledgeMap。</li><li>任务：为当前输入的 unit 识别有学习价值的子知识点 microKnowledgePoints；本阶段不生成题目、不选择题型、不做 selectedTasks。</li><li>为什么需要这一层：</li><li>- 一个 unit 是大知识点，内部可能包含多个值得用户单独理解的子知识点。</li><li>- 这些子知识点是后续 ECD evidence 和题目生成的上游 inventory。</li><li>拆分原则：</li><li>- 本次输入可能只包含一个 unit；只为输入 plan.units[] 中出现的 unit 输出 units[]。</li><li>- 对每个输入的 reviewPathPlan.units[] 都输出一个 units[] 对象。</li><li>- microKnowledgePoint 是围绕该 unit 核心内容展开、值得用户单独理解的子知识点。</li><li>- microKnowledgePoints 可以体现定义、边界、模型层级、机制、流程步骤、场景应用、常见误区、关键例子或关系。</li><li>- 优先保留对理解该 unit 核心有帮助、能形成后续可观察理解表现、并且原文中有清晰支撑的点。</li><li>- 如果多个表述服务于同一个学习点，合并为一个 micro。</li><li>- micro 数量由当前 unit 的知识密度决定。</li><li>- assessmentValue 只描述这个小点的考察价值，不表达题目数量。</li><li>- high：缺少它会导致用户无法掌握该 unit 的核心，后续通常应进入覆盖判断。</li><li>- medium：能补充重要角度、边界、误区或应用，但不是该 unit 的唯一核心。</li><li>- low：有学习价值，但不一定需要直接考察。</li><li>- context_only：背景、铺垫、普通例子或只帮助理解上下文，不直接形成题目。</li><li>- 对分层模型、结构框架或层级体系，要把整体结构、每一层的作用、层级关系或边界分别拆出来。</li><li>- 对流程、信号、角色、类型集合，要保留能形成 matching 或场景判断的关系小点。</li><li>输出字段：</li><li>- microId 使用稳定 id，例如 micro-&lt;unit id&gt;-001。</li><li>- title 是短标题，可用于人工报告对比，不超过 28 字符。</li><li>- summary 是一句短索引，只说明这个小点是什么，不超过 72 字符；不要粘贴长原文，不写解释段落。</li><li>- role 只能使用 schema enum。</li><li>- primaryEvidenceAngle 写一个最主要的可观察理解角度，不超过 24 字符，不选择题型。</li><li>- 不要输出 sourceAnchorId 或 sourceSupport；micro 默认继承当前 unit 的 sourceAnchor。</li></ol>
+          <ol><li>阶段：unitKnowledgeMap。</li><li>任务：为当前输入的 unit 识别有学习价值的子知识点 microKnowledgePoints；本阶段不生成题目、不选择题型、不做 selectedTasks。</li><li>为什么需要这一层：</li><li>- 一个 unit 是大知识点，内部可能包含多个值得用户单独理解的子知识点。</li><li>- 这些子知识点是后续 ECD evidence 和题目生成的上游 inventory。</li><li>拆分原则：</li><li>- 本次输入可能只包含一个 unit；只为输入 plan.units[] 中出现的 unit 输出 units[]。</li><li>- 对每个输入的 reviewPathPlan.units[] 都输出一个 units[] 对象。</li><li>- microKnowledgePoint 是围绕该 unit 核心内容展开、值得用户单独理解的子知识点。</li><li>- microKnowledgePoints 可以体现定义、边界、模型层级、机制、流程步骤、场景应用、常见误区、关键例子或关系。</li><li>- 优先保留对理解该 unit 核心有帮助、能形成后续可观察理解表现、并且原文中有清晰支撑的点。</li><li>- 如果多个表述服务于同一个学习点，合并为一个 micro。</li><li>- micro 数量由当前 unit 的知识密度决定。</li><li>- assessmentValue 只描述这个小点的考察价值，不表达题目数量。</li><li>- high：缺少它会导致用户无法掌握该 unit 的核心，后续通常应进入覆盖判断。</li><li>- medium：能补充重要角度、边界、误区或应用，但不是该 unit 的唯一核心。</li><li>- low：有学习价值，但不一定需要直接考察。</li><li>- context_only：背景、铺垫、普通例子或只帮助理解上下文，不直接形成题目。</li><li>- 对分层模型、结构框架或层级体系，要把整体结构、每一层的作用、层级关系或边界分别拆出来。</li><li>- 对流程、信号、角色、类型集合，要保留能形成 matching 或场景判断的关系小点。</li><li>输出字段：</li><li>- microId 使用稳定 id，例如 micro-&lt;unit id&gt;-001。</li><li>- title 是短标题，可用于人工报告对比，不超过 28 字符。</li><li>- summary 是知识索引句，只说明这个小点指向什么学习对象，建议 20-40 个中文字，最多 48 字符；不要粘贴原文，不展开解释。</li><li>- role 只能使用 schema enum。</li><li>- primaryEvidenceAngle 是可观察理解角度标签，建议 6-12 个中文字，最多 16 字符；不选择题型，不写句子。</li><li>- 不要输出 sourceAnchorId 或 sourceSupport；micro 默认继承当前 unit 的 sourceAnchor。</li><li>重试压缩模式：</li><li>- 上一次输出过长或 JSON 没闭合；这次必须保持同样的核心覆盖，但用更短索引字段。</li><li>- summary 优先控制在 32 个中文字以内；primaryEvidenceAngle 控制在 12 个中文字以内。</li><li>- 不输出任何解释性长句，不增加 schema 外字段。</li></ol>
         </div>
-        <details open><summary>Prompt builder 源码</summary><pre>function buildUnitKnowledgeMapMessages({ article, source, blocks, sourceContextNote, plan }) {
+        <details open><summary>Prompt builder 源码</summary><pre>function buildUnitKnowledgeMapMessages({ article, source, blocks, sourceContextNote, plan, compactRetry = false }) {
   return {
     system: baseSystem(),
     user: [
@@ -658,10 +658,18 @@ function validateStringMaxLength(value, maxLength, path, errors) {
       &quot;输出字段：&quot;,
       &quot;- microId 使用稳定 id，例如 micro-&lt;unit id&gt;-001。&quot;,
       &quot;- title 是短标题，可用于人工报告对比，不超过 28 字符。&quot;,
-      &quot;- summary 是一句短索引，只说明这个小点是什么，不超过 72 字符；不要粘贴长原文，不写解释段落。&quot;,
+      &quot;- summary 是知识索引句，只说明这个小点指向什么学习对象，建议 20-40 个中文字，最多 48 字符；不要粘贴原文，不展开解释。&quot;,
       &quot;- role 只能使用 schema enum。&quot;,
-      &quot;- primaryEvidenceAngle 写一个最主要的可观察理解角度，不超过 24 字符，不选择题型。&quot;,
+      &quot;- primaryEvidenceAngle 是可观察理解角度标签，建议 6-12 个中文字，最多 16 字符；不选择题型，不写句子。&quot;,
       &quot;- 不要输出 sourceAnchorId 或 sourceSupport；micro 默认继承当前 unit 的 sourceAnchor。&quot;,
+      ...(compactRetry
+        ? [
+            &quot;重试压缩模式：&quot;,
+            &quot;- 上一次输出过长或 JSON 没闭合；这次必须保持同样的核心覆盖，但用更短索引字段。&quot;,
+            &quot;- summary 优先控制在 32 个中文字以内；primaryEvidenceAngle 控制在 12 个中文字以内。&quot;,
+            &quot;- 不输出任何解释性长句，不增加 schema 外字段。&quot;
+          ]
+        : []),
       &quot;&quot;,
       `reviewPathPlan:\n${JSON.stringify(plan, null, 2)}`,
       &quot;&quot;,
@@ -700,8 +708,8 @@ export const MICRO_KNOWLEDGE_ROLES = [
 
 export const UNIT_KNOWLEDGE_MAP_TEXT_LIMITS = {
   microTitle: 28,
-  microSummary: 72,
-  primaryEvidenceAngle: 24
+  microSummary: 48,
+  primaryEvidenceAngle: 16
 };
 
 export const UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA = {
@@ -886,10 +894,21 @@ function normalizeMicroKnowledgePoint(micro) {
     ...micro,
     ...(micro.role !== normalizedRole ? { rawRole: micro.role } : {}),
     ...(micro.assessmentValue !== normalizedAssessmentValue ? { rawAssessmentValue: micro.assessmentValue } : {}),
+    title: trimToMaxLength(micro.title, UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.microTitle),
+    summary: trimToMaxLength(micro.summary, UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.microSummary),
     role: normalizedRole,
     assessmentValue: normalizedAssessmentValue,
-    primaryEvidenceAngle: normalizePrimaryEvidenceAngle(micro)
+    primaryEvidenceAngle: trimToMaxLength(
+      normalizePrimaryEvidenceAngle(micro),
+      UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.primaryEvidenceAngle
+    )
   };
+}
+
+function trimToMaxLength(value, maxLength) {
+  if (typeof value !== &quot;string&quot;) return value;
+  const trimmed = value.trim();
+  return trimmed.length &gt; maxLength ? trimmed.slice(0, maxLength) : trimmed;
 }
 
 function normalizePrimaryEvidenceAngle(micro) {
