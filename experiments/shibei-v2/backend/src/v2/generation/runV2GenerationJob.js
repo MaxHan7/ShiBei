@@ -1,4 +1,8 @@
 import { generateReviewPathV2 } from "./generateReviewPathV2.js";
+import {
+  calculateV2GenerationRetryDelayMs,
+  classifyV2GenerationFailure
+} from "./generationFailures.js";
 import { assertV2ArticleInputWithinLimits } from "./generationLimits.js";
 import {
   buildV2GenerationProgress,
@@ -66,64 +70,16 @@ export async function runV2GenerationJob(input, {
 }
 
 function mapV2GenerationError(error, { jobId = "", chapterId = "", now = new Date().toISOString() } = {}) {
-  const message = error instanceof Error ? error.message : "生成失败，请稍后重试。";
-
-  if (error?.code === "input_too_long") {
-    return failure({
-      status: "failed_input",
-      failedStage: "input_validation",
-      failureReason: message,
-      retryable: false,
-      failureCode: "input_too_long",
-      jobId,
-      chapterId,
-      now
-    });
-  }
-
-  if (message.includes("API Key") || message.includes("DEEPSEEK_API_KEY") || message.includes("OPENAI_API_KEY")) {
-    return failure({
-      failedStage: "model_calling",
-      failureReason: message,
-      retryable: true,
-      jobId,
-      chapterId,
-      now
-    });
-  }
-
-  if (Array.isArray(error?.issues)) {
-    return failure({
-      status: "failed_quality",
-      failedStage: "quality_checking",
-      failureReason: error.issues.map((issue) => issue.message || issue.code).join("；") || message,
-      retryable: true,
-      issues: error.issues,
-      diagnostics: error.diagnostics,
-      stageRuntime: error.stageRuntime,
-      jobId,
-      chapterId,
-      now
-    });
-  }
-
-  if (Array.isArray(error?.errors)) {
-    return failure({
-      failedStage: "contract_validation",
-      failureReason: error.errors.join("；"),
-      retryable: false,
-      errors: error.errors,
-      stageRuntime: error.stageRuntime,
-      jobId,
-      chapterId,
-      now
-    });
-  }
-
+  const failureClass = classifyV2GenerationFailure(error);
   return failure({
-    failedStage: error?.stage || "generating_questions",
-    failureReason: message,
-    retryable: true,
+    ...failureClass,
+    failureCode: failureClass.code,
+    retryDelayMs: failureClass.retryable
+      ? calculateV2GenerationRetryDelayMs({ attemptCount: Number(error?.retryAttempts || 1) })
+      : 0,
+    issues: error?.issues,
+    errors: error?.errors,
+    diagnostics: error?.diagnostics,
     ...(error?.modelStage ? { modelStage: error.modelStage } : {}),
     ...(error?.retryAttempts ? { retryAttempts: error.retryAttempts } : {}),
     ...(error?.runtimeErrorType ? { runtimeErrorType: error.runtimeErrorType } : {}),
@@ -139,6 +95,8 @@ function failure({
   failedStage,
   failureReason,
   retryable,
+  canRetry = retryable,
+  displayStatusText = "生成失败",
   issues,
   errors,
   diagnostics,
@@ -147,6 +105,7 @@ function failure({
   runtimeErrorType,
   stageRuntime,
   failureCode,
+  retryDelayMs = 0,
   jobId = "",
   chapterId = "",
   now = new Date().toISOString()
@@ -156,7 +115,7 @@ function failure({
     chapterId,
     status: V2_GENERATION_STATUS.FAILED,
     stage: V2_GENERATION_STAGE.FAILED,
-    canRetry: retryable,
+    canRetry,
     failureCode,
     failureMessage: failureReason,
     updatedAt: now
@@ -164,10 +123,12 @@ function failure({
 
   return {
     status,
-    displayStatusText: "生成失败",
+    displayStatusText,
     failedStage,
     failureReason,
     retryable,
+    canRetry,
+    retryDelayMs,
     generationProgress,
     ...(modelStage ? { modelStage } : {}),
     ...(retryAttempts ? { retryAttempts } : {}),

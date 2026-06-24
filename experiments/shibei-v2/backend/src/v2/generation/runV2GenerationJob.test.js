@@ -74,7 +74,7 @@ test("allows quality callers to request full generation metadata", async () => {
   assert.equal(result.chapter.title, "quality meta");
 });
 
-test("maps missing API key errors to a retryable generation failure", async () => {
+test("maps missing API key errors to a non-retryable configuration failure", async () => {
   const result = await runV2GenerationJob({
     id: "chapter-001",
     title: "Hook",
@@ -86,9 +86,12 @@ test("maps missing API key errors to a retryable generation failure", async () =
   });
 
   assert.equal(result.status, "failed_generation");
-  assert.equal(result.displayStatusText, "生成失败");
+  assert.equal(result.displayStatusText, "模型配置缺失");
   assert.equal(result.failedStage, "model_calling");
-  assert.equal(result.retryable, true);
+  assert.equal(result.retryable, false);
+  assert.equal(result.canRetry, false);
+  assert.equal(result.generationProgress.failureCode, "missing_api_key");
+  assert.equal(result.generationProgress.canRetry, false);
   assert.match(result.failureReason, /API Key/);
 });
 
@@ -107,7 +110,10 @@ test("maps quality discard to non-completed generation failure", async () => {
 
   assert.equal(result.status, "failed_quality");
   assert.equal(result.failedStage, "quality_checking");
-  assert.equal(result.retryable, true);
+  assert.equal(result.retryable, false);
+  assert.equal(result.canRetry, true);
+  assert.equal(result.generationProgress.failureCode, "quality_failed");
+  assert.equal(result.generationProgress.canRetry, true);
   assert.match(result.failureReason, /答案缺少来源支撑/);
 });
 
@@ -127,6 +133,8 @@ test("maps contract validation errors to non-retryable generation failure", asyn
   assert.equal(result.status, "failed_generation");
   assert.equal(result.failedStage, "contract_validation");
   assert.equal(result.retryable, false);
+  assert.equal(result.canRetry, false);
+  assert.equal(result.generationProgress.failureCode, "contract_validation_failed");
   assert.match(result.failureReason, /payload.units/);
 });
 
@@ -162,8 +170,12 @@ test("preserves model prompt stage when JSON generation fails", async () => {
   assert.equal(result.runtimeErrorType, "json_parse_error");
   assert.equal(result.stageRuntime.failedAttemptCount, 3);
   assert.equal(result.retryable, true);
+  assert.equal(result.canRetry, true);
+  assert.ok(result.retryDelayMs >= 80_000);
+  assert.ok(result.retryDelayMs <= 120_000);
   assert.equal(result.generationProgress.status, "failed");
   assert.equal(result.generationProgress.canRetry, true);
+  assert.equal(result.generationProgress.failureCode, "structured_output_failed");
 });
 
 test("rejects overlong V2 article input before model generation", async () => {
