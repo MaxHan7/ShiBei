@@ -127,7 +127,7 @@
 <body>
 <main>
   <h1>拾贝 V2 Prompt 初级系统结构图</h1>
-  <div class="meta">Generated at 2026-06-23T15:09:58.899Z from current source files. This page is an inspection artifact, not a prompt runtime.</div>
+  <div class="meta">Generated at 2026-06-24T04:57:05.630Z from current source files. This page is an inspection artifact, not a prompt runtime.</div>
   <div class="toc">
     <a href="#flow">主链路结构</a>
     <a href="#active-stages">当前主链路 prompt</a>
@@ -1669,7 +1669,7 @@ function expectedUnitIdsWithQuestionType(practicePlansByUnit, type) {
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：unitCopyBatch。</li><li>任务：为整章所有 unit 生成单元开场 overview 和单元完成 summary。</li><li>短角色：你在这一阶段扮演单元文案编辑；目标是把当前知识点写成适合移动端卡片的开场和收尾文案。</li><li>规则：</li><li>- 每个输入 unit 输出一个 units[] 对象，unitId 必须原样对应。</li><li>- overview.text 是知识点开场页正文，帮助用户知道这个知识点在讲什么、为什么值得学。</li><li>- overview 只铺垫当前 unit 的核心，不泄露题目答案，也不复述第一题。</li><li>- summary.text 是完成当前 unit 后的一句收束反馈，只总结当前知识点，不总结整篇文章。</li><li>- 可以参考该 unit 的 sourceContext、practiceGoals 和 questionPlans 来把握重点，但不要输出题目、题干、选项或答案。</li><li>- 文案短、具体、温和，适合移动端卡片；不要写成论文摘要或长段解析。</li><li>- 不输出题目，不输出 ECD 字段。</li></ol>
+          <ol><li>阶段：unitCopyBatch。</li><li>任务：为整章所有 unit 生成单元开场 overview 和单元完成 summary。</li><li>短角色：你在这一阶段扮演单元文案编辑；目标是把当前知识点写成适合移动端卡片的开场和收尾文案。</li><li>输入说明：</li><li>- unitCopyInputs 只包含精简后的 unit 元信息和 practiceSignals。</li><li>- 本阶段不会收到 sourceContext.blocks、完整 questionPlans 或完整题目草稿。</li><li>规则：</li><li>- 每个输入 unit 输出一个 units[] 对象，unitId 必须原样对应。</li><li>- overview.text 是知识点开场页正文，帮助用户知道这个知识点在讲什么、为什么值得学。</li><li>- overview 只铺垫当前 unit 的核心，不泄露题目答案，也不复述第一题。</li><li>- summary.text 是完成当前 unit 后的一句收束反馈，只总结当前知识点，不总结整篇文章。</li><li>- 可以参考 unit 的 title、shortSummary、detailSummary、why 和 practiceSignals.focusTargets 来把握重点。</li><li>- 不要输出题目、题干、选项或答案。</li><li>- 文案短、具体、温和，适合移动端卡片；不要写成论文摘要或长段解析。</li><li>- 不输出题目，不输出 ECD 字段。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildUnitCopyBatchMessages({ article, source, units }) {
   return {
@@ -1678,12 +1678,16 @@ function expectedUnitIdsWithQuestionType(practicePlansByUnit, type) {
       &quot;阶段：unitCopyBatch。&quot;,
       &quot;任务：为整章所有 unit 生成单元开场 overview 和单元完成 summary。&quot;,
       &quot;短角色：你在这一阶段扮演单元文案编辑；目标是把当前知识点写成适合移动端卡片的开场和收尾文案。&quot;,
+      &quot;输入说明：&quot;,
+      &quot;- unitCopyInputs 只包含精简后的 unit 元信息和 practiceSignals。&quot;,
+      &quot;- 本阶段不会收到 sourceContext.blocks、完整 questionPlans 或完整题目草稿。&quot;,
       &quot;规则：&quot;,
       &quot;- 每个输入 unit 输出一个 units[] 对象，unitId 必须原样对应。&quot;,
       &quot;- overview.text 是知识点开场页正文，帮助用户知道这个知识点在讲什么、为什么值得学。&quot;,
       &quot;- overview 只铺垫当前 unit 的核心，不泄露题目答案，也不复述第一题。&quot;,
       &quot;- summary.text 是完成当前 unit 后的一句收束反馈，只总结当前知识点，不总结整篇文章。&quot;,
-      &quot;- 可以参考该 unit 的 sourceContext、practiceGoals 和 questionPlans 来把握重点，但不要输出题目、题干、选项或答案。&quot;,
+      &quot;- 可以参考 unit 的 title、shortSummary、detailSummary、why 和 practiceSignals.focusTargets 来把握重点。&quot;,
+      &quot;- 不要输出题目、题干、选项或答案。&quot;,
       &quot;- 文案短、具体、温和，适合移动端卡片；不要写成论文摘要或长段解析。&quot;,
       &quot;- 不输出题目，不输出 ECD 字段。&quot;,
       &quot;&quot;,
@@ -4615,12 +4619,7 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
     {
       article,
       source: sourceMap.source,
-      units: unitDraftInputs.map((input) =&gt; ({
-        unit: input.unit,
-        practicePlan: input.practicePlan,
-        questions: questionDraftsByUnit.get(input.unit.id)?.questions || [],
-        sourceContext: input.sourceContext
-      }))
+      units: buildUnitCopyInputs({ unitDraftInputs, questionDraftsByUnit })
     },
     (output) =&gt; validateUnitCopyBatchOutput(output, { unitIds })
   );

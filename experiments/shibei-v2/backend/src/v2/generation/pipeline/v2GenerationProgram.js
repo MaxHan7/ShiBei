@@ -242,12 +242,7 @@ export async function runV2GenerationProgram(
     {
       article,
       source: sourceMap.source,
-      units: unitDraftInputs.map((input) => ({
-        unit: input.unit,
-        practicePlan: input.practicePlan,
-        questions: questionDraftsByUnit.get(input.unit.id)?.questions || [],
-        sourceContext: input.sourceContext
-      }))
+      units: buildUnitCopyInputs({ unitDraftInputs, questionDraftsByUnit })
     },
     (output) => validateUnitCopyBatchOutput(output, { unitIds })
   );
@@ -421,6 +416,43 @@ function buildUnitDraftInputs({
       }
     };
   });
+}
+
+function buildUnitCopyInputs({ unitDraftInputs, questionDraftsByUnit }) {
+  return unitDraftInputs.map((input) => {
+    const questions = questionDraftsByUnit.get(input.unit.id)?.questions || [];
+    return {
+      unit: pickUnitCopyFields(input.unit),
+      practiceSignals: summarizePracticeSignals(input.practicePlan, questions)
+    };
+  });
+}
+
+function pickUnitCopyFields(unit) {
+  return {
+    id: unit.id,
+    order: unit.order,
+    title: unit.title,
+    nodeLabel: unit.nodeLabel,
+    shortSummary: unit.shortSummary,
+    detailSummary: unit.detailSummary,
+    why: unit.why
+  };
+}
+
+function summarizePracticeSignals(practicePlan, questions) {
+  const questionPlans = Array.isArray(practicePlan?.questionPlans) ? practicePlan.questionPlans : [];
+  const practiceGoals = Array.isArray(practicePlan?.practiceGoals) ? practicePlan.practiceGoals : [];
+  return {
+    questionCount: questions.length || questionPlans.length,
+    multipleChoiceCount: questionPlans.filter((plan) => plan.type === "multiple_choice").length,
+    matchingCount: questionPlans.filter((plan) => plan.type === "matching").length,
+    focusTargets: practiceGoals.map((goal) => ({
+      kind: goal.kind,
+      target: goal.target,
+      commonMisconception: goal.commonMisconception
+    }))
+  };
 }
 
 function buildTypedDraftInputs(unitDraftInputs, type) {

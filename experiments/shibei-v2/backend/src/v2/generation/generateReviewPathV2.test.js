@@ -255,8 +255,16 @@ test("passes only compact source windows into per-unit stages", async () => {
   assert.deepEqual(captured.multipleChoiceDraftUnitBatch[0].sourceContext.blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
   assert.deepEqual(captured.multipleChoiceDraftUnitBatch[1].sourceContext.blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
   assert.equal(captured.matchingDraftBatch, null);
-  assert.deepEqual(captured.unitCopyBatch.units[0].sourceContext.blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
-  assert.deepEqual(captured.unitCopyBatch.units[1].sourceContext.blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
+  assert.deepEqual(
+    captured.unitCopyBatch.units.map((input) => input.unit.id),
+    ["unit-01", "unit-02"]
+  );
+  assert.equal(captured.unitCopyBatch.units[0].sourceContext, undefined);
+  assert.equal(captured.unitCopyBatch.units[0].questions, undefined);
+  assert.equal(captured.unitCopyBatch.units[0].practicePlan, undefined);
+  assert.equal(captured.unitCopyBatch.units[0].practiceSignals.questionCount, 2);
+  assert.equal(captured.unitCopyBatch.units[0].practiceSignals.multipleChoiceCount, 2);
+  assert.equal(captured.unitCopyBatch.units[0].practiceSignals.matchingCount, 0);
   assert.deepEqual(reviewPath.generationMeta.sourceContextStats, {
     fullBlockCount: 8,
     unitKnowledgeMap: {

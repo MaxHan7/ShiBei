@@ -1556,3 +1556,67 @@ The full run costs more than the failed run because it now reaches all later gen
 - `unitCopyBatch` taking a large prompt payload.
 
 The next architecture iteration should not revisit `taskBriefPlan` unless quality review finds a specific planning problem. The likely next structural optimization is to scope `matchingDraftBatch` or slim `unitCopyBatch`, while separately reviewing unit-boundary quality such as whether DMC should remain independent.
+
+## 2026-06-24 Unit Copy Slim
+
+### Hypothesis
+
+`unitCopyBatch` only writes mobile UI copy for unit overview and unit completion, but the previous run passed broad per-unit payloads into it: full `practicePlan`, generated `questions`, and `sourceContext.blocks`. That made a low-risk copywriting stage consume 20,042 tokens.
+
+This checkpoint keeps the current question-generation behavior unchanged and only slims `unitCopyBatch` input:
+
+- pass compact unit metadata: `id / order / title / nodeLabel / shortSummary / detailSummary / why`;
+- pass compact `practiceSignals`: question counts and focus targets;
+- do not pass `sourceContext.blocks`;
+- do not pass complete `questionPlans`;
+- do not pass generated `questions`.
+
+No new quality rules or ECD rules were added in this checkpoint.
+
+### Artifacts
+
+- JSON: `runs/20260624-044937-v2-unit-copy-slim.json`
+- HTML: `reports/20260624-044937-v2-unit-copy-slim.html`
+
+### Result
+
+| Metric | Scoped task brief baseline | Unit copy slim run |
+| --- | ---: | ---: |
+| Status | completed | completed |
+| Units | 7 | 8 |
+| Questions | 22 | 23 |
+| Multiple choice | 17 | 16 |
+| Matching | 5 | 7 |
+| Runtime failed attempts | 2 | 0 |
+| Runtime retry attempts | 2 | 0 |
+| Model calls | 26 | 27 |
+| Prompt tokens | 94,402 | 78,960 |
+| Completion tokens | 40,212 | 34,196 |
+| Total tokens | 134,614 | 113,156 |
+| Diagnostic issue count | 4 | 1 |
+
+Stage token comparison:
+
+| Stage | Baseline total tokens | Unit copy slim total tokens | Notes |
+| --- | ---: | ---: | --- |
+| `reviewPathPlan` | 11,649 | 11,908 | Similar |
+| `unitKnowledgeMap` | 26,961 | 23,355 | One more unit, no retry |
+| `taskBriefPlan` | 29,966 | 32,118 | One more unit |
+| `multipleChoiceDraftUnitBatch` | 32,512 | 27,257 | No retry |
+| `matchingDraftBatch` | 13,484 | 14,271 | More matching output |
+| `unitCopyBatch` | 20,042 | 4,247 | 79% lower |
+
+### Quality Notes
+
+- The run generated one more unit and one more question than the baseline, so total model calls increased by one.
+- Despite the extra unit, total token cost dropped by 21,458 tokens.
+- Runtime stability improved in this run: no `empty_structured_text` and no `json_parse_error` retry occurred.
+- This checkpoint does not prove all instability is solved, but it confirms that removing unnecessary downstream context can reduce cost without obvious quality loss.
+
+### Conclusion
+
+The unit copy slimming checkpoint worked and should be kept. The next cost/stability candidates are:
+
+- `matchingDraftBatch`: still one broader whole-chapter batch, and token cost rises when more matching plans exist.
+- `multipleChoiceDraftUnitBatch`: stable in this run, but still one call per unit and remains a major token consumer.
+- `reviewPathPlan`: still determines unit boundary quality; do not change it for runtime reasons unless quality review requires it.

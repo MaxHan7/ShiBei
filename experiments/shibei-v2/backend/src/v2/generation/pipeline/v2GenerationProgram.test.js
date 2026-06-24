@@ -33,7 +33,8 @@ test("calls scoped MC unit batches with only current unit briefs and source cont
     unitKnowledgeMap: [],
     taskBriefPlan: [],
     multipleChoiceDraftUnitBatch: [],
-    matchingDraftBatch: null
+    matchingDraftBatch: null,
+    unitCopyBatch: null
   };
   const promptCaller = async (stage, payload) => {
     if (stage === "unitKnowledgeMap") {
@@ -47,6 +48,9 @@ test("calls scoped MC unit batches with only current unit briefs and source cont
     }
     if (stage === "matchingDraftBatch") {
       captured.matchingDraftBatch = payload;
+    }
+    if (stage === "unitCopyBatch") {
+      captured.unitCopyBatch = payload;
     }
     return fixtureOutputForStage(stage, payload);
   };
@@ -100,6 +104,38 @@ test("calls scoped MC unit batches with only current unit briefs and source cont
   assert.equal(matchingBrief.relationType, "responsibility");
   assert.equal(firstMcBrief.fullArticleText, undefined);
   assert.doesNotMatch(JSON.stringify(firstMcPayload.questionBriefs), /rawText/);
+  assert.equal(captured.unitCopyBatch.units.length, 2);
+  assert.deepEqual(
+    captured.unitCopyBatch.units.map((input) => input.unit.id),
+    ["unit-01", "unit-02"]
+  );
+  assert.deepEqual(Object.keys(captured.unitCopyBatch.units[0].unit).sort(), [
+    "detailSummary",
+    "id",
+    "nodeLabel",
+    "order",
+    "shortSummary",
+    "title",
+    "why"
+  ]);
+  assert.equal(captured.unitCopyBatch.units[0].sourceContext, undefined);
+  assert.equal(captured.unitCopyBatch.units[0].questions, undefined);
+  assert.equal(captured.unitCopyBatch.units[0].practicePlan, undefined);
+  assert.equal(captured.unitCopyBatch.units[0].practiceSignals.questionCount, 2);
+  assert.equal(captured.unitCopyBatch.units[0].practiceSignals.multipleChoiceCount, 1);
+  assert.equal(captured.unitCopyBatch.units[0].practiceSignals.matchingCount, 1);
+  assert.deepEqual(captured.unitCopyBatch.units[0].practiceSignals.focusTargets, [
+    {
+      kind: "core_understanding",
+      target: "理解 Hook 是流程控制器",
+      commonMisconception: "把 Hook 当作更长提示词。"
+    },
+    {
+      kind: "relationship_mapping",
+      target: "区分 Hook 中规则、上下文和验证的职责",
+      commonMisconception: "把三者混成同一个检查步骤。"
+    }
+  ]);
   assert.equal(reviewPath.generationMeta.questionBriefsByUnit, undefined);
   assert.deepEqual(
     reviewPath.generationMeta.multipleChoiceDraftBatch.units.map((unit) => unit.unitId),

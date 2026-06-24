@@ -330,16 +330,26 @@ test("unitCopyBatch prompt generates all unit overview and summary copy", () => 
     source: { type: "article", title: ARTICLE.title },
     units: [
       {
-        unit: unitFixture(),
-        practicePlan: {
-          unitId: "unit-01",
-          practiceGoals: [],
-          questionPlans: []
+        unit: {
+          id: "unit-01",
+          order: 1,
+          title: "Hook 是什么",
+          nodeLabel: "流程控制",
+          shortSummary: "Hook 是流程控制器。",
+          detailSummary: "Hook 在关键动作前后稳定执行规则。",
+          why: "这是理解自动化边界的基础。"
         },
-        questions: [],
-        sourceContext: {
-          blocks: [{ id: "p-001", type: "paragraph", text: "Hook 是流程控制器。" }],
-          sourceContextNote: { mode: "unit_window", unitId: "unit-01" }
+        practiceSignals: {
+          questionCount: 2,
+          multipleChoiceCount: 1,
+          matchingCount: 1,
+          focusTargets: [
+            {
+              kind: "core_understanding",
+              target: "理解 Hook 是流程控制器",
+              commonMisconception: "把 Hook 当成更长提示词"
+            }
+          ]
         }
       }
     ]
@@ -353,10 +363,13 @@ test("unitCopyBatch prompt generates all unit overview and summary copy", () => 
   assert.match(messages.user, /为什么值得学/);
   assert.match(messages.user, /不泄露题目答案/);
   assert.match(messages.user, /完成当前 unit 后的一句收束反馈/);
-  assert.match(messages.user, /sourceContext、practiceGoals 和 questionPlans/);
+  assert.match(messages.user, /精简后的 unit 元信息和 practiceSignals/);
+  assert.match(messages.user, /不会收到 sourceContext\.blocks、完整 questionPlans 或完整题目草稿/);
+  assert.match(messages.user, /practiceSignals\.focusTargets/);
   assert.match(messages.user, /不要输出题目、题干、选项或答案/);
   assert.match(messages.user, /不要写成论文摘要或长段解析/);
   assert.match(messages.user, /不输出题目，不输出 ECD 字段/);
+  assert.doesNotMatch(messages.user, /p-001|sourceContextNote|"blocks"|"questionPlans"|"questions"/);
 });
 
 test("ecdPlanning prompt asks for internal ECD reasoning and compact task planning", () => {
