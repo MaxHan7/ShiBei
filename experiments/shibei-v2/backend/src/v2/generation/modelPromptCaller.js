@@ -71,7 +71,7 @@ const STAGE_SCHEMAS = {
   reviewPathPlan: {
     schemaName: REVIEW_PATH_PLAN_PROMPT_SCHEMA_NAME,
     schema: REVIEW_PATH_PLAN_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 2600
+    estimatedOutputTokens: 3200
   },
   unitKnowledgeMap: {
     schemaName: UNIT_KNOWLEDGE_MAP_PROMPT_SCHEMA_NAME,

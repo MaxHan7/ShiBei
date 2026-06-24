@@ -227,7 +227,7 @@ test("uses reduced output budgets for early planning stages", async () => {
   });
 
   assert.equal(calls[0].stage, "v2_reviewPathPlan");
-  assert.equal(calls[0].estimatedOutputTokens, 2600);
+  assert.equal(calls[0].estimatedOutputTokens, 3200);
   assert.equal(calls[1].stage, "v2_unitKnowledgeMap");
   assert.equal(calls[1].estimatedOutputTokens, 1700);
 });
