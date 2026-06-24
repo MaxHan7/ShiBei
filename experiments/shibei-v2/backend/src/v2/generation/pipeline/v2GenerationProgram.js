@@ -113,7 +113,7 @@ export async function runV2GenerationProgram(
           source: sourceMap.source,
           blocks: sourceContext.blocks,
           sourceContextNote: sourceContext.sourceContextNote,
-          plan: buildSingleUnitPlan(plan, plannedUnit)
+          plan: buildSingleUnitPromptPlan(plan, plannedUnit)
         },
         (output) =>
           validateUnitKnowledgeMapOutput(output, {
@@ -139,7 +139,7 @@ export async function runV2GenerationProgram(
           source: sourceContext.source,
           blocks: sourceContext.blocks,
           sourceContextNote: sourceContext.sourceContextNote,
-          plan: buildSingleUnitPlan(stripReviewPathPlanForMetadata(plan), plannedUnit),
+          plan: buildSingleUnitPromptPlan(plan, plannedUnit),
           unitKnowledgeMap: buildSingleUnitKnowledgeMap(unitKnowledgeMap, plannedUnit.id)
         },
         (output) =>
@@ -363,14 +363,10 @@ function shouldIncludeDebugGenerationMeta(mode) {
   return mode === "debug" || mode === "quality";
 }
 
-function buildSingleUnitPlan(plan, plannedUnit) {
+function buildSingleUnitPromptPlan(plan, plannedUnit) {
   return {
     title: plan.title,
-    summaryCard: plan.summaryCard,
-    chapterSummary: plan.chapterSummary,
-    units: [plannedUnit],
-    ...(Array.isArray(plan.knowledgeObjects) ? { knowledgeObjects: plan.knowledgeObjects } : {}),
-    ...(plan.generationConstraints ? { generationConstraints: plan.generationConstraints } : {})
+    units: [stripInternalPlannedUnitFields(plannedUnit)]
   };
 }
 

@@ -1,0 +1,725 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-24T15:46:08.693Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-token-input-slim-rerun",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11327
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 1,
+    "diagnosticIssueCount": 0,
+    "runtimeFailedAttemptCount": 1,
+    "runtimeRetryAttemptCount": 1,
+    "modelCallCount": 19,
+    "promptTokenCount": 47299,
+    "completionTokenCount": 27907,
+    "totalTokenCount": 75206
+  },
+  "chapter": null,
+  "unitKnowledgeMap": null,
+  "ecdPlanning": null,
+  "sourceContextStats": null,
+  "stageRuntime": {
+    "schemaVersion": "v2_stage_runtime_1",
+    "callCount": 18,
+    "attemptCount": 19,
+    "failedAttemptCount": 1,
+    "retryAttemptCount": 1,
+    "stages": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 30961,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "callCount": 10,
+        "successCallCount": 10,
+        "failedCallCount": 0,
+        "attemptCount": 11,
+        "retryAttemptCount": 1,
+        "transientFailureCount": 1,
+        "totalDurationMs": 133562,
+        "errorTypes": {
+          "json_parse_error": 1
+        },
+        "lastErrorType": "json_parse_error",
+        "lastErrorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "stage": "v2_taskBriefPlan",
+        "callCount": 7,
+        "successCallCount": 7,
+        "failedCallCount": 0,
+        "attemptCount": 7,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 138969,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      }
+    ],
+    "attempts": [
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 30961,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-2",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 8529,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-3",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 13868,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-4",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 8572,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-5",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 12487,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-6",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 12789,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-7",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 9023,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-8",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 19254,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "unitKnowledgeMap-8",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 2,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 9849,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-9",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 12569,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-10",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 13517,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-11",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 13105,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-12",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 23044,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-13",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 22931,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-14",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 21197,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-15",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 26858,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-16",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 9217,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-17",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 18033,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-18",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 17689,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      }
+    ]
+  },
+  "architectureMetrics": {
+    "schemaVersion": "v2_architecture_metrics_1",
+    "total": {
+      "modelCallCount": 19,
+      "runtimeCallCount": 18,
+      "attemptCount": 19,
+      "retryAttemptCount": 1,
+      "failedAttemptCount": 1,
+      "promptTokens": 47299,
+      "completionTokens": 27907,
+      "totalTokens": 75206,
+      "promptCacheHitTokens": 26496,
+      "promptCacheMissTokens": 20803,
+      "durationMs": 303492
+    },
+    "stages": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "modelCallCount": 1,
+        "promptTokens": 10146,
+        "completionTokens": 2795,
+        "totalTokens": 12941,
+        "promptCacheHitTokens": 10112,
+        "promptCacheMissTokens": 34,
+        "estimatedOutputTokens": 4000,
+        "runtimeCallCount": 1,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 30961,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_taskBriefPlan",
+        "modelCallCount": 7,
+        "promptTokens": 16664,
+        "completionTokens": 12243,
+        "totalTokens": 28907,
+        "promptCacheHitTokens": 6912,
+        "promptCacheMissTokens": 9752,
+        "estimatedOutputTokens": 26600,
+        "runtimeCallCount": 7,
+        "attemptCount": 7,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 138969,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "modelCallCount": 11,
+        "promptTokens": 20489,
+        "completionTokens": 12869,
+        "totalTokens": 33358,
+        "promptCacheHitTokens": 9472,
+        "promptCacheMissTokens": 11017,
+        "estimatedOutputTokens": 18700,
+        "runtimeCallCount": 10,
+        "attemptCount": 11,
+        "retryAttemptCount": 1,
+        "failedAttemptCount": 1,
+        "durationMs": 133562,
+        "errorTypes": {
+          "json_parse_error": 1
+        },
+        "lastErrorType": "json_parse_error",
+        "lastErrorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      }
+    ]
+  },
+  "qualityDiagnostics": [],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 4000,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 10146,
+        "completion_tokens": 2795,
+        "total_tokens": 12941,
+        "prompt_cache_hit_tokens": 10112,
+        "prompt_cache_miss_tokens": 34
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 1786,
+        "completion_tokens": 771,
+        "total_tokens": 2557,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 1018
+      }
+    },
+    {
+      "index": 3,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2185,
+        "completion_tokens": 1388,
+        "total_tokens": 3573,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 1417
+      }
+    },
+    {
+      "index": 4,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 1618,
+        "completion_tokens": 754,
+        "total_tokens": 2372,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 850
+      }
+    },
+    {
+      "index": 5,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 1714,
+        "completion_tokens": 1240,
+        "total_tokens": 2954,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 946
+      }
+    },
+    {
+      "index": 6,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 1862,
+        "completion_tokens": 1326,
+        "total_tokens": 3188,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 1094
+      }
+    },
+    {
+      "index": 7,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 1542,
+        "completion_tokens": 1109,
+        "total_tokens": 2651,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 774
+      }
+    },
+    {
+      "index": 8,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"units\": [\n    {\n      \"unitId\": \"unit-7\",\n      \"microKnowledgePoints\": [\n        {\n          \"microId\": \"micro-unit-7-001\",\n          \"title\": \"成长感知设计核心概念\",\n          \"summary\": \"通过可视化将缓慢成果转化为持续感知的过程，增强投入感\",\n          \"role\": \"definition\",\n          \"assessmentValue\": \"high\",\n          \"primaryEvidenceAngle\": \"概括成长感知设计定义\"\n        },\n        {\n          \"microId\": \"micro-unit-7-002\",\n          \"title\": \"蚂蚁森林成长可视化\",\n          \"summary\": \"将低碳行为转化为树木生长并真实种植，增强成就感\",\n          \"role\": \"example_case\",\n          \"assessmentValue\": \"medium\",\n          \"primaryEvidenceAngle\": \"描述蚂蚁森林成长链条\"\n        },\n        {\n          \"microId\": \"micro-unit-7-003\",\n          \"title\": \"蚂蚁庄园公益映射\",\n          \"summary\": \"通过喂养小鸡收获爱心蛋支持公益，将公益结果可视化\",\n          \"role\": \"example_case\",\n          \"assessmentValue\": \"medium\",\n          \"primaryEvidenceAngle\": \"说明蚂蚁庄园成长映射\"\n        },\n        {\n          \"microId\": \"micro-unit-7-004\",\n          \"title\": \"成就排行榜成长标识\",\n          \"summary\": \"借助等级段位将能力变为可见标识，形成明确进步感知\",\n          \"role\": \"mechanism\",\n          \"assessmentValue\": \"high\",\n          \"primaryEvidenceAngle\": \"解释成就排行榜作用\"\n        },\n        {\n          \"microId\": \"micro-unit-7-005\",\n          \"title\": \"技能树与成长路径\",\n          \"summary\": \"结构化内容增强方向感，使用户理解进步逻辑\",\n",
+      "usage": {
+        "prompt_tokens": 1833,
+        "completion_tokens": 1700,
+        "total_tokens": 3533,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 1065
+      }
+    },
+    {
+      "index": 9,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 1833,
+        "completion_tokens": 1004,
+        "total_tokens": 2837,
+        "prompt_cache_hit_tokens": 1792,
+        "prompt_cache_miss_tokens": 41
+      }
+    },
+    {
+      "index": 10,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2243,
+        "completion_tokens": 1199,
+        "total_tokens": 3442,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 1475
+      }
+    },
+    {
+      "index": 11,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2096,
+        "completion_tokens": 1083,
+        "total_tokens": 3179,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 1328
+      }
+    },
+    {
+      "index": 12,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 1777,
+        "completion_tokens": 1295,
+        "total_tokens": 3072,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 1009
+      }
+    },
+    {
+      "index": 13,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2316,
+        "completion_tokens": 1943,
+        "total_tokens": 4259,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 1420
+      }
+    },
+    {
+      "index": 14,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2852,
+        "completion_tokens": 2158,
+        "total_tokens": 5010,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 1956
+      }
+    },
+    {
+      "index": 15,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2146,
+        "completion_tokens": 1816,
+        "total_tokens": 3962,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 1122
+      }
+    },
+    {
+      "index": 16,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2279,
+        "completion_tokens": 2158,
+        "total_tokens": 4437,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 1255
+      }
+    },
+    {
+      "index": 17,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2490,
+        "completion_tokens": 1004,
+        "total_tokens": 3494,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 1466
+      }
+    },
+    {
+      "index": 18,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2158,
+        "completion_tokens": 1571,
+        "total_tokens": 3729,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 1134
+      }
+    },
+    {
+      "index": 19,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2423,
+        "completion_tokens": 1593,
+        "total_tokens": 4016,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 1399
+      }
+    }
+  ],
+  "failure": {
+    "failedStage": "contract_validation",
+    "failureReason": "taskBriefPlan.units[0]: unitPracticePlan.questionPlans[2].purpose must be one of light_understanding, scenario_application, boundary_clarification, relationship_matching, boundary_check, misconception_check, counterexample_check, layer_role_matching, type_feature_matching, step_purpose_matching, signal_action_matching, role_responsibility_matching",
+    "retryable": false,
+    "modelStage": "",
+    "retryAttempts": 0,
+    "issues": [],
+    "errors": [
+      "taskBriefPlan.units[0]: unitPracticePlan.questionPlans[2].purpose must be one of light_understanding, scenario_application, boundary_clarification, relationship_matching, boundary_check, misconception_check, counterexample_check, layer_role_matching, type_feature_matching, step_purpose_matching, signal_action_matching, role_responsibility_matching"
+    ],
+    "diagnostics": []
+  }
+}

@@ -127,7 +127,7 @@
 <body>
 <main>
   <h1>拾贝 V2 Prompt 初级系统结构图</h1>
-  <div class="meta">Generated at 2026-06-24T04:57:05.630Z from current source files. This page is an inspection artifact, not a prompt runtime.</div>
+  <div class="meta">Generated at 2026-06-24T15:56:38.425Z from current source files. This page is an inspection artifact, not a prompt runtime.</div>
   <div class="toc">
     <a href="#flow">主链路结构</a>
     <a href="#active-stages">当前主链路 prompt</a>
@@ -665,9 +665,7 @@ function validateStringMaxLength(value, maxLength, path, errors) {
       &quot;&quot;,
       `reviewPathPlan:\n${JSON.stringify(plan, null, 2)}`,
       &quot;&quot;,
-      renderSource(source, blocks, sourceContextNote),
-      &quot;&quot;,
-      renderArticleMeta(article)
+      renderSource(source, blocks, sourceContextNote)
     ].join(&quot;\n&quot;)
   };
 }</pre></details>
@@ -1011,9 +1009,7 @@ function normalizeAssessmentValue(value) {
       &quot;&quot;,
       `unitKnowledgeMap:\n${JSON.stringify(unitKnowledgeMap || {}, null, 2)}`,
       &quot;&quot;,
-      renderSource(source, blocks, sourceContextNote),
-      &quot;&quot;,
-      renderArticleMeta(article)
+      renderSource(source, blocks, sourceContextNote)
     ].join(&quot;\n&quot;)
   };
 }</pre></details>
@@ -1412,8 +1408,7 @@ function compactSourceContext(sourceContext) {
       `questionBriefs:\n${JSON.stringify(questionBriefs || [], null, 2)}`,
       &quot;&quot;,
       `sourceContext:\n${JSON.stringify(sourceContext || {}, null, 2)}`,
-      &quot;&quot;,
-      renderArticleMeta(article)
+      &quot;&quot;
     ].join(&quot;\n&quot;)
   };
 }</pre></details>
@@ -1514,8 +1509,7 @@ export function validateMultipleChoiceDraftUnitBatchOutput(
       `source:\n${JSON.stringify(source || {}, null, 2)}`,
       &quot;&quot;,
       `unitDraftInputs:\n${JSON.stringify(units || [], null, 2)}`,
-      &quot;&quot;,
-      renderArticleMeta(article)
+      &quot;&quot;
     ].join(&quot;\n&quot;)
   };
 }</pre></details>
@@ -1694,8 +1688,7 @@ function expectedUnitIdsWithQuestionType(practicePlansByUnit, type) {
       `source:\n${JSON.stringify(source || {}, null, 2)}`,
       &quot;&quot;,
       `unitCopyInputs:\n${JSON.stringify(units || [], null, 2)}`,
-      &quot;&quot;,
-      renderArticleMeta(article)
+      &quot;&quot;
     ].join(&quot;\n&quot;)
   };
 }</pre></details>
@@ -3175,7 +3168,21 @@ export function normalizeQuestionPlanPurpose(value) {
   if (typeof value !== &quot;string&quot;) return value;
   const normalized = value.trim();
   if (QUESTION_PLAN_PURPOSES.includes(normalized)) return normalized;
-  return QUESTION_PLAN_PURPOSE_ALIASES.get(normalized) || normalized;
+  const alias = QUESTION_PLAN_PURPOSE_ALIASES.get(normalized);
+  if (alias) return alias;
+
+  const lowered = normalized.toLowerCase();
+  if (lowered.includes(&quot;layer&quot;)) return &quot;layer_role_matching&quot;;
+  if (lowered.includes(&quot;type&quot;) || lowered.includes(&quot;feature&quot;)) return &quot;type_feature_matching&quot;;
+  if (lowered.includes(&quot;step&quot;) || lowered.includes(&quot;process&quot;)) return &quot;step_purpose_matching&quot;;
+  if (lowered.includes(&quot;signal&quot;) || lowered.includes(&quot;action&quot;)) return &quot;signal_action_matching&quot;;
+  if (lowered.includes(&quot;role&quot;) || lowered.includes(&quot;responsibil&quot;)) return &quot;role_responsibility_matching&quot;;
+  if (lowered.includes(&quot;match&quot;) || lowered.includes(&quot;map&quot;) || lowered.includes(&quot;relation&quot;)) return &quot;relationship_matching&quot;;
+  if (lowered.includes(&quot;scenario&quot;) || lowered.includes(&quot;case&quot;) || lowered.includes(&quot;application&quot;)) return &quot;scenario_application&quot;;
+  if (lowered.includes(&quot;boundary&quot;) || lowered.includes(&quot;clarif&quot;)) return &quot;boundary_clarification&quot;;
+  if (lowered.includes(&quot;misconception&quot;) || lowered.includes(&quot;mistake&quot;)) return &quot;misconception_check&quot;;
+  if (lowered.includes(&quot;counterexample&quot;)) return &quot;counterexample_check&quot;;
+  return &quot;light_understanding&quot;;
 }
 
 export function normalizeUnitPracticePlanOutput(output) {
@@ -3751,9 +3758,7 @@ function expectedUnitIdsWithQuestionType(practicePlansByUnit, type) {
       `practicePlan:\n${JSON.stringify(practicePlan, null, 2)}`,
       &quot;&quot;,
       ...ecdContextSection,
-      renderSource(source, blocks, sourceContextNote),
-      &quot;&quot;,
-      renderArticleMeta(article)
+      renderSource(source, blocks, sourceContextNote)
     ].join(&quot;\n&quot;)
   };
 }</pre></details>
@@ -3983,9 +3988,7 @@ function validateOptions(question, path, errors) {
       `practicePlan:\n${JSON.stringify(practicePlan, null, 2)}`,
       &quot;&quot;,
       ...ecdContextSection,
-      renderSource(source, blocks, sourceContextNote),
-      &quot;&quot;,
-      renderArticleMeta(article)
+      renderSource(source, blocks, sourceContextNote)
     ].join(&quot;\n&quot;)
   };
 }</pre></details>
@@ -4361,12 +4364,12 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
   reviewPathPlan: {
     schemaName: REVIEW_PATH_PLAN_PROMPT_SCHEMA_NAME,
     schema: REVIEW_PATH_PLAN_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 3200
+    estimatedOutputTokens: 4000
   },
   unitKnowledgeMap: {
     schemaName: UNIT_KNOWLEDGE_MAP_PROMPT_SCHEMA_NAME,
     schema: UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 1800
+    estimatedOutputTokens: 1700
   },
   ecdPlanning: {
     schemaName: ECD_PLANNING_PROMPT_SCHEMA_NAME,
@@ -4391,17 +4394,17 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
   multipleChoiceDraftUnitBatch: {
     schemaName: MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_PROMPT_SCHEMA_NAME,
     schema: MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 2200
+    estimatedOutputTokens: 2400
   },
   matchingDraftBatch: {
     schemaName: MATCHING_DRAFT_BATCH_PROMPT_SCHEMA_NAME,
     schema: MATCHING_DRAFT_BATCH_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 5200
+    estimatedOutputTokens: 4600
   },
   unitCopyBatch: {
     schemaName: UNIT_COPY_BATCH_PROMPT_SCHEMA_NAME,
     schema: UNIT_COPY_BATCH_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 2400
+    estimatedOutputTokens: 1400
   },
   unitPracticePlan: {
     schemaName: UNIT_PRACTICE_PLAN_PROMPT_SCHEMA_NAME,
@@ -4444,6 +4447,7 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
     maxUnitCount = readOptionalPositiveInt(process.env.V2_GENERATION_MAX_UNITS),
     unitConcurrency = readOptionalPositiveInt(process.env.V2_GENERATION_UNIT_CONCURRENCY) ?? 1,
     qualityJudgeEnabled = readOptionalBoolean(process.env.V2_ENABLE_QUALITY_JUDGE) ?? false,
+    generationMetaMode = process.env.V2_GENERATION_META_MODE || &quot;debug&quot;,
     sourceMapMode = process.env.V2_SOURCE_MAP_MODE || &quot;deterministic&quot;,
     now = new Date().toISOString()
   } = {}
@@ -4478,11 +4482,6 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
   const planSourceContext = buildPlanSourceContext(sourceMap, plan);
   const unitIds = new Set(plan.units.map((unit) =&gt; unit.id));
   const sourceAnchorIds = new Set(plan.units.map((unit) =&gt; unit.sourceAnchor?.id).filter(Boolean));
-  const unitSourceAnchorIds = new Map(
-    plan.units
-      .map((unit) =&gt; [unit.id, unit.sourceAnchor?.id])
-      .filter(([, sourceAnchorId]) =&gt; Boolean(sourceAnchorId))
-  );
   const unitSourceContexts = buildUnitSourceContexts({ sourceMap, plan });
   const unitKnowledgeMap = mergeUnitKnowledgeMapOutputs(
     await mapWithConcurrency(plan.units, unitConcurrency, async (plannedUnit) =&gt; {
@@ -4495,7 +4494,7 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
           source: sourceMap.source,
           blocks: sourceContext.blocks,
           sourceContextNote: sourceContext.sourceContextNote,
-          plan: buildSingleUnitPlan(plan, plannedUnit)
+          plan: buildSingleUnitPromptPlan(plan, plannedUnit)
         },
         (output) =&gt;
           validateUnitKnowledgeMapOutput(output, {
@@ -4521,7 +4520,7 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
           source: sourceContext.source,
           blocks: sourceContext.blocks,
           sourceContextNote: sourceContext.sourceContextNote,
-          plan: buildSingleUnitPlan(stripReviewPathPlanForMetadata(plan), plannedUnit),
+          plan: buildSingleUnitPromptPlan(plan, plannedUnit),
           unitKnowledgeMap: buildSingleUnitKnowledgeMap(unitKnowledgeMap, plannedUnit.id)
         },
         (output) =&gt;
@@ -4588,26 +4587,39 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
       }
     )
   };
-  const matchingDraftBatch = matchingDraftInputs.length &gt; 0
-    ? await callAndValidate(
-        activePromptCaller,
-        &quot;matchingDraftBatch&quot;,
-        {
-          article,
-          source: sourceMap.source,
-          units: matchingDraftInputs
-        },
-        (output) =&gt;
-          validateMatchingDraftBatchOutput(output, {
-            practicePlansByUnit,
-            sourceAnchorByUnit: unitSourceAnchorIds
-          }),
-        {
-          normalize: (output) =&gt;
-            normalizeTypedQuestionDraftBatchIds(output, unitDraftInputs, &quot;matching&quot;)
-        }
-      )
-    : { units: [] };
+  const matchingDraftBatch = {
+    units: await mapWithConcurrency(
+      matchingDraftInputs,
+      unitConcurrency,
+      async (input) =&gt;
+        callAndValidate(
+          activePromptCaller,
+          &quot;matchingDraft&quot;,
+          {
+            article,
+            source: input.sourceContext.source,
+            blocks: input.sourceContext.blocks,
+            sourceContextNote: input.sourceContext.sourceContextNote,
+            unit: input.unit,
+            practicePlan: input.practicePlan
+          },
+          (output) =&gt;
+            validateMatchingDraftOutput(output, {
+              unitId: input.unit.id,
+              plans: input.practicePlan.questionPlans,
+              sourceAnchorId: input.unit.sourceAnchor?.id
+            }),
+          {
+            normalize: (output) =&gt;
+              normalizeDraftQuestionIds(
+                output,
+                input.practicePlan.questionPlans,
+                &quot;matching&quot;
+              )
+          }
+        )
+    )
+  };
   const questionDraftsByUnit = mergeTypedQuestionDrafts({
     unitDraftInputs,
     multipleChoiceDraftBatch,
@@ -4635,6 +4647,7 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
   const units = generatedUnits.map((item) =&gt; item.unit);
   const unitPracticePlans = generatedUnits.map((item) =&gt; item.practicePlan);
 
+  const includeDebugGenerationMeta = shouldIncludeDebugGenerationMeta(generationMetaMode);
   const draftReviewPath = {
     schemaVersion: V2_REVIEW_PATH_SCHEMA_VERSION,
     id: article.id,
@@ -4657,8 +4670,6 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
     ...(plan.generationConstraints ? { generationConstraints: plan.generationConstraints } : {}),
     generationMeta: {
       currentStage: &quot;completed&quot;,
-      reviewPathPlan: stripReviewPathPlanForMetadata(plan),
-      unitKnowledgeMap,
       sourceContextStats: buildSourceContextStats({
         sourceMap,
         plan,
@@ -4670,11 +4681,17 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
         displayStatusText: stageDisplayText(stage),
         at: now
       })),
-      taskBriefPlan,
-      multipleChoiceDraftBatch,
-      matchingDraftBatch,
-      unitCopyBatch,
-      unitPracticePlans
+      ...(includeDebugGenerationMeta
+        ? {
+            reviewPathPlan: stripReviewPathPlanForMetadata(plan),
+            unitKnowledgeMap,
+            taskBriefPlan,
+            multipleChoiceDraftBatch,
+            matchingDraftBatch,
+            unitCopyBatch,
+            unitPracticePlans
+          }
+        : {})
     }
   };
 
@@ -4688,11 +4705,13 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
       })
     : { judge: skippedQualityJudge(), judgeError: null };
 
-  draftReviewPath.generationMeta.qualityJudge = judge;
-  if (judgeError) {
+  if (includeDebugGenerationMeta) {
+    draftReviewPath.generationMeta.qualityJudge = judge;
+    draftReviewPath.generationMeta.qualityDiagnostics = deterministicQuality.diagnostics;
+  }
+  if (includeDebugGenerationMeta &amp;&amp; judgeError) {
     draftReviewPath.generationMeta.qualityJudgeError = judgeError;
   }
-  draftReviewPath.generationMeta.qualityDiagnostics = deterministicQuality.diagnostics;
   draftReviewPath.generationMeta.qualityGate = {
     mode: qualityJudgeEnabled ? &quot;diagnostic_only&quot; : &quot;deterministic_only&quot;,
     blocking: false,

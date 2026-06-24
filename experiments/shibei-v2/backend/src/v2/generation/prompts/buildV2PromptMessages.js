@@ -131,8 +131,7 @@ function buildMultipleChoiceDraftUnitBatchMessages({
       `questionBriefs:\n${JSON.stringify(questionBriefs || [], null, 2)}`,
       "",
       `sourceContext:\n${JSON.stringify(sourceContext || {}, null, 2)}`,
-      "",
-      renderArticleMeta(article)
+      ""
     ].join("\n")
   };
 }
@@ -166,8 +165,7 @@ function buildMatchingDraftBatchMessages({ article, source, units }) {
       `source:\n${JSON.stringify(source || {}, null, 2)}`,
       "",
       `unitDraftInputs:\n${JSON.stringify(units || [], null, 2)}`,
-      "",
-      renderArticleMeta(article)
+      ""
     ].join("\n")
   };
 }
@@ -195,8 +193,7 @@ function buildUnitCopyBatchMessages({ article, source, units }) {
       `source:\n${JSON.stringify(source || {}, null, 2)}`,
       "",
       `unitCopyInputs:\n${JSON.stringify(units || [], null, 2)}`,
-      "",
-      renderArticleMeta(article)
+      ""
     ].join("\n")
   };
 }
@@ -235,9 +232,7 @@ function buildTaskBriefPlanMessages({ article, source, blocks, sourceContextNote
       "",
       `unitKnowledgeMap:\n${JSON.stringify(unitKnowledgeMap || {}, null, 2)}`,
       "",
-      renderSource(source, blocks, sourceContextNote),
-      "",
-      renderArticleMeta(article)
+      renderSource(source, blocks, sourceContextNote)
     ].join("\n")
   };
 }
@@ -352,9 +347,7 @@ function buildUnitKnowledgeMapMessages({ article, source, blocks, sourceContextN
       "",
       `reviewPathPlan:\n${JSON.stringify(plan, null, 2)}`,
       "",
-      renderSource(source, blocks, sourceContextNote),
-      "",
-      renderArticleMeta(article)
+      renderSource(source, blocks, sourceContextNote)
     ].join("\n")
   };
 }
@@ -469,9 +462,7 @@ function buildMultipleChoiceDraftMessages({ article, source, blocks, sourceConte
       `practicePlan:\n${JSON.stringify(practicePlan, null, 2)}`,
       "",
       ...ecdContextSection,
-      renderSource(source, blocks, sourceContextNote),
-      "",
-      renderArticleMeta(article)
+      renderSource(source, blocks, sourceContextNote)
     ].join("\n")
   };
 }
@@ -507,9 +498,7 @@ function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote
       `practicePlan:\n${JSON.stringify(practicePlan, null, 2)}`,
       "",
       ...ecdContextSection,
-      renderSource(source, blocks, sourceContextNote),
-      "",
-      renderArticleMeta(article)
+      renderSource(source, blocks, sourceContextNote)
     ].join("\n")
   };
 }

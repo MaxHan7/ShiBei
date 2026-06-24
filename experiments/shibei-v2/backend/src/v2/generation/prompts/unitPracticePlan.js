@@ -126,7 +126,21 @@ export function normalizeQuestionPlanPurpose(value) {
   if (typeof value !== "string") return value;
   const normalized = value.trim();
   if (QUESTION_PLAN_PURPOSES.includes(normalized)) return normalized;
-  return QUESTION_PLAN_PURPOSE_ALIASES.get(normalized) || normalized;
+  const alias = QUESTION_PLAN_PURPOSE_ALIASES.get(normalized);
+  if (alias) return alias;
+
+  const lowered = normalized.toLowerCase();
+  if (lowered.includes("layer")) return "layer_role_matching";
+  if (lowered.includes("type") || lowered.includes("feature")) return "type_feature_matching";
+  if (lowered.includes("step") || lowered.includes("process")) return "step_purpose_matching";
+  if (lowered.includes("signal") || lowered.includes("action")) return "signal_action_matching";
+  if (lowered.includes("role") || lowered.includes("responsibil")) return "role_responsibility_matching";
+  if (lowered.includes("match") || lowered.includes("map") || lowered.includes("relation")) return "relationship_matching";
+  if (lowered.includes("scenario") || lowered.includes("case") || lowered.includes("application")) return "scenario_application";
+  if (lowered.includes("boundary") || lowered.includes("clarif")) return "boundary_clarification";
+  if (lowered.includes("misconception") || lowered.includes("mistake")) return "misconception_check";
+  if (lowered.includes("counterexample")) return "counterexample_check";
+  return "light_understanding";
 }
 
 export function normalizeUnitPracticePlanOutput(output) {

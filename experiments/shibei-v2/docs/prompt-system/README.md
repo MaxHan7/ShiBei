@@ -34,4 +34,4 @@ node experiments/shibei-v2/docs/tools/generate-v2-prompt-system-map.mjs
 - 每次重要 prompt 架构调整后，都应该重新生成这个页面。
 - 如果页面展示的信息不够清楚，优先改 `generate-v2-prompt-system-map.mjs`，让可视化能力长期变好。
 - 这个页面和质量报告不同：质量报告回答“这次生成结果怎么样”，本页面回答“当前系统结构到底长什么样”。
-
+- 页面会展示部分 legacy / 对照 stage（例如旧的整章 draft batch、显式 ECD planning、unitPracticePlan 等）。判断当前真实主链路时，以页面里的 active stages 和 `V2_GENERATION_STAGES` 为准；legacy stage 不代表生产链路仍在调用。

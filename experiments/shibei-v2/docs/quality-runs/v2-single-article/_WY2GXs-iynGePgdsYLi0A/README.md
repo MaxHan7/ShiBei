@@ -1916,3 +1916,92 @@ Next token optimization should not cut output budgets again. The clearest remain
 - `taskBriefPlan`: still the largest stage by total tokens, but stable and quality-sensitive.
 - `unitKnowledgeMap`: one provider empty-text retry; review whether the unit micro-knowledge output can be shortened without losing coverage.
 - `matchingDraft`: now stable, but total token share increased because it is split into multiple calls; keep it unless future reports show matching quality/cost is disproportionate.
+
+## 2026-06-24 Token Input Slim And Purpose Normalization Rerun
+
+### Hypothesis
+
+After the scoped matching checkpoint, the next safe token optimization was to remove duplicated prompt input rather than cutting output budgets. This checkpoint tested two low-risk input-shape changes:
+
+- pass only the current unit's compact plan into per-unit `unitKnowledgeMap` and `taskBriefPlan`;
+- remove repeated article meta from active per-unit/draft prompts where `source` already carries title, account, and URL.
+
+Legacy prompt stages were not deleted because they are not in the active `V2_GENERATION_STAGES` chain and do not consume runtime tokens. They remain as historical/reference code until a separate cleanup checkpoint.
+
+### First Attempt
+
+Artifacts:
+
+- JSON: `runs/20260624-154105-v2-token-input-slim-rerun.json`
+- HTML: `reports/20260624-154105-v2-token-input-slim-rerun.html`
+
+Result:
+
+- `reviewPathPlan` succeeded on the first attempt.
+- `unitKnowledgeMap` had one JSON parse retry, then recovered.
+- Generation failed during final contract validation because one `taskBriefPlan.questionPlans[].purpose` used a near-synonym not covered by the internal enum alias map.
+
+Conclusion: this was not a question-quality failure and not a visible frontend-contract issue. `purpose` is an internal planning label, so near-synonyms should be normalized before validation instead of failing the whole article.
+
+### Purpose Normalization Fix
+
+Change:
+
+- expanded `normalizeQuestionPlanPurpose` with semantic fallback rules for unknown purpose labels:
+  - relationship/mapping terms -> `relationship_matching`;
+  - scenario/case/application terms -> `scenario_application`;
+  - boundary/misconception/counterexample terms -> their existing stable purposes;
+  - role/layer/type/step/signal terms -> their matching-specific stable purposes;
+  - unrecognized labels -> `light_understanding`.
+- preserved `originalPurpose` for diagnostics when a label is normalized.
+
+Validation:
+
+- `node --test experiments/shibei-v2/backend/src/v2/generation/prompts/promptSchemas.test.js`: passed, 37 tests.
+- `npm --prefix experiments/shibei-v2/backend run check`: passed, 237 tests.
+
+### Completed Rerun
+
+Artifacts:
+
+- JSON: `runs/20260624-154801-v2-token-input-slim-purpose-normalized.json`
+- HTML: `reports/20260624-154801-v2-token-input-slim-purpose-normalized.html`
+
+Result:
+
+| Metric | Previous completed `v2-scoped-matching-budget-rerun` | New completed rerun |
+| --- | ---: | ---: |
+| Status | completed | completed |
+| Units | 7 | 8 |
+| Questions | 20 | 21 |
+| Multiple choice | 12 | 12 |
+| Matching | 8 | 9 |
+| Runtime failed attempts | 1 | 2 |
+| Runtime retry attempts | 1 | 2 |
+| Model calls | 30 | 36 |
+| Prompt tokens | 80,258 | 86,601 |
+| Completion tokens | 36,091 | 45,123 |
+| Total tokens | 116,349 | 131,724 |
+| Tokens / question | 5,817 | 6,273 |
+
+Stage token summary:
+
+| Stage | Calls | Total tokens | Notes |
+| --- | ---: | ---: | --- |
+| `reviewPathPlan` | 1 | 12,223 | Stable; no retry. |
+| `unitKnowledgeMap` | 10 attempts for 8 calls | 30,886 | Two JSON parse retries; both recovered. |
+| `taskBriefPlan` | 8 | 31,581 | Stable after purpose normalization; no retry. |
+| `multipleChoiceDraftUnitBatch` | 8 | 25,744 | Stable; no retry. |
+| `matchingDraft` | 8 | 27,327 | Stable; no retry. |
+| `unitCopyBatch` | 1 | 3,963 | Small and stable. |
+
+### Conclusion
+
+The input-slimming change did not reduce total tokens in this particular run because the model produced one more unit, one more question, one more matching task, and two recovered retries. The structural change is still low risk: all active stages completed after purpose normalization, and no output-budget truncation appeared.
+
+What this run tells us:
+
+- `purpose` normalization should stay; an internal enum near-synonym should not fail an otherwise usable generation.
+- `reviewPathPlan`, `taskBriefPlan`, MC draft, matching draft, and copy stages are structurally stable in this run.
+- The only recurring technical instability is still `unitKnowledgeMap` JSON parse reliability. It recovered, but it is now the clearest remaining architecture-level reliability point.
+- Token cost is now dominated more by selected content volume and recovered retries than by obvious duplicated meta. Further token optimization should focus on `unitKnowledgeMap` output stability/compactness and avoid weakening ECD task quality.

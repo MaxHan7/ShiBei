@@ -449,6 +449,9 @@ test("normalizes task brief purpose aliases before validation", () => {
   assert.equal(normalized.questionPlans[1].purpose, "layer_role_matching");
   assert.equal(normalized.questionPlans[1].originalPurpose, "model_layer_matching");
   assert.equal(normalizeQuestionPlanPurpose("scenario_transfer"), "scenario_application");
+  assert.equal(normalizeQuestionPlanPurpose("case_reasoning_application"), "scenario_application");
+  assert.equal(normalizeQuestionPlanPurpose("relation_mapping_check"), "relationship_matching");
+  assert.equal(normalizeQuestionPlanPurpose("custom_unknown_purpose"), "light_understanding");
 
   const result = validateUnitPracticePlanOutput(normalized, {
     unitId: "unit-01",
