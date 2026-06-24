@@ -4,11 +4,13 @@ import test from "node:test";
 import { runV2GenerationJob } from "./runV2GenerationJob.js";
 
 test("returns completed status with a generated V2 chapter", async () => {
+  const progressEvents = [];
   const result = await runV2GenerationJob({
     id: "chapter-001",
     title: "Hook",
     rawText: "Hook 是流程控制器。"
   }, {
+    onProgress: (event) => progressEvents.push(event),
     generateReviewPath: async () => ({
       schemaVersion: "v2_review_path_1",
       id: "chapter-001",
@@ -21,6 +23,9 @@ test("returns completed status with a generated V2 chapter", async () => {
   assert.equal(result.status, "completed");
   assert.equal(result.displayStatusText, "已生成");
   assert.equal(result.chapter.id, "chapter-001");
+  assert.equal(result.generationProgress.status, "completed");
+  assert.equal(progressEvents[0].stage, "accepted");
+  assert.equal(progressEvents.at(-1).stage, "completed");
 });
 
 test("passes custom prompt caller factory through to V2 generation", async () => {
@@ -156,4 +161,59 @@ test("preserves model prompt stage when JSON generation fails", async () => {
   assert.equal(result.runtimeErrorType, "json_parse_error");
   assert.equal(result.stageRuntime.failedAttemptCount, 3);
   assert.equal(result.retryable, true);
+  assert.equal(result.generationProgress.status, "failed");
+  assert.equal(result.generationProgress.canRetry, true);
+});
+
+test("rejects overlong V2 article input before model generation", async () => {
+  let called = false;
+  const result = await runV2GenerationJob({
+    id: "chapter-001",
+    title: "Long",
+    rawText: "字".repeat(6001)
+  }, {
+    generateReviewPath: async () => {
+      called = true;
+      return {};
+    }
+  });
+
+  assert.equal(called, false);
+  assert.equal(result.status, "failed_input");
+  assert.equal(result.failedStage, "input_validation");
+  assert.equal(result.retryable, false);
+  assert.equal(result.generationProgress.failureCode, "input_too_long");
+});
+
+test("passes V2 progress reporter through to the generation program", async () => {
+  const progressEvents = [];
+  const result = await runV2GenerationJob({
+    id: "chapter-001",
+    title: "Hook",
+    rawText: "Hook 是流程控制器。"
+  }, {
+    onProgress: (event) => progressEvents.push(event),
+    generateReviewPath: async (_input, options) => {
+      await options.onProgress({
+        chapterId: "chapter-001",
+        status: "running",
+        stage: "mapping_knowledge",
+        displayText: "正在提取关键知识点",
+        progress: 0.42,
+        retryCount: 0,
+        canRetry: false,
+        updatedAt: "2026-06-24T12:00:00.000Z"
+      });
+      return {
+        schemaVersion: "v2_review_path_1",
+        id: "chapter-001",
+        status: "completed",
+        title: "Hook",
+        units: []
+      };
+    }
+  });
+
+  assert.equal(result.status, "completed");
+  assert.equal(progressEvents.some((event) => event.stage === "mapping_knowledge"), true);
 });

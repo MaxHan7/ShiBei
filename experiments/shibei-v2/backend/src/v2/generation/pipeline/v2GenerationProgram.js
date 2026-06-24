@@ -3,6 +3,11 @@ import {
   validateReviewPathV2
 } from "../../contracts/reviewPathContract.js";
 import { createV2ModelPromptCaller } from "../modelPromptCaller.js";
+import {
+  emitV2GenerationProgress,
+  mapV2ModelStageToProgressStage,
+  V2_GENERATION_STATUS
+} from "../generationProgress.js";
 import { validateQualityJudgeOutput } from "../prompts/qualityJudge.js";
 import { validateReviewPathPlanOutput } from "../prompts/reviewPathPlan.js";
 import { validateSourceMapOutput } from "../prompts/sourceMap.js";
@@ -68,6 +73,7 @@ export async function runV2GenerationProgram(
     qualityJudgeEnabled = readOptionalBoolean(process.env.V2_ENABLE_QUALITY_JUDGE) ?? false,
     generationMetaMode = process.env.V2_GENERATION_META_MODE || "debug",
     sourceMapMode = process.env.V2_SOURCE_MAP_MODE || "deterministic",
+    onProgress = null,
     now = new Date().toISOString()
   } = {}
 ) {
@@ -82,6 +88,14 @@ export async function runV2GenerationProgram(
   }
 
   try {
+  const emitStageProgress = (stage) => emitV2GenerationProgress(onProgress, {
+    chapterId: article.id,
+    status: V2_GENERATION_STATUS.RUNNING,
+    stage: mapV2ModelStageToProgressStage(stage),
+    updatedAt: new Date().toISOString()
+  });
+
+  await emitStageProgress("sourceMap");
   const sourceMap = sourceMapMode === "deterministic"
     ? buildDeterministicSourceMap(article)
     : await callAndValidate(
@@ -91,6 +105,7 @@ export async function runV2GenerationProgram(
         validateSourceMapOutput
       );
   const sourceBlockIds = new Set(sourceMap.blocks.map((block) => block.id));
+  await emitStageProgress("reviewPathPlan");
   const rawPlan = await callAndValidate(
     activePromptCaller,
     "reviewPathPlan",
@@ -102,6 +117,7 @@ export async function runV2GenerationProgram(
   const unitIds = new Set(plan.units.map((unit) => unit.id));
   const sourceAnchorIds = new Set(plan.units.map((unit) => unit.sourceAnchor?.id).filter(Boolean));
   const unitSourceContexts = buildUnitSourceContexts({ sourceMap, plan });
+  await emitStageProgress("unitKnowledgeMap");
   const unitKnowledgeMap = mergeUnitKnowledgeMapOutputs(
     await mapWithConcurrency(plan.units, unitConcurrency, async (plannedUnit) => {
       const sourceContext = unitSourceContexts.get(plannedUnit.id);
@@ -124,6 +140,7 @@ export async function runV2GenerationProgram(
       );
     })
   );
+  await emitStageProgress("taskBriefPlan");
   const taskBriefPlan = mergeTaskBriefPlanOutputs(
     await mapWithConcurrency(plan.units, unitConcurrency, async (plannedUnit) => {
       const sourceContext = unitSourceContexts.get(plannedUnit.id);
@@ -171,6 +188,7 @@ export async function runV2GenerationProgram(
   const practicePlansByUnit = new Map(unitDraftInputs.map((input) => [input.unit.id, input.practicePlan]));
   const multipleChoiceDraftInputs = buildTypedDraftInputs(unitDraftInputs, "multiple_choice");
   const matchingDraftInputs = buildTypedDraftInputs(unitDraftInputs, "matching");
+  await emitStageProgress("multipleChoiceDraftUnitBatch");
   const multipleChoiceDraftBatch = {
     units: await mapWithConcurrency(
       multipleChoiceDraftInputs,
@@ -206,6 +224,7 @@ export async function runV2GenerationProgram(
       }
     )
   };
+  await emitStageProgress("matchingDraft");
   const matchingDraftBatch = {
     units: await mapWithConcurrency(
       matchingDraftInputs,
@@ -244,6 +263,7 @@ export async function runV2GenerationProgram(
     multipleChoiceDraftBatch,
     matchingDraftBatch
   });
+  await emitStageProgress("unitCopyBatch");
   const unitCopyBatch = await callAndValidate(
     activePromptCaller,
     "unitCopyBatch",

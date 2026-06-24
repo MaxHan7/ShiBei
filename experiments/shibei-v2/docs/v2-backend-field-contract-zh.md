@@ -754,6 +754,69 @@ SwiftUI 不应依赖 `quality` / `debug` 专属字段。正式页面应该只读
 
 生成状态字段用于全部章节页的生成中卡片、通知、生成弹窗关闭后的插卡动画和失败详情。视觉 tag 仍按组件库设计；后端只提供稳定状态。
 
+### `generationProgress`
+
+- **用途**：V2 前端展示生成进度的首选字段。它把后端内部模型 stage 转换成用户能理解的生成步骤。
+- **生成来源**：V2 generation runner / pipeline 在关键阶段边界写入，不由模型生成。
+- **前端使用位置**：上传后跳转到全部章节页的生成弹窗、生成中章节卡、失败详情页、通知页。
+- **展示规则**：`displayText` 可直接展示；`stage` 和 `status` 用于判断 UI 状态；`progress` 只能作为粗略进度，不展示精确剩余时间。
+- **注意事项**：前端不要直接依赖 `generationMeta.stageRuntime`、`modelUsage`、prompt stage 名称或 debug meta。
+
+建议结构：
+
+```json
+{
+  "jobId": "job-001",
+  "chapterId": "chapter-001",
+  "status": "running",
+  "stage": "mapping_knowledge",
+  "displayText": "正在提取关键知识点",
+  "progress": 0.42,
+  "retryCount": 0,
+  "canRetry": false,
+  "updatedAt": "2026-06-24T12:00:00.000Z"
+}
+```
+
+建议 `status`：
+
+- `queued`：排队中。
+- `running`：生成中。
+- `retrying`：遇到瞬时波动，正在自动重试。
+- `completed`：已生成。
+- `failed`：生成失败。
+
+建议 `stage`：
+
+- `accepted`：已收到文章，准备生成。
+- `extracting_source`：正在整理正文。
+- `planning_review_path`：正在拆分章节脉络。
+- `mapping_knowledge`：正在提取关键知识点。
+- `planning_practice`：正在规划练习重点。
+- `generating_questions`：正在生成复习题。
+- `generating_unit_copy`：正在整理单元总结。
+- `finalizing`：正在收尾。
+- `completed`：已生成。
+- `failed`：生成失败。
+
+失败示例：
+
+```json
+{
+  "jobId": "job-001",
+  "chapterId": "chapter-001",
+  "status": "failed",
+  "stage": "failed",
+  "displayText": "这篇文章目前太长，建议控制在 6000 字以内。",
+  "progress": null,
+  "retryCount": 0,
+  "canRetry": false,
+  "updatedAt": "2026-06-24T12:00:00.000Z",
+  "failureCode": "input_too_long",
+  "failureMessage": "这篇文章目前太长，建议控制在 6000 字以内。"
+}
+```
+
 ### `chapter.status`
 
 - **用途**：章节的机器可读状态，决定章节能否开始复习、是否显示生成中、是否进入失败详情。
@@ -770,11 +833,11 @@ SwiftUI 不应依赖 `quality` / `debug` 专属字段。正式页面应该只读
 
 ### `generationMeta.currentStage`
 
-- **用途**：生成中的细分阶段，用于显示“正在提取正文 / 正在生成知识点 / 正在生成题目”等进度文案。
+- **用途**：旧版和调试兼容字段。V2 前端应优先使用 `generationProgress.stage` 和 `generationProgress.displayText`。
 - **生成来源**：后端生成 pipeline 阶段更新。
-- **前端使用位置**：全部章节页生成中卡片主体文字、生成任务调试。
-- **展示规则**：字段本身不展示；前端可映射为用户可读文案。
-- **注意事项**：它比 `chapter.status` 更细。`chapter.status = generating` 时才需要频繁更新它。
+- **前端使用位置**：只作为兼容 fallback 或调试，不作为 V2 新页面的主合同。
+- **展示规则**：字段本身不展示。
+- **注意事项**：它可能是旧版 stage 名，也可能是内部模型 stage；V2 产品文案必须通过 `generationProgress` 派生。
 
 建议枚举：
 
@@ -793,19 +856,21 @@ SwiftUI 不应依赖 `quality` / `debug` 专属字段。正式页面应该只读
 ### `chapter.displayStatusText`
 
 - **用途**：给前端直接显示的用户可读状态文案。
-- **生成来源**：后端根据 `chapter.status` 和 `generationMeta.currentStage` 映射得到，也可以由前端本地映射。
+- **生成来源**：旧版根据 `chapter.status` 和 `generationMeta.currentStage` 映射得到；V2 应优先使用 `generationProgress.displayText`。
 - **前端使用位置**：全部章节页生成中卡片、状态 tag 辅助文案。
 - **展示规则**：用户可见。
-- **注意事项**：推荐把它视为派生字段，不作为业务判断依据。业务判断只看 `chapter.status` 和 `generationMeta.currentStage`。
+- **注意事项**：推荐把它视为派生字段，不作为业务判断依据。V2 业务判断看 `generationProgress.status` 和 `generationProgress.stage`。
 
 示例：
 
 ```json
 {
   "status": "generating",
-  "displayStatusText": "正在生成知识点",
-  "generationMeta": {
-    "currentStage": "generating_points"
+  "displayStatusText": "正在提取关键知识点",
+  "generationProgress": {
+    "status": "running",
+    "stage": "mapping_knowledge",
+    "displayText": "正在提取关键知识点"
   }
 }
 ```

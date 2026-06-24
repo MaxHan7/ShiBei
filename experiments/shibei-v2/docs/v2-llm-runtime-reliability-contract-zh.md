@@ -24,10 +24,49 @@
 - 不因为一次 structured output 失败就增加大量 prompt 规则。
 - 不把完整 ECD 思考链重新写成大 JSON。
 
+## 输入保护
+
+V2 MVP 阶段先用明确的文章长度上限保护 token 成本和稳定性：
+
+- 默认 `V2_MAX_ARTICLE_CHARS = 6000`。
+- 后端在进入模型 pipeline 前检查 `rawText/cleanedText`。
+- 超过上限直接返回 `input_too_long`，不调用模型，不进入 retry。
+- 用户可见文案：`这篇文章目前太长，建议控制在 6000 字以内。`
+
+这不是长期长文方案。后续如果要支持论文或长报告，需要单独设计 chunking / hierarchical summarization，不在 MVP 生成链路里隐式消化超长文章。
+
+## 前端进度合同
+
+V2 前端不直接消费内部 prompt stage。后端通过 `generationProgress` 暴露产品级阶段：
+
+- `accepted`
+- `extracting_source`
+- `planning_review_path`
+- `mapping_knowledge`
+- `planning_practice`
+- `generating_questions`
+- `generating_unit_copy`
+- `finalizing`
+- `completed`
+- `failed`
+
+每个阶段包含：
+
+- `status`
+- `stage`
+- `displayText`
+- `progress`
+- `retryCount`
+- `canRetry`
+- `failureCode/failureMessage`
+
+`progress` 只是粗略 UI 进度，不承诺真实剩余时间。
+
 ## 失败类型
 
 | code | 含义 | 典型表现 | 默认处理 |
 | --- | --- | --- | --- |
+| `input_too_long` | 输入超过 MVP 长度上限 | 正文超过 6000 字 | 不调用模型，直接失败 |
 | `empty_structured_text` | provider 没返回可解析内容 | DeepSeek 返回空 `content` | retry |
 | `json_parse_error` | 返回了文本，但不是合法 JSON | 多余文字、截断、破损 JSON | retry |
 | `schema_validation_error` | JSON 可解析，但不符合 stage schema | 缺字段、枚举不合法 | 当前不自动修复，按 stage 失败 |
