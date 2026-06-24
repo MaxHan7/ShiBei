@@ -8,16 +8,27 @@ import {
 
 export const REVIEW_PATH_PLAN_PROMPT_SCHEMA_NAME = "shibei_v2_review_path_plan";
 
+export const REVIEW_PATH_TEXT_LIMITS = {
+  title: 36,
+  summaryCardText: 96,
+  unitTitle: 40,
+  nodeLabel: 24,
+  shortSummary: 56,
+  detailSummary: 180,
+  why: 96,
+  encouragementText: 96
+};
+
 export const REVIEW_PATH_PLAN_OUTPUT_SCHEMA = {
   name: REVIEW_PATH_PLAN_PROMPT_SCHEMA_NAME,
   type: "object",
   required: ["title", "summaryCard", "units", "chapterSummary"],
   properties: {
-    title: { type: "string" },
+    title: { type: "string", maxLength: REVIEW_PATH_TEXT_LIMITS.title },
     summaryCard: {
       type: "object",
       required: ["text"],
-      properties: { text: { type: "string" } }
+      properties: { text: { type: "string", maxLength: REVIEW_PATH_TEXT_LIMITS.summaryCardText } }
     },
     units: {
       type: "array",
@@ -36,11 +47,11 @@ export const REVIEW_PATH_PLAN_OUTPUT_SCHEMA = {
         properties: {
           id: { type: "string" },
           order: { type: "integer" },
-          title: { type: "string" },
-          nodeLabel: { type: "string" },
-          shortSummary: { type: "string" },
-          detailSummary: { type: "string" },
-          why: { type: "string" },
+          title: { type: "string", maxLength: REVIEW_PATH_TEXT_LIMITS.unitTitle },
+          nodeLabel: { type: "string", maxLength: REVIEW_PATH_TEXT_LIMITS.nodeLabel },
+          shortSummary: { type: "string", maxLength: REVIEW_PATH_TEXT_LIMITS.shortSummary },
+          detailSummary: { type: "string", maxLength: REVIEW_PATH_TEXT_LIMITS.detailSummary },
+          why: { type: "string", maxLength: REVIEW_PATH_TEXT_LIMITS.why },
           sourceAnchor: {
             type: "object",
             required: ["id", "blockIds"],
@@ -58,7 +69,9 @@ export const REVIEW_PATH_PLAN_OUTPUT_SCHEMA = {
     chapterSummary: {
       type: "object",
       required: ["encouragementText"],
-      properties: { encouragementText: { type: "string" } }
+      properties: {
+        encouragementText: { type: "string", maxLength: REVIEW_PATH_TEXT_LIMITS.encouragementText }
+      }
     }
   }
 };
@@ -72,10 +85,19 @@ export function validateReviewPathPlanOutput(output, { sourceBlockIds = new Set(
 
   if (!isNonEmptyString(output.title)) {
     errors.push("reviewPathPlan.title is required");
+  } else {
+    validateStringMaxLength(output.title, REVIEW_PATH_TEXT_LIMITS.title, "reviewPathPlan.title", errors);
   }
 
   if (!isPlainObject(output.summaryCard) || !isNonEmptyString(output.summaryCard.text)) {
     errors.push("reviewPathPlan.summaryCard.text is required");
+  } else {
+    validateStringMaxLength(
+      output.summaryCard.text,
+      REVIEW_PATH_TEXT_LIMITS.summaryCardText,
+      "reviewPathPlan.summaryCard.text",
+      errors
+    );
   }
 
   if (
@@ -83,6 +105,13 @@ export function validateReviewPathPlanOutput(output, { sourceBlockIds = new Set(
     !isNonEmptyString(output.chapterSummary.encouragementText)
   ) {
     errors.push("reviewPathPlan.chapterSummary.encouragementText is required");
+  } else {
+    validateStringMaxLength(
+      output.chapterSummary.encouragementText,
+      REVIEW_PATH_TEXT_LIMITS.encouragementText,
+      "reviewPathPlan.chapterSummary.encouragementText",
+      errors
+    );
   }
 
   if (!Array.isArray(output.units) || output.units.length === 0) {
@@ -109,6 +138,12 @@ export function validateReviewPathPlanOutput(output, { sourceBlockIds = new Set(
     if (!Number.isInteger(unit.order) || unit.order <= 0) {
       errors.push(`${path}.order must be a positive integer`);
     }
+
+    validateStringMaxLength(unit.title, REVIEW_PATH_TEXT_LIMITS.unitTitle, `${path}.title`, errors);
+    validateStringMaxLength(unit.nodeLabel, REVIEW_PATH_TEXT_LIMITS.nodeLabel, `${path}.nodeLabel`, errors);
+    validateStringMaxLength(unit.shortSummary, REVIEW_PATH_TEXT_LIMITS.shortSummary, `${path}.shortSummary`, errors);
+    validateStringMaxLength(unit.detailSummary, REVIEW_PATH_TEXT_LIMITS.detailSummary, `${path}.detailSummary`, errors);
+    validateStringMaxLength(unit.why, REVIEW_PATH_TEXT_LIMITS.why, `${path}.why`, errors);
 
     validatePlannedSourceAnchor(unit.sourceAnchor, {
       path: `${path}.sourceAnchor`,
@@ -143,4 +178,11 @@ function validatePlannedSourceAnchor(sourceAnchor, { path, sourceBlockIds, error
       errors.push(`${path}.blockIds[${index}] references missing source block ${blockId}`);
     }
   });
+}
+
+function validateStringMaxLength(value, maxLength, path, errors) {
+  if (!isNonEmptyString(value)) return;
+  if (String(value).length > maxLength) {
+    errors.push(`${path} must be at most ${maxLength} characters`);
+  }
 }

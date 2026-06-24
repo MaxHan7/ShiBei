@@ -18,7 +18,7 @@ test("builds compact question briefs from task plans and micro evidence", () => 
   assert.equal(brief.practiceGoal.commonMisconception, "把游戏化误解成完整电子游戏。");
   assert.deepEqual(brief.evidence.microIds, ["micro-u1-001"]);
   assert.deepEqual(brief.evidence.microTitles, ["游戏化定义"]);
-  assert.deepEqual(brief.evidence.evidenceAngles, ["非游戏情境", "游戏设计元素"]);
+  assert.deepEqual(brief.evidence.evidenceAngles, ["非游戏情境"]);
   assert.ok(unitBriefs.sourceContext.blocks.length <= 8);
   assert.equal(brief.fullArticleText, undefined);
   assert.equal(unitBriefs.sourceContext.source, undefined);
@@ -91,7 +91,7 @@ function makeUnitKnowledgeMapFixture() {
             summary: "游戏化是在非游戏情境使用游戏设计元素。",
             role: "definition",
             assessmentValue: "high",
-            suggestedEvidenceAngles: ["非游戏情境", "游戏设计元素"],
+            primaryEvidenceAngle: "非游戏情境",
             sourceAnchorId: "anchor-u1",
             sourceSupport: "定义句"
           }

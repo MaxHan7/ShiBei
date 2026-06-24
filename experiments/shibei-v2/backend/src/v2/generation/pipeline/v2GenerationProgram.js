@@ -106,34 +106,61 @@ export async function runV2GenerationProgram(
       .map((unit) => [unit.id, unit.sourceAnchor?.id])
       .filter(([, sourceAnchorId]) => Boolean(sourceAnchorId))
   );
-  const unitKnowledgeMap = await callAndValidate(
-    activePromptCaller,
-    "unitKnowledgeMap",
-    {
-      article,
-      source: planSourceContext.source,
-      blocks: planSourceContext.blocks,
-      sourceContextNote: planSourceContext.sourceContextNote,
-      plan
-    },
-    (output) => validateUnitKnowledgeMapOutput(output, { unitIds, sourceAnchorIds }),
-    { normalize: normalizeUnitKnowledgeMapOutput }
-  );
-  const taskBriefPlan = await callAndValidate(
-    activePromptCaller,
-    "taskBriefPlan",
-    {
-      article,
-      source: planSourceContext.source,
-      blocks: planSourceContext.blocks,
-      sourceContextNote: planSourceContext.sourceContextNote,
-      plan: stripReviewPathPlanForMetadata(plan),
-      unitKnowledgeMap
-    },
-    (output) => validateTaskBriefPlanOutput(output, { unitIds, sourceAnchorByUnit: unitSourceAnchorIds }),
-    { normalize: (output) => normalizeTaskBriefPlanOutput(output, { sourceAnchorByUnit: unitSourceAnchorIds }) }
-  );
   const unitSourceContexts = buildUnitSourceContexts({ sourceMap, plan });
+  const unitKnowledgeMap = mergeUnitKnowledgeMapOutputs(
+    await mapWithConcurrency(plan.units, unitConcurrency, async (plannedUnit) => {
+      const sourceContext = unitSourceContexts.get(plannedUnit.id);
+      return callAndValidate(
+        activePromptCaller,
+        "unitKnowledgeMap",
+        {
+          article,
+          source: sourceMap.source,
+          blocks: sourceContext.blocks,
+          sourceContextNote: sourceContext.sourceContextNote,
+          plan: buildSingleUnitPlan(plan, plannedUnit)
+        },
+        (output) =>
+          validateUnitKnowledgeMapOutput(output, {
+            unitIds: new Set([plannedUnit.id]),
+            sourceAnchorIds: new Set([plannedUnit.sourceAnchor?.id].filter(Boolean))
+          }),
+        { normalize: normalizeUnitKnowledgeMapOutput }
+      );
+    })
+  );
+  const taskBriefPlan = mergeTaskBriefPlanOutputs(
+    await mapWithConcurrency(plan.units, unitConcurrency, async (plannedUnit) => {
+      const sourceContext = unitSourceContexts.get(plannedUnit.id);
+      const sourceAnchorByScopedUnit = new Map();
+      if (plannedUnit.sourceAnchor?.id) {
+        sourceAnchorByScopedUnit.set(plannedUnit.id, plannedUnit.sourceAnchor.id);
+      }
+      return callAndValidate(
+        activePromptCaller,
+        "taskBriefPlan",
+        {
+          article,
+          source: sourceContext.source,
+          blocks: sourceContext.blocks,
+          sourceContextNote: sourceContext.sourceContextNote,
+          plan: buildSingleUnitPlan(stripReviewPathPlanForMetadata(plan), plannedUnit),
+          unitKnowledgeMap: buildSingleUnitKnowledgeMap(unitKnowledgeMap, plannedUnit.id)
+        },
+        (output) =>
+          validateTaskBriefPlanOutput(output, {
+            unitIds: new Set([plannedUnit.id]),
+            sourceAnchorByUnit: sourceAnchorByScopedUnit
+          }),
+        {
+          normalize: (output) =>
+            normalizeTaskBriefPlanOutput(output, {
+              sourceAnchorByUnit: sourceAnchorByScopedUnit
+            })
+        }
+      );
+    })
+  );
   const questionBriefsByUnit = buildQuestionBriefsByUnit({
     taskBriefPlan,
     unitKnowledgeMap,
@@ -336,6 +363,18 @@ function buildSingleUnitPlan(plan, plannedUnit) {
 function buildSingleUnitKnowledgeMap(unitKnowledgeMap, unitId) {
   return {
     units: (unitKnowledgeMap?.units || []).filter((unit) => unit.unitId === unitId)
+  };
+}
+
+function mergeUnitKnowledgeMapOutputs(outputs) {
+  return {
+    units: (outputs || []).flatMap((output) => output?.units || [])
+  };
+}
+
+function mergeTaskBriefPlanOutputs(outputs) {
+  return {
+    units: (outputs || []).flatMap((output) => output?.units || [])
   };
 }
 

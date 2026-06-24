@@ -76,7 +76,7 @@ const STAGE_SCHEMAS = {
   unitKnowledgeMap: {
     schemaName: UNIT_KNOWLEDGE_MAP_PROMPT_SCHEMA_NAME,
     schema: UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 7200
+    estimatedOutputTokens: 1800
   },
   ecdPlanning: {
     schemaName: ECD_PLANNING_PROMPT_SCHEMA_NAME,

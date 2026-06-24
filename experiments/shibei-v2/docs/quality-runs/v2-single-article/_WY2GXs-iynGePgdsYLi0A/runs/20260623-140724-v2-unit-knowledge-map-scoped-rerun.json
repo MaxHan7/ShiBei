@@ -1,0 +1,379 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-23T14:10:28.526Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-unit-knowledge-map-scoped-rerun",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11327
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 0,
+    "diagnosticIssueCount": 0,
+    "runtimeFailedAttemptCount": 5,
+    "runtimeRetryAttemptCount": 4,
+    "modelCallCount": 8,
+    "promptTokenCount": 42572,
+    "completionTokenCount": 15935,
+    "totalTokenCount": 58507
+  },
+  "chapter": null,
+  "unitKnowledgeMap": null,
+  "ecdPlanning": null,
+  "sourceContextStats": null,
+  "stageRuntime": {
+    "schemaVersion": "v2_stage_runtime_1",
+    "callCount": 4,
+    "attemptCount": 8,
+    "failedAttemptCount": 5,
+    "retryAttemptCount": 4,
+    "stages": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 3,
+        "retryAttemptCount": 2,
+        "transientFailureCount": 2,
+        "totalDurationMs": 92283,
+        "errorTypes": {
+          "json_parse_error": 2
+        },
+        "lastErrorType": "json_parse_error",
+        "lastErrorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "callCount": 3,
+        "successCallCount": 2,
+        "failedCallCount": 1,
+        "attemptCount": 5,
+        "retryAttemptCount": 2,
+        "transientFailureCount": 3,
+        "totalDurationMs": 91326,
+        "errorTypes": {
+          "json_parse_error": 2,
+          "empty_structured_text": 1
+        },
+        "lastErrorType": "empty_structured_text",
+        "lastErrorMessage": "DeepSeek 没有返回结构化文本。"
+      }
+    ],
+    "attempts": [
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 33519,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 2,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 37569,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 3,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 21195,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-2",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 11249,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-3",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 14227,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-4",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 21866,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "unitKnowledgeMap-4",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 2,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 20014,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "unitKnowledgeMap-4",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 3,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 23970,
+        "retryable": false,
+        "errorType": "empty_structured_text",
+        "errorMessage": "DeepSeek 没有返回结构化文本。"
+      }
+    ]
+  },
+  "architectureMetrics": {
+    "schemaVersion": "v2_architecture_metrics_1",
+    "total": {
+      "modelCallCount": 8,
+      "runtimeCallCount": 4,
+      "attemptCount": 8,
+      "retryAttemptCount": 4,
+      "failedAttemptCount": 5,
+      "promptTokens": 42572,
+      "completionTokens": 15935,
+      "totalTokens": 58507,
+      "promptCacheHitTokens": 36096,
+      "promptCacheMissTokens": 6476,
+      "durationMs": 183609
+    },
+    "stages": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "modelCallCount": 3,
+        "promptTokens": 30438,
+        "completionTokens": 8299,
+        "totalTokens": 38737,
+        "promptCacheHitTokens": 30336,
+        "promptCacheMissTokens": 102,
+        "estimatedOutputTokens": 9600,
+        "runtimeCallCount": 1,
+        "attemptCount": 3,
+        "retryAttemptCount": 2,
+        "failedAttemptCount": 2,
+        "durationMs": 92283,
+        "errorTypes": {
+          "json_parse_error": 2
+        },
+        "lastErrorType": "json_parse_error",
+        "lastErrorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "modelCallCount": 5,
+        "promptTokens": 12134,
+        "completionTokens": 7636,
+        "totalTokens": 19770,
+        "promptCacheHitTokens": 5760,
+        "promptCacheMissTokens": 6374,
+        "estimatedOutputTokens": 9000,
+        "runtimeCallCount": 3,
+        "attemptCount": 5,
+        "retryAttemptCount": 2,
+        "failedAttemptCount": 3,
+        "durationMs": 91326,
+        "errorTypes": {
+          "json_parse_error": 2,
+          "empty_structured_text": 1
+        },
+        "lastErrorType": "empty_structured_text",
+        "lastErrorMessage": "DeepSeek 没有返回结构化文本。"
+      }
+    ]
+  },
+  "qualityDiagnostics": [],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 3200,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"title\": \"游戏化与持续性用户体验\",\n  \"summaryCard\": {\n    \"text\": \"本文探讨游戏化如何通过目标设定、动态挑战、成长感知和情境设计，构建持续吸引用户的体验，并分析其风险与AI新可能。\"\n  },\n  \"units\": [\n    {\n      \"id\": \"unit-1\",\n      \"order\": 1,\n      \"title\": \"游戏化的核心概念与DMC模型\",\n      \"nodeLabel\": \"核心概念与模型\",\n      \"shortSummary\": \"游戏化是在非游戏场景中使用游戏设计元素，DMC模型分动力、机制、组件三层。\",\n      \"detailSummary\": \"游戏化由佩林提出，德特丁定义：在非游戏语境中使用游戏设计元素。韦巴赫提出DMC金字塔模型：动力层（约束、情感、叙事等）界定整体体验方向；机制层（挑战、反馈、奖励等）组织参与循环；组件层（成就、徽章、排行榜等）落实为具体界面元素。三层共同将抽象目标转化为可操作的交互路径。\",\n      \"why\": \"理解游戏化定义与DMC模型是后续分析各类设计策略的基础框架。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit-1\",\n        \"blockIds\": [\"p-013\", \"p-014\", \"p-016\", \"p-020\"]\n      }\n    },\n    {\n      \"id\": \"unit-2\",\n      \"order\": 2,\n      \"title\": \"阶段性目标设定\",\n      \"nodeLabel\": \"目标分层与里程碑\",\n      \"shortSummary\": \"将长期目标分解为可掌控的短期里程碑，维持动机与掌控感。\",\n      \"detailSummary\": \"长期的总体目标会因反馈周期过长导致动机衰减。通过设置清晰、可量化的阶段性目标，将漫长旅程分解为短途冲刺，每次闭环带来即时满意，强化自我效能感。案例：专注森林将专注转化为树木生长任务；无聊猿将运营拆分为独立活动阶段。\",\n      \"why\": \"阶段性目标设定是解决用户长期参与中动机衰减的核心策略。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit-2\",\n        \"blockIds\": [\"p-024\", \"p-026\"]\n      }\n    },\n    {\n      \"id\": \"unit-3\",\n      \"order\": 3,\n      \"title\": \"挑战与能力的动态匹配\",\n      \"nodeLabel\": \"难度动态调节\",\n      \"shortSummary\": \"任务难度与用户能力动态平衡，维持心流体验与持续参与。\",\n      \"detailSummary\": \"用户是否持续投入取决于挑战与能力的动态平衡。游戏通过难度星级、动态调节机制使任务始终处于“可达到但有挑战”区间。多邻国根据用户前一日表现调整次日任务难度与奖励，控制学习节奏，维持注意力与沉浸感。\",\n      \"why\": \"动态匹配是保持用户动力和心流的关键机制，避免无聊或焦虑。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit-3\",\n        \"blockIds\": [\"p-029\", \"p-030\"]\n      }\n    },\n    {\n      \"id\": \"unit-4\",\n      \"order\": 4,\n      \"title\": \"成长机制的感知设计\",\n      \"nodeLabel\": \"进步可视化\",\n      \"shortSummary\": \"通过可视化设计让用户感知自己的成长进度，增强投入感。\",\n      \"detailSummary\": \"成长机制需将缓慢的进步转化为可感知的连续变化。蚂蚁森林通过绿色能量积累和树木生长可视化，蚂蚁庄园通过喂养小鸡链，把长期公益结果变成可观察、可等待的过程。成就、排行榜等组件使能力变成可见标识，社交互动增加进度可见性。\",\n      \"why\": \"成长感知是持续投入的情感燃料，让用户明确看到自己正在进步。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit-4\",\n        \"blockIds\": [\"p-032\", \"p-035\"]\n      }\n    },\n    {\n      \"id\": \"unit-5\",\n      \"order\": 5,\n      \"title\": \"情境设计与身份认同建构\",\n      \"nodeLabel\": \"叙事与角色代入\",\n      \"shortSummary\": \"通过空间、环境线索和角色设定，让用户代入情境并建立身份认同。\",\n      \"detailSummary\": \"游戏中的叙事不仅靠剧情文本，更嵌入空间结构、环境线索与关卡组织。玩家通过行动在场景中代入角色。案例：毛线小精灵2的毛线特性与障碍设计；宝可梦GO将现实地点转化为游戏场景；微生物博物馆通过实验室环境把观众设定为“微生物载体”。空间、线索与行动共同组织叙事，承载意义。\",\n      \"why\": \"情境和身份认同能激发深层情感投入，使用户行为具有内在意义。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit-5\",\n        \"blockIds\": [\"p-037\", \"p-042\"]\n      }\n    },\n    {\n      \"id\": \"unit-6\",\n      \"order\": 6,\n      \"title\": \"游戏化的潜在风险：挤出效应与目标偏移\",\n      \"nodeLabel\": \"风险与伦理\",\n      \"shortSummary\": \"不当",
+      "usage": {
+        "prompt_tokens": 10146,
+        "completion_tokens": 3200,
+        "total_tokens": 13346,
+        "prompt_cache_hit_tokens": 10112,
+        "prompt_cache_miss_tokens": 34
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 3200,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"title\": \"基于游戏化方法的持续性用户体验设计\",\n  \"summaryCard\": {\n    \"text\": \"本文从游戏化概念出发，梳理了阶段性目标、动态匹配、成长感知、情境认同四个设计维度，并探讨了风险与AI新挑战，为持续性用户体验设计提供思路。\"\n  },\n  \"units\": [\n    {\n      \"id\": \"unit1\",\n      \"order\": 1,\n      \"title\": \"游戏化概念与用户体验演进\",\n      \"nodeLabel\": \"游戏化与UX演进\",\n      \"shortSummary\": \"定义游戏化及其在非游戏语境中的应用，从心流理论到实用-享乐框架。\",\n      \"detailSummary\": \"游戏化由Nick Pelling于2002年提出，Sebastian Deterding定义为“在非游戏语境中使用游戏设计元素”。用户体验从可用性转向享乐质量，心流理论（清晰目标、即时反馈、挑战与能力平衡）解释了游戏吸引力的心理学基础。实用-享乐框架将用户感知分为实用质量和享乐质量，后者关注身份认同、审美愉悦等深层需求。\",\n      \"why\": \"理解游戏化的起源和用户体验理论是后续设计方法的基础。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit1\",\n        \"blockIds\": [\"p-013\", \"p-014\", \"p-016\", \"p-017\"]\n      }\n    },\n    {\n      \"id\": \"unit2\",\n      \"order\": 2,\n      \"title\": \"DMC模型：游戏元素金字塔\",\n      \"nodeLabel\": \"DMC金字塔模型\",\n      \"shortSummary\": \"动力、机制、组件三层结构，从体验到功能。\",\n      \"detailSummary\": \"DMC模型由Werbach和Hunter提出：动力层界定系统整体体验（如约束、情感、叙事）；机制层组织用户行为与参与规则（如挑战、反馈、奖励）；组件层为可直接感知的界面元素（如徽章、排行榜、点数）。三层从抽象到具体，动力引导方向，机制形成循环，组件落实功能。\",\n      \"why\": \"DMC模型是游戏化设计的结构化工具，帮助设计师系统性地选择和组合游戏元素。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit2\",\n        \"blockIds\": [\"p-020\"]\n      }\n    },\n    {\n      \"id\": \"unit3\",\n      \"order\": 3,\n      \"title\": \"交互设计的三个根本问题\",\n      \"nodeLabel\": \"交互三问题\",\n      \"shortSummary\": \"可行动性、可感知性、可理解性构成交互循环。\",\n      \"detailSummary\": \"Bill Verplank指出交互设计需解决：用户能做什么（do）、感觉到什么（feel）、理解什么（know）。可行动性和可感知性形成“行动-反馈”本能循环，可理解性则让用户理解系统逻辑与目标，是持续参与的关键。游戏如《俄罗斯方块》通过即时操作反馈和清晰目标维持心流。\",\n      \"why\": \"理解交互设计的根本问题有助于设计出自然连贯的持续性体验。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit3\",\n        \"blockIds\": [\"p-022\"]\n      }\n    },\n    {\n      \"id\": \"unit4\",\n      \"order\": 4,\n      \"title\": \"阶段性目标的设定\",\n      \"nodeLabel\": \"阶段性目标\",\n      \"shortSummary\": \"将长期目标分解为短期里程碑，提升掌控感。\",\n      \"detailSummary\": \"长期目标反馈周期过长易导致动机衰减。设定具体可量化的阶段性目标，将漫长旅程分解为可掌控的短途冲刺，每次完成获得即时满意和正向强化。案例：Forest应用将专注任务转化为树木生长周期；无聊猿Dookey Dash通过独立阶段性活动维持用户期待。\",\n      \"why\": \"阶段性目标重构时间感知，减少中途退出，培养使用习惯。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit4\",\n        \"blockIds\": [\"p-023\", \"p-024\", \"p-026\"]\n      }\n    },\n    {\n      \"id\": \"unit5\",\n      \"order\": 5,\n      \"title\": \"挑战与能力的动态匹配\",\n      \"nodeLabel\": \"动态难度调节\",\n      \"shortSummary\": \"保持任务在“可达到但有挑战”区间，维持心流。\",\n      \"detailSummary\": \"适度递增的任务难度和激励机制是心流体验的关键。动态调节机制使任务始终处于用户能力与挑战平衡的区间。多邻国根据用户前一天表现调整难度和奖励，表现差时降低任务量，表现好时提供更高挑战和奖励，同时答题表现影响星级。\",\n      \"why\": \"动态匹配避免因难度过低导致无聊或过高导致焦虑，维持持续投入。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit5\",\n        \"blockIds\": [\"p-028\", \"p-029\"]\n      }\n    },\n    {\n      \"id\": \"unit6\",\n      \"order\": 6,\n      \"title\": \"成长机制的感知设计\",\n      \"nodeLabel\": \"成长可视化\",\n      \"shortSummary\": \"将缓慢进展转化为可视化过程，增强投入感。\",\n      \"detailSummary\": \"通过可视化设计将长期成果转化为持续变化的过程，如蚂蚁森林将低碳行为转化为树木生长，蚂蚁庄园将公益参与映射为喂养小鸡。成就、排行榜、技能树等组件将能力变为可见标识，社交互动（如帮助好友）增加可见性与参与感。\",\n      \"why\": \"成长感知让用户获得“我正在产生影响”的成就感，增强持续动力。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit6\",\n        \"blockIds\": [\"p-031\", \"p-032\", \"p-035\"]\n      }\n    },\n    {\n      \"id\": \"unit7\",\n      \"order\": 7,\n      \"title\": \"情境设计与身份认同建构\",\n      \"nodeLabel\": \"情境与身份\",\n      \"shortSummary\": \"通过空间线索和角色设定构建叙事，促使用户代入。\",\n      \"detailSummary\": \"游戏叙事不仅靠剧情，更嵌入空间结构、环境线索和物件关系中。案例：Unravel Two毛线角色的物理特性与关卡设计一致；Pokémon GO通过AR将现实场景转化为游戏世界，玩家以训练师身份行动；Micropia博物馆通过实验室氛围和角色设定让观众成为微生物载体。\",\n      \"why\": \"情境设计帮助用户快速建立身份认同，提升沉浸感和意义感。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit7\",\n        \"blockIds\": [\"p-036\", \"p-037\", \"p-042\"]\n      }\n    },\n    {\n      \"id\": \"unit8\",\n      \"order\": 8,\n      \"title\": \"游戏化的风险与伦理\",\n      \"nodeLabel\": \"风险与伦理\",\n      \"shortSummary\": \"挤出效应削弱内在动机，娱乐至上偏离核心目标。\",\n      \"detailSummary\": \"不恰当的游戏化会带来问题：1）挤出效应：外在激励（徽章、排行榜）可能削弱原本基于兴趣的内在动机，导致只有奖励时才参与；2）娱乐至上：产品转向感官刺激和留存，忽视真实问题和体验改进。设计应优先支持内在动机，将奖励与核心任务目标紧密结合。\",\n      \"why\": \"认识风险才能避免游戏化设计适得其反，确保长期用户福祉。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit8\",\n        \"blockIds\": [\"p-043\", \"p-044\"]\n      }\n    },\n    {\n      \"id\": \"unit9\",\n      \"order\": 9,\n      \"title\": \"生成式AI推动游戏化新可能\",\n      \"nodeLabel\": \"AI与游戏化\",\n      \"shortSummary\": \"AI使用户从参与者变为创造者，实现无限内容生成。\",\n",
+      "usage": {
+        "prompt_tokens": 10146,
+        "completion_tokens": 3200,
+        "total_tokens": 13346,
+        "prompt_cache_hit_tokens": 10112,
+        "prompt_cache_miss_tokens": 34
+      }
+    },
+    {
+      "index": 3,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 3200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 10146,
+        "completion_tokens": 1899,
+        "total_tokens": 12045,
+        "prompt_cache_hit_tokens": 10112,
+        "prompt_cache_miss_tokens": 34
+      }
+    },
+    {
+      "index": 4,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 3054,
+        "completion_tokens": 959,
+        "total_tokens": 4013,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 3054
+      }
+    },
+    {
+      "index": 5,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2411,
+        "completion_tokens": 1277,
+        "total_tokens": 3688,
+        "prompt_cache_hit_tokens": 384,
+        "prompt_cache_miss_tokens": 2027
+      }
+    },
+    {
+      "index": 6,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1800,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"units\": [\n    {\n      \"unitId\": \"unit-3\",\n      \"microKnowledgePoints\": [\n        {\n          \"microId\": \"micro-unit-3-001\",\n          \"title\": \"阶段性目标定义\",\n          \"summary\": \"将长期目标分解为可量化的阶段性里程碑\",\n          \"role\": \"definition\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"definition_grasp\"]\n        },\n        {\n          \"microId\": \"micro-unit-3-002\",\n          \"title\": \"长期目标动机衰减\",\n          \"summary\": \"过长反馈周期导致成就感稀释与动机衰减\",\n          \"role\": \"boundary\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvidenceAngles\": [\"boundary_disc",
+      "usage": {
+        "prompt_tokens": 2223,
+        "completion_tokens": 1800,
+        "total_tokens": 4023,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 1199
+      }
+    },
+    {
+      "index": 7,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1800,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"units\": [\n    {\n      \"unitId\": \"unit-3\",\n      \"microKnowledgePoints\": [\n        {\n          \"microId\": \"micro-unit-3-001\",\n          \"title\": \"动机稀释问题\",\n          \"summary\": \"过长反馈周期导致成就感稀释与动机渐进衰减\",\n          \"role\": \"mechanism\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"mechanism_reasoning\"]\n        },\n        {\n          \"microId\": \"micro-unit-3-002\",\n          \"title\": \"目标层级体系构建\",\n          \"summary\": \"围绕总体目标构建清晰的目标层级体系\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"]\n        },\n        {\n          \"microId\": \"micro-unit-3-003\",\n          \"title\": \"可量化阶段性目标\",\n          \"summary\": \"设定具体可量化的阶段性目标作为里程碑\",\n          \"role\": \"definition\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"definition_grasp\"]\n        },\n        {\n          \"microId\": \"micro-unit-3-004\",\n          \"title\": \"重构时间感知\",\n          \"summary\": \"里程碑在心理层面重构时间感知\",\n          \"role\": \"mechanism\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvidenceAngles\": [\"mechanism_reasoning\"]\n        },\n        {\n          \"microId\": \"micro-unit-3-005\",\n          \"title\": \"分解为短途冲刺\",\n          \"summary\": \"将漫长旅程分解为一系列可掌控的短途冲刺\",\n          \"role\": \"process_step\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvidenceAngles\": [\"step_purpose_mapping\"]\n        },\n        {\n          \"microId\": \"micro-unit-3-006\",\n          \"title\": \"转化为高质量标准动作\",\n          \"summary\": \"从一次性艰难完成转化为具备流畅感与掌控感的高质量标准动作\",\n          \"role\": \"mechanism\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvidenceAngles\": [\"mechanism_reasoning\"]\n        },\n        {\n          \"microId\": \"micro-unit-3-007\",\n          \"title\": \"闭环即时满意\",\n          \"summary\": \"阶段性闭环带来即时满意与愉悦\",\n          \"role\": \"mechanism\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvidenceAngles\": [\"mechanism_reasoning\"]\n        },\n        {\n          \"microId\": \"micro-unit-3",
+      "usage": {
+        "prompt_tokens": 2223,
+        "completion_tokens": 1800,
+        "total_tokens": 4023,
+        "prompt_cache_hit_tokens": 2176,
+        "prompt_cache_miss_tokens": 47
+      }
+    },
+    {
+      "index": 8,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2223,
+        "completion_tokens": 1800,
+        "total_tokens": 4023,
+        "prompt_cache_hit_tokens": 2176,
+        "prompt_cache_miss_tokens": 47
+      }
+    }
+  ],
+  "failure": {
+    "failedStage": "v2_unitKnowledgeMap",
+    "failureReason": "DeepSeek 没有返回结构化文本。",
+    "retryable": true,
+    "modelStage": "unitKnowledgeMap",
+    "retryAttempts": 3,
+    "issues": [],
+    "errors": [],
+    "diagnostics": []
+  }
+}

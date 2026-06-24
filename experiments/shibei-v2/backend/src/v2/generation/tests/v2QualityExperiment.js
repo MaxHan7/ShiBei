@@ -153,7 +153,10 @@ export function buildArchitectureMetrics({ modelUsage = [], stageRuntime = null 
       attemptCount: stage.attemptCount || 0,
       retryAttemptCount: stage.retryAttemptCount || 0,
       failedAttemptCount: stage.transientFailureCount || 0,
-      durationMs: stage.totalDurationMs || 0
+      durationMs: stage.totalDurationMs || 0,
+      errorTypes: { ...(stage.errorTypes || {}) },
+      lastErrorType: stage.lastErrorType || "",
+      lastErrorMessage: stage.lastErrorMessage || ""
     });
   }
 
@@ -172,7 +175,10 @@ export function buildArchitectureMetrics({ modelUsage = [], stageRuntime = null 
       attemptCount: 0,
       retryAttemptCount: 0,
       failedAttemptCount: 0,
-      durationMs: 0
+      durationMs: 0,
+      errorTypes: {},
+      lastErrorType: "",
+      lastErrorMessage: ""
     };
     row.modelCallCount += 1;
     row.promptTokens += tokenNumber(record?.usage?.prompt_tokens);
@@ -479,7 +485,7 @@ function renderUnitKnowledgeMap(unitKnowledgeMap) {
       return `<div class="question">
         <div class="stem">${index + 1}. ${escapeHtml(unit.unitId)}</div>
         ${renderEcdList("Micro Knowledge Points", points, (item) =>
-          `${item.microId} · ${item.assessmentValue} · ${item.role}：${item.title} / ${item.summary} / angles: ${(item.suggestedEvidenceAngles || []).join(", ")}`
+          `${item.microId} · ${item.assessmentValue} · ${item.role}：${item.title} / ${item.summary} / angle: ${item.primaryEvidenceAngle || (item.suggestedEvidenceAngles || []).join(", ")}`
         )}
       </div>`;
     }).join("\n")}
@@ -719,7 +725,7 @@ function renderArchitectureMetrics(architectureMetrics) {
   const total = architectureMetrics.total || {};
   return `<section class="card">
     <h2 style="margin-top:0">Architecture Metrics</h2>
-    <p class="meta">这一段是架构仪表盘：不改变生成链路，只量化每个 stage 的调用数、token、重试和耗时，用来判断下一轮是变轻、变重、变稳还是变脆。</p>
+    <p class="meta">这一段是架构仪表盘：不改变生成链路，只量化每个 stage 的调用数、token、重试、失败类型和耗时，用来判断 token 爆炸来自 retry，还是来自 stage 本身过重。</p>
     <div class="grid">
       ${metric("Model calls", total.modelCallCount || 0)}
       ${metric("Total tokens", formatNumber(total.totalTokens || 0))}
@@ -735,11 +741,13 @@ function renderArchitectureMetrics(architectureMetrics) {
           <th>Calls</th>
           <th>Attempts</th>
           <th>Retries</th>
+          <th>Failed attempts</th>
           <th>Prompt</th>
           <th>Completion</th>
           <th>Total</th>
           <th>Cache hit/miss</th>
           <th>Duration</th>
+          <th>Error types</th>
         </tr>
       </thead>
       <tbody>
@@ -748,11 +756,13 @@ function renderArchitectureMetrics(architectureMetrics) {
           <td>${escapeHtml(stage.modelCallCount || stage.runtimeCallCount || 0)}</td>
           <td>${escapeHtml(stage.attemptCount || 0)}</td>
           <td>${escapeHtml(stage.retryAttemptCount || 0)}</td>
+          <td>${escapeHtml(stage.failedAttemptCount || 0)}</td>
           <td>${escapeHtml(formatNumber(stage.promptTokens || 0))}</td>
           <td>${escapeHtml(formatNumber(stage.completionTokens || 0))}</td>
           <td>${escapeHtml(formatNumber(stage.totalTokens || 0))}</td>
           <td>${escapeHtml(`${formatNumber(stage.promptCacheHitTokens || 0)} / ${formatNumber(stage.promptCacheMissTokens || 0)}`)}</td>
           <td>${escapeHtml(`${formatNumber(Math.round((stage.durationMs || 0) / 1000))}s`)}</td>
+          <td>${escapeHtml(formatErrorTypes(stage.errorTypes || {}))}</td>
         </tr>`).join("\n")}
       </tbody>
     </table>

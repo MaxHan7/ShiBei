@@ -26,6 +26,12 @@ export const MICRO_KNOWLEDGE_ROLES = [
   "relationship"
 ];
 
+export const UNIT_KNOWLEDGE_MAP_TEXT_LIMITS = {
+  microTitle: 28,
+  microSummary: 72,
+  primaryEvidenceAngle: 24
+};
+
 export const UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA = {
   name: UNIT_KNOWLEDGE_MAP_PROMPT_SCHEMA_NAME,
   type: "object",
@@ -48,19 +54,15 @@ export const UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA = {
                 "summary",
                 "role",
                 "assessmentValue",
-                "suggestedEvidenceAngles"
+                "primaryEvidenceAngle"
               ],
               properties: {
                 microId: { type: "string" },
-                title: { type: "string", maxLength: 32 },
-                summary: { type: "string", maxLength: 96 },
+                title: { type: "string", maxLength: UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.microTitle },
+                summary: { type: "string", maxLength: UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.microSummary },
                 role: { enum: MICRO_KNOWLEDGE_ROLES },
                 assessmentValue: { enum: MICRO_ASSESSMENT_VALUES },
-                suggestedEvidenceAngles: {
-                  type: "array",
-                  maxItems: 3,
-                  items: { type: "string" }
-                },
+                primaryEvidenceAngle: { type: "string", maxLength: UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.primaryEvidenceAngle },
                 sourceAnchorId: { type: "string" },
                 sourceSupport: { type: "string" }
               }
@@ -123,7 +125,8 @@ export function validateUnitKnowledgeMapOutput(output, { unitIds = new Set(), so
           "title",
           "summary",
           "role",
-          "assessmentValue"
+          "assessmentValue",
+          "primaryEvidenceAngle"
         ],
         microPath,
         errors
@@ -144,9 +147,24 @@ export function validateUnitKnowledgeMapOutput(output, { unitIds = new Set(), so
       ) {
         errors.push(`${microPath}.assessmentValue must be one of ${MICRO_ASSESSMENT_VALUES.join(", ")}`);
       }
-      if (!Array.isArray(micro.suggestedEvidenceAngles)) {
-        errors.push(`${microPath}.suggestedEvidenceAngles must be an array`);
-      }
+      validateStringMaxLength(
+        micro.primaryEvidenceAngle,
+        UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.primaryEvidenceAngle,
+        `${microPath}.primaryEvidenceAngle`,
+        errors
+      );
+      validateStringMaxLength(
+        micro.title,
+        UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.microTitle,
+        `${microPath}.title`,
+        errors
+      );
+      validateStringMaxLength(
+        micro.summary,
+        UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.microSummary,
+        `${microPath}.summary`,
+        errors
+      );
       if (
         isNonEmptyString(micro.sourceAnchorId) &&
         sourceAnchorIds.size > 0 &&
@@ -164,6 +182,13 @@ export function validateUnitKnowledgeMapOutput(output, { unitIds = new Set(), so
   }
 
   return createValidationResult(errors);
+}
+
+function validateStringMaxLength(value, maxLength, path, errors) {
+  if (!isNonEmptyString(value)) return;
+  if (String(value).length > maxLength) {
+    errors.push(`${path} must be at most ${maxLength} characters`);
+  }
 }
 
 export function normalizeUnitKnowledgeMapOutput(output) {
@@ -191,10 +216,17 @@ function normalizeMicroKnowledgePoint(micro) {
     ...(micro.assessmentValue !== normalizedAssessmentValue ? { rawAssessmentValue: micro.assessmentValue } : {}),
     role: normalizedRole,
     assessmentValue: normalizedAssessmentValue,
-    suggestedEvidenceAngles: Array.isArray(micro.suggestedEvidenceAngles)
-      ? micro.suggestedEvidenceAngles
-      : []
+    primaryEvidenceAngle: normalizePrimaryEvidenceAngle(micro)
   };
+}
+
+function normalizePrimaryEvidenceAngle(micro) {
+  if (isNonEmptyString(micro.primaryEvidenceAngle)) return micro.primaryEvidenceAngle;
+  if (Array.isArray(micro.suggestedEvidenceAngles)) {
+    const firstAngle = micro.suggestedEvidenceAngles.find((angle) => isNonEmptyString(angle));
+    if (firstAngle) return firstAngle;
+  }
+  return "";
 }
 
 function normalizeMicroRole(value) {

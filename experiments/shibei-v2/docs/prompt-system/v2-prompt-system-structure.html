@@ -127,7 +127,7 @@
 <body>
 <main>
   <h1>拾贝 V2 Prompt 初级系统结构图</h1>
-  <div class="meta">Generated at 2026-06-23T00:14:00.645Z from current source files. This page is an inspection artifact, not a prompt runtime.</div>
+  <div class="meta">Generated at 2026-06-23T15:09:58.899Z from current source files. This page is an inspection artifact, not a prompt runtime.</div>
   <div class="toc">
     <a href="#flow">主链路结构</a>
     <a href="#active-stages">当前主链路 prompt</a>
@@ -364,7 +364,7 @@ export function validateSourceMapOutput(output) {
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：reviewPathPlan。</li><li>任务：生成整章概要、知识点计划、章节完成页鼓励文案。</li><li>字段语义：</li><li>- chapter summary 是整章概要，解释整篇文章的主旨，不是知识点详情。</li><li>- unit.nodeLabel 是主页路径节点弹窗里的知识点标题短语，可以直接复用合适的 unit.title；它不是完整摘要。</li><li>- unit.shortSummary 是知识点短摘要，用于章节详情折叠态和列表预览，不用于主页节点弹窗。</li><li>- unit.detailSummary 是知识点完整总结，用于展开态和出题上下文。</li><li>- unit.overview 不在本阶段生成，留给 unitSummaryDraft 阶段。</li><li>- 每个 unit.sourceAnchor 必须包含稳定 id 和 blockIds；id 建议使用 anchor-&lt;unit id&gt;。</li><li>- 每个 unit.sourceAnchor.blockIds 必须引用 sourceMap 已有 block id。</li><li>- chapterSummary.encouragementText 是章节完成页鼓励文案，要结合本章内容，不要空泛。</li><li>- 每个 units[] 都必须是完整知识点对象，不能用 section/outline/目录项/骨架对象替代。</li><li>- 每个 units[] 必须同时包含 id、order、title、nodeLabel、shortSummary、detailSummary、why、sourceAnchor。</li><li>- 如果某段只能写成目录项，宁可不生成该 unit；不要输出缺字段的半成品 unit。</li><li>质量规则：</li><li>- 先识别文章核心命题和阅读主线，再按原文顺序切分 unit。</li><li>- summaryCard 要先点核心命题，再轻量带出展开方向，不要写成目录。</li><li>- unit 是可复习的独立学习对象，不是目录项、段落标题或普通摘要。</li><li>- 判断一个内容是否成为 unit 时，依次检查：它是否有清晰学习对象；是否由具体 source blocks 支撑；用户掌握它后是否能形成可观察 evidence；它和相邻 unit 是依赖关系还是同一个学习对象。</li><li>- 背景、例子、铺垫不自动成为 unit；但如果它承载独立概念、机制、边界、流程、模型或方法，也应成为 unit。</li><li>- 不能把相关但独立的大知识点合并成一个 unit。相关不等于可合并。</li><li>- layered_framework、process_steps、type_set、boundary_rule 如果有自己的原文证据和后续可观察 evidence，通常应该拆成独立 unit。</li><li>- 具有独立分层结构、流程步骤、类型集合或边界规则的知识对象，如果有自己的原文证据和后续可观察 evidence，通常应作为独立 unit，不应被合并进相邻的宽泛概念 unit。</li><li>- 不要把每个段落机械切成 unit；但只要某段承载独立学习对象并有 source evidence，就应保留，不因压缩数量而合并或删除。</li><li>- unit 数量由文章长度、结构密度、独立学习对象数量和可观察 evidence 决定；不要使用固定范围控制产量。</li><li>- 短文可以只有少量 unit；长文或结构密集文章可以有更多 unit。合并只发生在学习对象确实相同或高度依赖时，不为压缩数量而合并独立知识点。</li><li>- 每个 unit 只围绕一个清晰学习对象，不混入多个独立观点。</li><li>- sourceAnchor 必须能支撑该 unit 的 title、shortSummary、detailSummary 和 why；不要只挂一个附近但不能支撑学习对象的段落。</li><li>- unit.nodeLabel 适合在节点浮窗中显示一到两行；通常是 4-24 个汉字或等价长度，例如“核心概念与边界”“流程步骤与作用”“模型层级与职责”。</li><li>- 输出前自检：units 数组里任意一个对象缺 nodeLabel、shortSummary、detailSummary、why 或 sourceAnchor，就删除或补完整该对象后再输出。</li></ol>
+          <ol><li>阶段：reviewPathPlan。</li><li>任务：生成整章概要、知识点计划、章节完成页鼓励文案。</li><li>字段语义：</li><li>- chapter summary 是整章概要，解释整篇文章的主旨，不是知识点详情。</li><li>- unit.nodeLabel 是主页路径节点弹窗里的知识点标题短语，可以直接复用合适的 unit.title；它不是完整摘要。</li><li>- unit.shortSummary 是知识点短摘要，用于章节详情折叠态和列表预览，不用于主页节点弹窗。</li><li>- unit.detailSummary 是知识点完整总结，用于展开态和出题上下文。</li><li>- unit.overview 不在本阶段生成，留给 unitSummaryDraft 阶段。</li><li>- 每个 unit.sourceAnchor 必须包含稳定 id 和 blockIds；id 建议使用 anchor-&lt;unit id&gt;。</li><li>- 每个 unit.sourceAnchor.blockIds 必须引用 sourceMap 已有 block id。</li><li>- chapterSummary.encouragementText 是章节完成页鼓励文案，要结合本章内容，不要空泛。</li><li>移动端长度上限：</li><li>- title 不超过 36 字符。</li><li>- summaryCard.text 不超过 96 字符。</li><li>- unit.title 不超过 40 字符。</li><li>- unit.nodeLabel 不超过 24 字符。</li><li>- unit.shortSummary 不超过 56 字符。</li><li>- unit.detailSummary 不超过 180 字符。</li><li>- unit.why 不超过 96 字符。</li><li>- chapterSummary.encouragementText 不超过 96 字符。</li><li>- 每个 units[] 都必须是完整知识点对象，不能用 section/outline/目录项/骨架对象替代。</li><li>- 每个 units[] 必须同时包含 id、order、title、nodeLabel、shortSummary、detailSummary、why、sourceAnchor。</li><li>- 如果某段只能写成目录项，宁可不生成该 unit；不要输出缺字段的半成品 unit。</li><li>质量规则：</li><li>- 先识别文章核心命题和阅读主线，再按原文顺序切分 unit。</li><li>- summaryCard 要先点核心命题，再轻量带出展开方向，不要写成目录。</li><li>- unit 是可复习的独立学习对象，不是目录项、段落标题或普通摘要。</li><li>- 判断一个内容是否成为 unit 时，依次检查：它是否有清晰学习对象；是否由具体 source blocks 支撑；用户掌握它后是否能形成可观察 evidence；它和相邻 unit 是依赖关系还是同一个学习对象。</li><li>- 背景、例子、铺垫不自动成为 unit；但如果它承载独立概念、机制、边界、流程、模型或方法，也应成为 unit。</li><li>- 不能把相关但独立的大知识点合并成一个 unit。相关不等于可合并。</li><li>- layered_framework、process_steps、type_set、boundary_rule 如果有自己的原文证据和后续可观察 evidence，通常应该拆成独立 unit。</li><li>- 具有独立分层结构、流程步骤、类型集合或边界规则的知识对象，如果有自己的原文证据和后续可观察 evidence，通常应作为独立 unit，不应被合并进相邻的宽泛概念 unit。</li><li>- 不要把每个段落机械切成 unit；但只要某段承载独立学习对象并有 source evidence，就应保留，不因压缩数量而合并或删除。</li><li>- unit 数量由文章长度、结构密度、独立学习对象数量和可观察 evidence 决定；不要使用固定范围控制产量。</li><li>- 短文可以只有少量 unit；长文或结构密集文章可以有更多 unit。合并只发生在学习对象确实相同或高度依赖时，不为压缩数量而合并独立知识点。</li><li>- 每个 unit 只围绕一个清晰学习对象，不混入多个独立观点。</li><li>- sourceAnchor 必须能支撑该 unit 的 title、shortSummary、detailSummary 和 why；不要只挂一个附近但不能支撑学习对象的段落。</li><li>- unit.nodeLabel 适合在节点浮窗中显示一到两行；通常是 4-24 个汉字或等价长度，例如“核心概念与边界”“流程步骤与作用”“模型层级与职责”。</li><li>- 输出前自检：units 数组里任意一个对象缺 nodeLabel、shortSummary、detailSummary、why 或 sourceAnchor，就删除或补完整该对象后再输出。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildReviewPathPlanMessages({ article, source, blocks }) {
   return {
@@ -381,6 +381,15 @@ export function validateSourceMapOutput(output) {
       &quot;- 每个 unit.sourceAnchor 必须包含稳定 id 和 blockIds；id 建议使用 anchor-&lt;unit id&gt;。&quot;,
       &quot;- 每个 unit.sourceAnchor.blockIds 必须引用 sourceMap 已有 block id。&quot;,
       &quot;- chapterSummary.encouragementText 是章节完成页鼓励文案，要结合本章内容，不要空泛。&quot;,
+      &quot;移动端长度上限：&quot;,
+      &quot;- title 不超过 36 字符。&quot;,
+      &quot;- summaryCard.text 不超过 96 字符。&quot;,
+      &quot;- unit.title 不超过 40 字符。&quot;,
+      &quot;- unit.nodeLabel 不超过 24 字符。&quot;,
+      &quot;- unit.shortSummary 不超过 56 字符。&quot;,
+      &quot;- unit.detailSummary 不超过 180 字符。&quot;,
+      &quot;- unit.why 不超过 96 字符。&quot;,
+      &quot;- chapterSummary.encouragementText 不超过 96 字符。&quot;,
       &quot;- 每个 units[] 都必须是完整知识点对象，不能用 section/outline/目录项/骨架对象替代。&quot;,
       &quot;- 每个 units[] 必须同时包含 id、order、title、nodeLabel、shortSummary、detailSummary、why、sourceAnchor。&quot;,
       &quot;- 如果某段只能写成目录项，宁可不生成该 unit；不要输出缺字段的半成品 unit。&quot;,
@@ -418,16 +427,27 @@ export function validateSourceMapOutput(output) {
 
 export const REVIEW_PATH_PLAN_PROMPT_SCHEMA_NAME = &quot;shibei_v2_review_path_plan&quot;;
 
+export const REVIEW_PATH_TEXT_LIMITS = {
+  title: 36,
+  summaryCardText: 96,
+  unitTitle: 40,
+  nodeLabel: 24,
+  shortSummary: 56,
+  detailSummary: 180,
+  why: 96,
+  encouragementText: 96
+};
+
 export const REVIEW_PATH_PLAN_OUTPUT_SCHEMA = {
   name: REVIEW_PATH_PLAN_PROMPT_SCHEMA_NAME,
   type: &quot;object&quot;,
   required: [&quot;title&quot;, &quot;summaryCard&quot;, &quot;units&quot;, &quot;chapterSummary&quot;],
   properties: {
-    title: { type: &quot;string&quot; },
+    title: { type: &quot;string&quot;, maxLength: REVIEW_PATH_TEXT_LIMITS.title },
     summaryCard: {
       type: &quot;object&quot;,
       required: [&quot;text&quot;],
-      properties: { text: { type: &quot;string&quot; } }
+      properties: { text: { type: &quot;string&quot;, maxLength: REVIEW_PATH_TEXT_LIMITS.summaryCardText } }
     },
     units: {
       type: &quot;array&quot;,
@@ -446,11 +466,11 @@ export const REVIEW_PATH_PLAN_OUTPUT_SCHEMA = {
         properties: {
           id: { type: &quot;string&quot; },
           order: { type: &quot;integer&quot; },
-          title: { type: &quot;string&quot; },
-          nodeLabel: { type: &quot;string&quot; },
-          shortSummary: { type: &quot;string&quot; },
-          detailSummary: { type: &quot;string&quot; },
-          why: { type: &quot;string&quot; },
+          title: { type: &quot;string&quot;, maxLength: REVIEW_PATH_TEXT_LIMITS.unitTitle },
+          nodeLabel: { type: &quot;string&quot;, maxLength: REVIEW_PATH_TEXT_LIMITS.nodeLabel },
+          shortSummary: { type: &quot;string&quot;, maxLength: REVIEW_PATH_TEXT_LIMITS.shortSummary },
+          detailSummary: { type: &quot;string&quot;, maxLength: REVIEW_PATH_TEXT_LIMITS.detailSummary },
+          why: { type: &quot;string&quot;, maxLength: REVIEW_PATH_TEXT_LIMITS.why },
           sourceAnchor: {
             type: &quot;object&quot;,
             required: [&quot;id&quot;, &quot;blockIds&quot;],
@@ -468,7 +488,9 @@ export const REVIEW_PATH_PLAN_OUTPUT_SCHEMA = {
     chapterSummary: {
       type: &quot;object&quot;,
       required: [&quot;encouragementText&quot;],
-      properties: { encouragementText: { type: &quot;string&quot; } }
+      properties: {
+        encouragementText: { type: &quot;string&quot;, maxLength: REVIEW_PATH_TEXT_LIMITS.encouragementText }
+      }
     }
   }
 };
@@ -482,10 +504,19 @@ export function validateReviewPathPlanOutput(output, { sourceBlockIds = new Set(
 
   if (!isNonEmptyString(output.title)) {
     errors.push(&quot;reviewPathPlan.title is required&quot;);
+  } else {
+    validateStringMaxLength(output.title, REVIEW_PATH_TEXT_LIMITS.title, &quot;reviewPathPlan.title&quot;, errors);
   }
 
   if (!isPlainObject(output.summaryCard) || !isNonEmptyString(output.summaryCard.text)) {
     errors.push(&quot;reviewPathPlan.summaryCard.text is required&quot;);
+  } else {
+    validateStringMaxLength(
+      output.summaryCard.text,
+      REVIEW_PATH_TEXT_LIMITS.summaryCardText,
+      &quot;reviewPathPlan.summaryCard.text&quot;,
+      errors
+    );
   }
 
   if (
@@ -493,6 +524,13 @@ export function validateReviewPathPlanOutput(output, { sourceBlockIds = new Set(
     !isNonEmptyString(output.chapterSummary.encouragementText)
   ) {
     errors.push(&quot;reviewPathPlan.chapterSummary.encouragementText is required&quot;);
+  } else {
+    validateStringMaxLength(
+      output.chapterSummary.encouragementText,
+      REVIEW_PATH_TEXT_LIMITS.encouragementText,
+      &quot;reviewPathPlan.chapterSummary.encouragementText&quot;,
+      errors
+    );
   }
 
   if (!Array.isArray(output.units) || output.units.length === 0) {
@@ -519,6 +557,12 @@ export function validateReviewPathPlanOutput(output, { sourceBlockIds = new Set(
     if (!Number.isInteger(unit.order) || unit.order &lt;= 0) {
       errors.push(`${path}.order must be a positive integer`);
     }
+
+    validateStringMaxLength(unit.title, REVIEW_PATH_TEXT_LIMITS.unitTitle, `${path}.title`, errors);
+    validateStringMaxLength(unit.nodeLabel, REVIEW_PATH_TEXT_LIMITS.nodeLabel, `${path}.nodeLabel`, errors);
+    validateStringMaxLength(unit.shortSummary, REVIEW_PATH_TEXT_LIMITS.shortSummary, `${path}.shortSummary`, errors);
+    validateStringMaxLength(unit.detailSummary, REVIEW_PATH_TEXT_LIMITS.detailSummary, `${path}.detailSummary`, errors);
+    validateStringMaxLength(unit.why, REVIEW_PATH_TEXT_LIMITS.why, `${path}.why`, errors);
 
     validatePlannedSourceAnchor(unit.sourceAnchor, {
       path: `${path}.sourceAnchor`,
@@ -554,6 +598,13 @@ function validatePlannedSourceAnchor(sourceAnchor, { path, sourceBlockIds, error
     }
   });
 }
+
+function validateStringMaxLength(value, maxLength, path, errors) {
+  if (!isNonEmptyString(value)) return;
+  if (String(value).length &gt; maxLength) {
+    errors.push(`${path} must be at most ${maxLength} characters`);
+  }
+}
 </pre></details>
       </div>
     </div>
@@ -578,29 +629,25 @@ function validatePlannedSourceAnchor(sourceAnchor, { path, sourceBlockIds, error
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：unitKnowledgeMap。</li><li>任务：只为每个已确定的 unit 拆出内部 microKnowledgePoints；本阶段不生成题目、不选择题型、不做 selectedTasks。</li><li>为什么需要这一层：</li><li>- 一个 unit 是大知识点，内部通常包含多个可学习的小知识点。</li><li>- 这些小知识点是后续 ECD evidence 和题目生成的上游 inventory。</li><li>- 本阶段的目标是完整发现，不是压缩、筛选或组装题目。</li><li>拆分原则：</li><li>- 对每个 reviewPathPlan.units[] 都输出一个 units[] 对象。</li><li>- microKnowledgePoints 要覆盖该 unit 内所有有学习价值、可被原文支撑的小点。</li><li>- microKnowledgePoint 是 unit 内最小的有意义学习对象，应能在后续形成 learning target 或 evidence angle。</li><li>- microKnowledgePoints 可以是定义、边界、模型层级、机制、流程步骤、场景应用、误区、案例或关系。</li><li>- 如果一句内容包含两个不同掌握表现，例如定义与边界、机制与误区、步骤与目的，应拆成多个 micro。</li><li>- 如果多个表述只是同一个意思的重复解释，应合并成一个 micro。</li><li>- 不要因为后续可能题目多，就把多个小点合成一句大话。</li><li>- 不要为了控制题量而删掉原文中重要的小点；题量控制留给后续 assembly。</li><li>- 根据原文自然存在的内容判断 role；不要为了填满某种 role 而虚构 micro。</li><li>- 案例只有在承载可迁移判断、误区或机制说明时才作为 micro；纯举例使用 context_only。</li><li>- assessmentValue 只描述这个小点的考察价值，不表达题目数量。</li><li>- high：缺少它会导致用户无法掌握该 unit 的核心，后续通常应进入覆盖判断。</li><li>- medium：能补充重要角度、边界、误区或应用，但不是该 unit 的唯一核心。</li><li>- low：有学习价值，但不一定需要直接考察。</li><li>- context_only：背景、铺垫、普通例子或只帮助理解上下文，不直接形成题目。</li><li>- 对分层模型、结构框架或层级体系，要把整体结构、每一层的作用、层级关系或边界分别拆出来。</li><li>- 对流程、信号、角色、类型集合，要保留能形成 matching 或场景判断的关系小点。</li><li>输出字段：</li><li>- microId 使用稳定 id，例如 micro-&lt;unit id&gt;-001。</li><li>- title 是短标题，可用于人工报告对比。</li><li>- summary 是一句短说明，说明这个小点是什么；不要粘贴长原文。</li><li>- role 只能使用 schema enum。</li><li>- suggestedEvidenceAngles 只写 1-3 个建议观察角度，不选择题型；常见映射：definition -&gt; definition_grasp，boundary -&gt; boundary_discrimination，model_layer/relationship -&gt; structure_mapping，mechanism -&gt; mechanism_reasoning，process_step -&gt; step_purpose_mapping，scenario_application -&gt; scenario_transfer，misconception -&gt; misconception_detection。</li><li>- 不要输出 sourceAnchorId 或 sourceSupport；micro 默认继承当前 unit 的 sourceAnchor。</li></ol>
+          <ol><li>阶段：unitKnowledgeMap。</li><li>任务：为当前输入的 unit 识别有学习价值的子知识点 microKnowledgePoints；本阶段不生成题目、不选择题型、不做 selectedTasks。</li><li>为什么需要这一层：</li><li>- 一个 unit 是大知识点，内部可能包含多个值得用户单独理解的子知识点。</li><li>- 这些子知识点是后续 ECD evidence 和题目生成的上游 inventory。</li><li>拆分原则：</li><li>- 本次输入可能只包含一个 unit；只为输入 plan.units[] 中出现的 unit 输出 units[]。</li><li>- 对每个输入的 reviewPathPlan.units[] 都输出一个 units[] 对象。</li><li>- microKnowledgePoint 是围绕该 unit 核心内容展开、值得用户单独理解的子知识点。</li><li>- microKnowledgePoints 可以体现定义、边界、模型层级、机制、流程步骤、场景应用、常见误区、关键例子或关系。</li><li>- 优先保留对理解该 unit 核心有帮助、能形成后续可观察理解表现、并且原文中有清晰支撑的点。</li><li>- 如果多个表述服务于同一个学习点，合并为一个 micro。</li><li>- micro 数量由当前 unit 的知识密度决定。</li><li>- assessmentValue 只描述这个小点的考察价值，不表达题目数量。</li><li>- high：缺少它会导致用户无法掌握该 unit 的核心，后续通常应进入覆盖判断。</li><li>- medium：能补充重要角度、边界、误区或应用，但不是该 unit 的唯一核心。</li><li>- low：有学习价值，但不一定需要直接考察。</li><li>- context_only：背景、铺垫、普通例子或只帮助理解上下文，不直接形成题目。</li><li>- 对分层模型、结构框架或层级体系，要把整体结构、每一层的作用、层级关系或边界分别拆出来。</li><li>- 对流程、信号、角色、类型集合，要保留能形成 matching 或场景判断的关系小点。</li><li>输出字段：</li><li>- microId 使用稳定 id，例如 micro-&lt;unit id&gt;-001。</li><li>- title 是短标题，可用于人工报告对比，不超过 28 字符。</li><li>- summary 是一句短索引，只说明这个小点是什么，不超过 72 字符；不要粘贴长原文，不写解释段落。</li><li>- role 只能使用 schema enum。</li><li>- primaryEvidenceAngle 写一个最主要的可观察理解角度，不超过 24 字符，不选择题型。</li><li>- 不要输出 sourceAnchorId 或 sourceSupport；micro 默认继承当前 unit 的 sourceAnchor。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildUnitKnowledgeMapMessages({ article, source, blocks, sourceContextNote, plan }) {
   return {
     system: baseSystem(),
     user: [
       &quot;阶段：unitKnowledgeMap。&quot;,
-      &quot;任务：只为每个已确定的 unit 拆出内部 microKnowledgePoints；本阶段不生成题目、不选择题型、不做 selectedTasks。&quot;,
+      &quot;任务：为当前输入的 unit 识别有学习价值的子知识点 microKnowledgePoints；本阶段不生成题目、不选择题型、不做 selectedTasks。&quot;,
       &quot;为什么需要这一层：&quot;,
-      &quot;- 一个 unit 是大知识点，内部通常包含多个可学习的小知识点。&quot;,
-      &quot;- 这些小知识点是后续 ECD evidence 和题目生成的上游 inventory。&quot;,
-      &quot;- 本阶段的目标是完整发现，不是压缩、筛选或组装题目。&quot;,
+      &quot;- 一个 unit 是大知识点，内部可能包含多个值得用户单独理解的子知识点。&quot;,
+      &quot;- 这些子知识点是后续 ECD evidence 和题目生成的上游 inventory。&quot;,
       &quot;拆分原则：&quot;,
-      &quot;- 对每个 reviewPathPlan.units[] 都输出一个 units[] 对象。&quot;,
-      &quot;- microKnowledgePoints 要覆盖该 unit 内所有有学习价值、可被原文支撑的小点。&quot;,
-      &quot;- microKnowledgePoint 是 unit 内最小的有意义学习对象，应能在后续形成 learning target 或 evidence angle。&quot;,
-      &quot;- microKnowledgePoints 可以是定义、边界、模型层级、机制、流程步骤、场景应用、误区、案例或关系。&quot;,
-      &quot;- 如果一句内容包含两个不同掌握表现，例如定义与边界、机制与误区、步骤与目的，应拆成多个 micro。&quot;,
-      &quot;- 如果多个表述只是同一个意思的重复解释，应合并成一个 micro。&quot;,
-      &quot;- 不要因为后续可能题目多，就把多个小点合成一句大话。&quot;,
-      &quot;- 不要为了控制题量而删掉原文中重要的小点；题量控制留给后续 assembly。&quot;,
-      &quot;- 根据原文自然存在的内容判断 role；不要为了填满某种 role 而虚构 micro。&quot;,
-      &quot;- 案例只有在承载可迁移判断、误区或机制说明时才作为 micro；纯举例使用 context_only。&quot;,
+      &quot;- 本次输入可能只包含一个 unit；只为输入 plan.units[] 中出现的 unit 输出 units[]。&quot;,
+      &quot;- 对每个输入的 reviewPathPlan.units[] 都输出一个 units[] 对象。&quot;,
+      &quot;- microKnowledgePoint 是围绕该 unit 核心内容展开、值得用户单独理解的子知识点。&quot;,
+      &quot;- microKnowledgePoints 可以体现定义、边界、模型层级、机制、流程步骤、场景应用、常见误区、关键例子或关系。&quot;,
+      &quot;- 优先保留对理解该 unit 核心有帮助、能形成后续可观察理解表现、并且原文中有清晰支撑的点。&quot;,
+      &quot;- 如果多个表述服务于同一个学习点，合并为一个 micro。&quot;,
+      &quot;- micro 数量由当前 unit 的知识密度决定。&quot;,
       &quot;- assessmentValue 只描述这个小点的考察价值，不表达题目数量。&quot;,
       &quot;- high：缺少它会导致用户无法掌握该 unit 的核心，后续通常应进入覆盖判断。&quot;,
       &quot;- medium：能补充重要角度、边界、误区或应用，但不是该 unit 的唯一核心。&quot;,
@@ -610,10 +657,10 @@ function validatePlannedSourceAnchor(sourceAnchor, { path, sourceBlockIds, error
       &quot;- 对流程、信号、角色、类型集合，要保留能形成 matching 或场景判断的关系小点。&quot;,
       &quot;输出字段：&quot;,
       &quot;- microId 使用稳定 id，例如 micro-&lt;unit id&gt;-001。&quot;,
-      &quot;- title 是短标题，可用于人工报告对比。&quot;,
-      &quot;- summary 是一句短说明，说明这个小点是什么；不要粘贴长原文。&quot;,
+      &quot;- title 是短标题，可用于人工报告对比，不超过 28 字符。&quot;,
+      &quot;- summary 是一句短索引，只说明这个小点是什么，不超过 72 字符；不要粘贴长原文，不写解释段落。&quot;,
       &quot;- role 只能使用 schema enum。&quot;,
-      &quot;- suggestedEvidenceAngles 只写 1-3 个建议观察角度，不选择题型；常见映射：definition -&gt; definition_grasp，boundary -&gt; boundary_discrimination，model_layer/relationship -&gt; structure_mapping，mechanism -&gt; mechanism_reasoning，process_step -&gt; step_purpose_mapping，scenario_application -&gt; scenario_transfer，misconception -&gt; misconception_detection。&quot;,
+      &quot;- primaryEvidenceAngle 写一个最主要的可观察理解角度，不超过 24 字符，不选择题型。&quot;,
       &quot;- 不要输出 sourceAnchorId 或 sourceSupport；micro 默认继承当前 unit 的 sourceAnchor。&quot;,
       &quot;&quot;,
       `reviewPathPlan:\n${JSON.stringify(plan, null, 2)}`,
@@ -653,6 +700,12 @@ export const MICRO_KNOWLEDGE_ROLES = [
   &quot;relationship&quot;
 ];
 
+export const UNIT_KNOWLEDGE_MAP_TEXT_LIMITS = {
+  microTitle: 28,
+  microSummary: 72,
+  primaryEvidenceAngle: 24
+};
+
 export const UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA = {
   name: UNIT_KNOWLEDGE_MAP_PROMPT_SCHEMA_NAME,
   type: &quot;object&quot;,
@@ -675,19 +728,15 @@ export const UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA = {
                 &quot;summary&quot;,
                 &quot;role&quot;,
                 &quot;assessmentValue&quot;,
-                &quot;suggestedEvidenceAngles&quot;
+                &quot;primaryEvidenceAngle&quot;
               ],
               properties: {
                 microId: { type: &quot;string&quot; },
-                title: { type: &quot;string&quot;, maxLength: 32 },
-                summary: { type: &quot;string&quot;, maxLength: 96 },
+                title: { type: &quot;string&quot;, maxLength: UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.microTitle },
+                summary: { type: &quot;string&quot;, maxLength: UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.microSummary },
                 role: { enum: MICRO_KNOWLEDGE_ROLES },
                 assessmentValue: { enum: MICRO_ASSESSMENT_VALUES },
-                suggestedEvidenceAngles: {
-                  type: &quot;array&quot;,
-                  maxItems: 3,
-                  items: { type: &quot;string&quot; }
-                },
+                primaryEvidenceAngle: { type: &quot;string&quot;, maxLength: UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.primaryEvidenceAngle },
                 sourceAnchorId: { type: &quot;string&quot; },
                 sourceSupport: { type: &quot;string&quot; }
               }
@@ -750,7 +799,8 @@ export function validateUnitKnowledgeMapOutput(output, { unitIds = new Set(), so
           &quot;title&quot;,
           &quot;summary&quot;,
           &quot;role&quot;,
-          &quot;assessmentValue&quot;
+          &quot;assessmentValue&quot;,
+          &quot;primaryEvidenceAngle&quot;
         ],
         microPath,
         errors
@@ -771,9 +821,24 @@ export function validateUnitKnowledgeMapOutput(output, { unitIds = new Set(), so
       ) {
         errors.push(`${microPath}.assessmentValue must be one of ${MICRO_ASSESSMENT_VALUES.join(&quot;, &quot;)}`);
       }
-      if (!Array.isArray(micro.suggestedEvidenceAngles)) {
-        errors.push(`${microPath}.suggestedEvidenceAngles must be an array`);
-      }
+      validateStringMaxLength(
+        micro.primaryEvidenceAngle,
+        UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.primaryEvidenceAngle,
+        `${microPath}.primaryEvidenceAngle`,
+        errors
+      );
+      validateStringMaxLength(
+        micro.title,
+        UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.microTitle,
+        `${microPath}.title`,
+        errors
+      );
+      validateStringMaxLength(
+        micro.summary,
+        UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.microSummary,
+        `${microPath}.summary`,
+        errors
+      );
       if (
         isNonEmptyString(micro.sourceAnchorId) &amp;&amp;
         sourceAnchorIds.size &gt; 0 &amp;&amp;
@@ -791,6 +856,13 @@ export function validateUnitKnowledgeMapOutput(output, { unitIds = new Set(), so
   }
 
   return createValidationResult(errors);
+}
+
+function validateStringMaxLength(value, maxLength, path, errors) {
+  if (!isNonEmptyString(value)) return;
+  if (String(value).length &gt; maxLength) {
+    errors.push(`${path} must be at most ${maxLength} characters`);
+  }
 }
 
 export function normalizeUnitKnowledgeMapOutput(output) {
@@ -818,10 +890,17 @@ function normalizeMicroKnowledgePoint(micro) {
     ...(micro.assessmentValue !== normalizedAssessmentValue ? { rawAssessmentValue: micro.assessmentValue } : {}),
     role: normalizedRole,
     assessmentValue: normalizedAssessmentValue,
-    suggestedEvidenceAngles: Array.isArray(micro.suggestedEvidenceAngles)
-      ? micro.suggestedEvidenceAngles
-      : []
+    primaryEvidenceAngle: normalizePrimaryEvidenceAngle(micro)
   };
+}
+
+function normalizePrimaryEvidenceAngle(micro) {
+  if (isNonEmptyString(micro.primaryEvidenceAngle)) return micro.primaryEvidenceAngle;
+  if (Array.isArray(micro.suggestedEvidenceAngles)) {
+    const firstAngle = micro.suggestedEvidenceAngles.find((angle) =&gt; isNonEmptyString(angle));
+    if (firstAngle) return firstAngle;
+  }
+  return &quot;&quot;;
 }
 
 function normalizeMicroRole(value) {
@@ -896,14 +975,14 @@ function normalizeAssessmentValue(value) {
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：taskBriefPlan。</li><li>任务：为整章所有 unit 一次性生成轻量练习任务简报；本阶段不生成用户可见题目。</li><li>核心设计方式：</li><li>- Evidence-Centered Design 是你的思考方法，不是要输出的字段。</li><li>- 你要自然完成这条链路：学习对象 -&gt; 可观察掌握证据 -&gt; 适合的练习任务 -&gt; 题型计划。</li><li>- 输出只保留 practiceGoals 和 questionPlans；不要输出 ECD 术语字段、推理链、候选矩阵或长篇解释。</li><li>- unitKnowledgeMap.microKnowledgePoints 是上游已经拆好的小知识点 inventory；不要重新压缩成一句大话。</li><li>- 每个 high / medium microKnowledgePoint 都要被某个 practiceGoal 或 questionPlan 覆盖；context_only 可以不出题。</li><li>- 一个 unit 可以有多个题目计划，数量由掌握证据和考察角度自然决定，不写死题目数。</li><li>- 不要为了减少题量漏掉独立的小知识点；也不要为了凑题生成无证据的题。</li><li>题型选择：</li><li>- multiple_choice 适合核心理解、边界判断、误区识别、场景迁移。</li><li>- matching 适合天然关系结构：分层模型、类型集合、流程步骤、信号动作、角色职责、验证维度。</li><li>- 如果 microKnowledgePoints 中存在清晰的结构、流程、角色、条件、特征或判断依据等对应关系，应生成 matching 计划。</li><li>- matching 不是机械名词释义；它要考用户是否理解元素之间的关系。</li><li>字段规则：</li><li>- units 数组必须覆盖 reviewPathPlan.units 的每个 unit，且 unitId 一一对应。</li><li>- 不要输出 practiceGoal.id、questionPlan.id、practiceGoalId 或 sourceAnchorId；这些稳定字段由后端 adapter 自动补齐。</li><li>- practiceGoal.target 写成短句，最长约 30 个中文字，只描述用户要掌握什么。</li><li>- practiceGoal.commonMisconception 写真实误区，最长约 20 个中文字。</li><li>- practiceGoals 和 questionPlans 都只用 microIds 引用 unitKnowledgeMap.microKnowledgePoints；不要输出 targetIds。</li><li>- 不要输出 microKnowledgePoint 的正文、定义或解释；只输出它们的 id。</li><li>- questionPlans[].goalIndex 是 1-based 数字，指向同一 unit 的第几个 practiceGoal。</li><li>- questionPlans[].type 为 matching 时必须填写 relationType；multiple_choice 不要填写 relationType。</li></ol>
+          <ol><li>阶段：taskBriefPlan。</li><li>任务：只为当前输入的单个 unit 生成 compact practiceGoals 和 questionPlans；本阶段不生成用户可见题目。</li><li>核心设计方式：</li><li>- Evidence-Centered Design 是你的思考方法，不是要输出的字段。</li><li>- 你要自然完成这条链路：学习对象 -&gt; 可观察掌握证据 -&gt; 适合的练习任务 -&gt; 题型计划。</li><li>- 输出只保留 practiceGoals 和 questionPlans；不要输出 ECD 术语字段、推理链、候选矩阵或长篇解释。</li><li>- unitKnowledgeMap.microKnowledgePoints 是上游已经拆好的小知识点 inventory；不要重新压缩成一句大话。</li><li>- 每个 high / medium microKnowledgePoint 都要被某个 practiceGoal 或 questionPlan 覆盖；context_only 可以不出题。</li><li>- 一个 unit 可以有多个题目计划，数量由掌握证据和考察角度自然决定，不写死题目数。</li><li>- 不要为了减少题量漏掉独立的小知识点；也不要为了凑题生成无证据的题。</li><li>题型选择：</li><li>- multiple_choice 适合核心理解、边界判断、误区识别、场景迁移。</li><li>- matching 适合天然关系结构：分层模型、类型集合、流程步骤、信号动作、角色职责、验证维度。</li><li>- 如果 microKnowledgePoints 中存在清晰的结构、流程、角色、条件、特征或判断依据等对应关系，应生成 matching 计划。</li><li>- matching 不是机械名词释义；它要考用户是否理解元素之间的关系。</li><li>字段规则：</li><li>- 本次输入的 reviewPathPlan.units 只包含当前 unit；只输出 units 数组中的这一个 unit。</li><li>- 只使用当前 unit 的 unitKnowledgeMap.microKnowledgePoints；不要引用其他 unit。</li><li>- 不要输出 practiceGoal.id、questionPlan.id、practiceGoalId 或 sourceAnchorId；这些稳定字段由后端 adapter 自动补齐。</li><li>- practiceGoal.target 写成短句，最长约 30 个中文字，只描述用户要掌握什么。</li><li>- practiceGoal.commonMisconception 写真实误区，最长约 20 个中文字。</li><li>- practiceGoals 和 questionPlans 都只用 microIds 引用 unitKnowledgeMap.microKnowledgePoints；不要输出 targetIds。</li><li>- 不要输出 microKnowledgePoint 的正文、定义或解释；只输出它们的 id。</li><li>- questionPlans[].goalIndex 是 1-based 数字，指向同一 unit 的第几个 practiceGoal。</li><li>- questionPlans[].type 为 matching 时必须填写 relationType；multiple_choice 不要填写 relationType。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildTaskBriefPlanMessages({ article, source, blocks, sourceContextNote, plan, unitKnowledgeMap }) {
   return {
     system: baseSystem(),
     user: [
       &quot;阶段：taskBriefPlan。&quot;,
-      &quot;任务：为整章所有 unit 一次性生成轻量练习任务简报；本阶段不生成用户可见题目。&quot;,
+      &quot;任务：只为当前输入的单个 unit 生成 compact practiceGoals 和 questionPlans；本阶段不生成用户可见题目。&quot;,
       &quot;核心设计方式：&quot;,
       &quot;- Evidence-Centered Design 是你的思考方法，不是要输出的字段。&quot;,
       &quot;- 你要自然完成这条链路：学习对象 -&gt; 可观察掌握证据 -&gt; 适合的练习任务 -&gt; 题型计划。&quot;,
@@ -918,7 +997,8 @@ function normalizeAssessmentValue(value) {
       &quot;- 如果 microKnowledgePoints 中存在清晰的结构、流程、角色、条件、特征或判断依据等对应关系，应生成 matching 计划。&quot;,
       &quot;- matching 不是机械名词释义；它要考用户是否理解元素之间的关系。&quot;,
       &quot;字段规则：&quot;,
-      &quot;- units 数组必须覆盖 reviewPathPlan.units 的每个 unit，且 unitId 一一对应。&quot;,
+      &quot;- 本次输入的 reviewPathPlan.units 只包含当前 unit；只输出 units 数组中的这一个 unit。&quot;,
+      &quot;- 只使用当前 unit 的 unitKnowledgeMap.microKnowledgePoints；不要引用其他 unit。&quot;,
       &quot;- 不要输出 practiceGoal.id、questionPlan.id、practiceGoalId 或 sourceAnchorId；这些稳定字段由后端 adapter 自动补齐。&quot;,
       &quot;- practiceGoal.target 写成短句，最长约 30 个中文字，只描述用户要掌握什么。&quot;,
       &quot;- practiceGoal.commonMisconception 写真实误区，最长约 20 个中文字。&quot;,
@@ -1236,9 +1316,11 @@ function validateMaxLength(value, maxLength, path, errors) {
                 microTitles: micros.map((micro) =&gt; micro.title).filter(Boolean),
                 microSummaries: micros.map((micro) =&gt; micro.summary).filter(Boolean),
                 evidenceAngles: micros.flatMap((micro) =&gt;
-                  Array.isArray(micro.suggestedEvidenceAngles)
-                    ? micro.suggestedEvidenceAngles
-                    : []
+                  micro.primaryEvidenceAngle
+                    ? [micro.primaryEvidenceAngle]
+                    : Array.isArray(micro.suggestedEvidenceAngles)
+                      ? micro.suggestedEvidenceAngles
+                      : []
                 )
               },
               sourceAnchorId: questionPlan.sourceAnchorId
@@ -4280,7 +4362,7 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
   unitKnowledgeMap: {
     schemaName: UNIT_KNOWLEDGE_MAP_PROMPT_SCHEMA_NAME,
     schema: UNIT_KNOWLEDGE_MAP_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 7200
+    estimatedOutputTokens: 1800
   },
   ecdPlanning: {
     schemaName: ECD_PLANNING_PROMPT_SCHEMA_NAME,
@@ -4397,34 +4479,61 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
       .map((unit) =&gt; [unit.id, unit.sourceAnchor?.id])
       .filter(([, sourceAnchorId]) =&gt; Boolean(sourceAnchorId))
   );
-  const unitKnowledgeMap = await callAndValidate(
-    activePromptCaller,
-    &quot;unitKnowledgeMap&quot;,
-    {
-      article,
-      source: planSourceContext.source,
-      blocks: planSourceContext.blocks,
-      sourceContextNote: planSourceContext.sourceContextNote,
-      plan
-    },
-    (output) =&gt; validateUnitKnowledgeMapOutput(output, { unitIds, sourceAnchorIds }),
-    { normalize: normalizeUnitKnowledgeMapOutput }
-  );
-  const taskBriefPlan = await callAndValidate(
-    activePromptCaller,
-    &quot;taskBriefPlan&quot;,
-    {
-      article,
-      source: planSourceContext.source,
-      blocks: planSourceContext.blocks,
-      sourceContextNote: planSourceContext.sourceContextNote,
-      plan: stripReviewPathPlanForMetadata(plan),
-      unitKnowledgeMap
-    },
-    (output) =&gt; validateTaskBriefPlanOutput(output, { unitIds, sourceAnchorByUnit: unitSourceAnchorIds }),
-    { normalize: (output) =&gt; normalizeTaskBriefPlanOutput(output, { sourceAnchorByUnit: unitSourceAnchorIds }) }
-  );
   const unitSourceContexts = buildUnitSourceContexts({ sourceMap, plan });
+  const unitKnowledgeMap = mergeUnitKnowledgeMapOutputs(
+    await mapWithConcurrency(plan.units, unitConcurrency, async (plannedUnit) =&gt; {
+      const sourceContext = unitSourceContexts.get(plannedUnit.id);
+      return callAndValidate(
+        activePromptCaller,
+        &quot;unitKnowledgeMap&quot;,
+        {
+          article,
+          source: sourceMap.source,
+          blocks: sourceContext.blocks,
+          sourceContextNote: sourceContext.sourceContextNote,
+          plan: buildSingleUnitPlan(plan, plannedUnit)
+        },
+        (output) =&gt;
+          validateUnitKnowledgeMapOutput(output, {
+            unitIds: new Set([plannedUnit.id]),
+            sourceAnchorIds: new Set([plannedUnit.sourceAnchor?.id].filter(Boolean))
+          }),
+        { normalize: normalizeUnitKnowledgeMapOutput }
+      );
+    })
+  );
+  const taskBriefPlan = mergeTaskBriefPlanOutputs(
+    await mapWithConcurrency(plan.units, unitConcurrency, async (plannedUnit) =&gt; {
+      const sourceContext = unitSourceContexts.get(plannedUnit.id);
+      const sourceAnchorByScopedUnit = new Map();
+      if (plannedUnit.sourceAnchor?.id) {
+        sourceAnchorByScopedUnit.set(plannedUnit.id, plannedUnit.sourceAnchor.id);
+      }
+      return callAndValidate(
+        activePromptCaller,
+        &quot;taskBriefPlan&quot;,
+        {
+          article,
+          source: sourceContext.source,
+          blocks: sourceContext.blocks,
+          sourceContextNote: sourceContext.sourceContextNote,
+          plan: buildSingleUnitPlan(stripReviewPathPlanForMetadata(plan), plannedUnit),
+          unitKnowledgeMap: buildSingleUnitKnowledgeMap(unitKnowledgeMap, plannedUnit.id)
+        },
+        (output) =&gt;
+          validateTaskBriefPlanOutput(output, {
+            unitIds: new Set([plannedUnit.id]),
+            sourceAnchorByUnit: sourceAnchorByScopedUnit
+          }),
+        {
+          normalize: (output) =&gt;
+            normalizeTaskBriefPlanOutput(output, {
+              sourceAnchorByUnit: sourceAnchorByScopedUnit
+            })
+        }
+      );
+    })
+  );
   const questionBriefsByUnit = buildQuestionBriefsByUnit({
     taskBriefPlan,
     unitKnowledgeMap,
@@ -4663,9 +4772,11 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
                 microTitles: micros.map((micro) =&gt; micro.title).filter(Boolean),
                 microSummaries: micros.map((micro) =&gt; micro.summary).filter(Boolean),
                 evidenceAngles: micros.flatMap((micro) =&gt;
-                  Array.isArray(micro.suggestedEvidenceAngles)
-                    ? micro.suggestedEvidenceAngles
-                    : []
+                  micro.primaryEvidenceAngle
+                    ? [micro.primaryEvidenceAngle]
+                    : Array.isArray(micro.suggestedEvidenceAngles)
+                      ? micro.suggestedEvidenceAngles
+                      : []
                 )
               },
               sourceAnchorId: questionPlan.sourceAnchorId

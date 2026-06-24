@@ -94,6 +94,21 @@ test("validates unit knowledge maps as protected micro knowledge inventory", () 
   assert.deepEqual(result, { ok: true, errors: [] });
 });
 
+test("rejects overlong unit knowledge map micro copy", () => {
+  const fixture = unitKnowledgeMapFixture();
+  fixture.units[0].microKnowledgePoints[0].summary = "过长说明".repeat(30);
+  fixture.units[0].microKnowledgePoints[0].primaryEvidenceAngle = "overlong_angle".repeat(6);
+
+  const result = validateUnitKnowledgeMapOutput(fixture, {
+    unitIds: new Set(["unit-01"]),
+    sourceAnchorIds: new Set(["anchor-unit-01"])
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /summary must be at most 72 characters/);
+  assert.match(result.errors.join("\n"), /primaryEvidenceAngle must be at most 24 characters/);
+});
+
 test("validates multiple choice draft batches by unit practice plans", () => {
   const practicePlansByUnit = new Map([["unit-01", unitPracticePlanFixture()]]);
   const sourceAnchorByUnit = new Map([["unit-01", "anchor-unit-01"]]);
@@ -287,6 +302,22 @@ test("validates review path plans against known source block ids", () => {
   });
 
   assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("rejects overlong review path mobile copy", () => {
+  const plan = reviewPathPlanFixture();
+  plan.units[0].nodeLabel = "这是一个明显超出主页节点弹窗承载范围的过长知识点标题";
+  plan.units[0].detailSummary = "过长详情".repeat(50);
+  plan.chapterSummary.encouragementText = "过长鼓励".repeat(40);
+
+  const result = validateReviewPathPlanOutput(plan, {
+    sourceBlockIds: new Set(["p-001", "p-002"])
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /nodeLabel must be at most 24 characters/);
+  assert.match(result.errors.join("\n"), /detailSummary must be at most 180 characters/);
+  assert.match(result.errors.join("\n"), /encouragementText must be at most 96 characters/);
 });
 
 test("rejects review path plans that point anchors at missing source blocks", () => {
@@ -843,7 +874,7 @@ function unitKnowledgeMapFixture() {
             summary: "Hook 是关键动作前后的流程约束，不是更长提示词。",
             role: "definition",
             assessmentValue: "high",
-            suggestedEvidenceAngles: ["definition_grasp", "misconception_detection"],
+            primaryEvidenceAngle: "definition_grasp",
             sourceAnchorId: "anchor-unit-01",
             sourceSupport: "原文说明 Hook 是关键动作前后的流程控制器。"
           },
@@ -853,7 +884,7 @@ function unitKnowledgeMapFixture() {
             summary: "Prompt、Hook、CI 和规则文档在流程中承担不同职责。",
             role: "relationship",
             assessmentValue: "medium",
-            suggestedEvidenceAngles: ["structure_mapping", "boundary_discrimination"],
+            primaryEvidenceAngle: "structure_mapping",
             sourceAnchorId: "anchor-unit-01",
             sourceSupport: "原文对 Hook 的触发、上下文和验证有连续说明。"
           }

@@ -144,8 +144,8 @@ test("hydrates compact task brief plans before downstream draft stages", async (
 
 test("passes only compact source windows into per-unit stages", async () => {
   const captured = {
-    unitKnowledgeMap: null,
-    taskBriefPlan: null,
+    unitKnowledgeMap: [],
+    taskBriefPlan: [],
     multipleChoiceDraftUnitBatch: [],
     matchingDraftBatch: null,
     unitCopyBatch: null
@@ -168,7 +168,7 @@ test("passes only compact source windows into per-unit stages", async () => {
       };
     }
     if (stage === "taskBriefPlan") {
-      captured.taskBriefPlan = payload;
+      captured.taskBriefPlan.push(payload);
       return {
         units: payload.plan.units.map((unit) => practicePlanFixture(unit.id, unit.sourceAnchor.id, { matching: false }))
       };
@@ -213,7 +213,7 @@ test("passes only compact source windows into per-unit stages", async () => {
       };
     }
     if (stage === "unitKnowledgeMap") {
-      captured.unitKnowledgeMap = payload;
+      captured.unitKnowledgeMap.push(payload);
       return {
         units: payload.plan.units.map((unit) => unitKnowledgeMapFixture(unit.id, unit.sourceAnchor.id).units[0])
       };
@@ -228,17 +228,29 @@ test("passes only compact source windows into per-unit stages", async () => {
     now: "2026-06-19T00:00:00.000Z"
   });
 
+  assert.equal(captured.unitKnowledgeMap.length, 2);
+  assert.deepEqual(captured.unitKnowledgeMap.map((payload) => payload.plan.units.length), [1, 1]);
   assert.deepEqual(
-    captured.unitKnowledgeMap.blocks.map((block) => block.id),
-    ["p-002", "p-003", "p-004", "p-006", "p-007", "p-008"]
+    captured.unitKnowledgeMap.map((payload) => payload.plan.units[0].id),
+    ["unit-01", "unit-02"]
   );
-  assert.equal(captured.unitKnowledgeMap.sourceContextNote.mode, "plan_union_window");
+  assert.deepEqual(captured.unitKnowledgeMap[0].blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
+  assert.deepEqual(captured.unitKnowledgeMap[1].blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
+  assert.equal(captured.unitKnowledgeMap[0].sourceContextNote.mode, "unit_window");
+  assert.equal(captured.unitKnowledgeMap[1].sourceContextNote.mode, "unit_window");
 
-  assert.deepEqual(captured.taskBriefPlan.blocks.map((block) => block.id), ["p-002", "p-003", "p-004", "p-006", "p-007", "p-008"]);
-  assert.equal(captured.taskBriefPlan.sourceContextNote.mode, "plan_union_window");
-  assert.equal(captured.taskBriefPlan.plan.units.length, 2);
-  assert.equal(captured.taskBriefPlan.plan.knowledgeObjects, undefined);
-  assert.equal(Array.isArray(captured.taskBriefPlan.plan.chapterWideNotes), false);
+  assert.equal(captured.taskBriefPlan.length, 2);
+  assert.deepEqual(captured.taskBriefPlan.map((payload) => payload.plan.units.length), [1, 1]);
+  assert.deepEqual(
+    captured.taskBriefPlan.map((payload) => payload.plan.units[0].id),
+    ["unit-01", "unit-02"]
+  );
+  assert.deepEqual(captured.taskBriefPlan[0].blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
+  assert.deepEqual(captured.taskBriefPlan[1].blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
+  assert.equal(captured.taskBriefPlan[0].sourceContextNote.mode, "unit_window");
+  assert.equal(captured.taskBriefPlan[1].sourceContextNote.mode, "unit_window");
+  assert.equal(captured.taskBriefPlan[0].plan.knowledgeObjects, undefined);
+  assert.equal(Array.isArray(captured.taskBriefPlan[0].plan.chapterWideNotes), false);
 
   assert.deepEqual(captured.multipleChoiceDraftUnitBatch[0].sourceContext.blocks.map((block) => block.id), ["p-002", "p-003", "p-004"]);
   assert.deepEqual(captured.multipleChoiceDraftUnitBatch[1].sourceContext.blocks.map((block) => block.id), ["p-006", "p-007", "p-008"]);
@@ -978,7 +990,7 @@ function unitKnowledgeMapFixture(unitId, sourceAnchorId) {
             summary: "Hook 是关键动作前后的流程约束。",
             role: "definition",
             assessmentValue: "high",
-            suggestedEvidenceAngles: ["definition_grasp", "misconception_detection"],
+            primaryEvidenceAngle: "definition_grasp",
             sourceAnchorId,
             sourceSupport: "原文说明 Hook 是关键动作前后的流程控制器。"
           },
@@ -988,7 +1000,7 @@ function unitKnowledgeMapFixture(unitId, sourceAnchorId) {
             summary: "Prompt、Hook、CI 和规则文档在流程中承担不同职责。",
             role: "relationship",
             assessmentValue: "medium",
-            suggestedEvidenceAngles: ["structure_mapping", "boundary_discrimination"],
+            primaryEvidenceAngle: "structure_mapping",
             sourceAnchorId,
             sourceSupport: "原文说明 Hook 能稳定触发规则、上下文和验证。"
           }

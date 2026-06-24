@@ -94,3 +94,29 @@ Runtime reliability 只回答：
 3. 下一步：为 `empty_structured_text` 增加 stage-specific recovery retry。
 4. 下一步：跑同一篇黄金文章，比较 structured-output failure 是否下降。
 5. 通过 3-5 篇文章后，再把这套框架沉淀成正式 Codex skill。
+
+## 2026-06-23：稳定性优先轨道
+
+当前 V2 题目质量已经回到可接受区间，但运行稳定性仍未达生产级。下一轮必须先单独修 Track A，不和情境题、干扰项质量、题型策略一起改。
+
+Track A 要回答三个问题：
+
+- token 爆炸主要来自 retry 次数，还是单次 stage 输入/输出本身过重？
+- JSON 不稳定主要集中在哪个 stage：`reviewPathPlan`、`unitKnowledgeMap`，还是后续 draft stage？
+- 哪些字段只是调试或中间思考，不应该继续作为全量 JSON 输出？
+
+Track A 的第一轮通过线：
+
+- 同一篇黄金文章可以完整生成。
+- `runtimeFailedAttemptCount <= 1`。
+- `runtimeRetryAttemptCount <= 1`。
+- HTML report 能按 stage 展示 token、attempt、失败类型。
+- 总 token 低于最近的约 `120k` 回归运行，或能明确证明成本主要来自 retry 而不是架构本身。
+- 不降低 unit 覆盖，DMC 这类独立知识对象不能重新被合并丢失。
+
+本轮禁止：
+
+- 不加入情境题规则。
+- 不重新启用模型型 `qualityJudge` 阻断。
+- 不把 ECD 重写成新的大 JSON 字段。
+- 不通过继续加“必须输出合法 JSON”这类 prompt 补丁解决 runtime 问题。

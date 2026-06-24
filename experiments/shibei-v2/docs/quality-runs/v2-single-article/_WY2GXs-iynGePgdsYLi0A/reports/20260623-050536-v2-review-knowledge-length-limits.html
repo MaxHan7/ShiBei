@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>v2-review-knowledge-length-limits - V2 出题质量报告</title>
+  <style>
+    :root {
+      --bg: #f2f5cf;
+      --paper: #fdfaf2;
+      --ink: #44423d;
+      --muted: #807d73;
+      --line: #dde1ac;
+      --brand: #98a84e;
+      --soft: #f2f1da;
+      --danger: #ed765c;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    h1, h2, h3 {
+      line-height: 1.25;
+      margin: 0;
+    }
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 40px 0 16px;
+    }
+    h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(152, 163, 94, 0.18);
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      color: var(--brand);
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 14px 0;
+      background: rgba(253, 250, 242, 0.72);
+    }
+    .stem {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .options, .pairs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .option, .pair {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .correct {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .explanation {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+    .source {
+      margin-top: 12px;
+      border-left: 4px solid var(--line);
+      padding-left: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .source-block {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin: 8px 0;
+      background: rgba(255,255,255,0.45);
+    }
+    .source-block.highlight {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .failure {
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    details {
+      margin-top: 12px;
+    }
+    .diagnostic {
+      border-top: 1px dashed var(--line);
+      padding-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 6px;
+      text-align: right;
+      vertical-align: top;
+    }
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>V2 出题质量报告</h1>
+    <div class="meta">2026-06-23T05:08:46.759Z · v2-review-knowledge-length-limits · failed_generation</div>
+    <section class="card failure">
+    <h2 style="margin-top:0">生成失败</h2>
+    <p><strong>v2_unitKnowledgeMap</strong> · 可重试</p>
+    <p>模型阶段：unitKnowledgeMap · 重试次数：3</p>
+    <p>模型返回内容不是可解析 JSON，请重试。</p>
+    
+    
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">Architecture Metrics</h2>
+    <p class="meta">这一段是架构仪表盘：不改变生成链路，只量化每个 stage 的调用数、token、重试、失败类型和耗时，用来判断 token 爆炸来自 retry，还是来自 stage 本身过重。</p>
+    <div class="grid">
+      <div class="metric"><strong>5</strong>Model calls</div>
+      <div class="metric"><strong>64,576</strong>Total tokens</div>
+      <div class="metric"><strong>45,429</strong>Prompt tokens</div>
+      <div class="metric"><strong>19,147</strong>Completion tokens</div>
+      <div class="metric"><strong>3</strong>Retries</div>
+      <div class="metric"><strong>190s</strong>Duration</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Stage</th>
+          <th>Calls</th>
+          <th>Attempts</th>
+          <th>Retries</th>
+          <th>Failed attempts</th>
+          <th>Prompt</th>
+          <th>Completion</th>
+          <th>Total</th>
+          <th>Cache hit/miss</th>
+          <th>Duration</th>
+          <th>Error types</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>v2_reviewPathPlan</td>
+          <td>2</td>
+          <td>2</td>
+          <td>1</td>
+          <td>1</td>
+          <td>20,292</td>
+          <td>4,749</td>
+          <td>25,041</td>
+          <td>10,112 / 10,180</td>
+          <td>48s</td>
+          <td>json_parse_error=1</td>
+        </tr>
+<tr>
+          <td>v2_unitKnowledgeMap</td>
+          <td>3</td>
+          <td>3</td>
+          <td>2</td>
+          <td>3</td>
+          <td>25,137</td>
+          <td>14,398</td>
+          <td>39,535</td>
+          <td>16,640 / 8,497</td>
+          <td>142s</td>
+          <td>empty_structured_text=2, json_parse_error=1</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">模型调用记录</h2>
+    
+      <div class="question">
+        <div><strong>#1 v2_reviewPathPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 2400</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;title&quot;: &quot;游戏化与持续性用户体验&quot;,
+  &quot;summaryCard&quot;: {
+    &quot;text&quot;: &quot;游戏化不仅是积分徽章，而是通过阶段性目标、动态匹配、成长感知和情境设计来构建长期参与的价值体验。&quot;
+  },
+  &quot;units&quot;: [
+    {
+      &quot;id&quot;: &quot;gamification-def&quot;,
+      &quot;order&quot;: 1,
+      &quot;title&quot;: &quot;游戏化概念与定义</pre></details>
+      </div>
+    
+      <div class="question">
+        <div><strong>#2 v2_reviewPathPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 2400</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#3 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 4800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#4 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 4800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#5 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 4800</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;units&quot;: [
+    {
+      &quot;unitId&quot;: &quot;unit-1&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-unit-1-001&quot;,
+          &quot;title&quot;: &quot;游戏化概念提出与界定&quot;,
+          &quot;summary&quot;: &quot;佩林2002年提出，德特丁2011年界定为非游戏语境中使用游戏设计元素&quot;,
+          &quot;role&quot;: &quot;definition&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;definition_grasp&quot;]
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-1-002&quot;,
+          &quot;title&quot;: &quot;游戏化的目的&quot;,
+          &quot;summary&quot;: &quot;以创造乐趣的方式服务现实目标，促使人们更愿意进入和持续活动&quot;,
+          &quot;role&quot;: &quot;mechanism&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;mechanism_reasoning&quot;]
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-1-003&quot;,
+          &quot;title&quot;: &quot;游戏元素在持续性体验中的应用&quot;,
+          &quot;summary&quot;: &quot;积分、徽章、排行榜等元素被广泛引入长期使用产品，提高吸引力与留存&quot;,
+          &quot;role&quot;: &quot;scenario_application&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;scenario_transfer&quot;]
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-2&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-unit-2-001&quot;,
+          &quot;title&quot;: &quot;可用性概念与局限&quot;,
+          &quot;summary&quot;: &quot;可用性关注任务完成的有效性、效率与满意度，但忽略愉悦感&quot;,
+          &quot;role&quot;: &quot;definition&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;definition_grasp&quot;]
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-2-002&quot;,
+          &quot;title&quot;: &quot;用户体验向情感愉悦转向&quot;,
+          &quot;summary&quot;: &quot;Funology反思任务中心，关注情感、美学和愉悦感&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;]
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-2-003&quot;,
+          &quot;title&quot;: &quot;心流理论：挑战与能力平衡&quot;,
+          &quot;summary&quot;: &quot;心流状态需要清晰目标、即时反馈以及挑战与能力的动态平衡&quot;,
+          &quot;role&quot;: &quot;mechanism&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;mechanism_reasoning&quot;]
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-2-004&quot;,
+          &quot;title&quot;: &quot;实用-享乐质量框架&quot;,
+          &quot;summary&quot;: &quot;将体验分为实用质量（Do-goals）和享乐质量（Be-goals），满足深层心理需求&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;]
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-3&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-unit-3-001&quot;,
+          &quot;title&quot;: &quot;持续性用户体验设计定义&quot;,
+          &quot;summary&quot;: &quot;面向长期使用情境的系统设计，涵盖阶段性目标、习惯与情感联结&quot;,
+          &quot;role&quot;: &quot;definition&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;definition_grasp&quot;]
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-3-002&quot;,
+          &quot;title&quot;: &quot;设计范畴与目标&quot;,
+          &quot;summary&quot;: &quot;包括阶段性目标达成效率、反复使用形成的认知、行为习惯与情感联结&quot;,
+          &quot;role&quot;: &quot;boundary&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;boundary_discrimination&quot;]
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-3-003&quot;,
+          &quot;title&quot;: &quot;评价指标扩展&quot;,
+          &quot;summary&quot;: &quot;从单次任务完成扩展到留存、频次、连续性等长期指标以及主观维度&quot;,
+          &quot;role&quot;: &quot;boundary&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;boundary_discrimination&quot;]
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-3-004&quot;,
+          &quot;title&quot;: &quot;游戏化作为构建策略&quot;,
+          &quot;summary&quot;: &quot;游戏化方法成为构建持续性用户体验的重要策略&quot;,
+          &quot;role&quot;: &quot;scenario_application&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;scenario_transfer&quot;]
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-4&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-unit-4-001&quot;,
+          &quot;title&quot;: &quot;DMC模型整体结构&quot;,
+          &quot;summary&quot;: &quot;金字塔式分层：动力、机制、组件三层，从抽象到具体&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;]
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-4-002&quot;,
+          &quot;title&quot;: &quot;动力层定义与作用&quot;,
+          &quot;summary&quot;: &quot;界定系统整体体验，如约束、情感、叙事、成长等&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;]
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-4-003&quot;,
+ </pre></details>
+      </div>
+    
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">Stage Runtime Reliability</h2>
+    <p class="meta">这一段显示 structured-output runtime 的稳定性：每个 stage 调用了几次、重试了几次、失败类型是什么。它不是题目质量审查。</p>
+    <div class="grid">
+      <div class="metric"><strong>2</strong>Calls</div>
+      <div class="metric"><strong>5</strong>Attempts</div>
+      <div class="metric"><strong>4</strong>Failed attempts</div>
+      <div class="metric"><strong>3</strong>Retry attempts</div>
+    </div>
+    <div class="question">
+      <div><strong>v2_reviewPathPlan</strong></div>
+      <div class="meta">calls: 1 · success calls: 1 · failed calls: 0 · attempts: 2 · retries: 1 · failed attempts: 1 · duration: 48228ms</div>
+      <div class="meta">error types: json_parse_error=1</div>
+      <details><summary>last error</summary><pre>json_parse_error: 模型返回内容不是可解析 JSON，请重试。</pre></details>
+    </div>
+<div class="question">
+      <div><strong>v2_unitKnowledgeMap</strong></div>
+      <div class="meta">calls: 1 · success calls: 0 · failed calls: 1 · attempts: 3 · retries: 2 · failed attempts: 3 · duration: 141564ms</div>
+      <div class="meta">error types: empty_structured_text=2, json_parse_error=1</div>
+      <details><summary>last error</summary><pre>json_parse_error: 模型返回内容不是可解析 JSON，请重试。</pre></details>
+    </div>
+  </section>
+    
+    <section class="card">
+      <h2 style="margin-top:0">文章与章节</h2>
+      <p><strong>基于游戏化方法的持续性用户体验设计</strong></p>
+      <p class="meta">吴 琼、王婧等 · <a href="https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A">https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A</a></p>
+      <p></p>
+      <div class="grid">
+        <div class="metric"><strong>0</strong>知识点</div>
+        <div class="metric"><strong>0</strong>题目</div>
+        <div class="metric"><strong>0</strong>选择题</div>
+        <div class="metric"><strong>0</strong>连线题</div>
+        <div class="metric"><strong>0</strong>Source blocks</div>
+        <div class="metric"><strong>0</strong>Issues</div>
+        <div class="metric"><strong>0</strong>Diagnostics</div>
+        <div class="metric"><strong>4</strong>Runtime failed attempts</div>
+        <div class="metric"><strong>3</strong>Runtime retries</div>
+      </div>
+    </section>
+    
+    
+    
+    <section class="card">
+      <h2 style="margin-top:0">章节总结</h2>
+      <p><span class="tag">章节完成</span></p>
+      <p></p>
+    </section>
+    <section class="card">
+      <h2 style="margin-top:0">完整来源块</h2>
+      <p class="meta">暂无 source blocks</p>
+    </section>
+  </main>
+</body>
+</html>

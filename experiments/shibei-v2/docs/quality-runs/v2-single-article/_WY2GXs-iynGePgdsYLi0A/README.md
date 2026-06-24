@@ -1304,3 +1304,255 @@ Visible output notes:
 ### Conclusion
 
 The slim fix restored end-to-end generation, but it did not fully solve reliability or cost. The architectural lesson is important: the default path can tolerate detailed ECD-inspired reasoning inside small scoped draft stages, but large all-unit JSON stages (`reviewPathPlan`, `unitKnowledgeMap`) still need either smaller schemas, deterministic adapters, or per-unit/scoped calls. The next stability checkpoint should focus on reducing retries in `reviewPathPlan` and `unitKnowledgeMap`, not on adding more prompt rules.
+
+## 2026-06-23 Review Path And Knowledge Map Length Limits
+
+### Hypothesis
+
+The previous successful run showed that `reviewPathPlan` and `unitKnowledgeMap` consumed about 49.9k tokens together and caused all retries. This experiment tested whether mobile-facing length limits and lower output budgets could stabilize those early all-unit JSON stages without changing teaching strategy.
+
+### What Changed
+
+- Added explicit mobile display length limits to `reviewPathPlan`:
+  - chapter title, summary-card text, unit title, node label, short summary, detail summary, unit reason, and chapter encouragement text.
+- Tightened `unitKnowledgeMap` output:
+  - micro title <= 28 chars;
+  - micro summary <= 72 chars;
+  - suggested evidence angles limited to 1-2 short phrases.
+- Lowered output budgets:
+  - `reviewPathPlan`: 3200 -> 2400 estimated output tokens per attempt.
+  - `unitKnowledgeMap`: 7200 -> 4800 estimated output tokens per attempt.
+- Did not move `chapterSummary.encouragementText` to `unitCopyBatch` in this round, because the current copy stage is per-unit and moving chapter-level copy there would add another variable.
+
+### Artifacts
+
+- JSON: `runs/20260623-050536-v2-review-knowledge-length-limits.json`
+- HTML: `reports/20260623-050536-v2-review-knowledge-length-limits.html`
+
+### Result
+
+| Metric | Knowledge map slim regression fix | Review/knowledge length limits |
+| --- | ---: | ---: |
+| Status | completed | failed_generation |
+| Failed stage | none | `v2_unitKnowledgeMap` |
+| Units | 9 | 0 |
+| Questions | 21 | 0 |
+| Runtime failed attempts | 3 | 4 |
+| Runtime retry attempts | 3 | 3 |
+| Model calls | 16 | 5 |
+| Prompt tokens | 89,720 | 45,429 |
+| Completion tokens | 30,949 | 19,147 |
+| Total tokens | 120,669 | 64,576 |
+
+Stage notes:
+
+- `reviewPathPlan` still failed once with `json_parse_error`, then succeeded on retry.
+- `unitKnowledgeMap` failed three times and stopped generation:
+  - 2 x `empty_structured_text`;
+  - 1 x `json_parse_error`.
+- The failed run still burned 64.6k tokens before any question drafting happened.
+
+### Conclusion
+
+This change is **not sufficient to keep as-is**. Length limits reduce the intended output surface, but the early `unitKnowledgeMap` stage remains structurally brittle because it still asks the model to return one all-unit micro-map JSON. The next stability fix should not add more wording; it should change the shape of the stage:
+
+- either split `unitKnowledgeMap` into smaller scoped calls;
+- or convert it into a minimal deterministic/index-like stage;
+- or make the model output only unit-local micro titles and brief summaries while deriving the rest downstream.
+
+The main lesson is that mobile-length bounds are useful for product copy and schema hygiene, but they do not by themselves solve structured-output stability when a stage is still too broad.
+
+## 2026-06-23 Scoped Unit Knowledge Map
+
+### Hypothesis
+
+The previous failure showed that `unitKnowledgeMap` was structurally brittle because it asked the model to output all units' micro knowledge maps in one large JSON. This experiment changed the stage to per-unit scoped calls so each model call only sees one planned unit and that unit's source window.
+
+### What Changed
+
+- `unitKnowledgeMap` is now called once per planned unit.
+- Each call receives:
+  - one-unit `reviewPathPlan`;
+  - the current unit's source window;
+  - the current unit's source context note.
+- The pipeline merges the scoped outputs back into the existing downstream shape:
+
+```json
+{ "units": [...] }
+```
+
+- `reviewPathPlan` output budget was restored from 2400 to 3200 after one failed run showed the 2400 budget likely caused JSON truncation.
+- `unitKnowledgeMap` output budget was reduced to 1800 per scoped unit call.
+
+### Artifacts
+
+- First run, blocked before testing scoped unit maps:
+  - JSON: `runs/20260623-140457-v2-unit-knowledge-map-scoped.json`
+  - HTML: `reports/20260623-140457-v2-unit-knowledge-map-scoped.html`
+- Rerun after restoring `reviewPathPlan` budget:
+  - JSON: `runs/20260623-140724-v2-unit-knowledge-map-scoped-rerun.json`
+  - HTML: `reports/20260623-140724-v2-unit-knowledge-map-scoped-rerun.html`
+
+### Result
+
+| Metric | Knowledge map slim regression fix | Length-limit-only failed run | Scoped unit map rerun |
+| --- | ---: | ---: | ---: |
+| Status | completed | failed_generation | failed_generation |
+| Failed stage | none | `v2_unitKnowledgeMap` | `v2_unitKnowledgeMap` |
+| Units | 9 | 0 | 0 |
+| Questions | 21 | 0 | 0 |
+| Runtime failed attempts | 3 | 4 | 5 |
+| Runtime retry attempts | 3 | 3 | 4 |
+| Model calls | 16 | 5 | 8 |
+| Prompt tokens | 89,720 | 45,429 | 42,572 |
+| Completion tokens | 30,949 | 19,147 | 15,935 |
+| Total tokens | 120,669 | 64,576 | 58,507 |
+
+Stage notes for the scoped rerun:
+
+- `reviewPathPlan` failed twice with `json_parse_error`, then succeeded on the third attempt.
+- `unitKnowledgeMap` had 3 scoped calls:
+  - unit map call 1 succeeded on first attempt;
+  - unit map call 2 succeeded on first attempt;
+  - unit map call 3 failed three times and stopped generation.
+- Scoped `unitKnowledgeMap` token cost was 19,770 tokens, down from 39,535 in the length-limit-only failed run and 27,344 in the previous successful all-unit run.
+
+### Conclusion
+
+The per-unit architecture is directionally correct: it reduced the knowledge-map token cost and proved that individual unit maps can complete quickly. However, the generation path is still too brittle because one failed unit map still fails the entire chapter.
+
+The next fix should keep the scoped architecture but add a controlled fallback for one failed unit, such as:
+
+- deterministic fallback micro map from the planned unit title/shortSummary/detailSummary/sourceAnchor;
+- or a smaller second-pass schema for the failing unit only;
+- or allowing the pipeline to continue with a minimal single-micro map and marking diagnostics.
+
+Do not revert to all-unit `unitKnowledgeMap`. The issue has moved from "large all-unit JSON is unstable" to "one scoped unit failure still blocks the whole chapter."
+
+## 2026-06-23 Primary Evidence Angle Unit Knowledge Map
+
+### Hypothesis
+
+The scoped unit map failure was caused less by the per-unit architecture itself and more by an over-detailed micro-map contract. The model could identify useful micro knowledge points, but it was encouraged to output multiple evidence angles and longer summaries, which made one dense unit run into truncation/JSON instability.
+
+This checkpoint kept the scoped architecture and reduced the unit map contract:
+
+- `microKnowledgePoint` now means a high-value sub-knowledge point inside a unit, not the smallest possible learning atom.
+- `suggestedEvidenceAngles[]` was replaced with one `primaryEvidenceAngle`.
+- `micro.title`, `micro.summary`, and `primaryEvidenceAngle` now have mobile-facing length limits.
+- The prompt describes positive selection behavior instead of adding broad negative constraints about not over-producing or not under-producing items.
+
+### Artifacts
+
+- JSON: `runs/20260623-145027-v2-unit-knowledge-map-primary-angle.json`
+- HTML: `reports/20260623-145027-v2-unit-knowledge-map-primary-angle.html`
+
+### Result
+
+| Metric | Scoped unit map rerun | Primary evidence angle run |
+| --- | ---: | ---: |
+| Status | failed_generation | failed_generation |
+| Failed stage | `v2_unitKnowledgeMap` | `v2_taskBriefPlan` |
+| Runtime failed attempts | 5 | 3 |
+| Runtime retry attempts | 4 | 2 |
+| Model calls | 8 | 12 |
+| Prompt tokens | 42,572 | 61,100 |
+| Completion tokens | 15,935 | 21,112 |
+| Total tokens | 58,507 | 82,212 |
+
+Stage notes:
+
+- `reviewPathPlan` succeeded on the first attempt.
+- All 8 scoped `unitKnowledgeMap` calls succeeded on the first attempt.
+- `unitKnowledgeMap` token cost was 26,303 tokens across 8 calls.
+- The run then failed in `taskBriefPlan`:
+  - 1 runtime call;
+  - 3 attempts;
+  - all 3 attempts returned `empty_structured_text`;
+  - each attempt consumed roughly 10.8k prompt tokens and 3.8k completion tokens.
+
+### Conclusion
+
+This checkpoint fixed the specific scoped `unitKnowledgeMap` instability: the stage no longer retries and no longer blocks generation. The root P0 reliability issue has now moved downstream to `taskBriefPlan`.
+
+The next iteration should not add question-quality rules. It should focus narrowly on `taskBriefPlan` payload design:
+
+- reduce the cross-unit input it receives from `unitKnowledgeMap`;
+- consider splitting task selection by unit or by a compact unit index;
+- avoid asking one large stage to select every question plan for the whole chapter in a single fragile JSON response;
+- preserve the DSPy-style pyramid boundary: upstream stages pass compact typed briefs, not full source or full reasoning.
+
+## 2026-06-23 Scoped Task Brief Plan
+
+### Hypothesis
+
+The previous checkpoint fixed `unitKnowledgeMap` but exposed `taskBriefPlan` as the next P0 reliability bottleneck. The failure was structural: `taskBriefPlan` still received all planned units, the merged unit knowledge map, and a plan-level source union window, then tried to output all units' `practiceGoals` and `questionPlans` in one JSON response.
+
+This checkpoint extended the scoped-unit architecture to `taskBriefPlan`:
+
+- call `taskBriefPlan` once per planned unit;
+- pass only the current unit's one-unit `reviewPathPlan`;
+- pass only the current unit's `unitKnowledgeMap`;
+- pass only the current unit's `unit_window` source context;
+- merge scoped outputs back into the existing `{ units: [...] }` downstream contract.
+
+No new question-quality rules were added in this checkpoint.
+
+### Artifacts
+
+- JSON: `runs/20260623-151023-v2-task-brief-plan-scoped.json`
+- HTML: `reports/20260623-151023-v2-task-brief-plan-scoped.html`
+
+### Result
+
+| Metric | Primary evidence angle failed run | Scoped task brief run |
+| --- | ---: | ---: |
+| Status | failed_generation | completed |
+| Failed stage | `v2_taskBriefPlan` | none |
+| Units | 0 | 7 |
+| Questions | 0 | 22 |
+| Multiple choice | 0 | 17 |
+| Matching | 0 | 5 |
+| Runtime failed attempts | 3 | 2 |
+| Runtime retry attempts | 2 | 2 |
+| Model calls | 12 | 26 |
+| Prompt tokens | 61,100 | 94,402 |
+| Completion tokens | 21,112 | 40,212 |
+| Total tokens | 82,212 | 134,614 |
+
+Stage comparison:
+
+| Stage | Previous taskBriefPlan shape | Scoped taskBriefPlan shape |
+| --- | ---: | ---: |
+| `taskBriefPlan` calls | 1 runtime call / 3 attempts | 7 runtime calls / 7 attempts |
+| `taskBriefPlan` failures | 3 x `empty_structured_text` | 0 |
+| `taskBriefPlan` total tokens | 43,750 | 29,966 |
+| `taskBriefPlan` prompt tokens | 32,352 | 18,783 |
+| `taskBriefPlan` completion tokens | 11,398 | 11,183 |
+
+Other stage notes:
+
+- `reviewPathPlan` succeeded on the first attempt.
+- `unitKnowledgeMap` had one transient `empty_structured_text`, then recovered on retry.
+- `multipleChoiceDraftUnitBatch` had one transient `json_parse_error`, then recovered on retry.
+- `matchingDraftBatch` succeeded on the first attempt but took 45s and used 13,484 tokens.
+- `unitCopyBatch` succeeded on the first attempt but used 20,042 tokens because it still receives broad unit copy input.
+
+### Quality Notes
+
+- The run generated 22 questions across 7 units.
+- Matching appeared naturally in 5 units, so the system can still select matching after the scoped split.
+- Deterministic diagnostics found 4 weak distractor sets where the correct option looked more like a standard answer.
+- DMC appeared as a matching question under the first unit rather than as an independent unit. That means the structural reliability fix worked, but unit-boundary quality still needs a separate review.
+
+### Conclusion
+
+The scoped `taskBriefPlan` architecture fixed the immediate P0 failure: the stage no longer fails structured output, and its own token cost dropped from 43.8k to 30.0k while producing usable downstream plans.
+
+The full run costs more than the failed run because it now reaches all later generation stages and produces 22 questions. The next reliability/cost bottlenecks are no longer `taskBriefPlan`; they are:
+
+- transient retries in `unitKnowledgeMap` and `multipleChoiceDraftUnitBatch`;
+- `matchingDraftBatch` still being a single broader batch;
+- `unitCopyBatch` taking a large prompt payload.
+
+The next architecture iteration should not revisit `taskBriefPlan` unless quality review finds a specific planning problem. The likely next structural optimization is to scope `matchingDraftBatch` or slim `unitCopyBatch`, while separately reviewing unit-boundary quality such as whether DMC should remain independent.

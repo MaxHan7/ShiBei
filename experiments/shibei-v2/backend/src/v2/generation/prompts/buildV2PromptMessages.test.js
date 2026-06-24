@@ -56,6 +56,10 @@ test("reviewPathPlan prompt separates chapter summary and unit summaries", () =>
   assert.match(messages.user, /unit.nodeLabel/);
   assert.match(messages.user, /unit.shortSummary/);
   assert.match(messages.user, /unit.detailSummary/);
+  assert.match(messages.user, /移动端长度上限/);
+  assert.match(messages.user, /summaryCard\.text 不超过 96 字符/);
+  assert.match(messages.user, /unit\.detailSummary 不超过 180 字符/);
+  assert.match(messages.user, /chapterSummary\.encouragementText 不超过 96 字符/);
   assert.match(messages.user, /sourceAnchor 必须包含稳定 id/);
   assert.match(messages.user, /sourceAnchor.blockIds/);
   assert.match(messages.user, /章节完成页鼓励文案/);
@@ -108,7 +112,7 @@ test("unitKnowledgeMap prompt isolates micro knowledge discovery from task assem
       { id: "p-001", type: "paragraph", text: "Hook 是关键动作前后的流程控制器。" }
     ],
     sourceContextNote: {
-      mode: "plan_union_window",
+      mode: "unit_window",
       selectedBlockIds: ["p-001"],
       fullBlockCount: 8,
       selectedBlockCount: 1
@@ -123,20 +127,24 @@ test("unitKnowledgeMap prompt isolates micro knowledge discovery from task assem
 
   assert.match(messages.user, /unitKnowledgeMap/);
   assert.match(messages.user, /sourceContextNote/);
-  assert.match(messages.user, /plan_union_window/);
+  assert.match(messages.user, /unit_window/);
   assert.match(messages.user, /本阶段不生成题目、不选择题型、不做 selectedTasks/);
-  assert.match(messages.user, /完整发现/);
-  assert.match(messages.user, /最小的有意义学习对象/);
-  assert.match(messages.user, /如果一句内容包含两个不同掌握表现/);
-  assert.match(messages.user, /根据原文自然存在的内容判断 role/);
+  assert.match(messages.user, /本次输入可能只包含一个 unit/);
+  assert.match(messages.user, /有学习价值的子知识点/);
+  assert.match(messages.user, /值得用户单独理解的子知识点/);
+  assert.match(messages.user, /对理解该 unit 核心有帮助/);
+  assert.match(messages.user, /如果多个表述服务于同一个学习点，合并为一个 micro/);
+  assert.match(messages.user, /micro 数量由当前 unit 的知识密度决定/);
   assert.match(messages.user, /assessmentValue 只描述这个小点的考察价值，不表达题目数量/);
   assert.match(messages.user, /high：缺少它会导致用户无法掌握该 unit 的核心/);
-  assert.match(messages.user, /suggestedEvidenceAngles 只写 1-3 个建议观察角度，不选择题型/);
+  assert.match(messages.user, /title 是短标题/);
+  assert.match(messages.user, /summary 是一句短索引/);
+  assert.match(messages.user, /不超过 72 字符/);
+  assert.match(messages.user, /primaryEvidenceAngle 写一个最主要的可观察理解角度/);
+  assert.match(messages.user, /不超过 24 字符/);
   assert.match(messages.user, /不要输出 sourceAnchorId 或 sourceSupport/);
-  assert.match(messages.user, /不要为了控制题量而删掉/);
-  assert.match(messages.user, /分层模型、结构框架或层级体系/);
   assert.match(messages.user, /microKnowledgePoints/);
-  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐|每个 unit 必须|至少.*micro|至少.*definition|至少.*boundary|4-7/);
+  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐|每个 unit 必须|至少.*micro|至少.*definition|至少.*boundary|4-7|完整发现|最小的有意义|不要为了控制题量/);
 });
 
 test("taskBriefPlan prompt embeds ECD as thinking method without heavy ECD JSON", () => {
@@ -162,10 +170,13 @@ test("taskBriefPlan prompt embeds ECD as thinking method without heavy ECD JSON"
   });
 
   assert.match(messages.user, /taskBriefPlan/);
+  assert.match(messages.user, /只为当前输入的单个 unit/);
   assert.match(messages.user, /Evidence-Centered Design 是你的思考方法/);
   assert.match(messages.user, /学习对象 -> 可观察掌握证据 -> 适合的练习任务 -> 题型计划/);
   assert.match(messages.user, /只保留 practiceGoals 和 questionPlans/);
   assert.match(messages.user, /不要输出 ECD 术语字段、推理链、候选矩阵或长篇解释/);
+  assert.match(messages.user, /只输出 units 数组中的这一个 unit/);
+  assert.match(messages.user, /不要引用其他 unit/);
   assert.match(messages.user, /不要输出 practiceGoal\.id、questionPlan\.id、practiceGoalId 或 sourceAnchorId/);
   assert.match(messages.user, /goalIndex 是 1-based 数字/);
   assert.match(messages.user, /每个 high \/ medium microKnowledgePoint 都要被某个 practiceGoal 或 questionPlan 覆盖/);
@@ -486,7 +497,7 @@ function unitKnowledgeMapFixture() {
             summary: "Hook 是关键动作前后的流程约束。",
             role: "definition",
             assessmentValue: "high",
-            suggestedEvidenceAngles: ["definition_grasp"],
+            primaryEvidenceAngle: "definition_grasp",
             sourceAnchorId: "anchor-unit-01",
             sourceSupport: "原文说明 Hook 是流程控制器。"
           }

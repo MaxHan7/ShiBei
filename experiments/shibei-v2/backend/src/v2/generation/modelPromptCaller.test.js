@@ -167,6 +167,71 @@ test("calls the JSON model transport with ecdPlanning schema and messages", asyn
   assert.match(calls[0].user, /compact task model/);
 });
 
+test("uses reduced output budgets for early planning stages", async () => {
+  const calls = [];
+  const caller = createV2ModelPromptCaller({
+    modelJsonCaller: async (request) => {
+      calls.push(request);
+      if (request.stage === "v2_reviewPathPlan") {
+        return {
+          title: "Hook",
+          summaryCard: { text: "Hook 把关键动作变成稳定流程。" },
+          units: [
+            {
+              id: "unit-01",
+              order: 1,
+              title: "Hook 是什么",
+              nodeLabel: "流程控制",
+              shortSummary: "Hook 是流程控制器。",
+              detailSummary: "Hook 在关键动作前后加入规则、上下文和验证。",
+              why: "这是理解后续场景的基础。",
+              sourceAnchor: { id: "anchor-unit-01", blockIds: ["p-001"] }
+            }
+          ],
+          chapterSummary: { encouragementText: "你已经理解 Hook 的流程价值。" }
+        };
+      }
+      return {
+        units: [
+          {
+            unitId: "unit-01",
+            microKnowledgePoints: [
+              {
+                microId: "micro-unit-01-001",
+                title: "Hook 定义",
+                summary: "Hook 是关键动作前后的流程约束。",
+                role: "definition",
+                assessmentValue: "high",
+                primaryEvidenceAngle: "definition_grasp"
+              }
+            ]
+          }
+        ]
+      };
+    }
+  });
+
+  await caller("reviewPathPlan", {
+    article: { id: "chapter-001", title: "Hook", rawText: "Hook" },
+    source: { type: "article", title: "Hook" },
+    blocks: [{ id: "p-001", type: "paragraph", text: "Hook 是流程控制器。" }]
+  });
+  await caller("unitKnowledgeMap", {
+    article: { id: "chapter-001", title: "Hook", rawText: "Hook" },
+    source: { type: "article", title: "Hook" },
+    blocks: [{ id: "p-001", type: "paragraph", text: "Hook 是流程控制器。" }],
+    plan: {
+      title: "Hook",
+      units: [{ id: "unit-01", title: "Hook 是什么" }]
+    }
+  });
+
+  assert.equal(calls[0].stage, "v2_reviewPathPlan");
+  assert.equal(calls[0].estimatedOutputTokens, 3200);
+  assert.equal(calls[1].stage, "v2_unitKnowledgeMap");
+  assert.equal(calls[1].estimatedOutputTokens, 1800);
+});
+
 test("calls the JSON model transport with taskBriefPlan schema and messages", async () => {
   const calls = [];
   const caller = createV2ModelPromptCaller({

@@ -46,9 +46,11 @@ export function buildQuestionBriefsByUnit({
                 microTitles: micros.map((micro) => micro.title).filter(Boolean),
                 microSummaries: micros.map((micro) => micro.summary).filter(Boolean),
                 evidenceAngles: micros.flatMap((micro) =>
-                  Array.isArray(micro.suggestedEvidenceAngles)
-                    ? micro.suggestedEvidenceAngles
-                    : []
+                  micro.primaryEvidenceAngle
+                    ? [micro.primaryEvidenceAngle]
+                    : Array.isArray(micro.suggestedEvidenceAngles)
+                      ? micro.suggestedEvidenceAngles
+                      : []
                 )
               },
               sourceAnchorId: questionPlan.sourceAnchorId

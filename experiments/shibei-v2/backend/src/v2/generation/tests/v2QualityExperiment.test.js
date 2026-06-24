@@ -69,9 +69,13 @@ test("renders a readable V2 quality HTML report with questions and source anchor
   assert.match(html, /unitKnowledgeMap: b1, b2/);
   assert.match(html, /Stage Runtime Reliability/);
   assert.match(html, /Architecture Metrics/);
+  assert.match(html, /token 爆炸来自 retry/);
   assert.match(html, /Total tokens/);
+  assert.match(html, /Failed attempts/);
+  assert.match(html, /Error types/);
   assert.match(html, /1,545/);
   assert.match(html, /1,000 \/ 200/);
+  assert.match(html, /empty_structured_text=1/);
   assert.match(html, /v2_ecdPlanning/);
   assert.match(html, /Runtime retries/);
   assert.match(html, /展开完整 source block/);
@@ -240,7 +244,7 @@ function chapterFixture() {
                 summary: "Hook、Handler、Context、Decision 是流程中的不同角色。",
                 role: "process_step",
                 assessmentValue: "high",
-                suggestedEvidenceAngles: ["structure_mapping"],
+                primaryEvidenceAngle: "structure_mapping",
                 sourceAnchorId: "a1",
                 sourceSupport: "原文说明 Hook 触发并把上下文传给 handler。"
               }

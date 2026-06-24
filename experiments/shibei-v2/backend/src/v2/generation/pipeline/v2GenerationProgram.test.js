@@ -18,6 +18,8 @@ test("runs the V2 pyramid stages in stable order", async () => {
   assert.deepEqual(calls, [
     "reviewPathPlan",
     "unitKnowledgeMap",
+    "unitKnowledgeMap",
+    "taskBriefPlan",
     "taskBriefPlan",
     "multipleChoiceDraftUnitBatch",
     "multipleChoiceDraftUnitBatch",
@@ -28,10 +30,18 @@ test("runs the V2 pyramid stages in stable order", async () => {
 
 test("calls scoped MC unit batches with only current unit briefs and source context", async () => {
   const captured = {
+    unitKnowledgeMap: [],
+    taskBriefPlan: [],
     multipleChoiceDraftUnitBatch: [],
     matchingDraftBatch: null
   };
   const promptCaller = async (stage, payload) => {
+    if (stage === "unitKnowledgeMap") {
+      captured.unitKnowledgeMap.push(payload);
+    }
+    if (stage === "taskBriefPlan") {
+      captured.taskBriefPlan.push(payload);
+    }
     if (stage === "multipleChoiceDraftUnitBatch") {
       captured.multipleChoiceDraftUnitBatch.push(payload);
     }
@@ -45,6 +55,26 @@ test("calls scoped MC unit batches with only current unit briefs and source cont
     promptCaller,
     now: "2026-06-21T00:00:00.000Z"
   });
+
+  assert.equal(captured.unitKnowledgeMap.length, 2);
+  assert.deepEqual(captured.unitKnowledgeMap.map((payload) => payload.plan.units.length), [1, 1]);
+  assert.deepEqual(
+    captured.unitKnowledgeMap.map((payload) => payload.plan.units[0].id),
+    ["unit-01", "unit-02"]
+  );
+  assert.deepEqual(captured.unitKnowledgeMap[0].blocks.map((block) => block.id), ["p-001", "p-002", "p-003"]);
+  assert.deepEqual(captured.unitKnowledgeMap[1].blocks.map((block) => block.id), ["p-002", "p-003"]);
+
+  assert.equal(captured.taskBriefPlan.length, 2);
+  assert.deepEqual(captured.taskBriefPlan.map((payload) => payload.plan.units.length), [1, 1]);
+  assert.deepEqual(
+    captured.taskBriefPlan.map((payload) => payload.plan.units[0].id),
+    ["unit-01", "unit-02"]
+  );
+  assert.deepEqual(captured.taskBriefPlan[0].blocks.map((block) => block.id), ["p-001", "p-002", "p-003"]);
+  assert.deepEqual(captured.taskBriefPlan[1].blocks.map((block) => block.id), ["p-002", "p-003"]);
+  assert.equal(captured.taskBriefPlan[0].sourceContextNote.mode, "unit_window");
+  assert.equal(captured.taskBriefPlan[1].sourceContextNote.mode, "unit_window");
 
   assert.equal(captured.multipleChoiceDraftUnitBatch.length, 2);
 
@@ -91,8 +121,8 @@ function makeArticleFixture() {
 
 function fixtureOutputForStage(stage, payload) {
   if (stage === "reviewPathPlan") return reviewPathPlanFixture();
-  if (stage === "unitKnowledgeMap") return unitKnowledgeMapFixture();
-  if (stage === "taskBriefPlan") return taskBriefPlanFixture();
+  if (stage === "unitKnowledgeMap") return unitKnowledgeMapFixture(payload.plan.units[0].id);
+  if (stage === "taskBriefPlan") return taskBriefPlanFixture(payload.plan.units[0].id);
   if (stage === "multipleChoiceDraftUnitBatch") {
     const isSecondUnit = payload.unit.id === "unit-02";
     return {
@@ -221,9 +251,8 @@ function reviewPathPlanFixture() {
   };
 }
 
-function unitKnowledgeMapFixture() {
-  return {
-    units: [
+function unitKnowledgeMapFixture(unitId = null) {
+  const units = [
       {
         unitId: "unit-01",
         microKnowledgePoints: [
@@ -233,7 +262,7 @@ function unitKnowledgeMapFixture() {
             summary: "Hook 是关键动作前后的流程控制器。",
             role: "definition",
             assessmentValue: "high",
-            suggestedEvidenceAngles: ["关键动作前后", "流程控制"],
+            primaryEvidenceAngle: "关键动作前后",
             sourceAnchorId: "anchor-unit-01",
             sourceSupport: "Hook 是关键动作前后的流程控制器。"
           },
@@ -243,7 +272,7 @@ function unitKnowledgeMapFixture() {
             summary: "Hook 稳定触发规则、上下文和验证。",
             role: "relationship",
             assessmentValue: "high",
-            suggestedEvidenceAngles: ["规则", "上下文", "验证"],
+            primaryEvidenceAngle: "规则",
             sourceAnchorId: "anchor-unit-01",
             sourceSupport: "它能稳定触发规则、上下文和验证。"
           }
@@ -258,82 +287,85 @@ function unitKnowledgeMapFixture() {
             summary: "验证规则让流程结果可复查。",
             role: "mechanism",
             assessmentValue: "high",
-            suggestedEvidenceAngles: ["可复查", "验证边界"],
+            primaryEvidenceAngle: "可复查",
             sourceAnchorId: "anchor-unit-02",
             sourceSupport: "验证规则让流程可复查。"
           }
         ]
       }
-    ]
+    ];
+  return {
+    units: unitId ? units.filter((unit) => unit.unitId === unitId) : units
   };
 }
 
-function taskBriefPlanFixture() {
+function taskBriefPlanFixture(unitId = null) {
+  const units = [
+    {
+      unitId: "unit-01",
+      practiceGoals: [
+        {
+          id: "goal-01",
+          kind: "core_understanding",
+          target: "理解 Hook 是流程控制器",
+          commonMisconception: "把 Hook 当作更长提示词。",
+          microIds: ["micro-unit-01-001"],
+          sourceAnchorId: "anchor-unit-01"
+        },
+        {
+          id: "goal-02",
+          kind: "relationship_mapping",
+          target: "区分 Hook 中规则、上下文和验证的职责",
+          commonMisconception: "把三者混成同一个检查步骤。",
+          microIds: ["micro-unit-01-002"],
+          sourceAnchorId: "anchor-unit-01"
+        }
+      ],
+      questionPlans: [
+        {
+          id: "q-001",
+          type: "multiple_choice",
+          purpose: "light_understanding",
+          practiceGoalId: "goal-01",
+          microIds: ["micro-unit-01-001"],
+          sourceAnchorId: "anchor-unit-01"
+        },
+        {
+          id: "q-002",
+          type: "matching",
+          purpose: "role_responsibility_matching",
+          relationType: "responsibility",
+          practiceGoalId: "goal-02",
+          microIds: ["micro-unit-01-002"],
+          sourceAnchorId: "anchor-unit-01"
+        }
+      ]
+    },
+    {
+      unitId: "unit-02",
+      practiceGoals: [
+        {
+          id: "goal-03",
+          kind: "core_understanding",
+          target: "理解验证规则让流程可复查",
+          commonMisconception: "把验证规则当补充说明。",
+          microIds: ["micro-unit-02-001"],
+          sourceAnchorId: "anchor-unit-02"
+        }
+      ],
+      questionPlans: [
+        {
+          id: "q-003",
+          type: "multiple_choice",
+          purpose: "misconception_check",
+          practiceGoalId: "goal-03",
+          microIds: ["micro-unit-02-001"],
+          sourceAnchorId: "anchor-unit-02"
+        }
+      ]
+    }
+  ];
   return {
-    units: [
-      {
-        unitId: "unit-01",
-        practiceGoals: [
-          {
-            id: "goal-01",
-            kind: "core_understanding",
-            target: "理解 Hook 是流程控制器",
-            commonMisconception: "把 Hook 当作更长提示词。",
-            microIds: ["micro-unit-01-001"],
-            sourceAnchorId: "anchor-unit-01"
-          },
-          {
-            id: "goal-02",
-            kind: "relationship_mapping",
-            target: "区分 Hook 中规则、上下文和验证的职责",
-            commonMisconception: "把三者混成同一个检查步骤。",
-            microIds: ["micro-unit-01-002"],
-            sourceAnchorId: "anchor-unit-01"
-          }
-        ],
-        questionPlans: [
-          {
-            id: "q-001",
-            type: "multiple_choice",
-            purpose: "light_understanding",
-            practiceGoalId: "goal-01",
-            microIds: ["micro-unit-01-001"],
-            sourceAnchorId: "anchor-unit-01"
-          },
-          {
-            id: "q-002",
-            type: "matching",
-            purpose: "role_responsibility_matching",
-            relationType: "responsibility",
-            practiceGoalId: "goal-02",
-            microIds: ["micro-unit-01-002"],
-            sourceAnchorId: "anchor-unit-01"
-          }
-        ]
-      },
-      {
-        unitId: "unit-02",
-        practiceGoals: [
-          {
-            id: "goal-03",
-            kind: "core_understanding",
-            target: "理解验证规则让流程可复查",
-            commonMisconception: "把验证规则当补充说明。",
-            microIds: ["micro-unit-02-001"],
-            sourceAnchorId: "anchor-unit-02"
-          }
-        ],
-        questionPlans: [
-          {
-            id: "q-003",
-            type: "multiple_choice",
-            purpose: "misconception_check",
-            practiceGoalId: "goal-03",
-            microIds: ["micro-unit-02-001"],
-            sourceAnchorId: "anchor-unit-02"
-          }
-        ]
-      }
-    ]
+    units: unitId ? units.filter((unit) => unit.unitId === unitId) : units
   };
 }
