@@ -782,7 +782,7 @@ private struct V2NotificationFailureSourceButton: View {
         Button(action: action) {
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(V2Color.feedbackWrongFill)
+                    .fill(V2Color.surfaceCream)
                     .frame(width: 93, height: 36)
                     .offset(x: 4, y: 0)
                     .v2Shadow(shadow)
@@ -804,8 +804,8 @@ private struct V2NotificationFailureSourceButton: View {
                 Text("原文链接")
                     .font(.system(size: 10, weight: .regular))
                     .foregroundStyle(Color(hex: 0x767676))
-                    .frame(width: 44, height: 14, alignment: .leading)
-                    .offset(x: 52, y: 13)
+                    .frame(width: 44, height: 36, alignment: .center)
+                    .offset(x: 52, y: 0)
             }
             .frame(width: 101, height: 44, alignment: .topLeading)
         }
