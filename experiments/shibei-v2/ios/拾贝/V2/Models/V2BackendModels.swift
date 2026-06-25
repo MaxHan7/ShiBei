@@ -21,6 +21,10 @@ struct V2BackendChapterResponse: Decodable {
     let chapter: V2BackendChapter
 }
 
+struct V2BackendChaptersResponse: Decodable {
+    let chapters: [V2BackendChapter]
+}
+
 struct V2ReviewSessionResponse: Decodable {
     let chapter: V2BackendChapter
     let reviewSession: V2BackendReviewSession?

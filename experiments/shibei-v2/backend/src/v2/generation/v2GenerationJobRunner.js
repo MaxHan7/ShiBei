@@ -50,10 +50,29 @@ export async function runV2GenerationQueuedJob(job, deps = {}) {
   });
 
   if (result.status === "completed") {
+    const generationProgress =
+      result.generationProgress ||
+      result.chapter?.generationProgress ||
+      result.chapter?.generationMeta?.v2Progress ||
+      buildV2GenerationProgress({
+        jobId: job.id,
+        chapterId: job.chapterId,
+        status: V2_GENERATION_STATUS.COMPLETED,
+        stage: V2_GENERATION_STAGE.COMPLETED
+      });
     const chapter = await services.upsertChapter(job.deviceId, {
       ...(result.chapter || {}),
       id: job.chapterId,
-      createdAt: existing?.createdAt
+      status: "completed",
+      displayStatusText: result.displayStatusText || "已生成",
+      generationProgress,
+      generationMeta: {
+        ...(result.chapter?.generationMeta || {}),
+        v2Progress: generationProgress,
+        generationProgress
+      },
+      createdAt: existing?.createdAt,
+      updatedAt: new Date().toISOString()
     });
     await services.createNotification(job.deviceId, chapter);
     await services.completeGenerationJob(job.deviceId, job.id, {
@@ -161,6 +180,9 @@ async function resolveV2QueuedGenerationInput(job, input, services) {
 
 async function persistV2GenerationProgress(job, progress, services) {
   const existing = await services.getChapter(job.deviceId, job.chapterId);
+  if (existing?.status === "completed" && progress.status !== V2_GENERATION_STATUS.COMPLETED) {
+    return;
+  }
   if (existing) {
     await services.upsertChapter(job.deviceId, {
       ...existing,

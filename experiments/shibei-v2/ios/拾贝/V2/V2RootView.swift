@@ -19,6 +19,7 @@ struct V2RootView: View {
     @State private var generationPollingTask: Task<Void, Never>?
     @State private var generationErrorText = ""
     @State private var isSubmittingGeneration = false
+    @State private var hasLoadedInitialBackendChapter = false
 
     private let apiClient = APIClient()
 
@@ -47,6 +48,9 @@ struct V2RootView: View {
                 .transition(.scale(scale: 0.98).combined(with: .opacity))
                 .zIndex(101)
             }
+        }
+        .task(id: usesMockData) {
+            await loadLatestBackendChapterIfNeeded()
         }
     }
 
@@ -469,7 +473,7 @@ struct V2RootView: View {
         guard let chapter = backendChapter else {
             return false
         }
-        return chapter.status != "completed" && chapter.status != "failed_generation"
+        return !isTerminalGenerationStatus(chapter.status)
     }
 
     private var usesBackendReviewChapter: Bool {
@@ -598,7 +602,7 @@ struct V2RootView: View {
                     await MainActor.run {
                         applyBackendChapter(chapter)
                     }
-                    if chapter.progress?.isFinished == true || chapter.status == "completed" || chapter.status == "failed_generation" {
+                    if chapter.progress?.isFinished == true || isTerminalGenerationStatus(chapter.status) {
                         await MainActor.run {
                             generationPollingTask = nil
                         }
@@ -618,8 +622,32 @@ struct V2RootView: View {
         }
     }
 
+    @MainActor
+    private func loadLatestBackendChapterIfNeeded() async {
+        guard !usesMockData, !hasLoadedInitialBackendChapter else {
+            return
+        }
+        hasLoadedInitialBackendChapter = true
+
+        do {
+            guard let latestChapter = try await apiClient.fetchV2Chapters().first else {
+                return
+            }
+            applyBackendChapter(latestChapter)
+            if !isTerminalGenerationStatus(latestChapter.status) {
+                startGenerationPolling(chapterID: latestChapter.id)
+            }
+        } catch {
+            generationErrorText = error.localizedDescription
+        }
+    }
+
     private func applyBackendChapter(_ chapter: V2BackendChapter) {
+        let previousChapterID = backendChapter?.id
         backendChapter = chapter
+        if previousChapterID != chapter.id {
+            generationErrorText = ""
+        }
         if let reviewChapter = chapter.toReviewChapterData() {
             backendReviewChapter = reviewChapter
         }
@@ -630,13 +658,19 @@ struct V2RootView: View {
         if chapter.progress?.status == "completed" || chapter.status == "completed" {
             showsGeneratingChapterCard = false
             isSubmittingGeneration = false
-            if route == .generatingChapterDetail {
-                generationErrorText = ""
-            }
-        } else if chapter.status == "failed_generation" {
+            generationErrorText = ""
+        } else if isFailedGenerationStatus(chapter.status) || chapter.progress?.status == "failed" {
             showsGeneratingChapterCard = true
             isSubmittingGeneration = false
         }
+    }
+
+    private func isTerminalGenerationStatus(_ status: String) -> Bool {
+        status == "completed" || isFailedGenerationStatus(status)
+    }
+
+    private func isFailedGenerationStatus(_ status: String) -> Bool {
+        status == "failed_generation" || status == "failed_input"
     }
 
     private func showGeneratedChapterDetail() {

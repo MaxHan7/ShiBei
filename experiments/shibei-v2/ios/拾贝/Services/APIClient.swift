@@ -103,6 +103,11 @@ struct APIClient {
         return response.chapter
     }
 
+    func fetchV2Chapters() async throws -> [V2BackendChapter] {
+        let response: V2BackendChaptersResponse = try await get("/api/chapters")
+        return response.chapters
+    }
+
     func startOrResumeV2ReviewSession(chapterId: String) async throws -> V2ReviewSessionResponse {
         try await send("/api/v2/chapters/\(encodedPathComponent(chapterId))/review-session", method: "POST", body: EmptyRequest(), acceptsFailureBody: false)
     }
