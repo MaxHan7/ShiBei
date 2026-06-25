@@ -634,3 +634,28 @@ git commit -m "style: normalize v2 typography system"
 **Risk management:** The plan intentionally starts with token definition and the smallest readability fixes, then expands to screen groups. This reduces the risk of breaking Figma-aligned layouts.
 
 **Known execution note:** The working tree may already contain unrelated generation-state fixes. Commit or deliberately carry those before starting Checkpoint 1 so typography changes stay reviewable.
+
+---
+
+## Execution Log
+
+### 2026-06-25 Checkpoint A
+
+- Added semantic `V2Typography` roles in `V2DesignSystem.swift`.
+- Removed the most obvious `8pt` user-facing text.
+- Migrated source-link chips, chapter detail action chips, and discover article title/source/tag text to semantic typography tokens.
+- Simulator build passed on iPhone 17.
+- Commit: `16db5ef style: normalize v2 typography tokens`
+
+### 2026-06-26 Checkpoint B
+
+- Continued the staged typography cleanup without broad page reflow.
+- Added `microEmphasis` for Figma-locked tiny eyebrow labels that should still be tokenized.
+- Migrated more readable support text to semantic roles:
+  - unit/chapter completion stats labels,
+  - chapter detail knowledge count,
+  - discover hero subtitle,
+  - profile stat captions,
+  - failure reason body,
+  - runtime-mode helper text.
+- Remaining `10pt` usage should be treated as an exception candidate and reviewed page-by-page before final typography lock.

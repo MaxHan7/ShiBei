@@ -910,9 +910,9 @@ private struct V2NotificationFailureReasonCard: View {
                     .foregroundStyle(failureTitle)
 
                 Text("当前链接正文提取失败，可能是网页暂时无法访问，或正文格式还不支持。")
-                    .font(.system(size: 11, weight: .regular))
+                    .font(V2Typography.labelRegular)
                     .foregroundStyle(failureBody)
-                    .lineSpacing(4)
+                    .lineSpacing(5)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(width: 204, alignment: .leading)
@@ -997,7 +997,7 @@ private struct V2RuntimeModeCard: View {
             }
 
             Text("关闭后，主页、全部章节、通知和笔记不会再自动塞入 fixture；只有真实生成或真实保存的数据会出现。")
-                .font(.system(size: 10, weight: .regular))
+                .font(V2Typography.caption)
                 .foregroundStyle(Color(hex: 0x9A9A9A))
                 .lineSpacing(3)
         }

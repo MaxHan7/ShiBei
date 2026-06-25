@@ -1335,10 +1335,10 @@ struct V2DiscoverHeroCard: View {
                 .offset(x: V2DiscoverHeroCardMetrics.textX, y: V2DiscoverHeroCardMetrics.titleY)
 
             Text("将知识一键变成复习路径，\n让“收藏“变成记住")
-                .font(.system(size: 10, weight: .regular))
+                .font(V2Typography.labelRegular)
                 .tracking(-0.24)
                 .foregroundStyle(Color(hex: 0x575757))
-                .lineSpacing(9)
+                .lineSpacing(5)
                 .lineLimit(2)
                 .frame(width: V2DiscoverHeroCardMetrics.subtitleWidth, height: V2DiscoverHeroCardMetrics.subtitleHeight, alignment: .topLeading)
                 .offset(x: V2DiscoverHeroCardMetrics.textX, y: V2DiscoverHeroCardMetrics.subtitleY)
@@ -1708,7 +1708,7 @@ struct V2ProfileStatCard: View {
                 .offset(x: 6, y: 5)
 
             Text(title)
-                .font(.system(size: 10, weight: .regular))
+                .font(V2Typography.caption)
                 .foregroundStyle(Color(hex: 0x575757).opacity(0.68))
                 .lineLimit(1)
                 .offset(x: 48, y: 17)
@@ -1720,7 +1720,7 @@ struct V2ProfileStatCard: View {
                     .monospacedDigit()
                     .frame(width: 35, alignment: .center)
                 Text(unit)
-                    .font(.system(size: 10, weight: .regular))
+                    .font(V2Typography.caption)
                     .foregroundStyle(Color(hex: 0x575757).opacity(0.68))
             }
             .lineLimit(1)

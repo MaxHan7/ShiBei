@@ -81,7 +81,7 @@ private enum Metrics {
     // padding, so lift the title frame slightly to match the path bbox gap.
     static let titleVerticalAdjustment: CGFloat = -1.5
     static let titleLineSpacing: CGFloat = 3
-    static let eyebrowFont = Font.system(size: 10, weight: .medium, design: .default)
+    static let eyebrowFont = V2Typography.microEmphasis
     static let titleFont = Font.system(size: 16, weight: .regular, design: .default)
     static let eyebrowFill = Color(hex: 0xA5AE66)
     static let titleFill = Color(hex: 0x645B51)

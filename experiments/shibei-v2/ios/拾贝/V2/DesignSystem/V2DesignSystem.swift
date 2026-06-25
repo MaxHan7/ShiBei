@@ -73,6 +73,7 @@ enum V2Typography {
     static let caption = Font.system(size: 11, weight: .regular, design: .default)
     static let captionEmphasis = Font.system(size: 11, weight: .semibold, design: .default)
     static let micro = Font.system(size: 10, weight: .regular, design: .default)
+    static let microEmphasis = Font.system(size: 10, weight: .medium, design: .default)
 
     // Specialized reusable text.
     static let navLabel = Font.system(size: 12, weight: .semibold, design: .default)

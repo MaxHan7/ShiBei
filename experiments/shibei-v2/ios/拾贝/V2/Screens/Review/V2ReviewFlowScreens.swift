@@ -656,7 +656,7 @@ private struct V2UnitCompletionResultBanner: View {
 
                 HStack(alignment: .lastTextBaseline, spacing: 3) {
                     Text("本单元复习")
-                        .font(.system(size: 10, weight: .regular))
+                        .font(V2Typography.caption)
                         .foregroundStyle(Color(hex: 0x575757))
 
                     Text(accuracyText)
@@ -664,7 +664,7 @@ private struct V2UnitCompletionResultBanner: View {
                         .foregroundStyle(Color(hex: 0x788937))
 
                     Text("正确率")
-                        .font(.system(size: 10, weight: .regular))
+                        .font(V2Typography.caption)
                         .foregroundStyle(Color(hex: 0x575757))
                 }
                 .frame(width: 170)
@@ -801,7 +801,7 @@ private struct V2ChapterCompletionResultCard: View {
                 .offset(x: 89, y: 14)
 
             Text(statsText)
-                .font(.system(size: 10, weight: .regular))
+                .font(V2Typography.caption)
                 .foregroundStyle(Color(hex: 0x989898))
                 .multilineTextAlignment(.center)
                 .lineSpacing(7)
@@ -1355,7 +1355,7 @@ private struct V2ChapterDetailKnowledgeCard: View {
                         .tracking(-0.24)
 
                     Text("（\(count)）")
-                        .font(.system(size: 10, weight: .regular))
+                        .font(V2Typography.caption)
                         .foregroundStyle(Color(hex: 0x878787))
                         .tracking(-0.24)
                 }
