@@ -174,6 +174,73 @@ status=failed stage=failed text=缺少模型 API Key。 failure=missing_api_key
 failed
 ```
 
+### Article Link Success
+
+Issue found before the fix:
+
+- `article_link` jobs were enqueued successfully, but the V2 worker passed the URL itself into the V2 generator instead of extracting article text first.
+- The model then received only the URL string as input and failed contract validation with `reviewPathPlan.units must be a non-empty array`.
+
+Fix applied:
+
+- The V2 worker now resolves `article_link` jobs through source extraction before calling the V2 generation program.
+- The smoke script now accepts `--source-url` so the same test harness can verify link-based generation.
+- A short local article fixture is available at `demo/v2-smoke-article.html` for repeatable local link tests under the MVP 6000-character limit.
+
+Command:
+
+```bash
+npm --prefix experiments/shibei-v2/backend run smoke:v2:queue -- \
+  --mode success \
+  --base-url http://10.130.96.10:5273 \
+  --device-id phone-link-smoke \
+  --source-url http://10.130.96.10:5273/v2-smoke-article.html \
+  --source-title V2短文章链接测试
+```
+
+Observed progress:
+
+```text
+chapterId=chapter-1782387664883-49850522cbf3d
+jobId=generation-1782387664884-ad1c33de5af36
+reused=false
+status=queued stage=accepted text=已收到文章，准备生成
+status=running stage=planning_review_path text=正在梳理文章结构
+status=running stage=mapping_knowledge text=正在总结知识点
+status=running stage=planning_practice text=正在规划复习题
+status=running stage=generating_questions text=正在为「游戏化设计本质是反馈系统」生成题目
+status=running stage=generating_questions text=正在为「DMC模型三层结构」生成题目
+status=running stage=generating_questions text=正在为「游戏化设计的正确路径」生成题目
+status=running stage=generating_unit_copy text=正在整理「游戏化设计本质是反馈系统」的总结
+status=completed stage=completed text=生成完成
+completed
+```
+
+Generated chapter check:
+
+```json
+{
+  "status": "completed",
+  "title": "游戏化设计的正确路径",
+  "source": {
+    "type": "text",
+    "title": "V2 生成链路短文章测试",
+    "url": "http://10.130.96.10:5273/v2-smoke-article.html",
+    "rawTextLen": 409,
+    "blocks": 5
+  },
+  "unitCount": 3,
+  "questionCounts": [4, 3, 5],
+  "hasSummaryCard": true,
+  "hasChapterSummary": true
+}
+```
+
+Long article note:
+
+- The earlier WeChat golden article link extracted successfully after the worker fix, but was rejected by the current MVP input cap with `input_too_long`.
+- This is expected under the current 6000-character protection policy. For phone tests, use text or a link whose extracted body is under the cap.
+
 ## Real Phone Launch
 
 Command:

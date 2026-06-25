@@ -101,6 +101,10 @@ xcodebuild -project experiments/shibei-v2/ios/拾贝.xcodeproj -scheme 拾贝 -d
 npm --prefix experiments/shibei-v2/backend run smoke:v2:queue -- --mode success
 npm --prefix experiments/shibei-v2/backend run smoke:v2:queue -- --mode retry-once
 npm --prefix experiments/shibei-v2/backend run smoke:v2:queue -- --mode permanent-failure
+npm --prefix experiments/shibei-v2/backend run smoke:v2:queue -- \
+  --mode success \
+  --base-url http://<Mac局域网IP>:5273 \
+  --source-url http://<Mac局域网IP>:5273/v2-smoke-article.html
 ```
 
 ## Checkpoint 4：真机安装测试

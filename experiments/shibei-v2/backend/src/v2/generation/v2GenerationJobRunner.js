@@ -10,6 +10,7 @@ import {
   deleteNotificationsForChapter,
   upsertNotification
 } from "../../db.js";
+import { extractSourceContent as defaultExtractSourceContent } from "../../sources/extractSourceContent.js";
 import { runV2GenerationJob } from "./runV2GenerationJob.js";
 import {
   buildV2GenerationProgress,
@@ -35,15 +36,17 @@ export async function runV2GenerationQueuedJob(job, deps = {}) {
     failGenerationJob,
     updateGenerationJob,
     createNotification: defaultCreateNotification,
+    extractSourceContent: defaultExtractSourceContent,
     ...deps
   };
-  const input = buildV2QueuedGenerationInput(job);
+  const queuedInput = buildV2QueuedGenerationInput(job);
   const existing = await services.getChapter(job.deviceId, job.chapterId);
 
   const simulatedResult = buildLocalDebugFailureResult(job);
-  const result = simulatedResult || await services.runV2GenerationJob(input, {
-    generationMetaMode: "production",
-    onProgress: (progress) => persistV2GenerationProgress(job, progress, services)
+  const result = simulatedResult || await runResolvedV2GenerationJob({
+    job,
+    input: queuedInput,
+    services
   });
 
   if (result.status === "completed") {
@@ -72,7 +75,7 @@ export async function runV2GenerationQueuedJob(job, deps = {}) {
       job,
       existing,
       result,
-      input
+      input: queuedInput
     }));
     await services.createNotification(job.deviceId, failedChapter);
   }
@@ -94,6 +97,65 @@ export function buildV2QueuedGenerationInput(job = {}) {
     id: job.chapterId || body.id,
     chapterId: job.chapterId || body.chapterId,
     jobId: job.id || body.jobId
+  };
+}
+
+async function runResolvedV2GenerationJob({ job, input, services }) {
+  try {
+    const resolvedInput = await resolveV2QueuedGenerationInput(job, input, services);
+    return await services.runV2GenerationJob(resolvedInput, {
+      generationMetaMode: "production",
+      onProgress: (progress) => persistV2GenerationProgress(job, progress, services)
+    });
+  } catch (error) {
+    return buildSourceExtractionFailureResult(job, error);
+  }
+}
+
+async function resolveV2QueuedGenerationInput(job, input, services) {
+  if (input.sourceType !== "article_link") {
+    return input;
+  }
+
+  await persistV2GenerationProgress(
+    job,
+    buildV2GenerationProgress({
+      jobId: job.id,
+      chapterId: job.chapterId,
+      status: V2_GENERATION_STATUS.RUNNING,
+      stage: V2_GENERATION_STAGE.EXTRACTING_SOURCE
+    }),
+    services
+  );
+
+  const source = await services.extractSourceContent({
+    sourceType: "article_link",
+    sourceUrl: input.sourceUrl,
+    rawText: input.rawText,
+    sourceTitle: input.sourceTitle,
+    sourceAccount: input.sourceAccount
+  });
+
+  return {
+    ...input,
+    sourceType: "text",
+    originalSourceType: source.sourceType || input.sourceType,
+    sourceTitle: source.sourceTitle || input.sourceTitle || input.title || "",
+    sourceUrl: source.sourceUrl || input.sourceUrl || "",
+    sourceAccount: source.sourceAccount || input.sourceAccount || "",
+    rawText: source.rawText || "",
+    cleanedText: source.rawText || "",
+    source: {
+      type: source.sourceType || input.sourceType,
+      title: source.sourceTitle || input.sourceTitle || input.title || "",
+      url: source.sourceUrl || input.sourceUrl || "",
+      account: source.sourceAccount || input.sourceAccount || "",
+      accountOrDomain: source.sourceAccount || input.sourceAccount || "",
+      rawInput: input.sourceUrl || input.rawText || "",
+      rawText: source.rawText || "",
+      extractedText: source.rawText || "",
+      cleanedText: source.rawText || ""
+    }
   };
 }
 
@@ -165,6 +227,31 @@ function buildRetryingProgress(job, result = {}) {
     failureMessage: "生成遇到临时问题，正在重试",
     updatedAt: new Date().toISOString()
   });
+}
+
+function buildSourceExtractionFailureResult(job = {}, error) {
+  const message = error instanceof Error
+    ? error.message
+    : "原文提取失败，请检查链接后重试。";
+  const failureCode = error?.code || error?.status || "failed_extract_article";
+  return {
+    status: "failed_generation",
+    displayStatusText: "原文提取失败",
+    failedStage: "source_extraction",
+    failureReason: message,
+    retryable: false,
+    canRetry: false,
+    retryDelayMs: 0,
+    generationProgress: buildV2GenerationProgress({
+      jobId: job.id,
+      chapterId: job.chapterId,
+      status: V2_GENERATION_STATUS.FAILED,
+      stage: V2_GENERATION_STAGE.FAILED,
+      canRetry: false,
+      failureCode,
+      failureMessage: message
+    })
+  };
 }
 
 function shouldRetryQueuedV2Job(job = {}, result = {}) {

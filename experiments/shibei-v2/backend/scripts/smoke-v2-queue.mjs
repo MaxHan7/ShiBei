@@ -4,16 +4,19 @@ const args = parseArgs(process.argv.slice(2));
 const baseUrl = args["base-url"] || "http://localhost:5273";
 const mode = args.mode || "success";
 const deviceId = args["device-id"] || "smoke-v2-device";
+const sourceUrl = args["source-url"] || "";
+const sourceTitle = args["source-title"] || "";
+const rawText = args["raw-text"] || [
+  "游戏化不是简单地给产品加积分、徽章或排行榜。",
+  "更重要的是理解用户动机、行为目标和反馈机制之间的关系。",
+  "DMC 模型可以帮助设计者把动机、机制和组件拆开分析。"
+].join("\n");
 
 const body = {
   clientRequestId: `smoke-${mode}-${Date.now()}`,
-  sourceType: "text",
-  sourceTitle: "V2 本地队列 Smoke Test",
-  rawText: [
-    "游戏化不是简单地给产品加积分、徽章或排行榜。",
-    "更重要的是理解用户动机、行为目标和反馈机制之间的关系。",
-    "DMC 模型可以帮助设计者把动机、机制和组件拆开分析。"
-  ].join("\n")
+  sourceType: sourceUrl ? "article_link" : "text",
+  sourceTitle: sourceTitle || (sourceUrl ? "V2 文章链接 Smoke Test" : "V2 本地队列 Smoke Test"),
+  ...(sourceUrl ? { sourceUrl } : { rawText })
 };
 
 if (mode === "retry-once") body.debugV2FailureMode = "structured_output_once";
