@@ -60,7 +60,7 @@ export async function runV2GenerationQueuedJob(job, deps = {}) {
     return result;
   }
 
-  const retry = Boolean(result.retryable);
+  const retry = shouldRetryQueuedV2Job(job, result);
   if (retry) {
     await persistV2GenerationProgress(
       job,
@@ -80,7 +80,7 @@ export async function runV2GenerationQueuedJob(job, deps = {}) {
     status: result.status,
     currentStage: result.failedStage || result.status,
     errorMessage: result.failureReason || "生成失败",
-    retry: Boolean(result.retryable),
+    retry,
     retryDelayMs: result.retryDelayMs || 0
   });
   return result;
@@ -165,6 +165,14 @@ function buildRetryingProgress(job, result = {}) {
     failureMessage: "生成遇到临时问题，正在重试",
     updatedAt: new Date().toISOString()
   });
+}
+
+function shouldRetryQueuedV2Job(job = {}, result = {}) {
+  if (!result.retryable) return false;
+  const attemptCount = Number(job.attemptCount || job.attempt_count || 0);
+  const maxAttempts = Number(job.maxAttempts || job.max_attempts || 0);
+  if (!Number.isFinite(maxAttempts) || maxAttempts <= 0) return true;
+  return attemptCount < maxAttempts;
 }
 
 function buildLocalDebugFailureResult(job = {}) {

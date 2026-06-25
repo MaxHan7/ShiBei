@@ -147,6 +147,57 @@ test("requeues retryable V2 failures with calculated delay", async () => {
   assert.equal(failCall.fields.currentStage, "v2_multipleChoiceDraft");
 });
 
+test("stores final failed chapter when retryable result reaches max attempts", async () => {
+  const calls = [];
+  const chapters = new Map([
+    ["chapter-1", {
+      id: "chapter-1",
+      title: "Hook",
+      status: "submitted",
+      generationMeta: {},
+      createdAt: "2026-06-24T00:00:00.000Z"
+    }]
+  ]);
+  const deps = mockDeps({
+    calls,
+    chapters,
+    runV2GenerationJob: async () => ({
+      status: "failed_generation",
+      displayStatusText: "模型输出格式不稳定",
+      failedStage: "v2_multipleChoiceDraft",
+      failureReason: "模型返回内容不是可解析 JSON，请重试。",
+      retryable: true,
+      canRetry: true,
+      retryDelayMs: 30_000,
+      generationProgress: {
+        jobId: "job-1",
+        chapterId: "chapter-1",
+        status: "failed",
+        stage: "failed",
+        displayText: "模型返回内容不是可解析 JSON，请重试。",
+        progress: null,
+        retryCount: 0,
+        canRetry: true,
+        failureCode: "structured_output_failed",
+        failureMessage: "模型返回内容不是可解析 JSON，请重试。",
+        updatedAt: "2026-06-24T12:00:00.000Z"
+      }
+    })
+  });
+
+  await runV2GenerationQueuedJob({
+    ...baseJob(),
+    attemptCount: 2,
+    maxAttempts: 2
+  }, deps);
+  const failCall = calls.find((call) => call.name === "failGenerationJob");
+
+  assert.equal(chapters.get("chapter-1").status, "failed_generation");
+  assert.equal(chapters.get("chapter-1").generationProgress.status, "failed");
+  assert.equal(calls.some((call) => call.name === "createNotification"), true);
+  assert.equal(failCall.fields.retry, false);
+});
+
 test("simulates one retryable local V2 failure without calling model", async () => {
   const calls = [];
   const chapters = new Map([
