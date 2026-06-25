@@ -16,6 +16,36 @@
 - 在真机 UI 内执行“上传链接或正文 -> 开始生成 -> 查看生成详情页进度 -> 生成完成 -> 进入章节详情和题目流”。
 - 验证首次本地网络权限弹窗、失败状态、生成失败通知详情页。
 
+## Current iOS Data Boundary
+
+这次记录证明真实后端生成链路已经可用，但 V2 App 还不是所有页面都完全由后端驱动。真机测试时需要按下面的边界验收，避免把 fixture 页面误判为生产就绪。
+
+当前已经接入真实后端的部分：
+
+- 上传页通过 `APIClient.createV2Chapter` 创建真实 `/api/v2/chapters` 任务。
+- 正在生成详情页轮询 `/api/chapters/:id`，展示后端持久化的 `generationProgress`。
+- 生成完成后，后端返回的 V2 chapter 会映射成 `V2ReviewChapterData`。
+- 一旦存在 `backendReviewChapter`，章节详情、查看原文、单元概要、选择题、连线题、单元总结、章节总结会使用真实生成内容。
+- 全部章节页可以展示生成中的章节卡片和已生成的章节卡片。
+
+仍然是 fixture 或尚未生产化的部分：
+
+- 主页学习路径仍使用 `V2HomeFixture.home`，节点布局、当前节点浮窗、路径进度还没有映射到真实生成章节。
+- 笔记 / 收藏题仍使用 `V2ReviewFixture.savedQuestions`。
+- V2 SwiftUI 原型里的答题状态目前是本地 view state；旧的后端 `review-session` API 已存在，但当前 V2 题目交互还没有把每次作答持久化到 review session。
+- 正式替换线上前，不能依赖 fixture 主页路径或笔记流作为生产完成证据。
+
+本 checkpoint 推荐人工测试路线：
+
+1. 从上传页开始。
+2. 粘贴 6000 字 MVP 限制以内的短文章链接或正文。
+3. 点击开始生成。
+4. 确认 App 进入正在生成详情页。
+5. 关闭生成开始弹窗。
+6. 观察生成详情页进度文案随真实后端轮询更新。
+7. 生成完成后，从生成详情页或全部章节页进入生成出的章节详情。
+8. 继续进入单元概要和题目流，检查查看原文、单元总结、章节总结是否展示真实生成内容。
+
 ## Environment
 
 - Branch: `codex/shibei-v2-isolated-build`
