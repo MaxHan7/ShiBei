@@ -13,29 +13,27 @@ struct V2ChapterOverviewView: View {
                     .resizable()
                     .renderingMode(.original)
                     .scaledToFit()
-                    .frame(width: 274, height: 260)
-                    .offset(y: 34)
+                    .frame(
+                        width: V2ChapterOverviewPageMetrics.mascotBodyWidth,
+                        height: V2ChapterOverviewPageMetrics.mascotBodyHeight
+                    )
+                    .offset(y: V2ChapterOverviewPageMetrics.mascotBodyY)
                     .opacity(0.96)
                     .zIndex(0)
 
-                V2InfoCard {
-                    Text(chapter.overview)
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(V2Color.textSecondary)
-                        .lineSpacing(7)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                }
-                .frame(width: V2Layout.contentMaxWidth)
-                .offset(y: 246)
+                V2ChapterOverviewSummaryCard(text: chapter.overview)
+                .offset(y: V2ChapterOverviewPageMetrics.cardY)
                 .zIndex(1)
 
                 Image("V2SummaryMascotHandsLayer")
                     .resizable()
                     .renderingMode(.original)
                     .scaledToFit()
-                    .frame(width: 306)
-                    .offset(y: 250)
+                    .frame(
+                        width: V2ChapterOverviewPageMetrics.mascotHandsWidth,
+                        height: V2ChapterOverviewPageMetrics.mascotHandsHeight
+                    )
+                    .offset(y: V2ChapterOverviewPageMetrics.mascotHandsY)
                     .zIndex(2)
 
                 V2PrimaryActionButton(title: "继续", action: onContinue)
@@ -43,8 +41,56 @@ struct V2ChapterOverviewView: View {
                     .offset(y: V2Layout.primaryActionBottomY)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: V2UnitOverviewPageMetrics.contentHeight, alignment: .top)
+            .frame(height: V2ChapterOverviewPageMetrics.contentHeight, alignment: .top)
         }
+    }
+}
+
+private enum V2ChapterOverviewPageMetrics {
+    static let mascotBodyWidth: CGFloat = 377
+    static let mascotBodyHeight: CGFloat = 546
+    static let mascotBodyY: CGFloat = 36
+    static let cardWidth: CGFloat = 303
+    static let cardHeight: CGFloat = 212
+    static let cardY: CGFloat = 272
+    static let cardCornerRadius: CGFloat = 15
+    static let cardTextWidth: CGFloat = 255
+    static let cardTextHeight: CGFloat = 175
+    static let cardTextX: CGFloat = 24
+    static let cardTextY: CGFloat = 21
+    static let mascotHandsWidth: CGFloat = 276.5
+    static let mascotHandsHeight: CGFloat = 60
+    static let mascotHandsY: CGFloat = 251
+    static let contentHeight: CGFloat = 792
+}
+
+private struct V2ChapterOverviewSummaryCard: View {
+    let text: String
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: V2ChapterOverviewPageMetrics.cardCornerRadius, style: .continuous)
+            .fill(V2Color.surfaceCream)
+            .v2Shadow(V2Shadow.softGreen)
+            .frame(
+                width: V2ChapterOverviewPageMetrics.cardWidth,
+                height: V2ChapterOverviewPageMetrics.cardHeight
+            )
+            .overlay(alignment: .topLeading) {
+                Text(text)
+                    .font(.system(size: 16, weight: .regular))
+                    .foregroundStyle(V2Color.textSecondary)
+                    .lineSpacing(11)
+                    .multilineTextAlignment(.center)
+                    .frame(
+                        width: V2ChapterOverviewPageMetrics.cardTextWidth,
+                        height: V2ChapterOverviewPageMetrics.cardTextHeight,
+                        alignment: .center
+                    )
+                    .offset(
+                        x: V2ChapterOverviewPageMetrics.cardTextX,
+                        y: V2ChapterOverviewPageMetrics.cardTextY
+                    )
+            }
     }
 }
 
@@ -1209,7 +1255,7 @@ private struct V2ChapterDetailHeroActionContent: View {
     let textWidth: CGFloat
 
     static func width(for title: String, minWidth: CGFloat, maxWidth: CGFloat) -> CGFloat {
-        let font = UIFont.systemFont(ofSize: 8, weight: .regular)
+        let font = UIFont.systemFont(ofSize: 10, weight: .regular)
         let textWidth = ceil((title as NSString).size(withAttributes: [.font: font]).width)
         let desiredWidth = 7 + 34 + 6 + textWidth + 10
         return min(max(desiredWidth, minWidth), maxWidth)
@@ -1224,7 +1270,7 @@ private struct V2ChapterDetailHeroActionContent: View {
                 .frame(width: 34, height: 34)
 
             Text(title)
-                .font(.system(size: 8, weight: .regular))
+                .font(.system(size: 10, weight: .regular))
                 .foregroundStyle(Color(hex: 0x767676))
                 .lineLimit(1)
                 .truncationMode(.tail)
@@ -1362,45 +1408,45 @@ private struct V2ChapterDetailKnowledgeRow: View {
     let onToggle: () -> Void
 
     var body: some View {
-        HStack(spacing: 9) {
-            ZStack {
-                Circle()
-                    .fill(V2Color.pageGreenBackground)
+        Button(action: onToggle) {
+            HStack(spacing: 9) {
+                ZStack {
+                    Circle()
+                        .fill(V2Color.pageGreenBackground)
 
-                Text("\(index)")
+                    Text("\(index)")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(V2Color.primary)
+                        .tracking(-0.24)
+                }
+                .frame(width: 20, height: 20)
+                .padding(.leading, 9)
+
+                Text(title)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundStyle(V2Color.primary)
+                    .foregroundStyle(Color(hex: 0x575757))
                     .tracking(-0.24)
-            }
-            .frame(width: 20, height: 20)
-            .padding(.leading, 9)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-            Text(title)
-                .font(.system(size: 12, weight: .regular))
-                .foregroundStyle(Color(hex: 0x575757))
-                .tracking(-0.24)
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            Button(action: onToggle) {
                 V2ChapterDetailDisclosureArrow(isExpanded: isExpanded)
                     .frame(width: 24, height: 24)
-                    .contentShape(Rectangle())
+                    .padding(.trailing, 9)
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(isExpanded ? "收起知识点详情" : "展开知识点详情")
-            .padding(.trailing, 9)
+            .frame(width: 274, height: 50)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(V2Color.surfaceCream)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(Color(hex: 0xEFE9DB), lineWidth: 1)
+                    )
+            )
+            .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
-        .frame(width: 274, height: 50)
-        .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(V2Color.surfaceCream)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .stroke(Color(hex: 0xEFE9DB), lineWidth: 1)
-                )
-        )
+        .buttonStyle(.plain)
+        .accessibilityLabel(isExpanded ? "收起知识点详情" : "展开知识点详情")
     }
 }
 

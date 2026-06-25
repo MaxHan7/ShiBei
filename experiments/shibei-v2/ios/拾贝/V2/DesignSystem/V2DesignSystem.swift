@@ -44,8 +44,10 @@ enum V2Spacing {
 enum V2Layout {
     static let contentMaxWidth: CGFloat = 321
     static let topBarTopPadding: CGFloat = 30
+    static let topBarHeight: CGFloat = 52
+    static let topChromeReservedHeight: CGFloat = topBarTopPadding + topBarHeight
     static let primaryActionWidth: CGFloat = contentMaxWidth
-    static let primaryActionBottomY: CGFloat = 642
+    static let primaryActionBottomY: CGFloat = 600
 }
 
 enum V2Typography {

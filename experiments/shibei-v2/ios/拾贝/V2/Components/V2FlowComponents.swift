@@ -42,6 +42,17 @@ struct V2PrimaryActionButton: View {
     }
 }
 
+struct V2TopChrome<Content: View>: View {
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        content()
+            .frame(height: V2Layout.topBarHeight)
+            .v2PageContentWidth()
+            .padding(.top, V2Layout.topBarTopPadding)
+    }
+}
+
 struct V2FlowTopBar: View {
     let title: String
     var titleFont: Font = V2Typography.pageTitle
@@ -93,8 +104,7 @@ struct V2FlowTopBar: View {
                 }
             }
         }
-        .frame(height: 52)
-        .v2PageContentWidth()
+        .frame(height: V2Layout.topBarHeight)
     }
 }
 
@@ -111,27 +121,33 @@ struct V2FlowScreen<Content: View>: View {
     @ViewBuilder let content: () -> Content
 
     var body: some View {
-        ZStack {
-            V2Color.pageGreenBackground
-                .ignoresSafeArea()
-
-            VStack(spacing: 0) {
-                V2FlowTopBar(
-                    title: title,
-                    titleFont: titleFont,
-                    titleColor: titleColor,
-                    showSourceButton: showSourceButton,
-                    showFavoriteButton: showFavoriteButton,
-                    isFavoriteSaved: isFavoriteSaved,
-                    onBack: onBack,
-                    onSource: onSource,
-                    onFavorite: onFavorite
-                )
-                .padding(.top, V2Layout.topBarTopPadding)
+        GeometryReader { _ in
+            ZStack(alignment: .top) {
+                V2Color.pageGreenBackground
+                    .ignoresSafeArea()
 
                 content()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.top, V2Layout.topChromeReservedHeight)
+
+                V2TopChrome {
+                    V2FlowTopBar(
+                        title: title,
+                        titleFont: titleFont,
+                        titleColor: titleColor,
+                        showSourceButton: showSourceButton,
+                        showFavoriteButton: showFavoriteButton,
+                        isFavoriteSaved: isFavoriteSaved,
+                        onBack: onBack,
+                        onSource: onSource,
+                        onFavorite: onFavorite
+                    )
+                }
+                .zIndex(20)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 
@@ -161,7 +177,7 @@ struct V2UnitProgressBar: View {
                 Capsule()
                     .fill(V2Color.unitProgressFill)
                     .frame(
-                        width: max(11, geometry.size.width * progress),
+                        width: progress > 0 ? max(11, geometry.size.width * progress) : 0,
                         height: 11
                     )
             }
@@ -1598,26 +1614,6 @@ private enum V2SavedQuestionCardMetrics {
     static let typeY: CGFloat = 92
     static let bookmarkX: CGFloat = 286
     static let bookmarkY: CGFloat = 25
-}
-
-struct V2ProfileTopBar: View {
-    let onBack: () -> Void
-
-    var body: some View {
-        ZStack {
-            Text("我的")
-                .font(V2Typography.pageTitle)
-                .foregroundStyle(V2Color.topTitle)
-                .frame(maxWidth: .infinity)
-
-            HStack {
-                V2CircleIconButton(kind: .back, action: onBack)
-                Spacer()
-            }
-        }
-        .frame(height: 52)
-        .v2PageContentWidth()
-    }
 }
 
 struct V2ProfileHeaderCard: View {

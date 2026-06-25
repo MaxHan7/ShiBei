@@ -1,5 +1,13 @@
 import SwiftUI
 
+private enum V2TopCircleButtonMetrics {
+    static let canvasWidth: CGFloat = 44
+    static let canvasHeight: CGFloat = 45
+    static let visualCircleDiameter: CGFloat = 41
+    static let centerX = canvasWidth / 2
+    static let visualCenterY: CGFloat = 20.5
+}
+
 enum V2CircleIconKind {
     case notification
     case profile
@@ -44,7 +52,7 @@ struct V2CircleIconButton: View {
         Image(name)
             .resizable()
             .renderingMode(.original)
-            .frame(width: 44, height: 45)
+            .frame(width: V2TopCircleButtonMetrics.canvasWidth, height: V2TopCircleButtonMetrics.canvasHeight)
     }
 
     private var unreadBadge: some View {
@@ -74,14 +82,17 @@ struct V2QuestionFavoriteButton: View {
             ZStack {
                 Circle()
                     .fill(V2Color.surfaceCircleButton)
-                    .frame(width: 41, height: 41)
+                    .frame(
+                        width: V2TopCircleButtonMetrics.visualCircleDiameter,
+                        height: V2TopCircleButtonMetrics.visualCircleDiameter
+                    )
                     .shadow(
                         color: Color(hex: 0x98A35E).opacity(0.15),
                         radius: 0.75,
                         x: 0,
                         y: 2
                     )
-                    .position(x: 22, y: 20.5)
+                    .position(x: V2TopCircleButtonMetrics.centerX, y: V2TopCircleButtonMetrics.visualCenterY)
 
                 V2FavoriteStarShape()
                     .fill(isSaved ? V2Color.primary : Color.clear)
@@ -93,9 +104,9 @@ struct V2QuestionFavoriteButton: View {
                             )
                     }
                     .frame(width: 24, height: 24)
-                    .position(x: 22, y: 20.5)
+                    .position(x: V2TopCircleButtonMetrics.centerX, y: V2TopCircleButtonMetrics.visualCenterY)
             }
-            .frame(width: 44, height: 45)
+            .frame(width: V2TopCircleButtonMetrics.canvasWidth, height: V2TopCircleButtonMetrics.canvasHeight)
             .contentShape(Circle())
         }
         .buttonStyle(.plain)

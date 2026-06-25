@@ -36,7 +36,7 @@ struct V2HomeView: View {
 
                 if data.isEmpty {
                     emptyState(in: geometry.size)
-                        .zIndex(5)
+                        .zIndex(40)
                 } else {
                     VStack(spacing: 0) {
                         Color.clear
@@ -70,9 +70,9 @@ struct V2HomeView: View {
 
     private var topOverlay: some View {
         VStack(spacing: 0) {
-            topBar
-                .v2PageContentWidth()
-                .padding(.top, 22)
+            V2TopChrome {
+                topBar
+            }
 
             if !data.isEmpty {
                 V2CurrentChapterBanner(chapter: data.currentChapter) {
@@ -323,7 +323,7 @@ struct V2HomeView: View {
             Spacer()
             V2CircleIconButton(kind: .profile, action: onOpenProfile)
         }
-        .frame(height: 52)
+        .frame(height: V2Layout.topBarHeight)
     }
 
     private func emptyState(in size: CGSize) -> some View {
@@ -338,6 +338,7 @@ struct V2HomeView: View {
                 x: size.width / 2,
                 y: V2HomeEmptyStateMetrics.centerY(in: size.height, scale: scale)
             )
+            .allowsHitTesting(false)
             .accessibilityLabel("还没有生成章节")
     }
 
@@ -404,8 +405,8 @@ private struct V2HomePathViewportMetrics {
     let height: CGFloat
 
     init(screenHeight: CGFloat, bottomNavScale: CGFloat, safeAreaInsets: EdgeInsets) {
-        let topBarTop: CGFloat = 22
-        let topBarHeight: CGFloat = 52
+        let topBarTop = V2Layout.topBarTopPadding
+        let topBarHeight = V2Layout.topBarHeight
         let bannerTopGap: CGFloat = 30
         let bannerHeight: CGFloat = 88
         let visibleGapBelowBanner: CGFloat = 0

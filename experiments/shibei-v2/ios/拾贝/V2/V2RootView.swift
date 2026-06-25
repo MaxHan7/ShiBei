@@ -4,6 +4,8 @@ import UserNotifications
 struct V2RootView: View {
     @AppStorage("v2.hasRequestedGenerationNotificationPermission")
     private var hasRequestedGenerationNotificationPermission = false
+    @AppStorage("v2.usesMockData")
+    private var usesMockData = false
 
     @State private var selectedTab: V2HomeTab = .learning
     @State private var route: V2AppRoute?
@@ -21,8 +23,9 @@ struct V2RootView: View {
     private let apiClient = APIClient()
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .top) {
             currentView
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
             if showsGenerationStartedDialog {
                 Color.black
@@ -31,9 +34,16 @@ struct V2RootView: View {
                     .transition(.opacity)
                     .zIndex(100)
 
-                V2GenerationStartedDialog {
-                    dismissGenerationStartedDialog()
+                GeometryReader { geometry in
+                    V2GenerationStartedDialog {
+                        dismissGenerationStartedDialog()
+                    }
+                    .position(
+                        x: geometry.size.width / 2,
+                        y: geometry.size.height / 2
+                    )
                 }
+                .ignoresSafeArea()
                 .transition(.scale(scale: 0.98).combined(with: .opacity))
                 .zIndex(101)
             }
@@ -64,6 +74,7 @@ struct V2RootView: View {
         case .materials:
             V2MaterialsView(
                 selectedTab: $selectedTab,
+                usesMockData: usesMockData,
                 showsGeneratingChapterCard: showsGeneratingChapterCard,
                 generatingChapterTitle: backendChapter?.title ?? "正在生成新的章节",
                 generatingProgressText: generationDisplayText,
@@ -84,6 +95,7 @@ struct V2RootView: View {
         case .notes:
             V2NotesView(
                 selectedTab: $selectedTab,
+                usesMockData: usesMockData,
                 onOpenSavedQuestion: openSavedQuestion
             )
         }
@@ -94,6 +106,7 @@ struct V2RootView: View {
         switch route {
         case .notifications:
             V2NotificationView(
+                usesMockData: usesMockData,
                 onBack: goBack,
                 onOpenSuccess: { pushRoute(.chapterDetail) },
                 onOpenFailure: { pushRoute(.notificationFailureDetail) }
@@ -105,7 +118,10 @@ struct V2RootView: View {
                 onRegenerate: showGeneratedChapterDetail
             )
         case .profile:
-            V2ProfileView(onBack: goBack)
+            V2ProfileView(
+                usesMockData: $usesMockData,
+                onBack: goBack
+            )
         case .generatingChapterDetail:
             V2GeneratingChapterDetailView(
                 progress: backendChapter?.progress?.progress ?? 0,
@@ -116,25 +132,37 @@ struct V2RootView: View {
                 onOpenChapter: { replaceRoute(.chapterDetail) }
             )
         case .chapterDetail:
-            V2ChapterDetailView(
-                chapter: activeChapter,
-                onBack: goBack,
-                onContinue: continueFromChapterDetail,
-                onSource: openSource
-            )
+            if let chapter = activeChapter {
+                V2ChapterDetailView(
+                    chapter: chapter,
+                    onBack: goBack,
+                    onContinue: continueFromChapterDetail,
+                    onSource: openSource
+                )
+            } else {
+                V2MissingRouteView(onBack: goBack)
+            }
         case .sourceArticle:
-            V2SourceArticleView(chapter: activeChapter, question: sourceQuestion, onBack: goBack)
+            if let chapter = activeChapter {
+                V2SourceArticleView(chapter: chapter, question: sourceQuestion, onBack: goBack)
+            } else {
+                V2MissingRouteView(onBack: goBack)
+            }
         case .recommendedArticle:
             V2RecommendedArticleDetailView(
                 onBack: goBack,
                 onGenerate: showGeneratedChapterDetail
             )
         case .chapterOverview:
-            V2ChapterOverviewView(
-                chapter: activeChapter,
-                onBack: goBack,
-                onContinue: openFirstUnit
-            )
+            if let chapter = activeChapter {
+                V2ChapterOverviewView(
+                    chapter: chapter,
+                    onBack: goBack,
+                    onContinue: openFirstUnit
+                )
+            } else {
+                V2MissingRouteView(onBack: goBack)
+            }
         case .unitOverview(let unitID):
             if let unit = activeUnit(id: unitID) {
                 V2UnitOverviewView(
@@ -178,7 +206,7 @@ struct V2RootView: View {
         case .savedQuestion(let index):
             if let savedQuestion = V2ReviewFixture.savedQuestion(at: index),
                let question = V2ReviewFixture.question(for: savedQuestion) {
-                let progress = (current: min(index + 1, V2ReviewFixture.savedQuestions.count), total: V2ReviewFixture.savedQuestions.count)
+                let progress = (current: 0, total: 1)
                 let unitTitle = V2ReviewFixture.unitDisplayTitle(id: savedQuestion.unitID) ?? question.title
                 switch question.kind {
                 case .multipleChoice:
@@ -186,7 +214,6 @@ struct V2RootView: View {
                         question: question,
                         unitTitle: unitTitle,
                         progress: progress,
-                        showsProgressBar: false,
                         state: multipleChoiceStateBinding(key: savedQuestionStateKey(index: index)),
                         onBack: goBack,
                         onSource: openSource,
@@ -197,7 +224,6 @@ struct V2RootView: View {
                         question: question,
                         unitTitle: unitTitle,
                         progress: progress,
-                        showsProgressBar: false,
                         state: matchingStateBinding(key: savedQuestionStateKey(index: index)),
                         onBack: goBack,
                         onSource: openSource,
@@ -218,12 +244,16 @@ struct V2RootView: View {
                 V2MissingRouteView(onBack: goBack)
             }
         case .chapterSummary:
-            V2ChapterSummaryView(
-                chapter: activeChapter,
-                onBack: goBack,
-                onHome: { resetToHome(tab: .learning) },
-                onDetail: { pushRoute(.chapterDetail) }
-            )
+            if let chapter = activeChapter {
+                V2ChapterSummaryView(
+                    chapter: chapter,
+                    onBack: goBack,
+                    onHome: { resetToHome(tab: .learning) },
+                    onDetail: { pushRoute(.chapterDetail) }
+                )
+            } else {
+                V2MissingRouteView(onBack: goBack)
+            }
         }
     }
 
@@ -255,6 +285,9 @@ struct V2RootView: View {
     }
 
     private func openSavedQuestion(index: Int) {
+        guard usesMockData else {
+            return
+        }
         selectedTab = .notes
         routeStack.removeAll()
         questionInteractionStates.removeValue(forKey: savedQuestionStateKey(index: index))
@@ -400,20 +433,26 @@ struct V2RootView: View {
         }
     }
 
-    private var activeChapter: V2ReviewChapterData {
-        backendReviewChapter ?? V2ReviewFixture.chapter
+    private var activeChapter: V2ReviewChapterData? {
+        backendReviewChapter ?? (usesMockData ? V2ReviewFixture.chapter : nil)
     }
 
     private var activeHomeData: V2HomeData {
+        if usesMockData {
+            return V2HomeFixture.home
+        }
         guard usesBackendReviewChapter else {
             return V2HomeFixture.empty
         }
 
+        guard let activeChapter else {
+            return V2HomeFixture.empty
+        }
         return V2HomeData(chapter: activeChapter)
     }
 
     private var activeFirstUnitID: String {
-        activeChapter.units.first?.id ?? ""
+        activeChapter?.units.first?.id ?? ""
     }
 
     private var generationDisplayText: String {
@@ -434,11 +473,11 @@ struct V2RootView: View {
     }
 
     private var usesBackendReviewChapter: Bool {
-        backendReviewChapter != nil && backendChapter?.status == "completed"
+        !usesMockData && backendReviewChapter != nil && backendChapter?.status == "completed"
     }
 
     private func activeUnit(id: String) -> V2ReviewUnitData? {
-        activeChapter.units.first { $0.id == id }
+        activeChapter?.units.first { $0.id == id }
     }
 
     private func activeQuestion(unitID: String, questionID: String) -> V2ReviewQuestionData? {
@@ -446,7 +485,8 @@ struct V2RootView: View {
     }
 
     private func unitDisplayTitle(id: String) -> String? {
-        guard let index = activeChapter.units.firstIndex(where: { $0.id == id }) else {
+        guard let activeChapter,
+              let index = activeChapter.units.firstIndex(where: { $0.id == id }) else {
             return nil
         }
         return "单元\(index + 1)"
@@ -472,7 +512,8 @@ struct V2RootView: View {
             return nil
         }
 
-        guard let index = activeChapter.units.firstIndex(where: { $0.id == unitID }),
+        guard let activeChapter,
+              let index = activeChapter.units.firstIndex(where: { $0.id == unitID }),
               activeChapter.units.indices.contains(index + 1) else {
             return nil
         }
@@ -480,6 +521,9 @@ struct V2RootView: View {
     }
 
     private func progressIndex(unitID: String, questionID: String? = nil) -> (current: Int, total: Int) {
+        guard let activeChapter else {
+            return (1, 1)
+        }
         let total = activeChapter.units.reduce(0) { $0 + $1.questions.count }
         var current = 1
 
@@ -892,7 +936,7 @@ struct V2RootView: View {
     }
 
     private func unitID(containingQuestionID questionID: String) -> String? {
-        activeChapter.units.first { unit in
+        activeChapter?.units.first { unit in
             unit.questions.contains { $0.id == questionID }
         }?.id
     }

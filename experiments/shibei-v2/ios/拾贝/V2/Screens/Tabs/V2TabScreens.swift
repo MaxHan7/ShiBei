@@ -14,10 +14,12 @@ struct V2TabScaffold<Content: View>: View {
                     .ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    Text(title)
-                        .font(V2Typography.pageTitle)
-                        .foregroundStyle(V2Color.topTitle)
-                        .padding(.top, 34)
+                    V2TopChrome {
+                        Text(title)
+                            .font(V2Typography.pageTitle)
+                            .foregroundStyle(V2Color.topTitle)
+                            .frame(maxWidth: .infinity)
+                    }
 
                     ScrollView(showsIndicators: false) {
                         content()
@@ -45,6 +47,7 @@ struct V2TabScaffold<Content: View>: View {
 
 struct V2MaterialsView: View {
     @Binding var selectedTab: V2HomeTab
+    let usesMockData: Bool
     let showsGeneratingChapterCard: Bool
     let generatingChapterTitle: String
     let generatingProgressText: String
@@ -98,38 +101,47 @@ struct V2MaterialsView: View {
                     .buttonStyle(.plain)
                 }
 
-                Button(action: openChapter) {
-                    V2ChapterCard(
-                        title: V2ReviewFixture.chapter.title,
-                        status: .reviewing,
-                        source: "网页文章",
-                        knowledgeCount: V2ReviewFixture.chapter.units.count,
-                        questionCount: V2ReviewFixture.chapter.units.reduce(0) { $0 + $1.questions.count }
-                    )
-                }
-                .buttonStyle(.plain)
+                if usesMockData {
+                    Button(action: openChapter) {
+                        V2ChapterCard(
+                            title: V2ReviewFixture.chapter.title,
+                            status: .reviewing,
+                            source: "网页文章",
+                            knowledgeCount: V2ReviewFixture.chapter.units.count,
+                            questionCount: V2ReviewFixture.chapter.units.reduce(0) { $0 + $1.questions.count }
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                Button(action: openChapter) {
-                    V2ChapterCard(
-                        title: "Claude Code hooks：把自动化放进工作流",
-                        status: .notStarted,
-                        source: "网页文章",
-                        knowledgeCount: 7,
-                        questionCount: 21
-                    )
-                }
-                .buttonStyle(.plain)
+                    Button(action: openChapter) {
+                        V2ChapterCard(
+                            title: "Claude Code hooks：把自动化放进工作流",
+                            status: .notStarted,
+                            source: "网页文章",
+                            knowledgeCount: 7,
+                            questionCount: 21
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                Button(action: openChapter) {
-                    V2ChapterCard(
-                        title: "游戏化设计如何改善学习体验",
-                        status: .completed,
-                        source: "网页文章",
-                        knowledgeCount: 6,
-                        questionCount: 18
-                    )
+                    Button(action: openChapter) {
+                        V2ChapterCard(
+                            title: "游戏化设计如何改善学习体验",
+                            status: .completed,
+                            source: "网页文章",
+                            knowledgeCount: 6,
+                            questionCount: 18
+                        )
+                    }
+                    .buttonStyle(.plain)
+                } else if !showsGeneratingChapterCard && generatedChapter == nil {
+                    V2InfoCard {
+                        Text("还没有生成章节")
+                            .font(V2Typography.body)
+                            .foregroundStyle(V2Color.textSecondary)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    }
                 }
-                .buttonStyle(.plain)
             }
         }
     }
@@ -468,6 +480,7 @@ struct V2DiscoverView: View {
 
 struct V2NotesView: View {
     @Binding var selectedTab: V2HomeTab
+    let usesMockData: Bool
     let onOpenSavedQuestion: (Int) -> Void
 
     var body: some View {
@@ -477,7 +490,7 @@ struct V2NotesView: View {
                     .zIndex(0)
                     .allowsHitTesting(false)
 
-                V2NotesSummaryCard(count: 20)
+                V2NotesSummaryCard(count: usesMockData ? 20 : 0)
                     .offset(y: V2NotesPageMetrics.summaryY)
                     .zIndex(2)
 
@@ -490,18 +503,29 @@ struct V2NotesView: View {
                     .allowsHitTesting(false)
                     .zIndex(4)
 
-                ForEach(Array(V2ReviewFixture.savedQuestions.enumerated()), id: \.element.id) { index, savedQuestion in
-                    Button {
-                        onOpenSavedQuestion(index)
-                    } label: {
-                        V2SavedQuestionCard(
-                            title: savedQuestion.title,
-                            source: savedQuestion.source,
-                            type: savedQuestion.type
-                        )
+                if usesMockData {
+                    ForEach(Array(V2ReviewFixture.savedQuestions.enumerated()), id: \.element.id) { index, savedQuestion in
+                        Button {
+                            onOpenSavedQuestion(index)
+                        } label: {
+                            V2SavedQuestionCard(
+                                title: savedQuestion.title,
+                                source: savedQuestion.source,
+                                type: savedQuestion.type
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .offset(y: V2NotesPageMetrics.cardY(for: index))
+                        .zIndex(2)
                     }
-                    .buttonStyle(.plain)
-                    .offset(y: V2NotesPageMetrics.cardY(for: index))
+                } else {
+                    V2InfoCard {
+                        Text("还没有收藏题目")
+                            .font(V2Typography.body)
+                            .foregroundStyle(V2Color.textSecondary)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    }
+                    .offset(y: V2NotesPageMetrics.firstCardY)
                     .zIndex(2)
                 }
             }
@@ -566,6 +590,7 @@ private enum V2NotesPageMetrics {
 }
 
 struct V2NotificationView: View {
+    let usesMockData: Bool
     let onBack: () -> Void
     let onOpenSuccess: () -> Void
     let onOpenFailure: () -> Void
@@ -606,21 +631,30 @@ struct V2NotificationView: View {
                     )
 
                     VStack(spacing: 22) {
-                        V2NotificationSummaryBanner(unreadCount: 2)
+                        V2NotificationSummaryBanner(unreadCount: usesMockData ? 2 : 0)
 
-                        V2NotificationCard(
-                            title: "章节已生成",
-                            message: "《如何把AI Agent用到你的生意经》已准备好，可以开始学习",
-                            isSuccess: true,
-                            action: onOpenSuccess
-                        )
+                        if usesMockData {
+                            V2NotificationCard(
+                                title: "章节已生成",
+                                message: "《如何把AI Agent用到你的生意经》已准备好，可以开始学习",
+                                isSuccess: true,
+                                action: onOpenSuccess
+                            )
 
-                        V2NotificationCard(
-                            title: "生成失败",
-                            message: "章节生成失败，点击查看具体原因",
-                            isSuccess: false,
-                            action: onOpenFailure
-                        )
+                            V2NotificationCard(
+                                title: "生成失败",
+                                message: "章节生成失败，点击查看具体原因",
+                                isSuccess: false,
+                                action: onOpenFailure
+                            )
+                        } else {
+                            V2InfoCard {
+                                Text("暂无通知")
+                                    .font(V2Typography.body)
+                                    .foregroundStyle(V2Color.textSecondary)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                            }
+                        }
                     }
                     .frame(width: V2Layout.contentMaxWidth)
                     .position(
@@ -753,15 +787,15 @@ private struct V2NotificationFailureDetailCard: View {
             .position(x: 249, y: 45)
 
             V2NotificationFailureReasonCard()
-                .position(x: 163, y: 150)
+                .position(x: 163, y: 142)
 
             Button(action: onRegenerate) {
                 Text("重新生成")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(.white)
-                    .frame(width: 207, height: 28)
+                    .frame(width: 280, height: 42)
                     .background(
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
                             .fill(failureAccent)
                             .v2Shadow(failureAccentShadow)
                     )
@@ -890,35 +924,30 @@ private struct V2NotificationFailureReasonCard: View {
 }
 
 struct V2ProfileView: View {
+    @Binding var usesMockData: Bool
     let onBack: () -> Void
 
     var body: some View {
-        ZStack {
-            V2Color.pageGreenBackground
-                .ignoresSafeArea()
+        V2FlowScreen(title: "我的", onBack: onBack) {
+            ZStack {
+                GeometryReader { geometry in
+                    Image("V2BgDecoLeftHillPlant")
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFit()
+                        .frame(width: 108)
+                        .opacity(0.66)
+                        .position(x: 38, y: 323)
 
-            GeometryReader { geometry in
-                Image("V2BgDecoLeftHillPlant")
-                    .resizable()
-                    .renderingMode(.original)
-                    .scaledToFit()
-                    .frame(width: 108)
-                    .opacity(0.66)
-                    .position(x: 38, y: 405)
-
-                Image("V2BgDecoLeftHillPlant")
-                    .resizable()
-                    .renderingMode(.original)
-                    .scaledToFit()
-                    .frame(width: 105)
-                    .opacity(0.66)
-                    .position(x: 52, y: max(520, geometry.size.height - 160))
-            }
-            .ignoresSafeArea()
-
-            VStack(spacing: 0) {
-                V2ProfileTopBar(onBack: onBack)
-                    .padding(.top, V2Layout.topBarTopPadding)
+                    Image("V2BgDecoLeftHillPlant")
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFit()
+                        .frame(width: 105)
+                        .opacity(0.66)
+                        .position(x: 52, y: max(438, geometry.size.height - 242))
+                }
+                .allowsHitTesting(false)
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
@@ -930,6 +959,8 @@ struct V2ProfileView: View {
                         )
 
                         V2ProfileSettingsCard()
+
+                        V2RuntimeModeCard(usesMockData: $usesMockData)
                     }
                     .frame(maxWidth: V2Layout.contentMaxWidth)
                     .frame(maxWidth: .infinity)
@@ -937,6 +968,46 @@ struct V2ProfileView: View {
                     .padding(.bottom, 40)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+    }
+}
+
+private struct V2RuntimeModeCard: View {
+    @Binding var usesMockData: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("演示数据")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color(hex: 0x575757))
+
+                    Text(usesMockData ? "正在展示组件库 mock 数据" : "正在使用真实测试数据")
+                        .font(.system(size: 11, weight: .regular))
+                        .foregroundStyle(Color(hex: 0x8B8B8B))
+                }
+
+                Spacer()
+
+                Toggle("", isOn: $usesMockData)
+                    .labelsHidden()
+                    .tint(V2Color.primaryAction)
+            }
+
+            Text("关闭后，主页、全部章节、通知和笔记不会再自动塞入 fixture；只有真实生成或真实保存的数据会出现。")
+                .font(.system(size: 10, weight: .regular))
+                .foregroundStyle(Color(hex: 0x9A9A9A))
+                .lineSpacing(3)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+        .frame(width: V2Layout.contentMaxWidth, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .v2Shadow()
+        )
     }
 }
