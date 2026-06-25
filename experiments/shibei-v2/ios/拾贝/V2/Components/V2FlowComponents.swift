@@ -1326,20 +1326,20 @@ struct V2DiscoverHeroCard: View {
 private enum V2DiscoverHeroCardMetrics {
     static let cardWidth: CGFloat = 321
     static let cardHeight: CGFloat = 82
-    static let heroHeight: CGFloat = 135
-    static let cardY: CGFloat = 53
+    static let heroHeight: CGFloat = 114
+    static let cardY: CGFloat = 32
     static let waveWidth: CGFloat = 329
     static let waveHeight: CGFloat = 90
     static let waveX: CGFloat = -4
     static let textX: CGFloat = 19
-    static let titleY: CGFloat = 64
+    static let titleY: CGFloat = 43
     static let titleWidth: CGFloat = 131
     static let titleHeight: CGFloat = 24
-    static let subtitleY: CGFloat = 93
+    static let subtitleY: CGFloat = 72
     static let subtitleWidth: CGFloat = 167
     static let subtitleHeight: CGFloat = 41
     static let mascotX: CGFloat = 195
-    static let mascotY: CGFloat = 0
+    static let mascotY: CGFloat = -21
     static let mascotWidth: CGFloat = 112
     static let mascotHeight: CGFloat = 136
 }
@@ -1387,7 +1387,7 @@ struct V2RecommendedArticleCard: View {
                         .resizable()
                         .renderingMode(.original)
                         .scaledToFill()
-                        .frame(width: 119, height: 94)
+                        .frame(width: 126, height: V2RecommendedArticleCardMetrics.cardHeight)
                         .frame(maxWidth: .infinity, alignment: .trailing)
                         .clipped()
 
@@ -1399,8 +1399,9 @@ struct V2RecommendedArticleCard: View {
                         Text(title)
                             .font(V2RecommendedArticleCardMetrics.titleFont)
                             .foregroundStyle(Color(hex: 0x383838))
-                            .lineLimit(1)
+                            .lineLimit(2)
                             .truncationMode(.tail)
+                            .lineSpacing(4)
                             .frame(
                                 width: V2RecommendedArticleCardMetrics.titleWidth,
                                 height: V2RecommendedArticleCardMetrics.titleHeight,
@@ -1437,20 +1438,20 @@ struct V2RecommendedArticleCard: View {
 }
 
 private enum V2RecommendedArticleCardMetrics {
-    static let cardHeight: CGFloat = 94
-    static let infoWidth: CGFloat = 231
+    static let cardHeight: CGFloat = 124
+    static let infoWidth: CGFloat = 236
     static let cornerRadius: CGFloat = 15
     static let titleX: CGFloat = 24
-    static let titleY: CGFloat = 11
+    static let titleY: CGFloat = 16
     static let titleWidth: CGFloat = 167
-    static let titleHeight: CGFloat = 24
-    static let titleFont = Font.system(size: 12, weight: .regular)
+    static let titleHeight: CGFloat = 42
+    static let titleFont = Font.system(size: 13, weight: .medium)
     static let sourceX: CGFloat = 24
-    static let sourceY: CGFloat = 35
+    static let sourceY: CGFloat = 66
     static let sourceHeight: CGFloat = 19
     static let sourceFont = Font.system(size: 10, weight: .regular)
     static let tagsX: CGFloat = 21
-    static let tagsY: CGFloat = 61
+    static let tagsY: CGFloat = 92
     static let tagSpacing: CGFloat = 8.6
     static let tagFont = Font.system(size: 8, weight: .regular)
     static let tagWidth: CGFloat = 35.4
