@@ -80,6 +80,8 @@ Security note: the preflight prints environment variable names only, not secret 
 
 ## Real Queue Smoke
 
+### Success
+
 Command:
 
 ```bash
@@ -118,6 +120,58 @@ Generated chapter check:
   "hasChapterSummary": true,
   "sourceBlocks": 3
 }
+```
+
+### Retry Once
+
+Command:
+
+```bash
+npm --prefix experiments/shibei-v2/backend run smoke:v2:queue -- \
+  --mode retry-once \
+  --base-url http://10.130.96.10:5273 \
+  --device-id phone-e2e-smoke
+```
+
+Observed progress:
+
+```text
+chapterId=chapter-1782387171208-0c35a8a975fe6
+jobId=generation-1782387171209-e862a74d344f
+reused=false
+status=queued stage=accepted text=已收到文章，准备生成
+status=retrying stage=retry_wait text=生成遇到临时问题，正在重试 failure=structured_output_failed
+status=running stage=planning_review_path text=正在梳理文章结构
+status=running stage=mapping_knowledge text=正在总结知识点
+status=running stage=planning_practice text=正在规划复习题
+status=running stage=generating_questions text=正在为「游戏化的常见误区」生成题目
+status=running stage=generating_questions text=正在为「核心要素：动机、行为、反馈」生成题目
+status=running stage=generating_questions text=正在为「DMC模型：分解游戏化设计」生成题目
+status=running stage=generating_unit_copy text=正在整理「游戏化的常见误区」的总结
+status=completed stage=completed text=生成完成
+completed
+```
+
+### Permanent Failure
+
+Command:
+
+```bash
+npm --prefix experiments/shibei-v2/backend run smoke:v2:queue -- \
+  --mode permanent-failure \
+  --base-url http://10.130.96.10:5273 \
+  --device-id phone-e2e-smoke
+```
+
+Observed progress:
+
+```text
+chapterId=chapter-1782387305436-90d86dedfd6a8
+jobId=generation-1782387305437-a410737518ba4
+reused=false
+status=queued stage=accepted text=已收到文章，准备生成
+status=failed stage=failed text=缺少模型 API Key。 failure=missing_api_key
+failed
 ```
 
 ## Real Phone Launch
