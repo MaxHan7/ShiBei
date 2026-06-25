@@ -101,6 +101,7 @@ struct V2RootView: View {
         case .notificationFailureDetail:
             V2NotificationFailureDetailView(
                 onBack: goBack,
+                onSource: openSource,
                 onRegenerate: showGeneratedChapterDetail
             )
         case .profile:

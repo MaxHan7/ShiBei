@@ -655,6 +655,7 @@ struct V2NotificationView: View {
 
 struct V2NotificationFailureDetailView: View {
     let onBack: () -> Void
+    let onSource: () -> Void
     let onRegenerate: () -> Void
 
     var body: some View {
@@ -674,7 +675,10 @@ struct V2NotificationFailureDetailView: View {
                         .position(x: geometry.size.width / 2 + 3, y: 164)
                         .zIndex(1)
 
-                    V2NotificationFailureDetailCard(onRegenerate: onRegenerate)
+                    V2NotificationFailureDetailCard(
+                        onSource: onSource,
+                        onRegenerate: onRegenerate
+                    )
                         .position(x: geometry.size.width / 2, y: 402)
                         .zIndex(2)
                 }
@@ -707,6 +711,7 @@ struct V2NotificationFailureDetailView: View {
 }
 
 private struct V2NotificationFailureDetailCard: View {
+    let onSource: () -> Void
     let onRegenerate: () -> Void
 
     private let failureAccent = Color(hex: 0xF69582)
@@ -732,21 +737,20 @@ private struct V2NotificationFailureDetailCard: View {
                     .scaledToFit()
                     .frame(width: 34, height: 34)
 
-                VStack(alignment: .leading, spacing: 7) {
-                    Text("章节生成失败")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(failureTitle)
-
-                    Text("Claude Code Hooks 深度解析")
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(failureBody)
-                        .lineLimit(2)
-                        .lineSpacing(4)
-                }
-                .padding(.top, 1)
+                Text("章节生成失败")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(failureTitle)
+                    .padding(.top, 5)
             }
             .padding(.leading, 23)
             .padding(.top, 28)
+
+            V2NotificationFailureSourceButton(
+                accent: failureAccent,
+                shadow: failureAccentShadow,
+                action: onSource
+            )
+            .position(x: 249, y: 45)
 
             V2NotificationFailureReasonCard()
                 .position(x: 163, y: 150)
@@ -766,6 +770,42 @@ private struct V2NotificationFailureDetailCard: View {
             .position(x: 160.5, y: 237)
         }
         .frame(width: V2Layout.contentMaxWidth, height: 277)
+    }
+}
+
+private struct V2NotificationFailureSourceButton: View {
+    let accent: Color
+    let shadow: V2ShadowSpec
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                ZStack {
+                    Circle()
+                        .fill(accent)
+                        .frame(width: 23, height: 23)
+
+                    Image(systemName: "link")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(V2Color.surfaceCream)
+                }
+
+                Text("原文链接")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(accent)
+            }
+            .padding(.leading, 7)
+            .padding(.trailing, 9)
+            .frame(height: 34)
+            .background(
+                Capsule()
+                    .fill(V2Color.feedbackWrongFill)
+                    .v2Shadow(shadow)
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("打开原文链接")
     }
 }
 
