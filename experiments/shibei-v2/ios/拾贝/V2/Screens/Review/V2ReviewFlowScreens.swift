@@ -969,13 +969,10 @@ private struct V2SourceArticleBlockView: View {
 }
 
 struct V2ChapterDetailView: View {
+    let chapter: V2ReviewChapterData
     let onBack: () -> Void
     let onContinue: () -> Void
     let onSource: () -> Void
-
-    private var chapter: V2ReviewChapterData {
-        V2ReviewFixture.chapter
-    }
 
     private var totalQuestionCount: Int {
         chapter.units.reduce(0) { $0 + $1.questions.count }

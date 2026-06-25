@@ -107,6 +107,42 @@ npm --prefix experiments/shibei-v2/backend run smoke:v2:queue -- --mode permanen
 
 **目标**：把 V2 App 安装到手机，通过本地 Mac 后端跑完整流程。
 
+**本地后端启动**：
+
+```bash
+# 1. 查 Mac 在当前 Wi-Fi 下的局域网 IP。
+ipconfig getifaddr en0
+
+# 2. 启动 V2 backend server。
+npm --prefix experiments/shibei-v2/backend run dev
+
+# 3. 另开一个终端启动 worker。
+npm --prefix experiments/shibei-v2/backend run worker
+
+# 4. 用手机能访问的地址检查健康状态。
+curl http://<Mac局域网IP>:5273/api/health
+```
+
+**模型 key 配置原则**：
+
+- 不把 `DEEPSEEK_API_KEY` 写进 Git 仓库。
+- 本地测试可以使用当前终端临时环境变量，或使用已经被 `.gitignore` 排除的本机 `.env.local`。
+- 提交前必须确认 `git status --short` 没有出现包含 key 的文件。
+
+**Xcode 真机配置**：
+
+1. 打开 `experiments/shibei-v2/ios/拾贝.xcodeproj`。
+2. 选择连接的数据线 iPhone 设备。
+3. `Product -> Scheme -> Edit Scheme -> Run -> Arguments` 增加：
+
+```text
+-ShibeiV2APIBaseURL
+http://<Mac局域网IP>:5273
+```
+
+4. 首次运行时，如果 iOS 弹出“本地网络”权限弹窗，允许访问。
+5. 如果之前点了拒绝，到 iOS 设置里找到拾贝 V2，打开“本地网络”权限。
+
 **步骤**：
 
 1. 确认手机和 Mac 在同一 Wi-Fi。
@@ -119,6 +155,17 @@ npm --prefix experiments/shibei-v2/backend run smoke:v2:queue -- --mode permanen
 8. 检查正在生成详情页是否显示真实进度。
 9. 生成完成后进入章节详情和题目流。
 10. 测试失败场景和重试场景。
+
+**验收标准**：
+
+- App 能从真机请求 `http://<Mac局域网IP>:5273/api/health` 对应的后端。
+- 上传页输入为空时不创建任务，并显示用户可理解提示。
+- 点击“开始生成”后进入正在生成详情页。
+- 生成开始弹窗关闭后，仍停留在正在生成详情页。
+- 生成详情页进度条和文案随后端 `generationProgress` 更新。
+- 全部章节页出现对应的生成中章节卡片。
+- 后端完成后，生成中章节转为真实章节数据，章节详情页、查看原文和复习题流使用真实后端内容。
+- 失败时展示用户可理解的失败文案，后续可进入失败通知详情。
 
 ## Checkpoint 5：服务器替换前验收
 
@@ -143,4 +190,3 @@ npm --prefix experiments/shibei-v2/backend run smoke:v2:queue -- --mode permanen
 - 如果真机不弹 local network 权限或权限被拒，需要到 iOS 设置里检查本 App 的“本地网络”开关。
 - 当前 iOS 已能映射 V2 chapter，但真实复习进度持久化仍主要沿用 fixture 状态；后续需要把 review session 也接到 V2 后端状态。
 - 服务器替换前必须把本地 HTTP 切成生产 HTTPS。
-

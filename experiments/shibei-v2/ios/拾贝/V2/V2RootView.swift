@@ -65,6 +65,7 @@ struct V2RootView: View {
                 showsGeneratingChapterCard: showsGeneratingChapterCard,
                 generatingChapterTitle: backendChapter?.title ?? "正在生成新的章节",
                 generatingProgressText: generationDisplayText,
+                generatedChapter: backendReviewChapter,
                 openGeneratingChapter: { pushRoute(.generatingChapterDetail) },
                 openChapter: { pushRoute(.chapterDetail) }
             )
@@ -105,11 +106,14 @@ struct V2RootView: View {
             V2GeneratingChapterDetailView(
                 progress: backendChapter?.progress?.progress ?? 0,
                 statusText: generationDisplayText,
+                isCompleted: backendReviewChapter != nil,
                 onBack: goBack,
-                onSource: openSource
+                onSource: openSource,
+                onOpenChapter: { replaceRoute(.chapterDetail) }
             )
         case .chapterDetail:
             V2ChapterDetailView(
+                chapter: activeChapter,
                 onBack: goBack,
                 onContinue: continueFromChapterDetail,
                 onSource: openSource
@@ -449,11 +453,9 @@ struct V2RootView: View {
 
     private func startV2Generation(sourceText: String) {
         let trimmed = sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
-        let localTestFallback = [
-            "游戏化不是简单地给产品加积分、徽章或排行榜。",
-            "更重要的是理解用户动机、行为目标和反馈机制之间的关系。",
-            "DMC 模型可以帮助设计者把动机、机制和组件拆开分析。"
-        ].joined(separator: "\n")
+        guard !trimmed.isEmpty else {
+            return
+        }
 
         selectedTab = .materials
         routeStack.removeAll()
@@ -470,7 +472,7 @@ struct V2RootView: View {
 
         Task {
             do {
-                let response = try await apiClient.createV2Chapter(sourceText: trimmed.isEmpty ? localTestFallback : trimmed)
+                let response = try await apiClient.createV2Chapter(sourceText: trimmed)
                 await MainActor.run {
                     applyBackendChapter(response.chapter)
                 }
@@ -518,6 +520,9 @@ struct V2RootView: View {
         }
         if chapter.progress?.status == "completed" || chapter.status == "completed" {
             showsGeneratingChapterCard = false
+            if route == .generatingChapterDetail {
+                generationErrorText = ""
+            }
         }
     }
 

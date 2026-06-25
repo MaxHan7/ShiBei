@@ -48,6 +48,7 @@ struct V2MaterialsView: View {
     let showsGeneratingChapterCard: Bool
     let generatingChapterTitle: String
     let generatingProgressText: String
+    let generatedChapter: V2ReviewChapterData?
     let openGeneratingChapter: () -> Void
     let openChapter: () -> Void
 
@@ -82,6 +83,19 @@ struct V2MaterialsView: View {
                     }
                     .buttonStyle(.plain)
                     .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
+                if let generatedChapter {
+                    Button(action: openChapter) {
+                        V2ChapterCard(
+                            title: generatedChapter.title,
+                            status: .notStarted,
+                            source: generatedChapter.sourceURL.isEmpty ? "粘贴文字" : "网页文章",
+                            knowledgeCount: generatedChapter.units.count,
+                            questionCount: generatedChapter.units.reduce(0) { $0 + $1.questions.count }
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
 
                 Button(action: openChapter) {
@@ -124,8 +138,10 @@ struct V2MaterialsView: View {
 struct V2GeneratingChapterDetailView: View {
     let progress: Double
     let statusText: String
+    let isCompleted: Bool
     let onBack: () -> Void
     let onSource: () -> Void
+    let onOpenChapter: () -> Void
 
     var body: some View {
         V2FlowScreen(
@@ -150,7 +166,9 @@ struct V2GeneratingChapterDetailView: View {
                     V2GeneratingChapterDetailCard(
                         progress: CGFloat(progress),
                         statusText: statusText,
-                        onSource: onSource
+                        isCompleted: isCompleted,
+                        onSource: onSource,
+                        onOpenChapter: onOpenChapter
                     )
                     .position(x: geometry.size.width / 2, y: 432.5)
                     .zIndex(2)
@@ -187,6 +205,7 @@ struct V2UploadView: View {
     @Binding var selectedTab: V2HomeTab
     let onGenerate: (String) -> Void
     @State private var sourceText = ""
+    @State private var validationMessage = ""
 
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "上传") {
@@ -209,7 +228,20 @@ struct V2UploadView: View {
                         .foregroundStyle(V2Color.primaryAction)
 
                     V2PrimaryActionButton(title: "开始生成") {
-                        onGenerate(sourceText)
+                        let trimmed = sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
+                        guard !trimmed.isEmpty else {
+                            validationMessage = "请先粘贴文章链接或正文"
+                            return
+                        }
+                        validationMessage = ""
+                        onGenerate(trimmed)
+                    }
+
+                    if !validationMessage.isEmpty {
+                        Text(validationMessage)
+                            .font(V2Typography.label)
+                            .foregroundStyle(V2Color.feedbackWrongBorder)
+                            .frame(maxWidth: .infinity, alignment: .center)
                     }
                 }
             }

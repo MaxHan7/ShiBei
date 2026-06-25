@@ -970,7 +970,9 @@ private struct V2ChapterSourceDocumentShape: Shape {
 struct V2GeneratingChapterDetailCard: View {
     let progress: CGFloat
     let statusText: String
+    let isCompleted: Bool
     let onSource: () -> Void
+    let onOpenChapter: () -> Void
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -1001,8 +1003,24 @@ struct V2GeneratingChapterDetailCard: View {
             V2GeneratingProgressBar(progress: progress)
                 .frame(width: 280, height: 43)
                 .offset(x: 21, y: 146)
+
+            if isCompleted {
+                Button(action: onOpenChapter) {
+                    Text("查看章节")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 180, height: 36)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(V2Color.primaryAction)
+                                .shadow(color: V2Color.primaryAction.opacity(0.28), radius: 3, x: 0, y: 4)
+                        )
+                }
+                .buttonStyle(.plain)
+                .offset(x: 74.5, y: 184)
+            }
         }
-        .frame(width: V2Layout.contentMaxWidth, height: 223)
+        .frame(width: V2Layout.contentMaxWidth, height: isCompleted ? 243 : 223)
     }
 }
 
