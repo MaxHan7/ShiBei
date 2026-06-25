@@ -38,6 +38,7 @@ struct V2TabScaffold<Content: View>: View {
                 }
                 .zIndex(20)
             }
+            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
     }
 }
@@ -45,6 +46,9 @@ struct V2TabScaffold<Content: View>: View {
 struct V2MaterialsView: View {
     @Binding var selectedTab: V2HomeTab
     let showsGeneratingChapterCard: Bool
+    let generatingChapterTitle: String
+    let generatingProgressText: String
+    let openGeneratingChapter: () -> Void
     let openChapter: () -> Void
 
     var body: some View {
@@ -66,14 +70,17 @@ struct V2MaterialsView: View {
                 .padding(.bottom, 16)
 
                 if showsGeneratingChapterCard {
-                    V2ChapterCard(
-                        title: "Anthropic设计总监：为什么您的整个团队都应该使用AI Agents协同工作",
-                        status: .generating,
-                        source: "网页文章",
-                        knowledgeCount: 0,
-                        questionCount: 0,
-                        generationProgressText: "正在生成知识点..."
-                    )
+                    Button(action: openGeneratingChapter) {
+                        V2ChapterCard(
+                            title: generatingChapterTitle,
+                            status: .generating,
+                            source: "网页文章",
+                            knowledgeCount: 0,
+                            questionCount: 0,
+                            generationProgressText: generatingProgressText
+                        )
+                    }
+                    .buttonStyle(.plain)
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
@@ -114,9 +121,72 @@ struct V2MaterialsView: View {
     }
 }
 
+struct V2GeneratingChapterDetailView: View {
+    let progress: Double
+    let statusText: String
+    let onBack: () -> Void
+    let onSource: () -> Void
+
+    var body: some View {
+        V2FlowScreen(
+            title: "章节详情",
+            titleFont: .system(size: 22, weight: .bold),
+            titleColor: Color(hex: 0x575757),
+            onBack: onBack
+        ) {
+            GeometryReader { geometry in
+                ZStack(alignment: .topLeading) {
+                    generatingDetailDecorations(in: geometry.size)
+
+                    Image("V2GeneratingChapterMascot")
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFit()
+                        .frame(width: 275, height: 255)
+                        .position(x: geometry.size.width / 2 - 3, y: 174.5)
+                        .allowsHitTesting(false)
+                        .zIndex(1)
+
+                    V2GeneratingChapterDetailCard(
+                        progress: CGFloat(progress),
+                        statusText: statusText,
+                        onSource: onSource
+                    )
+                    .position(x: geometry.size.width / 2, y: 432.5)
+                    .zIndex(2)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            }
+            .frame(height: 760)
+        }
+    }
+
+    @ViewBuilder
+    private func generatingDetailDecorations(in size: CGSize) -> some View {
+        Image("V2BgDecoSmallPlantCluster")
+            .resizable()
+            .renderingMode(.original)
+            .scaledToFit()
+            .frame(width: 59.5)
+            .opacity(0.64)
+            .position(x: size.width - 24, y: 631)
+            .allowsHitTesting(false)
+
+        Image("V2BgDecoLeftHillPlant")
+            .resizable()
+            .renderingMode(.original)
+            .scaledToFit()
+            .frame(width: 108.5)
+            .opacity(0.52)
+            .position(x: 37, y: 730)
+            .allowsHitTesting(false)
+    }
+}
+
 struct V2UploadView: View {
     @Binding var selectedTab: V2HomeTab
-    let onGenerate: () -> Void
+    let onGenerate: (String) -> Void
+    @State private var sourceText = ""
 
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "上传") {
@@ -124,15 +194,23 @@ struct V2UploadView: View {
                 V2UploadBackgroundDecorations()
                     .allowsHitTesting(false)
 
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        V2Keyboard.dismiss()
+                    }
+
                 VStack(spacing: V2UploadPageMetrics.verticalSpacing) {
-                    V2UploadMascotInputGroup()
+                    V2UploadMascotInputGroup(urlText: $sourceText)
                         .padding(.top, V2UploadPageMetrics.groupTopPadding)
 
                     Text("播客与视频功能即将上线")
                         .font(V2Typography.label)
                         .foregroundStyle(V2Color.primaryAction)
 
-                    V2PrimaryActionButton(title: "开始生成", action: onGenerate)
+                    V2PrimaryActionButton(title: "开始生成") {
+                        onGenerate(sourceText)
+                    }
                 }
             }
             .frame(minHeight: V2UploadPageMetrics.contentHeight, alignment: .top)
@@ -141,6 +219,8 @@ struct V2UploadView: View {
 }
 
 private struct V2UploadMascotInputGroup: View {
+    @Binding var urlText: String
+
     var body: some View {
         GeometryReader { proxy in
             let width = min(proxy.size.width, V2UploadMascotInputMetrics.maxWidth)
@@ -157,7 +237,7 @@ private struct V2UploadMascotInputGroup: View {
                     )
                     .zIndex(0)
 
-                V2UploadLinkInputCard()
+                V2UploadLinkInputCard(urlText: $urlText)
                     .frame(width: width, height: V2UploadInputCardMetrics.cardHeight)
                     .position(
                         x: width / 2,
@@ -184,7 +264,8 @@ private struct V2UploadMascotInputGroup: View {
 }
 
 private struct V2UploadLinkInputCard: View {
-    @State private var urlText = ""
+    @Binding var urlText: String
+    @FocusState private var isURLFieldFocused: Bool
 
     var body: some View {
         VStack(alignment: .center, spacing: V2UploadInputCardMetrics.titleToFieldSpacing) {
@@ -212,6 +293,11 @@ private struct V2UploadLinkInputCard: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .keyboardType(.URL)
+                    .submitLabel(.done)
+                    .focused($isURLFieldFocused)
+                    .onSubmit {
+                        isURLFieldFocused = false
+                    }
 
                 Spacer(minLength: 0)
             }
@@ -271,6 +357,12 @@ private enum V2UploadPageMetrics {
     static let groupTopPadding: CGFloat = 28
     static let verticalSpacing: CGFloat = 22
     static let contentHeight: CGFloat = 520
+}
+
+private enum V2Keyboard {
+    static func dismiss() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
 }
 
 private enum V2UploadMascotInputMetrics {
@@ -584,6 +676,16 @@ struct V2NotificationFailureDetailView: View {
 private struct V2NotificationFailureDetailCard: View {
     let onRegenerate: () -> Void
 
+    private let failureAccent = Color(hex: 0xF69582)
+    private let failureTitle = Color(hex: 0x575757)
+    private let failureBody = Color(hex: 0x69655F)
+    private let failureAccentShadow = V2ShadowSpec(
+        color: Color(hex: 0xF69582).opacity(0.2),
+        radius: 2,
+        x: 0,
+        y: 4
+    )
+
     var body: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
@@ -600,11 +702,11 @@ private struct V2NotificationFailureDetailCard: View {
                 VStack(alignment: .leading, spacing: 7) {
                     Text("章节生成失败")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Color(hex: 0x44423D))
+                        .foregroundStyle(failureTitle)
 
                     Text("Claude Code Hooks 深度解析")
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(Color(hex: 0x69655F))
+                        .foregroundStyle(failureBody)
                         .lineLimit(2)
                         .lineSpacing(4)
                 }
@@ -623,8 +725,8 @@ private struct V2NotificationFailureDetailCard: View {
                     .frame(width: 207, height: 28)
                     .background(
                         RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .fill(V2Color.primaryAction)
-                            .v2Shadow()
+                            .fill(failureAccent)
+                            .v2Shadow(failureAccentShadow)
                     )
             }
             .buttonStyle(.plain)
@@ -635,11 +737,21 @@ private struct V2NotificationFailureDetailCard: View {
 }
 
 private struct V2NotificationFailureReasonCard: View {
+    private let failureAccent = Color(hex: 0xF69582)
+    private let failureTitle = Color(hex: 0x575757)
+    private let failureBody = Color(hex: 0x69655F)
+    private let failureAccentShadow = V2ShadowSpec(
+        color: Color(hex: 0xF69582).opacity(0.2),
+        radius: 2,
+        x: 0,
+        y: 4
+    )
+
     var body: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(V2Color.surfaceCream)
-                .v2Shadow()
+                .v2Shadow(failureAccentShadow)
 
             Image("V2NotificationFailureReasonIcon")
                 .resizable()
@@ -649,18 +761,18 @@ private struct V2NotificationFailureReasonCard: View {
                 .position(x: 28, y: 32)
 
             Circle()
-                .fill(Color(hex: 0xF69582))
+                .fill(failureAccent)
                 .frame(width: 5, height: 5)
                 .position(x: 28.5, y: 59)
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("失败原因")
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color(hex: 0x44423D))
+                    .foregroundStyle(failureTitle)
 
                 Text("当前链接正文提取失败，可能是网页暂时无法访问，或正文格式还不支持。")
                     .font(.system(size: 11, weight: .regular))
-                    .foregroundStyle(Color(hex: 0x69655F))
+                    .foregroundStyle(failureBody)
                     .lineSpacing(4)
                     .fixedSize(horizontal: false, vertical: true)
             }

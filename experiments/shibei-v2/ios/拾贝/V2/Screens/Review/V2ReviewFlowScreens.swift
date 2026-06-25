@@ -766,13 +766,10 @@ private struct V2ChapterCompletionResultCard: View {
 }
 
 struct V2SourceArticleView: View {
+    let chapter: V2ReviewChapterData
     let question: V2ReviewQuestionData?
     let onBack: () -> Void
     @Environment(\.openURL) private var openURL
-
-    private var chapter: V2ReviewChapterData {
-        V2ReviewFixture.chapter
-    }
 
     private var highlightedBlockID: String? {
         guard let excerpt = question?.sourceExcerpt else {
@@ -1318,7 +1315,7 @@ private struct V2ChapterDetailKnowledgeCard: View {
 
             VStack(spacing: 10) {
                 ForEach(Array(visibleUnits.enumerated()), id: \.element.id) { index, unit in
-                    VStack(spacing: 8) {
+                    VStack(alignment: .leading, spacing: 8) {
                         V2ChapterDetailKnowledgeRow(
                             index: index + 1,
                             title: unit.title,
@@ -1425,48 +1422,39 @@ private struct V2ChapterDetailKnowledgeExpansionPanel: View {
     let action: () -> Void
 
     var body: some View {
-        HStack(spacing: 0) {
-            Spacer()
-                .frame(width: 4)
+        VStack(alignment: .leading, spacing: 0) {
+            Text(overview)
+                .font(.system(size: 11, weight: .regular))
+                .foregroundStyle(Color(hex: 0x575757))
+                .lineSpacing(6)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(width: 232, alignment: .topLeading)
+                .padding(.top, 23)
+                .padding(.leading, 20)
 
-            VStack(alignment: .leading, spacing: 0) {
-                Text(overview)
-                    .font(.system(size: 11, weight: .regular))
-                    .foregroundStyle(Color(hex: 0x575757))
-                    .lineSpacing(6)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(width: 232, alignment: .topLeading)
-                    .padding(.top, 23)
-                    .padding(.leading, 20)
-
-                Button(action: action) {
-                    Text(actionTitle)
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .tracking(-0.24)
-                        .frame(width: 215, height: 28)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(V2Color.primaryAction)
-                                .v2Shadow()
-                        )
-                }
-                .buttonStyle(.plain)
-                .frame(maxWidth: .infinity)
-                .padding(.top, 18)
-                .padding(.bottom, 12)
+            Button(action: action) {
+                Text(actionTitle)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .tracking(-0.24)
+                    .frame(width: 215, height: 28)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(V2Color.primaryAction)
+                            .v2Shadow()
+                    )
             }
-            .frame(width: 274, alignment: .topLeading)
-            .background(
-                RoundedRectangle(cornerRadius: 15, style: .continuous)
-                    .fill(V2Color.surfaceCream)
-                    .v2Shadow()
-            )
-
-            Spacer()
-                .frame(width: 4)
+            .buttonStyle(.plain)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 18)
+            .padding(.bottom, 12)
         }
-        .frame(width: 282, alignment: .topLeading)
+        .frame(width: 274, alignment: .topLeading)
+        .background(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .v2Shadow()
+        )
         .fixedSize(horizontal: false, vertical: true)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("知识点详情")

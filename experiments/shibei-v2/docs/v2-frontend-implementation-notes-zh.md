@@ -375,7 +375,7 @@ ZStack {
 - 用户指出 Figma 中失败 icon 曾被拖歪；开发端应把状态 icon 视觉居中放在圆形底中心，而不是照抄该偏移。
 - 右上 IP 属于通知页专用 mascot state，SwiftUI/Xcode 阶段应引用 `notification-mascot` 资产，不能再使用 `mascot-static` 占位。
 - 通知跳转逻辑：章节生成成功通知点击后直接进入章节详情页；章节生成失败通知点击后进入生成失败通知详情页，而不是章节详情。
-- 生成失败通知详情页参考：用户提供整页 SVG `581:1776`、IP 素材 `notification-failure-detail-mascot.svg`、失败 icon `notification-failure-detail-icon.svg`、失败原因灯泡 icon `notification-failure-reason-icon.svg`。整页 SVG 只用于读取位置关系，不整图使用。页面标题按全局 top bar 规范显示为“通知详情”；主卡 `321 x 277 rx=15`，底色 `#FDFAF2`，标准绿色投影；IP `188 x 206` 居中压在主卡上方；内部失败原因卡 `280 x 95 rx=10`，按钮 `207 x 28 rx=10`、填充 `#A5AE66`、白色文字。点击“重新生成”复用当前开始生成流程：切到全部章节页、显示生成说明弹窗、点“知道了”后插入生成中卡片。
+- 生成失败通知详情页参考：用户提供整页 SVG `581:1776`、IP 素材 `notification-failure-detail-mascot.svg`、失败 icon `notification-failure-detail-icon.svg`、失败原因灯泡 icon `notification-failure-reason-icon.svg`，并补充新版失败详情卡 `329 x 310` SVG。整页 SVG 只用于读取位置关系，不整图使用。页面标题按全局 top bar 规范显示为“通知详情”；主卡底色 `#FDFAF2`、标准绿色投影；IP `188 x 206` 居中压在主卡上方。新版失败视觉体系：主标题和失败原因标题为 `#575757`，正文为 `#69655F`；内部失败原因卡 `280 x 95 rx=10`、底色 `#FDFAF2`、阴影改为红色 `#F69582` `20%`、`dy=4 blur=2`；“重新生成”按钮 `207 x 28 rx=10`、填充 `#F69582`、白色文字，按钮阴影也使用同一套红色失败阴影。点击“重新生成”复用当前开始生成流程：进入生成详情页、显示生成说明弹窗、点“知道了”后插入生成中卡片。
 
 SwiftUI 建议组件：
 
@@ -464,9 +464,12 @@ Figma 精确读取到的结构：
 - 章节卡标题：`如何把AI Agent用到你的生意经`。
 - 元信息：左侧 `网页文章`，右侧 `8个知识点 19道题`。
 - 本轮整卡参考节点：`451:1261`。整卡 `321 x 136`、圆角 `15`、底色 `#FDFAF2`、阴影 `0 4 4 #98A35E33`。标题 `16 Medium #383838`，元信息 `11 Regular #ACACAC`。
-- 整卡内状态 tag 位于左上区域，复用 `V2ChapterStatusTag`；左下来源 icon 使用 `chapter-source-icon.svg`，来源文字和右下数量信息由真实 `Text` 渲染。
-- 生成中章节卡参考：用户提供 `581:1725` SVG。整卡仍复用 `V2ChapterCard` 的 `321 x 136` 规格、`rx=15`、`#FDFAF2` 和标准绿色投影；新增 `generating` 状态 tag，规格 `55 x 22`、圆角 `11`、底色 `#FEF5F0`、文字色 `#F36454`、文案“生成中”。生成中卡片的主标题区不显示文章标题，而显示当前生成进度，例如“正在提取正文...”“正在生成知识点...”“正在生成题目...”；右下角不显示“几个知识点 / 几道题”，因为生成完成前这些数量尚未确定。
-- 开始生成确认弹窗参考：用户提供 `581:1739` 整体参考 SVG、`generating-popup-mascot.svg` 和 `generating-popup-wave.svg`。全卡 SVG 只用于读取层级和位置，不作为整图资产。用户从上传页或推荐文章入口点击“开始生成”后，App 自动切到全部章节页；原页面内容上覆盖纯黑 `20%` 透明遮罩；遮罩之上显示居中弹窗。弹窗主体用代码绘制，IP 使用 `generating-popup-mascot.svg`，底部波浪使用 `generating-popup-wave.svg`。用户点击“知道了”后，先关闭弹窗和遮罩，再用短动画插入 `V2ChapterCard(generating)`，表示该章节正在生成。
+- 整卡内状态 tag 位于左上区域，复用 `V2ChapterStatusTag`；左下来源 icon 按卡片 SVG 中的灰色 document path 代码绘制，视觉尺寸约 `10 x 12`、描边 `#ACACAC`，外层保留 `20 x 20` 排版画布，避免误用旧绿色 `chapter-source-icon.svg` 后出现过大/偏绿；来源文字和右下数量信息由真实 `Text` 渲染。
+- 生成中章节卡参考：用户提供 `614:1575` 相关 SVG 和 Figma 节点。整卡仍复用 `V2ChapterCard` 的 `321 x 136` 规格、`rx=15`、`#FDFAF2` 和标准绿色投影；`generating` 状态 tag 规格 `55 x 22`、圆角 `11`、底色 `#C7E1FF`、文字色 `#469CFF`、文案“生成中”。生成中卡片的主标题区不显示文章标题，而显示当前生成进度，例如“正在提取知识点...”“正在生成题目...”；右下角不显示“几个知识点 / 几道题”，因为生成完成前这些数量尚未确定。生成中卡片是可点击入口，点击后进入 `V2GeneratingChapterDetailView`。
+- 开始生成确认弹窗参考：用户提供 `581:1739` 整体参考 SVG、文字参考 `115 x 42`、`generating-popup-mascot.svg` 和 `generating-popup-wave.svg`。全卡 SVG 只用于读取层级和位置，不作为整图资产。用户从上传页或推荐文章入口点击“开始生成”后，App 自动进入生成中章节详情页 `V2GeneratingChapterDetailView`；该详情页上覆盖纯黑 `20%` 透明遮罩；遮罩之上显示居中弹窗。弹窗主体用代码绘制，IP 使用 `generating-popup-mascot.svg`，底部波浪使用 `generating-popup-wave.svg`。弹窗文字不额外加标题，固定为两行 `16 regular #575757`：“章节正在生成中，/ 完成后会通知你”。用户点击“知道了”后，关闭弹窗和遮罩，用户仍停留在生成详情页；同时用短动画在全部章节页列表插入 `V2ChapterCard(generating)`，表示该章节正在生成。
+- 生成详情页参考：Figma 节点 `614:1575`。页面标题为“章节详情”，使用统一顶部标题和返回按钮规范，当前与通知/通知详情页同为 `22 bold #575757`。顶部 IP 使用用户单独提供的 `V2GeneratingChapterMascot` SVG 资产；页面主体卡参考 group `614:1628`，位置约为 `x=48, y=395, width=321, height=223`，卡片代码绘制，不整图切片。主体卡内标题“章节正在生成”为 `16 medium #575757`，位于 `x≈107, y≈413`；状态文案“正在提取知识点...”位于 `x≈69, y≈493`；进度条实例位于 `x≈71, y≈541, width=272, height=43`；右上“原文链接”胶囊位于 `x≈253, y≈415`。这些坐标用于校准相对位置，正式 SwiftUI 仍要按安全区和页面 margin 约束。
+- 生成详情页进度条参考 SVG：外框 `280 x 43`，真实轨道 `x=4 y=16 width=272 height=11 rx=5.5`；轨道填充 `#FCF8ED`，进度填充 `#ADD3FF`，阴影颜色 `#ADD3FF`、`dy=4 blur=2 opacity=0.2`。进度条是代码组件 `V2GeneratingProgressBar(progress:)`，不要存为整条 SVG。
+- 生成详情页进度数据来自后端 `generationProgress`：前端展示 `displayText` 和粗略 `progress`，不直接展示 `queued/running/retrying` 等机器状态。后续接真实队列后，`mapping_knowledge` 可展示“正在总结知识点”，`generating_questions` 可展示“正在为「知识点标题」生成题目”或“正在为单元二生成题目”。
 - 通知权限请求逻辑：如果这是用户第一次发起生成，点击生成确认弹窗里的“知道了”后，应触发 iOS 系统通知权限弹窗，用户可以允许或拒绝。该请求只在首次生成时触发一次；如果系统权限状态已经是已允许、已拒绝或之前已经请求过，则不重复打扰。SwiftUI 当前用本地 `@AppStorage` 标记 `v2.hasRequestedGenerationNotificationPermission`，后续接真实账号后可迁移为用户级状态。
 
 章节卡状态规范：
@@ -484,7 +487,7 @@ Figma 精确读取到的结构：
 - 章节列表抽象为 `ChapterList`。
 - 每个章节卡抽象为 `ChapterCard`，不同状态切换 tag 的文案、底色和文字色；`generating` 还会切换标题区域为生成进度文本，并隐藏右下统计。
 - 章节卡本体、文字、tag、元信息布局都应由 SwiftUI 真实组件绘制；IP 和背景装饰可以使用 SVG/PDF 资产。
-- `chapter-source-icon.svg` 是可以精确读取并下载到的素材；后续应进入 Xcode asset catalog，不依赖 Figma 临时 URL。
+- `chapter-source-icon.svg` 是早期下载资产；当前章节卡左下来源 icon 以最新卡片 SVG 的灰色 path 为准，在 SwiftUI 中代码绘制，不再直接渲染该绿色资产。
 - 生成中确认弹窗的 `generating-popup-mascot.svg`、`generating-popup-wave.svg` 是直接资产；遮罩、弹窗底卡、文字和“知道了”按钮由代码绘制。
 
 SwiftUI 建议组件：

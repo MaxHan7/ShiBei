@@ -11,6 +11,12 @@ struct V2RootView: View {
     @State private var showsGenerationStartedDialog = false
     @State private var showsGeneratingChapterCard = false
     @State private var questionInteractionStates: [String: V2QuestionInteractionState] = [:]
+    @State private var backendChapter: V2BackendChapter?
+    @State private var backendReviewChapter: V2ReviewChapterData?
+    @State private var generationPollingTask: Task<Void, Never>?
+    @State private var generationErrorText = ""
+
+    private let apiClient = APIClient()
 
     var body: some View {
         ZStack {
@@ -56,14 +62,16 @@ struct V2RootView: View {
         case .materials:
             V2MaterialsView(
                 selectedTab: $selectedTab,
-                showsGeneratingChapterCard: showsGeneratingChapterCard
-            ) {
-                pushRoute(.chapterDetail)
-            }
+                showsGeneratingChapterCard: showsGeneratingChapterCard,
+                generatingChapterTitle: backendChapter?.title ?? "正在生成新的章节",
+                generatingProgressText: generationDisplayText,
+                openGeneratingChapter: { pushRoute(.generatingChapterDetail) },
+                openChapter: { pushRoute(.chapterDetail) }
+            )
         case .upload:
             V2UploadView(
                 selectedTab: $selectedTab,
-                onGenerate: showGeneratedChapterDetail
+                onGenerate: startV2Generation
             )
         case .discover:
             V2DiscoverView(selectedTab: $selectedTab) {
@@ -93,6 +101,13 @@ struct V2RootView: View {
             )
         case .profile:
             V2ProfileView(onBack: goBack)
+        case .generatingChapterDetail:
+            V2GeneratingChapterDetailView(
+                progress: backendChapter?.progress?.progress ?? 0,
+                statusText: generationDisplayText,
+                onBack: goBack,
+                onSource: openSource
+            )
         case .chapterDetail:
             V2ChapterDetailView(
                 onBack: goBack,
@@ -100,7 +115,7 @@ struct V2RootView: View {
                 onSource: openSource
             )
         case .sourceArticle:
-            V2SourceArticleView(question: sourceQuestion, onBack: goBack)
+            V2SourceArticleView(chapter: activeChapter, question: sourceQuestion, onBack: goBack)
         case .recommendedArticle:
             V2RecommendedArticleDetailView(
                 onBack: goBack,
@@ -108,15 +123,15 @@ struct V2RootView: View {
             )
         case .chapterOverview:
             V2ChapterOverviewView(
-                chapter: V2ReviewFixture.chapter,
+                chapter: activeChapter,
                 onBack: goBack,
                 onContinue: openFirstUnit
             )
         case .unitOverview(let unitID):
-            if let unit = V2ReviewFixture.unit(id: unitID) {
+            if let unit = activeUnit(id: unitID) {
                 V2UnitOverviewView(
                     unit: unit,
-                    progress: V2ReviewFixture.progressIndex(unitID: unitID),
+                    progress: progressIndex(unitID: unitID),
                     onBack: goBack,
                     onContinue: { openFirstQuestion(in: unitID) }
                 )
@@ -124,9 +139,9 @@ struct V2RootView: View {
                 V2MissingRouteView(onBack: goBack)
             }
         case .question(let unitID, let questionID):
-            if let question = V2ReviewFixture.question(unitID: unitID, questionID: questionID) {
-                let progress = V2ReviewFixture.progressIndex(unitID: unitID, questionID: questionID)
-                let unitTitle = V2ReviewFixture.unitDisplayTitle(id: unitID) ?? question.title
+            if let question = activeQuestion(unitID: unitID, questionID: questionID) {
+                let progress = progressIndex(unitID: unitID, questionID: questionID)
+                let unitTitle = unitDisplayTitle(id: unitID) ?? question.title
                 switch question.kind {
                 case .multipleChoice:
                     V2MultipleChoiceQuestionView(
@@ -183,7 +198,7 @@ struct V2RootView: View {
                 V2MissingRouteView(onBack: goBack)
             }
         case .unitSummary(let unitID):
-            if let unit = V2ReviewFixture.unit(id: unitID) {
+            if let unit = activeUnit(id: unitID) {
                 V2UnitSummaryView(
                     unit: unit,
                     onBack: goBack,
@@ -194,7 +209,7 @@ struct V2RootView: View {
             }
         case .chapterSummary:
             V2ChapterSummaryView(
-                chapter: V2ReviewFixture.chapter,
+                chapter: activeChapter,
                 onBack: goBack,
                 onHome: { resetToHome(tab: .learning) },
                 onDetail: { pushRoute(.chapterDetail) }
@@ -209,7 +224,7 @@ struct V2RootView: View {
 
         switch sourceRoute {
         case .question(let unitID, let questionID):
-            return V2ReviewFixture.question(unitID: unitID, questionID: questionID)
+            return activeQuestion(unitID: unitID, questionID: questionID)
         case .savedQuestion(let index):
             guard let savedQuestion = V2ReviewFixture.savedQuestion(at: index) else {
                 return nil
@@ -237,11 +252,11 @@ struct V2RootView: View {
     }
 
     private func openFirstUnit() {
-        replaceRoute(.unitOverview(unitID: V2ReviewFixture.firstUnitID))
+        replaceRoute(.unitOverview(unitID: activeFirstUnitID))
     }
 
     private func openFirstQuestion(in unitID: String) {
-        guard let questionID = V2ReviewFixture.firstQuestionID(in: unitID) else {
+        guard let questionID = firstQuestionID(in: unitID) else {
             replaceRoute(.unitSummary(unitID: unitID))
             return
         }
@@ -251,7 +266,7 @@ struct V2RootView: View {
     private func continueAfterQuestion(unitID: String, questionID: String) {
         questionInteractionStates.removeValue(forKey: questionStateKey(unitID: unitID, questionID: questionID))
 
-        if let nextQuestion = V2ReviewFixture.nextQuestion(after: questionID, in: unitID) {
+        if let nextQuestion = nextQuestion(after: questionID, in: unitID) {
             replaceRoute(.question(unitID: unitID, questionID: nextQuestion.id))
         } else {
             replaceRoute(.unitSummary(unitID: unitID))
@@ -339,7 +354,7 @@ struct V2RootView: View {
     }
 
     private func continueAfterUnit(unitID: String) {
-        if let nextUnit = V2ReviewFixture.nextUnit(after: unitID) {
+        if let nextUnit = nextUnit(after: unitID) {
             replaceRoute(.unitOverview(unitID: nextUnit.id))
         } else {
             replaceRoute(.chapterSummary)
@@ -350,17 +365,166 @@ struct V2RootView: View {
         let currentNodeID = V2HomeFixture.home.currentNodeID
         selectedTab = .learning
         routeStack.removeAll()
-        if V2ReviewFixture.unit(id: currentNodeID) != nil {
+        if activeUnit(id: currentNodeID) != nil {
             replaceRoute(.unitOverview(unitID: currentNodeID))
         } else {
             openFirstUnit()
         }
     }
 
+    private var activeChapter: V2ReviewChapterData {
+        backendReviewChapter ?? V2ReviewFixture.chapter
+    }
+
+    private var activeFirstUnitID: String {
+        activeChapter.units.first?.id ?? ""
+    }
+
+    private var generationDisplayText: String {
+        if !generationErrorText.isEmpty {
+            return generationErrorText
+        }
+        return backendChapter?.progress?.displayTextOrFallback ?? "正在提交生成任务..."
+    }
+
+    private func activeUnit(id: String) -> V2ReviewUnitData? {
+        activeChapter.units.first { $0.id == id }
+    }
+
+    private func activeQuestion(unitID: String, questionID: String) -> V2ReviewQuestionData? {
+        activeUnit(id: unitID)?.questions.first { $0.id == questionID }
+    }
+
+    private func unitDisplayTitle(id: String) -> String? {
+        guard let index = activeChapter.units.firstIndex(where: { $0.id == id }) else {
+            return nil
+        }
+        return "单元\(index + 1)"
+    }
+
+    private func firstQuestionID(in unitID: String) -> String? {
+        activeUnit(id: unitID)?.questions.first?.id
+    }
+
+    private func nextQuestion(after questionID: String, in unitID: String) -> V2ReviewQuestionData? {
+        guard let questions = activeUnit(id: unitID)?.questions,
+              let index = questions.firstIndex(where: { $0.id == questionID }),
+              questions.indices.contains(index + 1) else {
+            return nil
+        }
+        return questions[index + 1]
+    }
+
+    private func nextUnit(after unitID: String) -> V2ReviewUnitData? {
+        if backendReviewChapter == nil,
+           V2ReviewFixture.completesChapterAfterCurrentFixtureUnit,
+           unitID == "unit-1" {
+            return nil
+        }
+
+        guard let index = activeChapter.units.firstIndex(where: { $0.id == unitID }),
+              activeChapter.units.indices.contains(index + 1) else {
+            return nil
+        }
+        return activeChapter.units[index + 1]
+    }
+
+    private func progressIndex(unitID: String, questionID: String? = nil) -> (current: Int, total: Int) {
+        let total = activeChapter.units.reduce(0) { $0 + $1.questions.count }
+        var current = 1
+
+        for unit in activeChapter.units {
+            if unit.id == unitID {
+                if let questionID,
+                   let questionIndex = unit.questions.firstIndex(where: { $0.id == questionID }) {
+                    current += questionIndex
+                }
+                return (current, max(total, 1))
+            }
+            current += unit.questions.count
+        }
+
+        return (current, max(total, 1))
+    }
+
+    private func startV2Generation(sourceText: String) {
+        let trimmed = sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let localTestFallback = [
+            "游戏化不是简单地给产品加积分、徽章或排行榜。",
+            "更重要的是理解用户动机、行为目标和反馈机制之间的关系。",
+            "DMC 模型可以帮助设计者把动机、机制和组件拆开分析。"
+        ].joined(separator: "\n")
+
+        selectedTab = .materials
+        routeStack.removeAll()
+        route = .generatingChapterDetail
+        showsGeneratingChapterCard = false
+        backendChapter = nil
+        backendReviewChapter = nil
+        generationErrorText = ""
+        generationPollingTask?.cancel()
+
+        withAnimation(.easeOut(duration: 0.18)) {
+            showsGenerationStartedDialog = true
+        }
+
+        Task {
+            do {
+                let response = try await apiClient.createV2Chapter(sourceText: trimmed.isEmpty ? localTestFallback : trimmed)
+                await MainActor.run {
+                    applyBackendChapter(response.chapter)
+                }
+                startGenerationPolling(chapterID: response.chapter.id)
+            } catch {
+                await MainActor.run {
+                    generationErrorText = error.localizedDescription
+                    showsGeneratingChapterCard = true
+                }
+            }
+        }
+    }
+
+    private func startGenerationPolling(chapterID: String) {
+        generationPollingTask?.cancel()
+        generationPollingTask = Task {
+            for _ in 0..<240 {
+                if Task.isCancelled {
+                    return
+                }
+
+                do {
+                    let chapter = try await apiClient.fetchV2Chapter(id: chapterID)
+                    await MainActor.run {
+                        applyBackendChapter(chapter)
+                    }
+                    if chapter.progress?.isFinished == true || chapter.status == "completed" || chapter.status == "failed_generation" {
+                        return
+                    }
+                } catch {
+                    await MainActor.run {
+                        generationErrorText = error.localizedDescription
+                    }
+                }
+
+                try? await Task.sleep(nanoseconds: 1_250_000_000)
+            }
+        }
+    }
+
+    private func applyBackendChapter(_ chapter: V2BackendChapter) {
+        backendChapter = chapter
+        if let reviewChapter = chapter.toReviewChapterData() {
+            backendReviewChapter = reviewChapter
+        }
+        if chapter.progress?.status == "completed" || chapter.status == "completed" {
+            showsGeneratingChapterCard = false
+        }
+    }
+
     private func showGeneratedChapterDetail() {
         selectedTab = .materials
         routeStack.removeAll()
-        route = nil
+        route = .generatingChapterDetail
         showsGeneratingChapterCard = false
         withAnimation(.easeOut(duration: 0.18)) {
             showsGenerationStartedDialog = true

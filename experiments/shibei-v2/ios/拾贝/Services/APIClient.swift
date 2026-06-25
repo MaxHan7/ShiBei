@@ -85,6 +85,24 @@ struct APIClient {
         return ChapterCreationResult(chapter: response.chapter, notification: response.notification)
     }
 
+    func createV2Chapter(sourceText: String) async throws -> V2CreateChapterResponse {
+        let trimmed = sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let isURL = URL(string: trimmed)?.scheme?.hasPrefix("http") == true
+        let request = V2CreateChapterRequest(
+            clientRequestId: "ios-v2-\(UUID().uuidString)",
+            sourceType: isURL ? "article_link" : "text",
+            sourceUrl: isURL ? trimmed : nil,
+            sourceTitle: isURL ? nil : String(trimmed.prefix(24)),
+            rawText: isURL ? nil : trimmed
+        )
+        return try await send("/api/v2/chapters", method: "POST", body: request, acceptsFailureBody: false)
+    }
+
+    func fetchV2Chapter(id: String) async throws -> V2BackendChapter {
+        let response: V2BackendChapterResponse = try await get("/api/chapters/\(id)")
+        return response.chapter
+    }
+
     func regenerateChapter(id: String) async throws -> ChapterCreationResult {
         let response: ChapterMutationResponse = try await send("/api/chapters/\(id)/regenerate", method: "POST", body: EmptyRequest(), acceptsFailureBody: true)
         return ChapterCreationResult(chapter: response.chapter, notification: response.notification)

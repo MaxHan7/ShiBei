@@ -749,6 +749,7 @@ function normalizeChapterSource(chapter, chapterId) {
     accountOrDomain,
     rawInput,
     extractedText,
+    blocks: normalizeV2SourceBlocks(source.blocks),
     chapterId,
     account: accountOrDomain,
     rawText: rawInput,
@@ -922,6 +923,85 @@ function normalizeQuestionOptions(options) {
   }));
 }
 
+function normalizeV2SourceBlocks(blocks) {
+  if (!Array.isArray(blocks)) return [];
+  return blocks.map((block, index) => ({
+    id: toStringValue(block?.id || `p-${String(index + 1).padStart(3, "0")}`),
+    type: toStringValue(block?.type || "paragraph"),
+    text: toStringValue(block?.text || "")
+  })).filter((block) => block.text);
+}
+
+function normalizeV2SummaryCard(summaryCard) {
+  if (!summaryCard || typeof summaryCard !== "object" || Array.isArray(summaryCard)) return null;
+  return {
+    text: toStringValue(summaryCard.text || ""),
+    ...(summaryCard.note ? { note: toStringValue(summaryCard.note) } : {})
+  };
+}
+
+function normalizeV2ChapterSummary(chapterSummary) {
+  if (!chapterSummary || typeof chapterSummary !== "object" || Array.isArray(chapterSummary)) return null;
+  return {
+    title: toStringValue(chapterSummary.title || "章节完成"),
+    statsText: toStringValue(chapterSummary.statsText || ""),
+    encouragementText: toStringValue(chapterSummary.encouragementText || "")
+  };
+}
+
+function normalizeV2Units(units) {
+  if (!Array.isArray(units)) return [];
+  return units.map((unit, index) => ({
+    id: toStringValue(unit?.id || `unit-${index + 1}`),
+    order: toIntegerValue(unit?.order, index + 1),
+    title: toStringValue(unit?.title || `知识点 ${index + 1}`),
+    nodeLabel: toStringValue(unit?.nodeLabel || unit?.title || ""),
+    shortSummary: toStringValue(unit?.shortSummary || ""),
+    detailSummary: toStringValue(unit?.detailSummary || ""),
+    why: toStringValue(unit?.why || ""),
+    sourceAnchor: normalizeV2SourceAnchor(unit?.sourceAnchor),
+    overview: {
+      text: toStringValue(unit?.overview?.text || unit?.overview || "")
+    },
+    questions: normalizeV2UnitQuestions(unit?.questions),
+    summary: {
+      title: toStringValue(unit?.summary?.title || "单元完成"),
+      text: toStringValue(unit?.summary?.text || "")
+    }
+  }));
+}
+
+function normalizeV2SourceAnchor(anchor) {
+  if (!anchor || typeof anchor !== "object" || Array.isArray(anchor)) return null;
+  return {
+    id: toStringValue(anchor.id || ""),
+    label: toStringValue(anchor.label || ""),
+    blockIds: Array.isArray(anchor.blockIds) ? anchor.blockIds.map((id) => toStringValue(id)).filter(Boolean) : [],
+    quote: toStringValue(anchor.quote || "")
+  };
+}
+
+function normalizeV2UnitQuestions(questions) {
+  if (!Array.isArray(questions)) return [];
+  return questions.map((question, index) => ({
+    id: toStringValue(question?.id || `q-${index + 1}`),
+    type: toStringValue(question?.type || "multiple_choice"),
+    stem: toStringValue(question?.stem || question?.prompt || ""),
+    options: normalizeQuestionOptions(question?.options),
+    correctOptionId: toStringValue(question?.correctOptionId || ""),
+    leftItems: normalizeQuestionOptions(question?.leftItems),
+    rightItems: normalizeQuestionOptions(question?.rightItems),
+    pairs: Array.isArray(question?.pairs)
+      ? question.pairs.map((pair) => ({
+        leftId: toStringValue(pair?.leftId || ""),
+        rightId: toStringValue(pair?.rightId || "")
+      })).filter((pair) => pair.leftId && pair.rightId)
+      : [],
+    explanation: toStringValue(question?.explanation || question?.shortExplanation || ""),
+    sourceAnchorId: toStringValue(question?.sourceAnchorId || "")
+  }));
+}
+
 function normalizeQualityScore(qualityScore) {
   if (!qualityScore || typeof qualityScore !== "object" || Array.isArray(qualityScore)) return null;
   return Object.fromEntries(
@@ -970,9 +1050,11 @@ function ensureChapterRecord(chapter) {
   const knowledgePoints = normalizeKnowledgePoints(chapter.knowledgePoints || [], id);
   const filteredKnowledgePoints = normalizeKnowledgePoints(chapter.filteredKnowledgePoints || [], id);
   const questions = normalizeQuestions(chapter.questions || [], id, knowledgePoints);
+  const units = normalizeV2Units(chapter.units || []);
   const status = normalizeChapterStatus(chapter.status || "completed");
   const baseChapter = { ...chapter, id, source, knowledgePoints, questions };
   return {
+    schemaVersion: toStringValue(chapter.schemaVersion || ""),
     id,
     title: toStringValue(chapter.title || chapter.chapterTitle || source.title || "未命名章节"),
     status,
@@ -982,6 +1064,9 @@ function ensureChapterRecord(chapter) {
     sourceType: source.type,
     sourceText: source.rawInput || source.extractedText || "",
     coreSummary: toStringValue(chapter.coreSummary || ""),
+    summaryCard: normalizeV2SummaryCard(chapter.summaryCard),
+    units,
+    chapterSummary: normalizeV2ChapterSummary(chapter.chapterSummary),
     knowledgePoints,
     filteredKnowledgePoints,
     questions,

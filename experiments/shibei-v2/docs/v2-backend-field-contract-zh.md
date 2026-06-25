@@ -758,8 +758,8 @@ SwiftUI 不应依赖 `quality` / `debug` 专属字段。正式页面应该只读
 
 - **用途**：V2 前端展示生成进度的首选字段。它把后端内部模型 stage 转换成用户能理解的生成步骤。
 - **生成来源**：V2 generation runner / pipeline 在关键阶段边界写入，不由模型生成。
-- **前端使用位置**：上传后跳转到全部章节页的生成弹窗、生成中章节卡、失败详情页、通知页。
-- **展示规则**：前端只展示 `displayText`；`stage` 和 `status` 用于判断 UI 状态；`progress` 只能作为粗略进度，不展示精确剩余时间。
+- **前端使用位置**：上传后跳转到全部章节页的生成弹窗、生成中章节卡、生成中章节详情页、失败详情页、通知页。
+- **展示规则**：前端只展示 `displayText`；`stage` 和 `status` 用于判断 UI 状态；`progress` 只能作为粗略进度，用于生成中详情页的进度条，不展示精确剩余时间。
 - **注意事项**：前端不要直接依赖 `generationMeta.stageRuntime`、`modelUsage`、prompt stage 名称或 debug meta。
 - **重要约束**：`queued`、`running`、`retrying`、`completed`、`failed` 是机器状态，不能作为用户可见文案直接显示。
 
