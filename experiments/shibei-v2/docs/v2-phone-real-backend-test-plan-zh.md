@@ -83,7 +83,7 @@ xcodebuild -project experiments/shibei-v2/ios/拾贝.xcodeproj -scheme 拾贝 -d
 - App 切后台或离开页面后，不应产生重复任务。
 - 同一上传动作使用 `clientRequestId` 防止重复创建。
 - UI 不能展示 `queued/running/retrying` 这类工程状态。
-- iOS 题目交互切到 V2 review session 前，题目页面仍只能算真实内容渲染测试，不能算复习进度持久化验收。
+- iOS 真实生成章节题目流已接入 V2 review session；题目页面仍保留本地即时交互状态，但会在开始复习、答题继续、查看原文这些关键节点同步到后端 session。
 
 ## Checkpoint 3：后端队列和失败策略复核
 
@@ -234,5 +234,5 @@ xcrun devicectl device process launch \
 
 - 真机 HTTP 访问 Mac 局域网需要 ATS local networking 配置。
 - 如果真机不弹 local network 权限或权限被拒，需要到 iOS 设置里检查本 App 的“本地网络”开关。
-- 当前 iOS 已能映射 V2 chapter，但真实复习进度持久化仍主要沿用 fixture 状态；后续需要把 review session 也接到 V2 后端状态。
+- 当前 iOS 已能映射 V2 chapter，并且真实生成章节的复习进度会写入 V2 review session；但主页学习路径和笔记收藏题仍保留 fixture/本地状态，需要后续再接真实数据源。
 - 服务器替换前必须把本地 HTTP 切成生产 HTTPS。

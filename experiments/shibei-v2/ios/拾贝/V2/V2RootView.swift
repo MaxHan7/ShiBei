@@ -13,6 +13,7 @@ struct V2RootView: View {
     @State private var questionInteractionStates: [String: V2QuestionInteractionState] = [:]
     @State private var backendChapter: V2BackendChapter?
     @State private var backendReviewChapter: V2ReviewChapterData?
+    @State private var v2ReviewSession: V2BackendReviewSession?
     @State private var generationPollingTask: Task<Void, Never>?
     @State private var generationErrorText = ""
     @State private var isSubmittingGeneration = false
@@ -270,6 +271,17 @@ struct V2RootView: View {
     }
 
     private func continueAfterQuestion(unitID: String, questionID: String) {
+        guard usesBackendReviewChapter else {
+            advanceLocalAfterQuestion(unitID: unitID, questionID: questionID)
+            return
+        }
+
+        Task {
+            await persistBackendAnswerAndContinue(unitID: unitID, questionID: questionID)
+        }
+    }
+
+    private func advanceLocalAfterQuestion(unitID: String, questionID: String) {
         questionInteractionStates.removeValue(forKey: questionStateKey(unitID: unitID, questionID: questionID))
 
         if let nextQuestion = nextQuestion(after: questionID, in: unitID) {
@@ -368,6 +380,13 @@ struct V2RootView: View {
     }
 
     private func continueFromChapterDetail() {
+        if usesBackendReviewChapter {
+            Task {
+                await startOrResumeBackendReviewFromChapterDetail()
+            }
+            return
+        }
+
         let currentNodeID = V2HomeFixture.home.currentNodeID
         selectedTab = .learning
         routeStack.removeAll()
@@ -401,6 +420,10 @@ struct V2RootView: View {
             return false
         }
         return chapter.status != "completed" && chapter.status != "failed_generation"
+    }
+
+    private var usesBackendReviewChapter: Bool {
+        backendReviewChapter != nil && backendChapter?.status == "completed"
     }
 
     private func activeUnit(id: String) -> V2ReviewUnitData? {
@@ -475,6 +498,8 @@ struct V2RootView: View {
         showsGeneratingChapterCard = false
         backendChapter = nil
         backendReviewChapter = nil
+        v2ReviewSession = nil
+        questionInteractionStates.removeAll()
         generationErrorText = ""
         isSubmittingGeneration = true
         generationPollingTask?.cancel()
@@ -543,6 +568,10 @@ struct V2RootView: View {
         if let reviewChapter = chapter.toReviewChapterData() {
             backendReviewChapter = reviewChapter
         }
+        if let session = chapter.v2ReviewSession {
+            v2ReviewSession = session
+            hydrateLocalQuestionStates(from: session)
+        }
         if chapter.progress?.status == "completed" || chapter.status == "completed" {
             showsGeneratingChapterCard = false
             isSubmittingGeneration = false
@@ -604,6 +633,11 @@ struct V2RootView: View {
     }
 
     private func openSource() {
+        if usesBackendReviewChapter {
+            Task {
+                await openBackendSourceRouteIfPossible()
+            }
+        }
         pushRoute(.sourceArticle)
     }
 
@@ -640,6 +674,12 @@ struct V2RootView: View {
             return
         }
 
+        if case .sourceArticle = route, usesBackendReviewChapter {
+            Task {
+                await returnFromBackendSourceRouteIfPossible()
+            }
+        }
+
         if case .question = route {
             resetToHome(tab: .learning)
             return
@@ -651,6 +691,226 @@ struct V2RootView: View {
         }
 
         self.route = routeStack.popLast()
+    }
+
+    @MainActor
+    private func startOrResumeBackendReviewFromChapterDetail() async {
+        guard let chapterID = backendChapter?.id else {
+            openFirstUnit()
+            return
+        }
+
+        do {
+            let response = try await apiClient.startOrResumeV2ReviewSession(chapterId: chapterID)
+            applyV2ReviewSessionResponse(response)
+            selectedTab = .learning
+            routeStack.removeAll()
+            replaceRoute(route(for: response.reviewSession?.currentCard) ?? .unitOverview(unitID: activeFirstUnitID))
+        } catch {
+            generationErrorText = error.localizedDescription
+            openFirstUnit()
+        }
+    }
+
+    @MainActor
+    private func persistBackendAnswerAndContinue(unitID: String, questionID: String) async {
+        guard let payload = backendAnswerPayload(unitID: unitID, questionID: questionID) else {
+            advanceLocalAfterQuestion(unitID: unitID, questionID: questionID)
+            return
+        }
+
+        do {
+            guard let session = try await ensureV2ReviewSession() else {
+                advanceLocalAfterQuestion(unitID: unitID, questionID: questionID)
+                return
+            }
+
+            let answerResponse = try await apiClient.answerV2Question(
+                sessionId: session.id,
+                unitId: unitID,
+                questionId: questionID,
+                result: payload.result,
+                selectedOptionId: payload.selectedOptionId,
+                matchedPairs: payload.matchedPairs,
+                lockedPairIds: payload.lockedPairIds
+            )
+            applyV2ReviewSessionResponse(answerResponse)
+
+            if let updatedSession = answerResponse.reviewSession {
+                let advanceResponse = try await apiClient.advanceV2ReviewSession(sessionId: updatedSession.id)
+                applyV2ReviewSessionResponse(advanceResponse)
+            }
+        } catch {
+            generationErrorText = error.localizedDescription
+        }
+
+        advanceLocalAfterQuestion(unitID: unitID, questionID: questionID)
+    }
+
+    @MainActor
+    private func ensureV2ReviewSession() async throws -> V2BackendReviewSession? {
+        if let v2ReviewSession {
+            return v2ReviewSession
+        }
+
+        guard let chapterID = backendChapter?.id else {
+            return nil
+        }
+
+        let response = try await apiClient.startOrResumeV2ReviewSession(chapterId: chapterID)
+        applyV2ReviewSessionResponse(response)
+        return response.reviewSession
+    }
+
+    private func applyV2ReviewSessionResponse(_ response: V2ReviewSessionResponse) {
+        applyBackendChapter(response.chapter)
+        if let session = response.reviewSession {
+            v2ReviewSession = session
+            hydrateLocalQuestionStates(from: session)
+        }
+    }
+
+    private func route(for card: V2BackendReviewCard?) -> V2AppRoute? {
+        guard let card else {
+            return nil
+        }
+
+        switch card.type {
+        case "chapter_overview":
+            return .chapterOverview
+        case "unit_overview":
+            return card.unitId.map { .unitOverview(unitID: $0) }
+        case "question", "question_feedback":
+            guard let unitID = card.unitId, let questionID = card.questionId else {
+                return nil
+            }
+            return .question(unitID: unitID, questionID: questionID)
+        case "unit_summary":
+            return card.unitId.map { .unitSummary(unitID: $0) }
+        case "chapter_summary":
+            return .chapterSummary
+        default:
+            return nil
+        }
+    }
+
+    private func backendAnswerPayload(
+        unitID: String,
+        questionID: String
+    ) -> (
+        result: String,
+        selectedOptionId: String?,
+        matchedPairs: [V2BackendMatchedPair],
+        lockedPairIds: [String]
+    )? {
+        guard let question = activeQuestion(unitID: unitID, questionID: questionID) else {
+            return nil
+        }
+
+        let key = questionStateKey(unitID: unitID, questionID: questionID)
+        let interaction = questionInteractionStates[key, default: V2QuestionInteractionState()]
+
+        switch question.kind {
+        case .multipleChoice:
+            guard let selectedIndex = interaction.multipleChoice.selectedIndex else {
+                return nil
+            }
+            return (
+                result: selectedIndex == question.correctOptionIndex ? "correct" : "wrong",
+                selectedOptionId: optionID(for: selectedIndex),
+                matchedPairs: [],
+                lockedPairIds: []
+            )
+        case .matching:
+            let lockedPairIds = question.matchingPairs
+                .filter {
+                    interaction.matching.leftStates[$0.id] == .locked
+                        && interaction.matching.rightStates[$0.id] == .locked
+                }
+                .map(\.id)
+            let isCorrect = lockedPairIds.count == question.matchingPairs.count && !question.matchingPairs.isEmpty
+            let matchedPairs = lockedPairIds.map {
+                V2BackendMatchedPair(leftId: $0, rightId: $0)
+            }
+            return (
+                result: isCorrect ? "correct" : "wrong",
+                selectedOptionId: nil,
+                matchedPairs: matchedPairs,
+                lockedPairIds: lockedPairIds
+            )
+        }
+    }
+
+    private func optionID(for index: Int) -> String? {
+        ["A", "B", "C", "D", "E", "F"].indices.contains(index) ? ["A", "B", "C", "D", "E", "F"][index] : nil
+    }
+
+    private func hydrateLocalQuestionStates(from session: V2BackendReviewSession) {
+        for (questionID, backendState) in session.questionStates {
+            guard let unitID = unitID(containingQuestionID: questionID),
+                  let question = activeQuestion(unitID: unitID, questionID: questionID) else {
+                continue
+            }
+
+            let key = questionStateKey(unitID: unitID, questionID: questionID)
+            var interaction = questionInteractionStates[key, default: V2QuestionInteractionState()]
+
+            switch question.kind {
+            case .multipleChoice:
+                if let selectedOptionId = backendState.selectedOptionId,
+                   let selectedIndex = optionIndex(for: selectedOptionId) {
+                    interaction.multipleChoice.selectedIndex = selectedIndex
+                }
+                interaction.multipleChoice.feedbackPanelVisible = backendState.feedbackVisible
+            case .matching:
+                if backendState.status == "answered", backendState.result == "correct" {
+                    for pair in question.matchingPairs {
+                        interaction.matching.leftStates[pair.id] = .locked
+                        interaction.matching.rightStates[pair.id] = .locked
+                    }
+                }
+                interaction.matching.feedbackPanelVisible = backendState.feedbackVisible
+            }
+
+            questionInteractionStates[key] = interaction
+        }
+    }
+
+    private func optionIndex(for optionID: String) -> Int? {
+        ["A", "B", "C", "D", "E", "F"].firstIndex(of: optionID)
+    }
+
+    private func unitID(containingQuestionID questionID: String) -> String? {
+        activeChapter.units.first { unit in
+            unit.questions.contains { $0.id == questionID }
+        }?.id
+    }
+
+    @MainActor
+    private func openBackendSourceRouteIfPossible() async {
+        do {
+            guard let session = try await ensureV2ReviewSession() else {
+                return
+            }
+            let response = try await apiClient.openV2SourceFromReview(sessionId: session.id, sourceAnchorId: nil)
+            applyV2ReviewSessionResponse(response)
+        } catch {
+            generationErrorText = error.localizedDescription
+        }
+    }
+
+    @MainActor
+    private func returnFromBackendSourceRouteIfPossible() async {
+        guard let session = v2ReviewSession else {
+            return
+        }
+
+        do {
+            let response = try await apiClient.returnFromV2SourceToReview(sessionId: session.id)
+            applyV2ReviewSessionResponse(response)
+        } catch {
+            generationErrorText = error.localizedDescription
+        }
     }
 }
 

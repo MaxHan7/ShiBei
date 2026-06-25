@@ -324,7 +324,7 @@ Observed answer-state result:
 }
 ```
 
-This means the backend can now persist V2 review position and answer state for generated chapters. The iOS V2 question UI still needs to switch from local view state to this V2 review-session contract before review progress persistence can be considered production-complete.
+This means the backend can now persist V2 review position and answer state for generated chapters.
 
 ## iOS V2 Review Session Client
 
@@ -349,7 +349,33 @@ Observed result:
 BUILD SUCCEEDED
 ```
 
-The SwiftUI question screens still need a follow-up wiring pass to replace local `questionInteractionStates` with these V2 session APIs.
+## iOS V2 Review Session Wiring
+
+`V2RootView` now uses the V2 review-session contract for real generated chapters:
+
+- Chapter detail “continue” starts or resumes `/api/v2/chapters/:id/review-session`.
+- Multiple-choice and matching question “continue” posts the local answer result to `/api/v2/review-sessions/:id/answer`, then advances the server session through `/advance`.
+- Source article open/return attempts to sync `/source-open` and `/source-return`.
+
+Boundary:
+
+- Question cards still use local `questionInteractionStates` for immediate UI feedback so the tuned SwiftUI interaction does not regress.
+- The local state is synchronized to the backend at stable review checkpoints.
+- Fixture and saved-question routes remain local and do not mutate V2 review-session progress.
+
+Verification:
+
+```bash
+xcodebuild -project experiments/shibei-v2/ios/拾贝.xcodeproj -scheme 拾贝 -destination 'platform=iOS Simulator,name=iPhone 17' build
+npm --prefix experiments/shibei-v2/backend run check
+```
+
+Observed result:
+
+```text
+BUILD SUCCEEDED
+278 tests passed
+```
 
 Process check:
 
