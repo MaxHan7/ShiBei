@@ -51,13 +51,33 @@ enum V2Layout {
 }
 
 enum V2Typography {
-    static let pageTitle = Font.system(size: 22, weight: .bold, design: .default)
+    // Screen-level chrome.
+    static let screenTitle = Font.system(size: 22, weight: .bold, design: .default)
+    static let pageTitle = screenTitle
+
+    // Card and section hierarchy.
+    static let sectionTitle = Font.system(size: 18, weight: .semibold, design: .default)
     static let cardTitle = Font.system(size: 18, weight: .bold, design: .default)
+    static let cardTitleLarge = cardTitle
+    static let cardTitleStandard = Font.system(size: 16, weight: .semibold, design: .default)
+
+    // Reading content.
     static let body = Font.system(size: 16, weight: .regular, design: .default)
     static let bodyEmphasis = Font.system(size: 16, weight: .semibold, design: .default)
+    static let bodySmall = Font.system(size: 14, weight: .regular, design: .default)
+    static let bodySmallEmphasis = Font.system(size: 14, weight: .semibold, design: .default)
+
+    // Component labels and metadata.
     static let label = Font.system(size: 12, weight: .medium, design: .default)
+    static let labelRegular = Font.system(size: 12, weight: .regular, design: .default)
+    static let caption = Font.system(size: 11, weight: .regular, design: .default)
+    static let captionEmphasis = Font.system(size: 11, weight: .semibold, design: .default)
+    static let micro = Font.system(size: 10, weight: .regular, design: .default)
+
+    // Specialized reusable text.
     static let navLabel = Font.system(size: 12, weight: .semibold, design: .default)
     static let nodeLabel = Font.system(size: 18, weight: .bold, design: .default)
+    static let primaryButton = Font.system(size: 16, weight: .semibold, design: .default)
 }
 
 struct V2ShadowSpec {

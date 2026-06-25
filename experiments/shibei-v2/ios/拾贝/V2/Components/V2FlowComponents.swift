@@ -1121,7 +1121,7 @@ private struct V2GeneratingSourceLinkChip: View {
                 .frame(width: 34, height: 34)
 
                 Text("原文链接")
-                    .font(.system(size: 8, weight: .regular))
+                    .font(V2Typography.caption)
                     .foregroundStyle(Color(hex: 0x767676))
                     .lineLimit(1)
             }
@@ -1470,17 +1470,17 @@ private enum V2RecommendedArticleCardMetrics {
     static let titleY: CGFloat = 16
     static let titleWidth: CGFloat = 167
     static let titleHeight: CGFloat = 42
-    static let titleFont = Font.system(size: 13, weight: .medium)
+    static let titleFont = V2Typography.bodySmallEmphasis
     static let sourceX: CGFloat = 24
     static let sourceY: CGFloat = 66
     static let sourceHeight: CGFloat = 19
-    static let sourceFont = Font.system(size: 10, weight: .regular)
+    static let sourceFont = V2Typography.caption
     static let tagsX: CGFloat = 21
     static let tagsY: CGFloat = 92
     static let tagSpacing: CGFloat = 8.6
-    static let tagFont = Font.system(size: 8, weight: .regular)
-    static let tagWidth: CGFloat = 35.4
-    static let tagHeight: CGFloat = 15.7
+    static let tagFont = V2Typography.caption
+    static let tagWidth: CGFloat = 44
+    static let tagHeight: CGFloat = 20
 }
 
 struct V2NotesSummaryCard: View {

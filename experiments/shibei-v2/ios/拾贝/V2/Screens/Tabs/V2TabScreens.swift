@@ -830,7 +830,7 @@ private struct V2NotificationFailureSourceButton: View {
                 .frame(width: 34, height: 34)
 
                 Text("原文链接")
-                    .font(.system(size: 10, weight: .regular))
+                    .font(V2Typography.caption)
                     .foregroundStyle(Color(hex: 0x767676))
                     .lineLimit(1)
             }

@@ -1255,7 +1255,7 @@ private struct V2ChapterDetailHeroActionContent: View {
     let textWidth: CGFloat
 
     static func width(for title: String, minWidth: CGFloat, maxWidth: CGFloat) -> CGFloat {
-        let font = UIFont.systemFont(ofSize: 10, weight: .regular)
+        let font = UIFont.systemFont(ofSize: 11, weight: .regular)
         let textWidth = ceil((title as NSString).size(withAttributes: [.font: font]).width)
         let desiredWidth = 7 + 34 + 6 + textWidth + 10
         return min(max(desiredWidth, minWidth), maxWidth)
@@ -1270,7 +1270,7 @@ private struct V2ChapterDetailHeroActionContent: View {
                 .frame(width: 34, height: 34)
 
             Text(title)
-                .font(.system(size: 10, weight: .regular))
+                .font(V2Typography.caption)
                 .foregroundStyle(Color(hex: 0x767676))
                 .lineLimit(1)
                 .truncationMode(.tail)
