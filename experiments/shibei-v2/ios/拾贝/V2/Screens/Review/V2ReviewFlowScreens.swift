@@ -39,7 +39,7 @@ struct V2ChapterOverviewView: View {
                     .zIndex(2)
 
                 V2PrimaryActionButton(title: "继续", action: onContinue)
-                    .frame(width: V2UnitOverviewPageMetrics.buttonWidth)
+                    .frame(width: V2Layout.primaryActionWidth)
                     .offset(y: V2Layout.primaryActionBottomY)
             }
             .frame(maxWidth: .infinity)
@@ -83,7 +83,7 @@ struct V2UnitOverviewView: View {
                     .offset(y: V2UnitOverviewPageMetrics.boardY)
 
                 V2PrimaryActionButton(title: "继续", action: onContinue)
-                    .frame(width: V2UnitOverviewPageMetrics.buttonWidth)
+                    .frame(width: V2Layout.primaryActionWidth)
                     .offset(y: V2UnitOverviewPageMetrics.buttonY)
             }
             .frame(maxWidth: .infinity)
@@ -98,8 +98,7 @@ private enum V2UnitOverviewPageMetrics {
     static let rightDecoY: CGFloat = 130
     static let leftDecoY: CGFloat = 363
     static let boardY: CGFloat = 174
-    static let buttonY: CGFloat = 642
-    static let buttonWidth: CGFloat = 303
+    static let buttonY: CGFloat = V2Layout.primaryActionBottomY
     static let contentHeight: CGFloat = 710
 }
 
@@ -525,7 +524,7 @@ struct V2UnitSummaryView: View {
                     .offset(y: V2UnitSummaryPageMetrics.heroY)
 
                 V2PrimaryActionButton(title: "继续", action: onContinue)
-                    .frame(width: V2Layout.contentMaxWidth)
+                    .frame(width: V2Layout.primaryActionWidth)
                     .offset(y: V2UnitSummaryPageMetrics.buttonY)
             }
             .frame(maxWidth: .infinity)
@@ -538,7 +537,7 @@ private enum V2UnitSummaryPageMetrics {
     static let heroY: CGFloat = 0
     static let leftDecoY: CGFloat = 280
     static let rightDecoY: CGFloat = 314
-    static let buttonY: CGFloat = 605
+    static let buttonY: CGFloat = V2Layout.primaryActionBottomY
     static let contentHeight: CGFloat = 720
 }
 
@@ -680,7 +679,7 @@ struct V2ChapterSummaryView: View {
                     .offset(y: V2ChapterSummaryPageMetrics.heroY)
 
                 V2PrimaryActionButton(title: "返回主页", action: onHome)
-                    .frame(width: V2Layout.contentMaxWidth)
+                    .frame(width: V2Layout.primaryActionWidth)
                     .offset(y: V2ChapterSummaryPageMetrics.buttonY)
 
                 Button(action: onDetail) {
@@ -702,8 +701,8 @@ private enum V2ChapterSummaryPageMetrics {
     static let heroY: CGFloat = 0
     static let leftDecoY: CGFloat = 328
     static let rightDecoY: CGFloat = 364
-    static let buttonY: CGFloat = 623
-    static let detailY: CGFloat = 696
+    static let buttonY: CGFloat = V2Layout.primaryActionBottomY
+    static let detailY: CGFloat = V2Layout.primaryActionBottomY + 73
     static let contentHeight: CGFloat = 742
 }
 

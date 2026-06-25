@@ -511,7 +511,7 @@ struct V2AnswerFeedbackPanel: View {
         .padding(.bottom, V2AnswerFeedbackPanelMetrics.bottomInset)
         .frame(width: V2AnswerFeedbackPanelMetrics.width)
         .background {
-            ZStack {
+            ZStack(alignment: .bottom) {
                 V2FeedbackPanelShape()
                     .fill(Color(hex: 0xFFFCF4))
                     .shadow(
@@ -523,6 +523,14 @@ struct V2AnswerFeedbackPanel: View {
 
                 V2FeedbackPanelTopStroke()
                     .stroke(accent, lineWidth: 1)
+
+                Rectangle()
+                    .fill(Color(hex: 0xFFFCF4))
+                    .frame(
+                        width: V2AnswerFeedbackPanelMetrics.width,
+                        height: V2AnswerFeedbackPanelMetrics.bottomCoverExtension
+                    )
+                    .offset(y: V2AnswerFeedbackPanelMetrics.bottomCoverExtension)
             }
         }
     }
@@ -555,6 +563,7 @@ private enum V2AnswerFeedbackPanelMetrics {
     static let buttonToSourceGap: CGFloat = 13
     static let sourceHeight: CGFloat = 26
     static let bottomInset: CGFloat = 22
+    static let bottomCoverExtension: CGFloat = 34
     static let closeY: CGFloat = 96
 }
 
