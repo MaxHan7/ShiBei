@@ -34,17 +34,22 @@ struct V2HomeView: View {
 
                 backgroundDecorations(in: geometry.size)
 
-                VStack(spacing: 0) {
-                    Color.clear
-                        .frame(height: pathViewport.top)
+                if data.isEmpty {
+                    emptyState(in: geometry.size)
+                        .zIndex(5)
+                } else {
+                    VStack(spacing: 0) {
+                        Color.clear
+                            .frame(height: pathViewport.top)
 
-                    pathScrollViewport(pathArea: pathArea)
-                        .frame(height: pathViewport.height)
-                        .clipped()
+                        pathScrollViewport(pathArea: pathArea)
+                            .frame(height: pathViewport.height)
+                            .clipped()
 
-                    Spacer(minLength: 0)
-                }
+                        Spacer(minLength: 0)
+                    }
                     .zIndex(5)
+                }
 
                 topOverlay
                     .zIndex(30)
@@ -69,11 +74,13 @@ struct V2HomeView: View {
                 .v2PageContentWidth()
                 .padding(.top, 22)
 
-            V2CurrentChapterBanner(chapter: data.currentChapter) {
-                onOpenChapterDetail()
+            if !data.isEmpty {
+                V2CurrentChapterBanner(chapter: data.currentChapter) {
+                    onOpenChapterDetail()
+                }
+                .v2PageContentWidth()
+                .padding(.top, 30)
             }
-            .v2PageContentWidth()
-            .padding(.top, 30)
         }
     }
 
@@ -246,6 +253,11 @@ struct V2HomeView: View {
     }
 
     private func scrollToInitialCurrentNode(with proxy: ScrollViewProxy) {
+        guard !data.isEmpty else {
+            didApplyInitialPathScroll = true
+            return
+        }
+
         DispatchQueue.main.async {
             var transaction = Transaction()
             transaction.disablesAnimations = true
@@ -258,6 +270,10 @@ struct V2HomeView: View {
     }
 
     private func scrollToCurrentNode(with proxy: ScrollViewProxy, animated: Bool) {
+        guard !data.isEmpty else {
+            return
+        }
+
         let scrollAction = {
             proxy.scrollTo(
                 V2HomePathArea.initialCurrentNodeAnchorID(
@@ -310,6 +326,21 @@ struct V2HomeView: View {
         .frame(height: 52)
     }
 
+    private func emptyState(in size: CGSize) -> some View {
+        let scale = min(1, size.width / 402)
+
+        return Image("V2HomeEmptyStateIllustration")
+            .resizable()
+            .renderingMode(.original)
+            .scaledToFit()
+            .frame(width: 253 * scale, height: 387 * scale)
+            .position(
+                x: size.width / 2,
+                y: V2HomeEmptyStateMetrics.centerY(in: size.height, scale: scale)
+            )
+            .accessibilityLabel("还没有生成章节")
+    }
+
     private func selectedNode(in data: V2HomeData) -> V2LearningPathNodeData? {
         guard let id = selectedNodeID else {
             return nil
@@ -351,6 +382,20 @@ struct V2HomeView: View {
         }
         .ignoresSafeArea()
         .allowsHitTesting(false)
+    }
+}
+
+private enum V2HomeEmptyStateMetrics {
+    static let figmaCanvasHeight: CGFloat = 874
+    static let figmaImageTopY: CGFloat = 360.5
+    static let imageHeight: CGFloat = 387
+
+    static func centerY(in screenHeight: CGFloat, scale: CGFloat) -> CGFloat {
+        let figmaCenterY = figmaImageTopY + imageHeight / 2
+        return min(
+            screenHeight - 226 * scale,
+            figmaCenterY * min(1, screenHeight / figmaCanvasHeight)
+        )
     }
 }
 

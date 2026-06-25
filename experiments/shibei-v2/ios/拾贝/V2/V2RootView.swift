@@ -54,7 +54,7 @@ struct V2RootView: View {
         switch selectedTab {
         case .learning:
             V2HomeView(
-                data: V2HomeFixture.home,
+                data: activeHomeData,
                 selectedTab: $selectedTab,
                 onOpenNotifications: { pushRoute(.notifications) },
                 onOpenProfile: { pushRoute(.profile) },
@@ -402,6 +402,14 @@ struct V2RootView: View {
 
     private var activeChapter: V2ReviewChapterData {
         backendReviewChapter ?? V2ReviewFixture.chapter
+    }
+
+    private var activeHomeData: V2HomeData {
+        guard usesBackendReviewChapter else {
+            return V2HomeFixture.empty
+        }
+
+        return V2HomeData(chapter: activeChapter)
     }
 
     private var activeFirstUnitID: String {

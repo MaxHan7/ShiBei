@@ -1,6 +1,15 @@
 import CoreGraphics
 
 enum V2HomeFixture {
+    static let empty = V2HomeData(
+        currentChapter: V2CurrentChapterData(
+            eyebrow: "",
+            title: ""
+        ),
+        nodes: [],
+        currentNodeID: ""
+    )
+
     static let home = V2HomeData(
         currentChapter: V2CurrentChapterData(
             eyebrow: "当前章节",
