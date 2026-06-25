@@ -780,33 +780,33 @@ private struct V2NotificationFailureSourceButton: View {
 
     var body: some View {
         Button(action: action) {
-            ZStack(alignment: .topLeading) {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(V2Color.surfaceCream)
-                    .frame(width: 93, height: 36)
-                    .offset(x: 4, y: 0)
-                    .v2Shadow(shadow)
-
+            HStack(spacing: 6) {
                 ZStack {
                     Circle()
                         .fill(accent)
+                        .frame(width: 23, height: 23)
 
                     V2FailureSourceLinkGlyph()
                         .stroke(
                             V2Color.surfaceCream,
                             style: StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round)
                         )
-                        .frame(width: 23, height: 23)
+                        .frame(width: 12, height: 12)
                 }
-                .frame(width: 23, height: 23)
-                .offset(x: 17, y: 5.998)
+                .frame(width: 34, height: 34)
 
                 Text("原文链接")
                     .font(.system(size: 10, weight: .regular))
                     .foregroundStyle(Color(hex: 0x767676))
-                    .frame(width: 44, height: 36, alignment: .center)
-                    .offset(x: 52, y: 0)
+                    .lineLimit(1)
             }
+            .frame(width: 93, height: 36, alignment: .leading)
+            .padding(.leading, 7)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(V2Color.surfaceCream)
+                    .v2Shadow(shadow)
+            )
             .frame(width: 101, height: 44, alignment: .topLeading)
         }
         .buttonStyle(.plain)
@@ -816,44 +816,26 @@ private struct V2NotificationFailureSourceButton: View {
 
 private struct V2FailureSourceLinkGlyph: Shape {
     func path(in rect: CGRect) -> Path {
-        let sx = rect.width / 23
-        let sy = rect.height / 23
+        let sx = rect.width / 12
+        let sy = rect.height / 12
 
         func p(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
             CGPoint(x: x * sx, y: y * sy)
         }
 
         var path = Path()
-        path.move(to: p(9.8613, 13.2032))
-        path.addLine(to: p(12.8332, 9.9364))
-
-        path.move(to: p(8.6004, 11.3077))
-        path.addLine(to: p(7.4859, 12.5327))
-        path.addCurve(
-            to: p(7.6334, 15.6520),
-            control1: p(6.6653, 13.4348),
-            control2: p(6.7313, 14.8313)
-        )
-        path.addCurve(
-            to: p(10.7527, 15.5045),
-            control1: p(8.5355, 16.4726),
-            control2: p(9.9320, 16.4066)
-        )
-        path.addLine(to: p(11.8671, 14.2795))
-
-        path.move(to: p(10.8301, 8.8594))
-        path.addLine(to: p(11.9445, 7.6344))
-        path.addCurve(
-            to: p(15.0638, 7.4869),
-            control1: p(12.7652, 6.7323),
-            control2: p(14.1617, 6.6663)
-        )
-        path.addCurve(
-            to: p(15.2113, 10.6062),
-            control1: p(15.9659, 8.3076),
-            control2: p(16.0319, 9.7041)
-        )
-        path.addLine(to: p(14.0968, 11.8313))
+        path.move(to: p(4.36, 7.20))
+        path.addLine(to: p(7.33, 3.93))
+        path.move(to: p(3.10, 5.31))
+        path.addLine(to: p(1.99, 6.53))
+        path.addCurve(to: p(2.13, 9.65), control1: p(1.17, 7.43), control2: p(1.23, 8.83))
+        path.addCurve(to: p(5.25, 9.50), control1: p(3.04, 10.47), control2: p(4.43, 10.40))
+        path.addLine(to: p(6.37, 8.28))
+        path.move(to: p(5.33, 2.86))
+        path.addLine(to: p(6.44, 1.63))
+        path.addCurve(to: p(9.56, 1.49), control1: p(7.27, 0.73), control2: p(8.66, 0.66))
+        path.addCurve(to: p(9.71, 4.60), control1: p(10.47, 2.31), control2: p(10.53, 3.71))
+        path.addLine(to: p(8.60, 5.83))
 
         return path
     }
