@@ -377,6 +377,82 @@ BUILD SUCCEEDED
 278 tests passed
 ```
 
+## Real Backend Smoke After iOS Wiring
+
+The local backend was verified with the private `.env` configuration. The model key stays in `experiments/shibei-v2/backend/.env`, which is ignored by git.
+
+Verification:
+
+```bash
+npm --prefix experiments/shibei-v2/backend run preflight:phone -- --ip 127.0.0.1 --device-id simulator-local-check
+npm --prefix experiments/shibei-v2/backend run smoke:v2:queue -- --base-url http://127.0.0.1:5273 --device-id phone-link-real-backend-smoke
+```
+
+Observed result:
+
+```text
+PASS backend_health
+PASS database_health
+PASS queue_visible
+status=completed stage=completed text=生成完成
+```
+
+Generated smoke chapter:
+
+```text
+chapter-1782389052143-4946d6d44f439
+```
+
+The generated chapter was then verified against the V2 review-session endpoints:
+
+```text
+sessionId=v2-session-1782389125946
+currentCard.type=question_feedback
+questionState.status=answered
+questionState.result=correct
+```
+
+## Simulator And Physical Device Launch
+
+Simulator:
+
+```bash
+xcrun simctl install 66DD095F-0FA0-451E-BB56-7313276923D5 /Users/hanmingyu/Library/Developer/Xcode/DerivedData/拾贝-apnutwyxjhdpzlexlxqewbploaso/Build/Products/Debug-iphonesimulator/拾贝.app
+xcrun simctl launch --terminate-running-process 66DD095F-0FA0-451E-BB56-7313276923D5 com.maxhan.shibei.v2.dev -ShibeiV2APIBaseURL http://127.0.0.1:5273
+```
+
+Observed result:
+
+```text
+com.maxhan.shibei.v2.dev launched successfully
+```
+
+Physical device:
+
+- Device: `煎的正好的咸鱼`, iPhone 15 Pro.
+- Device id: `26BD96F1-4C9A-5123-92A7-6733CAE2BE21`.
+- Mac LAN backend: `http://10.130.96.10:5273`.
+
+Verification:
+
+```bash
+xcodebuild -project experiments/shibei-v2/ios/拾贝.xcodeproj -scheme 拾贝 -destination 'id=26BD96F1-4C9A-5123-92A7-6733CAE2BE21' build
+npm --prefix experiments/shibei-v2/backend run preflight:phone -- --ip 10.130.96.10 --device-id 26BD96F1-4C9A-5123-92A7-6733CAE2BE21
+xcrun devicectl device install app --device 26BD96F1-4C9A-5123-92A7-6733CAE2BE21 /Users/hanmingyu/Library/Developer/Xcode/DerivedData/拾贝-apnutwyxjhdpzlexlxqewbploaso/Build/Products/Debug-iphoneos/拾贝.app
+xcrun devicectl device process launch --device 26BD96F1-4C9A-5123-92A7-6733CAE2BE21 --terminate-existing com.maxhan.shibei.v2.dev -ShibeiV2APIBaseURL http://10.130.96.10:5273
+```
+
+Observed result:
+
+```text
+BUILD SUCCEEDED
+PASS backend_health
+PASS database_health
+PASS queue_visible
+App installed: bundleID com.maxhan.shibei.v2.dev
+Launched application with com.maxhan.shibei.v2.dev bundle identifier.
+```
+
 Process check:
 
 ```text
