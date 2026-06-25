@@ -780,32 +780,72 @@ private struct V2NotificationFailureSourceButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
+            ZStack(alignment: .topLeading) {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(V2Color.feedbackWrongFill)
+                    .frame(width: 93, height: 36)
+                    .offset(x: 4, y: 0)
+                    .v2Shadow(shadow)
+
                 ZStack {
                     Circle()
                         .fill(accent)
-                        .frame(width: 23, height: 23)
 
-                    Image(systemName: "link")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(V2Color.surfaceCream)
+                    V2FailureSourceLinkGlyph()
+                        .stroke(
+                            V2Color.surfaceCream,
+                            style: StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round)
+                        )
+                        .frame(width: 23, height: 23)
                 }
+                .frame(width: 23, height: 23)
+                .offset(x: 17, y: 6)
 
                 Text("原文链接")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(accent)
+                    .font(.system(size: 10, weight: .regular))
+                    .foregroundStyle(Color(hex: 0x767676))
+                    .frame(width: 44, height: 14, alignment: .leading)
+                    .offset(x: 52, y: 13)
             }
-            .padding(.leading, 7)
-            .padding(.trailing, 9)
-            .frame(height: 34)
-            .background(
-                Capsule()
-                    .fill(V2Color.feedbackWrongFill)
-                    .v2Shadow(shadow)
-            )
+            .frame(width: 101, height: 44, alignment: .topLeading)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("打开原文链接")
+    }
+}
+
+private struct V2FailureSourceLinkGlyph: Shape {
+    func path(in rect: CGRect) -> Path {
+        let sx = rect.width / 23
+        let sy = rect.height / 23
+
+        func p(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
+            CGPoint(x: x * sx, y: y * sy)
+        }
+
+        var path = Path()
+        path.move(to: p(9.8613, 13.2032))
+        path.addLine(to: p(12.8332, 9.9364))
+
+        path.move(to: p(8.6004, 11.3077))
+        path.addLine(to: p(7.4859, 12.5327))
+        path.addCurve(
+            to: p(10.7527, 15.5045),
+            control1: p(6.6653, 13.4348),
+            control2: p(6.7313, 14.8313)
+        )
+        path.addLine(to: p(11.8671, 14.2795))
+
+        path.move(to: p(10.8301, 8.8594))
+        path.addLine(to: p(11.9445, 7.6344))
+        path.addCurve(
+            to: p(15.2113, 10.6062),
+            control1: p(12.7652, 6.7323),
+            control2: p(14.1617, 6.6663)
+        )
+        path.addLine(to: p(14.0968, 11.8313))
+
+        return path
     }
 }
 
