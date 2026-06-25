@@ -15,6 +15,7 @@ struct V2RootView: View {
     @State private var backendReviewChapter: V2ReviewChapterData?
     @State private var generationPollingTask: Task<Void, Never>?
     @State private var generationErrorText = ""
+    @State private var isSubmittingGeneration = false
 
     private let apiClient = APIClient()
 
@@ -72,6 +73,7 @@ struct V2RootView: View {
         case .upload:
             V2UploadView(
                 selectedTab: $selectedTab,
+                isGenerating: isGenerationBusy,
                 onGenerate: startV2Generation
             )
         case .discover:
@@ -391,6 +393,16 @@ struct V2RootView: View {
         return backendChapter?.progress?.displayTextOrFallback ?? "正在提交生成任务..."
     }
 
+    private var isGenerationBusy: Bool {
+        if isSubmittingGeneration {
+            return true
+        }
+        guard let chapter = backendChapter else {
+            return false
+        }
+        return chapter.status != "completed" && chapter.status != "failed_generation"
+    }
+
     private func activeUnit(id: String) -> V2ReviewUnitData? {
         activeChapter.units.first { $0.id == id }
     }
@@ -464,7 +476,9 @@ struct V2RootView: View {
         backendChapter = nil
         backendReviewChapter = nil
         generationErrorText = ""
+        isSubmittingGeneration = true
         generationPollingTask?.cancel()
+        let clientRequestId = "ios-v2-\(UUID().uuidString)"
 
         withAnimation(.easeOut(duration: 0.18)) {
             showsGenerationStartedDialog = true
@@ -472,13 +486,18 @@ struct V2RootView: View {
 
         Task {
             do {
-                let response = try await apiClient.createV2Chapter(sourceText: trimmed)
+                let response = try await apiClient.createV2Chapter(
+                    sourceText: trimmed,
+                    clientRequestId: clientRequestId
+                )
                 await MainActor.run {
+                    isSubmittingGeneration = false
                     applyBackendChapter(response.chapter)
                 }
                 startGenerationPolling(chapterID: response.chapter.id)
             } catch {
                 await MainActor.run {
+                    isSubmittingGeneration = false
                     generationErrorText = error.localizedDescription
                     showsGeneratingChapterCard = true
                 }
@@ -500,6 +519,9 @@ struct V2RootView: View {
                         applyBackendChapter(chapter)
                     }
                     if chapter.progress?.isFinished == true || chapter.status == "completed" || chapter.status == "failed_generation" {
+                        await MainActor.run {
+                            generationPollingTask = nil
+                        }
                         return
                     }
                 } catch {
@@ -509,6 +531,9 @@ struct V2RootView: View {
                 }
 
                 try? await Task.sleep(nanoseconds: 1_250_000_000)
+            }
+            await MainActor.run {
+                generationPollingTask = nil
             }
         }
     }
@@ -520,9 +545,13 @@ struct V2RootView: View {
         }
         if chapter.progress?.status == "completed" || chapter.status == "completed" {
             showsGeneratingChapterCard = false
+            isSubmittingGeneration = false
             if route == .generatingChapterDetail {
                 generationErrorText = ""
             }
+        } else if chapter.status == "failed_generation" {
+            showsGeneratingChapterCard = true
+            isSubmittingGeneration = false
         }
     }
 

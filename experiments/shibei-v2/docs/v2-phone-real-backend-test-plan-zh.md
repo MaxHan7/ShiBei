@@ -126,7 +126,8 @@ curl http://<Mac局域网IP>:5273/api/health
 **模型 key 配置原则**：
 
 - 不把 `DEEPSEEK_API_KEY` 写进 Git 仓库。
-- 本地测试可以使用当前终端临时环境变量，或使用已经被 `.gitignore` 排除的本机 `.env.local`。
+- 本地测试可以使用当前终端临时环境变量，或使用已经被 `.gitignore` 排除的本机 `experiments/shibei-v2/backend/.env`。
+- 后端 `src/env.js` 会在 server 和 worker 启动时读取 `experiments/shibei-v2/backend/.env`。
 - 提交前必须确认 `git status --short` 没有出现包含 key 的文件。
 
 **Xcode 真机配置**：
@@ -142,6 +143,39 @@ http://<Mac局域网IP>:5273
 
 4. 首次运行时，如果 iOS 弹出“本地网络”权限弹窗，允许访问。
 5. 如果之前点了拒绝，到 iOS 设置里找到拾贝 V2，打开“本地网络”权限。
+
+**命令行真机构建 / 安装 / 启动**：
+
+当前已验证的在线设备：
+
+```text
+设备名：煎的正好的咸鱼
+设备 ID：00008130-000465522213803A
+Bundle ID：com.maxhan.shibei.v2.dev
+```
+
+```bash
+# 构建真机 Debug app。
+xcodebuild \
+  -project experiments/shibei-v2/ios/拾贝.xcodeproj \
+  -scheme 拾贝 \
+  -destination 'id=00008130-000465522213803A' \
+  -configuration Debug \
+  -allowProvisioningUpdates \
+  build
+
+# 安装到真机。
+xcrun devicectl device install app \
+  --device 00008130-000465522213803A \
+  ~/Library/Developer/Xcode/DerivedData/拾贝-apnutwyxjhdpzlexlxqewbploaso/Build/Products/Debug-iphoneos/拾贝.app
+
+# 用本地真实后端地址启动。
+xcrun devicectl device process launch \
+  --device 00008130-000465522213803A \
+  --terminate-existing \
+  com.maxhan.shibei.v2.dev \
+  -ShibeiV2APIBaseURL http://<Mac局域网IP>:5273
+```
 
 **步骤**：
 

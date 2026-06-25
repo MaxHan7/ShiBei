@@ -85,11 +85,11 @@ struct APIClient {
         return ChapterCreationResult(chapter: response.chapter, notification: response.notification)
     }
 
-    func createV2Chapter(sourceText: String) async throws -> V2CreateChapterResponse {
+    func createV2Chapter(sourceText: String, clientRequestId: String) async throws -> V2CreateChapterResponse {
         let trimmed = sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
         let isURL = URL(string: trimmed)?.scheme?.hasPrefix("http") == true
         let request = V2CreateChapterRequest(
-            clientRequestId: "ios-v2-\(UUID().uuidString)",
+            clientRequestId: clientRequestId,
             sourceType: isURL ? "article_link" : "text",
             sourceUrl: isURL ? trimmed : nil,
             sourceTitle: isURL ? nil : String(trimmed.prefix(24)),

@@ -203,6 +203,7 @@ struct V2GeneratingChapterDetailView: View {
 
 struct V2UploadView: View {
     @Binding var selectedTab: V2HomeTab
+    let isGenerating: Bool
     let onGenerate: (String) -> Void
     @State private var sourceText = ""
     @State private var validationMessage = ""
@@ -227,7 +228,13 @@ struct V2UploadView: View {
                         .font(V2Typography.label)
                         .foregroundStyle(V2Color.primaryAction)
 
-                    V2PrimaryActionButton(title: "开始生成") {
+                    V2PrimaryActionButton(
+                        title: isGenerating ? "正在生成中" : "开始生成",
+                        tone: isGenerating ? .disabled : .normal
+                    ) {
+                        guard !isGenerating else {
+                            return
+                        }
                         let trimmed = sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
                         guard !trimmed.isEmpty else {
                             validationMessage = "请先粘贴文章链接或正文"
