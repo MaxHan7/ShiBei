@@ -799,7 +799,7 @@ private struct V2NotificationFailureSourceButton: View {
                         .frame(width: 23, height: 23)
                 }
                 .frame(width: 23, height: 23)
-                .offset(x: 17, y: 6)
+                .offset(x: 17, y: 5.998)
 
                 Text("原文链接")
                     .font(.system(size: 10, weight: .regular))
@@ -830,18 +830,28 @@ private struct V2FailureSourceLinkGlyph: Shape {
         path.move(to: p(8.6004, 11.3077))
         path.addLine(to: p(7.4859, 12.5327))
         path.addCurve(
-            to: p(10.7527, 15.5045),
+            to: p(7.6334, 15.6520),
             control1: p(6.6653, 13.4348),
             control2: p(6.7313, 14.8313)
+        )
+        path.addCurve(
+            to: p(10.7527, 15.5045),
+            control1: p(8.5355, 16.4726),
+            control2: p(9.9320, 16.4066)
         )
         path.addLine(to: p(11.8671, 14.2795))
 
         path.move(to: p(10.8301, 8.8594))
         path.addLine(to: p(11.9445, 7.6344))
         path.addCurve(
-            to: p(15.2113, 10.6062),
+            to: p(15.0638, 7.4869),
             control1: p(12.7652, 6.7323),
             control2: p(14.1617, 6.6663)
+        )
+        path.addCurve(
+            to: p(15.2113, 10.6062),
+            control1: p(15.9659, 8.3076),
+            control2: p(16.0319, 9.7041)
         )
         path.addLine(to: p(14.0968, 11.8313))
 
