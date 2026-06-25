@@ -21,6 +21,11 @@ struct V2BackendChapterResponse: Decodable {
     let chapter: V2BackendChapter
 }
 
+struct V2ReviewSessionResponse: Decodable {
+    let chapter: V2BackendChapter
+    let reviewSession: V2BackendReviewSession?
+}
+
 struct V2BackendGenerationJob: Decodable, Equatable {
     let id: String?
     let status: String?
@@ -72,6 +77,69 @@ struct V2BackendChapter: Decodable, Equatable {
     let units: [V2BackendUnit]?
     let chapterSummary: V2BackendChapterSummary?
     let generationProgress: V2BackendGenerationProgress?
+    let v2ReviewSession: V2BackendReviewSession?
+}
+
+struct V2BackendReviewSession: Codable, Equatable {
+    let schemaVersion: String
+    let id: String
+    let chapterId: String
+    let status: String
+    let currentCard: V2BackendReviewCard
+    let questionStates: [String: V2BackendQuestionState]
+    let completedStepIds: [String]
+    let sourceRoute: V2BackendSourceRoute?
+    let createdAt: String
+    let updatedAt: String
+    let completedAt: String?
+}
+
+struct V2BackendReviewCard: Codable, Equatable {
+    let type: String
+    let chapterId: String
+    let unitId: String?
+    let questionId: String?
+}
+
+struct V2BackendQuestionState: Codable, Equatable {
+    let status: String
+    let result: String?
+    let selectedOptionId: String?
+    let matchedPairs: [V2BackendMatchedPair]
+    let lockedPairIds: [String]
+    let feedbackVisible: Bool
+    let answeredAt: String?
+}
+
+struct V2BackendMatchedPair: Codable, Equatable {
+    let leftId: String
+    let rightId: String
+}
+
+struct V2BackendSourceRoute: Codable, Equatable {
+    let entry: String?
+    let sourceAnchorId: String?
+    let returnCard: V2BackendReviewCard?
+    let openedAt: String?
+}
+
+struct V2AnswerQuestionRequest: Encodable {
+    let unitId: String
+    let questionId: String
+    let result: String
+    let selectedOptionId: String?
+    let matchedPairs: [V2BackendMatchedPair]
+    let lockedPairIds: [String]
+}
+
+struct V2FeedbackVisibilityRequest: Encodable {
+    let questionId: String
+    let visible: Bool
+}
+
+struct V2SourceOpenRequest: Encodable {
+    let sourceAnchorId: String?
+    let entry: String
 }
 
 struct V2BackendSource: Decodable, Equatable {

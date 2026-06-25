@@ -103,6 +103,52 @@ struct APIClient {
         return response.chapter
     }
 
+    func startOrResumeV2ReviewSession(chapterId: String) async throws -> V2ReviewSessionResponse {
+        try await send("/api/v2/chapters/\(encodedPathComponent(chapterId))/review-session", method: "POST", body: EmptyRequest(), acceptsFailureBody: false)
+    }
+
+    func fetchV2ReviewSession(chapterId: String) async throws -> V2ReviewSessionResponse {
+        try await get("/api/v2/chapters/\(encodedPathComponent(chapterId))/review-session")
+    }
+
+    func advanceV2ReviewSession(sessionId: String) async throws -> V2ReviewSessionResponse {
+        try await send("/api/v2/review-sessions/\(encodedPathComponent(sessionId))/advance", method: "POST", body: EmptyRequest(), acceptsFailureBody: false)
+    }
+
+    func answerV2Question(
+        sessionId: String,
+        unitId: String,
+        questionId: String,
+        result: String,
+        selectedOptionId: String?,
+        matchedPairs: [V2BackendMatchedPair] = [],
+        lockedPairIds: [String] = []
+    ) async throws -> V2ReviewSessionResponse {
+        let request = V2AnswerQuestionRequest(
+            unitId: unitId,
+            questionId: questionId,
+            result: result,
+            selectedOptionId: selectedOptionId,
+            matchedPairs: matchedPairs,
+            lockedPairIds: lockedPairIds
+        )
+        return try await send("/api/v2/review-sessions/\(encodedPathComponent(sessionId))/answer", method: "POST", body: request, acceptsFailureBody: false)
+    }
+
+    func setV2QuestionFeedbackVisible(sessionId: String, questionId: String, visible: Bool) async throws -> V2ReviewSessionResponse {
+        let request = V2FeedbackVisibilityRequest(questionId: questionId, visible: visible)
+        return try await send("/api/v2/review-sessions/\(encodedPathComponent(sessionId))/feedback-visibility", method: "POST", body: request, acceptsFailureBody: false)
+    }
+
+    func openV2SourceFromReview(sessionId: String, sourceAnchorId: String?, entry: String = "review") async throws -> V2ReviewSessionResponse {
+        let request = V2SourceOpenRequest(sourceAnchorId: sourceAnchorId, entry: entry)
+        return try await send("/api/v2/review-sessions/\(encodedPathComponent(sessionId))/source-open", method: "POST", body: request, acceptsFailureBody: false)
+    }
+
+    func returnFromV2SourceToReview(sessionId: String) async throws -> V2ReviewSessionResponse {
+        try await send("/api/v2/review-sessions/\(encodedPathComponent(sessionId))/source-return", method: "POST", body: EmptyRequest(), acceptsFailureBody: false)
+    }
+
     func regenerateChapter(id: String) async throws -> ChapterCreationResult {
         let response: ChapterMutationResponse = try await send("/api/chapters/\(id)/regenerate", method: "POST", body: EmptyRequest(), acceptsFailureBody: true)
         return ChapterCreationResult(chapter: response.chapter, notification: response.notification)
@@ -164,6 +210,10 @@ struct APIClient {
             throw APIClientError.httpStatus(httpResponse.statusCode)
         }
         return try decode(Response.self, from: data, path: path)
+    }
+
+    private func encodedPathComponent(_ value: String) -> String {
+        value.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? value
     }
 
     private func send<Request: Encodable, Response: Decodable>(
