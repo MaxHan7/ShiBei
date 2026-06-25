@@ -45,7 +45,7 @@ struct V2PrimaryActionButton: View {
 struct V2FlowTopBar: View {
     let title: String
     var titleFont: Font = V2Typography.pageTitle
-    var titleColor: Color = V2Color.textPrimary
+    var titleColor: Color = V2Color.topTitle
     let showSourceButton: Bool
     let showFavoriteButton: Bool
     let isFavoriteSaved: Bool
@@ -56,7 +56,7 @@ struct V2FlowTopBar: View {
     init(
         title: String,
         titleFont: Font = V2Typography.pageTitle,
-        titleColor: Color = V2Color.textPrimary,
+        titleColor: Color = V2Color.topTitle,
         showSourceButton: Bool = false,
         showFavoriteButton: Bool = false,
         isFavoriteSaved: Bool = false,
@@ -101,7 +101,7 @@ struct V2FlowTopBar: View {
 struct V2FlowScreen<Content: View>: View {
     let title: String
     var titleFont: Font = V2Typography.pageTitle
-    var titleColor: Color = V2Color.textPrimary
+    var titleColor: Color = V2Color.topTitle
     var showSourceButton: Bool = false
     var showFavoriteButton: Bool = false
     var isFavoriteSaved: Bool = false
@@ -127,7 +127,7 @@ struct V2FlowScreen<Content: View>: View {
                     onSource: onSource,
                     onFavorite: onFavorite
                 )
-                .padding(.top, 22)
+                .padding(.top, V2Layout.topBarTopPadding)
 
                 content()
             }
@@ -331,7 +331,7 @@ struct V2MultipleChoiceQuestionCard: View {
             }
             .buttonStyle(.plain)
             .frame(width: 100)
-            .position(x: 160.5, y: 518 - 31)
+            .position(x: 160.5, y: 466)
         }
         .frame(width: 321, height: 518)
     }
@@ -1596,8 +1596,8 @@ struct V2ProfileTopBar: View {
     var body: some View {
         ZStack {
             Text("我的")
-                .font(.system(size: 22, weight: .bold))
-                .foregroundStyle(V2Color.textPrimary)
+                .font(V2Typography.pageTitle)
+                .foregroundStyle(V2Color.topTitle)
                 .frame(maxWidth: .infinity)
 
             HStack {

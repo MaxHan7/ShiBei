@@ -5,6 +5,7 @@ enum V2Color {
     static let primaryAction = Color(hex: 0xA5AE66)
     static let unitProgressFill = Color(hex: 0xD4D89B)
     static let textPrimary = Color(hex: 0x44423D)
+    static let topTitle = Color(hex: 0x575757)
     static let textSecondary = Color(hex: 0x676767)
     static let textMuted = Color(hex: 0x8C8B82)
     static let pageGreenBackground = Color(hex: 0xE8EBBD)
@@ -42,10 +43,12 @@ enum V2Spacing {
 
 enum V2Layout {
     static let contentMaxWidth: CGFloat = 321
+    static let topBarTopPadding: CGFloat = 22
+    static let primaryActionBottomY: CGFloat = 642
 }
 
 enum V2Typography {
-    static let pageTitle = Font.system(size: 28, weight: .bold, design: .default)
+    static let pageTitle = Font.system(size: 22, weight: .bold, design: .default)
     static let cardTitle = Font.system(size: 18, weight: .bold, design: .default)
     static let body = Font.system(size: 16, weight: .regular, design: .default)
     static let bodyEmphasis = Font.system(size: 16, weight: .semibold, design: .default)

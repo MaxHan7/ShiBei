@@ -16,7 +16,7 @@ struct V2TabScaffold<Content: View>: View {
                 VStack(spacing: 0) {
                     Text(title)
                         .font(V2Typography.pageTitle)
-                        .foregroundStyle(V2Color.textPrimary)
+                        .foregroundStyle(V2Color.topTitle)
                         .padding(.top, 34)
 
                     ScrollView(showsIndicators: false) {
@@ -146,8 +146,6 @@ struct V2GeneratingChapterDetailView: View {
     var body: some View {
         V2FlowScreen(
             title: "章节详情",
-            titleFont: .system(size: 22, weight: .bold),
-            titleColor: Color(hex: 0x575757),
             onBack: onBack
         ) {
             GeometryReader { geometry in
@@ -575,8 +573,6 @@ struct V2NotificationView: View {
     var body: some View {
         V2FlowScreen(
             title: "通知",
-            titleFont: .system(size: 22, weight: .bold),
-            titleColor: Color(hex: 0x575757),
             onBack: onBack
         ) {
             GeometryReader { geometry in
@@ -664,8 +660,6 @@ struct V2NotificationFailureDetailView: View {
     var body: some View {
         V2FlowScreen(
             title: "通知详情",
-            titleFont: .system(size: 22, weight: .bold),
-            titleColor: Color(hex: 0x575757),
             onBack: onBack
         ) {
             GeometryReader { geometry in

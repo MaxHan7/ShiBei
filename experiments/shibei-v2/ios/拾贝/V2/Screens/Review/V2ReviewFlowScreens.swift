@@ -8,44 +8,42 @@ struct V2ChapterOverviewView: View {
 
     var body: some View {
         V2FlowScreen(title: "章节概要", onBack: onBack) {
-            VStack(spacing: 36) {
-                Spacer(minLength: 42)
+            ZStack(alignment: .top) {
+                Image("V2SummaryMascotBodyLayer")
+                    .resizable()
+                    .renderingMode(.original)
+                    .scaledToFit()
+                    .frame(width: 274, height: 260)
+                    .offset(y: 34)
+                    .opacity(0.96)
+                    .zIndex(0)
 
-                ZStack(alignment: .top) {
-                    Image("V2SummaryMascotBodyLayer")
-                        .resizable()
-                        .renderingMode(.original)
-                        .scaledToFit()
-                        .frame(height: 260)
-                        .offset(y: -92)
-                        .opacity(0.96)
-                        .zIndex(0)
-
-                    V2InfoCard {
-                        Text(chapter.overview)
-                            .font(.system(size: 22, weight: .medium))
-                            .foregroundStyle(V2Color.textSecondary)
-                            .lineSpacing(8)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .padding(.top, 100)
-                    .zIndex(1)
-
-                    Image("V2SummaryMascotHandsLayer")
-                        .resizable()
-                        .renderingMode(.original)
-                        .scaledToFit()
-                        .offset(y: 76)
-                        .zIndex(2)
+                V2InfoCard {
+                    Text(chapter.overview)
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(V2Color.textSecondary)
+                        .lineSpacing(7)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, alignment: .center)
                 }
-                .padding(.horizontal, V2Spacing.screenMargin)
+                .frame(width: V2Layout.contentMaxWidth)
+                .offset(y: 246)
+                .zIndex(1)
 
-                Spacer()
+                Image("V2SummaryMascotHandsLayer")
+                    .resizable()
+                    .renderingMode(.original)
+                    .scaledToFit()
+                    .frame(width: 306)
+                    .offset(y: 250)
+                    .zIndex(2)
 
                 V2PrimaryActionButton(title: "继续", action: onContinue)
-                    .padding(.horizontal, 44)
-                    .padding(.bottom, 34)
+                    .frame(width: V2UnitOverviewPageMetrics.buttonWidth)
+                    .offset(y: V2Layout.primaryActionBottomY)
             }
+            .frame(maxWidth: .infinity)
+            .frame(height: V2UnitOverviewPageMetrics.contentHeight, alignment: .top)
         }
     }
 }
@@ -109,6 +107,7 @@ struct V2MultipleChoiceQuestionView: View {
     let question: V2ReviewQuestionData
     let unitTitle: String
     let progress: (current: Int, total: Int)
+    var showsProgressBar: Bool = true
     @Binding var state: V2MultipleChoiceInteractionState
     let onBack: () -> Void
     let onSource: () -> Void
@@ -124,9 +123,11 @@ struct V2MultipleChoiceQuestionView: View {
             onFavorite: { state.isFavoriteSaved.toggle() }
         ) {
             ZStack(alignment: .top) {
-                V2UnitProgressBar(current: progress.current, total: progress.total)
-                    .v2PageContentWidth()
-                    .offset(y: V2MultipleChoicePageMetrics.progressY)
+                if showsProgressBar {
+                    V2UnitProgressBar(current: progress.current, total: progress.total)
+                        .v2PageContentWidth()
+                        .offset(y: V2MultipleChoicePageMetrics.progressY)
+                }
 
                 V2MultipleChoiceQuestionCard(
                     question: question,
@@ -176,6 +177,7 @@ struct V2MultipleChoiceQuestionView: View {
                         onClose: { state.feedbackPanelVisible = false },
                         onSource: onSource
                     )
+                    .padding(.bottom, V2QuestionFeedbackMetrics.bottomLift)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .zIndex(10)
                 }
@@ -240,6 +242,7 @@ struct V2MatchingQuestionView: View {
     let question: V2ReviewQuestionData
     let unitTitle: String
     let progress: (current: Int, total: Int)
+    var showsProgressBar: Bool = true
     @Binding var state: V2MatchingInteractionState
     let onBack: () -> Void
     let onSource: () -> Void
@@ -255,9 +258,11 @@ struct V2MatchingQuestionView: View {
             onFavorite: { state.isFavoriteSaved.toggle() }
         ) {
             ZStack(alignment: .top) {
-                V2UnitProgressBar(current: progress.current, total: progress.total)
-                    .v2PageContentWidth()
-                    .offset(y: V2MatchingPageMetrics.progressY)
+                if showsProgressBar {
+                    V2UnitProgressBar(current: progress.current, total: progress.total)
+                        .v2PageContentWidth()
+                        .offset(y: V2MatchingPageMetrics.progressY)
+                }
 
                 V2MatchingPromptCard(prompt: question.prompt)
                     .offset(y: V2MatchingPageMetrics.promptY)
@@ -302,6 +307,7 @@ struct V2MatchingQuestionView: View {
                         onClose: { state.feedbackPanelVisible = false },
                         onSource: onSource
                     )
+                    .padding(.bottom, V2QuestionFeedbackMetrics.bottomLift)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .zIndex(10)
                 }
@@ -460,6 +466,10 @@ private enum V2MatchingPageMetrics {
     static let mascotHeight: CGFloat = 131
     static let mascotCardOverlap: CGFloat = 64
     static let contentHeight: CGFloat = 760
+}
+
+private enum V2QuestionFeedbackMetrics {
+    static let bottomLift: CGFloat = 30
 }
 
 private struct V2MatchingPromptCard: View {
@@ -999,7 +1009,6 @@ struct V2ChapterDetailView: View {
     var body: some View {
         V2FlowScreen(
             title: "章节详情",
-            titleFont: .system(size: 24, weight: .medium),
             onBack: onBack
         ) {
             ScrollView(showsIndicators: false) {
