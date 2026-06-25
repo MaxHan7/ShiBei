@@ -43,7 +43,7 @@ enum V2Spacing {
 
 enum V2Layout {
     static let contentMaxWidth: CGFloat = 321
-    static let topBarTopPadding: CGFloat = 22
+    static let topBarTopPadding: CGFloat = 30
     static let primaryActionBottomY: CGFloat = 642
 }
 

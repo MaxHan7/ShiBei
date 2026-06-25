@@ -918,7 +918,7 @@ struct V2ProfileView: View {
 
             VStack(spacing: 0) {
                 V2ProfileTopBar(onBack: onBack)
-                    .padding(.top, 22)
+                    .padding(.top, V2Layout.topBarTopPadding)
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
