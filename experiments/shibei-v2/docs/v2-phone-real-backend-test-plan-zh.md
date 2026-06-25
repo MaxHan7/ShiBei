@@ -72,6 +72,7 @@ xcodebuild -project experiments/shibei-v2/ios/拾贝.xcodeproj -scheme 拾贝 -d
 - 生成完成后：
   - 后端返回的 `units/questions` 转为 `V2ReviewChapterData`。
   - 章节详情页和复习流使用真实数据。
+  - 后端 V2 review session 可保存当前卡片、作答状态、反馈显隐和查看原文返回位置。
 - 生成失败后：
   - 保留失败状态和用户可理解的失败文案。
   - 后续接通知失败详情页。
@@ -82,6 +83,7 @@ xcodebuild -project experiments/shibei-v2/ios/拾贝.xcodeproj -scheme 拾贝 -d
 - App 切后台或离开页面后，不应产生重复任务。
 - 同一上传动作使用 `clientRequestId` 防止重复创建。
 - UI 不能展示 `queued/running/retrying` 这类工程状态。
+- iOS 题目交互切到 V2 review session 前，题目页面仍只能算真实内容渲染测试，不能算复习进度持久化验收。
 
 ## Checkpoint 3：后端队列和失败策略复核
 

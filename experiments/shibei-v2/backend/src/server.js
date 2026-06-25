@@ -56,6 +56,15 @@ import {
 } from "./db.js";
 import { apnsConfigurationSummary, isAPNSConfigured, sendGenerationNotification } from "./apns.js";
 import { enqueueV2ChapterGeneration } from "./v2/generation/v2ChapterQueue.js";
+import {
+  advanceReviewCardV2,
+  answerQuestionV2,
+  createReviewSessionV2,
+  normalizeReviewSessionV2,
+  openSourceFromReviewV2,
+  returnFromSourceToReviewV2,
+  setQuestionFeedbackVisibleV2
+} from "./v2/state/reviewSessionV2.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const projectRoot = resolve(__dirname, "..", "..");
@@ -1079,6 +1088,7 @@ function ensureChapterRecord(chapter) {
       id
     ),
     reviewSession: chapter.reviewSession ? normalizeReviewSession(chapter.reviewSession, baseChapter) : null,
+    v2ReviewSession: chapter.v2ReviewSession || chapter.v2_review_session || null,
     masteredPoints: toIntegerValue(chapter.masteredPoints, 0),
     removedQuestionIds: Array.isArray(chapter.removedQuestionIds) ? chapter.removedQuestionIds.map((id) => toStringValue(id)).filter(Boolean) : [],
     downgradedQuestionIds: Array.isArray(chapter.downgradedQuestionIds) ? chapter.downgradedQuestionIds.map((id) => toStringValue(id)).filter(Boolean) : [],
@@ -1807,6 +1817,58 @@ async function handleQuestionFeedback(deviceId, questionId, body = {}) {
   return { chapter, feedback, reviewSession: chapter.reviewSession };
 }
 
+function isV2ReviewableChapter(chapter) {
+  return Boolean(
+    chapter &&
+    String(chapter.status || "") === "completed" &&
+    Array.isArray(chapter.units) &&
+    chapter.units.length > 0
+  );
+}
+
+function startOrResumeV2ReviewSession(chapter) {
+  if (!isV2ReviewableChapter(chapter)) {
+    const error = new Error("这个章节暂时不能开始 V2 复习。");
+    error.statusCode = 422;
+    throw error;
+  }
+
+  const existingSession = chapter.v2ReviewSession
+    ? normalizeReviewSessionV2(chapter, chapter.v2ReviewSession)
+    : null;
+
+  chapter.v2ReviewSession = existingSession?.status === "active"
+    ? existingSession
+    : createReviewSessionV2(chapter);
+  chapter.updatedAt = new Date().toISOString();
+  return chapter.v2ReviewSession;
+}
+
+function applyV2ReviewSessionMutation(chapter, mutator) {
+  if (!isV2ReviewableChapter(chapter)) {
+    const error = new Error("这个章节暂时不能继续 V2 复习。");
+    error.statusCode = 422;
+    throw error;
+  }
+
+  const currentSession = chapter.v2ReviewSession
+    ? normalizeReviewSessionV2(chapter, chapter.v2ReviewSession)
+    : createReviewSessionV2(chapter);
+  chapter.v2ReviewSession = mutator(currentSession);
+  chapter.updatedAt = new Date().toISOString();
+  return chapter.v2ReviewSession;
+}
+
+function serializeV2ReviewSessionResponse(chapter, reviewSession) {
+  const responseChapter = serializeChapterForClient(chapter);
+  return {
+    chapter: responseChapter,
+    reviewSession: reviewSession
+      ? normalizeReviewSessionV2(responseChapter, reviewSession)
+      : null
+  };
+}
+
 function normalizeFeedbackType(type) {
   if (type === "wrong_answer") return "answer_wrong";
   if (type === "unrelated_source") return "unrelated_to_source";
@@ -2051,6 +2113,66 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  const v2ReviewSessionMatch = req.url?.match(/^\/api\/v2\/chapters\/([^/]+)\/review-session$/);
+  if (v2ReviewSessionMatch && (req.method === "GET" || req.method === "POST")) {
+    const chapter = await getStoredChapter(deviceId, decodeURIComponent(v2ReviewSessionMatch[1]));
+    if (!chapter) {
+      sendJson(res, 404, { errorCode: "chapter_not_found", message: "章节不存在。" });
+      return;
+    }
+    if (!isV2ReviewableChapter(chapter)) {
+      sendJson(res, 422, { errorCode: "chapter_not_reviewable", message: "这个章节暂时不能开始 V2 复习。", chapter: serializeChapterForClient(chapter) });
+      return;
+    }
+    try {
+      const reviewSession = req.method === "POST"
+        ? startOrResumeV2ReviewSession(chapter)
+        : chapter.v2ReviewSession ? normalizeReviewSessionV2(chapter, chapter.v2ReviewSession) : null;
+      if (reviewSession) chapter.v2ReviewSession = reviewSession;
+      await upsertStoredChapter(deviceId, chapter);
+      sendJson(res, 200, serializeV2ReviewSessionResponse(chapter, reviewSession));
+    } catch (error) {
+      sendJson(res, error.statusCode || 422, { errorCode: "v2_review_session_unavailable", message: error.message || "V2 复习会话不可用。" });
+    }
+    return;
+  }
+
+  const v2ReviewSessionActionMatch = req.url?.match(/^\/api\/v2\/review-sessions\/([^/]+)\/(advance|answer|feedback-visibility|source-open|source-return)$/);
+  if (v2ReviewSessionActionMatch && req.method === "POST") {
+    const sessionId = decodeURIComponent(v2ReviewSessionActionMatch[1]);
+    const action = v2ReviewSessionActionMatch[2];
+    const chapters = await listStoredChapters(deviceId);
+    const chapter = chapters.find((item) => item.v2ReviewSession?.id === sessionId);
+    if (!chapter) {
+      sendJson(res, 404, { errorCode: "v2_review_session_not_found", message: "V2 复习会话不存在。" });
+      return;
+    }
+    try {
+      const body = await readBody(req);
+      const reviewSession = applyV2ReviewSessionMutation(chapter, (session) => {
+        switch (action) {
+        case "advance":
+          return advanceReviewCardV2(chapter, session);
+        case "answer":
+          return answerQuestionV2(chapter, session, body);
+        case "feedback-visibility":
+          return setQuestionFeedbackVisibleV2(chapter, session, body);
+        case "source-open":
+          return openSourceFromReviewV2(chapter, session, body);
+        case "source-return":
+          return returnFromSourceToReviewV2(chapter, session);
+        default:
+          return session;
+        }
+      });
+      await upsertStoredChapter(deviceId, chapter);
+      sendJson(res, 200, serializeV2ReviewSessionResponse(chapter, reviewSession));
+    } catch (error) {
+      sendJson(res, error.statusCode || 422, { errorCode: "v2_review_session_update_failed", message: error.message || "V2 复习状态保存失败。" });
+    }
+    return;
+  }
+
   const reviewSessionMatch = req.url?.match(/^\/api\/chapters\/([^/]+)\/review-session$/);
   if (reviewSessionMatch && (req.method === "GET" || req.method === "POST")) {
     const chapter = await getStoredChapter(deviceId, decodeURIComponent(reviewSessionMatch[1]));
@@ -2174,5 +2296,6 @@ export {
   recordSessionAttempt,
   saveCostRunResponse,
   serializeChapterForClient,
-  startOrResumeReviewSession
+  startOrResumeReviewSession,
+  startOrResumeV2ReviewSession
 };

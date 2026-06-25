@@ -27,12 +27,13 @@
 - 生成完成后，后端返回的 V2 chapter 会映射成 `V2ReviewChapterData`。
 - 一旦存在 `backendReviewChapter`，章节详情、查看原文、单元概要、选择题、连线题、单元总结、章节总结会使用真实生成内容。
 - 全部章节页可以展示生成中的章节卡片和已生成的章节卡片。
+- 后端已提供 V2 专用复习状态合同：`/api/v2/chapters/:id/review-session` 和 `/api/v2/review-sessions/:id/...`，可持久化当前卡片、作答状态、反馈浮窗显隐、查看原文返回位置。
 
 仍然是 fixture 或尚未生产化的部分：
 
 - 主页学习路径仍使用 `V2HomeFixture.home`，节点布局、当前节点浮窗、路径进度还没有映射到真实生成章节。
 - 笔记 / 收藏题仍使用 `V2ReviewFixture.savedQuestions`。
-- V2 SwiftUI 原型里的答题状态目前是本地 view state；旧的后端 `review-session` API 已存在，但当前 V2 题目交互还没有把每次作答持久化到 review session。
+- V2 SwiftUI 原型里的答题状态目前仍是本地 view state；后端 V2 review-session 合同已补齐，但 iOS 题目交互还没有切到这套合同。
 - 正式替换线上前，不能依赖 fixture 主页路径或笔记流作为生产完成证据。
 
 本 checkpoint 推荐人工测试路线：
@@ -288,6 +289,42 @@ Observed result:
 ```text
 Launched application with com.maxhan.shibei.v2.dev bundle identifier.
 ```
+
+## V2 Review Session Backend Contract
+
+After adding the V2-specific review session endpoints, the backend was restarted and verified against the completed local article-link smoke chapter.
+
+Verified endpoints:
+
+- `POST /api/v2/chapters/:id/review-session`
+- `POST /api/v2/review-sessions/:id/advance`
+- `POST /api/v2/review-sessions/:id/answer`
+- Supporting routes are also available for feedback visibility and source return state.
+
+Observed answer-state result:
+
+```json
+{
+  "currentCard": {
+    "type": "question_feedback",
+    "unitId": "unit-1",
+    "questionId": "q-unit-1-001"
+  },
+  "questionState": {
+    "status": "answered",
+    "result": "correct",
+    "selectedOptionId": "B",
+    "feedbackVisible": true
+  },
+  "completedStepIds": [
+    "chapter_overview",
+    "unit-1:overview",
+    "unit-1:q-unit-1-001"
+  ]
+}
+```
+
+This means the backend can now persist V2 review position and answer state for generated chapters. The iOS V2 question UI still needs to switch from local view state to this V2 review-session contract before review progress persistence can be considered production-complete.
 
 Process check:
 

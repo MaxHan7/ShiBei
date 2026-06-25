@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { recordSessionAttempt, serializeChapterForClient, startOrResumeReviewSession } from "../server.js";
+import { loadGoldenReviewPaths } from "../v2/golden/loadGoldenReviewPaths.js";
+import {
+  recordSessionAttempt,
+  serializeChapterForClient,
+  startOrResumeReviewSession,
+  startOrResumeV2ReviewSession
+} from "../server.js";
 
 function reviewableChapter(overrides = {}) {
   return {
@@ -19,6 +25,35 @@ function reviewableChapter(overrides = {}) {
     ...overrides
   };
 }
+
+test("starts and preserves a V2 review session for generated V2 chapters", async () => {
+  const [reviewPath] = await loadGoldenReviewPaths();
+  const chapter = {
+    ...structuredClone(reviewPath),
+    status: "completed"
+  };
+
+  const session = startOrResumeV2ReviewSession(chapter);
+  const serialized = serializeChapterForClient(chapter);
+
+  assert.equal(session.schemaVersion, "v2_review_session_1");
+  assert.equal(session.chapterId, chapter.id);
+  assert.deepEqual(session.currentCard, {
+    type: "chapter_overview",
+    chapterId: chapter.id
+  });
+  assert.equal(serialized.v2ReviewSession.id, session.id);
+  assert.equal(serialized.v2ReviewSession.currentCard.type, "chapter_overview");
+});
+
+test("rejects V2 review sessions for non-V2 chapters", () => {
+  const chapter = reviewableChapter();
+
+  assert.throws(
+    () => startOrResumeV2ReviewSession(chapter),
+    /暂时不能开始 V2 复习/
+  );
+});
 
 test("starts a new review session after the previous one is completed", () => {
   const chapter = reviewableChapter({
