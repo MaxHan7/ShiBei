@@ -759,8 +759,9 @@ SwiftUI 不应依赖 `quality` / `debug` 专属字段。正式页面应该只读
 - **用途**：V2 前端展示生成进度的首选字段。它把后端内部模型 stage 转换成用户能理解的生成步骤。
 - **生成来源**：V2 generation runner / pipeline 在关键阶段边界写入，不由模型生成。
 - **前端使用位置**：上传后跳转到全部章节页的生成弹窗、生成中章节卡、失败详情页、通知页。
-- **展示规则**：`displayText` 可直接展示；`stage` 和 `status` 用于判断 UI 状态；`progress` 只能作为粗略进度，不展示精确剩余时间。
+- **展示规则**：前端只展示 `displayText`；`stage` 和 `status` 用于判断 UI 状态；`progress` 只能作为粗略进度，不展示精确剩余时间。
 - **注意事项**：前端不要直接依赖 `generationMeta.stageRuntime`、`modelUsage`、prompt stage 名称或 debug meta。
+- **重要约束**：`queued`、`running`、`retrying`、`completed`、`failed` 是机器状态，不能作为用户可见文案直接显示。
 
 建议结构：
 
@@ -770,15 +771,17 @@ SwiftUI 不应依赖 `quality` / `debug` 专属字段。正式页面应该只读
   "chapterId": "chapter-001",
   "status": "running",
   "stage": "mapping_knowledge",
-  "displayText": "正在提取关键知识点",
+  "stageGroup": "knowledge",
+  "displayText": "正在总结知识点",
   "progress": 0.42,
+  "userVisible": true,
   "retryCount": 0,
   "canRetry": false,
   "updatedAt": "2026-06-24T12:00:00.000Z"
 }
 ```
 
-建议 `status`：
+建议 `status`，仅用于机器判断：
 
 - `queued`：排队中。
 - `running`：生成中。
@@ -786,18 +789,19 @@ SwiftUI 不应依赖 `quality` / `debug` 专属字段。正式页面应该只读
 - `completed`：已生成。
 - `failed`：生成失败。
 
-建议 `stage`：
+建议 `stage` 和 `displayText`：
 
 - `accepted`：已收到文章，准备生成。
-- `extracting_source`：正在整理正文。
-- `planning_review_path`：正在拆分章节脉络。
-- `mapping_knowledge`：正在提取关键知识点。
-- `planning_practice`：正在规划练习重点。
-- `generating_questions`：正在生成复习题。
+- `extracting_source`：正在提取原文。
+- `planning_review_path`：正在梳理文章结构。
+- `mapping_knowledge`：正在总结知识点。
+- `planning_practice`：正在规划复习题。
+- `generating_questions`：正在为「知识点标题」生成题目；标题过长时用 `正在为单元二生成题目`。
 - `generating_unit_copy`：正在整理单元总结。
-- `finalizing`：正在收尾。
-- `completed`：已生成。
-- `failed`：生成失败。
+- `finalizing`：正在保存复习内容。
+- `retry_wait`：生成遇到临时问题，正在重试。
+- `completed`：生成完成。
+- `failed`：生成失败，请稍后重试。
 
 失败示例：
 
@@ -807,8 +811,10 @@ SwiftUI 不应依赖 `quality` / `debug` 专属字段。正式页面应该只读
   "chapterId": "chapter-001",
   "status": "failed",
   "stage": "failed",
+  "stageGroup": "failed",
   "displayText": "这篇文章目前太长，建议控制在 6000 字以内。",
   "progress": null,
+  "userVisible": true,
   "retryCount": 0,
   "canRetry": false,
   "updatedAt": "2026-06-24T12:00:00.000Z",
@@ -866,11 +872,11 @@ SwiftUI 不应依赖 `quality` / `debug` 专属字段。正式页面应该只读
 ```json
 {
   "status": "generating",
-  "displayStatusText": "正在提取关键知识点",
+  "displayStatusText": "正在总结知识点",
   "generationProgress": {
     "status": "running",
     "stage": "mapping_knowledge",
-    "displayText": "正在提取关键知识点"
+    "displayText": "正在总结知识点"
   }
 }
 ```

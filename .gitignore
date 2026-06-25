@@ -2,8 +2,11 @@ backend/node_modules/
 **/node_modules/
 .env
 .env.*
+!.env.example
 backend/.env
 backend/.env.*
+!backend/.env.example
+!experiments/shibei-v2/backend/.env.example
 .tmp/
 .venv-dspy/
 __pycache__/

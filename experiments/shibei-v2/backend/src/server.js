@@ -34,11 +34,13 @@ import {
   deleteFavoriteQuestion as deleteDatabaseFavoriteQuestion,
   deleteNotificationsForChapter,
   enqueueGenerationJob,
+  enqueueIdempotentGenerationJob,
   ensureDevice,
   getFavoriteQuestion as getDatabaseFavoriteQuestion,
   getChapter as getDatabaseChapter,
   getGenerationQueueSummary,
   getNotification as getDatabaseNotification,
+  getPendingGenerationJobByIdempotencyKey,
   hasDatabase,
   initDatabase,
   listChapters as listDatabaseChapters,
@@ -53,6 +55,7 @@ import {
   upsertPushToken as upsertDatabasePushToken
 } from "./db.js";
 import { apnsConfigurationSummary, isAPNSConfigured, sendGenerationNotification } from "./apns.js";
+import { enqueueV2ChapterGeneration } from "./v2/generation/v2ChapterQueue.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const projectRoot = resolve(__dirname, "..", "..");
@@ -141,6 +144,35 @@ async function handleCreateChapter(req, res) {
     message: "已排队，正在等待生成。"
   });
   if (!hasDatabase) void runChapterGeneration(deviceId, submittedChapter.id, body);
+}
+
+async function handleCreateV2Chapter(req, res) {
+  if (!hasDatabase) {
+    sendJson(res, 503, {
+      errorCode: "v2_queue_requires_database",
+      message: "V2 本地队列测试需要配置 DATABASE_URL 后再启动 backend。"
+    });
+    return;
+  }
+
+  const body = await readBody(req);
+  const deviceId = getDeviceId(req);
+  const result = await enqueueV2ChapterGeneration({
+    deviceId,
+    body,
+    deps: {
+      getPendingGenerationJobByIdempotencyKey,
+      getChapter: getDatabaseChapter,
+      upsertChapter: upsertDatabaseChapter,
+      enqueueIdempotentGenerationJob
+    }
+  });
+
+  sendJson(res, 202, {
+    ...result,
+    chapter: serializeChapterForClient(result.chapter),
+    message: result.generationProgress?.displayText || "已收到文章，准备生成"
+  });
 }
 
 async function handleCreateQualityRun(req, res) {
@@ -987,6 +1019,7 @@ function normalizeGenerationProgress(progress, chapterId = "") {
     chapterId: toStringValue(progress.chapterId || chapterId),
     status: toStringValue(progress.status || ""),
     stage: toStringValue(progress.stage || ""),
+    stageGroup: toStringValue(progress.stageGroup || ""),
     displayText: toStringValue(progress.displayText || ""),
     progress:
       progress.progress === null || progress.progress === undefined
@@ -995,6 +1028,11 @@ function normalizeGenerationProgress(progress, chapterId = "") {
           ? Number(progress.progress)
           : null,
     retryCount: toIntegerValue(progress.retryCount, 0),
+    userVisible: progress.userVisible === undefined ? true : Boolean(progress.userVisible),
+    ...(progress.unitIndex === null || progress.unitIndex === undefined ? {} : { unitIndex: toIntegerValue(progress.unitIndex, 0) }),
+    ...(progress.unitTitle ? { unitTitle: toStringValue(progress.unitTitle) } : {}),
+    ...(progress.attempt === null || progress.attempt === undefined ? {} : { attempt: toIntegerValue(progress.attempt, 0) }),
+    ...(progress.maxAttempts === null || progress.maxAttempts === undefined ? {} : { maxAttempts: toIntegerValue(progress.maxAttempts, 0) }),
     canRetry: Boolean(progress.canRetry),
     updatedAt: toStringValue(progress.updatedAt || ""),
     ...(progress.failureCode ? { failureCode: toStringValue(progress.failureCode) } : {}),
@@ -1812,6 +1850,11 @@ const server = createServer(async (req, res) => {
 
   if (req.method === "POST" && req.url === "/api/chapters") {
     await handleCreateChapter(req, res);
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/api/v2/chapters") {
+    await handleCreateV2Chapter(req, res);
     return;
   }
 

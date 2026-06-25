@@ -34,12 +34,38 @@ test("builds a stable user-facing generation progress DTO", () => {
     chapterId: "chapter-001",
     status: "running",
     stage: "planning_practice",
-    displayText: "正在规划练习重点",
+    stageGroup: "practice",
+    displayText: "正在规划复习题",
     progress: 0.58,
+    userVisible: true,
     retryCount: 0,
     canRetry: false,
     updatedAt: "2026-06-24T12:00:00.000Z"
   });
+});
+
+test("builds dynamic unit question progress text", () => {
+  const progress = buildV2GenerationProgress({
+    status: V2_GENERATION_STATUS.RUNNING,
+    stage: V2_GENERATION_STAGE.GENERATING_QUESTIONS,
+    unitIndex: 1,
+    unitTitle: "DMC模型"
+  });
+
+  assert.equal(progress.displayText, "正在为「DMC模型」生成题目");
+  assert.equal(progress.unitIndex, 1);
+  assert.equal(progress.unitTitle, "DMC模型");
+});
+
+test("falls back to unit index when title is too long", () => {
+  const progress = buildV2GenerationProgress({
+    status: V2_GENERATION_STATUS.RUNNING,
+    stage: V2_GENERATION_STAGE.GENERATING_QUESTIONS,
+    unitIndex: 2,
+    unitTitle: "这是一个非常非常长的知识点标题不适合放进进度提示"
+  });
+
+  assert.equal(progress.displayText, "正在为单元3生成题目");
 });
 
 test("emits normalized generation progress when a reporter is provided", async () => {

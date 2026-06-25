@@ -88,11 +88,12 @@ export async function runV2GenerationProgram(
   }
 
   try {
-  const emitStageProgress = (stage) => emitV2GenerationProgress(onProgress, {
+  const emitStageProgress = (stage, extra = {}) => emitV2GenerationProgress(onProgress, {
     chapterId: article.id,
     status: V2_GENERATION_STATUS.RUNNING,
     stage: mapV2ModelStageToProgressStage(stage),
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
+    ...extra
   });
 
   await emitStageProgress("sourceMap");
@@ -196,6 +197,10 @@ export async function runV2GenerationProgram(
       async (input) => {
         const questionBriefs = (input.questionBriefs || []).filter((brief) => brief.type === "multiple_choice");
         const questionPlanIds = new Set(questionBriefs.map((brief) => brief.questionPlanId));
+        await emitStageProgress("multipleChoiceDraftUnitBatch", {
+          unitIndex: input.unit.order,
+          unitTitle: input.unit.title
+        });
         return callAndValidate(
           activePromptCaller,
           "multipleChoiceDraftUnitBatch",
@@ -229,7 +234,12 @@ export async function runV2GenerationProgram(
     units: await mapWithConcurrency(
       matchingDraftInputs,
       unitConcurrency,
-      async (input) =>
+      async (input) => {
+        await emitStageProgress("matchingDraft", {
+          unitIndex: input.unit.order,
+          unitTitle: input.unit.title
+        });
+        return (
         callAndValidate(
           activePromptCaller,
           "matchingDraft",
@@ -256,6 +266,8 @@ export async function runV2GenerationProgram(
               )
           }
         )
+        );
+      }
     )
   };
   const questionDraftsByUnit = mergeTypedQuestionDrafts({
@@ -264,6 +276,10 @@ export async function runV2GenerationProgram(
     matchingDraftBatch
   });
   await emitStageProgress("unitCopyBatch");
+  await emitStageProgress("unitCopyBatch", {
+    unitIndex: 0,
+    unitTitle: plan.units[0]?.title || ""
+  });
   const unitCopyBatch = await callAndValidate(
     activePromptCaller,
     "unitCopyBatch",

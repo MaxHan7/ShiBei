@@ -11,6 +11,11 @@ import {
   upsertNotification
 } from "../../db.js";
 import { runV2GenerationJob } from "./runV2GenerationJob.js";
+import {
+  buildV2GenerationProgress,
+  V2_GENERATION_STAGE,
+  V2_GENERATION_STATUS
+} from "./generationProgress.js";
 
 export const V2_GENERATION_JOB_TYPES = Object.freeze([
   "v2_create_chapter",
@@ -35,7 +40,8 @@ export async function runV2GenerationQueuedJob(job, deps = {}) {
   const input = buildV2QueuedGenerationInput(job);
   const existing = await services.getChapter(job.deviceId, job.chapterId);
 
-  const result = await services.runV2GenerationJob(input, {
+  const simulatedResult = buildLocalDebugFailureResult(job);
+  const result = simulatedResult || await services.runV2GenerationJob(input, {
     generationMetaMode: "production",
     onProgress: (progress) => persistV2GenerationProgress(job, progress, services)
   });
@@ -54,13 +60,22 @@ export async function runV2GenerationQueuedJob(job, deps = {}) {
     return result;
   }
 
-  const failedChapter = await services.upsertChapter(job.deviceId, buildFailedV2Chapter({
-    job,
-    existing,
-    result,
-    input
-  }));
-  await services.createNotification(job.deviceId, failedChapter);
+  const retry = Boolean(result.retryable);
+  if (retry) {
+    await persistV2GenerationProgress(
+      job,
+      buildRetryingProgress(job, result),
+      services
+    );
+  } else {
+    const failedChapter = await services.upsertChapter(job.deviceId, buildFailedV2Chapter({
+      job,
+      existing,
+      result,
+      input
+    }));
+    await services.createNotification(job.deviceId, failedChapter);
+  }
   await services.failGenerationJob(job.deviceId, job.id, {
     status: result.status,
     currentStage: result.failedStage || result.status,
@@ -134,6 +149,70 @@ function buildFailedV2Chapter({ job, existing, result, input }) {
     createdAt: existing?.createdAt || now,
     updatedAt: now
   };
+}
+
+function buildRetryingProgress(job, result = {}) {
+  return buildV2GenerationProgress({
+    jobId: job.id,
+    chapterId: job.chapterId,
+    status: V2_GENERATION_STATUS.RETRYING,
+    stage: V2_GENERATION_STAGE.RETRY_WAIT,
+    retryCount: job.attemptCount || 0,
+    attempt: job.attemptCount || 0,
+    maxAttempts: job.maxAttempts || null,
+    canRetry: true,
+    failureCode: result.generationProgress?.failureCode || "",
+    failureMessage: "生成遇到临时问题，正在重试",
+    updatedAt: new Date().toISOString()
+  });
+}
+
+function buildLocalDebugFailureResult(job = {}) {
+  if (process.env.NODE_ENV === "production") return null;
+  const payload = job.payload && typeof job.payload === "object" ? job.payload : {};
+  const mode = payload.debugV2FailureMode || payload.body?.debugV2FailureMode || "";
+  if (!mode) return null;
+  if (mode === "structured_output_once" && Number(job.attemptCount || 0) <= 1) {
+    return {
+      status: "failed_generation",
+      displayStatusText: "模型输出格式不稳定",
+      failedStage: "structured_output",
+      failureReason: "模型返回内容不是可解析 JSON，请重试。",
+      retryable: true,
+      canRetry: true,
+      retryDelayMs: 500,
+      generationProgress: buildV2GenerationProgress({
+        jobId: job.id,
+        chapterId: job.chapterId,
+        status: V2_GENERATION_STATUS.FAILED,
+        stage: V2_GENERATION_STAGE.FAILED,
+        canRetry: true,
+        failureCode: "structured_output_failed",
+        failureMessage: "模型返回内容不是可解析 JSON，请重试。"
+      })
+    };
+  }
+  if (mode === "missing_api_key") {
+    return {
+      status: "failed_generation",
+      displayStatusText: "模型配置缺失",
+      failedStage: "model_calling",
+      failureReason: "缺少模型 API Key。",
+      retryable: false,
+      canRetry: false,
+      retryDelayMs: 0,
+      generationProgress: buildV2GenerationProgress({
+        jobId: job.id,
+        chapterId: job.chapterId,
+        status: V2_GENERATION_STATUS.FAILED,
+        stage: V2_GENERATION_STAGE.FAILED,
+        canRetry: false,
+        failureCode: "missing_api_key",
+        failureMessage: "缺少模型 API Key。"
+      })
+    };
+  }
+  return null;
 }
 
 async function defaultCreateNotification(deviceId, chapter) {

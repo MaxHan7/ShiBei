@@ -138,10 +138,76 @@ test("requeues retryable V2 failures with calculated delay", async () => {
   const failCall = calls.find((call) => call.name === "failGenerationJob");
 
   assert.equal(result.retryable, true);
-  assert.equal(chapters.get("chapter-1").status, "failed_generation");
+  assert.equal(chapters.get("chapter-1").status, "submitted");
+  assert.equal(chapters.get("chapter-1").generationProgress.status, "retrying");
+  assert.equal(chapters.get("chapter-1").generationProgress.displayText, "生成遇到临时问题，正在重试");
+  assert.equal(calls.some((call) => call.name === "createNotification"), false);
   assert.equal(failCall.fields.retry, true);
   assert.equal(failCall.fields.retryDelayMs, 30_000);
   assert.equal(failCall.fields.currentStage, "v2_multipleChoiceDraft");
+});
+
+test("simulates one retryable local V2 failure without calling model", async () => {
+  const calls = [];
+  const chapters = new Map([
+    ["chapter-1", {
+      id: "chapter-1",
+      title: "Hook",
+      status: "submitted",
+      generationMeta: {},
+      createdAt: "2026-06-24T00:00:00.000Z"
+    }]
+  ]);
+  const deps = mockDeps({
+    calls,
+    chapters,
+    runV2GenerationJob: async () => {
+      throw new Error("model should not be called");
+    }
+  });
+
+  const result = await runV2GenerationQueuedJob({
+    ...baseJob(),
+    attemptCount: 1,
+    payload: {
+      body: {
+        title: "Hook",
+        rawText: "Hook 是流程控制器。"
+      },
+      debugV2FailureMode: "structured_output_once"
+    }
+  }, deps);
+
+  assert.equal(result.retryable, true);
+  assert.equal(chapters.get("chapter-1").generationProgress.status, "retrying");
+  assert.equal(calls.find((call) => call.name === "failGenerationJob").fields.retry, true);
+});
+
+test("simulates permanent local V2 missing API key failure", async () => {
+  const calls = [];
+  const chapters = new Map();
+  const deps = mockDeps({
+    calls,
+    chapters,
+    runV2GenerationJob: async () => {
+      throw new Error("model should not be called");
+    }
+  });
+
+  const result = await runV2GenerationQueuedJob({
+    ...baseJob(),
+    payload: {
+      body: {
+        title: "Hook",
+        rawText: "Hook 是流程控制器。"
+      },
+      debugV2FailureMode: "missing_api_key"
+    }
+  }, deps);
+
+  assert.equal(result.retryable, false);
+  assert.equal(chapters.get("chapter-1").generationMeta.failureCode, "missing_api_key");
+  assert.equal(calls.find((call) => call.name === "failGenerationJob").fields.retry, false);
 });
 
 test("does not requeue permanent V2 configuration failures", async () => {
