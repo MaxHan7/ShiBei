@@ -309,3 +309,15 @@ Interpretation:
 - The local/root backend is ready to advertise V2 capability.
 - The currently deployed production service is still an older deployment from the perspective of V2 creation.
 - The next production-readiness step is deployment/version alignment, not more client-side debugging.
+
+### 2026-06-26: Draft deployment PR checkpoint
+
+- Created draft PR for the full V2 replacement candidate:
+  - https://github.com/MaxHan7/ShiBei/pull/3
+- The PR is intentionally draft because the production service does not yet expose V2 creation capability.
+- Do not merge this PR into `master` until:
+  - `preflight:phone` passes against the target backend URL,
+  - `smoke:v2:queue` passes against the target backend URL,
+  - phone E2E passes,
+  - Release entry is intentionally flipped to V2,
+  - rollback and database backup are recorded.
