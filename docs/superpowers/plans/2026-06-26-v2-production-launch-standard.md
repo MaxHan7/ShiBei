@@ -15,8 +15,7 @@
 ## Current Baseline
 
 - Current branch: `codex/shibei-v2-isolated-build`.
-- Latest validated candidate commit: `7581069`.
-- Latest passing GitHub Actions run: `https://github.com/MaxHan7/ShiBei/actions/runs/28214014827`.
+- Latest validated candidate: PR `https://github.com/MaxHan7/ShiBei/pull/3` head; use PR checks as the authoritative latest CI state.
 - Root production app project: `拾贝/拾贝.xcodeproj`.
 - Production bundle id: `com.maxhan.shibei`.
 - Root iOS production URL: `https://shibei-production.up.railway.app`.

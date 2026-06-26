@@ -5,8 +5,9 @@
 ## 当前仓库节点
 
 - 当前分支：`codex/shibei-v2-isolated-build`
-- 本次盘点基线提交：`f279e6ebf318245467a68827cb7a804afa5e3352`（候选分支最新提交以 PR 为准）
+- 本次盘点基线：候选 PR head（最新提交与 checks 以 PR 为准）
 - 最近 checkpoint：
+  - `ebc5383 ci: add guarded railway production deploy workflow`
   - `f279e6e ci: add production gate evidence workflow`
   - `9852ccc docs: record latest v2 readiness candidate`
   - `7581069 chore: capture production readiness evidence`
@@ -138,8 +139,8 @@ xcodebuild -project "拾贝/拾贝.xcodeproj" -scheme "拾贝" -destination "gen
 xcodebuild -project "拾贝/拾贝.xcodeproj" -scheme "拾贝" -destination "generic/platform=iOS Simulator" -configuration Release CODE_SIGNING_ALLOWED=NO build
 ```
 
-- GitHub Actions `V2 Production Readiness` 最新候选提交验证通过：
-  - `https://github.com/MaxHan7/ShiBei/actions/runs/28214277937`
+- GitHub Actions `V2 Production Readiness` 最新候选提交验证通过，具体 run 以 PR checks 为准：
+  - `https://github.com/MaxHan7/ShiBei/pull/3`
   - 覆盖 root checks、iOS Debug simulator build、iOS Release simulator build。
   - 中间曾暴露 GitHub runner Xcode 16.4 对大 SwiftUI body 的类型检查失败，已通过拆分通知页布局收口。
 - 已新增 GitHub Actions 手动证据采集入口：
