@@ -234,3 +234,26 @@ Exit criteria:
   - `xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic/platform=iOS Simulator' -configuration Debug build`
   - `xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic/platform=iOS' -configuration Release build`
 - Release build still showed `aps-environment = development`; this is a launch blocker for production push readiness and must be resolved or explicitly explained before App Store/TestFlight release.
+
+### 2026-06-26: Root backend phone preflight checkpoint
+
+- Added root `backend/scripts/phone-preflight.mjs`.
+- Added root backend script:
+
+  ```bash
+  npm --prefix backend run preflight:phone
+  ```
+
+- The preflight supports two modes:
+  - local/LAN backend: checks local `.env`, model key availability, database URL, health, database and queue;
+  - remote HTTPS backend: checks health, database and queue without requiring local secrets.
+- Default bundle id is the production app bundle: `com.maxhan.shibei`.
+- Production URL preflight passed against `https://shibei-production.up.railway.app`:
+  - backend health passed,
+  - database health passed,
+  - queue visibility passed.
+- Root backend validation passed again after adding the script:
+
+  ```bash
+  npm --prefix backend run check
+  ```
