@@ -632,10 +632,35 @@ private struct V2PathCycleLayout {
         guard nodeCount > 1 else { return Path() }
 
         let lastReferencePoint = template.referenceSlot(at: nodeCount - 1)
-        return template.connectionPath(
+        var path = template.connectionPath(
             stoppingAtReferenceY: lastReferencePoint.y,
             transform: transformReferencePoint(_:)
         )
+
+        if nodeCount > template.referenceSlotCount {
+            appendRepeatedConnections(to: &path)
+        }
+
+        return path
+    }
+
+    private func appendRepeatedConnections(to path: inout Path) {
+        let firstRepeatedIndex = max(1, template.referenceSlotCount - 1)
+        guard nodeCount > firstRepeatedIndex + 1 else {
+            return
+        }
+
+        var previous = point(at: firstRepeatedIndex)
+        for index in (firstRepeatedIndex + 1)..<nodeCount {
+            let current = point(at: index)
+            let midY = (previous.y + current.y) / 2
+            path.addCurve(
+                to: current,
+                control1: CGPoint(x: previous.x, y: midY),
+                control2: CGPoint(x: current.x, y: midY)
+            )
+            previous = current
+        }
     }
 
     private func transformReferencePoint(_ point: CGPoint) -> CGPoint {
@@ -758,6 +783,7 @@ private struct V2PathCycleTemplate {
     let topInset: CGFloat = 30
     let horizontalScale: CGFloat = 1
     let verticalScale: CGFloat = 1
+    let repeatedCycleHeight: CGFloat = 636
 
     private let referenceSlots: [CGPoint] = [
         CGPoint(x: 166, y: 965.001),
@@ -769,6 +795,10 @@ private struct V2PathCycleTemplate {
         CGPoint(x: 70.5, y: 53.501)
     ]
 
+    var referenceSlotCount: Int {
+        referenceSlots.count
+    }
+
     var startY: CGFloat {
         referenceSlots[0].y
     }
@@ -778,11 +808,11 @@ private struct V2PathCycleTemplate {
             return referenceSlots[index]
         }
 
-        let repeatedUnitIndex = max(1, index)
-        let patternIndex = ((repeatedUnitIndex - 1) % 4) + 3
-        let cycle = CGFloat((repeatedUnitIndex - 3) / 4 + 1)
-        let reference = referenceSlots[min(patternIndex, referenceSlots.count - 1)]
-        return CGPoint(x: reference.x, y: reference.y - 636 * cycle)
+        let repeatedIndex = index - referenceSlots.count
+        let patternIndex = 3 + repeatedIndex % 4
+        let cycle = CGFloat(repeatedIndex / 4 + 1)
+        let reference = referenceSlots[patternIndex]
+        return CGPoint(x: reference.x, y: reference.y - repeatedCycleHeight * cycle)
     }
 
     func slot(at index: Int) -> CGPoint {
