@@ -148,6 +148,43 @@ struct V2FlowScreen<Content: View>: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        .v2InteractiveBackSwipe(onBack: onBack)
+    }
+}
+
+private struct V2InteractiveBackSwipeModifier: ViewModifier {
+    let onBack: () -> Void
+    @State private var hasTriggeredBack = false
+
+    private let edgeActivationWidth: CGFloat = 28
+    private let minimumHorizontalTranslation: CGFloat = 72
+    private let verticalToleranceRatio: CGFloat = 1.35
+
+    func body(content: Content) -> some View {
+        content
+            .contentShape(Rectangle())
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 18, coordinateSpace: .global)
+                    .onChanged { value in
+                        guard !hasTriggeredBack,
+                              value.startLocation.x <= edgeActivationWidth,
+                              value.translation.width >= minimumHorizontalTranslation,
+                              value.translation.width > abs(value.translation.height) * verticalToleranceRatio else {
+                            return
+                        }
+                        hasTriggeredBack = true
+                        onBack()
+                    }
+                    .onEnded { _ in
+                        hasTriggeredBack = false
+                    }
+            )
+    }
+}
+
+private extension View {
+    func v2InteractiveBackSwipe(onBack: @escaping () -> Void) -> some View {
+        modifier(V2InteractiveBackSwipeModifier(onBack: onBack))
     }
 }
 
