@@ -50,7 +50,7 @@ struct V2CircleIconButton: View {
         case .profile:
             circleAsset("V2CircleButtonProfile")
         case .delete:
-            systemIcon("trash")
+            deleteButton
         }
     }
 
@@ -61,7 +61,7 @@ struct V2CircleIconButton: View {
             .frame(width: V2TopCircleButtonMetrics.canvasWidth, height: V2TopCircleButtonMetrics.canvasHeight)
     }
 
-    private func systemIcon(_ name: String) -> some View {
+    private var deleteButton: some View {
         ZStack {
             Circle()
                 .fill(V2Color.surfaceCircleButton)
@@ -77,10 +77,11 @@ struct V2CircleIconButton: View {
                 )
                 .position(x: V2TopCircleButtonMetrics.centerX, y: V2TopCircleButtonMetrics.visualCenterY)
 
-            Image(systemName: name)
-                .font(.system(size: 19, weight: .regular))
-                .foregroundStyle(V2Color.textPrimary)
-                .position(x: V2TopCircleButtonMetrics.centerX, y: V2TopCircleButtonMetrics.visualCenterY)
+            V2TrashIconShape()
+                .stroke(
+                    V2Color.textPrimary,
+                    style: StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round)
+                )
         }
         .frame(width: V2TopCircleButtonMetrics.canvasWidth, height: V2TopCircleButtonMetrics.canvasHeight)
     }
@@ -100,6 +101,43 @@ struct V2CircleIconButton: View {
         case .sourceDocument: "查看原文"
         case .delete: "删除章节"
         }
+    }
+}
+
+private struct V2TrashIconShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+
+        path.move(to: CGPoint(x: 24.5, y: 20))
+        path.addLine(to: CGPoint(x: 24.5, y: 26))
+
+        path.move(to: CGPoint(x: 20.5, y: 20))
+        path.addLine(to: CGPoint(x: 20.5, y: 26))
+
+        path.move(to: CGPoint(x: 16.5, y: 16))
+        path.addLine(to: CGPoint(x: 16.5, y: 28))
+        path.addCurve(
+            to: CGPoint(x: 18.5, y: 30),
+            control1: CGPoint(x: 16.5, y: 29.1),
+            control2: CGPoint(x: 17.4, y: 30)
+        )
+        path.addLine(to: CGPoint(x: 26.5, y: 30))
+        path.addCurve(
+            to: CGPoint(x: 28.5, y: 28),
+            control1: CGPoint(x: 27.6, y: 30),
+            control2: CGPoint(x: 28.5, y: 29.1)
+        )
+        path.addLine(to: CGPoint(x: 28.5, y: 16))
+
+        path.move(to: CGPoint(x: 14.5, y: 16))
+        path.addLine(to: CGPoint(x: 30.5, y: 16))
+
+        path.move(to: CGPoint(x: 17.5, y: 16))
+        path.addLine(to: CGPoint(x: 19.5, y: 12))
+        path.addLine(to: CGPoint(x: 25.5, y: 12))
+        path.addLine(to: CGPoint(x: 27.5, y: 16))
+
+        return path
     }
 }
 
