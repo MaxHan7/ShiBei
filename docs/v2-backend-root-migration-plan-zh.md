@@ -4,6 +4,8 @@
 
 最新进度：Batch 1-5 已迁入并提交到当前分支；root backend 的 `npm --prefix backend run check` 现在同时覆盖旧链路 106 个测试和 V2 链路 175 个测试。尚未进行非生产数据库真实生成 smoke，也尚未部署到 production。
 
+补充进度：已完成一轮本地非生产 Postgres 队列 smoke，使用模拟永久失败模式验证 V2 路由、DB queue、worker dispatch、失败进度落库和用户可读失败文案。尚未用真实模型跑成功生成 smoke。
+
 ## 目标
 
 把 `experiments/shibei-v2/backend` 中已经验证过的 V2 生成、队列、进度、重试、V2 review session 和序列化能力，分批迁入根目录 `backend`，让当前 Railway production service 可以在不改变部署外壳的前提下替换为 V2 行为。
@@ -183,17 +185,37 @@ Local smoke without `DATABASE_URL` on port `5199`:
 - `GET /api/health` returned `ok: true`, `storage: "memory"`, APNS bundle `com.maxhan.shibei`.
 - `POST /api/v2/chapters` returned `v2_queue_requires_database`, confirming the V2 route is wired and fails clearly when the required DB queue is unavailable.
 
+DB startup smoke note:
+
+- First DB smoke exposed a startup deadlock: `start.js` initialized DB, then server and worker child processes also ran `initDatabase()` concurrently.
+- Fix: `start.js` initializes DB once and passes `SHIBEI_DB_INITIALIZED_BY_PARENT=1` to child processes; server/worker still initialize DB when run directly.
+- `npm --prefix backend run check` passed after the fix.
+
 ## Batch 6: Production Smoke On Non-Production Database
 
 目标：在不碰 production DB 的情况下验证根 backend 已能跑 V2。
 
-- [ ] Start root backend with a test `DATABASE_URL`.
-- [ ] Run V2 queue smoke against root backend.
-- [ ] Verify:
+- [x] Start root backend with a test `DATABASE_URL`.
+- [x] Run V2 queue smoke against root backend in `permanent-failure` mode without model calls.
+- [x] Verify:
   - `POST /api/v2/chapters` returns `202`.
   - `GET /api/chapters/:id` shows user-facing progress.
   - worker completes or fails with readable state.
-  - generated V2 chapter can start review session.
+  - failed generation state is persisted.
+- [ ] Run a real-model success smoke on a non-production DB.
+- [ ] Verify generated V2 chapter can start review session.
+
+Command now available from root backend:
+
+```bash
+npm --prefix backend run smoke:v2:queue -- --base-url http://127.0.0.1:5198 --mode permanent-failure --device-id root-v2-smoke
+```
+
+Observed local DB smoke:
+
+- Enqueue returned chapter id and job id.
+- Progress moved from `queued / accepted / 已收到文章，准备生成` to `failed / failed / 缺少模型 API Key。`
+- Worker claimed and completed the V2 job without crashing.
 
 Expected:
 
