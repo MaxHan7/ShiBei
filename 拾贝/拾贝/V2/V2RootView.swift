@@ -16,6 +16,7 @@ struct V2RootView: View {
     @State private var backendChapter: V2BackendChapter?
     @State private var backendReviewChapter: V2ReviewChapterData?
     @State private var v2ReviewSession: V2BackendReviewSession?
+    @State private var backendNotifications: [NotificationItem] = []
     @State private var generationPollingTask: Task<Void, Never>?
     @State private var generationErrorText = ""
     @State private var isSubmittingGeneration = false
@@ -125,6 +126,7 @@ struct V2RootView: View {
         case .notifications:
             V2NotificationView(
                 usesMockData: usesFixtures,
+                notifications: backendNotifications,
                 onBack: goBack,
                 onOpenSuccess: { pushRoute(.chapterDetail) },
                 onOpenFailure: { pushRoute(.notificationFailureDetail) }
@@ -645,6 +647,7 @@ struct V2RootView: View {
         hasLoadedInitialBackendChapter = true
 
         do {
+            backendNotifications = (try? await apiClient.fetchNotifications()) ?? []
             guard let latestChapter = try await apiClient.fetchV2Chapters().first else {
                 return
             }

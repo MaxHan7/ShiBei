@@ -591,6 +591,7 @@ private enum V2NotesPageMetrics {
 
 struct V2NotificationView: View {
     let usesMockData: Bool
+    let notifications: [NotificationItem]
     let onBack: () -> Void
     let onOpenSuccess: () -> Void
     let onOpenFailure: () -> Void
@@ -631,28 +632,23 @@ struct V2NotificationView: View {
                     )
 
                     VStack(spacing: 22) {
-                        V2NotificationSummaryBanner(unreadCount: usesMockData ? 2 : 0)
+                        V2NotificationSummaryBanner(unreadCount: unreadCount)
 
-                        if usesMockData {
-                            V2NotificationCard(
-                                title: "章节已生成",
-                                message: "《如何把AI Agent用到你的生意经》已准备好，可以开始学习",
-                                isSuccess: true,
-                                action: onOpenSuccess
-                            )
-
-                            V2NotificationCard(
-                                title: "生成失败",
-                                message: "章节生成失败，点击查看具体原因",
-                                isSuccess: false,
-                                action: onOpenFailure
-                            )
-                        } else {
+                        if displayNotifications.isEmpty {
                             V2InfoCard {
                                 Text("暂无通知")
                                     .font(V2Typography.body)
                                     .foregroundStyle(V2Color.textSecondary)
                                     .frame(maxWidth: .infinity, alignment: .center)
+                            }
+                        } else {
+                            ForEach(displayNotifications) { notification in
+                                V2NotificationCard(
+                                    title: notification.title,
+                                    message: notification.body,
+                                    isSuccess: notification.type == .generationCompleted,
+                                    action: action(for: notification)
+                                )
                             }
                         }
                     }
@@ -666,6 +662,47 @@ struct V2NotificationView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
             .frame(height: 760)
+        }
+    }
+
+    private var displayNotifications: [NotificationItem] {
+        if usesMockData {
+            return [
+                NotificationItem(
+                    id: "v2-mock-notification-success",
+                    chapterId: "v2-mock-chapter",
+                    type: .generationCompleted,
+                    title: "章节已生成",
+                    body: "《如何把AI Agent用到你的生意经》已准备好，可以开始学习",
+                    read: false,
+                    dismissed: false,
+                    createdAt: ""
+                ),
+                NotificationItem(
+                    id: "v2-mock-notification-failure",
+                    chapterId: "v2-mock-chapter",
+                    type: .generationFailed,
+                    title: "生成失败",
+                    body: "章节生成失败，点击查看具体原因",
+                    read: false,
+                    dismissed: false,
+                    createdAt: ""
+                )
+            ]
+        }
+        return notifications.filter { !$0.dismissed }
+    }
+
+    private var unreadCount: Int {
+        displayNotifications.filter { !$0.read }.count
+    }
+
+    private func action(for notification: NotificationItem) -> () -> Void {
+        switch notification.type {
+        case .generationCompleted:
+            return onOpenSuccess
+        case .generationFailed:
+            return onOpenFailure
         }
     }
 
