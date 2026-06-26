@@ -60,7 +60,9 @@ npm run check:production-deploy-inputs -- \
 
 旧测试数据导出方式：
 
-1. 确认 GitHub repository secret 里已经存在 `RAILWAY_TOKEN`。
+1. 确认 GitHub repository secrets 里已经存在：
+   - `RAILWAY_TOKEN`：用于 `railway up` 部署的 project token。
+   - `RAILWAY_API_TOKEN`：用于读取 Railway project/service variables 的 account/workspace token。
 2. 在 GitHub Actions 手动运行 `V2 Production DB Export`。
 3. 输入：
    - `confirmation`: `export-old-test-data`
@@ -91,6 +93,8 @@ npm run check:production-deploy-inputs -- \
 
 只确认 key 是否存在，不记录值：
 
+- `RAILWAY_TOKEN`
+- `RAILWAY_API_TOKEN`
 - `DATABASE_URL`
 - `DEEPSEEK_API_KEY` 或 `OPENAI_API_KEY`
 - `AI_PROVIDER`
