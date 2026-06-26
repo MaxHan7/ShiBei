@@ -1071,7 +1071,7 @@ struct V2RootView: View {
             await dismissOpenedNotification(notification)
             await openNotificationChapter(chapterID: notification.chapterId)
             await MainActor.run {
-                resetToRoute(targetRoute, tab: .materials)
+                pushRoute(targetRoute)
             }
         }
     }
