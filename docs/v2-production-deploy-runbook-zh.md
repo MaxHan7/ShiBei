@@ -58,6 +58,35 @@ npm run check:production-deploy-inputs -- \
 - 额外保险：清空前先导出一份旧数据，记录为 `Old data export reference`。
 - 注意：`reset-data` 不是长期策略。正式开放真实用户前，必须回到 `preserve-data`，补齐备份、恢复演练和迁移策略。
 
+旧测试数据导出方式：
+
+1. 确认 GitHub repository secret 里已经存在 `RAILWAY_TOKEN`。
+2. 在 GitHub Actions 手动运行 `V2 Production DB Export`。
+3. 输入：
+   - `confirmation`: `export-old-test-data`
+   - `railway_project_id`: Railway project id
+   - `postgres_service_id`: Railway Postgres service id
+   - `railway_environment`: `production`
+   - `retention_days`: 建议第一轮填 `7`
+4. workflow 会通过 Railway CLI 读取 Postgres service 的数据库 URL，但不会把 URL 打印到日志。
+   - GitHub Actions 在 Railway 外部运行，因此导出会优先使用 `DATABASE_PUBLIC_URL` / public TCP proxy。
+   - 如果 Postgres 没有开启 Public Networking / TCP proxy，导出可能无法连接；这时先在 Railway Postgres service 的 Networking 里启用 public TCP proxy，再重新运行导出 workflow。
+5. 下载或记录 artifact：`v2-old-production-test-data-export`。
+6. 把 artifact run URL、文件名或 SHA256 写入 deployment inputs 的 `Old data export reference`。
+
+正式部署 workflow 的 `reset-data` 行为：
+
+- workflow：`V2 Production Railway Deploy`
+- `data_strategy` 填 `reset-data` 时，会在真正部署前执行受保护的数据库清空步骤。
+- 必须同时填写：
+  - `database_backup_reference`: 上一步旧测试数据导出 artifact / run URL / SHA256
+  - `data_reset_confirmation`: `reset-old-test-data`
+  - `railway_project_id`
+  - `postgres_service_id`
+  - `railway_environment`
+- reset 只清空 app 自己的表：`devices`、`chapters`、`notifications`、`generation_jobs`、`device_push_tokens`、`favorite_questions`。
+- `preserve-data` 模式不会执行 reset；真实用户上线必须走 `preserve-data`。
+
 ### 2. 确认环境变量
 
 只确认 key 是否存在，不记录值：

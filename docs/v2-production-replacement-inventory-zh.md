@@ -167,6 +167,14 @@ xcodebuild -project "拾贝/拾贝.xcodeproj" -scheme "拾贝" -destination "gen
   - 命令：`npm run check:production-deploy-inputs -- --inputs docs/production-readiness-evidence/YYYYMMDD-deployment-inputs.md`
   - 用途：部署前检查输入表是否漏填、是否保持第一轮 smoke disabled、是否误写 model key / database URL / APNS private key 等 secret 值。
   - 当前支持两种数据策略：`preserve-data` 强制备份/恢复字段；`reset-data` 用于本轮 V2 首次 production test，要求旧数据可清空确认和旧数据导出引用。
+- 已新增旧测试数据导出 workflow：
+  - Workflow：`V2 Production DB Export`
+  - 用途：通过 GitHub secret `RAILWAY_TOKEN` 和 Railway CLI 从 Postgres service 导出 `pg_dump` custom artifact，作为清空旧测试数据前的低成本备份引用。
+  - 约束：只适用于本轮旧 production 数据确认为测试数据的 `reset-data` 路径；真实用户数据仍应使用 `preserve-data` 和正式备份/恢复演练。
+- 已把 `reset-data` 接入部署 workflow：
+  - Workflow：`V2 Production Railway Deploy`
+  - `data_strategy=reset-data` 时，部署前会要求 `reset-old-test-data`，并在导出引用已记录后清空 app 自己的生产测试表。
+  - `data_strategy=preserve-data` 时不会执行清空逻辑，仍要求备份/恢复证据。
 - 已新增手机 E2E 证据模板：
   - 模板：`docs/production-readiness-evidence/phone-e2e.template.md`
   - 完成手机验收后复制为 `phone-e2e.md` 并填写真实结果，最终 gate 才会自动读取。
