@@ -37,6 +37,8 @@
 
 如果任何一项无法记录，停止上线。
 
+可选但推荐：先复制 `docs/production-readiness-evidence/deployment-inputs.template.md` 作为部署输入核对表，给有 Railway 权限的操作者逐项填写 service id、旧 deployment、数据库备份和回滚路径。这个模板只用于人工准备，不会被最终 Release evidence gate 当作正式部署证据；正式部署证据仍由 GitHub Actions 部署 workflow 生成的 `deployment-intent.md` 或等效审计记录提供。
+
 ### 2. 确认环境变量
 
 只确认 key 是否存在，不记录值：
