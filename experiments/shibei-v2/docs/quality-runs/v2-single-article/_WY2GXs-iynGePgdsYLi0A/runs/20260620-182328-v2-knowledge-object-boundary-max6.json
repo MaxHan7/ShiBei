@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-20T18:27:16.612Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-knowledge-object-boundary-max6",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11365
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 1,
+    "diagnosticIssueCount": 0
+  },
+  "chapter": null,
+  "ecdPlanning": null,
+  "qualityDiagnostics": [],
+  "failure": {
+    "failedStage": "contract_validation",
+    "failureReason": "unitPracticePlan.questionPlans[0].relationType is required for matching plans",
+    "retryable": false,
+    "issues": [],
+    "errors": [
+      "unitPracticePlan.questionPlans[0].relationType is required for matching plans"
+    ],
+    "diagnostics": []
+  }
+}

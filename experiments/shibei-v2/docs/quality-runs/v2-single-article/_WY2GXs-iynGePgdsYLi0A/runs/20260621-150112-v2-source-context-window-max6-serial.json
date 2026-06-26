@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-21T15:03:54.971Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-source-context-window-max6-serial",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11365
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 0,
+    "diagnosticIssueCount": 0
+  },
+  "chapter": null,
+  "unitKnowledgeMap": null,
+  "ecdPlanning": null,
+  "sourceContextStats": null,
+  "qualityDiagnostics": [],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 3200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 9951,
+        "completion_tokens": 2404,
+        "total_tokens": 12355,
+        "prompt_cache_hit_tokens": 9856,
+        "prompt_cache_miss_tokens": 95
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 7200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 6636,
+        "completion_tokens": 6005,
+        "total_tokens": 12641,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 5868
+      }
+    },
+    {
+      "index": 3,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_ecdPlanning",
+      "estimatedOutputTokens": 3000,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 3243,
+        "completion_tokens": 2117,
+        "total_tokens": 5360,
+        "prompt_cache_hit_tokens": 1280,
+        "prompt_cache_miss_tokens": 1963
+      }
+    },
+    {
+      "index": 4,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_ecdPlanning",
+      "estimatedOutputTokens": 3000,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"units\": [\n    {\n      \"unitId\": \"unit-2\",\n      \"sourceAnchorId\": \"anchor-unit-2\",\n      \"assessableTargets\": [\n        {\n          \"targetId\": \"target-unit-2-001\",\n          \"microIds\": [\"micro-unit-2-003\"],\n          \"title\": \"心流理论的核心条件\",\n          \"learningTarget\": \"理解心流理论的核心条件（能力-挑战平衡、清晰目标、即时反馈）及对用户体验的意义\",\n          \"evidenceGoal\": \"学习者能识别心流发生的条件并解释其如何提升体验\",\n          \"evidenceType\": \"apply_to_scenario\",\n          \"coverageRequirement\": \"required\",\n          \"sourceAnchorId\": \"anchor-unit-2\"\n        },\n        {\n          \"targetId\": \"target-unit-2-002\",\n          \"microIds\": [\"micro-unit-2-004\"],\n          \"title\": \"实用—享乐框架\",\n          \"learningTarget\": \"区分实用质量与享乐质量，理解享乐质量如何满足深层心理需求\",\n          \"evidenceGoal\": \"学习者能区分实用质量和享乐质量，并能举例说明享乐质量对用户体验的影响\",\n          \"evidenceType\": \"map_structure_relation\",\n          \"coverageRequirement\": \"required\",\n          \"sourceAnchorId\": \"anchor-unit-2\"\n        },\n        {\n          \"targetId\": \"target-unit-2-003\",\n          \"microIds\": [\"micro-unit-2-002\"],\n          \"title\": \"Funology对任务中心取向的反思\",\n          \"learningTarget\": \"理解Funology对以任务为中心的可用性研究的反思\",\n          \"evidenceGoal\": \"学习者能识别Funology的核心观点：用户体验应关注情感、美学和愉悦\",\n          \"evidenceType\": \"select_core_claim\",\n          \"coverageRequirement\": \"supporting\",\n          \"sourceAnchorId\": \"anchor-unit-2\"\n        },\n        {\n          \"targetId\": \"target-unit-2-004\",\n          \"microIds\": [\"micro-unit-2-005\"],\n          \"title\": \"超越可用性理念\",\n          \"learningTarget\": \"理解超越可用性的理念，即通过说服力与情感建立信任促进持续投入\",\n          \"evidenceGoal\": \"学习者能描述超越可用性的核心主张\",\n          \"evidenceType\": \"select_core_claim\",\n          \"coverageRequirement\": \"supporting\",\n          \"sourceAnchorId\": \"anchor-unit-2\"\n        }\n      ],\n      \"selectedTasks\": [\n        {\n          \"questionPlanId\": \"q-001\",\n          \"targetIds\": [\"target-unit-2-001\"],\n          \"microIds\": [\"micro-unit-2-003\"],\n          \"taskAffordance\": \"multiple_choice\",\n          \"taskPurpose\": \"scenario_application\",\n          \"evidenceGoal\": \"判断给定场景是否满足心流条件，并选择正确理由\",\n          \"commonMisconception\": \"认为挑战越高越好或认为心流只发生在游戏中\",\n          \"assemblyReason\": \"通过场景应用考察对心流条件的理解，是核心概念的实际应用\"\n        },\n        {\n          \"questionPlanId\": \"q-002\",\n          \"targetIds\": [\"target-unit-2-002\"],\n          \"microIds\": [\"micro-unit-2-004\"],\n          \"taskAffordance\": \"matching\",\n          \"taskPurpose\": \"type_feature_matching\",\n          \"evidenceGoal\": \"将给定的产品特性分类为实用质量或享乐质量\",\n          \"commonMisconception\": \"混淆实用与享乐，认为享乐只是娱乐\",\n          \"assemblyReason\": \"通过特征",
+      "usage": {
+        "prompt_tokens": 3691,
+        "completion_tokens": 3000,
+        "total_tokens": 6691,
+        "prompt_cache_hit_tokens": 1280,
+        "prompt_cache_miss_tokens": 2411
+      }
+    },
+    {
+      "index": 5,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_ecdPlanning",
+      "estimatedOutputTokens": 3000,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"units\": [\n    {\n      \"unitId\": \"unit-2\",\n      \"sourceAnchorId\": \"anchor-unit-2\",\n      \"assessableTargets\": [\n        {\n          \"targetId\": \"target-unit-2-001\",\n          \"microIds\": [\"micro-unit-2-001\", \"micro-unit-2-002\"],\n          \"title\": \"从可用性到享乐质量的转向\",\n          \"learningTarget\": \"理解用户体验从关注可用性效率转向情感愉悦的过程\",\n          \"evidenceGoal\": \"能识别Funology对任务中心的反思，并概述传统可用性定义的局限\",\n          \"evidenceType\": \"select_core_claim\",\n          \"coverageRequirement\": \"supporting\",\n          \"sourceAnchorId\": \"anchor-unit-2\"\n        },\n        {\n          \"targetId\": \"target-unit-2-002\",\n          \"microIds\": [\"micro-unit-2-003\"],\n          \"title\": \"心流理论的核心条件\",\n          \"learningTarget\": \"掌握心流理论的核心条件\",\n          \"evidenceGoal\": \"能阐述心流产生的条件，并应用到场景中\",\n          \"evidenceType\": \"apply_to_scenario\",\n          \"coverageRequirement\": \"required\",\n          \"sourceAnchorId\": \"anchor-unit-2\"\n        },\n        {\n          \"targetId\": \"target-unit-2-003\",\n          \"microIds\": [\"micro-unit-2-004\"],\n          \"title\": \"实用—享乐框架\",\n          \"learningTarget\": \"理解实用—享乐框架并区分实用与享乐质量\",\n          \"evidenceGoal\": \"能区分实用质量与享乐质量，并举例说明\",\n          \"evidenceType\": \"distinguish_boundary\",\n          \"coverageRequirement\": \"required\",\n          \"sourceAnchorId\": \"anchor-unit-2\"\n        },\n        {\n          \"targetId\": \"target-unit-2-004\",\n          \"microIds\": [\"micro-unit-2-005\"],\n          \"title\": \"超越可用性理念\",\n          \"learningTarget\": \"理解沙弗的超越可用性理念\",\n",
+      "usage": {
+        "prompt_tokens": 3691,
+        "completion_tokens": 3000,
+        "total_tokens": 6691,
+        "prompt_cache_hit_tokens": 3584,
+        "prompt_cache_miss_tokens": 107
+      }
+    },
+    {
+      "index": 6,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_ecdPlanning",
+      "estimatedOutputTokens": 3000,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 3691,
+        "completion_tokens": 3000,
+        "total_tokens": 6691,
+        "prompt_cache_hit_tokens": 3584,
+        "prompt_cache_miss_tokens": 107
+      }
+    }
+  ],
+  "failure": {
+    "failedStage": "v2_ecdPlanning",
+    "failureReason": "DeepSeek 没有返回结构化文本。",
+    "retryable": true,
+    "modelStage": "ecdPlanning",
+    "retryAttempts": 3,
+    "issues": [],
+    "errors": [],
+    "diagnostics": []
+  }
+}

@@ -1,13 +1,23 @@
 import { spawn } from "node:child_process";
 import { pathToFileURL } from "node:url";
+import "./env.js";
+import {
+  hasDatabase,
+  initDatabase
+} from "./db.js";
 
 const processes = new Map();
 let shuttingDown = false;
 
-function main() {
+async function main() {
+  if (hasDatabase) {
+    await initDatabase();
+    process.env.SHIBEI_DB_INITIALIZED_BY_PARENT = "1";
+  }
+
   startProcess("server", ["src/server.js"]);
 
-  if (process.env.DATABASE_URL && process.env.GENERATION_WORKER_DISABLED !== "1") {
+  if (hasDatabase && process.env.GENERATION_WORKER_DISABLED !== "1") {
     startProcess("worker", ["src/worker.js"]);
   } else {
     console.log("Generation worker not started: DATABASE_URL missing or GENERATION_WORKER_DISABLED=1.");
@@ -53,5 +63,8 @@ function shutdown(reason, exitCode = 0) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main();
+  main().catch((error) => {
+    console.error("Shibei backend startup failed", error);
+    process.exit(1);
+  });
 }

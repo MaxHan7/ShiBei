@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-20T17:48:20.591Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-ecd-driven-planning-max6-rerun",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11365
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 3,
+    "diagnosticIssueCount": 0
+  },
+  "chapter": null,
+  "ecdPlanning": null,
+  "qualityDiagnostics": [],
+  "failure": {
+    "failedStage": "contract_validation",
+    "failureReason": "matchingDraft.questions[0].leftItems must contain exactly 4 items；matchingDraft.questions[0].rightItems must contain exactly 4 items；matchingDraft.questions[0].pairs must contain exactly 4 pairs",
+    "retryable": false,
+    "issues": [],
+    "errors": [
+      "matchingDraft.questions[0].leftItems must contain exactly 4 items",
+      "matchingDraft.questions[0].rightItems must contain exactly 4 items",
+      "matchingDraft.questions[0].pairs must contain exactly 4 pairs"
+    ],
+    "diagnostics": []
+  }
+}

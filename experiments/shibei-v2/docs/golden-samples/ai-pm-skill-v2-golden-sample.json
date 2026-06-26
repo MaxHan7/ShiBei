@@ -1,0 +1,371 @@
+{
+  "id": "ai-pm-skill-v2-golden-sample",
+  "status": "golden_sample",
+  "version": 1,
+  "htmlPreviewPath": "../ai-pm-skill-v2-flow-simulation.html",
+  "source": {
+    "platform": "wechat",
+    "publisher": "晚点再听LaterCast",
+    "url": "https://mp.weixin.qq.com/s/fwFnfpXKQkxsqlfjps4Jzg",
+    "title": "让你拿到 offer 的 AI 产品经理核心技能丨Aakash Gupta",
+    "publishTime": "2026年5月30日 13:46"
+  },
+  "qualityNotes": [
+    "开头引语和播客介绍作为背景锚点，不单独拆成知识点。",
+    "知识点按原文阅读顺序排列，但后半段重复深化内容合并为高价值节点。",
+    "题干避免“这里的 / 这篇文章里的 / 更符合文章思路”等依赖原文回忆的表述。",
+    "轻量题优先正向提问，避免不必要的语义反转。",
+    "知识点开场负责核心概括，第一题负责主动切入，避免同义复述。",
+    "选择题和场景题保留题级后台混淆点，用于约束干扰项。"
+  ],
+  "summaryCard": {
+    "text": "AI 产品经理的竞争力正在从“会写需求、会用工具”转向“能把用户反馈变成可运行、可观测、可评估的产品学习系统”。产品品味仍然重要，但它不再只靠直觉表达，而要通过反馈管道、agent 任务、trace 证据和 eval 回路持续校准。会搭这条闭环的 PM，才能更快把用户声音变成可信的路线图和可验证的改动。",
+    "note": "背景锚点：开头三句引语和播客介绍只负责定调，不单独拆成知识点。"
+  },
+  "nodes": [
+    {
+      "id": "node-01",
+      "order": 1,
+      "title": "反馈管道是 AI PM 的起点",
+      "progressTotal": 3,
+      "knowledgePoint": "AI PM 的第一步不是从空白 PRD 开始，而是把分散的用户反馈接成 agent 可使用的上下文图。",
+      "why": "这是全文工作流的起点，后面的 agent、trace、eval 都建立在真实反馈材料上。",
+      "sourceAnchor": "第 5-8 段：Aparna 用用户反馈、GitHub discussions、Slack、Discord、Gong、PostHog 等材料构建 product taste agent 的上下文。",
+      "cards": [
+        {
+          "type": "light_check",
+          "title": "轻量理解题 1",
+          "questionType": "single_choice",
+          "stem": "让 agent 判断用户痛点前，PM 最先要做什么？",
+          "options": [
+            "系统性收集并连接足够多的用户反馈",
+            "写出更有洞察力的 PRD 开头",
+            "让 agent 直接决定下一季度路线图",
+            "先选择一个最新模型，让它自由探索用户痛点"
+          ],
+          "answer": "系统性收集并连接足够多的用户反馈",
+          "misconception": "把产品品味理解成个人直觉或表达能力，忽略它需要先从足够多的用户反馈中建立判断材料。"
+        },
+        {
+          "type": "light_check",
+          "title": "轻量理解题 2",
+          "questionType": "matching",
+          "stem": "把这些反馈来源和它们提供的线索匹配起来：",
+          "pairs": [
+            ["客服工单 / GitHub issue", "用户明确提出的问题"],
+            ["Slack / Discord / Twitter", "社区里的抱怨和讨论"],
+            ["PostHog / Amplitude / FullStory", "产品内发生的行为线索"]
+          ]
+        },
+        {
+          "type": "scenario",
+          "title": "场景应用题",
+          "questionType": "single_choice",
+          "stem": "你准备让 agent 帮团队找下个版本的最大痛点。哪种材料最能支撑它做出可回溯判断？",
+          "options": [
+            "用户原话、工单链接和产品行为数据",
+            "PM 自己整理后的三个结论",
+            "一份没有原始来源的竞品功能清单",
+            "行业报告和专家观点的摘要材料"
+          ],
+          "answer": "用户原话、工单链接和产品行为数据",
+          "misconception": "把 agent 当成总结器，只给它二手结论，而不是让它接触可回溯的原始反馈和行为证据。"
+        }
+      ],
+      "explanation": "这段不是在罗列工具，而是在说明 AI PM 要把用户声音、产品行为和社区反馈接成 agent 能检索、能评分、能复查的材料。"
+    },
+    {
+      "id": "node-02",
+      "order": 2,
+      "title": "PM 要把任务讲到机器能执行",
+      "progressTotal": 2,
+      "knowledgePoint": "AI 时代的 PM 不一定每天写业务代码，但要能把产品、数据源、输出格式和判断标准讲清楚，让 agent 真正执行任务。",
+      "why": "这段从“有反馈材料”推进到“如何让 agent 产出可检查的路线图建议”。",
+      "sourceAnchor": "第 9-11 段：Aparna 让 Claude Code 根据 GitHub issue 建 PM agent，读取 issue、归纳痛点、给出优先级和路线图建议。",
+      "cards": [
+        {
+          "type": "light_check",
+          "title": "轻量理解题",
+          "questionType": "single_choice",
+          "stem": "一个 PM agent 任务最需要被讲清楚的是什么？",
+          "options": [
+            "产品背景、数据源、输出格式和判断标准",
+            "PM 希望 agent 最后支持自己的路线图判断",
+            "agent 应该尽量少暴露中间过程，直接给结论",
+            "agent 使用哪一种大模型效果最好"
+          ],
+          "answer": "产品背景、数据源、输出格式和判断标准",
+          "misconception": "把“会用 Claude Code”理解成会发一句宽泛指令，忽略 PM 需要把任务边界和判断标准讲到机器可执行。"
+        },
+        {
+          "type": "scenario",
+          "title": "场景应用题 1",
+          "questionType": "single_choice",
+          "stem": "你让 agent 根据 GitHub issue 生成优先级报告。哪种提示更能让输出可检查？",
+          "options": [
+            "“读这些 issue，按影响范围、频率和阻塞程度排序，并给出证据链接。”",
+            "“帮我看看用户最想要什么，给一个靠谱路线图。”",
+            "“把这些 issue 总结一下，尽量写得像产品规划。”",
+            "“根据这些 issue 直接给我一个下季度最优先功能。”"
+          ],
+          "answer": "“读这些 issue，按影响范围、频率和阻塞程度排序，并给出证据链接。”",
+          "misconception": "把任务交给 agent 时只描述期望结果，不定义评分维度、证据要求和输出格式，导致结果无法复查。"
+        }
+      ],
+      "explanation": "PM 的任务编排能力，不是替代工程师写所有代码，而是能把产品目标转译成 agent 能执行、能输出、能被检查的任务。"
+    },
+    {
+      "id": "node-03",
+      "order": 3,
+      "title": "Trace 让 agent 判断变得可检查",
+      "progressTotal": 3,
+      "knowledgePoint": "PM 不能只看 agent 的最终报告，还要看 trace，检查它读了什么、调用了什么、漏了什么、哪一步判断跳太快。",
+      "why": "这是文章最核心的新能力之一，把 AI 输出从“看起来合理”变成“过程可复查”。",
+      "sourceAnchor": "第 12-14 段：Arize 展示最近调用、GitHub 抓取、单次调用评分、executive summary；PM 要追问 trace 中的读取和判断过程。",
+      "cards": [
+        {
+          "type": "light_check",
+          "title": "轻量理解题 1",
+          "questionType": "single_choice",
+          "stem": "Trace 对 PM 最大的价值是什么？",
+          "options": [
+            "把 agent 的最终报告拆成可检查的行为步骤",
+            "让 PM 不必再关心用户反馈是否完整",
+            "证明 agent 只要能输出报告就已经可靠",
+            "让 agent 的思考过程更像人类推理"
+          ],
+          "answer": "把 agent 的最终报告拆成可检查的行为步骤",
+          "misconception": "把 trace 当成工程排障日志，忽略它也是 PM 校准 agent 判断和产品品味的证据。"
+        },
+        {
+          "type": "light_check",
+          "title": "轻量理解题 2",
+          "questionType": "matching",
+          "stem": "把 trace 里能看到的内容和 PM 的检查问题匹配：",
+          "pairs": [
+            ["读取了哪些 issue", "判断是否漏掉关键上下文"],
+            ["有哪些 tool call", "判断数据抓取和处理是否真的发生"],
+            ["怎样汇总成报告", "判断结论是否跳得太快"]
+          ]
+        },
+        {
+          "type": "scenario",
+          "title": "场景应用题 1",
+          "questionType": "single_choice",
+          "stem": "Agent 建议下个版本优先做某个功能，但 trace 显示它只读了少数高声量 issue。PM 更合理的反应是什么？",
+          "options": [
+            "先检查样本是否偏了，再决定是否采纳建议",
+            "既然 agent 给了路线图，就先推进原型",
+            "把 prompt 写得更积极，让 agent 更坚定地排序",
+            "补充更多高声量 issue，让 agent 再算一次"
+          ],
+          "answer": "先检查样本是否偏了，再决定是否采纳建议",
+          "misconception": "把高声量反馈误当成主流需求，或因为报告结论顺眼就跳过过程检查。"
+        }
+      ],
+      "explanation": "Trace 把“agent 说了什么”变成“agent 怎么得出这个判断”。PM 不需要读每一行代码，但要能看出判断有没有站住。"
+    },
+    {
+      "id": "node-04",
+      "order": 4,
+      "title": "Eval 是反馈回路，不只是验收表",
+      "progressTotal": 2,
+      "knowledgePoint": "好的 eval 不应该只是给通过或失败，而应该暴露一部分判断失误，让团队知道 agent 和标准哪里还能改。",
+      "why": "这段解释了为什么“看到 eval 出错”反而是 AI 产品改进的入口。",
+      "sourceAnchor": "第 15-17 段：Claude 自己判了一些结果“不准确”；Aparna 认为 eval 出错会让团队看到哪里能调。",
+      "cards": [
+        {
+          "type": "light_check",
+          "title": "轻量理解题",
+          "questionType": "single_choice",
+          "stem": "在 AI 产品质量管理里，eval 更像什么？",
+          "options": [
+            "推动 agent 和判断标准变好的反馈回路",
+            "一次性判断系统能不能上线的验收表",
+            "用来证明 agent 输出一定正确的评分机制",
+            "给团队展示 AI 能力的汇报材料"
+          ],
+          "answer": "推动 agent 和判断标准变好的反馈回路",
+          "misconception": "把 eval 当成最终盖章工具，期待它全对或全错，而不是把错误当成改进入口。"
+        },
+        {
+          "type": "scenario",
+          "title": "场景应用题 1",
+          "questionType": "single_choice",
+          "stem": "你发现 eval 标出了一批 agent 判断失误。最有学习价值的下一步是什么？",
+          "options": [
+            "检查标准、上下文和 agent 输出之间哪一环出了问题",
+            "删掉出错的 eval，避免影响团队信心",
+            "只看最终报告是否能说服业务方",
+            "把错误样本交给业务方重新判断一遍"
+          ],
+          "answer": "检查标准、上下文和 agent 输出之间哪一环出了问题",
+          "misconception": "把 eval 错误当成系统失败信号，而不是定位标准、上下文或模型行为问题的入口。"
+        }
+      ],
+      "explanation": "错误的 eval 让人检查标准，错误的 agent 输出让人检查上下文。二者一起构成 AI 产品质量的改进回路。"
+    },
+    {
+      "id": "node-05",
+      "order": 5,
+      "title": "AI PM 的边界正在靠近工程实践",
+      "progressTotal": 3,
+      "knowledgePoint": "代码生成门槛下降后，PM 和工程师的边界变得更小；PM 的产品判断仍重要，但要落到可运行、可评估、可改进的系统里。",
+      "why": "这段回答了“PM 是否要变成工程师”的核心问题。",
+      "sourceAnchor": "第 18-23 段：AI native 团队里 PM 和工程师差距变小；速度来自反馈、agent、trace、eval 的闭环。",
+      "cards": [
+        {
+          "type": "light_check",
+          "title": "轻量理解题 1",
+          "questionType": "single_choice",
+          "stem": "PM 和工程边界变近后，更重要的变化是什么？",
+          "options": [
+            "产品判断要能进入可运行、可评估、可改进的系统",
+            "PM 只要会写代码，就可以替代产品判断",
+            "PM 可以把评估和改进都交给工程师处理",
+            "PM 的判断要更多依赖直觉，避免被工具绑住"
+          ],
+          "answer": "产品判断要能进入可运行、可评估、可改进的系统",
+          "misconception": "把 AI PM 的能力升级误解成“PM 变工程师”，忽略真正变化是产品判断必须能进入系统闭环。"
+        },
+        {
+          "type": "light_check",
+          "title": "轻量理解题 2",
+          "questionType": "matching",
+          "stem": "把 AI native 速度来源和对应支撑匹配：",
+          "pairs": [
+            ["更快响应客户", "先做原型并快速验证"],
+            ["敢相信 agent", "能查看 trace"],
+            ["知道改动有没有伤到体验", "有 eval"],
+            ["知道服务哪个痛点", "有清晰数据源"]
+          ]
+        },
+        {
+          "type": "scenario",
+          "title": "场景应用题 1",
+          "questionType": "single_choice",
+          "stem": "客户提出一个新需求，团队希望当天判断能否推进。哪种做法更能形成可验证的判断？",
+          "options": [
+            "用真实反馈做原型，让 trace 和 eval 帮助判断是否可信",
+            "先开会统一大家的产品感觉，再等工程排期",
+            "让 agent 直接写完整方案，PM 只负责包装表达",
+            "把客户原话交给 agent 生成路线图后直接排期"
+          ],
+          "answer": "用真实反馈做原型，让 trace 和 eval 帮助判断是否可信",
+          "misconception": "把快交付理解成跳过验证，或把 agent 输出当成最终判断，而不是用闭环来加速学习。"
+        }
+      ],
+      "explanation": "速度不是来自加班或只会用工具，而是来自反馈、agent、trace、eval 的系统闭环。PM 要把客户声音变成可验证的改动。"
+    },
+    {
+      "id": "node-06",
+      "order": 6,
+      "title": "最小闭环从两小时实操开始",
+      "progressTotal": 2,
+      "knowledgePoint": "PM 不必从全面 AI 化或完整平台开始，可以先用真实反馈跑通一个小闭环：反馈源、agent、trace、eval。",
+      "why": "这是文章给个人成长最具体的行动建议。",
+      "sourceAnchor": "第 24-29 段：周末两小时建议；从 GitHub issue、客服表格或 Slack 频道开始；trace 数据不应锁在专有平台里。",
+      "cards": [
+        {
+          "type": "light_check",
+          "title": "轻量理解题",
+          "questionType": "single_choice",
+          "stem": "只有一个下午想跑通 AI PM 小闭环，第一步更适合做什么？",
+          "options": [
+            "选一个真实反馈源",
+            "等待公司搭好完整数据平台",
+            "先让 agent 写一份没有来源引用的路线图",
+            "先收集行业案例，整理完整方法论"
+          ],
+          "answer": "选一个真实反馈源",
+          "misconception": "把 AI PM 实践想成大型平台工程，导致迟迟不开始，而不是先跑通一条小但真实的反馈链路。"
+        },
+        {
+          "type": "scenario",
+          "title": "场景应用题 1",
+          "questionType": "single_choice",
+          "stem": "你只有一个下午，想跑通一条最小 AI PM 反馈闭环。最合理的第一版范围是什么？",
+          "options": [
+            "选一个客服表格，让 agent 输出痛点和证据引用，再检查 trace/eval",
+            "先设计完整的数据仓库和观测平台，再开始接入反馈",
+            "先让 agent 写一份没有来源引用的路线图草案",
+            "选一个竞品分析主题，让 agent 先自由发挥"
+          ],
+          "answer": "选一个客服表格，让 agent 输出痛点和证据引用，再检查 trace/eval",
+          "misconception": "把“轻量开始”误解成可以不要证据引用和过程检查；或者把“完整系统”当成开始前提。"
+        }
+      ],
+      "explanation": "先跑通小闭环，才能知道缺哪种数据、哪种标准和哪种工程支持。平台选择可以后置，真实反馈链路要先启动。"
+    },
+    {
+      "id": "node-07",
+      "order": 7,
+      "title": "产品会议从观点竞争变成证据校准",
+      "progressTotal": 4,
+      "knowledgePoint": "当反馈、trace、eval 和上线结果被持续记录，PM 的工作会变成管理产品学习系统，而不是只靠个人经验整理观点。",
+      "why": "这是全文后半段的收束，把方法论落到日常会议、招聘和路线图复盘。",
+      "sourceAnchor": "第 30-47 段：早会材料、taste 校准、招聘标准、路线图复盘、产品学习资产，以及“反馈进入系统，agent 生成判断，trace 暴露过程，eval 推动改进”。",
+      "cards": [
+        {
+          "type": "light_check",
+          "title": "轻量理解题 1",
+          "questionType": "single_choice",
+          "stem": "产品会议材料发生变化的核心是什么？",
+          "options": [
+            "从个人感觉和 bullet，转向带 trace 和评分的可复查证据",
+            "从讨论用户反馈，转向让 agent 直接决定优先级",
+            "从路线图判断，转向只看模型输出是否完整",
+            "从会议讨论，转向完全异步的自动决策"
+          ],
+          "answer": "从个人感觉和 bullet，转向带 trace 和评分的可复查证据",
+          "misconception": "把 agent 生成报告理解成替代 PM 判断，而不是为 PM 提供可复查证据来校准判断。"
+        },
+        {
+          "type": "light_check",
+          "title": "轻量理解题 2",
+          "questionType": "matching",
+          "stem": "把 PM 要校准的内容和问题匹配：",
+          "pairs": [
+            ["eval 标准", "什么算好的输出"],
+            ["数据源", "哪些反馈可信、应该进入上下文"],
+            ["trace", "agent 的判断过程是否站得住"],
+            ["上线结果", "当初判断是否被真实效果验证"]
+          ]
+        },
+        {
+          "type": "scenario",
+          "title": "场景应用题 1",
+          "questionType": "single_choice",
+          "stem": "某需求上线后，团队想训练自己的产品品味。哪种复盘方式最能把判断变成可复盘的证据？",
+          "options": [
+            "把当初引用的反馈、trace、eval 和上线数据放在一起看",
+            "让每个人重新说一遍当时为什么支持这个需求",
+            "只看上线后指标有没有涨，涨了就说明判断正确",
+            "让 agent 根据结果反推当时为什么判断正确"
+          ],
+          "answer": "把当初引用的反馈、trace、eval 和上线数据放在一起看",
+          "misconception": "把复盘简化成结果好坏或观点复述，忽略产品判断要和当时证据、agent 过程、评估标准一起回看。"
+        },
+        {
+          "type": "scenario",
+          "title": "场景应用题 2",
+          "questionType": "single_choice",
+          "stem": "面试一个 AI PM 候选人时，哪类现场任务最能证明他懂这套工作方式？",
+          "options": [
+            "选反馈源、写 agent 任务、定义 eval 指标",
+            "解释自己如何理解用户，以及为什么有产品品味",
+            "展示会使用多少个 AI 工具和提示词模板",
+            "现场写一段更有洞察力的 PRD 引言"
+          ],
+          "answer": "选反馈源、写 agent 任务、定义 eval 指标",
+          "misconception": "把 AI PM 能力停留在表达产品感觉或使用工具数量，而不是能把反馈、任务、评估和验证讲清楚。"
+        }
+      ],
+      "explanation": "PM 的价值不是被 agent 拿走，而是前移到定义什么算好、什么数据可信、系统在哪些场景不能越界，并持续复盘判断质量。"
+    }
+  ],
+  "closingCard": {
+    "text": "反馈进入系统，agent 生成判断，trace 暴露过程，eval 推动改进。产品经理不需要把自己伪装成工程师，但要能站在这条线上工作：让用户声音被机器读懂，让机器判断能被人检查，让路线图越来越接近真实证据。",
+    "note": "原文最后的“先做”和核心收获适合作为章节完成总结，不再拆成新的知识点。"
+  }
+}

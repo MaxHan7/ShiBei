@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>v2-source-context-window-max6-serial - V2 出题质量报告</title>
+  <style>
+    :root {
+      --bg: #f2f5cf;
+      --paper: #fdfaf2;
+      --ink: #44423d;
+      --muted: #807d73;
+      --line: #dde1ac;
+      --brand: #98a84e;
+      --soft: #f2f1da;
+      --danger: #ed765c;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    h1, h2, h3 {
+      line-height: 1.25;
+      margin: 0;
+    }
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 40px 0 16px;
+    }
+    h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(152, 163, 94, 0.18);
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      color: var(--brand);
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 14px 0;
+      background: rgba(253, 250, 242, 0.72);
+    }
+    .stem {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .options, .pairs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .option, .pair {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .correct {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .explanation {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+    .source {
+      margin-top: 12px;
+      border-left: 4px solid var(--line);
+      padding-left: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .source-block {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin: 8px 0;
+      background: rgba(255,255,255,0.45);
+    }
+    .source-block.highlight {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .failure {
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    details {
+      margin-top: 12px;
+    }
+    .diagnostic {
+      border-top: 1px dashed var(--line);
+      padding-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>V2 出题质量报告</h1>
+    <div class="meta">2026-06-21T15:03:54.971Z · v2-source-context-window-max6-serial · failed_generation</div>
+    <section class="card failure">
+    <h2 style="margin-top:0">生成失败</h2>
+    <p><strong>v2_ecdPlanning</strong> · 可重试</p>
+    <p>模型阶段：ecdPlanning · 重试次数：3</p>
+    <p>DeepSeek 没有返回结构化文本。</p>
+    
+    
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">模型调用记录</h2>
+    
+      <div class="question">
+        <div><strong>#1 v2_reviewPathPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3200</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#2 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 7200</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#3 v2_ecdPlanning</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3000</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#4 v2_ecdPlanning</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3000</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;units&quot;: [
+    {
+      &quot;unitId&quot;: &quot;unit-2&quot;,
+      &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;,
+      &quot;assessableTargets&quot;: [
+        {
+          &quot;targetId&quot;: &quot;target-unit-2-001&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-2-003&quot;],
+          &quot;title&quot;: &quot;心流理论的核心条件&quot;,
+          &quot;learningTarget&quot;: &quot;理解心流理论的核心条件（能力-挑战平衡、清晰目标、即时反馈）及对用户体验的意义&quot;,
+          &quot;evidenceGoal&quot;: &quot;学习者能识别心流发生的条件并解释其如何提升体验&quot;,
+          &quot;evidenceType&quot;: &quot;apply_to_scenario&quot;,
+          &quot;coverageRequirement&quot;: &quot;required&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;
+        },
+        {
+          &quot;targetId&quot;: &quot;target-unit-2-002&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-2-004&quot;],
+          &quot;title&quot;: &quot;实用—享乐框架&quot;,
+          &quot;learningTarget&quot;: &quot;区分实用质量与享乐质量，理解享乐质量如何满足深层心理需求&quot;,
+          &quot;evidenceGoal&quot;: &quot;学习者能区分实用质量和享乐质量，并能举例说明享乐质量对用户体验的影响&quot;,
+          &quot;evidenceType&quot;: &quot;map_structure_relation&quot;,
+          &quot;coverageRequirement&quot;: &quot;required&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;
+        },
+        {
+          &quot;targetId&quot;: &quot;target-unit-2-003&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-2-002&quot;],
+          &quot;title&quot;: &quot;Funology对任务中心取向的反思&quot;,
+          &quot;learningTarget&quot;: &quot;理解Funology对以任务为中心的可用性研究的反思&quot;,
+          &quot;evidenceGoal&quot;: &quot;学习者能识别Funology的核心观点：用户体验应关注情感、美学和愉悦&quot;,
+          &quot;evidenceType&quot;: &quot;select_core_claim&quot;,
+          &quot;coverageRequirement&quot;: &quot;supporting&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;
+        },
+        {
+          &quot;targetId&quot;: &quot;target-unit-2-004&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-2-005&quot;],
+          &quot;title&quot;: &quot;超越可用性理念&quot;,
+          &quot;learningTarget&quot;: &quot;理解超越可用性的理念，即通过说服力与情感建立信任促进持续投入&quot;,
+          &quot;evidenceGoal&quot;: &quot;学习者能描述超越可用性的核心主张&quot;,
+          &quot;evidenceType&quot;: &quot;select_core_claim&quot;,
+          &quot;coverageRequirement&quot;: &quot;supporting&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;
+        }
+      ],
+      &quot;selectedTasks&quot;: [
+        {
+          &quot;questionPlanId&quot;: &quot;q-001&quot;,
+          &quot;targetIds&quot;: [&quot;target-unit-2-001&quot;],
+          &quot;microIds&quot;: [&quot;micro-unit-2-003&quot;],
+          &quot;taskAffordance&quot;: &quot;multiple_choice&quot;,
+          &quot;taskPurpose&quot;: &quot;scenario_application&quot;,
+          &quot;evidenceGoal&quot;: &quot;判断给定场景是否满足心流条件，并选择正确理由&quot;,
+          &quot;commonMisconception&quot;: &quot;认为挑战越高越好或认为心流只发生在游戏中&quot;,
+          &quot;assemblyReason&quot;: &quot;通过场景应用考察对心流条件的理解，是核心概念的实际应用&quot;
+        },
+        {
+          &quot;questionPlanId&quot;: &quot;q-002&quot;,
+          &quot;targetIds&quot;: [&quot;target-unit-2-002&quot;],
+          &quot;microIds&quot;: [&quot;micro-unit-2-004&quot;],
+          &quot;taskAffordance&quot;: &quot;matching&quot;,
+          &quot;taskPurpose&quot;: &quot;type_feature_matching&quot;,
+          &quot;evidenceGoal&quot;: &quot;将给定的产品特性分类为实用质量或享乐质量&quot;,
+          &quot;commonMisconception&quot;: &quot;混淆实用与享乐，认为享乐只是娱乐&quot;,
+          &quot;assemblyReason&quot;: &quot;通过特征</pre></details>
+      </div>
+    
+      <div class="question">
+        <div><strong>#5 v2_ecdPlanning</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3000</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;units&quot;: [
+    {
+      &quot;unitId&quot;: &quot;unit-2&quot;,
+      &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;,
+      &quot;assessableTargets&quot;: [
+        {
+          &quot;targetId&quot;: &quot;target-unit-2-001&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-2-001&quot;, &quot;micro-unit-2-002&quot;],
+          &quot;title&quot;: &quot;从可用性到享乐质量的转向&quot;,
+          &quot;learningTarget&quot;: &quot;理解用户体验从关注可用性效率转向情感愉悦的过程&quot;,
+          &quot;evidenceGoal&quot;: &quot;能识别Funology对任务中心的反思，并概述传统可用性定义的局限&quot;,
+          &quot;evidenceType&quot;: &quot;select_core_claim&quot;,
+          &quot;coverageRequirement&quot;: &quot;supporting&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;
+        },
+        {
+          &quot;targetId&quot;: &quot;target-unit-2-002&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-2-003&quot;],
+          &quot;title&quot;: &quot;心流理论的核心条件&quot;,
+          &quot;learningTarget&quot;: &quot;掌握心流理论的核心条件&quot;,
+          &quot;evidenceGoal&quot;: &quot;能阐述心流产生的条件，并应用到场景中&quot;,
+          &quot;evidenceType&quot;: &quot;apply_to_scenario&quot;,
+          &quot;coverageRequirement&quot;: &quot;required&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;
+        },
+        {
+          &quot;targetId&quot;: &quot;target-unit-2-003&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-2-004&quot;],
+          &quot;title&quot;: &quot;实用—享乐框架&quot;,
+          &quot;learningTarget&quot;: &quot;理解实用—享乐框架并区分实用与享乐质量&quot;,
+          &quot;evidenceGoal&quot;: &quot;能区分实用质量与享乐质量，并举例说明&quot;,
+          &quot;evidenceType&quot;: &quot;distinguish_boundary&quot;,
+          &quot;coverageRequirement&quot;: &quot;required&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;
+        },
+        {
+          &quot;targetId&quot;: &quot;target-unit-2-004&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-2-005&quot;],
+          &quot;title&quot;: &quot;超越可用性理念&quot;,
+          &quot;learningTarget&quot;: &quot;理解沙弗的超越可用性理念&quot;,
+</pre></details>
+      </div>
+    
+      <div class="question">
+        <div><strong>#6 v2_ecdPlanning</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3000</div>
+        
+        
+        
+      </div>
+    
+  </section>
+    
+    <section class="card">
+      <h2 style="margin-top:0">文章与章节</h2>
+      <p><strong>基于游戏化方法的持续性用户体验设计</strong></p>
+      <p class="meta">吴 琼、王婧等 · <a href="https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A">https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A</a></p>
+      <p></p>
+      <div class="grid">
+        <div class="metric"><strong>0</strong>知识点</div>
+        <div class="metric"><strong>0</strong>题目</div>
+        <div class="metric"><strong>0</strong>选择题</div>
+        <div class="metric"><strong>0</strong>连线题</div>
+        <div class="metric"><strong>0</strong>Source blocks</div>
+        <div class="metric"><strong>0</strong>Issues</div>
+        <div class="metric"><strong>0</strong>Diagnostics</div>
+      </div>
+    </section>
+    
+    
+    
+    <section class="card">
+      <h2 style="margin-top:0">章节总结</h2>
+      <p><span class="tag">章节完成</span></p>
+      <p></p>
+    </section>
+    <section class="card">
+      <h2 style="margin-top:0">完整来源块</h2>
+      <p class="meta">暂无 source blocks</p>
+    </section>
+  </main>
+</body>
+</html>

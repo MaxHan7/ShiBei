@@ -1,0 +1,132 @@
+name: V2 Production DB Export
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type export-old-test-data to confirm this backup export
+        required: true
+      railway_project_id:
+        description: Railway project id
+        required: true
+        default: 942a03f5-84db-414b-86da-a2c9c2c49f48
+      postgres_service_id:
+        description: Railway Postgres service id
+        required: true
+        default: 76138dfd-940a-4036-b390-b0bd5f8a3e51
+      railway_environment:
+        description: Railway environment name
+        required: true
+        default: production
+      retention_days:
+        description: Artifact retention days
+        required: true
+        default: "7"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v2-production-db-export
+  cancel-in-progress: false
+
+jobs:
+  export:
+    name: Export old production test database
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_PROJECT_ID: ${{ inputs.railway_project_id }}
+      POSTGRES_SERVICE_ID: ${{ inputs.postgres_service_id }}
+      RAILWAY_ENVIRONMENT: ${{ inputs.railway_environment }}
+
+    steps:
+      - name: Refuse missing confirmation
+        if: ${{ inputs.confirmation != 'export-old-test-data' }}
+        run: |
+          echo "confirmation must be exactly export-old-test-data"
+          exit 1
+
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Refuse missing Railway token
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "Repository secret RAILWAY_TOKEN is required."
+            exit 1
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+
+      - name: Install Railway CLI and PostgreSQL client
+        run: |
+          npm install --global @railway/cli
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Resolve database URL from Railway variables
+        run: |
+          set -euo pipefail
+          variables_json="$(railway variable list --project "$RAILWAY_PROJECT_ID" --service "$POSTGRES_SERVICE_ID" --environment "$RAILWAY_ENVIRONMENT" --json)"
+          database_url="$(printf '%s' "$variables_json" | node tools/extract-railway-database-url.mjs)"
+          echo "::add-mask::$database_url"
+          {
+            echo "DATABASE_URL<<EOF"
+            echo "$database_url"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+
+      - name: Export database backup
+        run: |
+          set -euo pipefail
+          mkdir -p production-db-export
+          stamp="$(date -u +'%Y%m%d-%H%M%S')"
+          backup_file="production-db-export/${stamp}-shibei-production-old-test-data.dump"
+          metadata_file="production-db-export/${stamp}-shibei-production-old-test-data.md"
+          restore_list_file="production-db-export/${stamp}-pg-restore-list.txt"
+
+          pg_dump "$DATABASE_URL" \
+            --format=custom \
+            --no-owner \
+            --no-acl \
+            --file "$backup_file"
+
+          pg_restore --list "$backup_file" > "$restore_list_file"
+          backup_sha="$(sha256sum "$backup_file" | awk '{print $1}')"
+          backup_size="$(wc -c < "$backup_file" | tr -d ' ')"
+
+          cat > "$metadata_file" <<EOF
+          # Shibei V2 Old Production Test Data Export
+
+          - Created at: \`${stamp}Z\`
+          - Actor: \`${{ github.actor }}\`
+          - Workflow run: \`${{ github.run_id }}\`
+          - Railway project id: \`${RAILWAY_PROJECT_ID}\`
+          - Railway environment: \`${RAILWAY_ENVIRONMENT}\`
+          - Postgres service id: \`${POSTGRES_SERVICE_ID}\`
+          - Backup file: \`$(basename "$backup_file")\`
+          - Backup format: \`pg_dump custom\`
+          - SHA256: \`${backup_sha}\`
+          - Size bytes: \`${backup_size}\`
+          - Data strategy: \`reset-data\`
+          - Purpose: old production data is test-only, exported before V2 empty-database production test.
+
+          Restore example:
+
+          \`\`\`sh
+          pg_restore --clean --if-exists --no-owner --no-acl --dbname "$DATABASE_URL" $(basename "$backup_file")
+          \`\`\`
+          EOF
+
+      - name: Upload database export artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: v2-old-production-test-data-export
+          path: production-db-export/
+          if-no-files-found: error
+          retention-days: ${{ inputs.retention_days }}

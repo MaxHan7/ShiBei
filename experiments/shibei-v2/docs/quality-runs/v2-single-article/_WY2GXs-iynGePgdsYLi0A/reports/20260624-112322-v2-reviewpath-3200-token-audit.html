@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>v2-reviewpath-3200-token-audit - V2 出题质量报告</title>
+  <style>
+    :root {
+      --bg: #f2f5cf;
+      --paper: #fdfaf2;
+      --ink: #44423d;
+      --muted: #807d73;
+      --line: #dde1ac;
+      --brand: #98a84e;
+      --soft: #f2f1da;
+      --danger: #ed765c;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    h1, h2, h3 {
+      line-height: 1.25;
+      margin: 0;
+    }
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 40px 0 16px;
+    }
+    h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(152, 163, 94, 0.18);
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      color: var(--brand);
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 14px 0;
+      background: rgba(253, 250, 242, 0.72);
+    }
+    .stem {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .options, .pairs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .option, .pair {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .correct {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .explanation {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+    .source {
+      margin-top: 12px;
+      border-left: 4px solid var(--line);
+      padding-left: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .source-block {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin: 8px 0;
+      background: rgba(255,255,255,0.45);
+    }
+    .source-block.highlight {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .failure {
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    details {
+      margin-top: 12px;
+    }
+    .diagnostic {
+      border-top: 1px dashed var(--line);
+      padding-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 6px;
+      text-align: right;
+      vertical-align: top;
+    }
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>V2 出题质量报告</h1>
+    <div class="meta">2026-06-24T11:35:42.610Z · v2-reviewpath-3200-token-audit · failed_generation</div>
+    <section class="card failure">
+    <h2 style="margin-top:0">生成失败</h2>
+    <p><strong>v2_matchingDraftBatch</strong> · 可重试</p>
+    <p>模型阶段：matchingDraftBatch · 重试次数：3</p>
+    <p>模型返回内容不是可解析 JSON，请重试。</p>
+    
+    
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">Architecture Metrics</h2>
+    <p class="meta">这一段是架构仪表盘：不改变生成链路，只量化每个 stage 的调用数、token、重试、失败类型和耗时，用来判断 token 爆炸来自 retry，还是来自 stage 本身过重。</p>
+    <div class="grid">
+      <div class="metric"><strong>34</strong>Model calls</div>
+      <div class="metric"><strong>188,057</strong>Total tokens</div>
+      <div class="metric"><strong>131,280</strong>Prompt tokens</div>
+      <div class="metric"><strong>56,777</strong>Completion tokens</div>
+      <div class="metric"><strong>3</strong>Retries</div>
+      <div class="metric"><strong>740s</strong>Duration</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Stage</th>
+          <th>Calls</th>
+          <th>Attempts</th>
+          <th>Retries</th>
+          <th>Failed attempts</th>
+          <th>Prompt</th>
+          <th>Completion</th>
+          <th>Total</th>
+          <th>Cache hit/miss</th>
+          <th>Duration</th>
+          <th>Error types</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>v2_matchingDraftBatch</td>
+          <td>3</td>
+          <td>3</td>
+          <td>2</td>
+          <td>3</td>
+          <td>47,715</td>
+          <td>13,801</td>
+          <td>61,516</td>
+          <td>32,640 / 15,075</td>
+          <td>169s</td>
+          <td>json_parse_error=3</td>
+        </tr>
+<tr>
+          <td>v2_multipleChoiceDraftUnitBatch</td>
+          <td>10</td>
+          <td>10</td>
+          <td>1</td>
+          <td>1</td>
+          <td>25,020</td>
+          <td>11,957</td>
+          <td>36,977</td>
+          <td>10,112 / 14,908</td>
+          <td>155s</td>
+          <td>json_parse_error=1</td>
+        </tr>
+<tr>
+          <td>v2_reviewPathPlan</td>
+          <td>1</td>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td>10,146</td>
+          <td>2,125</td>
+          <td>12,271</td>
+          <td>10,112 / 34</td>
+          <td>24s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_taskBriefPlan</td>
+          <td>10</td>
+          <td>10</td>
+          <td>0</td>
+          <td>0</td>
+          <td>27,037</td>
+          <td>20,791</td>
+          <td>47,828</td>
+          <td>10,240 / 16,797</td>
+          <td>284s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_unitKnowledgeMap</td>
+          <td>10</td>
+          <td>10</td>
+          <td>0</td>
+          <td>0</td>
+          <td>21,362</td>
+          <td>8,103</td>
+          <td>29,465</td>
+          <td>8,704 / 12,658</td>
+          <td>109s</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">模型调用记录</h2>
+    
+      <div class="question">
+        <div><strong>#1 v2_reviewPathPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3200</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#2 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1700</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#3 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1700</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#4 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1700</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#5 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1700</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#6 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1700</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#7 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1700</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#8 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1700</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#9 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1700</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#10 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1700</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#11 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1700</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#12 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#13 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#14 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#15 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#16 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#17 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#18 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#19 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#20 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#21 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#22 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1900</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#23 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1900</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#24 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1900</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#25 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1900</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#26 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1900</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#27 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1900</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#28 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1900</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#29 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1900</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;unitId&quot;: &quot;unit-9&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;q-unit-9-001&quot;,
+      &quot;type&quot;: &quot;multiple_choice&quot;,
+      &quot;practiceGoalId&quot;: &quot;goal-unit-9-001&quot;,
+      &quot;stem&quot;: &quot;挤出效应指的是下列哪种现象？&quot;,
+      &quot;correctUnderstanding&quot;: &quot;挤出效应是指外在激励削弱内在动机，用户行为原因从内在转向外在，导致仅在有奖励时才行动。&quot;,
+      &quot;misconception&quot;: &quot;认为外在激励总是有效。&quot;,
+      &quot;distractorRationale&quot;: &quot;B是常见误区，认为外在激励总是提升积极性；C混淆了依赖与正面效果；D忽视交互作用。&quot;,
+      &quot;options&quot;: [
+        {&quot;id&quot;: &quot;a&quot;, &quot;text&quot;: &quot;外在激励导致用户对任务的内在兴趣下降，行为原因从</pre></details>
+      </div>
+    
+      <div class="question">
+        <div><strong>#30 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1900</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#31 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1900</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#32 v2_matchingDraftBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 4600</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;units&quot;: [
+    {
+      &quot;unitId&quot;: &quot;unit-1&quot;,
+      &quot;questions&quot;: [
+        {
+          &quot;id&quot;: &quot;q-unit-1-001&quot;,
+          &quot;type&quot;: &quot;matching&quot;,
+          &quot;practiceGoalId&quot;: &quot;goal-unit-1-001&quot;,
+          &quot;relationType&quot;: &quot;responsibility&quot;,
+          &quot;relationGoal&quot;: &quot;将游戏化的关键人物与其贡献对应起来&quot;,
+          &quot;stem&quot;: &quot;匹配游戏化的提出者和定义者与他们的核心贡献&quot;,
+          &quot;leftItems&quot;: [
+            { &quot;id&quot;: &quot;l1&quot;, &quot;text&quot;: &quot;尼克·佩林&quot; },
+            { &quot;id&quot;: &quot;l2&quot;, &quot;text&quot;: &quot;塞巴斯蒂安·德特丁&quot; },
+            { &quot;id&quot;: &quot;l3&quot;, &quot;text&quot;: &quot;凯文·韦巴赫&quot; }
+          ],
+          &quot;rightItems&quot;: [
+            { &quot;id&quot;: &quot;r1&quot;, &quot;text&quot;: &quot;2002年首次提出“游戏化”术语&quot; },
+            { &quot;id&quot;: &quot;r2&quot;, &quot;text&quot;: &quot;将游戏化界定为“在非游戏语境中使用游戏设计元素”&quot; },
+            { &quot;id&quot;: &quot;r3&quot;, &quot;text&quot;: &quot;强调以创造“乐趣”的方式服务现实目标&quot; }
+          ],
+          &quot;pairs&quot;: [
+            { &quot;leftId&quot;: &quot;l1&quot;, &quot;rightId&quot;: &quot;r1&quot; },
+            { &quot;leftId&quot;: &quot;l2&quot;, &quot;rightId&quot;: &quot;r2&quot; },
+            { &quot;leftId&quot;: &quot;l3&quot;, &quot;rightId&quot;: &quot;r3&quot; }
+          ],
+          &quot;explanation&quot;: &quot;佩林在2002年首次提出“游戏化”；德特丁给出了学界最常引用的定义，即“在非游戏语境中使用游戏设计元素”；韦巴赫则指出了游戏化的关键在于以创造乐趣服务现实目标。注意：德特丁的定义与韦巴赫的视角不同，但互补，不要混淆。&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-1&quot;
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-2&quot;,
+      &quot;questions&quot;: [
+        {
+          &quot;id&quot;: &quot;q-unit-2-002&quot;,
+          &quot;type&quot;: &quot;matching&quot;,
+          &quot;practiceGoalId&quot;: &quot;goal-unit-2-002&quot;,
+          &quot;relationType&quot;: &quot;process_signal&quot;,
+          &quot;relationGoal&quot;: &quot;将心流产生的条件与它们的作用匹配起来&quot;,
+          &quot;stem&quot;: &quot;匹配心流产生的每个条件与其在沉浸体验中的作用&quot;,
+          &quot;leftItems&quot;: [
+            { &quot;id&quot;: &quot;l1&quot;, &quot;text&quot;: &quot;能力与挑战动态平衡&quot; },
+            { &quot;id&quot;: &quot;l2&quot;, &quot;text&quot;: &quot;清晰的目标&quot; },
+            { &quot;id&quot;: &quot;l3&quot;, &quot;text&quot;: &quot;即时反馈&quot; }
+          ],
+          &quot;rightItems&quot;: [
+            { &quot;id&quot;: &quot;r1&quot;, &quot;text&quot;: &quot;避免焦虑或无聊，维持沉浸状态&quot; },
+            { &quot;id&quot;: &quot;r2&quot;, &quot;text&quot;: &quot;提供方向感，知道下一步做什么&quot; },
+            { &quot;id&quot;: &quot;r3&quot;, &quot;text&quot;: &quot;让用户及时了解进展情况&quot; }
+          ],
+          &quot;pairs&quot;: [
+            { &quot;leftId&quot;: &quot;l1&quot;, &quot;rightId&quot;: &quot;r1&quot; },
+            { &quot;leftId&quot;: &quot;l2&quot;, &quot;rightId&quot;: &quot;r2&quot; },
+            { &quot;leftId&quot;: &quot;l3&quot;, &quot;rightId&quot;: &quot;r3&quot; }
+          ],
+          &quot;explanation&quot;: &quot;心流需要能力与挑战的平衡（避免焦虑或无聊）、清晰的目标（提供方向）以及即时反馈（动态调整行动）。三者缺一不可，不能只强调高挑战，平衡才是关键。&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;
+        },
+        {
+          &quot;id&quot;: &quot;q-unit-2-003&quot;,
+          &quot;type&quot;: &quot;matching&quot;,
+          &quot;practiceGoalId&quot;: &quot;goal-unit-2-003&quot;,
+          &quot;relationType&quot;: &quot;boundary&quot;,
+          &quot;relationGoal&quot;: &quot;将实用质量与享乐质量分别对应到它们的核心关注点&quot;,
+          &quot;stem&quot;: &quot;区分实用质量与享乐质量的关注维度&quot;,
+          &quot;leftItems&quot;: [
+            { &quot;id&quot;: &quot;l1&quot;, &quot;text&quot;: &quot;实用质量&quot; },
+            { &quot;id&quot;: &quot;l2&quot;, &quot;text&quot;: &quot;享乐质量&quot; }
+          ],
+          &quot;rightItems&quot;: [
+            { &quot;id&quot;: &quot;r1&quot;, &quot;text&quot;: &quot;关注任务完成的效率、可控性与可理解性&quot; },
+            { &quot;id&quot;: &quot;r2&quot;, &quot;text&quot;: &quot;关注身份认同、审美愉悦与深层心理需求&quot; }
+          ],
+          &quot;pairs&quot;: [
+            { &quot;leftId&quot;: &quot;l1&quot;, &quot;rightId&quot;: &quot;r1&quot; },
+            { &quot;leftId&quot;: &quot;l2&quot;, &quot;rightId&quot;: &quot;r2&quot; }
+          ],
+          &quot;explanation&quot;: &quot;实用质量强调产品对“完成目标”的支持，享乐质量则关注“成为目标”的体验，如身份认同与意义。享乐质量并非次要，而是与实用质量互补，共同构成完整的用户体验。&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-3&quot;,
+      &quot;questions&quot;: [
+        {
+          &quot;id&quot;: &quot;q-unit-3-001&quot;,
+          &quot;type&quot;: &quot;matching&quot;,
+          &quot;practiceGoalId&quot;: &quot;goal-unit-3-001&quot;,
+          &quot;relationType&quot;: &quot;responsibility&quot;,
+          &quot;relationGoal&quot;: &quot;将DMC模型的三层与其各自的职责匹配起来&quot;,
+          &quot;stem&quot;: &quot;匹配DMC模型中每层金字塔结构与其核心作用&quot;,
+          &quot;leftItems&quot;: [
+            { &quot;id&quot;: &quot;l1&quot;, &quot;text&quot;: &quot;动力层&quot; },
+            { &quot;id&quot;: &quot;l2&quot;, &quot;text&quot;: &quot;机制层&quot; },
+            { &quot;id&quot;: &quot;l3&quot;, &quot;text&quot;: &quot;组件层&quot; }
+          ],
+          &quot;rightItems&quot;: [
+            { &quot;id&quot;: &quot;r1&quot;, &quot;text&quot;: &quot;界定系统整体体验，回答“用户最终体验到什么”&quot; },
+            { &quot;id&quot;: &quot;r2&quot;, &quot;text&quot;: &quot;组织用户行为与参与循环，编排持续运转的操作流程&quot; },
+            { &quot;id&quot;: &quot;r3&quot;, &quot;text&quot;: &quot;落实为可感知的界面元素与功能模块&quot; }
+          ],
+          &quot;pairs&quot;: [
+            { &quot;leftId&quot;: &quot;l1&quot;, &quot;rightId&quot;: &quot;r1&quot; },
+            { &quot;leftId&quot;: &quot;l2&quot;, &quot;rightId&quot;: &quot;r2&quot; },
+            { &quot;leftId&quot;: &quot;l3&quot;, &quot;rightId&quot;: &quot;r3&quot; }
+          ],
+          &quot;explanation&quot;: &quot;动力层决定体验目标与方向，机制层构成可重复的参与循环，组件层将前两者转化为可视交互元素。三者是递进关系，组件服务于机制，机制服务于动力，不可并列看待。&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-3&quot;
+        },
+        {
+          </pre></details>
+      </div>
+    
+      <div class="question">
+        <div><strong>#33 v2_matchingDraftBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 4600</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;units&quot;: [
+    {
+      &quot;unitId&quot;: &quot;unit-1&quot;,
+      &quot;questions&quot;: [
+        {
+          &quot;id&quot;: &quot;q-unit-1-001&quot;,
+          &quot;type&quot;: &quot;matching&quot;,
+          &quot;practiceGoalId&quot;: &quot;goal-unit-1-001&quot;,
+          &quot;relationType&quot;: &quot;responsibility&quot;,
+          &quot;relationGoal&quot;: &quot;匹配游戏化概念的提出者与各自的经典表述&quot;,
+          &quot;stem&quot;: &quot;请将游戏化领域的提出者与他们的核心贡献逐一对应&quot;,
+          &quot;leftItems&quot;: [
+            {&quot;id&quot;: &quot;l1&quot;, &quot;text&quot;: &quot;尼克·佩林 (Nick Pelling)&quot;},
+            {&quot;id&quot;: &quot;l2&quot;, &quot;text&quot;: &quot;塞巴斯蒂安·德特丁 (Sebastian Deterding)&quot;},
+            {&quot;id&quot;: &quot;l3&quot;, &quot;text&quot;: &quot;凯文·韦巴赫 (Kevin Werbach)&quot;}
+          ],
+          &quot;rightItems&quot;: [
+            {&quot;id&quot;: &quot;r1&quot;, &quot;text&quot;: &quot;2002年首次提出&#39;游戏化&#39;这一术语&quot;},
+            {&quot;id&quot;: &quot;r2&quot;, &quot;text&quot;: &quot;界定为&#39;在非游戏语境中使用游戏设计元素&#39;&quot;},
+            {&quot;id&quot;: &quot;r3&quot;, &quot;text&quot;: &quot;强调以创造&#39;乐趣&#39;的方式服务现实目标&quot;}
+          ],
+          &quot;pairs&quot;: [
+            {&quot;leftId&quot;: &quot;l1&quot;, &quot;rightId&quot;: &quot;r1&quot;},
+            {&quot;leftId&quot;: &quot;l2&quot;, &quot;rightId&quot;: &quot;r2&quot;},
+            {&quot;leftId&quot;: &quot;l3&quot;, &quot;rightId&quot;: &quot;r3&quot;}
+          ],
+          &quot;explanation&quot;: &quot;佩林是游戏化概念的提出者，德特丁给出了最常引用的定义，韦巴赫则强调了乐趣与目标的关联。注意区分提出者与定义者，避免将韦巴赫的&#39;乐趣目标&#39;与德特丁的&#39;设计元素&#39;混淆。&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-1&quot;
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-2&quot;,
+      &quot;questions&quot;: [
+        {
+          &quot;id&quot;: &quot;q-unit-2-002&quot;,
+          &quot;type&quot;: &quot;matching&quot;,
+          &quot;practiceGoalId&quot;: &quot;goal-unit-2-002&quot;,
+          &quot;relationType&quot;: &quot;process_signal&quot;,
+          &quot;relationGoal&quot;: &quot;匹配心流产生的条件与对应的描述&quot;,
+          &quot;stem&quot;: &quot;心流状态需要哪些条件同时满足？将条件与说明匹配&quot;,
+          &quot;leftItems&quot;: [
+            {&quot;id&quot;: &quot;l1&quot;, &quot;text&quot;: &quot;能力与挑战动态平衡&quot;},
+            {&quot;id&quot;: &quot;l2&quot;, &quot;text&quot;: &quot;清晰的目标&quot;},
+            {&quot;id&quot;: &quot;l3&quot;, &quot;text&quot;: &quot;即时反馈&quot;}
+          ],
+          &quot;rightItems&quot;: [
+            {&quot;id&quot;: &quot;r1&quot;, &quot;text&quot;: &quot;任务难度随技能增长而提升，保持张力&quot;},
+            {&quot;id&quot;: &quot;r2&quot;, &quot;text&quot;: &quot;用户明确知道下一步该做什么&quot;},
+            {&quot;id&quot;: &quot;r3&quot;, &quot;text&quot;: &quot;操作后迅速获得系统回应&quot;},
+            {&quot;id&quot;: &quot;r4&quot;, &quot;text&quot;: &quot;（干扰项）任务本身具有趣味性&quot;}
+          ],
+          &quot;pairs&quot;: [
+            {&quot;leftId&quot;: &quot;l1&quot;, &quot;rightId&quot;: &quot;r1&quot;},
+            {&quot;leftId&quot;: &quot;l2&quot;, &quot;rightId&quot;: &quot;r2&quot;},
+            {&quot;leftId&quot;: &quot;l3&quot;, &quot;rightId&quot;: &quot;r3&quot;}
+          ],
+          &quot;explanation&quot;: &quot;心流依赖能力与挑战的匹配、清晰的目标和即时反馈三个核心条件，缺一不可。注意不要将&#39;趣味性&#39;本身误认为是心流条件，趣味是心流的结果而非原因。干扰项r4不匹配任何左侧，确保正确匹配。&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;
+        },
+        {
+          &quot;id&quot;: &quot;q-unit-2-003&quot;,
+          &quot;type&quot;: &quot;matching&quot;,
+          &quot;practiceGoalId&quot;: &quot;goal-unit-2-003&quot;,
+          &quot;relationType&quot;: &quot;boundary&quot;,
+          &quot;relationGoal&quot;: &quot;区分实用质量与享乐质量的关注焦点&quot;,
+          &quot;stem&quot;: &quot;将质量类型与其对应的关注点相匹配，区分实用与享乐&quot;,
+          &quot;leftItems&quot;: [
+            {&quot;id&quot;: &quot;l1&quot;, &quot;text&quot;: &quot;实用质量 (Pragmatic Quality)&quot;},
+            {&quot;id&quot;: &quot;l2&quot;, &quot;text&quot;: &quot;享乐质量 (Hedonic Quality)&quot;}
+          ],
+          &quot;rightItems&quot;: [
+            {&quot;id&quot;: &quot;r1&quot;, &quot;text&quot;: &quot;关注目标完成、效率与可控性&quot;},
+            {&quot;id&quot;: &quot;r2&quot;, &quot;text&quot;: &quot;关注身份认同、审美与自我表达&quot;}
+          ],
+          &quot;pairs&quot;: [
+            {&quot;leftId&quot;: &quot;l1&quot;, &quot;rightId&quot;: &quot;r1&quot;},
+            {&quot;leftId&quot;: &quot;l2&quot;, &quot;rightId&quot;: &quot;r2&quot;}
+          ],
+          &quot;explanation&quot;: &quot;实用质量围绕&#39;完成目标&#39;（Do-goals），强调效率和任务达成；享乐质量围绕&#39;成为目标&#39;（Be-goals），涉及深层心理需求。注意不要将两者对立，好的体验需要平衡。&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-3&quot;,
+      &quot;questions&quot;: [
+        {
+          &quot;id&quot;: &quot;q-unit-3-001&quot;,
+          &quot;type&quot;: &quot;matching&quot;,
+          &quot;practiceGoalId&quot;: &quot;goal-unit-3-001&quot;,
+          &quot;relationType&quot;: &quot;responsibility&quot;,
+          &quot;relationGoal&quot;: &quot;匹配DMC模型各层的核心作用&quot;,
+          &quot;stem&quot;: &quot;DMC模型三层金字塔中，每层承担什么角色？将层级与作用对应&quot;,
+          &quot;leftItems&quot;: [
+            {&quot;id&quot;: &quot;l1&quot;, &quot;text&quot;: &quot;动力层 (Dynamics)&quot;},
+            {&quot;id&quot;: &quot;l2&quot;, &quot;text&quot;: &quot;机制层 (Mechanics)&quot;},
+            {&quot;id&quot;: &quot;l3&quot;, &quot;text&quot;: &quot;组件层 (Components)&quot;}
+          ],
+          &quot;rightItems&quot;: [
+            {&quot;id&quot;: &quot;r1&quot;, &quot;text&quot;: &quot;界定系统整体体验，回答&#39;用户最终体验到什么&#39;&quot;},
+            {&quot;id&quot;: &quot;r2&quot;, &quot;text&quot;: &quot;组织用户行为与参与循环，把操作编排成可重复的参与&quot;},
+            {&quot;id&quot;: &quot;r3&quot;, &quot;text&quot;: &quot;提供用户直接感知的界面元素，把抽象目标转化为具体功能&quot;}
+          ],
+          &quot;pairs&quot;: [
+            {&quot;leftId&quot;: &quot;l1&quot;, &quot;rightId&quot;: &quot;r1&quot;},
+            {&quot;leftId&quot;: &quot;l2&quot;, &quot;rightId&quot;: &quot;r2&quot;},
+            {&quot;leftId&quot;: &quot;l3&quot;, &quot;rightId&quot;: &quot;r3&quot;}
+          ],
+          &quot;explanation&quot;: &quot;DMC模型是递进关系：动力层驱动机制层，机制层落实为组件层。注意不</pre></details>
+      </div>
+    
+      <div class="question">
+        <div><strong>#34 v2_matchingDraftBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 4600</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;units&quot;: [
+    {
+      &quot;unitId&quot;: &quot;unit-1&quot;,
+      &quot;questions&quot;: [
+        {
+          &quot;id&quot;: &quot;q-unit-1-001&quot;,
+          &quot;type&quot;: &quot;matching&quot;,
+          &quot;practiceGoalId&quot;: &quot;goal-unit-1-001&quot;,
+          &quot;relationType&quot;: &quot;responsibility&quot;,
+          &quot;relationGoal&quot;: &quot;匹配游戏化概念提出者与核心贡献&quot;,
+          &quot;stem&quot;: &quot;请将左侧的游戏化相关人物与右侧他们的核心贡献配对&quot;,
+          &quot;leftItems&quot;: [
+            {&quot;id&quot;: &quot;left-1&quot;, &quot;text&quot;: &quot;尼克·佩林&quot;},
+            {&quot;id&quot;: &quot;left-2&quot;, &quot;text&quot;: &quot;塞巴斯蒂安·德特丁&quot;},
+            {&quot;id&quot;: &quot;left-3&quot;, &quot;text&quot;: &quot;凯文·韦巴赫&quot;}
+          ],
+          &quot;rightItems&quot;: [
+            {&quot;id&quot;: &quot;right-1&quot;, &quot;text&quot;: &quot;2002年首次提出“游戏化”术语&quot;},
+            {&quot;id&quot;: &quot;right-2&quot;, &quot;text&quot;: &quot;将游戏化界定为“在非游戏语境中使用游戏设计元素”&quot;},
+            {&quot;id&quot;: &quot;right-3&quot;, &quot;text&quot;: &quot;强调游戏化以创造乐趣服务现实目标&quot;}
+          ],
+          &quot;pairs&quot;: [
+            {&quot;leftId&quot;: &quot;left-1&quot;, &quot;rightId&quot;: &quot;right-1&quot;},
+            {&quot;leftId&quot;: &quot;left-2&quot;, &quot;rightId&quot;: &quot;right-2&quot;},
+            {&quot;leftId&quot;: &quot;left-3&quot;, &quot;rightId&quot;: &quot;right-3&quot;}
+          ],
+          &quot;explanation&quot;: &quot;这三组配对明确了游戏化概念发展中的关键人物及其核心观点。注意：佩林是概念提出者，德特丁给出了被广泛引用的定义，而韦巴赫则突出了乐趣与服务目标的关系。容易混淆的是将德特丁的定义与韦巴赫的观点互换，但定义强调“非游戏语境”和“游戏设计元素”，而韦巴赫侧重“乐趣”与“服务现实目标”。&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-1&quot;
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-2&quot;,
+      &quot;questions&quot;: [
+        {
+          &quot;id&quot;: &quot;q-unit-2-002&quot;,
+          &quot;type&quot;: &quot;matching&quot;,
+          &quot;practiceGoalId&quot;: &quot;goal-unit-2-002&quot;,
+          &quot;relationType&quot;: &quot;process_signal&quot;,
+          &quot;relationGoal&quot;: &quot;匹配心流体验的产生条件及其结果&quot;,
+          &quot;stem&quot;: &quot;请将左侧的心流条件与右侧对应的体验结果配对&quot;,
+          &quot;leftItems&quot;: [
+            {&quot;id&quot;: &quot;left-1&quot;, &quot;text&quot;: &quot;能力与挑战动态平衡&quot;},
+            {&quot;id&quot;: &quot;left-2&quot;, &quot;text&quot;: &quot;清晰目标与即时反馈&quot;}
+          ],
+          &quot;rightItems&quot;: [
+            {&quot;id&quot;: &quot;right-1&quot;, &quot;text&quot;: &quot;高度专注且愉悦的沉浸状态&quot;},
+            {&quot;id&quot;: &quot;right-2&quot;, &quot;text&quot;: &quot;将挑战视为内在回报，持续投入&quot;}
+          ],
+          &quot;pairs&quot;: [
+            {&quot;leftId&quot;: &quot;left-1&quot;, &quot;rightId&quot;: &quot;right-1&quot;},
+            {&quot;leftId&quot;: &quot;left-2&quot;, &quot;rightId&quot;: &quot;right-2&quot;}
+          ],
+          &quot;explanation&quot;: &quot;心流理论中，能力与挑战的平衡直接带来沉浸专注，而清晰目标与即时反馈则使用户感受到内在奖励，从而愿意持续。常见误解是认为只需高挑战就能产生心流，但平衡才是关键。&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;
+        },
+        {
+          &quot;id&quot;: &quot;q-unit-2-003&quot;,
+          &quot;type&quot;: &quot;matching&quot;,
+          &quot;practiceGoalId&quot;: &quot;goal-unit-2-003&quot;,
+          &quot;relationType&quot;: &quot;boundary&quot;,
+          &quot;relationGoal&quot;: &quot;区分实用质量与享乐质量的关注重点&quot;,
+          &quot;stem&quot;: &quot;请将左侧的质量类型与右侧对应的关注点配对&quot;,
+          &quot;leftItems&quot;: [
+            {&quot;id&quot;: &quot;left-1&quot;, &quot;text&quot;: &quot;实用质量&quot;},
+            {&quot;id&quot;: &quot;left-2&quot;, &quot;text&quot;: &quot;享乐质量&quot;}
+          ],
+          &quot;rightItems&quot;: [
+            {&quot;id&quot;: &quot;right-1&quot;, &quot;text&quot;: &quot;可控性、效率、任务完成&quot;},
+            {&quot;id&quot;: &quot;right-2&quot;, &quot;text&quot;: &quot;身份认同、审美愉悦、自我表达&quot;}
+          ],
+          &quot;pairs&quot;: [
+            {&quot;leftId&quot;: &quot;left-1&quot;, &quot;rightId&quot;: &quot;right-1&quot;},
+            {&quot;leftId&quot;: &quot;left-2&quot;, &quot;rightId&quot;: &quot;right-2&quot;}
+          ],
+          &quot;explanation&quot;: &quot;实用质量聚焦于工具性目标（如效率），而享乐质量则关乎心理需求（如身份与审美）。常见误区是认为享乐质量次要，但二者在持续性体验中同等重要。&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-2&quot;
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-3&quot;,
+      &quot;questions&quot;: [
+        {
+          &quot;id&quot;: &quot;q-unit-3-001&quot;,
+          &quot;type&quot;: &quot;matching&quot;,
+          &quot;practiceGoalId&quot;: &quot;goal-unit-3-001&quot;,
+          &quot;relationType&quot;: &quot;responsibility&quot;,
+          &quot;relationGoal&quot;: &quot;匹配DMC模型各层的作用&quot;,
+          &quot;stem&quot;: &quot;请将左侧的DMC层级与右侧对应的核心作用配对&quot;,
+          &quot;leftItems&quot;: [
+            {&quot;id&quot;: &quot;left-1&quot;, &quot;text&quot;: &quot;动力层&quot;},
+            {&quot;id&quot;: &quot;left-2&quot;, &quot;text&quot;: &quot;机制层&quot;},
+            {&quot;id&quot;: &quot;left-3&quot;, &quot;text&quot;: &quot;组件层&quot;}
+          ],
+          &quot;rightItems&quot;: [
+            {&quot;id&quot;: &quot;right-1&quot;, &quot;text&quot;: &quot;规定体验目标与方向&quot;},
+            {&quot;id&quot;: &quot;right-2&quot;, &quot;text&quot;: &quot;组织行为规则与参与循环&quot;},
+            {&quot;id&quot;: &quot;right-3&quot;, &quot;text&quot;: &quot;提供用户直接感知的具体功能&quot;}
+          ],
+          &quot;pairs&quot;: [
+            {&quot;leftId&quot;: &quot;left-1&quot;, &quot;rightId&quot;: &quot;right-1&quot;},
+            {&quot;leftId&quot;: &quot;left-2&quot;, &quot;rightId&quot;: &quot;right-2&quot;},
+            {&quot;leftId&quot;: &quot;left-3&quot;, &quot;rightId&quot;: &quot;right-3&quot;}
+          ],
+          &quot;explanation&quot;: &quot;DMC模型是金字塔结构：动力层定义体验目标，机制层通过规则驱动参与，组件层落实为界面元素。注意三层是递进关系，而非并列，动力层指导机制层，机制层指导组件层。&quot;,
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-3&quot;
+        },
+        {
+          &quot;id&quot;: &quot;q-unit-3-002&quot;,
+          &quot;type&quot;: &quot;m</pre></details>
+      </div>
+    
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">Stage Runtime Reliability</h2>
+    <p class="meta">这一段显示 structured-output runtime 的稳定性：每个 stage 调用了几次、重试了几次、失败类型是什么。它不是题目质量审查。</p>
+    <div class="grid">
+      <div class="metric"><strong>31</strong>Calls</div>
+      <div class="metric"><strong>34</strong>Attempts</div>
+      <div class="metric"><strong>4</strong>Failed attempts</div>
+      <div class="metric"><strong>3</strong>Retry attempts</div>
+    </div>
+    <div class="question">
+      <div><strong>v2_reviewPathPlan</strong></div>
+      <div class="meta">calls: 1 · success calls: 1 · failed calls: 0 · attempts: 1 · retries: 0 · failed attempts: 0 · duration: 23975ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_unitKnowledgeMap</strong></div>
+      <div class="meta">calls: 10 · success calls: 10 · failed calls: 0 · attempts: 10 · retries: 0 · failed attempts: 0 · duration: 108577ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_taskBriefPlan</strong></div>
+      <div class="meta">calls: 10 · success calls: 10 · failed calls: 0 · attempts: 10 · retries: 0 · failed attempts: 0 · duration: 284402ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_multipleChoiceDraftUnitBatch</strong></div>
+      <div class="meta">calls: 9 · success calls: 9 · failed calls: 0 · attempts: 10 · retries: 1 · failed attempts: 1 · duration: 154630ms</div>
+      <div class="meta">error types: json_parse_error=1</div>
+      <details><summary>last error</summary><pre>json_parse_error: 模型返回内容不是可解析 JSON，请重试。</pre></details>
+    </div>
+<div class="question">
+      <div><strong>v2_matchingDraftBatch</strong></div>
+      <div class="meta">calls: 1 · success calls: 0 · failed calls: 1 · attempts: 3 · retries: 2 · failed attempts: 3 · duration: 168525ms</div>
+      <div class="meta">error types: json_parse_error=3</div>
+      <details><summary>last error</summary><pre>json_parse_error: 模型返回内容不是可解析 JSON，请重试。</pre></details>
+    </div>
+  </section>
+    
+    <section class="card">
+      <h2 style="margin-top:0">文章与章节</h2>
+      <p><strong>基于游戏化方法的持续性用户体验设计</strong></p>
+      <p class="meta">吴 琼、王婧等 · <a href="https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A">https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A</a></p>
+      <p></p>
+      <div class="grid">
+        <div class="metric"><strong>0</strong>知识点</div>
+        <div class="metric"><strong>0</strong>题目</div>
+        <div class="metric"><strong>0</strong>选择题</div>
+        <div class="metric"><strong>0</strong>连线题</div>
+        <div class="metric"><strong>0</strong>Source blocks</div>
+        <div class="metric"><strong>0</strong>Issues</div>
+        <div class="metric"><strong>0</strong>Diagnostics</div>
+        <div class="metric"><strong>4</strong>Runtime failed attempts</div>
+        <div class="metric"><strong>3</strong>Runtime retries</div>
+      </div>
+    </section>
+    
+    
+    
+    <section class="card">
+      <h2 style="margin-top:0">章节总结</h2>
+      <p><span class="tag">章节完成</span></p>
+      <p></p>
+    </section>
+    <section class="card">
+      <h2 style="margin-top:0">完整来源块</h2>
+      <p class="meta">暂无 source blocks</p>
+    </section>
+  </main>
+</body>
+</html>

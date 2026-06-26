@@ -1,0 +1,227 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-21T19:04:58.965Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-mc-misconception-matching-flex-max6-rerun",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11365
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 5,
+    "diagnosticIssueCount": 0,
+    "runtimeFailedAttemptCount": 0,
+    "runtimeRetryAttemptCount": 0
+  },
+  "chapter": null,
+  "unitKnowledgeMap": null,
+  "ecdPlanning": null,
+  "sourceContextStats": null,
+  "stageRuntime": {
+    "schemaVersion": "v2_stage_runtime_1",
+    "callCount": 4,
+    "attemptCount": 4,
+    "failedAttemptCount": 0,
+    "retryAttemptCount": 0,
+    "stages": [
+      {
+        "stage": "v2_sourceMap",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 43785,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_reviewPathPlan",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 21801,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 36105,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_taskBriefPlan",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 33114,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      }
+    ],
+    "attempts": [
+      {
+        "callId": "sourceMap-1",
+        "stage": "v2_sourceMap",
+        "modelStage": "sourceMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 43785,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "reviewPathPlan-2",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 21801,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-3",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 36105,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-4",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 33114,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      }
+    ]
+  },
+  "qualityDiagnostics": [],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_sourceMap",
+      "estimatedOutputTokens": 7600,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 6109,
+        "completion_tokens": 7473,
+        "total_tokens": 13582,
+        "prompt_cache_hit_tokens": 6016,
+        "prompt_cache_miss_tokens": 93
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 3200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 7482,
+        "completion_tokens": 2472,
+        "total_tokens": 9954,
+        "prompt_cache_hit_tokens": 640,
+        "prompt_cache_miss_tokens": 6842
+      }
+    },
+    {
+      "index": 3,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 7200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 6654,
+        "completion_tokens": 5477,
+        "total_tokens": 12131,
+        "prompt_cache_hit_tokens": 768,
+        "prompt_cache_miss_tokens": 5886
+      }
+    },
+    {
+      "index": 4,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 5600,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 9521,
+        "completion_tokens": 4491,
+        "total_tokens": 14012,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 8497
+      }
+    }
+  ],
+  "failure": {
+    "failedStage": "contract_validation",
+    "failureReason": "taskBriefPlan.units[3]: unitPracticePlan.questionPlans[1].purpose must be one of light_understanding, scenario_application, boundary_clarification, relationship_matching, boundary_check, misconception_check, counterexample_check, layer_role_matching, type_feature_matching, step_purpose_matching, signal_action_matching, role_responsibility_matching；taskBriefPlan.units[4]: unitPracticePlan.questionPlans[1].purpose must be one of light_understanding, scenario_application, boundary_clarification, relationship_matching, boundary_check, misconception_check, counterexample_check, layer_role_matching, type_feature_matching, step_purpose_matching, signal_action_matching, role_responsibility_matching；taskBriefPlan.units[4]: unitPracticePlan.questionPlans[2].purpose must be one of light_understanding, scenario_application, boundary_clarification, relationship_matching, boundary_check, misconception_check, counterexample_check, layer_role_matching, type_feature_matching, step_purpose_matching, signal_action_matching, role_responsibility_matching；taskBriefPlan.units[5]: unitPracticePlan.questionPlans[0].purpose must be one of light_understanding, scenario_application, boundary_clarification, relationship_matching, boundary_check, misconception_check, counterexample_check, layer_role_matching, type_feature_matching, step_purpose_matching, signal_action_matching, role_responsibility_matching；taskBriefPlan.units[5]: unitPracticePlan.questionPlans[1].purpose must be one of light_understanding, scenario_application, boundary_clarification, relationship_matching, boundary_check, misconception_check, counterexample_check, layer_role_matching, type_feature_matching, step_purpose_matching, signal_action_matching, role_responsibility_matching",
+    "retryable": false,
+    "modelStage": "",
+    "retryAttempts": 0,
+    "issues": [],
+    "errors": [
+      "taskBriefPlan.units[3]: unitPracticePlan.questionPlans[1].purpose must be one of light_understanding, scenario_application, boundary_clarification, relationship_matching, boundary_check, misconception_check, counterexample_check, layer_role_matching, type_feature_matching, step_purpose_matching, signal_action_matching, role_responsibility_matching",
+      "taskBriefPlan.units[4]: unitPracticePlan.questionPlans[1].purpose must be one of light_understanding, scenario_application, boundary_clarification, relationship_matching, boundary_check, misconception_check, counterexample_check, layer_role_matching, type_feature_matching, step_purpose_matching, signal_action_matching, role_responsibility_matching",
+      "taskBriefPlan.units[4]: unitPracticePlan.questionPlans[2].purpose must be one of light_understanding, scenario_application, boundary_clarification, relationship_matching, boundary_check, misconception_check, counterexample_check, layer_role_matching, type_feature_matching, step_purpose_matching, signal_action_matching, role_responsibility_matching",
+      "taskBriefPlan.units[5]: unitPracticePlan.questionPlans[0].purpose must be one of light_understanding, scenario_application, boundary_clarification, relationship_matching, boundary_check, misconception_check, counterexample_check, layer_role_matching, type_feature_matching, step_purpose_matching, signal_action_matching, role_responsibility_matching",
+      "taskBriefPlan.units[5]: unitPracticePlan.questionPlans[1].purpose must be one of light_understanding, scenario_application, boundary_clarification, relationship_matching, boundary_check, misconception_check, counterexample_check, layer_role_matching, type_feature_matching, step_purpose_matching, signal_action_matching, role_responsibility_matching"
+    ],
+    "diagnostics": []
+  }
+}

@@ -1,0 +1,59 @@
+name: V2 Production Gate Evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Production or staging backend base URL
+        required: true
+        default: https://shibei-production.up.railway.app
+      smoke:
+        description: Run explicit smoke after readiness checks pass
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  production-gate:
+    name: Production gate evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm --prefix backend ci
+
+      - name: Run production gate
+        run: |
+          mkdir -p production-readiness-evidence
+          stamp="$(date -u +'%Y%m%d-%H%M%S')"
+          args=(
+            --base-url "${{ inputs.base_url }}"
+            --json-out "production-readiness-evidence/${stamp}-production-gate.json"
+            --markdown-out "production-readiness-evidence/${stamp}-production-gate.md"
+          )
+          if [ "${{ inputs.smoke }}" = "true" ]; then
+            args+=(--smoke)
+          fi
+          npm --prefix backend run gate:production -- "${args[@]}"
+
+      - name: Upload gate evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: v2-production-gate-evidence
+          path: production-readiness-evidence/
+          if-no-files-found: warn

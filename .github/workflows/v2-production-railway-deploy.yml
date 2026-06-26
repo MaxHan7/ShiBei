@@ -1,0 +1,314 @@
+name: V2 Production Railway Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type deploy-v2-production to confirm this deployment
+        required: true
+      railway_service_id:
+        description: Target Railway service id
+        required: true
+      current_deployment_id:
+        description: Current production deployment id before replacement
+        required: true
+      database_backup_reference:
+        description: Database backup/export reference created before deploy
+        required: true
+      data_strategy:
+        description: preserve-data or reset-data
+        required: true
+        default: reset-data
+      data_reset_confirmation:
+        description: Type reset-old-test-data only when data_strategy is reset-data
+        required: false
+        default: ""
+      railway_project_id:
+        description: Railway project id
+        required: false
+        default: 942a03f5-84db-414b-86da-a2c9c2c49f48
+      postgres_service_id:
+        description: Railway Postgres service id, required for reset-data
+        required: false
+        default: 76138dfd-940a-4036-b390-b0bd5f8a3e51
+      railway_environment:
+        description: Railway environment name
+        required: false
+        default: production
+      rollback_confirmation:
+        description: Type rollback-ready after old deployment and DB restore path are recorded
+        required: true
+      deployment_notes:
+        description: Optional operator notes for the deployment record
+        required: false
+        default: ""
+      base_url:
+        description: Production backend base URL for post-deploy gate
+        required: true
+        default: https://shibei-production.up.railway.app
+      smoke_after_gate:
+        description: Run explicit smoke only after readiness passes
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v2-production-railway-deploy
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate candidate before deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Refuse missing confirmation
+        if: ${{ inputs.confirmation != 'deploy-v2-production' }}
+        run: |
+          echo "confirmation must be exactly deploy-v2-production"
+          exit 1
+
+      - name: Refuse missing rollback confirmation
+        if: ${{ inputs.rollback_confirmation != 'rollback-ready' }}
+        run: |
+          echo "rollback_confirmation must be exactly rollback-ready"
+          exit 1
+
+      - name: Refuse unsupported data strategy
+        if: ${{ inputs.data_strategy != 'preserve-data' && inputs.data_strategy != 'reset-data' }}
+        run: |
+          echo "data_strategy must be preserve-data or reset-data"
+          exit 1
+
+      - name: Refuse unsafe reset-data confirmation
+        if: ${{ inputs.data_strategy == 'reset-data' && inputs.data_reset_confirmation != 'reset-old-test-data' }}
+        run: |
+          echo "reset-data requires data_reset_confirmation to be exactly reset-old-test-data"
+          exit 1
+
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Write deployment intent record
+        run: |
+          mkdir -p production-readiness-evidence
+          cat > production-readiness-evidence/deployment-intent.md <<'EOF'
+          # V2 Production Deployment Intent
+
+          - Candidate commit: `${{ github.sha }}`
+          - Actor: `${{ github.actor }}`
+          - Target base URL: `${{ inputs.base_url }}`
+          - Railway service id: `${{ inputs.railway_service_id }}`
+          - Previous production deployment id: `${{ inputs.current_deployment_id }}`
+          - Data strategy: `${{ inputs.data_strategy }}`
+          - Database backup reference: `${{ inputs.database_backup_reference }}`
+          - Smoke after gate: `${{ inputs.smoke_after_gate }}`
+          - Operator notes: `${{ inputs.deployment_notes }}`
+
+          This workflow refuses to deploy unless the old deployment id, database backup/export reference, rollback confirmation, and data strategy confirmation are provided.
+          EOF
+
+      - name: Upload deployment intent
+        uses: actions/upload-artifact@v6
+        with:
+          name: v2-production-deploy-intent
+          path: production-readiness-evidence/deployment-intent.md
+          if-no-files-found: error
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm --prefix backend ci
+
+      - name: Run root production checks
+        run: npm run check
+
+  reset-db:
+    name: Reset old production test data
+    needs: validate
+    if: ${{ inputs.data_strategy == 'reset-data' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_PROJECT_ID: ${{ inputs.railway_project_id }}
+      POSTGRES_SERVICE_ID: ${{ inputs.postgres_service_id }}
+      RAILWAY_ENVIRONMENT: ${{ inputs.railway_environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Refuse missing Railway token
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "Repository secret RAILWAY_TOKEN is required."
+            exit 1
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+
+      - name: Install Railway CLI and PostgreSQL client
+        run: |
+          npm install --global @railway/cli
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Resolve database URL from Railway variables
+        run: |
+          set -euo pipefail
+          variables_json="$(railway variable list --project "$RAILWAY_PROJECT_ID" --service "$POSTGRES_SERVICE_ID" --environment "$RAILWAY_ENVIRONMENT" --json)"
+          database_url="$(printf '%s' "$variables_json" | node tools/extract-railway-database-url.mjs)"
+          echo "::add-mask::$database_url"
+          {
+            echo "DATABASE_URL<<EOF"
+            echo "$database_url"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+
+      - name: Truncate app-owned production test tables
+        run: |
+          set -euo pipefail
+          psql "$DATABASE_URL" --set=ON_ERROR_STOP=1 <<'SQL'
+          DO $$
+          DECLARE
+            table_names text[] := ARRAY[
+              'favorite_questions',
+              'notifications',
+              'generation_jobs',
+              'chapters',
+              'device_push_tokens',
+              'devices'
+            ];
+            existing_tables text;
+          BEGIN
+            SELECT string_agg(format('%I', table_name), ', ')
+              INTO existing_tables
+              FROM unnest(table_names) AS table_name
+             WHERE to_regclass('public.' || table_name) IS NOT NULL;
+
+            IF existing_tables IS NOT NULL THEN
+              EXECUTE 'TRUNCATE TABLE ' || existing_tables || ' RESTART IDENTITY CASCADE';
+            END IF;
+          END $$;
+          SQL
+
+      - name: Write reset evidence
+        run: |
+          mkdir -p production-readiness-evidence
+          stamp="$(date -u +'%Y%m%d-%H%M%S')"
+          cat > "production-readiness-evidence/${stamp}-reset-data.md" <<'EOF'
+          # V2 Production Reset-Data Evidence
+
+          - Candidate commit: `${{ github.sha }}`
+          - Actor: `${{ github.actor }}`
+          - Data strategy: `${{ inputs.data_strategy }}`
+          - Reset confirmation: `${{ inputs.data_reset_confirmation }}`
+          - Database backup/export reference: `${{ inputs.database_backup_reference }}`
+          - Railway project id: `${{ inputs.railway_project_id }}`
+          - Railway environment: `${{ inputs.railway_environment }}`
+          - Postgres service id: `${{ inputs.postgres_service_id }}`
+
+          App-owned production test tables were truncated after the old test data export was recorded.
+          EOF
+
+      - name: Upload reset evidence
+        uses: actions/upload-artifact@v6
+        with:
+          name: v2-production-reset-data-evidence
+          path: production-readiness-evidence/
+          if-no-files-found: error
+
+  deploy:
+    name: Deploy root backend to Railway
+    needs:
+      - validate
+      - reset-db
+    if: ${{ always() && needs.validate.result == 'success' && (needs.reset-db.result == 'success' || needs.reset-db.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Refuse missing Railway token
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "Repository secret RAILWAY_TOKEN is required."
+            exit 1
+          fi
+
+      - name: Install Railway CLI
+        run: npm install --global @railway/cli
+
+      - name: Deploy to Railway
+        run: railway up --ci --service "${{ inputs.railway_service_id }}"
+
+  gate:
+    name: Post-deploy production gate
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm --prefix backend ci
+
+      - name: Wait for backend health
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error "${{ inputs.base_url }}/api/health" >/dev/null; then
+              exit 0
+            fi
+            echo "Waiting for healthcheck attempt ${attempt}/30..."
+            sleep 5
+          done
+          echo "Backend healthcheck did not become ready in time."
+          exit 1
+
+      - name: Run post-deploy production gate
+        run: |
+          mkdir -p production-readiness-evidence
+          stamp="$(date -u +'%Y%m%d-%H%M%S')"
+          args=(
+            --base-url "${{ inputs.base_url }}"
+            --json-out "production-readiness-evidence/${stamp}-production-gate.json"
+            --markdown-out "production-readiness-evidence/${stamp}-production-gate.md"
+          )
+          if [ "${{ inputs.smoke_after_gate }}" = "true" ]; then
+            args+=(--smoke)
+          fi
+          npm --prefix backend run gate:production -- "${args[@]}"
+
+      - name: Upload gate evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: v2-production-deploy-gate-evidence
+          path: production-readiness-evidence/
+          if-no-files-found: warn

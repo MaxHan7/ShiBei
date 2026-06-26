@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>v2-prompt-copy-cleanup-regression - V2 出题质量报告</title>
+  <style>
+    :root {
+      --bg: #f2f5cf;
+      --paper: #fdfaf2;
+      --ink: #44423d;
+      --muted: #807d73;
+      --line: #dde1ac;
+      --brand: #98a84e;
+      --soft: #f2f1da;
+      --danger: #ed765c;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    h1, h2, h3 {
+      line-height: 1.25;
+      margin: 0;
+    }
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 40px 0 16px;
+    }
+    h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(152, 163, 94, 0.18);
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      color: var(--brand);
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 14px 0;
+      background: rgba(253, 250, 242, 0.72);
+    }
+    .stem {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .options, .pairs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .option, .pair {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .correct {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .explanation {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+    .source {
+      margin-top: 12px;
+      border-left: 4px solid var(--line);
+      padding-left: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .source-block {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin: 8px 0;
+      background: rgba(255,255,255,0.45);
+    }
+    .source-block.highlight {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .failure {
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    details {
+      margin-top: 12px;
+    }
+    .diagnostic {
+      border-top: 1px dashed var(--line);
+      padding-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 6px;
+      text-align: right;
+      vertical-align: top;
+    }
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>V2 出题质量报告</h1>
+    <div class="meta">2026-06-22T23:53:46.706Z · v2-prompt-copy-cleanup-regression · failed_generation</div>
+    <section class="card failure">
+    <h2 style="margin-top:0">生成失败</h2>
+    <p><strong>v2_taskBriefPlan</strong> · 可重试</p>
+    <p>模型阶段：taskBriefPlan · 重试次数：3</p>
+    <p>DeepSeek 没有返回结构化文本。</p>
+    
+    
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">Architecture Metrics</h2>
+    <p class="meta">这一段是架构仪表盘：不改变生成链路，只量化每个 stage 的调用数、token、重试和耗时，用来判断下一轮是变轻、变重、变稳还是变脆。</p>
+    <div class="grid">
+      <div class="metric"><strong>8</strong>Model calls</div>
+      <div class="metric"><strong>119,487</strong>Total tokens</div>
+      <div class="metric"><strong>86,247</strong>Prompt tokens</div>
+      <div class="metric"><strong>33,240</strong>Completion tokens</div>
+      <div class="metric"><strong>5</strong>Retries</div>
+      <div class="metric"><strong>280s</strong>Duration</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Stage</th>
+          <th>Calls</th>
+          <th>Attempts</th>
+          <th>Retries</th>
+          <th>Prompt</th>
+          <th>Completion</th>
+          <th>Total</th>
+          <th>Cache hit/miss</th>
+          <th>Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>v2_reviewPathPlan</td>
+          <td>3</td>
+          <td>3</td>
+          <td>2</td>
+          <td>30,393</td>
+          <td>9,173</td>
+          <td>39,566</td>
+          <td>20,224 / 10,169</td>
+          <td>93s</td>
+        </tr>
+<tr>
+          <td>v2_taskBriefPlan</td>
+          <td>3</td>
+          <td>3</td>
+          <td>2</td>
+          <td>38,784</td>
+          <td>11,400</td>
+          <td>50,184</td>
+          <td>25,600 / 13,184</td>
+          <td>94s</td>
+        </tr>
+<tr>
+          <td>v2_unitKnowledgeMap</td>
+          <td>2</td>
+          <td>2</td>
+          <td>1</td>
+          <td>17,070</td>
+          <td>12,667</td>
+          <td>29,737</td>
+          <td>8,448 / 8,622</td>
+          <td>92s</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">模型调用记录</h2>
+    
+      <div class="question">
+        <div><strong>#1 v2_reviewPathPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3200</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;title&quot;: &quot;基于游戏化方法的持续性用户体验设计&quot;,
+  &quot;summaryCard&quot;: {
+    &quot;text&quot;: &quot;本文聚焦游戏化方法如何提升用户体验的持续性，从概念与理论出发，提出阶段性目标、挑战匹配、成长感知、情境身份四个设计方向，并分析风险与AI新趋势，为长期用户参与设计提供系统思路。&quot;
+  },
+  &quot;units&quot;: [
+    {
+      &quot;id&quot;: &quot;u1&quot;,
+      &quot;order&quot;: 1,
+      &quot;title&quot;: &quot;游戏化概念与交互本质&quot;,
+      &quot;nodeLabel&quot;: &quot;游戏化概念&quot;,
+      &quot;shortSummary&quot;: &quot;游戏化是使用游戏设计元素于非游戏语境，通过规则、交互、愉悦和吸引力激发用户自主感与胜任感。&quot;,
+      &quot;detailSummary&quot;: &quot;游戏化（Gamification）由Nick Pelling于2002年提出，Deterding定义为&#39;在非游戏语境中使用游戏设计元素&#39;。游戏是基于规则的交互系统，追求的不是效率而是体验。交互是游戏本质，通过&#39;行动-反馈&#39;循环形成持续参与。游戏化关键在于以创造乐趣的方式服务现实目标。&quot;,
+      &quot;why&quot;: &quot;理解游戏化基本定义和交互本质是后续设计方法的基础。&quot;,
+      &quot;sourceAnchor&quot;: {
+        &quot;id&quot;: &quot;anchor-u1&quot;,
+        &quot;blockIds&quot;: [&quot;p-013&quot;, &quot;p-014&quot;, &quot;p-022&quot;]
+      }
+    },
+    {
+      &quot;id&quot;: &quot;u2&quot;,
+      &quot;</pre></details>
+      </div>
+    
+      <div class="question">
+        <div><strong>#2 v2_reviewPathPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3200</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;title&quot;: &quot;基于游戏化方法的持续性用户体验设计&quot;,
+  &quot;summaryCard&quot;: {
+    &quot;text&quot;: &quot;游戏化方法通过阶段性目标、动态挑战、成长可视化和情境建构，将游戏元素转化为持续性用户体验的情感锚点，但需警惕外部激励对内在动机的侵蚀。&quot;
+  },
+  &quot;units&quot;: [
+    {
+      &quot;id&quot;: &quot;unit1-gamification-concept&quot;,
+      &quot;order&quot;: 1,
+      &quot;title&quot;: &quot;游戏化概念与持续性用户体验&quot;,
+      &quot;nodeLabel&quot;: &quot;游戏化与持续性体验&quot;,
+      &quot;shortSummary&quot;: &quot;游戏化是将游戏设计元素应用于非游戏情境，通过阶段性目标、动态挑战等提升用户长期参与意愿。&quot;,
+      &quot;detailSummary&quot;: &quot;本文梳理了游戏化概念，从阶段性目标、动态匹配、成长感知、情境身份四个方面分析其如何作用于持续性用户体验设计。游戏化通过心流理论、实用-享乐框架等，将用户体验从可用性扩展到情感与意义层面。&quot;,
+      &quot;why&quot;: &quot;理解游戏化的定义及其在持续性体验中的核心作用，是掌握全部方法的基础。&quot;,
+      &quot;sourceAnchor&quot;: {
+       </pre></details>
+      </div>
+    
+      <div class="question">
+        <div><strong>#3 v2_reviewPathPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3200</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#4 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 7200</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;units&quot;: [
+    {
+      &quot;unitId&quot;: &quot;unit-01&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-unit-01-001&quot;,
+          &quot;title&quot;: &quot;游戏化的定义与起源&quot;,
+          &quot;summary&quot;: &quot;游戏化是在非游戏语境中使用游戏设计元素，由佩林于2002年提出，德特丁界定，韦巴赫强调以创造“乐趣”服务现实目标。&quot;,
+          &quot;role&quot;: &quot;definition&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;definition_grasp&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-01&quot;,
+          &quot;sourceSupport&quot;: &quot;p-014段给出了游戏化的定义、提出者及核心目的。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-01-002&quot;,
+          &quot;title&quot;: &quot;游戏化的应用案例&quot;,
+          &quot;summary&quot;: &quot;瑞典奥丁广场地铁站的钢琴楼梯将爬楼梯转化为趣味互动体验，展示游戏化的实际应用。&quot;,
+          &quot;role&quot;: &quot;example_case&quot;,
+          &quot;assessmentValue&quot;: &quot;low&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;scenario_transfer&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-01&quot;,
+          &quot;sourceSupport&quot;: &quot;p-014段末尾以钢琴楼梯案例说明游戏化的实际应用。&quot;
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-02&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-unit-02-001&quot;,
+          &quot;title&quot;: &quot;心流理论&quot;,
+          &quot;summary&quot;: &quot;当能力与挑战平衡、目标清晰、反馈及时，用户进入高度专注愉悦的心流状态。&quot;,
+          &quot;role&quot;: &quot;mechanism&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;mechanism_reasoning&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-02&quot;,
+          &quot;sourceSupport&quot;: &quot;p-016段中阐述了心流理论的三个条件及其带来的沉浸愉悦。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-02-002&quot;,
+          &quot;title&quot;: &quot;实用-享乐框架&quot;,
+          &quot;summary&quot;: &quot;用户体验分为实用质量（效率、可控）和享乐质量（身份、审美、意义），享乐质量满足自主、胜任、归属等心理需求。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-02&quot;,
+          &quot;sourceSupport&quot;: &quot;p-016段后部介绍了实用-享乐框架及其与心理需求的关联。&quot;
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-03&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-unit-03-001&quot;,
+          &quot;title&quot;: &quot;DMC整体三层结构&quot;,
+          &quot;summary&quot;: &quot;DMC模型分为动力、机制、组件三层，从体验目标到具体功能逐步落实。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-03&quot;,
+          &quot;sourceSupport&quot;: &quot;p-020段描述了DMC金字塔分层结构。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-03-002&quot;,
+          &quot;title&quot;: &quot;动力层的作用&quot;,
+          &quot;summary&quot;: &quot;动力层界定系统整体体验，包括约束、情感、叙事、成长关系等。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-03&quot;,
+          &quot;sourceSupport&quot;: &quot;p-020段解释了动力层回答“用户最终体验到什么”。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-03-003&quot;,
+          &quot;title&quot;: &quot;机制层的作用&quot;,
+          &quot;summary&quot;: &quot;机制层组织用户行为与参与流程，如挑战、竞争、反馈、奖励等。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-03&quot;,
+          &quot;sourceSupport&quot;: &quot;p-020段说明了机制层将操作编排为可重复的参与。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-03-004&quot;,
+          &quot;title&quot;: &quot;组件层的作用&quot;,
+          &quot;summary&quot;: &quot;组件层是用户直接感知的界面元素或功能模块，如成就、徽章、排行榜、点数等。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-03&quot;,
+          &quot;sourceSupport&quot;: &quot;p-020段指出组件层是用户最容易感知的操作单元。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-unit-03-005&quot;,
+          &quot;title&quot;: &quot;三层关系&quot;,
+          &quot;summary&quot;: &quot;动力层提供方向，机制层形成操作循环，组件层落实为具体功能，层层递进。&quot;,
+          &quot;role&quot;: &quot;relationship&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-unit-03&quot;,
+          &quot;sourceSupport&quot;: &quot;p-020段说明了三层之间的逐步落实关系。&quot;
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-04&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-unit-04-001&quot;,
+          &quot;title&quot;: &quot;阶段性目标策略&quot;,
+          &quot;summary&quot;: &quot;将长期目标拆解为可量化的阶段性目标（里程碑），提供即时反馈，维持动机。&quot;,
+          &quot;role&quot;: &quot;mechanism&quot;,
+          &quot;assessm</pre></details>
+      </div>
+    
+      <div class="question">
+        <div><strong>#5 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 7200</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#6 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;units&quot;: [
+    {
+      &quot;unitId&quot;: &quot;unit-01&quot;,
+      &quot;practiceGoals&quot;: [
+        {
+          &quot;kind&quot;: &quot;core_understanding&quot;,
+          &quot;target&quot;: &quot;理解游戏化的定义与目的，并区分相关概念边界&quot;,
+          &quot;commonMisconception&quot;: &quot;混淆游戏化与游戏设计&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-01-001&quot;, &quot;micro-unit-01-002&quot;, &quot;micro-unit-01-003&quot;]
+        }
+      ],
+      &quot;questionPlans&quot;: [
+        {
+          &quot;type&quot;: &quot;multiple_choice&quot;,
+          &quot;purpose&quot;: &quot;light_understanding&quot;,
+          &quot;goalIndex&quot;: 1,
+          &quot;microIds&quot;: [&quot;micro-unit-01-001&quot;, &quot;micro-unit-01-002&quot;]
+        },
+        {
+          &quot;type&quot;: &quot;multiple_choice&quot;,
+          &quot;purpose&quot;: &quot;boundary_clarification&quot;,
+          &quot;goalIndex&quot;: 1,
+          &quot;microIds&quot;: [&quot;micro-unit-01-003&quot;]
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-02&quot;,
+      &quot;practiceGoals&quot;: [
+        {
+          &quot;kind&quot;: &quot;core_understanding&quot;,
+          &quot;target&quot;: &quot;掌握心流理论的核心条件&quot;,
+          &quot;commonMisconception&quot;: &quot;认为心流仅由挑战决定&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-02-001&quot;]
+        },
+        {
+          &quot;kind&quot;: &quot;relationship_mapping&quot;,
+          &quot;target&quot;: &quot;理解实用-享乐框架及两维度区别&quot;,
+          &quot;commonMisconception&quot;: &quot;混淆实用与享乐质量&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-02-002&quot;, &quot;micro-unit-02-003&quot;]
+        }
+      ],
+      &quot;questionPlans&quot;: [
+        {
+          &quot;type&quot;: &quot;multiple_choice&quot;,
+          &quot;purpose&quot;: &quot;light_understanding&quot;,
+          &quot;goalIndex&quot;: 1,
+          &quot;microIds&quot;: [&quot;micro-unit-02-001&quot;]
+        },
+        {
+          &quot;type&quot;: &quot;matching&quot;,
+          &quot;purpose&quot;: &quot;relationship_matching&quot;,
+          &quot;goalIndex&quot;: 2,
+          &quot;relationType&quot;: &quot;boundary&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-02-002&quot;, &quot;micro-unit-02-003&quot;]
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-03&quot;,
+      &quot;practiceGoals&quot;: [
+        {
+          &quot;kind&quot;: &quot;structure_mapping&quot;,
+          &quot;target&quot;: &quot;理解DMC模型的三层结构及其各层要素&quot;,
+          &quot;commonMisconception&quot;: &quot;混淆各层的作用和要素&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-03-001&quot;, &quot;micro-unit-03-002&quot;, &quot;micro-unit-03-003&quot;, &quot;micro-unit-03-004&quot;]
+        },
+        {
+          &quot;kind&quot;: &quot;relationship_mapping&quot;,
+          &quot;target&quot;: &quot;理解DMC三层之间的逐步落实关系&quot;,
+          &quot;commonMisconception&quot;: &quot;认为各层独立存在&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-03-005&quot;]
+        }
+      ],
+      &quot;questionPlans&quot;: [
+        {
+          &quot;type&quot;: &quot;matching&quot;,
+          &quot;purpose&quot;: &quot;relationship_matching&quot;,
+          &quot;goalIndex&quot;: 1,
+          &quot;relationType&quot;: &quot;responsibility&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-03-001&quot;, &quot;micro-unit-03-002&quot;, &quot;micro-unit-03-003&quot;, &quot;micro-unit-03-004&quot;]
+        },
+        {
+          &quot;type&quot;: &quot;multiple_choice&quot;,
+          &quot;purpose&quot;: &quot;light_understanding&quot;,
+          &quot;goalIndex&quot;: 2,
+          &quot;microIds&quot;: [&quot;micro-unit-03-005&quot;]
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-04&quot;,
+      &quot;practiceGoals&quot;: [
+        {
+          &quot;kind&quot;: &quot;core_understanding&quot;,
+          &quot;target&quot;: &quot;理解阶段性目标的定义与心理机制&quot;,
+          &quot;commonMisconception&quot;: &quot;认为阶段性目标只是任务拆分&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-04-001&quot;, &quot;micro-unit-04-002&quot;]
+        },
+        {
+          &quot;kind&quot;: &quot;scenario_application&quot;,
+          &quot;target&quot;: &quot;能将阶段性目标设计思路迁移到案例&quot;,
+          &quot;commonMisconception&quot;: &quot;混淆不同案例的设计特点&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-04-003&quot;, &quot;micro-unit-04-004&quot;]
+        }
+      ],
+      &quot;questionPlans&quot;: [
+        {
+          &quot;type&quot;: &quot;multiple_choice&quot;,
+          &quot;purpose&quot;: &quot;light_understanding&quot;,
+          &quot;goalIndex&quot;: 1,
+          &quot;microIds&quot;: [&quot;micro-unit-04-001&quot;, &quot;micro-unit-04-002&quot;]
+        },
+        {
+          &quot;type&quot;: &quot;matching&quot;,
+          &quot;purpose&quot;: &quot;scenario_application&quot;,
+          &quot;goalIndex&quot;: 2,
+          &quot;relationType&quot;: &quot;scenario_effect&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-04-003&quot;, &quot;micro-unit-04-004&quot;]
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;unit-05&quot;,
+      &quot;practiceGoals&quot;: [
+        {
+          &quot;kind&quot;: &quot;core_understanding&quot;,
+          &quot;target&quot;: &quot;掌握动态难度匹配的定义与作用&quot;,
+          &quot;commonMisconception&quot;: &quot;认为难度越高越好&quot;,
+          &quot;microIds&quot;: [&quot;micro-unit-05-001&quot;, &quot;micro-unit-05-002&quot;]
+        },
+        {
+          &quot;kind&quot;: &quot;scenario_application&quot;,
+          &quot;target&quot;: &quot;能识别动态匹配在案例中的应用&quot;,
+          &quot;commonMisconception&quot;: &quot;混淆不同案例的调整机制&quot;,
+     </pre></details>
+      </div>
+    
+      <div class="question">
+        <div><strong>#7 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#8 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        
+        
+        
+      </div>
+    
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">Stage Runtime Reliability</h2>
+    <p class="meta">这一段显示 structured-output runtime 的稳定性：每个 stage 调用了几次、重试了几次、失败类型是什么。它不是题目质量审查。</p>
+    <div class="grid">
+      <div class="metric"><strong>3</strong>Calls</div>
+      <div class="metric"><strong>8</strong>Attempts</div>
+      <div class="metric"><strong>6</strong>Failed attempts</div>
+      <div class="metric"><strong>5</strong>Retry attempts</div>
+    </div>
+    <div class="question">
+      <div><strong>v2_reviewPathPlan</strong></div>
+      <div class="meta">calls: 1 · success calls: 1 · failed calls: 0 · attempts: 3 · retries: 2 · failed attempts: 2 · duration: 93340ms</div>
+      <div class="meta">error types: json_parse_error=2</div>
+      <details><summary>last error</summary><pre>json_parse_error: 模型返回内容不是可解析 JSON，请重试。</pre></details>
+    </div>
+<div class="question">
+      <div><strong>v2_unitKnowledgeMap</strong></div>
+      <div class="meta">calls: 1 · success calls: 1 · failed calls: 0 · attempts: 2 · retries: 1 · failed attempts: 1 · duration: 92317ms</div>
+      <div class="meta">error types: json_parse_error=1</div>
+      <details><summary>last error</summary><pre>json_parse_error: 模型返回内容不是可解析 JSON，请重试。</pre></details>
+    </div>
+<div class="question">
+      <div><strong>v2_taskBriefPlan</strong></div>
+      <div class="meta">calls: 1 · success calls: 0 · failed calls: 1 · attempts: 3 · retries: 2 · failed attempts: 3 · duration: 94275ms</div>
+      <div class="meta">error types: json_parse_error=1, empty_structured_text=2</div>
+      <details><summary>last error</summary><pre>empty_structured_text: DeepSeek 没有返回结构化文本。</pre></details>
+    </div>
+  </section>
+    
+    <section class="card">
+      <h2 style="margin-top:0">文章与章节</h2>
+      <p><strong>基于游戏化方法的持续性用户体验设计</strong></p>
+      <p class="meta">吴 琼、王婧等 · <a href="https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A">https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A</a></p>
+      <p></p>
+      <div class="grid">
+        <div class="metric"><strong>0</strong>知识点</div>
+        <div class="metric"><strong>0</strong>题目</div>
+        <div class="metric"><strong>0</strong>选择题</div>
+        <div class="metric"><strong>0</strong>连线题</div>
+        <div class="metric"><strong>0</strong>Source blocks</div>
+        <div class="metric"><strong>0</strong>Issues</div>
+        <div class="metric"><strong>0</strong>Diagnostics</div>
+        <div class="metric"><strong>6</strong>Runtime failed attempts</div>
+        <div class="metric"><strong>5</strong>Runtime retries</div>
+      </div>
+    </section>
+    
+    
+    
+    <section class="card">
+      <h2 style="margin-top:0">章节总结</h2>
+      <p><span class="tag">章节完成</span></p>
+      <p></p>
+    </section>
+    <section class="card">
+      <h2 style="margin-top:0">完整来源块</h2>
+      <p class="meta">暂无 source blocks</p>
+    </section>
+  </main>
+</body>
+</html>

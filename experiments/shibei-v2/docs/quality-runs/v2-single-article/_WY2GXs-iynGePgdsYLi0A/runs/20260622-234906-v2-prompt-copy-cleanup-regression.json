@@ -1,0 +1,398 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-22T23:53:46.706Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-prompt-copy-cleanup-regression",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11365
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 0,
+    "diagnosticIssueCount": 0,
+    "runtimeFailedAttemptCount": 6,
+    "runtimeRetryAttemptCount": 5,
+    "modelCallCount": 8,
+    "promptTokenCount": 86247,
+    "completionTokenCount": 33240,
+    "totalTokenCount": 119487
+  },
+  "chapter": null,
+  "unitKnowledgeMap": null,
+  "ecdPlanning": null,
+  "sourceContextStats": null,
+  "stageRuntime": {
+    "schemaVersion": "v2_stage_runtime_1",
+    "callCount": 3,
+    "attemptCount": 8,
+    "failedAttemptCount": 6,
+    "retryAttemptCount": 5,
+    "stages": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 3,
+        "retryAttemptCount": 2,
+        "transientFailureCount": 2,
+        "totalDurationMs": 93340,
+        "errorTypes": {
+          "json_parse_error": 2
+        },
+        "lastErrorType": "json_parse_error",
+        "lastErrorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 2,
+        "retryAttemptCount": 1,
+        "transientFailureCount": 1,
+        "totalDurationMs": 92317,
+        "errorTypes": {
+          "json_parse_error": 1
+        },
+        "lastErrorType": "json_parse_error",
+        "lastErrorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "stage": "v2_taskBriefPlan",
+        "callCount": 1,
+        "successCallCount": 0,
+        "failedCallCount": 1,
+        "attemptCount": 3,
+        "retryAttemptCount": 2,
+        "transientFailureCount": 3,
+        "totalDurationMs": 94275,
+        "errorTypes": {
+          "json_parse_error": 1,
+          "empty_structured_text": 2
+        },
+        "lastErrorType": "empty_structured_text",
+        "lastErrorMessage": "DeepSeek 没有返回结构化文本。"
+      }
+    ],
+    "attempts": [
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 32003,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 2,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 35259,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 3,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 26078,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-2",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 59193,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "unitKnowledgeMap-2",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 2,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 33124,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-3",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 30637,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "taskBriefPlan-3",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 2,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 30589,
+        "retryable": true,
+        "errorType": "empty_structured_text",
+        "errorMessage": "DeepSeek 没有返回结构化文本。"
+      },
+      {
+        "callId": "taskBriefPlan-3",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 3,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 33049,
+        "retryable": false,
+        "errorType": "empty_structured_text",
+        "errorMessage": "DeepSeek 没有返回结构化文本。"
+      }
+    ]
+  },
+  "architectureMetrics": {
+    "schemaVersion": "v2_architecture_metrics_1",
+    "total": {
+      "modelCallCount": 8,
+      "runtimeCallCount": 3,
+      "attemptCount": 8,
+      "retryAttemptCount": 5,
+      "failedAttemptCount": 6,
+      "promptTokens": 86247,
+      "completionTokens": 33240,
+      "totalTokens": 119487,
+      "promptCacheHitTokens": 54272,
+      "promptCacheMissTokens": 31975,
+      "durationMs": 279932
+    },
+    "stages": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "modelCallCount": 3,
+        "promptTokens": 30393,
+        "completionTokens": 9173,
+        "totalTokens": 39566,
+        "promptCacheHitTokens": 20224,
+        "promptCacheMissTokens": 10169,
+        "estimatedOutputTokens": 9600,
+        "runtimeCallCount": 1,
+        "attemptCount": 3,
+        "retryAttemptCount": 2,
+        "failedAttemptCount": 2,
+        "durationMs": 93340
+      },
+      {
+        "stage": "v2_taskBriefPlan",
+        "modelCallCount": 3,
+        "promptTokens": 38784,
+        "completionTokens": 11400,
+        "totalTokens": 50184,
+        "promptCacheHitTokens": 25600,
+        "promptCacheMissTokens": 13184,
+        "estimatedOutputTokens": 11400,
+        "runtimeCallCount": 1,
+        "attemptCount": 3,
+        "retryAttemptCount": 2,
+        "failedAttemptCount": 3,
+        "durationMs": 94275
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "modelCallCount": 2,
+        "promptTokens": 17070,
+        "completionTokens": 12667,
+        "totalTokens": 29737,
+        "promptCacheHitTokens": 8448,
+        "promptCacheMissTokens": 8622,
+        "estimatedOutputTokens": 14400,
+        "runtimeCallCount": 1,
+        "attemptCount": 2,
+        "retryAttemptCount": 1,
+        "failedAttemptCount": 1,
+        "durationMs": 92317
+      }
+    ]
+  },
+  "qualityDiagnostics": [],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 3200,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"title\": \"基于游戏化方法的持续性用户体验设计\",\n  \"summaryCard\": {\n    \"text\": \"本文聚焦游戏化方法如何提升用户体验的持续性，从概念与理论出发，提出阶段性目标、挑战匹配、成长感知、情境身份四个设计方向，并分析风险与AI新趋势，为长期用户参与设计提供系统思路。\"\n  },\n  \"units\": [\n    {\n      \"id\": \"u1\",\n      \"order\": 1,\n      \"title\": \"游戏化概念与交互本质\",\n      \"nodeLabel\": \"游戏化概念\",\n      \"shortSummary\": \"游戏化是使用游戏设计元素于非游戏语境，通过规则、交互、愉悦和吸引力激发用户自主感与胜任感。\",\n      \"detailSummary\": \"游戏化（Gamification）由Nick Pelling于2002年提出，Deterding定义为'在非游戏语境中使用游戏设计元素'。游戏是基于规则的交互系统，追求的不是效率而是体验。交互是游戏本质，通过'行动-反馈'循环形成持续参与。游戏化关键在于以创造乐趣的方式服务现实目标。\",\n      \"why\": \"理解游戏化基本定义和交互本质是后续设计方法的基础。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-u1\",\n        \"blockIds\": [\"p-013\", \"p-014\", \"p-022\"]\n      }\n    },\n    {\n      \"id\": \"u2\",\n      \"",
+      "usage": {
+        "prompt_tokens": 10131,
+        "completion_tokens": 3200,
+        "total_tokens": 13331,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 10131
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 3200,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"title\": \"基于游戏化方法的持续性用户体验设计\",\n  \"summaryCard\": {\n    \"text\": \"游戏化方法通过阶段性目标、动态挑战、成长可视化和情境建构，将游戏元素转化为持续性用户体验的情感锚点，但需警惕外部激励对内在动机的侵蚀。\"\n  },\n  \"units\": [\n    {\n      \"id\": \"unit1-gamification-concept\",\n      \"order\": 1,\n      \"title\": \"游戏化概念与持续性用户体验\",\n      \"nodeLabel\": \"游戏化与持续性体验\",\n      \"shortSummary\": \"游戏化是将游戏设计元素应用于非游戏情境，通过阶段性目标、动态挑战等提升用户长期参与意愿。\",\n      \"detailSummary\": \"本文梳理了游戏化概念，从阶段性目标、动态匹配、成长感知、情境身份四个方面分析其如何作用于持续性用户体验设计。游戏化通过心流理论、实用-享乐框架等，将用户体验从可用性扩展到情感与意义层面。\",\n      \"why\": \"理解游戏化的定义及其在持续性体验中的核心作用，是掌握全部方法的基础。\",\n      \"sourceAnchor\": {\n       ",
+      "usage": {
+        "prompt_tokens": 10131,
+        "completion_tokens": 3199,
+        "total_tokens": 13330,
+        "prompt_cache_hit_tokens": 10112,
+        "prompt_cache_miss_tokens": 19
+      }
+    },
+    {
+      "index": 3,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 3200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 10131,
+        "completion_tokens": 2774,
+        "total_tokens": 12905,
+        "prompt_cache_hit_tokens": 10112,
+        "prompt_cache_miss_tokens": 19
+      }
+    },
+    {
+      "index": 4,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 7200,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"units\": [\n    {\n      \"unitId\": \"unit-01\",\n      \"microKnowledgePoints\": [\n        {\n          \"microId\": \"micro-unit-01-001\",\n          \"title\": \"游戏化的定义与起源\",\n          \"summary\": \"游戏化是在非游戏语境中使用游戏设计元素，由佩林于2002年提出，德特丁界定，韦巴赫强调以创造“乐趣”服务现实目标。\",\n          \"role\": \"definition\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"definition_grasp\"],\n          \"sourceAnchorId\": \"anchor-unit-01\",\n          \"sourceSupport\": \"p-014段给出了游戏化的定义、提出者及核心目的。\"\n        },\n        {\n          \"microId\": \"micro-unit-01-002\",\n          \"title\": \"游戏化的应用案例\",\n          \"summary\": \"瑞典奥丁广场地铁站的钢琴楼梯将爬楼梯转化为趣味互动体验，展示游戏化的实际应用。\",\n          \"role\": \"example_case\",\n          \"assessmentValue\": \"low\",\n          \"suggestedEvidenceAngles\": [\"scenario_transfer\"],\n          \"sourceAnchorId\": \"anchor-unit-01\",\n          \"sourceSupport\": \"p-014段末尾以钢琴楼梯案例说明游戏化的实际应用。\"\n        }\n      ]\n    },\n    {\n      \"unitId\": \"unit-02\",\n      \"microKnowledgePoints\": [\n        {\n          \"microId\": \"micro-unit-02-001\",\n          \"title\": \"心流理论\",\n          \"summary\": \"当能力与挑战平衡、目标清晰、反馈及时，用户进入高度专注愉悦的心流状态。\",\n          \"role\": \"mechanism\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"mechanism_reasoning\"],\n          \"sourceAnchorId\": \"anchor-unit-02\",\n          \"sourceSupport\": \"p-016段中阐述了心流理论的三个条件及其带来的沉浸愉悦。\"\n        },\n        {\n          \"microId\": \"micro-unit-02-002\",\n          \"title\": \"实用-享乐框架\",\n          \"summary\": \"用户体验分为实用质量（效率、可控）和享乐质量（身份、审美、意义），享乐质量满足自主、胜任、归属等心理需求。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-unit-02\",\n          \"sourceSupport\": \"p-016段后部介绍了实用-享乐框架及其与心理需求的关联。\"\n        }\n      ]\n    },\n    {\n      \"unitId\": \"unit-03\",\n      \"microKnowledgePoints\": [\n        {\n          \"microId\": \"micro-unit-03-001\",\n          \"title\": \"DMC整体三层结构\",\n          \"summary\": \"DMC模型分为动力、机制、组件三层，从体验目标到具体功能逐步落实。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"high\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-unit-03\",\n          \"sourceSupport\": \"p-020段描述了DMC金字塔分层结构。\"\n        },\n        {\n          \"microId\": \"micro-unit-03-002\",\n          \"title\": \"动力层的作用\",\n          \"summary\": \"动力层界定系统整体体验，包括约束、情感、叙事、成长关系等。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-unit-03\",\n          \"sourceSupport\": \"p-020段解释了动力层回答“用户最终体验到什么”。\"\n        },\n        {\n          \"microId\": \"micro-unit-03-003\",\n          \"title\": \"机制层的作用\",\n          \"summary\": \"机制层组织用户行为与参与流程，如挑战、竞争、反馈、奖励等。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-unit-03\",\n          \"sourceSupport\": \"p-020段说明了机制层将操作编排为可重复的参与。\"\n        },\n        {\n          \"microId\": \"micro-unit-03-004\",\n          \"title\": \"组件层的作用\",\n          \"summary\": \"组件层是用户直接感知的界面元素或功能模块，如成就、徽章、排行榜、点数等。\",\n          \"role\": \"model_layer\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-unit-03\",\n          \"sourceSupport\": \"p-020段指出组件层是用户最容易感知的操作单元。\"\n        },\n        {\n          \"microId\": \"micro-unit-03-005\",\n          \"title\": \"三层关系\",\n          \"summary\": \"动力层提供方向，机制层形成操作循环，组件层落实为具体功能，层层递进。\",\n          \"role\": \"relationship\",\n          \"assessmentValue\": \"medium\",\n          \"suggestedEvidenceAngles\": [\"structure_mapping\"],\n          \"sourceAnchorId\": \"anchor-unit-03\",\n          \"sourceSupport\": \"p-020段说明了三层之间的逐步落实关系。\"\n        }\n      ]\n    },\n    {\n      \"unitId\": \"unit-04\",\n      \"microKnowledgePoints\": [\n        {\n          \"microId\": \"micro-unit-04-001\",\n          \"title\": \"阶段性目标策略\",\n          \"summary\": \"将长期目标拆解为可量化的阶段性目标（里程碑），提供即时反馈，维持动机。\",\n          \"role\": \"mechanism\",\n          \"assessm",
+      "usage": {
+        "prompt_tokens": 8535,
+        "completion_tokens": 7199,
+        "total_tokens": 15734,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 8535
+      }
+    },
+    {
+      "index": 5,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 7200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 8535,
+        "completion_tokens": 5468,
+        "total_tokens": 14003,
+        "prompt_cache_hit_tokens": 8448,
+        "prompt_cache_miss_tokens": 87
+      }
+    },
+    {
+      "index": 6,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"units\": [\n    {\n      \"unitId\": \"unit-01\",\n      \"practiceGoals\": [\n        {\n          \"kind\": \"core_understanding\",\n          \"target\": \"理解游戏化的定义与目的，并区分相关概念边界\",\n          \"commonMisconception\": \"混淆游戏化与游戏设计\",\n          \"microIds\": [\"micro-unit-01-001\", \"micro-unit-01-002\", \"micro-unit-01-003\"]\n        }\n      ],\n      \"questionPlans\": [\n        {\n          \"type\": \"multiple_choice\",\n          \"purpose\": \"light_understanding\",\n          \"goalIndex\": 1,\n          \"microIds\": [\"micro-unit-01-001\", \"micro-unit-01-002\"]\n        },\n        {\n          \"type\": \"multiple_choice\",\n          \"purpose\": \"boundary_clarification\",\n          \"goalIndex\": 1,\n          \"microIds\": [\"micro-unit-01-003\"]\n        }\n      ]\n    },\n    {\n      \"unitId\": \"unit-02\",\n      \"practiceGoals\": [\n        {\n          \"kind\": \"core_understanding\",\n          \"target\": \"掌握心流理论的核心条件\",\n          \"commonMisconception\": \"认为心流仅由挑战决定\",\n          \"microIds\": [\"micro-unit-02-001\"]\n        },\n        {\n          \"kind\": \"relationship_mapping\",\n          \"target\": \"理解实用-享乐框架及两维度区别\",\n          \"commonMisconception\": \"混淆实用与享乐质量\",\n          \"microIds\": [\"micro-unit-02-002\", \"micro-unit-02-003\"]\n        }\n      ],\n      \"questionPlans\": [\n        {\n          \"type\": \"multiple_choice\",\n          \"purpose\": \"light_understanding\",\n          \"goalIndex\": 1,\n          \"microIds\": [\"micro-unit-02-001\"]\n        },\n        {\n          \"type\": \"matching\",\n          \"purpose\": \"relationship_matching\",\n          \"goalIndex\": 2,\n          \"relationType\": \"boundary\",\n          \"microIds\": [\"micro-unit-02-002\", \"micro-unit-02-003\"]\n        }\n      ]\n    },\n    {\n      \"unitId\": \"unit-03\",\n      \"practiceGoals\": [\n        {\n          \"kind\": \"structure_mapping\",\n          \"target\": \"理解DMC模型的三层结构及其各层要素\",\n          \"commonMisconception\": \"混淆各层的作用和要素\",\n          \"microIds\": [\"micro-unit-03-001\", \"micro-unit-03-002\", \"micro-unit-03-003\", \"micro-unit-03-004\"]\n        },\n        {\n          \"kind\": \"relationship_mapping\",\n          \"target\": \"理解DMC三层之间的逐步落实关系\",\n          \"commonMisconception\": \"认为各层独立存在\",\n          \"microIds\": [\"micro-unit-03-005\"]\n        }\n      ],\n      \"questionPlans\": [\n        {\n          \"type\": \"matching\",\n          \"purpose\": \"relationship_matching\",\n          \"goalIndex\": 1,\n          \"relationType\": \"responsibility\",\n          \"microIds\": [\"micro-unit-03-001\", \"micro-unit-03-002\", \"micro-unit-03-003\", \"micro-unit-03-004\"]\n        },\n        {\n          \"type\": \"multiple_choice\",\n          \"purpose\": \"light_understanding\",\n          \"goalIndex\": 2,\n          \"microIds\": [\"micro-unit-03-005\"]\n        }\n      ]\n    },\n    {\n      \"unitId\": \"unit-04\",\n      \"practiceGoals\": [\n        {\n          \"kind\": \"core_understanding\",\n          \"target\": \"理解阶段性目标的定义与心理机制\",\n          \"commonMisconception\": \"认为阶段性目标只是任务拆分\",\n          \"microIds\": [\"micro-unit-04-001\", \"micro-unit-04-002\"]\n        },\n        {\n          \"kind\": \"scenario_application\",\n          \"target\": \"能将阶段性目标设计思路迁移到案例\",\n          \"commonMisconception\": \"混淆不同案例的设计特点\",\n          \"microIds\": [\"micro-unit-04-003\", \"micro-unit-04-004\"]\n        }\n      ],\n      \"questionPlans\": [\n        {\n          \"type\": \"multiple_choice\",\n          \"purpose\": \"light_understanding\",\n          \"goalIndex\": 1,\n          \"microIds\": [\"micro-unit-04-001\", \"micro-unit-04-002\"]\n        },\n        {\n          \"type\": \"matching\",\n          \"purpose\": \"scenario_application\",\n          \"goalIndex\": 2,\n          \"relationType\": \"scenario_effect\",\n          \"microIds\": [\"micro-unit-04-003\", \"micro-unit-04-004\"]\n        }\n      ]\n    },\n    {\n      \"unitId\": \"unit-05\",\n      \"practiceGoals\": [\n        {\n          \"kind\": \"core_understanding\",\n          \"target\": \"掌握动态难度匹配的定义与作用\",\n          \"commonMisconception\": \"认为难度越高越好\",\n          \"microIds\": [\"micro-unit-05-001\", \"micro-unit-05-002\"]\n        },\n        {\n          \"kind\": \"scenario_application\",\n          \"target\": \"能识别动态匹配在案例中的应用\",\n          \"commonMisconception\": \"混淆不同案例的调整机制\",\n     ",
+      "usage": {
+        "prompt_tokens": 12928,
+        "completion_tokens": 3800,
+        "total_tokens": 16728,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 12928
+      }
+    },
+    {
+      "index": 7,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 12928,
+        "completion_tokens": 3800,
+        "total_tokens": 16728,
+        "prompt_cache_hit_tokens": 12800,
+        "prompt_cache_miss_tokens": 128
+      }
+    },
+    {
+      "index": 8,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 12928,
+        "completion_tokens": 3800,
+        "total_tokens": 16728,
+        "prompt_cache_hit_tokens": 12800,
+        "prompt_cache_miss_tokens": 128
+      }
+    }
+  ],
+  "failure": {
+    "failedStage": "v2_taskBriefPlan",
+    "failureReason": "DeepSeek 没有返回结构化文本。",
+    "retryable": true,
+    "modelStage": "taskBriefPlan",
+    "retryAttempts": 3,
+    "issues": [],
+    "errors": [],
+    "diagnostics": []
+  }
+}

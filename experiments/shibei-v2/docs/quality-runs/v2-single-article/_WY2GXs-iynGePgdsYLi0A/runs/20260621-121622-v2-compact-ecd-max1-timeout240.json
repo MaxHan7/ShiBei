@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-21T12:18:27.536Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-compact-ecd-max1-timeout240",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11365
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 0,
+    "diagnosticIssueCount": 0
+  },
+  "chapter": null,
+  "unitKnowledgeMap": null,
+  "ecdPlanning": null,
+  "qualityDiagnostics": [],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 5200,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"title\": \"基于游戏化方法的持续性用户体验设计\",\n  \"summaryCard\": {\n    \"text\": \"本文从游戏化的概念出发，结合用户体验理论的演变，提出DMC设计框架，并围绕阶段性目标、挑战与能力匹配、成长感知、情境身份四个维度展开设计方法，最后讨论风险与未来挑战。核心观点是：游戏化的本质不是堆砌元素，而是将机制转化为用户持续参与的情感锚点。\"\n  },\n  \"knowledgeObjects\": [\n    {\n      \"id\": \"ko-game-def\",\n      \"title\": \"游戏化的概念与定义\",\n      \"nodeLabel\": \"游戏化的概念与定义\",\n      \"knowledgeShape\": \"core_concept\",\n      \"roleInArticle\": \"奠定游戏化的理论基础\",\n      \"sourceBlockIds\": [\"p-014\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立概念，有明确界定和引用\"\n    },\n    {\n      \"id\": \"ko-ux-evolution\",\n      \"title\": \"用户体验的演变：从可用性到享乐质量\",\n      \"nodeLabel\": \"用户体验的演变\",\n      \"knowledgeShape\": \"layered_framework\",\n      \"roleInArticle\": \"阐述用户体验理论发展，为游戏化提供心理学支撑\",\n      \"sourceBlockIds\": [\"p-016\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立理论框架，包含心流、实用-享乐等关键概念\"\n    },\n    {\n      \"id\": \"ko-dmc-model\",\n      \"title\": \"DMC模型：游戏化设计的三层框架\",\n      \"nodeLabel\": \"DMC模型\",\n      \"knowledgeShape\": \"layered_framework\",\n      \"roleInArticle\": \"提供游戏化设计的结构化工具\",\n      \"sourceBlockIds\": [\"p-020\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立分层模型，有完整原文描述\"\n    },\n    {\n      \"id\": \"ko-goal-setting\",\n      \"title\": \"阶段性目标的设定\",\n      \"nodeLabel\": \"阶段性目标的设定\",\n      \"knowledgeShape\": \"process_steps\",\n      \"roleInArticle\": \"第一种游戏化设计方法\",\n      \"sourceBlockIds\": [\"p-023\", \"p-024\", \"p-025\", \"p-026\", \"p-027\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立方法，有明确案例和原理\"\n    },\n    {\n      \"id\": \"ko-challenge-skill\",\n      \"title\": \"挑战与能力的动态匹配\",\n      \"nodeLabel\": \"挑战与能力的动态匹配\",\n      \"knowledgeShape\": \"scenario_rule\",\n      \"roleInArticle\": \"第二种游戏化设计方法\",\n      \"sourceBlockIds\": [\"p-028\", \"p-029\", \"p-030\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立方法，有动态调节机制描述\"\n    },\n    {\n      \"id\": \"ko-growth-perception\",\n      \"title\": \"成长机制的感知设计\",\n      \"nodeLabel\": \"成长机制的感知设计\",\n      \"knowledgeShape\": \"process_steps\",\n      \"roleInArticle\": \"第三种游戏化设计方法\",\n      \"sourceBlockIds\": [\"p-031\", \"p-032\", \"p-033\", \"p-034\", \"p-035\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立方法，有蚂蚁森林等案例\"\n    },\n    {\n      \"id\": \"ko-context-identity\",\n      \"title\": \"情境设计与身份认同建构\",\n      \"nodeLabel\": \"情境设计与身份认同建构\",\n      \"knowledgeShape\": \"example_case\",\n      \"roleInArticle\": \"第四种游戏化设计方法\",\n      \"sourceBlockIds\": [\"p-036\", \"p-037\", \"p-038\", \"p-039\", \"p-040\", \"p-041\", \"p-042\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立方法，有多个案例支持\"\n    },\n    {\n      \"id\": \"ko-risks\",\n      \"title\": \"游戏化的风险与挑战\",\n      \"nodeLabel\": \"游戏化的风险\",\n      \"knowledgeShape\": \"cause_effect\",\n      \"roleInArticle\": \"讨论游戏化的潜在负面效应\",\n      \"sourceBlockIds\": [\"p-043\", \"p-044\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立风险讨论，包含挤出效应等\"\n    }\n  ],\n  \"units\": [\n    {\n      \"id\": \"unit-1\",\n      \"order\": 1,\n      \"title\": \"游戏化的概念与定义\",\n      \"nodeLabel\": \"游戏化的概念与定义\",\n      \"shortSummary\": \"游戏化是在非游戏语境中使用游戏设计元素，旨在以乐趣服务现实目标。\",\n      \"detailSummary\": \"游戏化由尼克·佩林于2002年提出，德特丁将其界定为‘在非游戏语境中使用游戏设计元素’。韦巴赫和亨特强调，游戏化的关键在于创造‘乐趣’来服务现实目标。文章以斯德哥尔摩‘钢琴楼梯’为例，展示游戏化如何将日常行为转化为有趣体验。\",\n      \"why\": \"理解游戏化的核心定义是后续设计方法的基础。\",\n      \"sourceKnowledgeObjectIds\": [\"ko-game-def\"],\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit-1\",\n        \"blockIds\": [\"p-014\"]\n      }\n    },\n    {\n      \"id\": \"unit-2\",\n      \"order\": 2,\n      \"title\": \"用户体验的演变：从可用性到享乐质量\",\n      \"nodeLabel\": \"用户体验的演变\",\n      \"shortSummary\": \"用户体验从早期可用性转向关注情感、美学和愉悦感，心流理论和实用-享乐框架是关键理论。\",\n      \"detailSummary\": \"文章梳理了用户体验概念的发展：从ISO定义的可用性（效率、有效性、满意度）到Funology提出的情感和愉悦追求。心流理论强调能力与挑战的动态平衡产生沉浸体验；哈森扎尔的实用-享乐框架将用户体验分为实用质量和享乐质量，后者满足自主感、胜任感和归属感等深层心理需求。\",\n      \"why\": \"该理论演变为游戏化设计提供了心理学依据。\",\n      \"sourceKnowledgeObjectIds\": [\"ko-ux-evolution\"],\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit-2\",\n        \"blockIds\": [\"p-016\"]\n      }\n    },\n    {\n      \"id\": \"unit-3\",\n      \"order\": 3,\n      \"title\": \"DMC模型：游戏化设计的三层框架\",\n      \"nodeLabel\": \"DMC模型\",\n      \"shortSummary\": ",
+      "usage": {
+        "prompt_tokens": 10289,
+        "completion_tokens": 5200,
+        "total_tokens": 15489,
+        "prompt_cache_hit_tokens": 10240,
+        "prompt_cache_miss_tokens": 49
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 5200,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"title\": \"基于游戏化方法的持续性用户体验设计\",\n  \"summaryCard\": {\n    \"text\": \"本文梳理了游戏化的概念与DMC框架，从阶段性目标、挑战与能力匹配、成长感知、情境与身份认同四个方面分析游戏化如何作用于持续性用户体验设计，并讨论了挤出效应、娱乐至上等风险以及AI带来的新趋势。\"\n  },\n  \"knowledgeObjects\": [\n    {\n      \"id\": \"ko-1\",\n      \"title\": \"游戏化的概念与定义\",\n      \"nodeLabel\": \"游戏化的概念与定义\",\n      \"knowledgeShape\": \"core_concept\",\n      \"roleInArticle\": \"介绍游戏化的定义、起源及核心案例\",\n      \"sourceBlockIds\": [\"p-013\", \"p-014\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立定义，有明确学习claim和evidence\"\n    },\n    {\n      \"id\": \"ko-2\",\n      \"title\": \"用户体验的演变：从可用性到享乐质量\",\n      \"nodeLabel\": \"用户体验的演变\",\n      \"knowledgeShape\": \"comparison_pair\",\n      \"roleInArticle\": \"背景铺垫，引出持续性体验设计的需求\",\n      \"sourceBlockIds\": [\"p-016\"],\n      \"boundaryDecision\": \"context_only\",\n      \"boundaryReason\": \"背景信息，不直接成为独立unit\"\n    },\n    {\n      \"id\": \"ko-3\",\n      \"title\": \"DMC模型：游戏元素的金字塔分层结构\",\n      \"nodeLabel\": \"DMC模型\",\n      \"knowledgeShape\": \"layered_framework\",\n      \"roleInArticle\": \"解释游戏化的结构化框架\",\n      \"sourceBlockIds\": [\"p-020\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立分层模型，有明确原文证据和可观察evidence\"\n    },\n    {\n      \"id\": \"ko-4\",\n      \"title\": \"阶段性目标的设定\",\n      \"nodeLabel\": \"阶段性目标设定\",\n      \"knowledgeShape\": \"scenario_rule\",\n      \"roleInArticle\": \"第一个设计方法\",\n      \"sourceBlockIds\": [\"p-022\", \"p-023\", \"p-024\", \"p-026\", \"p-027\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立的方法论，有案例支撑\"\n    },\n    {\n      \"id\": \"ko-5\",\n      \"title\": \"挑战与能力的动态匹配\",\n      \"nodeLabel\": \"挑战与能力匹配\",\n      \"knowledgeShape\": \"scenario_rule\",\n      \"roleInArticle\": \"第二个设计方法\",\n      \"sourceBlockIds\": [\"p-028\", \"p-029\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立方法，有多邻国案例\"\n    },\n    {\n      \"id\": \"ko-6\",\n      \"title\": \"成长机制的感知设计\",\n      \"nodeLabel\": \"成长机制感知\",\n      \"knowledgeShape\": \"scenario_rule\",\n      \"roleInArticle\": \"第三个设计方法\",\n      \"sourceBlockIds\": [\"p-031\", \"p-032\", \"p-035\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立方法，有蚂蚁森林案例\"\n    },\n    {\n      \"id\": \"ko-7\",\n      \"title\": \"情境设计与身份认同建构\",\n      \"nodeLabel\": \"情境与身份认同\",\n      \"knowledgeShape\": \"scenario_rule\",\n      \"roleInArticle\": \"第四个设计方法\",\n      \"sourceBlockIds\": [\"p-036\", \"p-037\", \"p-042\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立方法，有微生物博物馆等案例\"\n    },\n    {\n      \"id\": \"ko-8\",\n      \"title\": \"游戏化设计风险：挤出效应与娱乐至上\",\n      \"nodeLabel\": \"游戏化风险\",\n      \"knowledgeShape\": \"cause_effect\",\n      \"roleInArticle\": \"讨论潜在问题\",\n      \"sourceBlockIds\": [\"p-043\", \"p-044\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立讨论，有研究证据\"\n    },\n    {\n      \"id\": \"ko-9\",\n      \"title\": \"生成式AI与游戏化新趋势\",\n      \"nodeLabel\": \"AI与游戏化\",\n      \"knowledgeShape\": \"example_case\",\n      \"roleInArticle\": \"展望未来\",\n      \"sourceBlockIds\": [\"p-045\"],\n      \"boundaryDecision\": \"context_only\",\n      \"boundaryReason\": \"前沿展望，非核心方法，不宜单独出题\"\n    }\n  ],\n  \"units\": [\n    {\n      \"id\": \"unit-1\",\n      \"order\": 1,\n      \"title\": \"游戏化的概念与核心定义\",\n      \"nodeLabel\": \"游戏化的概念与核心定义\",\n      \"shortSummary\": \"游戏化是在非游戏语境中使用游戏设计元素，以创造乐趣的方式服务现实目标。\",\n      \"detailSummary\": \"游戏化由佩林2002年提出，德特丁2011年定义为“在非游戏语境中使用游戏设计元素”。韦巴赫强调以创造乐趣服务现实目标。案例：钢琴楼梯促使行人爬楼梯。\",\n      \"why\": \"理解游戏化基础概念是后续方法的前提。\",\n      \"sourceKnowledgeObjectIds\": [\"ko-1\"],\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit-1\",\n        \"blockIds\": [\"p-013\", \"p-014\"]\n      }\n    },\n    {\n      \"id\": \"unit-2\",\n      \"order\": 2,\n      \"title\": \"DMC模型：游戏元素的金字塔分层结构\",\n      \"nodeLabel\": \"DMC模型：动力、机制与组件\",\n      \"shortSummary\": \"DMC模型将游戏化分为动力、机制、组件三个层次，从体验目标到具体界面元素。\",\n      \"detailSummary\": \"动力层定义整体体验（约束、情感、叙事等）；机制层组织行为规则（挑战、反馈、奖励等）；组件层是用户直接交互的界面元素（徽章、点数、任务等）。三层从抽象到具体形成金字塔。\",\n      \"why\": \"DMC是游戏化设计的核心框架，帮助理解游戏元素如何系统组织。\",\n      \"sourceKnowledgeObjectIds\": [\"ko-3\"],\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit-2\",\n        \"blockIds\": [\"p-020\"]\n      }\n    },\n    {\n      \"id\": \"unit-3\",\n      \"order\": 3,\n      \"title\": \"阶段性目标的设定\",\n      \"nodeLabel\": \"阶段性目标设定\",\n ",
+      "usage": {
+        "prompt_tokens": 10289,
+        "completion_tokens": 5200,
+        "total_tokens": 15489,
+        "prompt_cache_hit_tokens": 10240,
+        "prompt_cache_miss_tokens": 49
+      }
+    },
+    {
+      "index": 3,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 5200,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"title\": \"基于游戏化方法的持续性用户体验设计\",\n  \"summaryCard\": {\n    \"text\": \"本文探讨游戏化如何构建持续性用户体验：从游戏化定义出发，解析心流与享乐质量的心理机制，介绍DMC结构框架，并重点展开四个设计方向——阶段性目标、动态匹配、成长感知和情境叙事。最后警示风险与AI新挑战。\"\n  },\n  \"knowledgeObjects\": [\n    {\n      \"id\": \"ko-1\",\n      \"title\": \"游戏化的概念与定义\",\n      \"nodeLabel\": \"游戏化的概念与定义\",\n      \"knowledgeShape\": \"core_concept\",\n      \"roleInArticle\": \"界定核心概念，为后续讨论提供基础\",\n      \"sourceBlockIds\": [\"p-013\", \"p-014\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"有明确权威定义和引用，是独立学习对象\"\n    },\n    {\n      \"id\": \"ko-2\",\n      \"title\": \"DMC模型：游戏元素的三层结构\",\n      \"nodeLabel\": \"DMC模型\",\n      \"knowledgeShape\": \"layered_framework\",\n      \"roleInArticle\": \"提供游戏化设计的结构性框架\",\n      \"sourceBlockIds\": [\"p-020\", \"p-021\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"独立分层模型，有清晰层次和定义\"\n    },\n    {\n      \"id\": \"ko-3\",\n      \"title\": \"心流与享乐质量\",\n      \"node",
+      "usage": {
+        "prompt_tokens": 10289,
+        "completion_tokens": 5201,
+        "total_tokens": 15490,
+        "prompt_cache_hit_tokens": 10240,
+        "prompt_cache_miss_tokens": 49
+      }
+    }
+  ],
+  "failure": {
+    "failedStage": "v2_reviewPathPlan",
+    "failureReason": "模型返回内容不是可解析 JSON，请重试。",
+    "retryable": true,
+    "modelStage": "reviewPathPlan",
+    "retryAttempts": 3,
+    "issues": [],
+    "errors": [],
+    "diagnostics": []
+  }
+}

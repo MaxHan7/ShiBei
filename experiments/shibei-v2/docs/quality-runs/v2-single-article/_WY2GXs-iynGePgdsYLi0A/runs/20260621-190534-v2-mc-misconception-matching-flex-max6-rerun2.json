@@ -1,0 +1,156 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-21T19:08:15.245Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-mc-misconception-matching-flex-max6-rerun2",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11365
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 0,
+    "diagnosticIssueCount": 0,
+    "runtimeFailedAttemptCount": 3,
+    "runtimeRetryAttemptCount": 2
+  },
+  "chapter": null,
+  "unitKnowledgeMap": null,
+  "ecdPlanning": null,
+  "sourceContextStats": null,
+  "stageRuntime": {
+    "schemaVersion": "v2_stage_runtime_1",
+    "callCount": 1,
+    "attemptCount": 3,
+    "failedAttemptCount": 3,
+    "retryAttemptCount": 2,
+    "stages": [
+      {
+        "stage": "v2_sourceMap",
+        "callCount": 1,
+        "successCallCount": 0,
+        "failedCallCount": 1,
+        "attemptCount": 3,
+        "retryAttemptCount": 2,
+        "transientFailureCount": 3,
+        "totalDurationMs": 161223,
+        "errorTypes": {
+          "empty_structured_text": 1,
+          "json_parse_error": 2
+        },
+        "lastErrorType": "json_parse_error",
+        "lastErrorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      }
+    ],
+    "attempts": [
+      {
+        "callId": "sourceMap-1",
+        "stage": "v2_sourceMap",
+        "modelStage": "sourceMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 56112,
+        "retryable": true,
+        "errorType": "empty_structured_text",
+        "errorMessage": "DeepSeek 没有返回结构化文本。"
+      },
+      {
+        "callId": "sourceMap-1",
+        "stage": "v2_sourceMap",
+        "modelStage": "sourceMap",
+        "attempt": 2,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 59493,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "sourceMap-1",
+        "stage": "v2_sourceMap",
+        "modelStage": "sourceMap",
+        "attempt": 3,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 45618,
+        "retryable": false,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      }
+    ]
+  },
+  "qualityDiagnostics": [],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_sourceMap",
+      "estimatedOutputTokens": 7600,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 6109,
+        "completion_tokens": 7600,
+        "total_tokens": 13709,
+        "prompt_cache_hit_tokens": 6016,
+        "prompt_cache_miss_tokens": 93
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_sourceMap",
+      "estimatedOutputTokens": 7600,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"source\": {\n    \"type\": \"article\",\n    \"title\": \"基于游戏化方法的持续性用户体验设计\",\n    \"author\": \"吴 琼、王婧等\",\n    \"url\": \"https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A\"\n  },\n  \"blocks\": [\n    {\n      \"id\": \"p-001\",\n      \"type\": \"heading\",\n      \"text\": \"基于游戏化方法的持续性用户体验设计\"\n    },\n    {\n      \"id\": \"p-002\",\n      \"type\": \"heading\",\n      \"text\": \"内容摘要\"\n    },\n    {\n      \"id\": \"p-003\",\n      \"type\": \"paragraph\",\n      \"text\": \"本文简要梳理了游戏化的概念，从阶段性目标的设定、挑战与能力的动态匹配、成长机制的感知设计以及情境设计与身份认同建构四个方面，分析游戏化方法如何作用于持续性用户体验设计；并进一步讨论了游戏化设计的潜在风险与人工智能时代面临的新挑战，为数字媒介环境中的持续性用户体验设计提供了有效的思路和方法参考。\"\n    },\n    {\n      \"id\": \"p",
+      "usage": {
+        "prompt_tokens": 6109,
+        "completion_tokens": 7600,
+        "total_tokens": 13709,
+        "prompt_cache_hit_tokens": 6016,
+        "prompt_cache_miss_tokens": 93
+      }
+    },
+    {
+      "index": 3,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_sourceMap",
+      "estimatedOutputTokens": 7600,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"source\": {\n    \"type\": \"article\",\n    \"title\": \"基于游戏化方法的持续性用户体验设计\",\n    \"author\": \"吴 琼、王婧等\",\n    \"url\": \"https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A\"\n  },\n  \"blocks\": [\n    {\n      \"id\": \"p-001\",\n      \"type\": \"heading\",\n      \"text\": \"基于游戏化方法的持续性用户体验设计\"\n    },\n    {\n      \"id\": \"p-002\",\n      \"type\": \"paragraph\",\n      \"text\": \"原创\"\n    },\n    {\n      \"id\": \"p-003\",\n      \"type\": \"paragraph\",\n      \"text\": \"吴 琼、王婧等\"\n    },\n    {\n      \"id\": \"p-004\",\n      \"type\": \"paragraph\",\n      \"text\": \"装饰杂志\"\n    },\n    {\n      \"id\": \"p-005\",\n      \"type\": \"paragraph\",\n      \"text\": \"在小说阅读器读本章\"\n    },\n    {\n      \"id\": \"p-006\",\n      \"type\": \"paragraph\",\n      \"text\": \"去阅读\"\n    },\n    {\n      \"id\": \"p-007\",\n      \"type\": \"paragraph\",\n      \"text\": \"在小说阅读器中沉浸阅读\"\n    },\n    {\n      \"id\": \"p-008\",\n      \"type\": \"paragraph\",\n      \"text\": \"内容摘要\"\n    },\n    {\n      \"id\": \"p-009\",\n      \"type\": \"paragraph\",\n      \"text\": \"本文简要梳理了游戏化的概念，从阶段性目标的设定、挑战与能力的动态匹配、成长机制的感知设计以及情境设计与身份认同建构四个方面，分析游戏化方法如何作用于持续性用户体验设计；并进一步讨论了游戏化设计的潜在风险与人工智能时代面临的新挑战，为数字媒介环境中的持续性用户体验设计提供了有效的思路和方法参考。\"\n    },\n    {\n      \"id\": \"p-010\",\n      \"type\": \"paragraph\",\n      \"text\": \"关键词：游戏化、持续性用户体验、设计方法\"\n    },\n    {\n      \"id\": \"p-011\",\n      \"type\": \"heading\",\n      \"text\": \"引 言\"\n    },\n    {\n      \"id\": \"p-012\",\n      \"type\": \"paragraph\",\n      \"text\": \"游戏是基于规则的交互性系统 [1] ，是一种通过规则约束与目标达成来激发参与者自主感与胜任感的人类活动。游戏设计师简·麦格尼格尔（ Jane McGonigal ）将游戏概括为“我们自愿尝试去克服的不必要的挑战” [2] ，点明了游戏追求的不是效率，而是体验。规则、交互、愉悦和吸引力是理解游戏的几个核心关键词。信息技术的持续发展推动了电子游戏，尤其是网络游戏的功能拓展与边界重构，使之从传统的娱乐应用转变为深度融入教育、社交及文旅等生活场景的数字媒介。在此过程中，积分、徽章、排行榜、进度条等源自游戏的元素和机制也被广泛引入到各类交互性产品与系统之中，尤其是在面向长期使用场景的持续性体验设计之中，用于提高产品的吸引力，增强用户的参与意愿并提升留存率。\"\n    },\n    {\n      \"id\": \"p-013\",\n      \"type\": \"paragraph\",\n      \"text\": \"“游戏化”（ Gamification ）这一概念由尼克·佩林（ Nick Pelling ）于 2002 年提出，并逐渐受到关注。 2011 年，塞巴斯蒂安·德特丁（ Sebastian Deterding ）将其界定为“在非游戏语境中使用游戏设计元素” [3] ，该表述也成为后续研究中最常引用的定义。凯文·韦巴赫（ Kevin Werbach ）与丹·亨特（ Dan Hunter ）在《游戏化思维：改变未来商业的新力量》中指出，游戏化的关键在于以创造“乐趣”的方式服务现实目标，使人们更愿意进入、完成并持续进行某一活动。 [4] 在商业、教育、文博、文旅等领域中，运用游戏化的设计来提升用户体验的方法有广泛的运用。以瑞典斯德哥尔摩奥丁广场（ Odenplan ）地铁站为例，其通道楼梯被改造为可交互的“钢琴键”，行人每踏上一级台阶都会触发对应音符，使上楼过程转化为趣味的互动体验，从而促使更多人主动地选择“爬楼梯”这种健康行为。（图 1 ）\"\n    },\n    {\n      \"id\": \"p-014\",\n      \"type\": \"quote\",\n      \"text\": \"1. 奥丁广场（Odenplan）地铁站的钢琴楼梯（图片来源：Photo Courtesy goodvertisement.site）\"\n    },\n    {\n      \"id\": \"p-015\",\n      \"type\": \"paragraph\",\n      \"text\": \"用户体验是人机交互研究的重要内容之一。 2010 年，国际标准组织将用户体验定义为用户在使用或预期使用系统、产品或服务时产生的感知和反应 [5] ，涵盖情绪、信念、偏好、感知、舒适度、行为及成就等多个方面。可用性作为评估交互质量及用户体验的重要标准，关注用户在特定使用情境中完成特定目标时的有效性、效率与满意度。 [6] 可用性强调任务达成，却忽略了人们在产品实际使用中对愉悦感、信任感等积极情绪的追求。在 2003 年出版的 Funology: From Usability to Enjoyment 一书中，作者对人机交互领域长期“以任务为中心”的研究取向提出了反思，强调用户体验不应仅停留在效率和易用性层面，更应关注情感、美学和愉悦感。一些学者关注到游戏中的吸引力及其激发用户持续投入的能力，希望将其引入产品设计之中，产品不只是单一意义上的“工具”，还可以成为承载趣味与愉悦体验的“玩具”。 [7] 米哈里·契克森米哈赖（ Mihaly Csikszentmihalyi ）于 20 世纪 70 年代提出的“心流”（ Flow ） [8] 理论则从心理学视角解释了这种吸引力何以产生：当个体能力与挑战难度保持动态平衡，同时又具备清晰目标与即时反馈时，用户便会进入高度专注且愉悦的沉浸状态，并将挑战视为具有内在回报的活动，从而持续、自发地投入其中 [9] 。 2007 年，马克·哈森扎尔（ Marc Hassenzahl ）提出的“实用—享乐”（ Pragmatic – hedonic ）框架进一步将用户对产品质量的感知划分为两个部分：其一是实用质量（ Pragmatic Quality ），强调产品对“完成目标”（ Do- goals ）的支持，关注可控性、效率、可理解性与任务完成；其二是享乐质量（ Hedonic Quality ），强调产品对“成为目标”（ Be-goals ）的支持，涉及身份认同、刺激与新奇、审美愉悦、自我表达与意义获得等体验维度，作用于积极的用户体验。相较于传统视角，享乐质量强调用户体验应满足自主感、胜任感和归属感等深层的心理需求。\"\n    },\n    {\n      \"id\": \"p-016\",\n      \"type\": \"paragraph\",\n      \"text\": \"用户体验专家埃里克· 沙弗（ Eric Schaffer ）提出要“超越可用性”，将用户体验与持续性行为联系起来。他认为，用户体验设计不应仅支持用户“能做什么”，还应该通过增强说服力、激发感情来建立信任，从而促进用户的持续投入与行为改变。 [10] 用户体验的概念非常宽泛，在实践中应当面向具体的体验需求进行有针对性的设计。本文所强调的持续性用户体验设计，是一种面向长期使用情境的系统设计，既包括阶段性目标的达成效率和过程感受，也包括用户在反复使用中逐渐形成的认知、行为习惯与情感联结。在以内容消费、习惯养成与服务为主要功能的、以长期使用为特点的产品中，用户体验的评价标准不仅包含单次任务的完成度，还扩展到留存、访问频次与连续性等长期指标，情绪、审美与意义等主观维度在用户体验的评测中也非常关键 [11] ，当数字产品与服务的竞争焦点从“可用性”转为“持续参与、情绪投入与长期关系建立”时，游戏化的设计方法能够成为构建持续性用户体验的一种重要策略。\"\n    },\n    {\n      \"id\": \"p-017\",\n      \"type\": \"paragraph\",\n      \"text\": \"游戏化不仅能够增强用户在交互过程中的沉浸感与心流体验，更为重要的是通过反馈、挑战与意义建构，提升用户持续投入的意愿，并在参与中获得愉悦、专注与成长的体验。 Foursquare 是一个具有代表性的游戏化设计案例，该平台将现实空间中的“到访”行为转化为游戏模式：在一定时间内，对同一地点签到次数最多的用户可获得“",
+      "usage": {
+        "prompt_tokens": 6109,
+        "completion_tokens": 7600,
+        "total_tokens": 13709,
+        "prompt_cache_hit_tokens": 6016,
+        "prompt_cache_miss_tokens": 93
+      }
+    }
+  ],
+  "failure": {
+    "failedStage": "v2_sourceMap",
+    "failureReason": "模型返回内容不是可解析 JSON，请重试。",
+    "retryable": true,
+    "modelStage": "sourceMap",
+    "retryAttempts": 3,
+    "issues": [],
+    "errors": [],
+    "diagnostics": []
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-20T13:23:46.354Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-ecd-shadow-review-plan-complete-units",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11365
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 1,
+    "diagnosticIssueCount": 0
+  },
+  "chapter": null,
+  "ecdPlanning": null,
+  "qualityDiagnostics": [],
+  "failure": {
+    "failedStage": "contract_validation",
+    "failureReason": "ecdPlanning.unitLearningClaims[10].claimType must be one of concept_understanding, structure_understanding, boundary_understanding, process_understanding, cause_effect_understanding, scenario_transfer, misconception_recognition, source_grounded_understanding",
+    "retryable": false,
+    "issues": [],
+    "errors": [
+      "ecdPlanning.unitLearningClaims[10].claimType must be one of concept_understanding, structure_understanding, boundary_understanding, process_understanding, cause_effect_understanding, scenario_transfer, misconception_recognition, source_grounded_understanding"
+    ],
+    "diagnostics": []
+  }
+}

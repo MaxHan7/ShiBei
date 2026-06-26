@@ -1,0 +1,69 @@
+name: V2 Production Readiness
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+      - codex/shibei-v2-isolated-build
+
+concurrency:
+  group: v2-production-readiness-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-and-production-guards:
+    name: Backend and production guards
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm --prefix backend ci
+
+      - name: Run root production checks
+        run: npm run check
+
+  ios-build:
+    name: iOS Debug and Release compile
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Build Debug simulator app
+        run: |
+          xcodebuild \
+            -project "拾贝/拾贝.xcodeproj" \
+            -scheme "拾贝" \
+            -destination "generic/platform=iOS Simulator" \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Build Release simulator app
+        run: |
+          xcodebuild \
+            -project "拾贝/拾贝.xcodeproj" \
+            -scheme "拾贝" \
+            -destination "generic/platform=iOS Simulator" \
+            -configuration Release \
+            CODE_SIGNING_ALLOWED=NO \
+            build

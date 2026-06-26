@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-21T12:16:08.698Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-compact-ecd-max1",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11365
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 0,
+    "diagnosticIssueCount": 0
+  },
+  "chapter": null,
+  "unitKnowledgeMap": null,
+  "ecdPlanning": null,
+  "qualityDiagnostics": [
+    {
+      "code": "v2_quality_experiment_timeout",
+      "message": "质量实验超过 90000ms；最后阶段：unitKnowledgeMap"
+    }
+  ],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 5200,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"title\": \"基于游戏化方法的持续性用户体验设计\",\n  \"summaryCard\": {\n    \"text\": \"本文探讨如何将游戏化方法应用于持续性用户体验设计。文章从游戏化的概念出发，介绍了DMC模型这一核心框架，并从阶段性目标设定、挑战与能力动态匹配、成长机制的感知设计、情境设计与身份认同建构四个实践方向展开分析，最后讨论了游戏化设计的潜在风险与人工智能时代的新挑战。不仅提供了系统的设计思路，也为数字媒介中的用户长期参与策略提供了参考。\"\n  },\n  \"knowledgeObjects\": [\n    {\n      \"id\": \"ko-1\",\n      \"title\": \"游戏化的概念与核心定义\",\n      \"nodeLabel\": \"游戏化的概念与核心定义\",\n      \"knowledgeShape\": \"core_concept\",\n      \"roleInArticle\": \"奠定基础，明确游戏化术语的起源与关键特征\",\n      \"sourceBlockIds\": [\"p-013\", \"p-014\", \"p-015\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"游戏化的定义是全文逻辑起点，拥有独立的学术定义和案例支撑，可独立成单元。\"\n    },\n    {\n      \"id\": \"ko-2\",\n      \"title\": \"DMC模型：游戏元素的金字塔分层结构\",\n      \"nodeLabel\": \"DMC模型：动力-机制-组件\",\n      \"knowledgeShape\": \"layered_framework\",\n      \"roleInArticle\": \"提供游戏化设计的结构化框架，是后续实践方法的基础\",\n      \"sourceBlockIds\": [\"p-020\", \"p-021\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"DMC模型是独立分层模型，拥有完整论证和图示，可形成独立学习单元。\"\n    },\n    {\n      \"id\": \"ko-3\",\n      \"title\": \"阶段性目标的设定\",\n      \"nodeLabel\": \"阶段性目标的设定\",\n      \"knowledgeShape\": \"scenario_rule\",\n      \"roleInArticle\": \"作为游戏化设计方法之一，说明如何通过里程碑分解长期目标增强参与\",\n      \"sourceBlockIds\": [\"p-023\", \"p-024\", \"p-025\", \"p-026\", \"p-027\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"具有明确的设计原则和多个案例（专注森林、无聊猿），具备独立学习价值。\"\n    },\n    {\n      \"id\": \"ko-4\",\n      \"title\": \"挑战与能力的动态匹配\",\n      \"nodeLabel\": \"挑战与能力的动态匹配\",\n      \"knowledgeShape\": \"scenario_rule\",\n      \"roleInArticle\": \"说明如何通过难度动态调节维持心流体验\",\n      \"sourceBlockIds\": [\"p-028\", \"p-029\", \"p-030\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"具备独立设计规则（动态调节）和案例（多邻国），可独立成单元。\"\n    },\n    {\n      \"id\": \"ko-5\",\n      \"title\": \"成长机制的感知设计\",\n      \"nodeLabel\": \"成长机制的感知设计\",\n      \"knowledgeShape\": \"scenario_rule\",\n      \"roleInArticle\": \"展示如何通过可视化反馈让用户感知进步\",\n      \"sourceBlockIds\": [\"p-031\", \"p-032\", \"p-033\", \"p-034\", \"p-035\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"具有独立的设计原则和案例（蚂蚁森林、蚂蚁庄园），可独立成单元。\"\n    },\n    {\n      \"id\": \"ko-6\",\n      \"title\": \"情境设计与身份认同建构\",\n      \"nodeLabel\": \"情境设计与身份认同建构\",\n      \"knowledgeShape\": \"scenario_rule\",\n      \"roleInArticle\": \"说明如何通过叙事空间和角色设定增强用户代入感\",\n      \"sourceBlockIds\": [\"p-036\", \"p-037\", \"p-038\", \"p-039\", \"p-040\", \"p-041\", \"p-042\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"具有独立的设计原理和多个案例（毛线小精灵、精灵宝可梦GO、Micropia），可独立成单元。\"\n    },\n    {\n      \"id\": \"ko-7\",\n      \"title\": \"游戏化的潜在风险\",\n      \"nodeLabel\": \"游戏化的潜在风险\",\n      \"knowledgeShape\": \"cause_effect\",\n      \"roleInArticle\": \"警示游戏化可能带来的挤出效应、目标偏移和娱乐至上问题\",\n      \"sourceBlockIds\": [\"p-043\", \"p-044\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"风险讨论有独立研究证据和理论分析，可独立成单元。\"\n    },\n    {\n      \"id\": \"ko-8\",\n      \"title\": \"人工智能时代的新挑战\",\n      \"nodeLabel\": \"AI时代的新挑战\",\n      \"knowledgeShape\": \"boundary_rule\",\n      \"roleInArticle\": \"指出生成式AI使游戏化从预设转向无限生成，用户从参与者变为创造者\",\n      \"sourceBlockIds\": [\"p-045\"],\n      \"boundaryDecision\": \"standalone_unit\",\n      \"boundaryReason\": \"AI带来的新趋势具有独立性和前沿性，可独立成单元。\"\n    }\n  ],\n  \"units\": [\n    {\n      \"id\": \"u-1\",\n      \"order\": 1,\n      \"title\": \"游戏化的概念与核心定义\",\n      \"nodeLabel\": \"游戏化的核心定义\",\n      \"shortSummary\": \"游戏化是指在非游戏语境中使用游戏设计元素。它源于尼克·佩林2002年提出的概念，德特丁等学者给出了经典定义。核心在于以乐趣服务现实目标。\",\n      \"detailSummary\": \"游戏化由尼克·佩林于2002年提出，塞巴斯蒂安·德特丁定义为“在非游戏语境中使用游戏设计元素”。凯文·韦巴赫强调以创造乐趣的方式服务现实目标。文章以瑞典奥丁广场的钢琴楼梯为例，说明游戏化如何促使人们选择健康行为。游戏化在商业、教育、文博等领域广泛应用。\",\n      \"why\": \"理解游戏化的基本定义是进入后续设计方法的前提，有助于区分真正的游戏化与简单的积分堆砌。\",\n      \"sourceKnowledgeObjectIds\": [\"ko-1\"],\n      \"sourceAnchor\": {\n        \"id\": \"anchor-u-1\",\n        \"blockIds\": [\"p-013\", \"p-014\", \"p-015\"]\n      }\n    },\n    {\n      \"id\": \"u-2\",\n      \"order\": 2,\n      \"title\": \"DMC模型：游戏元素的金字塔分层结构\",\n      \"nodeLabel\": \"DMC模型：动力-机制-组件\",\n      \"shortSummary\": \"DMC模型将游戏化分为动力、机制、组件三个层次：动力层界定整体体验，机制层组织行为流程，组件层是具体界面元素。它们逐层落实，构成完整的游戏化系统。\",\n      \"detailSummary\": \"韦巴赫和亨特提出DMC（Dynamics-Mechanics-Components）模型。动力层回答“用户最终体验到什么”，包括约束、情感、叙事、成长等；机制层是规则与流程，如挑战、竞争、反馈、奖励等；组件层是最直接的操作单元，",
+      "usage": {
+        "prompt_tokens": 10289,
+        "completion_tokens": 5200,
+        "total_tokens": 15489,
+        "prompt_cache_hit_tokens": 10240,
+        "prompt_cache_miss_tokens": 49
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 5200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 10289,
+        "completion_tokens": 4496,
+        "total_tokens": 14785,
+        "prompt_cache_hit_tokens": 10240,
+        "prompt_cache_miss_tokens": 49
+      }
+    }
+  ],
+  "failure": {
+    "failedStage": "quality_experiment_timeout",
+    "failureReason": "质量实验超过 90000ms；最后阶段：unitKnowledgeMap",
+    "retryable": true,
+    "modelStage": "unitKnowledgeMap",
+    "retryAttempts": 0,
+    "issues": [],
+    "errors": [],
+    "diagnostics": [
+      {
+        "code": "v2_quality_experiment_timeout",
+        "message": "质量实验超过 90000ms；最后阶段：unitKnowledgeMap"
+      }
+    ]
+  }
+}

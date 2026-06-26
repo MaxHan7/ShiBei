@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>v2-task-brief-slim-regression-fix - V2 出题质量报告</title>
+  <style>
+    :root {
+      --bg: #f2f5cf;
+      --paper: #fdfaf2;
+      --ink: #44423d;
+      --muted: #807d73;
+      --line: #dde1ac;
+      --brand: #98a84e;
+      --soft: #f2f1da;
+      --danger: #ed765c;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    h1, h2, h3 {
+      line-height: 1.25;
+      margin: 0;
+    }
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 40px 0 16px;
+    }
+    h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(152, 163, 94, 0.18);
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      color: var(--brand);
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 14px 0;
+      background: rgba(253, 250, 242, 0.72);
+    }
+    .stem {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .options, .pairs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .option, .pair {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .correct {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .explanation {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+    .source {
+      margin-top: 12px;
+      border-left: 4px solid var(--line);
+      padding-left: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .source-block {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin: 8px 0;
+      background: rgba(255,255,255,0.45);
+    }
+    .source-block.highlight {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .failure {
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    details {
+      margin-top: 12px;
+    }
+    .diagnostic {
+      border-top: 1px dashed var(--line);
+      padding-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 6px;
+      text-align: right;
+      vertical-align: top;
+    }
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>V2 出题质量报告</h1>
+    <div class="meta">2026-06-23T00:04:30.001Z · v2-task-brief-slim-regression-fix · failed_generation</div>
+    <section class="card failure">
+    <h2 style="margin-top:0">生成失败</h2>
+    <p><strong>v2_unitKnowledgeMap</strong> · 可重试</p>
+    <p>模型阶段：unitKnowledgeMap · 重试次数：3</p>
+    <p>模型返回内容不是可解析 JSON，请重试。</p>
+    
+    
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">Architecture Metrics</h2>
+    <p class="meta">这一段是架构仪表盘：不改变生成链路，只量化每个 stage 的调用数、token、重试和耗时，用来判断下一轮是变轻、变重、变稳还是变脆。</p>
+    <div class="grid">
+      <div class="metric"><strong>4</strong>Model calls</div>
+      <div class="metric"><strong>61,353</strong>Total tokens</div>
+      <div class="metric"><strong>37,284</strong>Prompt tokens</div>
+      <div class="metric"><strong>24,069</strong>Completion tokens</div>
+      <div class="metric"><strong>2</strong>Retries</div>
+      <div class="metric"><strong>243s</strong>Duration</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Stage</th>
+          <th>Calls</th>
+          <th>Attempts</th>
+          <th>Retries</th>
+          <th>Prompt</th>
+          <th>Completion</th>
+          <th>Total</th>
+          <th>Cache hit/miss</th>
+          <th>Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>v2_reviewPathPlan</td>
+          <td>1</td>
+          <td>1</td>
+          <td>0</td>
+          <td>10,131</td>
+          <td>2,472</td>
+          <td>12,603</td>
+          <td>10,112 / 19</td>
+          <td>39s</td>
+        </tr>
+<tr>
+          <td>v2_unitKnowledgeMap</td>
+          <td>3</td>
+          <td>3</td>
+          <td>2</td>
+          <td>27,153</td>
+          <td>21,597</td>
+          <td>48,750</td>
+          <td>18,304 / 8,849</td>
+          <td>204s</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">模型调用记录</h2>
+    
+      <div class="question">
+        <div><strong>#1 v2_reviewPathPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3200</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#2 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 7200</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;units&quot;: [
+    {
+      &quot;unitId&quot;: &quot;game-concept&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-game-concept-001&quot;,
+          &quot;title&quot;: &quot;游戏的定义&quot;,
+          &quot;summary&quot;: &quot;游戏是基于规则的交互性系统，是自愿尝试克服不必要的挑战的人类活动。&quot;,
+          &quot;role&quot;: &quot;definition&quot;,
+          &quot;assessmentValue&quot;: &quot;context_only&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;definition_grasp&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-game-concept&quot;,
+          &quot;sourceSupport&quot;: &quot;p-013引用简·麦格尼格尔和游戏定义，作为理解游戏化的背景。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-game-concept-002&quot;,
+          &quot;title&quot;: &quot;游戏化定义（德特丁）&quot;,
+          &quot;summary&quot;: &quot;游戏化是在非游戏语境中使用游戏设计元素。&quot;,
+          &quot;role&quot;: &quot;definition&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;definition_grasp&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-game-concept&quot;,
+          &quot;sourceSupport&quot;: &quot;p-014引用德特丁的经典定义。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-game-concept-003&quot;,
+          &quot;title&quot;: &quot;游戏化目的（韦巴赫）&quot;,
+          &quot;summary&quot;: &quot;游戏化的关键在于以创造乐趣的方式服务现实目标。&quot;,
+          &quot;role&quot;: &quot;definition&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;definition_grasp&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-game-concept&quot;,
+          &quot;sourceSupport&quot;: &quot;p-014引用韦巴赫对游戏化目的的阐述。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-game-concept-004&quot;,
+          &quot;title&quot;: &quot;游戏化与持续性用户体验的关系&quot;,
+          &quot;summary&quot;: &quot;游戏化方法能够成为构建持续性用户体验的重要策略，通过反馈、挑战与意义建构提升用户持续投入意愿。&quot;,
+          &quot;role&quot;: &quot;relationship&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-game-concept&quot;,
+          &quot;sourceSupport&quot;: &quot;p-017指出游戏化是构建持续性用户体验的策略。&quot;
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;dmc-model&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-dmc-model-001&quot;,
+          &quot;title&quot;: &quot;DMC模型整体结构&quot;,
+          &quot;summary&quot;: &quot;DMC模型是游戏化元素的金字塔分层结构，分为动力、机制、组件三层。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-dmc-model&quot;,
+          &quot;sourceSupport&quot;: &quot;p-020提出DMC金字塔模型，分三层。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-dmc-model-002&quot;,
+          &quot;title&quot;: &quot;动力层（Dynamics）&quot;,
+          &quot;summary&quot;: &quot;动力层界定系统整体体验，包括约束、情感、叙事、成长或进展关系。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-dmc-model&quot;,
+          &quot;sourceSupport&quot;: &quot;p-020详细描述动力层内容。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-dmc-model-003&quot;,
+          &quot;title&quot;: &quot;机制层（Mechanics）&quot;,
+          &quot;summary&quot;: &quot;机制层组织用户行为与推进参与的规则流程，如挑战、竞争、反馈、奖励等。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-dmc-model&quot;,
+          &quot;sourceSupport&quot;: &quot;p-020详细描述机制层内容。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-dmc-model-004&quot;,
+          &quot;title&quot;: &quot;组件层（Components）&quot;,
+          &quot;summary&quot;: &quot;组件层是用户直接感知和操作的具体功能，如成就、徽章、排行榜、点数等。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-dmc-model&quot;,
+          &quot;sourceSupport&quot;: &quot;p-020详细描述组件层内容。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-dmc-model-005&quot;,
+          &quot;title&quot;: &quot;三层协同关系&quot;,
+          &quot;summary&quot;: &quot;动力层规定方向，机制层构成操作循环，组件层落实为具体功能，三者协同实现游戏化设计。&quot;,
+          &quot;role&quot;: &quot;relationship&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-dmc-model&quot;,
+          &quot;sourceSupport&quot;: &quot;p-020末尾说明三层关系。&quot;
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;flow-interaction&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-flow-interaction-001&quot;,
+          &quot;title&quot;: &quot;心流定义与条件&quot;,
+          &quot;summary&quot;: &quot;心流是个体能力与挑战动态平衡、目标清晰、反馈即时时的沉浸状态。&quot;,
+          &quot;role&quot;: &quot;mechanism&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;mechanism</pre></details>
+      </div>
+    
+      <div class="question">
+        <div><strong>#3 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 7200</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;units&quot;: [
+    {
+      &quot;unitId&quot;: &quot;game-concept&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-game-001&quot;,
+          &quot;title&quot;: &quot;游戏化的学术定义&quot;,
+          &quot;summary&quot;: &quot;游戏化被界定为在非游戏语境中使用游戏设计元素。&quot;,
+          &quot;role&quot;: &quot;definition&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;definition_grasp&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-game-concept&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-014引用了Deterding的界定，并指出该表述是后续研究最常引用的定义。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-game-002&quot;,
+          &quot;title&quot;: &quot;游戏化的核心理念&quot;,
+          &quot;summary&quot;: &quot;游戏化的关键在于以创造乐趣的方式服务现实目标，使人们更愿意进入并持续活动。&quot;,
+          &quot;role&quot;: &quot;definition&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;definition_grasp&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-game-concept&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-014引用Werbach的观点，强调创造乐趣服务现实目标。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-game-003&quot;,
+          &quot;title&quot;: &quot;持续性用户体验的定义&quot;,
+          &quot;summary&quot;: &quot;持续性用户体验关注长期使用中的情感联结、习惯养成与意义建构，不仅包括阶段性目标的效率和过程，还包括认知、行为和情感联结。&quot;,
+          &quot;role&quot;: &quot;definition&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;definition_grasp&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-game-concept&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-017描述持续性用户体验设计的内涵，强调情感联结、习惯养成与意义建构。&quot;
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;dmc-model&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-dmc-001&quot;,
+          &quot;title&quot;: &quot;DMC模型整体结构&quot;,
+          &quot;summary&quot;: &quot;DMC金字塔模型将游戏化分为动力、机制、组件三个层次。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-dmc-model&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-020描述了DMC模型的三层结构。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-dmc-002&quot;,
+          &quot;title&quot;: &quot;动力层定义与要素&quot;,
+          &quot;summary&quot;: &quot;动力层回答用户最终体验到什么，包括约束、情感、叙事、成长或进展关系。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-dmc-model&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-020列举了动力层的具体要素。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-dmc-003&quot;,
+          &quot;title&quot;: &quot;机制层定义与要素&quot;,
+          &quot;summary&quot;: &quot;机制层是组织用户行为与推进参与的规则与流程，包括挑战、机会、竞争、合作、反馈、资源获取、奖励等。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-dmc-model&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-020列举了机制层的要素。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-dmc-004&quot;,
+          &quot;title&quot;: &quot;组件层定义与要素&quot;,
+          &quot;summary&quot;: &quot;组件层是用户最易感知的界面元素或功能模块，包括成就、徽章、排行榜、点数、任务、虚拟商品等。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-dmc-model&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-020列举了组件层的要素。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-dmc-005&quot;,
+          &quot;title&quot;: &quot;三层之间的协同关系&quot;,
+          &quot;summary&quot;: &quot;动力层规定体验目标与方向，机制层构成持续运转的操作循环，组件层将前两者落实为具体功能。&quot;,
+          &quot;role&quot;: &quot;relationship&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-dmc-model&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-020最后一句描述了三层协同关系。&quot;
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;flow-interaction&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-flow-001&quot;,
+          &quot;title&quot;: &quot;心流理论&quot;,
+          &quot;summary&quot;: &quot;当个体能力与挑战难度保持动态平衡，且具备清晰目标与即时反馈时，用户进入高度专注且愉悦的沉浸状态。&quot;,
+          &quot;role&quot;: &quot;mechanism&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;mechanism_reasoning&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-flow-interaction&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-016介绍了心流理论的核心条件。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-flow-002&quot;,
+          &quot;title&quot;: &quot;交互设计的三个基本问题&quot;,
+          &quot;summary&quot;: &quot;交互设计需解决用户的可行动性、可感知性与可理解性。&quot;,
+          &quot;role&quot;: &quot;mechanism&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvi</pre></details>
+      </div>
+    
+      <div class="question">
+        <div><strong>#4 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 7200</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;units&quot;: [
+    {
+      &quot;unitId&quot;: &quot;game-concept&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-game-concept-001&quot;,
+          &quot;title&quot;: &quot;游戏的定义&quot;,
+          &quot;summary&quot;: &quot;游戏是基于规则的交互性系统，是自愿尝试去克服的不必要的挑战，追求体验而非效率。&quot;,
+          &quot;role&quot;: &quot;definition&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;definition_grasp&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-game-concept&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-013引用简·麦格尼格尔的定义，并强调规则、交互、愉悦和吸引力是核心关键词。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-game-concept-002&quot;,
+          &quot;title&quot;: &quot;游戏化的定义（Deterding）&quot;,
+          &quot;summary&quot;: &quot;游戏化是在非游戏语境中使用游戏设计元素。&quot;,
+          &quot;role&quot;: &quot;definition&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;definition_grasp&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-game-concept&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-014引用塞巴斯蒂安·德特丁2011年的定义，为后续研究最常引用。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-game-concept-003&quot;,
+          &quot;title&quot;: &quot;游戏化的关键（Werbach）&quot;,
+          &quot;summary&quot;: &quot;游戏化关键在于以创造乐趣的方式服务现实目标，使人们更愿意进入、完成并持续进行某一活动。&quot;,
+          &quot;role&quot;: &quot;definition&quot;,
+          &quot;assessmentValue&quot;: &quot;medium&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;definition_grasp&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-game-concept&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-014引用凯文·韦巴赫与丹·亨特的观点。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-game-concept-004&quot;,
+          &quot;title&quot;: &quot;持续性用户体验概念&quot;,
+          &quot;summary&quot;: &quot;持续性用户体验设计是一种面向长期使用情境的系统设计，包括阶段性目标达成效率、过程感受、逐渐形成的认知、行为习惯与情感联结。&quot;,
+          &quot;role&quot;: &quot;definition&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;definition_grasp&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-game-concept&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-017明确表述“本文所强调的持续性用户体验设计，是一种面向长期使用情境的系统设计”。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-game-concept-005&quot;,
+          &quot;title&quot;: &quot;游戏化作为构建持续性用户体验的策略&quot;,
+          &quot;summary&quot;: &quot;游戏化通过增强沉浸感、心流体验、反馈、挑战和意义建构，提升用户持续投入意愿，成为构建持续性用户体验的重要策略。&quot;,
+          &quot;role&quot;: &quot;relationship&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-game-concept&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-017指出“游戏化的设计方法能够成为构建持续性用户体验的一种重要策略”，并解释了其作用。&quot;
+        }
+      ]
+    },
+    {
+      &quot;unitId&quot;: &quot;dmc-model&quot;,
+      &quot;microKnowledgePoints&quot;: [
+        {
+          &quot;microId&quot;: &quot;micro-dmc-model-001&quot;,
+          &quot;title&quot;: &quot;DMC模型整体架构&quot;,
+          &quot;summary&quot;: &quot;DMC模型将游戏化分为动力、机制、组件三个层级，是金字塔式结构。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-dmc-model&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-020介绍DMC模型为金字塔式分层结构。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-dmc-model-002&quot;,
+          &quot;title&quot;: &quot;动力层：界定整体体验&quot;,
+          &quot;summary&quot;: &quot;动力层回答用户最终体验到什么，包括约束、情感、叙事、成长或进展关系等。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-dmc-model&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-020详细说明动力层的内容。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-dmc-model-003&quot;,
+          &quot;title&quot;: &quot;机制层：组织用户行为的规则与流程&quot;,
+          &quot;summary&quot;: &quot;机制层包括挑战、机会、竞争、合作、反馈、资源获取、奖励、交易、回合与获胜状态等，把操作编排成可重复的参与。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-dmc-model&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-020列举机制层元素及其作用。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-dmc-model-004&quot;,
+          &quot;title&quot;: &quot;组件层：可视交互入口&quot;,
+          &quot;summary&quot;: &quot;组件层包括成就、徽章、战斗、排行榜、点数、任务、社交图谱和虚拟商品等，是用户直接感知操作的具体功能。&quot;,
+          &quot;role&quot;: &quot;model_layer&quot;,
+          &quot;assessmentValue&quot;: &quot;high&quot;,
+          &quot;suggestedEvidenceAngles&quot;: [&quot;structure_mapping&quot;],
+          &quot;sourceAnchorId&quot;: &quot;anchor-dmc-model&quot;,
+          &quot;sourceSupport&quot;: &quot;原文p-020描述组件层为最底层，用户最容易直接感知。&quot;
+        },
+        {
+          &quot;microId&quot;: &quot;micro-dmc-model-005&quot;,
+          &quot;title&quot;: &quot;三层协同关系&quot;,
+          &quot;summary&quot;: &quot;动力层规定体验方向，机制层构成操作循环，组件层落实具体功能，三层协同</pre></details>
+      </div>
+    
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">Stage Runtime Reliability</h2>
+    <p class="meta">这一段显示 structured-output runtime 的稳定性：每个 stage 调用了几次、重试了几次、失败类型是什么。它不是题目质量审查。</p>
+    <div class="grid">
+      <div class="metric"><strong>2</strong>Calls</div>
+      <div class="metric"><strong>4</strong>Attempts</div>
+      <div class="metric"><strong>3</strong>Failed attempts</div>
+      <div class="metric"><strong>2</strong>Retry attempts</div>
+    </div>
+    <div class="question">
+      <div><strong>v2_reviewPathPlan</strong></div>
+      <div class="meta">calls: 1 · success calls: 1 · failed calls: 0 · attempts: 1 · retries: 0 · failed attempts: 0 · duration: 38794ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_unitKnowledgeMap</strong></div>
+      <div class="meta">calls: 1 · success calls: 0 · failed calls: 1 · attempts: 3 · retries: 2 · failed attempts: 3 · duration: 204082ms</div>
+      <div class="meta">error types: json_parse_error=3</div>
+      <details><summary>last error</summary><pre>json_parse_error: 模型返回内容不是可解析 JSON，请重试。</pre></details>
+    </div>
+  </section>
+    
+    <section class="card">
+      <h2 style="margin-top:0">文章与章节</h2>
+      <p><strong>基于游戏化方法的持续性用户体验设计</strong></p>
+      <p class="meta">吴 琼、王婧等 · <a href="https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A">https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A</a></p>
+      <p></p>
+      <div class="grid">
+        <div class="metric"><strong>0</strong>知识点</div>
+        <div class="metric"><strong>0</strong>题目</div>
+        <div class="metric"><strong>0</strong>选择题</div>
+        <div class="metric"><strong>0</strong>连线题</div>
+        <div class="metric"><strong>0</strong>Source blocks</div>
+        <div class="metric"><strong>0</strong>Issues</div>
+        <div class="metric"><strong>0</strong>Diagnostics</div>
+        <div class="metric"><strong>3</strong>Runtime failed attempts</div>
+        <div class="metric"><strong>2</strong>Runtime retries</div>
+      </div>
+    </section>
+    
+    
+    
+    <section class="card">
+      <h2 style="margin-top:0">章节总结</h2>
+      <p><span class="tag">章节完成</span></p>
+      <p></p>
+    </section>
+    <section class="card">
+      <h2 style="margin-top:0">完整来源块</h2>
+      <p class="meta">暂无 source blocks</p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>v2-compact-ecd-max1 - V2 出题质量报告</title>
+  <style>
+    :root {
+      --bg: #f2f5cf;
+      --paper: #fdfaf2;
+      --ink: #44423d;
+      --muted: #807d73;
+      --line: #dde1ac;
+      --brand: #98a84e;
+      --soft: #f2f1da;
+      --danger: #ed765c;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    h1, h2, h3 {
+      line-height: 1.25;
+      margin: 0;
+    }
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 40px 0 16px;
+    }
+    h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(152, 163, 94, 0.18);
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      color: var(--brand);
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 14px 0;
+      background: rgba(253, 250, 242, 0.72);
+    }
+    .stem {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .options, .pairs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .option, .pair {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .correct {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .explanation {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+    .source {
+      margin-top: 12px;
+      border-left: 4px solid var(--line);
+      padding-left: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .source-block {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin: 8px 0;
+      background: rgba(255,255,255,0.45);
+    }
+    .source-block.highlight {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .failure {
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    details {
+      margin-top: 12px;
+    }
+    .diagnostic {
+      border-top: 1px dashed var(--line);
+      padding-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>V2 出题质量报告</h1>
+    <div class="meta">2026-06-21T12:16:08.698Z · v2-compact-ecd-max1 · failed_generation</div>
+    <section class="card failure">
+    <h2 style="margin-top:0">生成失败</h2>
+    <p><strong>quality_experiment_timeout</strong> · 可重试</p>
+    <p>模型阶段：unitKnowledgeMap · 重试次数：</p>
+    <p>质量实验超过 90000ms；最后阶段：unitKnowledgeMap</p>
+    
+    <details open><summary>质量诊断</summary><pre>[
+  {
+    &quot;code&quot;: &quot;v2_quality_experiment_timeout&quot;,
+    &quot;message&quot;: &quot;质量实验超过 90000ms；最后阶段：unitKnowledgeMap&quot;
+  }
+]</pre></details>
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">模型调用记录</h2>
+    
+      <div class="question">
+        <div><strong>#1 v2_reviewPathPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 5200</div>
+        <p class="meta">error: 模型返回内容不是可解析 JSON</p>
+        <p class="meta">parse: no_json_object</p>
+        <details><summary>raw response preview</summary><pre>{
+  &quot;title&quot;: &quot;基于游戏化方法的持续性用户体验设计&quot;,
+  &quot;summaryCard&quot;: {
+    &quot;text&quot;: &quot;本文探讨如何将游戏化方法应用于持续性用户体验设计。文章从游戏化的概念出发，介绍了DMC模型这一核心框架，并从阶段性目标设定、挑战与能力动态匹配、成长机制的感知设计、情境设计与身份认同建构四个实践方向展开分析，最后讨论了游戏化设计的潜在风险与人工智能时代的新挑战。不仅提供了系统的设计思路，也为数字媒介中的用户长期参与策略提供了参考。&quot;
+  },
+  &quot;knowledgeObjects&quot;: [
+    {
+      &quot;id&quot;: &quot;ko-1&quot;,
+      &quot;title&quot;: &quot;游戏化的概念与核心定义&quot;,
+      &quot;nodeLabel&quot;: &quot;游戏化的概念与核心定义&quot;,
+      &quot;knowledgeShape&quot;: &quot;core_concept&quot;,
+      &quot;roleInArticle&quot;: &quot;奠定基础，明确游戏化术语的起源与关键特征&quot;,
+      &quot;sourceBlockIds&quot;: [&quot;p-013&quot;, &quot;p-014&quot;, &quot;p-015&quot;],
+      &quot;boundaryDecision&quot;: &quot;standalone_unit&quot;,
+      &quot;boundaryReason&quot;: &quot;游戏化的定义是全文逻辑起点，拥有独立的学术定义和案例支撑，可独立成单元。&quot;
+    },
+    {
+      &quot;id&quot;: &quot;ko-2&quot;,
+      &quot;title&quot;: &quot;DMC模型：游戏元素的金字塔分层结构&quot;,
+      &quot;nodeLabel&quot;: &quot;DMC模型：动力-机制-组件&quot;,
+      &quot;knowledgeShape&quot;: &quot;layered_framework&quot;,
+      &quot;roleInArticle&quot;: &quot;提供游戏化设计的结构化框架，是后续实践方法的基础&quot;,
+      &quot;sourceBlockIds&quot;: [&quot;p-020&quot;, &quot;p-021&quot;],
+      &quot;boundaryDecision&quot;: &quot;standalone_unit&quot;,
+      &quot;boundaryReason&quot;: &quot;DMC模型是独立分层模型，拥有完整论证和图示，可形成独立学习单元。&quot;
+    },
+    {
+      &quot;id&quot;: &quot;ko-3&quot;,
+      &quot;title&quot;: &quot;阶段性目标的设定&quot;,
+      &quot;nodeLabel&quot;: &quot;阶段性目标的设定&quot;,
+      &quot;knowledgeShape&quot;: &quot;scenario_rule&quot;,
+      &quot;roleInArticle&quot;: &quot;作为游戏化设计方法之一，说明如何通过里程碑分解长期目标增强参与&quot;,
+      &quot;sourceBlockIds&quot;: [&quot;p-023&quot;, &quot;p-024&quot;, &quot;p-025&quot;, &quot;p-026&quot;, &quot;p-027&quot;],
+      &quot;boundaryDecision&quot;: &quot;standalone_unit&quot;,
+      &quot;boundaryReason&quot;: &quot;具有明确的设计原则和多个案例（专注森林、无聊猿），具备独立学习价值。&quot;
+    },
+    {
+      &quot;id&quot;: &quot;ko-4&quot;,
+      &quot;title&quot;: &quot;挑战与能力的动态匹配&quot;,
+      &quot;nodeLabel&quot;: &quot;挑战与能力的动态匹配&quot;,
+      &quot;knowledgeShape&quot;: &quot;scenario_rule&quot;,
+      &quot;roleInArticle&quot;: &quot;说明如何通过难度动态调节维持心流体验&quot;,
+      &quot;sourceBlockIds&quot;: [&quot;p-028&quot;, &quot;p-029&quot;, &quot;p-030&quot;],
+      &quot;boundaryDecision&quot;: &quot;standalone_unit&quot;,
+      &quot;boundaryReason&quot;: &quot;具备独立设计规则（动态调节）和案例（多邻国），可独立成单元。&quot;
+    },
+    {
+      &quot;id&quot;: &quot;ko-5&quot;,
+      &quot;title&quot;: &quot;成长机制的感知设计&quot;,
+      &quot;nodeLabel&quot;: &quot;成长机制的感知设计&quot;,
+      &quot;knowledgeShape&quot;: &quot;scenario_rule&quot;,
+      &quot;roleInArticle&quot;: &quot;展示如何通过可视化反馈让用户感知进步&quot;,
+      &quot;sourceBlockIds&quot;: [&quot;p-031&quot;, &quot;p-032&quot;, &quot;p-033&quot;, &quot;p-034&quot;, &quot;p-035&quot;],
+      &quot;boundaryDecision&quot;: &quot;standalone_unit&quot;,
+      &quot;boundaryReason&quot;: &quot;具有独立的设计原则和案例（蚂蚁森林、蚂蚁庄园），可独立成单元。&quot;
+    },
+    {
+      &quot;id&quot;: &quot;ko-6&quot;,
+      &quot;title&quot;: &quot;情境设计与身份认同建构&quot;,
+      &quot;nodeLabel&quot;: &quot;情境设计与身份认同建构&quot;,
+      &quot;knowledgeShape&quot;: &quot;scenario_rule&quot;,
+      &quot;roleInArticle&quot;: &quot;说明如何通过叙事空间和角色设定增强用户代入感&quot;,
+      &quot;sourceBlockIds&quot;: [&quot;p-036&quot;, &quot;p-037&quot;, &quot;p-038&quot;, &quot;p-039&quot;, &quot;p-040&quot;, &quot;p-041&quot;, &quot;p-042&quot;],
+      &quot;boundaryDecision&quot;: &quot;standalone_unit&quot;,
+      &quot;boundaryReason&quot;: &quot;具有独立的设计原理和多个案例（毛线小精灵、精灵宝可梦GO、Micropia），可独立成单元。&quot;
+    },
+    {
+      &quot;id&quot;: &quot;ko-7&quot;,
+      &quot;title&quot;: &quot;游戏化的潜在风险&quot;,
+      &quot;nodeLabel&quot;: &quot;游戏化的潜在风险&quot;,
+      &quot;knowledgeShape&quot;: &quot;cause_effect&quot;,
+      &quot;roleInArticle&quot;: &quot;警示游戏化可能带来的挤出效应、目标偏移和娱乐至上问题&quot;,
+      &quot;sourceBlockIds&quot;: [&quot;p-043&quot;, &quot;p-044&quot;],
+      &quot;boundaryDecision&quot;: &quot;standalone_unit&quot;,
+      &quot;boundaryReason&quot;: &quot;风险讨论有独立研究证据和理论分析，可独立成单元。&quot;
+    },
+    {
+      &quot;id&quot;: &quot;ko-8&quot;,
+      &quot;title&quot;: &quot;人工智能时代的新挑战&quot;,
+      &quot;nodeLabel&quot;: &quot;AI时代的新挑战&quot;,
+      &quot;knowledgeShape&quot;: &quot;boundary_rule&quot;,
+      &quot;roleInArticle&quot;: &quot;指出生成式AI使游戏化从预设转向无限生成，用户从参与者变为创造者&quot;,
+      &quot;sourceBlockIds&quot;: [&quot;p-045&quot;],
+      &quot;boundaryDecision&quot;: &quot;standalone_unit&quot;,
+      &quot;boundaryReason&quot;: &quot;AI带来的新趋势具有独立性和前沿性，可独立成单元。&quot;
+    }
+  ],
+  &quot;units&quot;: [
+    {
+      &quot;id&quot;: &quot;u-1&quot;,
+      &quot;order&quot;: 1,
+      &quot;title&quot;: &quot;游戏化的概念与核心定义&quot;,
+      &quot;nodeLabel&quot;: &quot;游戏化的核心定义&quot;,
+      &quot;shortSummary&quot;: &quot;游戏化是指在非游戏语境中使用游戏设计元素。它源于尼克·佩林2002年提出的概念，德特丁等学者给出了经典定义。核心在于以乐趣服务现实目标。&quot;,
+      &quot;detailSummary&quot;: &quot;游戏化由尼克·佩林于2002年提出，塞巴斯蒂安·德特丁定义为“在非游戏语境中使用游戏设计元素”。凯文·韦巴赫强调以创造乐趣的方式服务现实目标。文章以瑞典奥丁广场的钢琴楼梯为例，说明游戏化如何促使人们选择健康行为。游戏化在商业、教育、文博等领域广泛应用。&quot;,
+      &quot;why&quot;: &quot;理解游戏化的基本定义是进入后续设计方法的前提，有助于区分真正的游戏化与简单的积分堆砌。&quot;,
+      &quot;sourceKnowledgeObjectIds&quot;: [&quot;ko-1&quot;],
+      &quot;sourceAnchor&quot;: {
+        &quot;id&quot;: &quot;anchor-u-1&quot;,
+        &quot;blockIds&quot;: [&quot;p-013&quot;, &quot;p-014&quot;, &quot;p-015&quot;]
+      }
+    },
+    {
+      &quot;id&quot;: &quot;u-2&quot;,
+      &quot;order&quot;: 2,
+      &quot;title&quot;: &quot;DMC模型：游戏元素的金字塔分层结构&quot;,
+      &quot;nodeLabel&quot;: &quot;DMC模型：动力-机制-组件&quot;,
+      &quot;shortSummary&quot;: &quot;DMC模型将游戏化分为动力、机制、组件三个层次：动力层界定整体体验，机制层组织行为流程，组件层是具体界面元素。它们逐层落实，构成完整的游戏化系统。&quot;,
+      &quot;detailSummary&quot;: &quot;韦巴赫和亨特提出DMC（Dynamics-Mechanics-Components）模型。动力层回答“用户最终体验到什么”，包括约束、情感、叙事、成长等；机制层是规则与流程，如挑战、竞争、反馈、奖励等；组件层是最直接的操作单元，</pre></details>
+      </div>
+    
+      <div class="question">
+        <div><strong>#2 v2_reviewPathPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 5200</div>
+        
+        
+        
+      </div>
+    
+  </section>
+    <section class="card">
+      <h2 style="margin-top:0">文章与章节</h2>
+      <p><strong>基于游戏化方法的持续性用户体验设计</strong></p>
+      <p class="meta">吴 琼、王婧等 · <a href="https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A">https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A</a></p>
+      <p></p>
+      <div class="grid">
+        <div class="metric"><strong>0</strong>知识点</div>
+        <div class="metric"><strong>0</strong>题目</div>
+        <div class="metric"><strong>0</strong>选择题</div>
+        <div class="metric"><strong>0</strong>连线题</div>
+        <div class="metric"><strong>0</strong>Source blocks</div>
+        <div class="metric"><strong>0</strong>Issues</div>
+        <div class="metric"><strong>0</strong>Diagnostics</div>
+      </div>
+    </section>
+    
+    
+    
+    <section class="card">
+      <h2 style="margin-top:0">章节总结</h2>
+      <p><span class="tag">章节完成</span></p>
+      <p></p>
+    </section>
+    <section class="card">
+      <h2 style="margin-top:0">完整来源块</h2>
+      <p class="meta">暂无 source blocks</p>
+    </section>
+  </main>
+</body>
+</html>

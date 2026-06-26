@@ -1,0 +1,197 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-06-24T10:44:48.009Z",
+  "slug": "_WY2GXs-iynGePgdsYLi0A",
+  "label": "v2-meta-mode-split",
+  "status": "failed_generation",
+  "source": {
+    "title": "基于游戏化方法的持续性用户体验设计",
+    "account": "吴 琼、王婧等",
+    "url": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    "type": "article_link",
+    "rawTextLength": 11327
+  },
+  "metrics": {
+    "unitCount": 0,
+    "questionCount": 0,
+    "multipleChoiceCount": 0,
+    "matchingCount": 0,
+    "sourceBlockCount": 0,
+    "issueCount": 0,
+    "diagnosticIssueCount": 0,
+    "runtimeFailedAttemptCount": 3,
+    "runtimeRetryAttemptCount": 2,
+    "modelCallCount": 3,
+    "promptTokenCount": 30438,
+    "completionTokenCount": 7799,
+    "totalTokenCount": 38237
+  },
+  "chapter": null,
+  "unitKnowledgeMap": null,
+  "ecdPlanning": null,
+  "sourceContextStats": null,
+  "stageRuntime": {
+    "schemaVersion": "v2_stage_runtime_1",
+    "callCount": 1,
+    "attemptCount": 3,
+    "failedAttemptCount": 3,
+    "retryAttemptCount": 2,
+    "stages": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "callCount": 1,
+        "successCallCount": 0,
+        "failedCallCount": 1,
+        "attemptCount": 3,
+        "retryAttemptCount": 2,
+        "transientFailureCount": 3,
+        "totalDurationMs": 103877,
+        "errorTypes": {
+          "json_parse_error": 3
+        },
+        "lastErrorType": "json_parse_error",
+        "lastErrorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      }
+    ],
+    "attempts": [
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 33850,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 2,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 30481,
+        "retryable": true,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      },
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 3,
+        "maxAttempts": 3,
+        "status": "failed",
+        "durationMs": 39546,
+        "retryable": false,
+        "errorType": "json_parse_error",
+        "errorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      }
+    ]
+  },
+  "architectureMetrics": {
+    "schemaVersion": "v2_architecture_metrics_1",
+    "total": {
+      "modelCallCount": 3,
+      "runtimeCallCount": 1,
+      "attemptCount": 3,
+      "retryAttemptCount": 2,
+      "failedAttemptCount": 3,
+      "promptTokens": 30438,
+      "completionTokens": 7799,
+      "totalTokens": 38237,
+      "promptCacheHitTokens": 30336,
+      "promptCacheMissTokens": 102,
+      "durationMs": 103877
+    },
+    "stages": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "modelCallCount": 3,
+        "promptTokens": 30438,
+        "completionTokens": 7799,
+        "totalTokens": 38237,
+        "promptCacheHitTokens": 30336,
+        "promptCacheMissTokens": 102,
+        "estimatedOutputTokens": 7800,
+        "runtimeCallCount": 1,
+        "attemptCount": 3,
+        "retryAttemptCount": 2,
+        "failedAttemptCount": 3,
+        "durationMs": 103877,
+        "errorTypes": {
+          "json_parse_error": 3
+        },
+        "lastErrorType": "json_parse_error",
+        "lastErrorMessage": "模型返回内容不是可解析 JSON，请重试。"
+      }
+    ]
+  },
+  "qualityDiagnostics": [],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 2600,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"title\": \"游戏化驱动持续性用户体验\",\n  \"summaryCard\": {\n    \"text\": \"本文解读游戏化如何通过目标、挑战、成长、情境四方面构建持续性体验，并探讨风险与AI新机遇。\"\n  },\n  \"units\": [\n    {\n      \"id\": \"unit-1\",\n      \"order\": 1,\n      \"title\": \"游戏化概念与持续性用户体验\",\n      \"nodeLabel\": \"游戏化核心概念\",\n      \"shortSummary\": \"游戏化是在非游戏语境中使用游戏设计元素，提升持续性用户体验。\",\n      \"detailSummary\": \"游戏化由佩林提出，德特丁定义为在非游戏语境中使用游戏设计元素。持续性用户体验涵盖长期使用中的认知、行为与情感联结。游戏化通过反馈、挑战与意义建构增强用户持续投入意愿，代表案例有Foursquare市长称号。\",\n      \"why\": \"理解游戏化与持续性体验的关系，为后续设计方法奠定基础。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit-1\",\n        \"blockIds\": [\"p-014\", \"p-016\", \"p-017\", \"p-018\"]\n      }\n    },\n    {\n      \"id\": \"unit-2\",\n      \"order\": 2,\n      \"title\": \"DMC模型：游戏元素金字塔\",\n      \"nodeLabel\": \"DMC模型层次\",\n      \"shortSummary\": \"DMC模型将游戏元素分为动力、机制、组件三层。\",\n      \"detailSummary\": \"凯文·韦巴赫提出DMC模型：动力层界定系统整体体验（约束、情感、叙事等）；机制层组织用户行为与参与流程（挑战、竞争、反馈等）；组件层是用户直接感知的界面元素（徽章、排行榜等）。三层分别对应体验目标、运作循环、具体功能。\",\n      \"why\": \"提供理解游戏化元素如何系统化组织与作用的框架。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit-2\",\n        \"blockIds\": [\"p-020\"]\n      }\n    },\n    {\n      \"id\": \"unit-3\",\n      \"order\": 3,\n      \"title\": \"阶段性目标设定\",\n      \"nodeLabel\": \"阶段性目标\",\n      \"shortSummary\": \"将长期目标拆解为可掌控的短期里程碑，提升持续参与动机。\",\n      \"detailSummary\": \"过长的反馈周期会导致动机衰减。通过设置具体可量化的",
+      "usage": {
+        "prompt_tokens": 10146,
+        "completion_tokens": 2599,
+        "total_tokens": 12745,
+        "prompt_cache_hit_tokens": 10112,
+        "prompt_cache_miss_tokens": 34
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 2600,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"title\": \"基于游戏化方法的持续性用户体验设计\",\n  \"summaryCard\": {\n    \"text\": \"本文梳理游戏化概念，从目标设定、动态匹配、成长感知、情境身份四个方面分析如何提升持续性用户体验，并讨论风险与AI新挑战。\"\n  },\n  \"units\": [\n    {\n      \"id\": \"unit1\",\n      \"order\": 1,\n      \"title\": \"游戏化概念与定义\",\n      \"nodeLabel\": \"游戏化概念与定义\",\n      \"shortSummary\": \"梳理游戏化概念起源与核心定义，理解其在非游戏语境中的运用。\",\n      \"detailSummary\": \"游戏化由Nick Pelling于2002年提出，Sebastian Deterding将其界定为'在非游戏语境中使用游戏设计元素'。Kevin Werbach强调以创造乐趣的方式服务现实目标。文章列举钢琴楼梯等案例说明游戏化如何提升用户体验并促进行为改变。\",\n      \"why\": \"理解游戏化定义是后续分析持续性用户体验设计的基础，帮助辨别游戏化与单纯奖励机制的区别。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit1\",\n        \"blockIds\": [\"p-013\", \"p-014\"]\n      }\n    },\n    {\n      \"id\": \"unit2\",\n      \"order\": 2,\n      \"title\": \"用户体验理论：从可用性到享乐质量\",\n      \"nodeLabel\": \"用户体验理论演进\",\n      \"shortSummary\": \"介绍心流理论和实用-享乐框架，为持续性体验设计提供理论基础。\",\n      \"detailSummary\": \"用户体验从关注可用性（效率、有效性）拓展到享乐质量（情感、愉悦、身份认同）。心流理论指出能力与挑战动态平衡产生沉浸感；Hassenzahl的实用-享乐框架将产品感知分为实用质量和享乐质量，后者满足自主感、胜任感、归属感等深层心理需求。\",\n      \"why\": \"心流和享乐质量解释了游戏化为何能提升持续参与，是设计策略的理论依据。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit2\",\n        \"blockIds\": [\"p-016\",",
+      "usage": {
+        "prompt_tokens": 10146,
+        "completion_tokens": 2600,
+        "total_tokens": 12746,
+        "prompt_cache_hit_tokens": 10112,
+        "prompt_cache_miss_tokens": 34
+      }
+    },
+    {
+      "index": 3,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 2600,
+      "error": "模型返回内容不是可解析 JSON",
+      "parseError": "no_json_object",
+      "rawResponsePreview": "{\n  \"title\": \"游戏化方法驱动持续性用户体验设计\",\n  \"summaryCard\": {\n    \"text\": \"本文从游戏化概念出发，系统提出阶段性目标、挑战匹配、成长感知和情境身份四个设计维度，并讨论风险与AI新可能。\"\n  },\n  \"units\": [\n    {\n      \"id\": \"unit-1\",\n      \"order\": 1,\n      \"title\": \"游戏化概念与理论基础\",\n      \"nodeLabel\": \"游戏化概念与理论\",\n      \"shortSummary\": \"游戏化定义、心流及实用-享乐框架\",\n      \"detailSummary\": \"游戏化是在非游戏语境中使用游戏设计元素。心流理论揭示当能力与挑战平衡、目标清晰、反馈及时时的沉浸状态。实用-享乐框架区分实用质量与享乐质量，后者涉及身份认同与意义获得。\",\n      \"why\": \"理解游戏化定义和基础理论，能辨别其本质，为后续设计方法奠定基础。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit-1\",\n        \"blockIds\": [\"p-013\", \"p-014\", \"p-016\"]\n      }\n    },\n    {\n      \"id\": \"unit-2\",\n      \"order\": 2,\n      \"title\": \"DMC游戏元素金字塔模型\",\n      \"nodeLabel\": \"DMC模型结构\",\n      \"shortSummary\": \"动力、机制、组件三层金字塔\",\n      \"detailSummary\": \"DMC模型将游戏化元素分为动力、机制、组件三层。动力层界定整体体验（约束、情感、叙事）；机制层组织规则（挑战、反馈、奖励）；组件层是可视元素（徽章、排行榜）。三层从抽象到具体构成可持续参与循环。\",\n      \"why\": \"DMC模型是结构化设计工具，帮助理解不同层次作用，指导游戏化设计实践。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit-2\",\n        \"blockIds\": [\"p-020\"]\n      }\n    },\n    {\n      \"id\": \"unit-3\",\n      \"order\": 3,\n      \"title\": \"阶段性目标设定策略\",\n      \"nodeLabel\": \"阶段性目标设定\",\n      \"shortSummary\": \"用里程碑分解长期目标\",\n      \"detailSummary\": \"将长期目标拆解为具体、可量化的阶段性目标，使用户每次行动感知进展，获得正向强化。案例：专注森林以树木生长表示专注时长；无聊猿通过独立活动提升留存。阶段性目标重构时间感知，培养行为习惯。\",\n      \"why\": \"掌握此方法能设计出激励持续参与的任务体系，避免反馈周期过长导致动机衰减。\",\n      \"sourceAnchor\": {\n        \"id\": \"anchor-unit-3\",\n        \"block",
+      "usage": {
+        "prompt_tokens": 10146,
+        "completion_tokens": 2600,
+        "total_tokens": 12746,
+        "prompt_cache_hit_tokens": 10112,
+        "prompt_cache_miss_tokens": 34
+      }
+    }
+  ],
+  "failure": {
+    "failedStage": "v2_reviewPathPlan",
+    "failureReason": "模型返回内容不是可解析 JSON，请重试。",
+    "retryable": true,
+    "modelStage": "reviewPathPlan",
+    "retryAttempts": 3,
+    "issues": [],
+    "errors": [],
+    "diagnostics": []
+  }
+}
