@@ -351,7 +351,7 @@ struct V2MultipleChoiceQuestionCard: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 Text(question.prompt)
-                    .font(.system(size: 18, weight: .regular, design: .default))
+                    .font(.system(size: 18, weight: .semibold, design: .default))
                     .foregroundStyle(Color(hex: 0x1F1B12))
                     .lineSpacing(8)
                     .tracking(-0.24)

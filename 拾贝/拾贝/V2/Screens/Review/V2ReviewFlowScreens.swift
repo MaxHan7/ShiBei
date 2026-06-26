@@ -536,7 +536,7 @@ private struct V2MatchingPromptCard: View {
 
     var body: some View {
         Text(prompt)
-            .font(.system(size: 16, weight: .regular))
+            .font(.system(size: 16, weight: .semibold))
             .foregroundStyle(Color(hex: 0x1F1B12))
             .tracking(-0.24)
             .lineSpacing(7)
