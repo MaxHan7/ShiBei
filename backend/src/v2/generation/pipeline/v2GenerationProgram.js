@@ -999,6 +999,8 @@ function buildDeterministicSourceMap(article) {
       type: article.sourceType || "article",
       title: article.title || article.sourceTitle || "",
       author: article.author || article.sourceAccount || "",
+      account: article.sourceAccount || article.author || "",
+      accountOrDomain: article.sourceAccount || article.author || "",
       url: article.url || article.sourceUrl || ""
     },
     blocks

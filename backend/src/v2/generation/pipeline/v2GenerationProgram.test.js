@@ -60,6 +60,9 @@ test("calls scoped MC unit batches with only current unit briefs and source cont
     now: "2026-06-21T00:00:00.000Z"
   });
 
+  assert.equal(reviewPath.source.author, "MetaTown");
+  assert.equal(reviewPath.source.account, "MetaTown");
+  assert.equal(reviewPath.source.accountOrDomain, "MetaTown");
   assert.equal(captured.unitKnowledgeMap.length, 2);
   assert.deepEqual(captured.unitKnowledgeMap.map((payload) => payload.plan.units.length), [1, 1]);
   assert.deepEqual(

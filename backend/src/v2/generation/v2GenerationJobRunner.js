@@ -187,6 +187,7 @@ async function resolveV2QueuedGenerationInput(job, input, services) {
       type: source.sourceType || input.sourceType,
       title: source.sourceTitle || input.sourceTitle || input.title || "",
       url: source.sourceUrl || input.sourceUrl || "",
+      author: source.sourceAccount || input.sourceAccount || input.author || "",
       account: source.sourceAccount || input.sourceAccount || "",
       accountOrDomain: source.sourceAccount || input.sourceAccount || "",
       rawInput: input.sourceUrl || input.rawText || "",

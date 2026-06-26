@@ -1078,7 +1078,7 @@ struct V2ChapterDetailView: View {
 
                         V2ChapterDetailKnowledgeCard(
                             count: chapter.units.count,
-                            units: Array(chapter.units.prefix(4)),
+                            units: chapter.units,
                             onStartReview: onContinue
                         )
                     }
@@ -1341,10 +1341,6 @@ private struct V2ChapterDetailKnowledgeCard: View {
     @State private var expandedUnitID: String?
     private let contentLeading: CGFloat = 24
 
-    private var visibleUnits: [V2ReviewUnitData] {
-        Array(units.prefix(4))
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center, spacing: 7) {
@@ -1371,7 +1367,7 @@ private struct V2ChapterDetailKnowledgeCard: View {
             .padding(.top, 18)
 
             VStack(spacing: 10) {
-                ForEach(Array(visibleUnits.enumerated()), id: \.element.id) { index, unit in
+                ForEach(Array(units.enumerated()), id: \.element.id) { index, unit in
                     VStack(alignment: .leading, spacing: 8) {
                         V2ChapterDetailKnowledgeRow(
                             index: index + 1,

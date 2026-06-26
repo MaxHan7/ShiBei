@@ -752,11 +752,13 @@ function normalizeChapterSource(chapter, chapterId) {
   const type = normalizeSourceType(source.type || chapter.sourceType);
   const rawInput = toStringValue(source.rawInput || source.rawText || chapter.rawInput || chapter.sourceText || "");
   const extractedText = toStringValue(source.extractedText || source.cleanedText || chapter.extractedText || rawInput);
-  const accountOrDomain = toStringValue(source.accountOrDomain || source.account || chapter.sourceAccount || chapter.source_account_or_platform || "");
+  const author = toStringValue(source.author || source.publisher || source.accountOrDomain || source.account || chapter.sourceAccount || chapter.source_account_or_platform || "");
+  const accountOrDomain = toStringValue(source.accountOrDomain || source.account || source.author || source.publisher || chapter.sourceAccount || chapter.source_account_or_platform || "");
   return {
     type,
     title: toStringValue(source.title || chapter.sourceTitle || chapter.title || (type === "text" ? "粘贴文字" : "未命名来源")),
     url: toStringValue(source.url || chapter.sourceUrl || ""),
+    author,
     accountOrDomain,
     rawInput,
     extractedText,

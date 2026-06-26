@@ -87,6 +87,9 @@ test("extracts article links before running V2 generation", async () => {
   assert.equal(modelInput.sourceType, "text");
   assert.equal(modelInput.originalSourceType, "article_link");
   assert.equal(modelInput.sourceTitle, "提取后的标题");
+  assert.equal(modelInput.source.author, "作者");
+  assert.equal(modelInput.source.account, "作者");
+  assert.equal(modelInput.source.accountOrDomain, "作者");
   assert.match(modelInput.rawText, /提取后的正文内容/);
   assert.equal(chapters.get("chapter-1").source.url, "https://mp.weixin.qq.com/s/example");
   assert.equal(
