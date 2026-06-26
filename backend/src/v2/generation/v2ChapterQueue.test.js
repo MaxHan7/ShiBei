@@ -25,7 +25,7 @@ test("builds pending V2 chapter with user-facing accepted progress", () => {
   assert.equal(chapter.generationProgress.status, "queued");
   assert.equal(chapter.generationProgress.stage, "accepted");
   assert.equal(chapter.generationProgress.stageGroup, "intake");
-  assert.equal(chapter.generationProgress.displayText, "已收到文章，准备生成");
+  assert.equal(chapter.generationProgress.displayText, "准备生成");
   assert.equal(chapter.generationProgress.userVisible, true);
 });
 
@@ -71,7 +71,7 @@ test("reuses existing pending V2 generation job", async () => {
     ["chapter-existing", {
       id: "chapter-existing",
       status: "submitted",
-      generationProgress: { status: "queued", displayText: "已收到文章，准备生成" }
+      generationProgress: { status: "queued", displayText: "准备生成" }
     }]
   ]);
   const jobs = new Map([

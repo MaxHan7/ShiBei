@@ -22,7 +22,7 @@ export const V2_GENERATION_STAGE = Object.freeze({
 
 const STAGE_COPY = {
   [V2_GENERATION_STAGE.ACCEPTED]: {
-    displayText: "已收到文章，准备生成",
+    displayText: "准备生成",
     stageGroup: "intake",
     progress: 0.03
   },
@@ -32,37 +32,37 @@ const STAGE_COPY = {
     progress: 0.1
   },
   [V2_GENERATION_STAGE.PLANNING_REVIEW_PATH]: {
-    displayText: "正在梳理文章结构",
+    displayText: "正在分析文章",
     stageGroup: "planning",
     progress: 0.22
   },
   [V2_GENERATION_STAGE.MAPPING_KNOWLEDGE]: {
-    displayText: "正在总结知识点",
+    displayText: "正在整理知识点",
     stageGroup: "knowledge",
     progress: 0.42
   },
   [V2_GENERATION_STAGE.PLANNING_PRACTICE]: {
-    displayText: "正在规划复习题",
+    displayText: "正在设计练习",
     stageGroup: "practice",
     progress: 0.58
   },
   [V2_GENERATION_STAGE.GENERATING_QUESTIONS]: {
-    displayText: "正在生成复习题",
+    displayText: "正在生成题目",
     stageGroup: "questions",
     progress: 0.76
   },
   [V2_GENERATION_STAGE.GENERATING_UNIT_COPY]: {
-    displayText: "正在整理单元总结",
+    displayText: "正在整理结果",
     stageGroup: "copy",
     progress: 0.9
   },
   [V2_GENERATION_STAGE.FINALIZING]: {
-    displayText: "正在保存复习内容",
+    displayText: "正在整理结果",
     stageGroup: "saving",
     progress: 0.96
   },
   [V2_GENERATION_STAGE.RETRY_WAIT]: {
-    displayText: "生成遇到临时问题，正在重试",
+    displayText: "正在重试生成",
     stageGroup: "retry",
     progress: null
   },
@@ -72,7 +72,7 @@ const STAGE_COPY = {
     progress: 1
   },
   [V2_GENERATION_STAGE.FAILED]: {
-    displayText: "生成失败，请稍后重试",
+    displayText: "生成失败",
     stageGroup: "failed",
     progress: null
   }
@@ -119,14 +119,13 @@ export function buildV2GenerationProgress({
     stageGroup: "unknown",
     progress: null
   };
-  const unitLabel = buildUnitProgressLabel({ unitIndex, unitTitle });
-  const normalizedDisplayText = displayText || failureMessage || (
-    normalizedStage === V2_GENERATION_STAGE.GENERATING_QUESTIONS && unitLabel
-      ? `正在为${unitLabel}生成题目`
-      : normalizedStage === V2_GENERATION_STAGE.GENERATING_UNIT_COPY && unitLabel
-        ? `正在整理${unitLabel}的总结`
-        : copy.displayText
-  );
+  const normalizedDisplayText = normalizeProgressDisplayText({
+    status,
+    stage: normalizedStage,
+    displayText,
+    failureMessage,
+    fallbackText: copy.displayText
+  });
 
   return {
     jobId: String(jobId || ""),
@@ -162,4 +161,28 @@ export function buildUnitProgressLabel({ unitIndex = null, unitTitle = "" } = {}
   const index = Number(unitIndex);
   if (Number.isFinite(index) && index >= 0) return `单元${index + 1}`;
   return "";
+}
+
+function normalizeProgressDisplayText({
+  status,
+  stage,
+  displayText = "",
+  failureMessage = "",
+  fallbackText = ""
+} = {}) {
+  if (status === V2_GENERATION_STATUS.FAILED) {
+    return truncateDisplayText(failureMessage || displayText || fallbackText || "生成失败", 12);
+  }
+  if (status === V2_GENERATION_STATUS.COMPLETED) return "生成完成";
+  if (stage === V2_GENERATION_STAGE.RETRY_WAIT || status === V2_GENERATION_STATUS.RETRYING) {
+    return "正在重试生成";
+  }
+  return truncateDisplayText(fallbackText || displayText || "正在生成", 12);
+}
+
+function truncateDisplayText(text, maxCharacters) {
+  const value = String(text || "").trim();
+  if (!value) return "";
+  const chars = Array.from(value);
+  return chars.length <= maxCharacters ? value : `${chars.slice(0, maxCharacters).join("")}...`;
 }

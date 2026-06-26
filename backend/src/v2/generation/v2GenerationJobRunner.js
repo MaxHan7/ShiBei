@@ -48,6 +48,25 @@ export async function runV2GenerationQueuedJob(job, deps = {}) {
     input: queuedInput,
     services
   });
+  const latest = await services.getChapter(job.deviceId, job.chapterId);
+  if (existing && !latest) {
+    await services.failGenerationJob(job.deviceId, job.id, {
+      status: "cancelled",
+      currentStage: "cancelled",
+      errorMessage: "章节已删除，生成任务已取消。",
+      retry: false,
+      retryDelayMs: 0
+    });
+    return {
+      status: "cancelled",
+      displayStatusText: "已取消",
+      failedStage: "cancelled",
+      failureReason: "章节已删除，生成任务已取消。",
+      retryable: false,
+      canRetry: false,
+      retryDelayMs: 0
+    };
+  }
 
   if (result.status === "completed") {
     const generationProgress =

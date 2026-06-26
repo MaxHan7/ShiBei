@@ -996,8 +996,26 @@ struct V2GeneratingChapterDetailCard: View {
     let progress: CGFloat
     let statusText: String
     let isCompleted: Bool
+    let isFailed: Bool
+    let failureReason: String
     let onSource: () -> Void
     let onOpenChapter: () -> Void
+    let onDelete: () -> Void
+
+    private var accentColor: Color {
+        isFailed ? Color(hex: 0xF69582) : Color(hex: 0xADD3FF)
+    }
+
+    private var cardTitle: String {
+        isFailed ? "章节生成失败" : "章节正在生成"
+    }
+
+    private var detailText: String {
+        if isFailed {
+            return failureReason.isEmpty ? "生成失败，请删除后重新上传。" : failureReason
+        }
+        return statusText
+    }
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -1005,29 +1023,40 @@ struct V2GeneratingChapterDetailCard: View {
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
 
-            V2GeneratingClockBadge()
-                .frame(width: 34, height: 34)
-                .offset(x: 23, y: 21)
+            Group {
+                if isFailed {
+                    Image("V2NotificationFailureDetailIcon")
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFit()
+                } else {
+                    V2GeneratingClockBadge()
+                }
+            }
+            .frame(width: 34, height: 34)
+            .offset(x: 23, y: 21)
 
-            Text("章节正在生成")
+            Text(cardTitle)
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color(hex: 0x575757))
                 .frame(width: 136, height: 39, alignment: .leading)
                 .offset(x: 59, y: 18)
 
-            V2GeneratingSourceLinkChip(action: onSource)
+            V2GeneratingSourceLinkChip(accent: accentColor, action: onSource)
                 .offset(x: 201, y: 20)
 
-            Text(statusText)
+            Text(detailText)
                 .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(Color(hex: 0x736D78))
-                .lineLimit(1)
-                .frame(width: 283, height: 27, alignment: .leading)
+                .lineLimit(isFailed ? 2 : 1)
+                .frame(width: 283, height: isFailed ? 58 : 27, alignment: .leading)
                 .offset(x: 21, y: 98)
 
-            V2GeneratingProgressBar(progress: progress)
-                .frame(width: 280, height: 43)
-                .offset(x: 21, y: 146)
+            if !isFailed {
+                V2GeneratingProgressBar(progress: progress)
+                    .frame(width: 280, height: 43)
+                    .offset(x: 21, y: 146)
+            }
 
             if isCompleted {
                 Button(action: onOpenChapter) {
@@ -1043,9 +1072,23 @@ struct V2GeneratingChapterDetailCard: View {
                 }
                 .buttonStyle(.plain)
                 .offset(x: 74.5, y: 184)
+            } else {
+                Button(action: onDelete) {
+                    Text(isFailed ? "删除章节" : "取消生成")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(isFailed ? .white : Color(hex: 0x6E7378))
+                        .frame(width: 180, height: 36)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(isFailed ? Color(hex: 0xF69582) : V2Color.surfaceCream)
+                                .shadow(color: accentColor.opacity(0.24), radius: 3, x: 0, y: 4)
+                        )
+                }
+                .buttonStyle(.plain)
+                .offset(x: 74.5, y: 184)
             }
         }
-        .frame(width: V2Layout.contentMaxWidth, height: isCompleted ? 243 : 223)
+        .frame(width: V2Layout.contentMaxWidth, height: 243)
     }
 }
 
@@ -1101,6 +1144,7 @@ private struct V2GeneratingClockBadge: View {
 }
 
 private struct V2GeneratingSourceLinkChip: View {
+    var accent: Color = Color(hex: 0xADD3FF)
     let action: () -> Void
 
     var body: some View {
@@ -1108,7 +1152,7 @@ private struct V2GeneratingSourceLinkChip: View {
             HStack(spacing: 6) {
                 ZStack {
                     Circle()
-                        .fill(Color(hex: 0xADD3FF))
+                        .fill(accent)
                         .frame(width: 23, height: 23)
 
                     V2GeneratingLinkIcon()
@@ -1130,7 +1174,7 @@ private struct V2GeneratingSourceLinkChip: View {
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(V2Color.surfaceCream)
-                    .shadow(color: Color(hex: 0xADD3FF).opacity(0.2), radius: 2, x: 0, y: 4)
+                    .shadow(color: accent.opacity(0.2), radius: 2, x: 0, y: 4)
             )
         }
         .buttonStyle(.plain)

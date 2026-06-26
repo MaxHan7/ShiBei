@@ -49,8 +49,10 @@ struct V2MaterialsView: View {
     @Binding var selectedTab: V2HomeTab
     let usesMockData: Bool
     let backendChapters: [V2BackendChapter]
+    let generatedChapterCount: Int
     let showsGeneratingChapterCard: Bool
     let generatingChapterTitle: String
+    let generatingChapterStatus: V2ChapterReviewStatus
     let generatingProgressText: String
     let generatedChapter: V2ReviewChapterData?
     let openGeneratingChapter: (String?) -> Void
@@ -60,7 +62,7 @@ struct V2MaterialsView: View {
         V2TabScaffold(selectedTab: $selectedTab, title: "全部章节") {
             VStack(spacing: 16) {
                 ZStack(alignment: .topTrailing) {
-                    V2GeneratedChaptersSummaryCard(count: 12)
+                    V2GeneratedChaptersSummaryCard(count: generatedChapterCount)
                         .padding(.top, 54)
 
                     Image("V2MaterialsMascot")
@@ -80,7 +82,7 @@ struct V2MaterialsView: View {
                     } label: {
                         V2ChapterCard(
                             title: generatingChapterTitle,
-                            status: .generating,
+                            status: generatingChapterStatus,
                             source: "网页文章",
                             knowledgeCount: 0,
                             questionCount: 0,
@@ -93,7 +95,7 @@ struct V2MaterialsView: View {
 
                 ForEach(backendChapters.filter { !showsGeneratingChapterCard || $0.id != backendChapters.first?.id }) { chapter in
                     Button {
-                        if chapter.isV2GenerationPending {
+                        if chapter.isV2GenerationPending || chapter.isV2GenerationFailed {
                             openGeneratingChapter(chapter.id)
                         } else {
                             openChapter(chapter.id)
@@ -150,13 +152,6 @@ struct V2MaterialsView: View {
                         )
                     }
                     .buttonStyle(.plain)
-                } else if !showsGeneratingChapterCard && backendChapters.isEmpty && generatedChapter == nil {
-                    V2InfoCard {
-                        Text("还没有生成章节")
-                            .font(V2Typography.body)
-                            .foregroundStyle(V2Color.textSecondary)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                    }
                 }
             }
         }
@@ -165,10 +160,17 @@ struct V2MaterialsView: View {
 
 private extension V2BackendChapter {
     var isV2GenerationPending: Bool {
-        status != "completed"
+        status != "completed" && !isV2GenerationFailed
+    }
+
+    var isV2GenerationFailed: Bool {
+        status == "failed_generation" || status == "failed_input" || progress?.status == "failed"
     }
 
     var v2ListStatus: V2ChapterReviewStatus {
+        if isV2GenerationFailed {
+            return .failed
+        }
         if isV2GenerationPending {
             return .generating
         }
@@ -186,9 +188,12 @@ struct V2GeneratingChapterDetailView: View {
     let progress: Double
     let statusText: String
     let isCompleted: Bool
+    let isFailed: Bool
+    let failureReason: String
     let onBack: () -> Void
     let onSource: () -> Void
     let onOpenChapter: () -> Void
+    let onDelete: () -> Void
 
     var body: some View {
         V2FlowScreen(
@@ -212,8 +217,11 @@ struct V2GeneratingChapterDetailView: View {
                         progress: CGFloat(progress),
                         statusText: statusText,
                         isCompleted: isCompleted,
+                        isFailed: isFailed,
+                        failureReason: failureReason,
                         onSource: onSource,
-                        onOpenChapter: onOpenChapter
+                        onOpenChapter: onOpenChapter,
+                        onDelete: onDelete
                     )
                     .position(x: geometry.size.width / 2, y: 432.5)
                     .zIndex(2)
@@ -248,7 +256,7 @@ struct V2GeneratingChapterDetailView: View {
 
 struct V2UploadView: View {
     @Binding var selectedTab: V2HomeTab
-    let isGenerating: Bool
+    let isSubmittingGeneration: Bool
     let onGenerate: (String) -> Void
     @State private var sourceText = ""
     @State private var validationMessage = ""
@@ -274,10 +282,10 @@ struct V2UploadView: View {
                         .foregroundStyle(V2Color.primaryAction)
 
                     V2PrimaryActionButton(
-                        title: isGenerating ? "正在生成中" : "开始生成",
-                        tone: isGenerating ? .disabled : .normal
+                        title: isSubmittingGeneration ? "正在提交" : "开始生成",
+                        tone: isSubmittingGeneration ? .disabled : .normal
                     ) {
-                        guard !isGenerating else {
+                        guard !isSubmittingGeneration else {
                             return
                         }
                         let trimmed = sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -570,15 +578,6 @@ struct V2NotesView: View {
                         .offset(y: V2NotesPageMetrics.cardY(for: index))
                         .zIndex(2)
                     }
-                } else {
-                    V2InfoCard {
-                        Text("还没有收藏题目")
-                            .font(V2Typography.body)
-                            .foregroundStyle(V2Color.textSecondary)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                    }
-                    .offset(y: V2NotesPageMetrics.firstCardY)
-                    .zIndex(2)
                 }
             }
             .frame(width: V2Layout.contentMaxWidth, height: V2NotesPageMetrics.contentHeight, alignment: .topLeading)
