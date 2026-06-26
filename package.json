@@ -6,7 +6,8 @@
   "scripts": {
     "build": "npm --prefix backend install && npm --prefix backend run build",
     "start": "npm --prefix backend start",
-    "check": "npm --prefix backend run check",
+    "check": "npm --prefix backend run check && node --check tools/ios-production-guard.mjs && node tools/ios-production-guard.mjs",
+    "check:ios-production": "node tools/ios-production-guard.mjs",
     "iteration:log": "node tools/iteration-log/create-entry.mjs",
     "blog:serve": "node tools/iteration-log/serve-blog.mjs"
   },

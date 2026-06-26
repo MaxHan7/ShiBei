@@ -129,11 +129,22 @@ Exit criteria:
 
 Purpose: Move Release from legacy UI to V2 only after backend and real data gates pass.
 
+- [ ] Run the current Release/mock safety guard:
+
+  ```bash
+  npm run check:ios-production
+  ```
+
 - [ ] Release entry in `ContentView` flips to V2.
 - [ ] Legacy root remains available only through a deliberate debug/internal fallback if still needed.
 - [ ] Release cannot enable mock/fixture switch by AppStorage leftovers.
 - [ ] Release base URL is HTTPS production URL.
 - [ ] Debug still supports launch-argument API override for local/phone testing.
+- [ ] After flipping Release to V2, run the strict guard:
+
+  ```bash
+  npm run check:ios-production -- --require-v2-release
+  ```
 
 Exit criteria:
 
@@ -387,4 +398,26 @@ Interpretation:
 
     ```bash
     npm --prefix backend run gate:production -- --base-url https://shibei-production.up.railway.app --smoke
+    ```
+
+### 2026-06-26: iOS production guard checkpoint
+
+- Added root command:
+
+  ```bash
+  npm run check:ios-production
+  ```
+
+- The guard checks:
+  - Release `APIClient.defaultBaseURL` stays on `https://shibei-production.up.railway.app`;
+  - API base URL launch arguments / env overrides stay DEBUG-only;
+  - V2 mock/fixture toggle is disabled in Release;
+  - old settings data-source and mock-scenario controls stay DEBUG-only;
+  - production bundle id and production APNS settings are present.
+- Current expected state:
+  - Release still uses the legacy root as a deliberate safety gate;
+  - after backend production gate and phone E2E pass, flip Release to V2 and rerun:
+
+    ```bash
+    npm run check:ios-production -- --require-v2-release
     ```
