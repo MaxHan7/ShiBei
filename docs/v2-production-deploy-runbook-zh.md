@@ -12,7 +12,7 @@
 - 候选 PR：`https://github.com/MaxHan7/ShiBei/pull/3`
 - 当前生产 gate 预期失败点：production health 里缺少 V2 capability flags。
 - 当前结论：本地/root backend 已有 V2 能力；线上 production service 还没有部署到这份 V2-capable commit。
-- 最近一次复核：2026-06-26，在本地候选 commit `3441900` 后运行无副作用 production gate，结果仍是 health/database/queue/APNS 通过，V2 capability flags 失败。
+- 最近一次复核：2026-06-26，在候选 commit `7581069` 后运行无副作用 production gate，结果仍是 health/database/queue/APNS 通过，V2 capability flags 失败。该 commit 的 GitHub Actions `V2 Production Readiness` 已通过。
 
 ## 不允许跳过的原则
 
@@ -66,7 +66,7 @@
 
 当前最新候选提交验证通过的 CI run：
 
-- `https://github.com/MaxHan7/ShiBei/actions/runs/28213637178`
+- `https://github.com/MaxHan7/ShiBei/actions/runs/28214014827`
 
 备注：CI 曾在 GitHub runner Xcode 16.4 上暴露通知页 SwiftUI body 类型检查失败；候选提交已拆分该布局并通过 Debug/Release 远端编译。
 
