@@ -70,6 +70,8 @@
 
 备注：CI 曾在 GitHub runner Xcode 16.4 上暴露通知页 SwiftUI body 类型检查失败；候选提交已拆分该布局并通过 Debug/Release 远端编译。
 
+iOS readiness CI 固定使用 `macos-15`，避免 `macos-latest` 迁移到 macOS 26 / Xcode 26 时在上线前引入新的编译环境变量。需要迁移 Xcode 26 时应单独建 checkpoint 验证。
+
 CI 通过后，再在本地或 release 机器上跑以下人工确认项：
 
 ```bash
