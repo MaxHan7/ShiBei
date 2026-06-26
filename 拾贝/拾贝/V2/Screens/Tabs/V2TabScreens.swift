@@ -657,67 +657,12 @@ struct V2NotificationView: View {
             title: "通知",
             onBack: onBack
         ) {
-            GeometryReader { geometry in
-                ZStack(alignment: .topLeading) {
-                    notificationDecoration(
-                        name: "V2BgDecoLeftHillPlant",
-                        width: 109,
-                        x: -8,
-                        y: 222
-                    )
-
-                    notificationDecoration(
-                        name: "V2BgDecoLeftHillPlant",
-                        width: 109,
-                        x: -6,
-                        y: 588
-                    )
-
-                    notificationDecoration(
-                        name: "V2BgDecoRightHillPlant",
-                        width: 104,
-                        x: 98,
-                        y: 213
-                    )
-
-                    notificationDecoration(
-                        name: "V2BgDecoSmallPlantCluster",
-                        width: 60,
-                        x: geometry.size.width - 53,
-                        y: 427
-                    )
-
-                    VStack(spacing: 22) {
-                        V2NotificationSummaryBanner(unreadCount: unreadCount)
-
-                        if displayNotifications.isEmpty {
-                            V2InfoCard {
-                                Text("暂无通知")
-                                    .font(V2Typography.body)
-                                    .foregroundStyle(V2Color.textSecondary)
-                                    .frame(maxWidth: .infinity, alignment: .center)
-                            }
-                        } else {
-                            ForEach(displayNotifications) { notification in
-                                V2NotificationCard(
-                                    title: notification.title,
-                                    message: notification.body,
-                                    isSuccess: notification.type == .generationCompleted,
-                                    action: action(for: notification)
-                                )
-                            }
-                        }
-                    }
-                    .frame(width: V2Layout.contentMaxWidth)
-                    .position(
-                        x: geometry.size.width / 2,
-                        y: 36 + (82 + 22 + 108 * 2 + 22 * 2) / 2
-                    )
-                    .zIndex(3)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            }
-            .frame(height: 760)
+            V2NotificationScreenContent(
+                unreadCount: unreadCount,
+                notifications: displayNotifications,
+                onOpenSuccess: onOpenSuccess,
+                onOpenFailure: onOpenFailure
+            )
         }
     }
 
@@ -753,6 +698,68 @@ struct V2NotificationView: View {
         displayNotifications.filter { !$0.read }.count
     }
 
+}
+
+private struct V2NotificationScreenContent: View {
+    let unreadCount: Int
+    let notifications: [NotificationItem]
+    let onOpenSuccess: () -> Void
+    let onOpenFailure: () -> Void
+
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .topLeading) {
+                V2NotificationDecorations(width: geometry.size.width)
+
+                V2NotificationList(
+                    unreadCount: unreadCount,
+                    notifications: notifications,
+                    onOpenSuccess: onOpenSuccess,
+                    onOpenFailure: onOpenFailure
+                )
+                .frame(width: V2Layout.contentMaxWidth)
+                .position(
+                    x: geometry.size.width / 2,
+                    y: 36 + (82 + 22 + 108 * 2 + 22 * 2) / 2
+                )
+                .zIndex(3)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        }
+        .frame(height: 760)
+    }
+}
+
+private struct V2NotificationList: View {
+    let unreadCount: Int
+    let notifications: [NotificationItem]
+    let onOpenSuccess: () -> Void
+    let onOpenFailure: () -> Void
+
+    var body: some View {
+        VStack(spacing: 22) {
+            V2NotificationSummaryBanner(unreadCount: unreadCount)
+
+            if notifications.isEmpty {
+                V2InfoCard {
+                    Text("暂无通知")
+                        .font(V2Typography.body)
+                        .foregroundStyle(V2Color.textSecondary)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
+            } else {
+                ForEach(notifications) { notification in
+                    V2NotificationCard(
+                        title: notification.title,
+                        message: notification.body,
+                        isSuccess: notification.type == .generationCompleted,
+                        action: action(for: notification)
+                    )
+                }
+            }
+        }
+    }
+
     private func action(for notification: NotificationItem) -> () -> Void {
         switch notification.type {
         case .generationCompleted:
@@ -761,8 +768,44 @@ struct V2NotificationView: View {
             return onOpenFailure
         }
     }
+}
 
-    private func notificationDecoration(
+private struct V2NotificationDecorations: View {
+    let width: CGFloat
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            decoration(
+                name: "V2BgDecoLeftHillPlant",
+                width: 109,
+                x: -8,
+                y: 222
+            )
+
+            decoration(
+                name: "V2BgDecoLeftHillPlant",
+                width: 109,
+                x: -6,
+                y: 588
+            )
+
+            decoration(
+                name: "V2BgDecoRightHillPlant",
+                width: 104,
+                x: 98,
+                y: 213
+            )
+
+            decoration(
+                name: "V2BgDecoSmallPlantCluster",
+                width: 60,
+                x: width - 53,
+                y: 427
+            )
+        }
+    }
+
+    private func decoration(
         name: String,
         width: CGFloat,
         x: CGFloat,

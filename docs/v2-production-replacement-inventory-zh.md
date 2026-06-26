@@ -5,11 +5,13 @@
 ## 当前仓库节点
 
 - 当前分支：`codex/shibei-v2-isolated-build`
-- 当前提交：`0322bc62ddf8aedbc354af4ddbb178f1bb5a4752`
+- 本次盘点基线提交：`fa6ead137bcf76c48ed5efbb46998e34d24ad3e2`（候选分支最新提交以 PR 为准）
 - 最近 checkpoint：
-  - `0322bc6 chore: add v2 production readiness gate`
-  - `1cba6b3 docs: link v2 production replacement draft pr`
-  - `15090a1 chore: expose v2 backend capabilities in health`
+  - `fa6ead1 docs: record v2 readiness ci pass`
+  - `84dd7b4 ci: add v2 production readiness workflow`
+  - `ebf5a87 docs: record production gate recheck`
+  - `3441900 chore: add backend route contract gate`
+  - `12f7cd6 chore: add ios signing release gate`
 
 ## 当前线上服务
 
@@ -45,6 +47,7 @@
 - 线上已经使用 PostgreSQL。
 - 线上 APNS 已配置 production，bundle id 是 `com.maxhan.shibei`。
 - 线上当前仍未暴露 V2 capability flags；`gate:production` 会在 V2 capability 检查处失败。
+- 最近一次无副作用 production gate 复核结果：health/database/queue/APNS 通过，V2 capability flags 失败。
 - 替换前必须记录 Railway 当前 deployment id 和数据库备份位置；当前本地没有 Railway CLI 登录态，不能直接确认或触发 Railway 生产部署。
 
 ## 当前根目录生产 App
@@ -59,7 +62,9 @@
 结论：
 
 - 现有生产 App target 是正式用户升级路径。
-- V2 如果要直接替换 TestFlight/App Store 旧版，不能继续只使用 `com.maxhan.shibei.v2.dev`。
+- 当前 root iOS Debug 已用于 V2 真实数据开发/测试。
+- Release 仍暂留旧入口，这是上线前的安全 gate；只有 production backend gate 和手机 E2E 通过后，才允许把 Release 默认入口切到 V2。
+- `npm run check:ios-production` 当前通过；Release flip 后必须再运行 `npm run check:ios-production -- --require-v2-release`。
 
 ## 当前 V2 实验 App
 
@@ -94,7 +99,14 @@
 
 - 当前 Railway 默认从根目录部署，不会自动部署 `experiments/shibei-v2/backend`。
 - V2 后端能力已经迁入根 `backend`，推荐继续沿用当前 Railway 服务结构，不切换到 `experiments/shibei-v2/backend`。
-- 当前替换路径的核心是把目标 Railway service 部署到当前根 backend commit，而不是更改服务外壳。
+- 当前替换路径已经明确：把目标 Railway service 部署到当前根 backend commit，而不是更改服务外壳或部署实验 backend。
+- 当前本地/PR 已新增 route contract gate：
+
+```bash
+npm --prefix backend run gate:routes
+```
+
+- route gate 已纳入 `npm --prefix backend run check` 和 root `npm run check`。
 - 部署方式必须由有 Railway 权限的人执行或授权：
   1. 如果 Railway service 连接的是 `master` 分支：合并 PR 后自动部署，或在 Railway 面板执行 Deploy Latest Commit。
   2. 如果 Railway service 支持手动部署当前分支/commit：在 Railway 面板选择本 PR/commit 部署。
@@ -109,43 +121,54 @@ npm --prefix backend run gate:production -- --base-url https://shibei-production
 
 ## 已验证的 V2 基线
 
-- `npm --prefix experiments/shibei-v2/backend run check` 通过。
-- `xcodebuild -project experiments/shibei-v2/ios/拾贝.xcodeproj -scheme 拾贝 -destination 'platform=iOS Simulator,name=iPhone 17' build` 通过。
-- 物理手机此前可安装 V2 dev App，并通过 launch argument 指向局域网后端。
+- Root `npm run check` 通过：
+  - backend 175 tests 通过；
+  - route contract gate 通过；
+  - iOS production guard 通过。
+- Root iOS Debug simulator build 通过：
+
+```bash
+xcodebuild -project "拾贝/拾贝.xcodeproj" -scheme "拾贝" -destination "generic/platform=iOS Simulator" -configuration Debug CODE_SIGNING_ALLOWED=NO build
+```
+
+- Root iOS Release simulator build 通过：
+
+```bash
+xcodebuild -project "拾贝/拾贝.xcodeproj" -scheme "拾贝" -destination "generic/platform=iOS Simulator" -configuration Release CODE_SIGNING_ALLOWED=NO build
+```
+
+- GitHub Actions `V2 Production Readiness` 首次验证通过：
+  - `https://github.com/MaxHan7/ShiBei/actions/runs/28213301846`
 
 ## 当前生产替换阻塞项
 
-1. **前端正式 target 未切换**
-   - V2 仍在 dev bundle。
-   - 正式用户升级必须使用 `com.maxhan.shibei`。
+1. **线上 Railway service 未部署到 V2-capable commit**
+   - 当前 production health 可用，但缺少 V2 capability flags。
+   - 不能运行 production smoke 或把手机 E2E 失败归因给客户端，直到该 gate 通过。
 
-2. **V2 production URL 未切换**
-   - V2 实验 App 仍默认本地 URL。
-   - Release 版本必须默认 HTTPS production URL。
+2. **生产数据库备份和恢复路径未记录**
+   - 线上是 Postgres。
+   - 替换前必须记录备份名称/快照时间和恢复方式。
 
-3. **后端替换路径未决**
-   - 需要决定 V2 后端是迁入根 `backend`，还是调整 Railway 同服务启动路径。
+3. **Release 默认入口尚未切到 V2**
+   - 这是故意保留的安全 gate。
+   - 只有 backend production gate、smoke、手机 E2E 通过后才允许 flip。
 
-4. **生产数据库备份和迁移演练未完成**
-   - 线上是 Postgres，替换前必须有备份和恢复路径。
+4. **端到端真实路径未完成**
+   - 至少需要完成：上传链接/文本 -> 生成中详情页 -> progress -> completed -> 复习 -> 查看原文 -> 返回状态保留 -> 收藏题目 -> 通知/失败处理。
 
-5. **Release mock/fixture 边界未完成总审**
-   - V2 Debug 有 mock/real 切换。
-   - Release 必须默认真实 cloud API，并隐藏开发态入口。
-   - 当前已新增 `npm run check:ios-production`，用于持续检查 Release/mock/debug 边界。
-
-6. **端到端真实路径未完成**
-   - 至少需要完成：上传链接/文本 -> 生成中详情页 -> progress -> completed -> 复习 -> 查看原文 -> 返回状态保留。
-
-7. **最终签名产物未验证**
+5. **最终签名产物未验证**
    - `xcodebuild -showBuildSettings` 的 Release 配置显示 APNS 为 production，但本地自动签名的 Release `.app` 当前仍是 development profile。
    - 当前已新增 `npm run check:ios-signing -- --app /path/to/拾贝.app`，最终 TestFlight/App Store 导出产物必须通过该检查。
 
 ## 下一步
 
-按 `docs/superpowers/plans/2026-06-26-v2-production-replacement-readiness.md` 执行：
+按 `docs/superpowers/plans/2026-06-26-v2-production-launch-standard.md` 和 `docs/v2-production-deploy-runbook-zh.md` 执行：
 
-1. 完成 Checkpoint 1：补齐 Railway deployment id、生产 env key 清单、数据库备份方式。
-2. 决定 backend replacement path。
-3. 决定 frontend replacement path。
-4. 再开始改 root production backend / root production iOS target。
+1. 由有 Railway 权限的操作者记录当前 deployment id、连接分支/autodeploy 行为和 DB 备份/恢复路径。
+2. 部署当前 V2-capable root backend commit 到目标 production service。
+3. 运行无副作用 production gate。
+4. gate 通过后运行 explicit production smoke。
+5. 完成手机 E2E。
+6. flip Release 默认入口到 V2，并运行 strict iOS production guard。
+7. 生成 TestFlight/App Store 导出产物并运行 `check:ios-signing`。
