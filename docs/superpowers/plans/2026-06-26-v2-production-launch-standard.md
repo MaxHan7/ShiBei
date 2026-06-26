@@ -187,6 +187,12 @@ Purpose: Make the actual replacement reversible.
 - [ ] Confirm database backup is available and restorable.
 - [ ] Confirm Railway environment variables required by V2 are set.
 - [ ] Confirm APNS production configuration for `com.maxhan.shibei`.
+- [ ] After creating the release candidate archive/export, verify the actual signed app:
+
+  ```bash
+  npm run check:ios-signing -- --app /path/to/拾贝.app
+  ```
+
 - [ ] Prepare rollback plan:
   - revert backend deployment to old commit/deployment,
   - restore DB if schema/data corruption occurs,
@@ -421,3 +427,20 @@ Interpretation:
     ```bash
     npm run check:ios-production -- --require-v2-release
     ```
+
+### 2026-06-26: iOS signing guard checkpoint
+
+- Build settings alone are not enough to prove production APNS. Current local automatic signing can produce a Release build whose build setting says `APS_ENVIRONMENT = production`, while the actual signed `.app` still contains a development provisioning profile.
+- Added release-candidate signing gate:
+
+  ```bash
+  npm run check:ios-signing -- --app /path/to/拾贝.app
+  ```
+
+- The signing guard checks the actual signed product:
+  - `CFBundleIdentifier == com.maxhan.shibei`;
+  - codesigned `aps-environment == production`;
+  - codesigned `get-task-allow == false`;
+  - embedded provisioning profile `aps-environment == production`;
+  - embedded provisioning profile `get-task-allow == false`.
+- Current local automatic signing output is expected to fail this guard because it uses a development profile. This is a launch blocker until the final TestFlight/App Store distribution export passes the guard.

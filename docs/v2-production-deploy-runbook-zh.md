@@ -60,11 +60,20 @@
 ```bash
 git status --short
 npm --prefix backend run check
+npm run check:ios-production
 xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic/platform=iOS Simulator' -configuration Debug build
 xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic/platform=iOS' -configuration Release build
 ```
 
 如果任何一项失败，停止上线。
+
+注意：generic Release build 只能证明代码能编译，不能证明 TestFlight/App Store 签名正确。创建 release candidate archive/export 后，还必须检查实际签名产物：
+
+```bash
+npm run check:ios-signing -- --app /path/to/拾贝.app
+```
+
+这个检查必须看到 production APNS，并且 `get-task-allow` 必须是 `false`。如果本机自动签出来的是 development profile，这一步会失败，不能发布。
 
 ## 部署方式
 

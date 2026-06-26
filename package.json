@@ -8,6 +8,7 @@
     "start": "npm --prefix backend start",
     "check": "npm --prefix backend run check && node --check tools/ios-production-guard.mjs && node tools/ios-production-guard.mjs",
     "check:ios-production": "node tools/ios-production-guard.mjs",
+    "check:ios-signing": "node tools/ios-signing-guard.mjs",
     "iteration:log": "node tools/iteration-log/create-entry.mjs",
     "blog:serve": "node tools/iteration-log/serve-blog.mjs"
   },

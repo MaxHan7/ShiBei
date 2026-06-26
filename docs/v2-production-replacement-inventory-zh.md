@@ -132,9 +132,14 @@ npm --prefix backend run gate:production -- --base-url https://shibei-production
 5. **Release mock/fixture 边界未完成总审**
    - V2 Debug 有 mock/real 切换。
    - Release 必须默认真实 cloud API，并隐藏开发态入口。
+   - 当前已新增 `npm run check:ios-production`，用于持续检查 Release/mock/debug 边界。
 
 6. **端到端真实路径未完成**
    - 至少需要完成：上传链接/文本 -> 生成中详情页 -> progress -> completed -> 复习 -> 查看原文 -> 返回状态保留。
+
+7. **最终签名产物未验证**
+   - `xcodebuild -showBuildSettings` 的 Release 配置显示 APNS 为 production，但本地自动签名的 Release `.app` 当前仍是 development profile。
+   - 当前已新增 `npm run check:ios-signing -- --app /path/to/拾贝.app`，最终 TestFlight/App Store 导出产物必须通过该检查。
 
 ## 下一步
 
