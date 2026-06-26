@@ -2,6 +2,7 @@ import SwiftUI
 import UserNotifications
 
 struct V2RootView: View {
+    @Environment(\.openURL) private var openURL
     @AppStorage("v2.hasRequestedGenerationNotificationPermission")
     private var hasRequestedGenerationNotificationPermission = false
     @AppStorage("v2.usesMockData")
@@ -24,6 +25,7 @@ struct V2RootView: View {
     @State private var generationErrorText = ""
     @State private var isSubmittingGeneration = false
     @State private var hasLoadedInitialBackendChapter = false
+    @State private var pendingOriginalSourceURLString = ""
 
     private let apiClient: APIClient
     private let allowsMockDataToggle: Bool
@@ -39,6 +41,10 @@ struct V2RootView: View {
 
     private var usesFixtures: Bool {
         allowsMockDataToggle && usesMockData
+    }
+
+    private var hasUnreadNotifications: Bool {
+        backendNotifications.contains { !$0.dismissed && !$0.read }
     }
 
     var body: some View {
@@ -80,6 +86,21 @@ struct V2RootView: View {
         } message: {
             Text("删除后，这个章节和它的生成任务都会被移除。")
         }
+        .onReceive(NotificationCenter.default.publisher(for: .shiBeiDidRegisterForRemoteNotifications)) { notification in
+            guard let token = notification.userInfo?["deviceToken"] as? String else { return }
+            Task {
+                await registerPushToken(token)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .shiBeiDidReceiveRemoteNotificationResponse)) { notification in
+            Task {
+                await openRemoteNotification(userInfo: notification.userInfo ?? [:])
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .shiBeiDidFailRemoteNotificationRegistration)) { notification in
+            let message = notification.userInfo?["message"] as? String ?? "无法注册系统通知"
+            generationErrorText = message
+        }
     }
 
     @ViewBuilder
@@ -98,6 +119,7 @@ struct V2RootView: View {
             V2HomeView(
                 data: activeHomeData,
                 selectedTab: $selectedTab,
+                showsUnreadNotificationBadge: hasUnreadNotifications,
                 onOpenNotifications: { pushRoute(.notifications) },
                 onOpenProfile: { pushRoute(.profile) },
                 onOpenChapterDetail: { pushRoute(.chapterDetail) },
@@ -146,16 +168,20 @@ struct V2RootView: View {
                 usesMockData: usesFixtures,
                 notifications: backendNotifications,
                 onBack: goBack,
-                onOpenSuccess: { pushRoute(.chapterDetail) },
-                onOpenFailure: { pushRoute(.generationFailureDetail) }
+                onOpenSuccess: { notification in
+                    openNotification(notification, route: .chapterDetail)
+                },
+                onOpenFailure: { notification in
+                    openNotification(notification, route: .generationFailureDetail)
+                }
             )
         case .generationFailureDetail:
             V2GenerationFailureDetailView(
                 title: "章节详情",
                 failureReason: activeGenerationFailureReason,
                 onBack: goBack,
-                onSource: openSource,
-                onRegenerate: showGeneratedChapterDetail
+                onSource: openOriginalSourceLink,
+                onDelete: { showsDeleteChapterConfirmation = true }
             )
         case .profile:
             V2ProfileView(
@@ -169,8 +195,8 @@ struct V2RootView: View {
                     title: "章节详情",
                     failureReason: activeGenerationFailureReason,
                     onBack: goBack,
-                    onSource: openSource,
-                    onRegenerate: showGeneratedChapterDetail
+                    onSource: openOriginalSourceLink,
+                    onDelete: { showsDeleteChapterConfirmation = true }
                 )
                 .id("generating-detail-failed")
             } else {
@@ -179,7 +205,7 @@ struct V2RootView: View {
                     statusText: generationDisplayText,
                     isCompleted: backendReviewChapter != nil,
                     onBack: goBack,
-                    onSource: openSource,
+                    onSource: openOriginalSourceLink,
                     onOpenChapter: { replaceRoute(.chapterDetail) },
                     onDelete: { showsDeleteChapterConfirmation = true }
                 )
@@ -191,7 +217,7 @@ struct V2RootView: View {
                     chapter: chapter,
                     onBack: goBack,
                     onContinue: continueFromChapterDetail,
-                    onSource: openSource
+                    onSource: openOriginalSourceLink
                 )
             } else {
                 V2MissingRouteView(onBack: goBack)
@@ -690,6 +716,13 @@ struct V2RootView: View {
         return reason
     }
 
+    private var canOpenActiveSource: Bool {
+        guard let activeChapter else {
+            return false
+        }
+        return !activeChapter.sourceBody.isEmpty
+    }
+
     private var usesBackendReviewChapter: Bool {
         !usesFixtures && backendReviewChapter != nil && backendChapter?.status == "completed"
     }
@@ -700,6 +733,10 @@ struct V2RootView: View {
 
     private func activeQuestion(unitID: String, questionID: String) -> V2ReviewQuestionData? {
         activeUnit(id: unitID)?.questions.first { $0.id == questionID }
+    }
+
+    private var originalSourceURLString: String {
+        backendChapter?.source?.url ?? activeChapter?.sourceURL ?? pendingOriginalSourceURLString
     }
 
     private func unitDisplayTitle(id: String) -> String? {
@@ -774,6 +811,7 @@ struct V2RootView: View {
         v2ReviewSession = nil
         questionInteractionStates.removeAll()
         generationErrorText = ""
+        pendingOriginalSourceURLString = URL(string: trimmed)?.scheme?.hasPrefix("http") == true ? trimmed : ""
         isSubmittingGeneration = true
         generationPollingTask?.cancel()
         let clientRequestId = "ios-v2-\(UUID().uuidString)"
@@ -820,6 +858,7 @@ struct V2RootView: View {
                         await MainActor.run {
                             generationPollingTask = nil
                         }
+                        await refreshBackendNotifications()
                         return
                     }
                 } catch {
@@ -898,7 +937,7 @@ struct V2RootView: View {
     }
 
     private func isFailedGenerationStatus(_ status: String) -> Bool {
-        status == "failed_generation" || status == "failed_input" || status == "failed"
+        status == "failed_generation" || status == "failed_input" || status == "failed_questions" || status == "failed"
     }
 
     @MainActor
@@ -976,7 +1015,105 @@ struct V2RootView: View {
         }
     }
 
+    @MainActor
+    private func refreshBackendNotifications() async {
+        guard !usesFixtures else { return }
+        backendNotifications = (try? await apiClient.fetchNotifications()) ?? backendNotifications
+    }
+
+    private func registerPushToken(_ token: String) async {
+        guard !usesFixtures else { return }
+
+        do {
+            _ = try await apiClient.registerPushToken(
+                token,
+                environment: .current,
+                preferredLanguage: .zhHans
+            )
+        } catch {
+            await MainActor.run {
+                generationErrorText = error.localizedDescription
+            }
+        }
+    }
+
+    private func openRemoteNotification(userInfo: [AnyHashable: Any]) async {
+        await refreshBackendNotifications()
+
+        let notificationID = userInfo["notificationId"] as? String
+        let chapterID = userInfo["chapterId"] as? String
+        let notificationType = userInfo["type"] as? String
+        let notification = backendNotifications.first {
+            (notificationID != nil && $0.id == notificationID) ||
+            (chapterID != nil && $0.chapterId == chapterID)
+        }
+
+        if let notification {
+            await MainActor.run {
+                openNotification(
+                    notification,
+                    route: notification.type == .generationFailed ? .generationFailureDetail : .chapterDetail
+                )
+            }
+            return
+        }
+
+        if let chapterID {
+            await openNotificationChapter(chapterID: chapterID)
+            await MainActor.run {
+                resetToRoute(notificationType == "generation_failed" ? .generationFailureDetail : .chapterDetail, tab: .materials)
+            }
+        }
+    }
+
+    private func openNotification(_ notification: NotificationItem, route targetRoute: V2AppRoute) {
+        Task {
+            await markNotificationRead(notification)
+            await openNotificationChapter(chapterID: notification.chapterId)
+            await MainActor.run {
+                resetToRoute(targetRoute, tab: .materials)
+            }
+        }
+    }
+
+    @MainActor
+    private func markNotificationRead(_ notification: NotificationItem) async {
+        if let index = backendNotifications.firstIndex(where: { $0.id == notification.id }) {
+            backendNotifications[index].read = true
+        }
+
+        guard !usesFixtures, !notification.read else { return }
+
+        do {
+            let updated = try await apiClient.markNotificationRead(id: notification.id)
+            if let index = backendNotifications.firstIndex(where: { $0.id == updated.id }) {
+                backendNotifications[index] = updated
+            }
+        } catch {
+            generationErrorText = error.localizedDescription
+        }
+    }
+
+    private func openNotificationChapter(chapterID: String) async {
+        guard !chapterID.isEmpty, backendChapter?.id != chapterID else { return }
+
+        do {
+            let chapter = try await apiClient.fetchV2Chapter(id: chapterID)
+            await MainActor.run {
+                applyBackendChapter(chapter)
+            }
+        } catch {
+            await MainActor.run {
+                generationErrorText = error.localizedDescription
+            }
+        }
+    }
+
     private func openSource() {
+        guard canOpenActiveSource else {
+            return
+        }
+
         let sourceAnchorId = reviewQuestion(for: route)?.sourceAnchorId ?? sourceQuestion?.sourceAnchorId
         if usesBackendReviewChapter {
             Task {
@@ -984,6 +1121,13 @@ struct V2RootView: View {
             }
         }
         pushRoute(.sourceArticle)
+    }
+
+    private func openOriginalSourceLink() {
+        guard let url = URL(string: originalSourceURLString), !originalSourceURLString.isEmpty else {
+            return
+        }
+        openURL(url)
     }
 
     private func pushRoute(_ nextRoute: V2AppRoute) {

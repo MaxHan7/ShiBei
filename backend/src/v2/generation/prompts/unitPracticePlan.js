@@ -143,6 +143,23 @@ export function normalizeQuestionPlanPurpose(value) {
   return "light_understanding";
 }
 
+export function normalizeMatchingRelationType({ relationType, purpose } = {}) {
+  if (MATCHING_RELATION_TYPES.includes(relationType)) return relationType;
+  const normalizedPurpose = normalizeQuestionPlanPurpose(purpose);
+  const inferred = {
+    layer_role_matching: "responsibility",
+    role_responsibility_matching: "responsibility",
+    step_purpose_matching: "process_signal",
+    signal_action_matching: "process_signal",
+    type_feature_matching: "verification_dimension",
+    relationship_matching: "scenario_effect",
+    boundary_clarification: "boundary",
+    boundary_check: "boundary",
+    scenario_application: "scenario_effect"
+  }[normalizedPurpose];
+  return MATCHING_RELATION_TYPES.includes(inferred) ? inferred : "scenario_effect";
+}
+
 export function normalizeUnitPracticePlanOutput(output) {
   if (!isPlainObject(output)) return output;
   return {
@@ -159,6 +176,9 @@ function normalizeQuestionPlan(plan) {
   return {
     ...plan,
     purpose: normalizedPurpose,
+    ...(plan.type === "matching" && !MATCHING_RELATION_TYPES.includes(plan.relationType)
+      ? { relationType: normalizeMatchingRelationType({ relationType: plan.relationType, purpose: normalizedPurpose }) }
+      : {}),
     ...(normalizedPurpose !== plan.purpose && plan.originalPurpose === undefined
       ? { originalPurpose: plan.purpose }
       : {})

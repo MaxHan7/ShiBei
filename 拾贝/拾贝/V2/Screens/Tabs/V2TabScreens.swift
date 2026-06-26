@@ -164,7 +164,7 @@ private extension V2BackendChapter {
     }
 
     var isV2GenerationFailed: Bool {
-        status == "failed_generation" || status == "failed_input" || progress?.status == "failed"
+        status == "failed_generation" || status == "failed_input" || status == "failed_questions" || progress?.status == "failed"
     }
 
     var v2ListStatus: V2ChapterReviewStatus {
@@ -207,7 +207,7 @@ struct V2GeneratingChapterDetailView: View {
                         .renderingMode(.original)
                         .scaledToFit()
                         .frame(width: 275, height: 255)
-                        .position(x: geometry.size.width / 2 - 3, y: 174.5)
+                        .position(x: geometry.size.width / 2 - 3, y: 146.5)
                         .allowsHitTesting(false)
                         .zIndex(1)
 
@@ -644,8 +644,8 @@ struct V2NotificationView: View {
     let usesMockData: Bool
     let notifications: [NotificationItem]
     let onBack: () -> Void
-    let onOpenSuccess: () -> Void
-    let onOpenFailure: () -> Void
+    let onOpenSuccess: (NotificationItem) -> Void
+    let onOpenFailure: (NotificationItem) -> Void
 
     var body: some View {
         V2FlowScreen(
@@ -698,18 +698,28 @@ struct V2NotificationView: View {
 private struct V2NotificationScreenContent: View {
     let unreadCount: Int
     let notifications: [NotificationItem]
-    let onOpenSuccess: () -> Void
-    let onOpenFailure: () -> Void
+    let onOpenSuccess: (NotificationItem) -> Void
+    let onOpenFailure: (NotificationItem) -> Void
 
     var body: some View {
         GeometryReader { geometry in
-            V2NotificationLayer(
-                width: geometry.size.width,
-                unreadCount: unreadCount,
-                notifications: notifications,
-                onOpenSuccess: onOpenSuccess,
-                onOpenFailure: onOpenFailure
-            )
+            ZStack(alignment: .top) {
+                V2NotificationDecorations(width: geometry.size.width)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .allowsHitTesting(false)
+                    .zIndex(0)
+
+                V2NotificationList(
+                    unreadCount: unreadCount,
+                    notifications: notifications,
+                    onOpenSuccess: onOpenSuccess,
+                    onOpenFailure: onOpenFailure
+                )
+                .frame(width: V2Layout.contentMaxWidth)
+                .padding(.top, V2NotificationLayout.listTop)
+                .zIndex(3)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .frame(height: V2NotificationLayout.screenHeight)
     }
@@ -721,63 +731,13 @@ private enum V2NotificationLayout {
     static let summaryHeight: CGFloat = 82
     static let cardHeight: CGFloat = 108
     static let verticalGap: CGFloat = 22
-
-    static var listCenterY: CGFloat {
-        listTop + (summaryHeight + verticalGap + cardHeight * 2 + verticalGap * 2) / 2
-    }
-}
-
-private struct V2NotificationLayer: View {
-    let width: CGFloat
-    let unreadCount: Int
-    let notifications: [NotificationItem]
-    let onOpenSuccess: () -> Void
-    let onOpenFailure: () -> Void
-
-    var body: some View {
-        ZStack(alignment: .topLeading) {
-            V2NotificationDecorations(width: width)
-
-            V2NotificationPositionedList(
-                width: width,
-                unreadCount: unreadCount,
-                notifications: notifications,
-                onOpenSuccess: onOpenSuccess,
-                onOpenFailure: onOpenFailure
-            )
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-    }
-}
-
-private struct V2NotificationPositionedList: View {
-    let width: CGFloat
-    let unreadCount: Int
-    let notifications: [NotificationItem]
-    let onOpenSuccess: () -> Void
-    let onOpenFailure: () -> Void
-
-    var body: some View {
-        V2NotificationList(
-            unreadCount: unreadCount,
-            notifications: notifications,
-            onOpenSuccess: onOpenSuccess,
-            onOpenFailure: onOpenFailure
-        )
-        .frame(width: V2Layout.contentMaxWidth)
-        .position(
-            x: width / 2,
-            y: V2NotificationLayout.listCenterY
-        )
-        .zIndex(3)
-    }
 }
 
 private struct V2NotificationList: View {
     let unreadCount: Int
     let notifications: [NotificationItem]
-    let onOpenSuccess: () -> Void
-    let onOpenFailure: () -> Void
+    let onOpenSuccess: (NotificationItem) -> Void
+    let onOpenFailure: (NotificationItem) -> Void
 
     var body: some View {
         VStack(spacing: 22) {
@@ -788,35 +748,20 @@ private struct V2NotificationList: View {
 
     @ViewBuilder
     private var notificationCards: some View {
-        if notifications.isEmpty {
-            V2NotificationEmptyCard()
-        } else {
-            ForEach(notifications) { notification in
-                V2NotificationRow(
-                    notification: notification,
-                    action: action(for: notification)
-                )
-            }
+        ForEach(notifications) { notification in
+            V2NotificationRow(
+                notification: notification,
+                action: { action(for: notification)(notification) }
+            )
         }
     }
 
-    private func action(for notification: NotificationItem) -> () -> Void {
+    private func action(for notification: NotificationItem) -> (NotificationItem) -> Void {
         switch notification.type {
         case .generationCompleted:
             return onOpenSuccess
         case .generationFailed:
             return onOpenFailure
-        }
-    }
-}
-
-private struct V2NotificationEmptyCard: View {
-    var body: some View {
-        V2InfoCard {
-            Text("暂无通知")
-                .font(V2Typography.body)
-                .foregroundStyle(V2Color.textSecondary)
-                .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 }
@@ -893,7 +838,7 @@ struct V2GenerationFailureDetailView: View {
     var failureReason = "当前链接正文提取失败，可能是网页暂时无法访问，或正文格式还不支持。"
     let onBack: () -> Void
     let onSource: () -> Void
-    let onRegenerate: () -> Void
+    let onDelete: () -> Void
 
     var body: some View {
         V2FlowScreen(
@@ -909,13 +854,13 @@ struct V2GenerationFailureDetailView: View {
                         .renderingMode(.original)
                         .scaledToFit()
                         .frame(width: 188, height: 206)
-                        .position(x: geometry.size.width / 2 + 3, y: 164)
+                        .position(x: geometry.size.width / 2 + 3, y: 136)
                         .zIndex(1)
 
-                    V2NotificationFailureDetailCard(
+                    V2GenerationFailureDetailCard(
                         failureReason: failureReason,
                         onSource: onSource,
-                        onRegenerate: onRegenerate
+                        onDelete: onDelete
                     )
                         .position(x: geometry.size.width / 2, y: 402)
                         .zIndex(2)
@@ -948,10 +893,10 @@ struct V2GenerationFailureDetailView: View {
     }
 }
 
-private struct V2NotificationFailureDetailCard: View {
+private struct V2GenerationFailureDetailCard: View {
     let failureReason: String
     let onSource: () -> Void
-    let onRegenerate: () -> Void
+    let onDelete: () -> Void
 
     private let failureAccent = Color(hex: 0xF69582)
     private let failureTitle = Color(hex: 0x575757)
@@ -969,33 +914,31 @@ private struct V2NotificationFailureDetailCard: View {
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
 
-            HStack(alignment: .top, spacing: 18) {
-                Image("V2NotificationFailureDetailIcon")
-                    .resizable()
-                    .renderingMode(.original)
-                    .scaledToFit()
-                    .frame(width: 34, height: 34)
+            Image("V2NotificationFailureDetailIcon")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 34, height: 34)
+                .offset(x: 23, y: 23)
 
-                Text("章节生成失败")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(failureTitle)
-                    .padding(.top, 5)
-            }
-            .padding(.leading, 23)
-            .padding(.top, 28)
+            Text("章节生成失败")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(failureTitle)
+                .frame(width: 118, height: 39, alignment: .leading)
+                .offset(x: 59, y: 18)
 
             V2NotificationFailureSourceButton(
                 accent: failureAccent,
                 shadow: failureAccentShadow,
                 action: onSource
             )
-            .position(x: 249, y: 45)
+            .offset(x: 210, y: 20)
 
             V2NotificationFailureReasonCard(reason: failureReason)
-                .position(x: 163, y: 142)
+                .offset(x: 23, y: 91)
 
-            Button(action: onRegenerate) {
-                Text("重新生成")
+            Button(action: onDelete) {
+                Text("删除章节")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(width: 280, height: 42)
@@ -1006,9 +949,9 @@ private struct V2NotificationFailureDetailCard: View {
                     )
             }
             .buttonStyle(.plain)
-            .position(x: 160.5, y: 237)
+            .offset(x: 23, y: 222)
         }
-        .frame(width: V2Layout.contentMaxWidth, height: 277)
+        .frame(width: V2Layout.contentMaxWidth, height: 302)
     }
 }
 

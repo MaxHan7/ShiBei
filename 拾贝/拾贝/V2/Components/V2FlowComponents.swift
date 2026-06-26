@@ -1017,54 +1017,54 @@ struct V2GeneratingChapterDetailCard: View {
             Text("章节正在生成")
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color(hex: 0x575757))
-                .frame(width: 136, height: 39, alignment: .leading)
+                .frame(width: 118, height: 39, alignment: .leading)
                 .offset(x: 59, y: 18)
 
             V2GeneratingSourceLinkChip(accent: accentColor, action: onSource)
-                .offset(x: 201, y: 20)
+                .offset(x: 205, y: 20)
+
+            V2GeneratingProgressBar(progress: progress)
+                .frame(width: 272, height: 43)
+                .offset(x: 23, y: 63)
 
             Text(statusText)
                 .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(Color(hex: 0x736D78))
                 .lineLimit(1)
                 .frame(width: 283, height: 27, alignment: .leading)
-                .offset(x: 21, y: 98)
-
-            V2GeneratingProgressBar(progress: progress)
-                .frame(width: 280, height: 43)
-                .offset(x: 21, y: 146)
+                .offset(x: 20, y: 144)
 
             if isCompleted {
                 Button(action: onOpenChapter) {
                     Text("查看章节")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(.white)
-                        .frame(width: 180, height: 36)
+                        .frame(width: 280, height: 42)
                         .background(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
                                 .fill(V2Color.primaryAction)
                                 .shadow(color: V2Color.primaryAction.opacity(0.28), radius: 3, x: 0, y: 4)
                         )
                 }
                 .buttonStyle(.plain)
-                .offset(x: 74.5, y: 184)
+                .offset(x: 23, y: 221)
             } else {
                 Button(action: onDelete) {
                     Text("取消生成")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(Color(hex: 0x6E7378))
-                        .frame(width: 180, height: 36)
+                        .frame(width: 280, height: 42)
                         .background(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
                                 .fill(V2Color.surfaceCream)
                                 .shadow(color: accentColor.opacity(0.24), radius: 3, x: 0, y: 4)
                         )
                 }
                 .buttonStyle(.plain)
-                .offset(x: 74.5, y: 184)
+                .offset(x: 23, y: 221)
             }
         }
-        .frame(width: V2Layout.contentMaxWidth, height: 243)
+        .frame(width: V2Layout.contentMaxWidth, height: 302)
     }
 }
 

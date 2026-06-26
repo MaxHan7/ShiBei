@@ -850,35 +850,47 @@ struct V2SourceArticleView: View {
     }
 
     var body: some View {
-        V2FlowScreen(title: "", onBack: onBack) {
-            ScrollViewReader { proxy in
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 19) {
-                        V2SourceArticleHeaderCard(
-                            title: chapter.title,
-                            author: chapter.sourceAuthor,
-                            onSource: openSourceURL
-                        )
+        GeometryReader { geometry in
+            ZStack(alignment: .top) {
+                V2Color.surfaceCream
+                    .ignoresSafeArea()
 
-                        V2SourceArticleBodyCard(
-                            blocks: chapter.sourceBody,
-                            highlightedBlockID: highlightedBlockID
-                        )
+                ScrollViewReader { proxy in
+                    ScrollView(showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 26) {
+                            V2SourceArticleHeader(
+                                title: chapter.title,
+                                author: chapter.sourceAuthor,
+                                onSource: openSourceURL
+                            )
+
+                            V2SourceArticleBody(
+                                blocks: chapter.sourceBody,
+                                highlightedBlockID: highlightedBlockID
+                            )
+                        }
+                        .frame(width: min(329, geometry.size.width - 64), alignment: .leading)
+                        .padding(.top, V2Layout.topChromeReservedHeight + 40)
+                        .padding(.bottom, 42)
                     }
-                    .v2PageContentWidth()
-                    .padding(.top, 23)
-                    .padding(.bottom, 34)
+                    .onAppear {
+                        guard let highlightedBlockID else {
+                            return
+                        }
+                        DispatchQueue.main.async {
+                            proxy.scrollTo(highlightedBlockID, anchor: .center)
+                        }
+                    }
                 }
-                .onAppear {
-                    guard let highlightedBlockID else {
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        proxy.scrollTo(highlightedBlockID, anchor: .center)
-                    }
+
+                V2TopChrome {
+                    V2FlowTopBar(title: "", onBack: onBack)
                 }
+                .zIndex(20)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 
     private func openSourceURL() {
@@ -895,26 +907,19 @@ struct V2SourceArticleView: View {
     }
 }
 
-private struct V2SourceArticleHeaderCard: View {
+private struct V2SourceArticleHeader: View {
     let title: String
     let author: String
     let onSource: () -> Void
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 15, style: .continuous)
-                .fill(V2Color.surfaceCream)
-                .v2Shadow()
-                .frame(width: V2Layout.contentMaxWidth, height: 143)
-
+        VStack(alignment: .leading, spacing: 24) {
             Text(title)
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(Color(hex: 0x575757))
-                .lineSpacing(7)
-                .lineLimit(3)
-                .truncationMode(.tail)
-                .frame(width: 275, height: 62, alignment: .topLeading)
-                .offset(x: 23, y: 17)
+                .lineSpacing(10)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
 
             HStack(spacing: 21) {
                 V2ChapterDetailHeroActionButton(
@@ -935,38 +940,27 @@ private struct V2SourceArticleHeaderCard: View {
                     )
                 )
             }
-            .offset(x: 21, y: 82)
         }
-        .frame(width: V2Layout.contentMaxWidth, height: 143, alignment: .topLeading)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 }
 
-private struct V2SourceArticleBodyCard: View {
+private struct V2SourceArticleBody: View {
     let blocks: [V2SourceArticleBlock]
     let highlightedBlockID: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            VStack(alignment: .leading, spacing: 0) {
-                ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
-                    V2SourceArticleBlockView(
-                        block: block,
-                        isHighlighted: block.id == highlightedBlockID
-                    )
-                    .id(block.id)
-                        .padding(.top, index == 0 ? 0 : topSpacing(for: block))
-                }
+            ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
+                V2SourceArticleBlockView(
+                    block: block,
+                    isHighlighted: block.id == highlightedBlockID
+                )
+                .id(block.id)
+                .padding(.top, index == 0 ? 0 : topSpacing(for: block))
             }
         }
-        .padding(.horizontal, 23)
-        .padding(.top, 17)
-        .padding(.bottom, 32)
-        .frame(width: V2Layout.contentMaxWidth, alignment: .topLeading)
-        .background(
-            RoundedRectangle(cornerRadius: 15, style: .continuous)
-                .fill(V2Color.surfaceCream)
-                .v2Shadow()
-        )
+        .frame(maxWidth: .infinity, alignment: .topLeading)
         .textSelection(.enabled)
     }
 
@@ -989,14 +983,13 @@ private struct V2SourceArticleBlockView: View {
     var body: some View {
         if isHighlighted {
             blockContent
-                .padding(.horizontal, 8)
+                .padding(.horizontal, 10)
                 .padding(.vertical, 10)
-                .frame(width: 291, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .overlay(
                     RoundedRectangle(cornerRadius: 14.5, style: .continuous)
                         .stroke(Color(hex: 0xA3A568), lineWidth: 1)
                 )
-                .offset(x: -8)
         } else {
             blockContent
         }
@@ -1007,27 +1000,26 @@ private struct V2SourceArticleBlockView: View {
         switch block.kind {
         case .heading:
             Text(block.text)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.system(size: 17, weight: .semibold))
                 .foregroundStyle(Color(hex: 0x575757))
-                .tracking(-0.18)
-                .frame(width: 275, alignment: .topLeading)
+                .lineSpacing(8)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
         case .paragraph:
             Text(block.text)
-                .font(.system(size: 14, weight: .regular))
+                .font(.system(size: 16, weight: .regular))
                 .foregroundStyle(Color(hex: 0x575757))
-                .lineSpacing(7)
-                .tracking(-0.18)
+                .lineSpacing(8)
                 .fixedSize(horizontal: false, vertical: true)
-                .frame(width: 275, alignment: .topLeading)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
         case .quote:
             Text(block.text)
-                .font(.system(size: 14, weight: .regular))
+                .font(.system(size: 16, weight: .regular))
                 .foregroundStyle(Color(hex: 0x575757))
-                .lineSpacing(7)
-                .tracking(-0.18)
+                .lineSpacing(8)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.leading, 12)
-                .frame(width: 275, alignment: .topLeading)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
                 .overlay(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 1, style: .continuous)
                         .fill(V2Color.borderSoftGreen)
@@ -1541,13 +1533,13 @@ struct V2RecommendedArticleDetailView: View {
             V2FlowScreen(title: "", onBack: onBack) {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 19) {
-                        V2SourceArticleHeaderCard(
+                        V2SourceArticleHeader(
                             title: chapter.title,
                             author: chapter.sourceAuthor,
                             onSource: openSourceURL
                         )
 
-                        V2SourceArticleBodyCard(
+                        V2SourceArticleBody(
                             blocks: chapter.sourceBody,
                             highlightedBlockID: nil
                         )

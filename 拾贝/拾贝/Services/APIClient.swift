@@ -4,7 +4,7 @@ struct APIClient {
     #if DEBUG
     static let localBaseURL = URL(string: "http://127.0.0.1:5173")!
     static var defaultBaseURL: URL {
-        launchArgumentBaseURL ?? localBaseURL
+        launchArgumentBaseURL ?? productionBaseURL
     }
     #else
     static let defaultBaseURL = APIClient.productionBaseURL

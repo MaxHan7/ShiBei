@@ -3,6 +3,7 @@ import SwiftUI
 struct V2HomeView: View {
     let data: V2HomeData
     @Binding var selectedTab: V2HomeTab
+    let showsUnreadNotificationBadge: Bool
     let onOpenNotifications: () -> Void
     let onOpenProfile: () -> Void
     let onOpenChapterDetail: () -> Void
@@ -319,7 +320,11 @@ struct V2HomeView: View {
 
     private var topBar: some View {
         HStack {
-            V2CircleIconButton(kind: .notification, action: onOpenNotifications)
+            V2CircleIconButton(
+                kind: .notification,
+                showsUnreadBadge: showsUnreadNotificationBadge,
+                action: onOpenNotifications
+            )
             Spacer()
             V2CircleIconButton(kind: .profile, action: onOpenProfile)
         }
@@ -959,6 +964,7 @@ struct V2HomeView_Previews: PreviewProvider {
         V2HomeView(
             data: V2HomeFixture.home,
             selectedTab: .constant(.learning),
+            showsUnreadNotificationBadge: true,
             onOpenNotifications: {},
             onOpenProfile: {},
             onOpenChapterDetail: {},

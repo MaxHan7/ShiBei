@@ -597,6 +597,24 @@ test("rejects matching question plans without relationType", () => {
   assert.match(result.errors.join("\n"), /relationType is required for matching plans/);
 });
 
+test("normalizes missing matching relationType from question purpose", () => {
+  const plan = unitPracticePlanFixture();
+  delete plan.questionPlans[1].relationType;
+  plan.questionPlans[1].purpose = "layer_role_matching";
+
+  const normalized = normalizeTaskBriefPlanOutput(
+    { units: [plan] },
+    { sourceAnchorByUnit: new Map([["unit-01", "anchor-unit-01"]]) }
+  );
+  const result = validateTaskBriefPlanOutput(normalized, {
+    unitIds: new Set(["unit-01"]),
+    sourceAnchorByUnit: new Map([["unit-01", "anchor-unit-01"]])
+  });
+
+  assert.equal(normalized.units[0].questionPlans[1].relationType, "responsibility");
+  assert.deepEqual(result, { ok: true, errors: [] });
+});
+
 test("validates multiple choice drafts against question plans", () => {
   const result = validateMultipleChoiceDraftOutput(
     {

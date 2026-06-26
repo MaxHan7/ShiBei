@@ -171,13 +171,23 @@ function normalizeProgressDisplayText({
   fallbackText = ""
 } = {}) {
   if (status === V2_GENERATION_STATUS.FAILED) {
-    return truncateDisplayText(failureMessage || displayText || fallbackText || "生成失败", 12);
+    return truncateDisplayText(displayText || userFacingFailureText(failureMessage) || fallbackText || "生成失败", 12);
   }
   if (status === V2_GENERATION_STATUS.COMPLETED) return "生成完成";
   if (stage === V2_GENERATION_STAGE.RETRY_WAIT || status === V2_GENERATION_STATUS.RETRYING) {
     return "正在重试生成";
   }
   return truncateDisplayText(fallbackText || displayText || "正在生成", 12);
+}
+
+function userFacingFailureText(failureMessage) {
+  const value = String(failureMessage || "").trim();
+  if (!value) return "";
+  if (value.includes("文章太长")) return "文章太长";
+  if (value.includes("原文提取")) return "原文提取失败";
+  if (value.includes("API Key") || value.includes("模型配置")) return "模型配置缺失";
+  if (value.includes("请求超时") || value.toLowerCase().includes("timeout")) return "模型响应超时";
+  return "";
 }
 
 function truncateDisplayText(text, maxCharacters) {
