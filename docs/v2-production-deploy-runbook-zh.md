@@ -257,6 +257,15 @@ npm --prefix backend run gate:production -- \
 - favorites
 - notifications
 
+仓库已提供模板：
+
+```bash
+cp docs/production-readiness-evidence/phone-e2e.template.md \
+  docs/production-readiness-evidence/phone-e2e.md
+```
+
+填写完成后，`phone-e2e.md` 会被最终 Release 证据 gate 检查。模板文件本身不会被 `--evidence-dir` 自动当作完成证据。
+
 ### 4. Release 前最终证据 gate
 
 只有 deployment intent、无副作用 gate、production smoke、手机 E2E、最终签名产物都齐了之后，才允许切 Release 入口到 V2。切入口前先运行：

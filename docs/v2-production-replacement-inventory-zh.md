@@ -159,6 +159,9 @@ xcodebuild -project "拾贝/拾贝.xcodeproj" -scheme "拾贝" -destination "gen
   - 命令：`npm run check:production-release-evidence -- --evidence-dir docs/production-readiness-evidence --signed-app /path/to/拾贝.app`
   - 支持自动发现 deployment intent、无副作用 gate JSON、smoke JSON 和手机 E2E 记录。
   - 会继续强制最终签名 `.app` 通过 production APNS / distribution signing 检查。
+- 已新增手机 E2E 证据模板：
+  - 模板：`docs/production-readiness-evidence/phone-e2e.template.md`
+  - 完成手机验收后复制为 `phone-e2e.md` 并填写真实结果，最终 gate 才会自动读取。
 
 ## 当前生产替换阻塞项
 
