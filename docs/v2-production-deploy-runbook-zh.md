@@ -248,6 +248,39 @@ npm --prefix backend run gate:production -- \
 - 收藏题目，进入笔记页打开收藏题目。
 - 杀进程重开，复习状态仍能恢复。
 
+建议将手机验收结果写入一份 Markdown 记录，保存到 `docs/production-readiness-evidence/` 或下载到本地交接目录。记录里必须明确覆盖：
+
+- create chapter
+- progress
+- review
+- source return
+- favorites
+- notifications
+
+### 4. Release 前最终证据 gate
+
+只有 deployment intent、无副作用 gate、production smoke、手机 E2E、最终签名产物都齐了之后，才允许切 Release 入口到 V2。切入口前先运行：
+
+```bash
+npm run check:production-release-evidence -- \
+  --deployment-intent docs/production-readiness-evidence/deployment-intent.md \
+  --gate-json docs/production-readiness-evidence/production-gate.json \
+  --smoke-json docs/production-readiness-evidence/production-smoke.json \
+  --phone-e2e docs/production-readiness-evidence/phone-e2e.md \
+  --signed-app /path/to/拾贝.app
+```
+
+这个 gate 会检查：
+
+- deployment intent 里记录了旧 production deployment id 和数据库备份引用；
+- no-side-effect production gate 是 `passed`，且 smoke 未开启；
+- production smoke 是 `passed`；
+- V2 capability、database、APNS production、bundle id 全部通过；
+- 手机 E2E 记录覆盖真实生成、进度、复习、查看原文返回、收藏、通知；
+- 最终导出的 `.app` 通过 `ios-signing-guard`。
+
+这一步是 Release flip 的最后一道本地证据检查。它不是现在就能通过的检查；它必须在真实 production 部署和最终签名导出之后运行。
+
 ## 停止条件
 
 遇到以下任一情况，立即停止继续上线：
