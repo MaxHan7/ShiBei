@@ -4,7 +4,7 @@
 
 最新进度：Batch 1-5 已迁入并提交到当前分支；root backend 的 `npm --prefix backend run check` 现在同时覆盖旧链路 106 个测试和 V2 链路 175 个测试。尚未进行非生产数据库真实生成 smoke，也尚未部署到 production。
 
-补充进度：已完成一轮本地非生产 Postgres 队列 smoke，使用模拟永久失败模式验证 V2 路由、DB queue、worker dispatch、失败进度落库和用户可读失败文案。尚未用真实模型跑成功生成 smoke。
+补充进度：已完成本地非生产 Postgres 队列 smoke 和真实模型 success smoke。V2 路由、DB queue、worker dispatch、失败进度落库、真实生成完成状态、用户可读进度和 V2 review session 创建均已验证。尚未部署到 production，也尚未用 production DB 做任何写入测试。
 
 ## 目标
 
@@ -202,8 +202,8 @@ DB startup smoke note:
   - `GET /api/chapters/:id` shows user-facing progress.
   - worker completes or fails with readable state.
   - failed generation state is persisted.
-- [ ] Run a real-model success smoke on a non-production DB.
-- [ ] Verify generated V2 chapter can start review session.
+- [x] Run a real-model success smoke on a non-production DB.
+- [x] Verify generated V2 chapter can start review session.
 
 Command now available from root backend:
 
@@ -216,6 +216,19 @@ Observed local DB smoke:
 - Enqueue returned chapter id and job id.
 - Progress moved from `queued / accepted / 已收到文章，准备生成` to `failed / failed / 缺少模型 API Key。`
 - Worker claimed and completed the V2 job without crashing.
+
+Observed local real-model success smoke:
+
+- Enqueue returned chapter id `chapter-1782433297945-7421811f17666` and job id `generation-1782433297945-fdbe6aff404f6`.
+- Progress moved through:
+  - `queued / accepted / 已收到文章，准备生成`
+  - `running / planning_review_path / 正在梳理文章结构`
+  - `running / mapping_knowledge / 正在总结知识点`
+  - `running / planning_practice / 正在规划复习题`
+  - `running / generating_questions / 正在为「游戏化设计的核心与DMC模型」生成题目`
+  - `running / generating_unit_copy / 正在整理「游戏化设计的核心与DMC模型」的总结`
+  - `completed / completed / 生成完成`
+- `POST /api/v2/chapters/:id/review-session` returned a V2 session at `chapter_overview`.
 
 Expected:
 
