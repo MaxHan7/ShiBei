@@ -217,6 +217,7 @@ struct V2RootView: View {
             if let chapter = activeChapter {
                 V2ChapterDetailView(
                     chapter: chapter,
+                    primaryActionTitle: chapterDetailPrimaryActionTitle,
                     onBack: goBack,
                     onContinue: continueFromChapterDetail,
                     onSource: openOriginalSourceLink
@@ -670,6 +671,16 @@ struct V2RootView: View {
 
     private var activeChapter: V2ReviewChapterData? {
         backendReviewChapter ?? (usesFixtures ? V2ReviewFixture.chapter : nil)
+    }
+
+    private var chapterDetailPrimaryActionTitle: String {
+        guard !usesFixtures,
+              backendChapter?.status == "completed",
+              let session = v2ReviewSession ?? backendChapter?.v2ReviewSession,
+              session.completedAt == nil else {
+            return "开始复习"
+        }
+        return "继续复习"
     }
 
     private var activeHomeData: V2HomeData {

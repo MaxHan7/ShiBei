@@ -1032,6 +1032,7 @@ private struct V2SourceArticleBlockView: View {
 
 struct V2ChapterDetailView: View {
     let chapter: V2ReviewChapterData
+    let primaryActionTitle: String
     let onBack: () -> Void
     let onContinue: () -> Void
     let onSource: () -> Void
@@ -1071,6 +1072,7 @@ struct V2ChapterDetailView: View {
                         V2ChapterDetailHeroCard(
                             title: chapter.title,
                             author: chapter.sourceAuthor,
+                            primaryActionTitle: primaryActionTitle,
                             onSource: onSource,
                             onStartReview: onContinue
                         )
@@ -1080,6 +1082,7 @@ struct V2ChapterDetailView: View {
                         V2ChapterDetailKnowledgeCard(
                             count: chapter.units.count,
                             units: chapter.units,
+                            actionTitle: primaryActionTitle,
                             onStartReview: onContinue
                         )
                     }
@@ -1142,6 +1145,7 @@ private struct V2ChapterDetailBackgroundDecorations: View {
 private struct V2ChapterDetailHeroCard: View {
     let title: String
     let author: String
+    let primaryActionTitle: String
     let onSource: () -> Void
     let onStartReview: () -> Void
     private let cardBodyHeight: CGFloat = 235
@@ -1193,7 +1197,7 @@ private struct V2ChapterDetailHeroCard: View {
                 .allowsHitTesting(false)
 
             Button(action: onStartReview) {
-                Text("开始复习")
+                Text(primaryActionTitle)
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(.white)
                     .tracking(-0.24)
@@ -1335,6 +1339,7 @@ private struct V2ChapterDetailSummaryCard: View {
 private struct V2ChapterDetailKnowledgeCard: View {
     let count: Int
     let units: [V2ReviewUnitData]
+    let actionTitle: String
     let onStartReview: () -> Void
     @State private var expandedUnitID: String?
     private let contentLeading: CGFloat = 24
@@ -1380,7 +1385,7 @@ private struct V2ChapterDetailKnowledgeCard: View {
                         if expandedUnitID == unit.id {
                             V2ChapterDetailKnowledgeExpansionPanel(
                                 overview: unit.overview,
-                                actionTitle: "开始复习",
+                                actionTitle: actionTitle,
                                 action: onStartReview
                             )
                             .transition(.asymmetric(insertion: .opacity, removal: .identity))
