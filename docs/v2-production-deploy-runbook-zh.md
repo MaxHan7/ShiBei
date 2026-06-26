@@ -59,6 +59,7 @@
 
 ```bash
 git status --short
+npm --prefix backend run gate:routes
 npm --prefix backend run check
 npm run check:ios-production
 xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic/platform=iOS Simulator' -configuration Debug build
@@ -66,6 +67,8 @@ xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic
 ```
 
 如果任何一项失败，停止上线。
+
+`gate:routes` 是无网络、无副作用的本地路由契约检查。它用于确认当前 root backend 代码仍暴露 V2 App 上线需要的章节生成、复习 session、收藏、通知、推送和 source anchor 路由；它不能替代部署后的 `gate:production`。
 
 注意：generic Release build 只能证明代码能编译，不能证明 TestFlight/App Store 签名正确。创建 release candidate archive/export 后，还必须检查实际签名产物：
 

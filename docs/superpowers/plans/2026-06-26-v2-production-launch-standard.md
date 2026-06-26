@@ -72,6 +72,12 @@ Purpose: Verify the deployed service path is the productionized V2-capable backe
   - favorite question endpoints
   - notification endpoints
   - source-open/update endpoint used by review source anchors
+- [ ] Run the backend route contract gate:
+
+  ```bash
+  npm --prefix backend run gate:routes
+  ```
+
 - [ ] Confirm worker starts under production start command or document the separate Railway worker service setup.
 
 Exit criteria:
@@ -444,3 +450,30 @@ Interpretation:
   - embedded provisioning profile `aps-environment == production`;
   - embedded provisioning profile `get-task-allow == false`.
 - Current local automatic signing output is expected to fail this guard because it uses a development profile. This is a launch blocker until the final TestFlight/App Store distribution export passes the guard.
+
+### 2026-06-26: Backend route contract gate checkpoint
+
+- Added root backend route contract gate:
+
+  ```bash
+  npm --prefix backend run gate:routes
+  ```
+
+- Added `scripts/route-contract-gate.mjs` to root backend `npm run check`.
+- The gate currently verifies the production-critical HTTP surface required by the V2 app:
+  - health;
+  - V2 chapter creation;
+  - chapter list and detail;
+  - V2 review session load/start and action mutations;
+  - source-open and source-return mutations;
+  - favorite question list/create/delete;
+  - notification list/read/dismiss;
+  - push token and push status endpoints.
+- Validation run:
+
+  ```bash
+  npm --prefix backend run gate:routes
+  npm --prefix backend run check
+  ```
+
+- Result: backend check passed with 175 tests. This does not prove production is deployed to the V2-capable commit; it prevents local/root backend regressions before deployment.
