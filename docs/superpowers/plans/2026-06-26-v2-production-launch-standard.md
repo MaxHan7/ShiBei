@@ -257,3 +257,26 @@ Exit criteria:
   ```bash
   npm --prefix backend run check
   ```
+
+### 2026-06-26: Production V2 creation smoke blocker
+
+- A controlled production smoke was attempted with a dedicated smoke device id and a very short raw text source:
+
+  ```bash
+  npm --prefix backend run smoke:v2:queue -- --base-url https://shibei-production.up.railway.app --device-id smoke-v2-production-launch-20260626 --source-title 'V2 production smoke short text' --raw-text '<short text>'
+  ```
+
+- Result:
+
+  ```text
+  POST https://shibei-production.up.railway.app/api/v2/chapters failed 405: {"errorCode":"method_not_allowed","message":"不支持的请求方法。"}
+  ```
+
+- Interpretation:
+  - production `/api/health` is healthy, but the currently deployed production service does not expose a usable `POST /api/v2/chapters` route;
+  - root local code contains the route, so this is most likely a deployment-version/path gap, not an iOS client bug;
+  - phone testing against production cannot proceed until the V2-capable root backend is deployed to the production service or to a production-like staging service.
+
+Next required action:
+
+- Deploy or otherwise run the root `backend/` currently on this branch in a controlled environment, then rerun the same smoke command before flipping iOS Release to V2.
