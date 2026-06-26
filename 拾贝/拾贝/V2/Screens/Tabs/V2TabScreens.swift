@@ -23,8 +23,7 @@ struct V2TabScaffold<Content: View>: View {
 
                     ScrollView(showsIndicators: false) {
                         content()
-                            .v2PageContentWidth()
-                            .padding(.horizontal, V2Spacing.screenMargin)
+                            .v2PageColumn()
                             .padding(.top, 28)
                             .padding(.bottom, 128)
                     }

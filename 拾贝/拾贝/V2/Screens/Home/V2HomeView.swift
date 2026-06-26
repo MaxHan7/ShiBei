@@ -479,8 +479,8 @@ private struct V2HomePathArea {
         let popoverWidth: CGFloat = 272
         let centeredX = width / 2
         let halfWidth = popoverWidth / 2
-        let minX = halfWidth + V2Spacing.screenMargin
-        let maxX = width - halfWidth - V2Spacing.screenMargin
+        let minX = halfWidth + V2Layout.pageHorizontalInset
+        let maxX = width - halfWidth - V2Layout.pageHorizontalInset
         let popoverX = min(max(centeredX, minX), maxX)
         let popoverY = nodeCenter.y - V2HomePopoverMetrics.centerOffsetFromNode
         let popoverLeft = popoverX - halfWidth

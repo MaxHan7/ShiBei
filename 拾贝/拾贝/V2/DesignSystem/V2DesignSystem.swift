@@ -38,16 +38,22 @@ enum V2Spacing {
     static let md: CGFloat = 16
     static let lg: CGFloat = 24
     static let xl: CGFloat = 32
+    /// Legacy alias. Prefer `V2Layout.pageHorizontalInset` for page-level layout.
     static let screenMargin: CGFloat = 24
 }
 
 enum V2Layout {
+    /// Horizontal inset for page-level content from the physical screen edge.
+    static let pageHorizontalInset: CGFloat = V2Spacing.screenMargin
+    /// Maximum width for the main readable/actionable page column.
     static let contentMaxWidth: CGFloat = 321
+    static let pageContentMaxWidth: CGFloat = contentMaxWidth
     static let topBarTopPadding: CGFloat = 30
     static let topBarHeight: CGFloat = 52
     static let topChromeReservedHeight: CGFloat = topBarTopPadding + topBarHeight
-    static let primaryActionWidth: CGFloat = contentMaxWidth
+    static let primaryActionWidth: CGFloat = pageContentMaxWidth
     static let primaryActionBottomY: CGFloat = 600
+    static let floatingActionTrailingInset: CGFloat = pageHorizontalInset + 4
 }
 
 enum V2Typography {
@@ -111,8 +117,18 @@ extension View {
 
     func v2PageContentWidth() -> some View {
         self
-            .frame(maxWidth: V2Layout.contentMaxWidth)
+            .frame(maxWidth: V2Layout.pageContentMaxWidth)
             .frame(maxWidth: .infinity)
+    }
+
+    func v2PageHorizontalInset() -> some View {
+        self.padding(.horizontal, V2Layout.pageHorizontalInset)
+    }
+
+    func v2PageColumn() -> some View {
+        self
+            .v2PageContentWidth()
+            .v2PageHorizontalInset()
     }
 }
 

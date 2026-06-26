@@ -1586,7 +1586,7 @@ struct V2RecommendedArticleDetailView: View {
                     showsAddPopover.toggle()
                 }
             }
-            .padding(.trailing, V2Spacing.screenMargin + 4)
+            .padding(.trailing, V2Layout.floatingActionTrailingInset)
             .padding(.bottom, 30)
         }
     }

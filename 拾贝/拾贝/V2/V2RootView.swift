@@ -1751,7 +1751,7 @@ private struct V2MissingRouteView: View {
                     .font(V2Typography.body)
                     .foregroundStyle(V2Color.textSecondary)
             }
-            .padding(.horizontal, V2Spacing.screenMargin)
+            .v2PageColumn()
             .padding(.top, 28)
         }
     }
