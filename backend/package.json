@@ -12,7 +12,8 @@
     "check:v2": "node scripts/check-v2.mjs",
     "quality:test": "cd .. && node backend/src/generation/tests/runQualitySet.js",
     "quality:single": "cd .. && node backend/src/generation/tests/runSingleArticleExperiment.js",
-    "quality:analyze": "cd .. && node backend/src/generation/tests/analyzeQualityReview.js"
+    "quality:analyze": "cd .. && node backend/src/generation/tests/analyzeQualityReview.js",
+    "smoke:v2:queue": "node scripts/smoke-v2-queue.mjs"
   },
   "engines": {
     "node": ">=20"
