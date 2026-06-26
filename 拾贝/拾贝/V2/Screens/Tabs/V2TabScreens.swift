@@ -729,7 +729,7 @@ private enum V2NotificationLayout {
     static let screenHeight: CGFloat = 760
     static let listTop: CGFloat = 36
     static let summaryHeight: CGFloat = 82
-    static let cardHeight: CGFloat = 108
+    static let cardHeight: CGFloat = 116
     static let verticalGap: CGFloat = 22
 }
 

@@ -1068,7 +1068,7 @@ struct V2RootView: View {
 
     private func openNotification(_ notification: NotificationItem, route targetRoute: V2AppRoute) {
         Task {
-            await markNotificationRead(notification)
+            await dismissOpenedNotification(notification)
             await openNotificationChapter(chapterID: notification.chapterId)
             await MainActor.run {
                 resetToRoute(targetRoute, tab: .materials)
@@ -1077,15 +1077,16 @@ struct V2RootView: View {
     }
 
     @MainActor
-    private func markNotificationRead(_ notification: NotificationItem) async {
+    private func dismissOpenedNotification(_ notification: NotificationItem) async {
         if let index = backendNotifications.firstIndex(where: { $0.id == notification.id }) {
             backendNotifications[index].read = true
+            backendNotifications[index].dismissed = true
         }
 
-        guard !usesFixtures, !notification.read else { return }
+        guard !usesFixtures, !notification.dismissed else { return }
 
         do {
-            let updated = try await apiClient.markNotificationRead(id: notification.id)
+            let updated = try await apiClient.dismissNotification(id: notification.id)
             if let index = backendNotifications.firstIndex(where: { $0.id == updated.id }) {
                 backendNotifications[index] = updated
             }

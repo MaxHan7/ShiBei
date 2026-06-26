@@ -741,7 +741,7 @@ struct V2NotificationCard: View {
             Circle()
                 .fill(statusColor)
                 .frame(width: 6, height: 6)
-                .position(x: 18, y: 50)
+                .position(x: 18, y: 56)
 
             ZStack {
                 Circle()
@@ -754,36 +754,36 @@ struct V2NotificationCard: View {
                     .scaledToFit()
                     .frame(width: 37, height: 37)
             }
-            .position(x: 61.5, y: 54)
+            .position(x: 61.5, y: 58)
 
-            VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text(title)
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(Color(hex: 0x252419))
                     .lineLimit(1)
 
                 Text(message)
-                    .font(.system(size: 11, weight: .regular))
+                    .font(.system(size: 13, weight: .regular))
                     .foregroundStyle(Color(hex: 0x575757).opacity(0.74))
-                    .lineSpacing(4)
+                    .lineSpacing(5)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .frame(width: 160, alignment: .leading)
-            .position(x: 193, y: 55)
+            .frame(width: 172, alignment: .leading)
+            .position(x: 199, y: 58)
 
             Text(time)
-                .font(.system(size: 11, weight: .regular))
+                .font(.system(size: 12, weight: .regular))
                 .foregroundStyle(Color(hex: 0x575757).opacity(0.62))
                 .lineLimit(1)
-                .frame(width: 42)
-                .position(x: 300, y: 27)
+                .frame(width: 46)
+                .position(x: 296, y: 28)
 
             V2NotificationChevron(color: statusColor)
                 .frame(width: 24, height: 24)
-                .position(x: 300, y: 54)
+                .position(x: 300, y: 58)
         }
-        .frame(width: V2Layout.contentMaxWidth, height: 108)
+        .frame(width: V2Layout.contentMaxWidth, height: 116)
     }
 
     private var statusColor: Color {
