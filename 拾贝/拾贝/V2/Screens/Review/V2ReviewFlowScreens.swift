@@ -528,7 +528,7 @@ private enum V2MatchingPageMetrics {
 }
 
 private enum V2QuestionFeedbackMetrics {
-    static let bottomLift: CGFloat = 30
+    static let bottomLift: CGFloat = 72
 }
 
 private struct V2MatchingPromptCard: View {

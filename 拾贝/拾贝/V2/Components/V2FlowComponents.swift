@@ -616,7 +616,7 @@ private enum V2AnswerFeedbackPanelMetrics {
     static let buttonToSourceGap: CGFloat = 13
     static let sourceHeight: CGFloat = 26
     static let bottomInset: CGFloat = 22
-    static let bottomCoverExtension: CGFloat = 34
+    static let bottomCoverExtension: CGFloat = 76
     static let closeY: CGFloat = 96
 }
 
