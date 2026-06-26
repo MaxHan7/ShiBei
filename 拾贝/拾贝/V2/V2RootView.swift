@@ -11,6 +11,7 @@ struct V2RootView: View {
     @State private var route: V2AppRoute?
     @State private var routeStack: [V2AppRoute] = []
     @State private var showsGenerationStartedDialog = false
+    @State private var showsDeleteChapterConfirmation = false
     @State private var showsGeneratingChapterCard = false
     @State private var questionInteractionStates: [String: V2QuestionInteractionState] = [:]
     @State private var backendChapters: [V2BackendChapter] = []
@@ -69,6 +70,16 @@ struct V2RootView: View {
         .task(id: usesFixtures) {
             await loadLatestBackendChapterIfNeeded()
         }
+        .alert("删除章节", isPresented: $showsDeleteChapterConfirmation) {
+            Button("取消", role: .cancel) {}
+            Button("删除", role: .destructive) {
+                Task {
+                    await deleteSelectedBackendChapter()
+                }
+            }
+        } message: {
+            Text("删除后，这个章节和它的生成任务都会被移除。")
+        }
     }
 
     @ViewBuilder
@@ -97,8 +108,10 @@ struct V2RootView: View {
                 selectedTab: $selectedTab,
                 usesMockData: usesFixtures,
                 backendChapters: backendChapters,
+                generatedChapterCount: generatedChapterCount,
                 showsGeneratingChapterCard: showsGeneratingChapterCard,
                 generatingChapterTitle: backendChapter?.title ?? "正在生成新的章节",
+                generatingChapterStatus: isActiveGenerationFailed ? .failed : .generating,
                 generatingProgressText: generationDisplayText,
                 generatedChapter: backendReviewChapter,
                 openGeneratingChapter: openGeneratingChapter(id:),
@@ -107,7 +120,7 @@ struct V2RootView: View {
         case .upload:
             V2UploadView(
                 selectedTab: $selectedTab,
-                isGenerating: isGenerationBusy,
+                isSubmittingGeneration: isSubmittingGeneration,
                 onGenerate: startV2Generation
             )
         case .discover:
@@ -153,10 +166,14 @@ struct V2RootView: View {
                 progress: backendChapter?.progress?.progress ?? 0,
                 statusText: generationDisplayText,
                 isCompleted: backendReviewChapter != nil,
+                isFailed: isActiveGenerationFailed,
+                failureReason: activeGenerationFailureReason,
                 onBack: goBack,
                 onSource: openSource,
-                onOpenChapter: { replaceRoute(.chapterDetail) }
+                onOpenChapter: { replaceRoute(.chapterDetail) },
+                onDelete: { showsDeleteChapterConfirmation = true }
             )
+            .id(isActiveGenerationFailed ? "generating-detail-failed" : "generating-detail-running")
         case .chapterDetail:
             if let chapter = activeChapter {
                 V2ChapterDetailView(
@@ -620,6 +637,14 @@ struct V2RootView: View {
         return V2HomeData(chapter: activeChapter)
     }
 
+    private var generatedChapterCount: Int {
+        let completedBackendCount = backendChapters.filter { $0.status == "completed" }.count
+        if usesFixtures {
+            return max(completedBackendCount, 1)
+        }
+        return completedBackendCount
+    }
+
     private var activeFirstUnitID: String {
         activeChapter?.units.first?.id ?? ""
     }
@@ -637,14 +662,21 @@ struct V2RootView: View {
         return backendChapter?.progress?.displayTextOrFallback ?? "正在提交生成任务..."
     }
 
-    private var isGenerationBusy: Bool {
-        if isSubmittingGeneration {
-            return true
-        }
+    private var isActiveGenerationFailed: Bool {
         guard let chapter = backendChapter else {
             return false
         }
-        return !isTerminalGenerationStatus(chapter.status)
+        return isFailedGenerationStatus(chapter.status) || chapter.progress?.status == "failed"
+    }
+
+    private var activeGenerationFailureReason: String {
+        let reason = backendChapter?.failureReason
+            ?? backendChapter?.progress?.failureMessage
+            ?? generationErrorText
+        guard !reason.isEmpty else {
+            return "生成失败，请删除后重新上传。"
+        }
+        return reason
     }
 
     private var usesBackendReviewChapter: Bool {
@@ -838,6 +870,7 @@ struct V2RootView: View {
         } else if isFailedGenerationStatus(chapter.status) || chapter.progress?.status == "failed" {
             showsGeneratingChapterCard = true
             isSubmittingGeneration = false
+            generationErrorText = ""
         }
     }
 
@@ -854,7 +887,34 @@ struct V2RootView: View {
     }
 
     private func isFailedGenerationStatus(_ status: String) -> Bool {
-        status == "failed_generation" || status == "failed_input"
+        status == "failed_generation" || status == "failed_input" || status == "failed"
+    }
+
+    @MainActor
+    private func deleteSelectedBackendChapter() async {
+        guard let chapterID = backendChapter?.id else {
+            resetToHome(tab: .materials)
+            return
+        }
+
+        generationPollingTask?.cancel()
+        generationPollingTask = nil
+
+        do {
+            _ = try await apiClient.deleteChapter(id: chapterID)
+            backendChapters.removeAll { $0.id == chapterID }
+            backendNotifications.removeAll { $0.chapterId == chapterID }
+            backendFavoriteQuestions.removeAll { $0.chapterId == chapterID }
+            backendChapter = backendChapters.first
+            backendReviewChapter = backendChapter?.toReviewChapterData()
+            v2ReviewSession = backendChapter?.v2ReviewSession
+            showsGeneratingChapterCard = false
+            isSubmittingGeneration = false
+            generationErrorText = ""
+            resetToHome(tab: .materials)
+        } catch {
+            generationErrorText = error.localizedDescription
+        }
     }
 
     private func showGeneratedChapterDetail() {

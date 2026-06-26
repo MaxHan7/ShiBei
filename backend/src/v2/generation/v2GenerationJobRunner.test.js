@@ -200,6 +200,53 @@ test("persists V2 progress and completes successful queued jobs", async () => {
   );
 });
 
+test("does not recreate a V2 chapter deleted while the worker is running", async () => {
+  const calls = [];
+  const chapters = new Map([
+    ["chapter-1", {
+      id: "chapter-1",
+      title: "Hook",
+      status: "submitted",
+      generationMeta: {},
+      createdAt: "2026-06-24T00:00:00.000Z"
+    }]
+  ]);
+  const deps = mockDeps({
+    calls,
+    chapters,
+    runV2GenerationJob: async () => {
+      chapters.delete("chapter-1");
+      return {
+        status: "completed",
+        chapter: {
+          schemaVersion: "v2_review_path_1",
+          id: "chapter-1",
+          title: "Hook",
+          status: "completed",
+          units: []
+        }
+      };
+    }
+  });
+
+  const result = await runV2GenerationQueuedJob(baseJob(), deps);
+
+  assert.equal(result.status, "cancelled");
+  assert.equal(chapters.has("chapter-1"), false);
+  assert.equal(calls.some((call) => call.name === "completeGenerationJob"), false);
+  assert.equal(calls.some((call) => call.name === "createNotification"), false);
+  assert.deepEqual(
+    calls.find((call) => call.name === "failGenerationJob")?.fields,
+    {
+      status: "cancelled",
+      currentStage: "cancelled",
+      errorMessage: "章节已删除，生成任务已取消。",
+      retry: false,
+      retryDelayMs: 0
+    }
+  );
+});
+
 test("requeues retryable V2 failures with calculated delay", async () => {
   const calls = [];
   const chapters = new Map([
@@ -244,7 +291,7 @@ test("requeues retryable V2 failures with calculated delay", async () => {
   assert.equal(result.retryable, true);
   assert.equal(chapters.get("chapter-1").status, "submitted");
   assert.equal(chapters.get("chapter-1").generationProgress.status, "retrying");
-  assert.equal(chapters.get("chapter-1").generationProgress.displayText, "生成遇到临时问题，正在重试");
+  assert.equal(chapters.get("chapter-1").generationProgress.displayText, "正在重试生成");
   assert.equal(calls.some((call) => call.name === "createNotification"), false);
   assert.equal(failCall.fields.retry, true);
   assert.equal(failCall.fields.retryDelayMs, 30_000);

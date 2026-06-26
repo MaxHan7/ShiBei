@@ -58,14 +58,81 @@ struct V2BackendGenerationProgress: Decodable, Equatable {
     }
 
     var displayTextOrFallback: String {
+        if let mappedText = userFacingStageText {
+            return mappedText
+        }
         if let displayText, !displayText.isEmpty {
-            return displayText
+            return displayText.v2TruncatedProgressText(maxCharacters: 12)
         }
         switch status {
         case "completed": return "生成完成"
         case "failed": return "生成失败"
-        default: return "正在生成知识点..."
+        default: return "正在生成"
         }
+    }
+
+    private var userFacingStageText: String? {
+        switch status {
+        case "completed":
+            return "生成完成"
+        case "failed":
+            return "生成失败"
+        case "retrying":
+            return "正在重试生成"
+        default:
+            break
+        }
+
+        switch stage {
+        case "accepted":
+            return "准备生成"
+        case "extracting_source":
+            return "正在提取原文"
+        case "planning_review_path":
+            return "正在分析文章"
+        case "mapping_knowledge":
+            return "正在整理知识点"
+        case "planning_practice":
+            return "正在设计练习"
+        case "generating_questions":
+            return "正在生成题目"
+        case "generating_unit_copy", "finalizing":
+            return "正在整理结果"
+        case "retry_wait":
+            return "正在重试生成"
+        default:
+            break
+        }
+
+        switch stageGroup {
+        case "intake":
+            return "准备生成"
+        case "source":
+            return "正在提取原文"
+        case "planning":
+            return "正在分析文章"
+        case "knowledge":
+            return "正在整理知识点"
+        case "practice":
+            return "正在设计练习"
+        case "questions":
+            return "正在生成题目"
+        case "copy", "saving":
+            return "正在整理结果"
+        case "retry":
+            return "正在重试生成"
+        default:
+            return nil
+        }
+    }
+}
+
+private extension String {
+    func v2TruncatedProgressText(maxCharacters: Int) -> String {
+        guard count > maxCharacters else {
+            return self
+        }
+        return String(prefix(maxCharacters)) + "..."
     }
 }
 

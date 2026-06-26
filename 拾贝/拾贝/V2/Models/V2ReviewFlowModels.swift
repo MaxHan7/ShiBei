@@ -67,6 +67,7 @@ struct V2QuestionInteractionState: Equatable {
 
 enum V2ChapterReviewStatus {
     case generating
+    case failed
     case notStarted
     case reviewing
     case completed
@@ -74,6 +75,7 @@ enum V2ChapterReviewStatus {
     var title: String {
         switch self {
         case .generating: "生成中"
+        case .failed: "生成失败"
         case .notStarted: "未复习"
         case .reviewing: "复习中"
         case .completed: "已完成"
@@ -83,6 +85,7 @@ enum V2ChapterReviewStatus {
     var foregroundColor: V2ColorValue {
         switch self {
         case .generating: V2ColorValue(hex: 0x469CFF)
+        case .failed: V2ColorValue(hex: 0xED765C)
         case .notStarted: V2ColorValue(hex: 0x878787)
         case .reviewing: V2ColorValue(hex: 0xC08D26)
         case .completed: V2ColorValue(hex: 0x98A84E)
@@ -92,6 +95,7 @@ enum V2ChapterReviewStatus {
     var backgroundColor: V2ColorValue {
         switch self {
         case .generating: V2ColorValue(hex: 0xC7E1FF)
+        case .failed: V2ColorValue(hex: 0xF8D6CE)
         case .notStarted: V2ColorValue(hex: 0xE9E9E9)
         case .reviewing: V2ColorValue(hex: 0xFCEDC4)
         case .completed: V2ColorValue(hex: 0xE8EBBD)
