@@ -185,8 +185,18 @@ Exit criteria:
 Purpose: Replace the same production service only after the above gates pass.
 
 - [ ] Deploy production backend.
-- [ ] Confirm `/api/health`.
-- [ ] Run a production-safe smoke chapter generation with a controlled source.
+- [ ] Confirm production readiness without creating smoke data:
+
+  ```bash
+  npm --prefix backend run gate:production -- --base-url https://shibei-production.up.railway.app
+  ```
+
+- [ ] Run a production-safe smoke chapter generation with a controlled source only after the readiness gate passes:
+
+  ```bash
+  npm --prefix backend run gate:production -- --base-url https://shibei-production.up.railway.app --smoke
+  ```
+
 - [ ] Submit iOS build or distribute the release candidate.
 - [ ] Monitor:
   - generation success/failure rate,
@@ -321,3 +331,25 @@ Interpretation:
   - phone E2E passes,
   - Release entry is intentionally flipped to V2,
   - rollback and database backup are recorded.
+
+### 2026-06-26: Production readiness gate checkpoint
+
+- Added root backend production gate command:
+
+  ```bash
+  npm --prefix backend run gate:production -- --base-url https://shibei-production.up.railway.app
+  ```
+
+- The gate is intentionally split into two levels:
+  - default mode is no-side-effect and only checks `/api/health`, database health, queue visibility, V2 capability flags, APNS production environment and production bundle id;
+  - `--smoke` mode is explicitly opt-in and creates a controlled V2 queue smoke chapter only after the no-side-effect checks pass.
+- Added `scripts/production-readiness-gate.mjs` to root backend `npm run check`.
+- Expected result before the V2 backend is deployed:
+
+  ```text
+  FAIL capability_v2ChapterGeneration - health.capabilities.v2ChapterGeneration must be true
+  ```
+
+- Interpretation:
+  - this failure is a deployment-version gate, not a phone-client gate;
+  - do not run production smoke or phone E2E against production until this command passes without `--smoke`.
