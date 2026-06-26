@@ -142,6 +142,7 @@ struct V2ReviewQuestionData: Identifiable, Equatable {
     let correctOptionIndex: Int?
     let matchingPairs: [V2MatchingPairData]
     let feedback: String
+    let sourceAnchorId: String?
     let sourceExcerpt: String
 }
 

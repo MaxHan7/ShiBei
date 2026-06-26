@@ -351,6 +351,7 @@ private extension V2BackendQuestion {
             correctOptionIndex: correctIndex,
             matchingPairs: matchingPairs,
             feedback: explanation ?? "",
+            sourceAnchorId: sourceAnchorId,
             sourceExcerpt: sourceExcerpt
         )
     }

@@ -61,6 +61,7 @@ enum V2ReviewFixture {
                         correctOptionIndex: 0,
                         matchingPairs: [],
                         feedback: "重点不是让 AI 取代团队，而是让它进入协作链路，帮助团队更快形成共享上下文。",
+                        sourceAnchorId: "source-paragraph-4",
                         sourceExcerpt: "企业客户还会在意信任和多年关系，这一点与 Anthropic 对安全部署的叙事更容易放在同一条线上。"
                     ),
                     V2ReviewQuestionData(
@@ -77,6 +78,7 @@ enum V2ReviewFixture {
                             V2MatchingPairData(id: "m4", left: "补充测试", right: "看真实模型和数据表现")
                         ],
                         feedback: "这些匹配都指向同一个理念：AI 更适合承担上下文整理、风险提醒和流程推进，而不是只输出一个孤立答案。",
+                        sourceAnchorId: "source-paragraph-3",
                         sourceExcerpt: "企业路线在他眼里更贴近 Claude 的长期用途：制药公司、学术研究组、教育机构、能源公司、非营利组织，都是组织形态的客户。"
                     )
                 ],
@@ -101,6 +103,7 @@ enum V2ReviewFixture {
                         correctOptionIndex: 0,
                         matchingPairs: [],
                         feedback: "AI 协作的稳定性依赖上下文质量。目标、约束和进展越清楚，AI 越能做出有用判断。",
+                        sourceAnchorId: "source-paragraph-4",
                         sourceExcerpt: "客户会记得供应商有没有兑现承诺，也会把模型接进真实业务系统。"
                     )
                 ],

@@ -1,0 +1,236 @@
+# 拾贝 V2 完整上线标准与执行总控计划
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use this repo's plan/checkpoint convention and keep this file updated after each completed checkpoint. Do not replace the production service until every launch gate below is either passed or explicitly waived by the user.
+
+## Goal
+
+让拾贝 V2 达到可以替换同一个真实线上服务器的完整上线标准。上线标准不是“页面能打开”或“某一次生成成功”，而是：
+
+- 正式 iOS App 使用生产 bundle id 和生产 HTTPS API。
+- 根目录 production backend 可以承载 V2 生成、队列、进度、失败、复习状态、收藏、通知和原文定位。
+- 真实手机可以跑通“输入链接 -> 生成章节 -> 复习题目 -> 查看原文 -> 恢复进度 -> 收藏题目 -> 通知/失败处理”的闭环。
+- 替换前有旧版 commit、部署版本、数据库备份和回滚路径。
+- Release 版本不泄露 mock/fixture/debug 控制。
+
+## Current Baseline
+
+- Current branch: `codex/shibei-v2-isolated-build`.
+- Root production app project: `拾贝/拾贝.xcodeproj`.
+- Production bundle id: `com.maxhan.shibei`.
+- Root iOS production URL: `https://shibei-production.up.railway.app`.
+- Root Railway service uses root `backend/` through root `railway.json`.
+- Root backend already contains V2 backend modules under `backend/src/v2`.
+- Debug root iOS currently defaults to V2 UI; Release still stays on legacy UI as a safety gate.
+- V2 fixtures are gated by `usesFixtures`; Release must not allow fixture mode.
+- V2 real chapter list, notifications, notes/favorites list, and favorite/unfavorite API are already connected at the root app level.
+
+## Launch Gates
+
+### Gate 0: Baseline Freeze
+
+Purpose: Create a clean rollback point before production-readiness work continues.
+
+- [ ] Confirm `git status --short` is clean.
+- [ ] Record latest commit and short log.
+- [ ] Run root backend check:
+
+  ```bash
+  npm --prefix backend run check
+  ```
+
+- [ ] Run root iOS Debug simulator build:
+
+  ```bash
+  xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic/platform=iOS Simulator' -configuration Debug build
+  ```
+
+- [ ] Run root iOS Release generic build:
+
+  ```bash
+  xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic/platform=iOS' -configuration Release build
+  ```
+
+Exit criteria:
+
+- Worktree is clean after checkpoint commit.
+- Backend check passes.
+- Debug and Release builds pass, or exact blockers are recorded.
+
+### Gate 1: Backend Production Path Verification
+
+Purpose: Verify the deployed service path is the productionized V2-capable backend, not an experiment-only backend.
+
+- [ ] Confirm root `railway.json` start command still maps to root `backend`.
+- [ ] Confirm root `backend/package.json` includes V2 checks and V2 smoke script.
+- [ ] Compare root `backend/src/v2` and `experiments/shibei-v2/backend/src/v2`; any meaningful differences must be intentional and recorded.
+- [ ] Confirm root backend exposes:
+  - `GET /api/health`
+  - `POST /api/v2/chapters`
+  - `GET /api/chapters/:id`
+  - V2 review session endpoints
+  - favorite question endpoints
+  - notification endpoints
+  - source-open/update endpoint used by review source anchors
+- [ ] Confirm worker starts under production start command or document the separate Railway worker service setup.
+
+Exit criteria:
+
+- Root backend is the only backend path needed for production deployment.
+- No production deployment depends on `experiments/shibei-v2/backend`.
+
+### Gate 2: Backend Runtime Readiness
+
+Purpose: Make generation stable enough for real users.
+
+- [ ] Run root backend check.
+- [ ] Run V2 queue smoke against a non-production database:
+
+  ```bash
+  npm --prefix backend run smoke:v2:queue -- --base-url http://127.0.0.1:<port> --mode success
+  ```
+
+- [ ] Verify failed generation path:
+  - job moves to failed state,
+  - user-facing failure text is short and readable,
+  - failure notification is created.
+- [ ] Verify retry behavior:
+  - transient failure retries,
+  - permanent failure does not loop indefinitely,
+  - repeated submit of same source does not duplicate active work unexpectedly.
+- [ ] Verify article length protection:
+  - MVP limit is enforced around the agreed 6000 Chinese-character class of input,
+  - over-limit failure is immediate and user-facing.
+- [ ] Confirm secrets are only in environment variables, never committed.
+
+Exit criteria:
+
+- Generation, progress, success, failure and retry are testable through HTTP.
+- A bad source cannot leave a permanently confusing “卡住” state.
+
+### Gate 3: iOS Real Data Contract Readiness
+
+Purpose: Ensure SwiftUI does not silently discard backend fields needed for the product.
+
+- [ ] `sourceAnchorId` must be preserved from backend question DTO to `V2ReviewQuestionData`.
+- [ ] “查看原文” from answer feedback must open the source article using the current question's source anchor.
+- [ ] Returning from source article must preserve the question's answered state and feedback sheet state.
+- [ ] Review session state must survive app background/foreground and app restart.
+- [ ] Favorite/unfavorite must persist and rollback on failure.
+- [ ] Notes page must handle favorite records whose chapter/question is missing.
+- [ ] Empty states must be real-data states, not fixture states.
+
+Exit criteria:
+
+- Real backend data can drive all major V2 screens without fixture fallback.
+- Source anchor navigation is precise enough for production testing.
+
+### Gate 4: iOS Release Gate Flip
+
+Purpose: Move Release from legacy UI to V2 only after backend and real data gates pass.
+
+- [ ] Release entry in `ContentView` flips to V2.
+- [ ] Legacy root remains available only through a deliberate debug/internal fallback if still needed.
+- [ ] Release cannot enable mock/fixture switch by AppStorage leftovers.
+- [ ] Release base URL is HTTPS production URL.
+- [ ] Debug still supports launch-argument API override for local/phone testing.
+
+Exit criteria:
+
+- The build delivered to existing users enters V2 by default and cannot accidentally enter mock mode.
+
+### Gate 5: Phone E2E Acceptance
+
+Purpose: Validate the actual user path on a physical phone before server replacement.
+
+- [ ] Install the root app build on a phone under production bundle id.
+- [ ] Point Debug/internal build to the chosen test backend.
+- [ ] Submit a real article link.
+- [ ] Observe progress text:
+  - extracting source,
+  - summarizing / building knowledge structure,
+  - generating unit questions,
+  - completed or failed.
+- [ ] Complete at least one multiple-choice question.
+- [ ] Complete at least one matching question if generated.
+- [ ] Open source article from a question and return without losing answer state.
+- [ ] Exit and reopen app; verify review progress resumes.
+- [ ] Favorite a question; verify notes page can open it; unfavorite and verify it disappears.
+- [ ] Confirm notification list reflects success/failure state.
+
+Exit criteria:
+
+- A real phone can complete the V2 learning loop without mock data.
+
+### Gate 6: Production Replacement Readiness
+
+Purpose: Make the actual replacement reversible.
+
+- [ ] Record old backend commit.
+- [ ] Record old iOS commit/build.
+- [ ] Record current Railway deployment id/version.
+- [ ] Confirm database backup is available and restorable.
+- [ ] Confirm Railway environment variables required by V2 are set.
+- [ ] Confirm APNS production configuration for `com.maxhan.shibei`.
+- [ ] Prepare rollback plan:
+  - revert backend deployment to old commit/deployment,
+  - restore DB if schema/data corruption occurs,
+  - ship iOS rollback/hotfix if needed.
+
+Exit criteria:
+
+- There is a written rollback path that does not require inventing steps during an incident.
+
+### Gate 7: Final Launch Smoke
+
+Purpose: Replace the same production service only after the above gates pass.
+
+- [ ] Deploy production backend.
+- [ ] Confirm `/api/health`.
+- [ ] Run a production-safe smoke chapter generation with a controlled source.
+- [ ] Submit iOS build or distribute the release candidate.
+- [ ] Monitor:
+  - generation success/failure rate,
+  - job duration,
+  - JSON/model parse failures,
+  - API errors,
+  - APNS errors,
+  - client crash/feedback.
+
+Exit criteria:
+
+- V2 is live on the same production service.
+- Severe failures have a tested rollback path.
+
+## Immediate Next Checkpoints
+
+1. Fix the known `sourceAnchorId` loss in SwiftUI.
+2. Run root backend check and iOS builds.
+3. Audit root backend V2 route parity.
+4. Run local/phone backend preflight against the chosen test endpoint.
+5. Only after the real-data E2E path is stable, flip the Release entry to V2.
+
+## Checkpoint Log
+
+### 2026-06-26: Baseline launch-standard checkpoint
+
+- Root backend path was verified as the production deployment path through root `railway.json`.
+- Root `backend/package.json` already includes V2 check coverage and `smoke:v2:queue`.
+- Root `backend/src/v2` is present; only the golden loader differed from `experiments/shibei-v2/backend/src/v2` during a quick directory comparison.
+- Root backend route scan confirmed the production path contains the main V2 endpoints:
+  - `POST /api/v2/chapters`
+  - `POST /api/v2/chapters/:id/review-session`
+  - `GET /api/v2/chapters/:id/review-session`
+  - `POST /api/v2/review-sessions/:id/advance`
+  - `POST /api/v2/review-sessions/:id/answer`
+  - `POST /api/v2/review-sessions/:id/feedback-visibility`
+  - `POST /api/v2/review-sessions/:id/source-open`
+  - `POST /api/v2/review-sessions/:id/source-return`
+  - favorite question routes
+  - notification routes
+- SwiftUI no longer drops `sourceAnchorId` when mapping backend questions into V2 review questions.
+- SwiftUI now sends the current question's `sourceAnchorId` when opening source from a V2 review session.
+- Validation passed:
+  - `npm --prefix backend run check`
+  - `xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic/platform=iOS Simulator' -configuration Debug build`
+  - `xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic/platform=iOS' -configuration Release build`
+- Release build still showed `aps-environment = development`; this is a launch blocker for production push readiness and must be resolved or explicitly explained before App Store/TestFlight release.

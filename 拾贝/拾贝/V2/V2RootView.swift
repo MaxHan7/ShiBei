@@ -330,10 +330,13 @@ struct V2RootView: View {
     }
 
     private var sourceQuestion: V2ReviewQuestionData? {
-        guard let sourceRoute = routeStack.last else {
+        reviewQuestion(for: routeStack.last)
+    }
+
+    private func reviewQuestion(for sourceRoute: V2AppRoute?) -> V2ReviewQuestionData? {
+        guard let sourceRoute else {
             return nil
         }
-
         switch sourceRoute {
         case .question(let unitID, let questionID):
             return activeQuestion(unitID: unitID, questionID: questionID)
@@ -903,9 +906,10 @@ struct V2RootView: View {
     }
 
     private func openSource() {
+        let sourceAnchorId = reviewQuestion(for: route)?.sourceAnchorId ?? sourceQuestion?.sourceAnchorId
         if usesBackendReviewChapter {
             Task {
-                await openBackendSourceRouteIfPossible()
+                await openBackendSourceRouteIfPossible(sourceAnchorId: sourceAnchorId)
             }
         }
         pushRoute(.sourceArticle)
@@ -1274,12 +1278,12 @@ struct V2RootView: View {
     }
 
     @MainActor
-    private func openBackendSourceRouteIfPossible() async {
+    private func openBackendSourceRouteIfPossible(sourceAnchorId: String?) async {
         do {
             guard let session = try await ensureV2ReviewSession() else {
                 return
             }
-            let response = try await apiClient.openV2SourceFromReview(sessionId: session.id, sourceAnchorId: nil)
+            let response = try await apiClient.openV2SourceFromReview(sessionId: session.id, sourceAnchorId: sourceAnchorId)
             applyV2ReviewSessionResponse(response)
         } catch {
             generationErrorText = error.localizedDescription
