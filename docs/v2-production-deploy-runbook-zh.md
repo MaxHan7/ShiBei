@@ -155,10 +155,13 @@ railway up
 1. 打开 GitHub Actions，选择 `V2 Production Railway Deploy`。
 2. `confirmation` 必须输入 `deploy-v2-production`。
 3. `railway_service_id` 填目标 Railway production service id。
-4. `base_url` 保持 production URL，除非是在 staging-equivalent service 上演练。
-5. 第一轮保持 `smoke_after_gate=false`。
-6. workflow 会先运行 root production checks，再执行 Railway deploy，然后等待 `/api/health`，最后写出 production gate JSON/Markdown artifact。
-7. 只有无副作用 gate 全部通过后，第二轮才允许用 `smoke_after_gate=true`。
+4. `current_deployment_id` 填替换前的 Railway production deployment id。
+5. `database_backup_reference` 填替换前创建或确认的数据库备份/快照引用。
+6. `rollback_confirmation` 必须输入 `rollback-ready`，表示旧 deployment 和 DB 恢复路径已经记录。
+7. `base_url` 保持 production URL，除非是在 staging-equivalent service 上演练。
+8. 第一轮保持 `smoke_after_gate=false`。
+9. workflow 会先写出 deployment intent artifact，再运行 root production checks，再执行 Railway deploy，然后等待 `/api/health`，最后写出 production gate JSON/Markdown artifact。
+10. 只有无副作用 gate 全部通过后，第二轮才允许用 `smoke_after_gate=true`。
 
 这个方式的优点是部署、gate 和证据 artifact 在同一个审计轨迹里；缺点是仍然需要 Railway token 和 service id。没有这两项时，不要尝试绕过。
 

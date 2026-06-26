@@ -9,6 +9,19 @@ on:
       railway_service_id:
         description: Target Railway service id
         required: true
+      current_deployment_id:
+        description: Current production deployment id before replacement
+        required: true
+      database_backup_reference:
+        description: Database backup/snapshot reference created before deploy
+        required: true
+      rollback_confirmation:
+        description: Type rollback-ready after old deployment and DB restore path are recorded
+        required: true
+      deployment_notes:
+        description: Optional operator notes for the deployment record
+        required: false
+        default: ""
       base_url:
         description: Production backend base URL for post-deploy gate
         required: true
@@ -39,8 +52,39 @@ jobs:
           echo "confirmation must be exactly deploy-v2-production"
           exit 1
 
+      - name: Refuse missing rollback confirmation
+        if: ${{ inputs.rollback_confirmation != 'rollback-ready' }}
+        run: |
+          echo "rollback_confirmation must be exactly rollback-ready"
+          exit 1
+
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Write deployment intent record
+        run: |
+          mkdir -p production-readiness-evidence
+          cat > production-readiness-evidence/deployment-intent.md <<'EOF'
+          # V2 Production Deployment Intent
+
+          - Candidate commit: `${{ github.sha }}`
+          - Actor: `${{ github.actor }}`
+          - Target base URL: `${{ inputs.base_url }}`
+          - Railway service id: `${{ inputs.railway_service_id }}`
+          - Previous production deployment id: `${{ inputs.current_deployment_id }}`
+          - Database backup reference: `${{ inputs.database_backup_reference }}`
+          - Smoke after gate: `${{ inputs.smoke_after_gate }}`
+          - Operator notes: `${{ inputs.deployment_notes }}`
+
+          This workflow refuses to deploy unless the old deployment id, database backup reference, and rollback confirmation are provided.
+          EOF
+
+      - name: Upload deployment intent
+        uses: actions/upload-artifact@v4
+        with:
+          name: v2-production-deploy-intent
+          path: production-readiness-evidence/deployment-intent.md
+          if-no-files-found: error
 
       - name: Setup Node
         uses: actions/setup-node@v4
