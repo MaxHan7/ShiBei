@@ -175,6 +175,15 @@ npm --prefix backend run gate:production -- \
 
 证据文件会记录 base URL、当前 git commit、queue 状态、V2 capability、APNS 摘要、每个 gate check 的 pass/fail。默认模式无副作用，可以在 smoke 前反复运行。
 
+如果部署操作者不方便在本机跑命令，也可以在 GitHub Actions 手动触发 `V2 Production Gate Evidence`：
+
+1. 打开 PR/仓库的 Actions 页面。
+2. 选择 `V2 Production Gate Evidence`。
+3. `base_url` 填目标后端 URL，默认是 production。
+4. 第一轮保持 `smoke=false`，只跑无副作用 readiness gate。
+5. 只有 readiness gate 全部通过后，第二轮才把 `smoke=true`。
+6. 下载 workflow artifact `v2-production-gate-evidence`，保存其中的 JSON/Markdown 作为上线证据。
+
 ### 2. 生产 controlled smoke
 
 只有上一步通过后才运行：
