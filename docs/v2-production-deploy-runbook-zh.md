@@ -12,6 +12,7 @@
 - 候选 PR：`https://github.com/MaxHan7/ShiBei/pull/3`
 - 当前生产 gate 预期失败点：production health 里缺少 V2 capability flags。
 - 当前结论：本地/root backend 已有 V2 能力；线上 production service 还没有部署到这份 V2-capable commit。
+- 最近一次复核：2026-06-26，在本地候选 commit `3441900` 后运行无副作用 production gate，结果仍是 health/database/queue/APNS 通过，V2 capability flags 失败。
 
 ## 不允许跳过的原则
 

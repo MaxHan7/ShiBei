@@ -477,3 +477,21 @@ Interpretation:
   ```
 
 - Result: backend check passed with 175 tests. This does not prove production is deployed to the V2-capable commit; it prevents local/root backend regressions before deployment.
+
+### 2026-06-26: Production gate recheck after route gate checkpoint
+
+- Re-ran the no-side-effect production gate after committing the backend route contract gate:
+
+  ```bash
+  npm --prefix backend run gate:production -- --base-url https://shibei-production.up.railway.app
+  ```
+
+- Result:
+  - `backend_health`, `database_health`, `queue_visible`, APNS configured/production/bundle id all passed;
+  - V2 capability flags still failed:
+    - `capability_v2ChapterGeneration`;
+    - `capability_v2ReviewSessions`;
+    - `capability_favoriteQuestions`;
+    - `capability_notifications`;
+    - `capability_sourceAnchors`.
+- Interpretation: the production service is healthy but still not deployed to this V2-capable root backend commit. Do not run production smoke or phone E2E against production until Railway deployment/version alignment is completed.
