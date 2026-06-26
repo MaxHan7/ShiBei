@@ -7,6 +7,8 @@
 - 当前分支：`codex/shibei-v2-isolated-build`
 - 本次盘点基线：候选 PR head（最新提交与 checks 以 PR 为准）
 - 最近 checkpoint：
+  - `e95bede ci: require rollback evidence for railway deploy`
+  - `1098dc4 ci: stabilize guarded railway deploy workflow`
   - `ebc5383 ci: add guarded railway production deploy workflow`
   - `f279e6e ci: add production gate evidence workflow`
   - `9852ccc docs: record latest v2 readiness candidate`
@@ -147,6 +149,10 @@ xcodebuild -project "拾贝/拾贝.xcodeproj" -scheme "拾贝" -destination "gen
   - workflow：`V2 Production Gate Evidence`
   - 默认 `smoke=false`，只跑无副作用 readiness gate。
   - gate 通过后可手动改为 `smoke=true`，产出 JSON/Markdown artifact。
+- 已新增 guarded Railway production deploy 入口：
+  - workflow：`V2 Production Railway Deploy`
+  - 部署前必须输入目标 service id、旧 production deployment id、数据库备份引用和回滚确认短语。
+  - workflow 会先产出 deployment intent artifact，再执行部署和 production gate。
 
 ## 当前生产替换阻塞项
 
