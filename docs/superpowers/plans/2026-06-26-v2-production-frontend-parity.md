@@ -125,7 +125,7 @@
 
 **Files:**
 - Modify: `/Users/hanmingyu/Downloads/拾贝-v2-baseline/拾贝/拾贝/Views/RootView.swift`
-- Modify: `/Users/hanmingyu/Downloads/拾贝-v2-baseline/拾贝/拾贝/Store/AppStore.swift`
+- Modify: `/Users/hanmingyu/Downloads/拾贝-v2-baseline/拾贝/拾贝/Services/MockServices.swift`
 - Reference: `/Users/hanmingyu/Downloads/拾贝-v2-baseline/拾贝/拾贝/Services/ServiceProtocols.swift`
 - Reference: `/Users/hanmingyu/Downloads/拾贝-v2-baseline/experiments/shibei-v2/ios/拾贝/V2/V2RootView.swift`
 
@@ -153,7 +153,7 @@
 - [ ] **Step 5: Commit**
 
   ```bash
-  git add 拾贝/拾贝/Views/RootView.swift 拾贝/拾贝/Store/AppStore.swift
+  git add 拾贝/拾贝/Views/RootView.swift 拾贝/拾贝/Services/MockServices.swift
   git commit -m "feat: separate v2 mock and real data modes"
   ```
 
