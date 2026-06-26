@@ -924,7 +924,8 @@ private struct V2GenerationFailureDetailCard: View {
             Text("章节生成失败")
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(failureTitle)
-                .frame(width: 118, height: 39, alignment: .leading)
+                .frame(width: 118, alignment: .leading)
+                .frame(minHeight: 39, alignment: .leading)
                 .offset(x: 59, y: 18)
 
             V2NotificationFailureSourceButton(
@@ -932,7 +933,7 @@ private struct V2GenerationFailureDetailCard: View {
                 shadow: failureAccentShadow,
                 action: onSource
             )
-            .offset(x: 210, y: 20)
+            .offset(x: 186, y: 20)
 
             V2NotificationFailureReasonCard(reason: failureReason)
                 .offset(x: 23, y: 91)
@@ -962,7 +963,7 @@ private struct V2NotificationFailureSourceButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
+            HStack(spacing: 8) {
                 ZStack {
                     Circle()
                         .fill(accent)
@@ -982,14 +983,16 @@ private struct V2NotificationFailureSourceButton: View {
                     .foregroundStyle(Color(hex: 0x767676))
                     .lineLimit(1)
             }
-            .frame(width: 93, height: 36, alignment: .leading)
-            .padding(.leading, 7)
+            .padding(.leading, 12)
+            .padding(.trailing, 14)
+            .frame(width: 112, alignment: .leading)
+            .frame(minHeight: 44, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(V2Color.surfaceCream)
                     .v2Shadow(shadow)
             )
-            .frame(width: 101, height: 44, alignment: .topLeading)
+            .frame(width: 112, height: 44, alignment: .topLeading)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("打开原文链接")

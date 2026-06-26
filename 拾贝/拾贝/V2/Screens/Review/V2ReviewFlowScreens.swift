@@ -925,8 +925,7 @@ private struct V2SourceArticleHeader: View {
                 V2ChapterDetailHeroActionButton(
                     title: "原文链接",
                     iconName: "V2ChapterDetailLinkActionIcon",
-                    width: 93,
-                    textWidth: 36,
+                    width: 112,
                     action: onSource
                 )
 
@@ -935,7 +934,7 @@ private struct V2SourceArticleHeader: View {
                     iconName: "V2ChapterDetailSummaryActionIcon",
                     width: V2ChapterDetailHeroActionContent.width(
                         for: author,
-                        minWidth: 93,
+                        minWidth: 112,
                         maxWidth: 157
                     )
                 )
@@ -1166,8 +1165,7 @@ private struct V2ChapterDetailHeroCard: View {
                 V2ChapterDetailHeroActionButton(
                     title: "查看原文",
                     iconName: "V2ChapterDetailLinkActionIcon",
-                    width: 93,
-                    textWidth: 42,
+                    width: 112,
                     action: onSource
                 )
 
@@ -1176,7 +1174,7 @@ private struct V2ChapterDetailHeroCard: View {
                     iconName: "V2ChapterDetailSummaryActionIcon",
                     width: V2ChapterDetailHeroActionContent.width(
                         for: author,
-                        minWidth: 93,
+                        minWidth: 112,
                         maxWidth: 157
                     )
                 )
@@ -1222,7 +1220,6 @@ private struct V2ChapterDetailHeroActionButton: View {
     let title: String
     let iconName: String
     let width: CGFloat
-    let textWidth: CGFloat
     let action: () -> Void
 
     var body: some View {
@@ -1230,8 +1227,7 @@ private struct V2ChapterDetailHeroActionButton: View {
             V2ChapterDetailHeroActionContent(
                 title: title,
                 iconName: iconName,
-                width: width,
-                textWidth: textWidth
+                width: width
             )
         }
         .buttonStyle(.plain)
@@ -1247,8 +1243,7 @@ private struct V2ChapterDetailHeroInfoChip: View {
         V2ChapterDetailHeroActionContent(
             title: title,
             iconName: iconName,
-            width: width,
-            textWidth: width - 51
+            width: width
         )
             .accessibilityLabel("原文作者：\(title)")
     }
@@ -1258,17 +1253,16 @@ private struct V2ChapterDetailHeroActionContent: View {
     let title: String
     let iconName: String
     let width: CGFloat
-    let textWidth: CGFloat
 
     static func width(for title: String, minWidth: CGFloat, maxWidth: CGFloat) -> CGFloat {
-        let font = UIFont.systemFont(ofSize: 11, weight: .regular)
+        let font = UIFont.systemFont(ofSize: 12, weight: .regular)
         let textWidth = ceil((title as NSString).size(withAttributes: [.font: font]).width)
-        let desiredWidth = 7 + 34 + 6 + textWidth + 10
+        let desiredWidth = 12 + 34 + 8 + textWidth + 14
         return min(max(desiredWidth, minWidth), maxWidth)
     }
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 8) {
             Image(iconName)
                 .resizable()
                 .renderingMode(.original)
@@ -1281,10 +1275,12 @@ private struct V2ChapterDetailHeroActionContent: View {
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .minimumScaleFactor(0.75)
-                .frame(width: textWidth, height: 14, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.leading, 7)
-        .frame(width: width, height: 36, alignment: .leading)
+        .padding(.leading, 12)
+        .padding(.trailing, 14)
+        .frame(width: width, alignment: .leading)
+        .frame(minHeight: 44, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(Color(hex: 0xFDFAF2))

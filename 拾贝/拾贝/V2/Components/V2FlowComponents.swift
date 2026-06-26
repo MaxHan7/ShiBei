@@ -1017,11 +1017,12 @@ struct V2GeneratingChapterDetailCard: View {
             Text("章节正在生成")
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color(hex: 0x575757))
-                .frame(width: 118, height: 39, alignment: .leading)
+                .frame(width: 118, alignment: .leading)
+                .frame(minHeight: 39, alignment: .leading)
                 .offset(x: 59, y: 18)
 
             V2GeneratingSourceLinkChip(accent: accentColor, action: onSource)
-                .offset(x: 205, y: 20)
+                .offset(x: 186, y: 20)
 
             V2GeneratingProgressBar(progress: progress)
                 .frame(width: 272, height: 43)
@@ -1031,7 +1032,8 @@ struct V2GeneratingChapterDetailCard: View {
                 .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(Color(hex: 0x736D78))
                 .lineLimit(1)
-                .frame(width: 283, height: 27, alignment: .leading)
+                .frame(width: 283, alignment: .leading)
+                .frame(minHeight: 27, alignment: .leading)
                 .offset(x: 20, y: 144)
 
             if isCompleted {
@@ -1125,7 +1127,7 @@ private struct V2GeneratingSourceLinkChip: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
+            HStack(spacing: 8) {
                 ZStack {
                     Circle()
                         .fill(accent)
@@ -1145,8 +1147,10 @@ private struct V2GeneratingSourceLinkChip: View {
                     .foregroundStyle(Color(hex: 0x767676))
                     .lineLimit(1)
             }
-            .frame(width: 93, height: 36, alignment: .leading)
-            .padding(.leading, 7)
+            .padding(.leading, 12)
+            .padding(.trailing, 14)
+            .frame(width: 112, alignment: .leading)
+            .frame(minHeight: 44, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(V2Color.surfaceCream)
@@ -1154,7 +1158,7 @@ private struct V2GeneratingSourceLinkChip: View {
             )
         }
         .buttonStyle(.plain)
-        .frame(width: 101, height: 44, alignment: .topLeading)
+        .frame(width: 112, height: 44, alignment: .topLeading)
         .accessibilityLabel("查看原文")
     }
 }
@@ -1675,7 +1679,7 @@ struct V2ProfileHeaderCard: View {
                 .lineLimit(1)
                 .offset(x: 127, y: 64)
 
-            HStack(spacing: 17) {
+            HStack(spacing: 13) {
                 V2ProfileStatCard(
                     title: "已复习",
                     value: reviewedCount,
@@ -1689,7 +1693,8 @@ struct V2ProfileHeaderCard: View {
                     assetName: "V2ProfileStatStreak"
                 )
             }
-            .offset(x: 24, y: 126)
+            .frame(width: V2ProfileHeaderMetrics.statGroupWidth)
+            .offset(x: 24, y: 124)
 
             Image("V2BgDecoSmallPlantCluster")
                 .resizable()
@@ -1697,7 +1702,7 @@ struct V2ProfileHeaderCard: View {
                 .scaledToFit()
                 .frame(width: 60)
                 .opacity(0.86)
-                .offset(x: 241, y: 157)
+                .offset(x: 241, y: 170)
         }
         .frame(width: V2ProfileHeaderMetrics.cardWidth, height: V2ProfileHeaderMetrics.cardHeight)
     }
@@ -1705,8 +1710,11 @@ struct V2ProfileHeaderCard: View {
 
 private enum V2ProfileHeaderMetrics {
     static let cardWidth: CGFloat = 321
-    static let cardHeight: CGFloat = 214
+    static let cardHeight: CGFloat = 226
     static let cornerRadius: CGFloat = 15
+    static let statGroupWidth: CGFloat = cardWidth - 48
+    static let statCardWidth: CGFloat = (statGroupWidth - 13) / 2
+    static let statCardHeight: CGFloat = 82
 }
 
 struct V2ProfileStatCard: View {
@@ -1716,37 +1724,46 @@ struct V2ProfileStatCard: View {
     let assetName: String
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 15, style: .continuous)
-                .fill(V2Color.surfaceCream)
-                .v2Shadow()
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(assetName)
+                    .resizable()
+                    .renderingMode(.original)
+                    .frame(width: 32, height: 32)
 
-            Image(assetName)
-                .resizable()
-                .renderingMode(.original)
-                .frame(width: 32, height: 32)
-                .offset(x: 6, y: 5)
+                Text(title)
+                    .font(V2Typography.labelRegular)
+                    .foregroundStyle(Color(hex: 0x575757).opacity(0.72))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
+            }
 
-            Text(title)
-                .font(V2Typography.caption)
-                .foregroundStyle(Color(hex: 0x575757).opacity(0.68))
-                .lineLimit(1)
-                .offset(x: 48, y: 17)
-
-            HStack(alignment: .lastTextBaseline, spacing: 4) {
+            HStack(alignment: .lastTextBaseline, spacing: 5) {
                 Text(value)
                     .font(.system(size: 20, weight: .bold))
                     .foregroundStyle(V2Color.textPrimary)
                     .monospacedDigit()
-                    .frame(width: 35, alignment: .center)
+
                 Text(unit)
-                    .font(V2Typography.caption)
-                    .foregroundStyle(Color(hex: 0x575757).opacity(0.68))
+                    .font(V2Typography.labelRegular)
+                    .foregroundStyle(Color(hex: 0x575757).opacity(0.72))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
             .lineLimit(1)
-            .offset(x: 8, y: 46)
         }
-        .frame(width: 96, height: 72)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .frame(
+            width: V2ProfileHeaderMetrics.statCardWidth,
+            height: V2ProfileHeaderMetrics.statCardHeight,
+            alignment: .leading
+        )
+        .background(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .v2Shadow()
+        )
     }
 }
 
