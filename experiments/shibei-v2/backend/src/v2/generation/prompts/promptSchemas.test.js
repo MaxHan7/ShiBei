@@ -650,6 +650,28 @@ test("validates matching drafts against question plans", () => {
   assert.deepEqual(result, { ok: true, errors: [] });
 });
 
+test("rejects overlong matching item labels", () => {
+  const question = matchingQuestionFixture();
+  question.leftItems[0].text = "这个左侧连线项是一整句过长解释文本";
+  question.rightItems[0].text = "这个右侧连线项也是一整句过长解释文本";
+
+  const result = validateMatchingDraftOutput(
+    {
+      unitId: "unit-01",
+      questions: [question]
+    },
+    {
+      unitId: "unit-01",
+      sourceAnchorId: "anchor-unit-01",
+      plans: unitPracticePlanFixture().questionPlans
+    }
+  );
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /leftItems\[0\]\.text must be at most 16 characters/);
+  assert.match(result.errors.join("\n"), /rightItems\[0\]\.text must be at most 16 characters/);
+});
+
 test("validates batched question drafts against per-unit plans", () => {
   const result = validateQuestionDraftBatchOutput(
     {

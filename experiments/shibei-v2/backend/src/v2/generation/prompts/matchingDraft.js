@@ -8,6 +8,7 @@ import {
 import { MATCHING_RELATION_TYPES } from "./unitPracticePlan.js";
 
 export const MATCHING_DRAFT_PROMPT_SCHEMA_NAME = "shibei_v2_matching_draft";
+export const MATCHING_ITEM_TEXT_MAX_LENGTH = 16;
 
 export const MATCHING_DRAFT_OUTPUT_SCHEMA = {
   name: MATCHING_DRAFT_PROMPT_SCHEMA_NAME,
@@ -48,7 +49,7 @@ export const MATCHING_DRAFT_OUTPUT_SCHEMA = {
               required: ["id", "text"],
               properties: {
                 id: { type: "string" },
-                text: { type: "string" }
+                text: { type: "string", maxLength: MATCHING_ITEM_TEXT_MAX_LENGTH }
               }
             }
           },
@@ -61,7 +62,7 @@ export const MATCHING_DRAFT_OUTPUT_SCHEMA = {
               required: ["id", "text"],
               properties: {
                 id: { type: "string" },
-                text: { type: "string" }
+                text: { type: "string", maxLength: MATCHING_ITEM_TEXT_MAX_LENGTH }
               }
             }
           },
@@ -203,10 +204,10 @@ function validateMatchingItems(question, path, errors) {
   }
 
   const leftIds = Array.isArray(question.leftItems)
-    ? validateUniqueIds(question.leftItems, `${path}.leftItems`, errors)
+    ? validateMatchingItemTexts(question.leftItems, `${path}.leftItems`, errors)
     : new Set();
   const rightIds = Array.isArray(question.rightItems)
-    ? validateUniqueIds(question.rightItems, `${path}.rightItems`, errors)
+    ? validateMatchingItemTexts(question.rightItems, `${path}.rightItems`, errors)
     : new Set();
   const seenLeftIds = new Set();
   const seenRightIds = new Set();
@@ -236,4 +237,21 @@ function validateMatchingItems(question, path, errors) {
     seenLeftIds.add(pair.leftId);
     seenRightIds.add(pair.rightId);
   });
+}
+
+function validateMatchingItemTexts(items, path, errors) {
+  const ids = validateUniqueIds(items, path, errors);
+
+  items.forEach((item, index) => {
+    if (!isPlainObject(item)) return;
+    if (!isNonEmptyString(item.text)) {
+      errors.push(`${path}[${index}].text is required`);
+      return;
+    }
+    if (item.text.trim().length > MATCHING_ITEM_TEXT_MAX_LENGTH) {
+      errors.push(`${path}[${index}].text must be at most ${MATCHING_ITEM_TEXT_MAX_LENGTH} characters`);
+    }
+  });
+
+  return ids;
 }
