@@ -302,8 +302,8 @@ jobs:
           stamp="$(date -u +'%Y%m%d-%H%M%S')"
           args=(
             --base-url "${{ inputs.base_url }}"
-            --json-out "production-readiness-evidence/${stamp}-production-gate.json"
-            --markdown-out "production-readiness-evidence/${stamp}-production-gate.md"
+            --json-out "../production-readiness-evidence/${stamp}-production-gate.json"
+            --markdown-out "../production-readiness-evidence/${stamp}-production-gate.md"
           )
           if [ "${{ inputs.smoke_after_gate }}" = "true" ]; then
             args+=(--smoke)
