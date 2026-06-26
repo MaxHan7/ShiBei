@@ -169,7 +169,7 @@ xcodebuild -project "拾贝/拾贝.xcodeproj" -scheme "拾贝" -destination "gen
   - 当前支持两种数据策略：`preserve-data` 强制备份/恢复字段；`reset-data` 用于本轮 V2 首次 production test，要求旧数据可清空确认和旧数据导出引用。
 - 已新增旧测试数据导出 workflow：
   - Workflow：`V2 Production DB Export`
-  - 用途：通过 GitHub secret `RAILWAY_TOKEN` 和 Railway CLI 从 Postgres service 导出 `pg_dump` custom artifact，作为清空旧测试数据前的低成本备份引用。
+  - 用途：通过 GitHub secret `RAILWAY_API_TOKEN` 和 Railway CLI 从 Postgres service 导出 `pg_dump` custom artifact，作为清空旧测试数据前的低成本备份引用。
   - 约束：只适用于本轮旧 production 数据确认为测试数据的 `reset-data` 路径；真实用户数据仍应使用 `preserve-data` 和正式备份/恢复演练。
 - 已把 `reset-data` 接入部署 workflow：
   - Workflow：`V2 Production Railway Deploy`
