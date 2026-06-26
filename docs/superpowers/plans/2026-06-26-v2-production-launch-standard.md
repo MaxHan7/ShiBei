@@ -33,6 +33,7 @@ Purpose: Create a clean rollback point before production-readiness work continue
 
 - [ ] Confirm `git status --short` is clean.
 - [ ] Record latest commit and short log.
+- [ ] Confirm GitHub Actions `V2 Production Readiness` is passing for the candidate PR/commit.
 - [ ] Run root backend check:
 
   ```bash
@@ -54,6 +55,7 @@ Purpose: Create a clean rollback point before production-readiness work continue
 Exit criteria:
 
 - Worktree is clean after checkpoint commit.
+- Candidate PR has passing CI for backend production guards and iOS compile.
 - Backend check passes.
 - Debug and Release builds pass, or exact blockers are recorded.
 
@@ -495,3 +497,21 @@ Interpretation:
     - `capability_notifications`;
     - `capability_sourceAnchors`.
 - Interpretation: the production service is healthy but still not deployed to this V2-capable root backend commit. Do not run production smoke or phone E2E against production until Railway deployment/version alignment is completed.
+
+### 2026-06-26: PR CI readiness checkpoint
+
+- Added GitHub Actions workflow:
+
+  ```text
+  .github/workflows/v2-production-readiness.yml
+  ```
+
+- The workflow runs on PRs to `master` and pushes to `master` / `codex/shibei-v2-isolated-build`.
+- CI jobs:
+  - Ubuntu: install backend dependencies and run root `npm run check`, which includes backend tests, route contract gate and iOS production guard.
+  - macOS: compile the iOS app in Debug and Release simulator configurations without requiring signing credentials.
+- This CI does not replace:
+  - production deployment gate;
+  - production smoke;
+  - physical phone E2E;
+  - final signed archive/export check with `npm run check:ios-signing -- --app /path/to/拾贝.app`.

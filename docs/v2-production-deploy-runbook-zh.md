@@ -58,6 +58,14 @@
 
 ### 3. 本地候选代码检查
 
+候选 PR/commit 应先看到 GitHub Actions `V2 Production Readiness` 通过。该 CI 会跑：
+
+- root `npm run check`；
+- iOS Debug simulator compile；
+- iOS Release simulator compile。
+
+CI 通过后，再在本地或 release 机器上跑以下人工确认项：
+
 ```bash
 git status --short
 npm --prefix backend run gate:routes
