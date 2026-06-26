@@ -258,7 +258,11 @@ jobs:
         run: npm install --global @railway/cli
 
       - name: Deploy to Railway
-        run: railway up --ci --service "${{ inputs.railway_service_id }}"
+        run: |
+          railway up --ci \
+            --project "${{ inputs.railway_project_id }}" \
+            --environment "${{ inputs.railway_environment }}" \
+            --service "${{ inputs.railway_service_id }}"
 
   gate:
     name: Post-deploy production gate
