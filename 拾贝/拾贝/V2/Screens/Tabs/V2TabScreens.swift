@@ -486,6 +486,32 @@ private enum V2UploadInputCardMetrics {
 struct V2DiscoverView: View {
     @Binding var selectedTab: V2HomeTab
     let openArticle: () -> Void
+    @State private var selectedFilter = V2RecommendedArticleFilter.all
+
+    private let filters: [V2RecommendedArticleFilter] = [.all, .tag("AI"), .tag("产品"), .tag("金融")]
+    private let articles: [V2RecommendedArticleItem] = [
+        V2RecommendedArticleItem(
+            id: "anthropic-ai-agents-product",
+            title: "Anthropic 设计总监：为何您的整个团队都应该使用 AI Agents 协同工作",
+            source: "微信公众号",
+            tags: ["AI", "产品"]
+        ),
+        V2RecommendedArticleItem(
+            id: "dmc-gamified-learning",
+            title: "DMC 模型如何影响游戏化学习体验",
+            source: "推荐阅读",
+            tags: ["AI", "学习"]
+        )
+    ]
+
+    private var filteredArticles: [V2RecommendedArticleItem] {
+        switch selectedFilter {
+        case .all:
+            return articles
+        case .tag(let tag):
+            return articles.filter { $0.tags.contains(tag) }
+        }
+    }
 
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "发现") {
@@ -493,28 +519,57 @@ struct V2DiscoverView: View {
                 V2DiscoverHeroCard()
 
                 HStack(spacing: 10) {
-                    V2DiscoverChip(title: "全部", isSelected: true)
-                    V2DiscoverChip(title: "AI", isSelected: false)
-                    V2DiscoverChip(title: "产品", isSelected: false)
-                    V2DiscoverChip(title: "金融", isSelected: false)
+                    ForEach(filters) { filter in
+                        Button {
+                            selectedFilter = filter
+                        } label: {
+                            V2DiscoverChip(
+                                title: filter.title,
+                                isSelected: selectedFilter == filter
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("筛选：\(filter.title)")
+                        .accessibilityAddTraits(selectedFilter == filter ? .isSelected : [])
+                    }
                 }
 
-                V2RecommendedArticleCard(
-                    title: "Anthropic 设计总监：为何您的整个团队都应该使用 AI Agents 协同工作",
-                    source: "微信公众号",
-                    tags: ["AI", "产品"],
-                    action: openArticle
-                )
-
-                V2RecommendedArticleCard(
-                    title: "DMC 模型如何影响游戏化学习体验",
-                    source: "推荐阅读",
-                    tags: ["AI", "学习"],
-                    action: openArticle
-                )
+                ForEach(filteredArticles) { article in
+                    V2RecommendedArticleCard(
+                        title: article.title,
+                        source: article.source,
+                        tags: article.tags,
+                        action: openArticle
+                    )
+                }
             }
         }
     }
+}
+
+private enum V2RecommendedArticleFilter: Identifiable, Equatable {
+    case all
+    case tag(String)
+
+    var id: String {
+        title
+    }
+
+    var title: String {
+        switch self {
+        case .all:
+            return "全部"
+        case .tag(let tag):
+            return tag
+        }
+    }
+}
+
+private struct V2RecommendedArticleItem: Identifiable, Equatable {
+    let id: String
+    let title: String
+    let source: String
+    let tags: [String]
 }
 
 struct V2NotesView: View {
