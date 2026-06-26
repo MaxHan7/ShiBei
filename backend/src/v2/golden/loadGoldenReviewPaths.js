@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,12 +8,19 @@ import {
   validateReviewPathV2
 } from "../contracts/reviewPathContract.js";
 
-const DEFAULT_SAMPLES_DIR = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../../../docs/golden-samples"
-);
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../../../");
+const DEFAULT_SAMPLE_DIR_CANDIDATES = [
+  process.env.SHIBEI_V2_GOLDEN_SAMPLES_DIR,
+  join(repoRoot, "docs/golden-samples"),
+  join(repoRoot, "experiments/shibei-v2/docs/golden-samples")
+].filter(Boolean);
+const DEFAULT_SAMPLES_DIR = resolveDefaultSamplesDir();
 
 const OPTION_IDS = ["A", "B", "C", "D"];
+
+function resolveDefaultSamplesDir() {
+  return DEFAULT_SAMPLE_DIR_CANDIDATES.find((candidate) => existsSync(candidate)) || DEFAULT_SAMPLE_DIR_CANDIDATES[0];
+}
 
 export async function loadGoldenReviewPaths({ samplesDir = DEFAULT_SAMPLES_DIR } = {}) {
   const fileNames = (await readdir(samplesDir))
