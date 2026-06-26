@@ -12,7 +12,7 @@ enum V2AppRoute: Equatable {
     case unitOverview(unitID: String)
     case question(unitID: String, questionID: String)
     case savedQuestion(index: Int)
-    case savedBackendQuestion(favoriteID: String)
+    case savedBackendQuestion(item: V2SavedQuestionDisplayItem)
     case unitSummary(unitID: String)
     case chapterSummary
 }

@@ -156,6 +156,7 @@ struct V2MultipleChoiceQuestionView: View {
     @Binding var state: V2MultipleChoiceInteractionState
     let onBack: () -> Void
     let onSource: () -> Void
+    var onFavoriteChange: (Bool) -> Void = { _ in }
     let onContinue: () -> Void
 
     var body: some View {
@@ -165,7 +166,7 @@ struct V2MultipleChoiceQuestionView: View {
             isFavoriteSaved: state.isFavoriteSaved,
             onBack: onBack,
             onSource: onSource,
-            onFavorite: { state.isFavoriteSaved.toggle() }
+            onFavorite: toggleFavorite
         ) {
             ZStack(alignment: .top) {
                 if showsProgressBar {
@@ -258,6 +259,12 @@ struct V2MultipleChoiceQuestionView: View {
         .zIndex(isInteractive ? 10 : 0)
     }
 
+    private func toggleFavorite() {
+        let isSaved = !state.isFavoriteSaved
+        state.isFavoriteSaved = isSaved
+        onFavoriteChange(isSaved)
+    }
+
     private var multipleChoiceMascotImage: some View {
         Image("V2MatchingMascot")
             .resizable()
@@ -291,6 +298,7 @@ struct V2MatchingQuestionView: View {
     @Binding var state: V2MatchingInteractionState
     let onBack: () -> Void
     let onSource: () -> Void
+    var onFavoriteChange: (Bool) -> Void = { _ in }
     let onContinue: () -> Void
 
     var body: some View {
@@ -300,7 +308,7 @@ struct V2MatchingQuestionView: View {
             isFavoriteSaved: state.isFavoriteSaved,
             onBack: onBack,
             onSource: onSource,
-            onFavorite: { state.isFavoriteSaved.toggle() }
+            onFavorite: toggleFavorite
         ) {
             ZStack(alignment: .top) {
                 if showsProgressBar {
@@ -386,6 +394,12 @@ struct V2MatchingQuestionView: View {
         }
         .allowsHitTesting(isInteractive)
         .zIndex(isInteractive ? 10 : 0)
+    }
+
+    private func toggleFavorite() {
+        let isSaved = !state.isFavoriteSaved
+        state.isFavoriteSaved = isSaved
+        onFavoriteChange(isSaved)
     }
 
     private var matchingMascotImage: some View {

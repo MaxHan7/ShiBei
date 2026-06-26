@@ -213,6 +213,9 @@ struct V2RootView: View {
                         state: multipleChoiceStateBinding(unitID: unitID, questionID: questionID),
                         onBack: goBack,
                         onSource: openSource,
+                        onFavoriteChange: { isSaved in
+                            toggleBackendFavorite(questionID: questionID, isSaved: isSaved)
+                        },
                         onContinue: { continueAfterQuestion(unitID: unitID, questionID: questionID) }
                     )
                 case .matching:
@@ -223,6 +226,9 @@ struct V2RootView: View {
                         state: matchingStateBinding(unitID: unitID, questionID: questionID),
                         onBack: goBack,
                         onSource: openSource,
+                        onFavoriteChange: { isSaved in
+                            toggleBackendFavorite(questionID: questionID, isSaved: isSaved)
+                        },
                         onContinue: { continueAfterQuestion(unitID: unitID, questionID: questionID) }
                     )
                 }
@@ -259,9 +265,8 @@ struct V2RootView: View {
             } else {
                 V2MissingRouteView(onBack: goBack)
             }
-        case .savedBackendQuestion(let favoriteID):
-            if let savedQuestion = backendSavedQuestionItem(id: favoriteID),
-               let question = activeQuestion(unitID: savedQuestion.unitID, questionID: savedQuestion.questionID) {
+        case .savedBackendQuestion(let savedQuestion):
+            if let question = activeQuestion(unitID: savedQuestion.unitID, questionID: savedQuestion.questionID) {
                 let progress = (current: 0, total: 1)
                 switch question.kind {
                 case .multipleChoice:
@@ -269,20 +274,32 @@ struct V2RootView: View {
                         question: question,
                         unitTitle: savedQuestion.unitTitle,
                         progress: progress,
-                        state: multipleChoiceStateBinding(key: backendSavedQuestionStateKey(favoriteID: favoriteID)),
+                        state: multipleChoiceStateBinding(
+                            key: backendSavedQuestionStateKey(questionID: savedQuestion.questionID),
+                            favoriteOverride: isBackendQuestionFavorite(chapterID: savedQuestion.chapterID, questionID: savedQuestion.questionID)
+                        ),
                         onBack: goBack,
                         onSource: openSource,
-                        onContinue: { continueAfterBackendSavedQuestion(favoriteID: favoriteID) }
+                        onFavoriteChange: { isSaved in
+                            toggleBackendFavorite(chapterID: savedQuestion.chapterID, questionID: savedQuestion.questionID, isSaved: isSaved)
+                        },
+                        onContinue: { continueAfterBackendSavedQuestion(savedQuestion) }
                     )
                 case .matching:
                     V2MatchingQuestionView(
                         question: question,
                         unitTitle: savedQuestion.unitTitle,
                         progress: progress,
-                        state: matchingStateBinding(key: backendSavedQuestionStateKey(favoriteID: favoriteID)),
+                        state: matchingStateBinding(
+                            key: backendSavedQuestionStateKey(questionID: savedQuestion.questionID),
+                            favoriteOverride: isBackendQuestionFavorite(chapterID: savedQuestion.chapterID, questionID: savedQuestion.questionID)
+                        ),
                         onBack: goBack,
                         onSource: openSource,
-                        onContinue: { continueAfterBackendSavedQuestion(favoriteID: favoriteID) }
+                        onFavoriteChange: { isSaved in
+                            toggleBackendFavorite(chapterID: savedQuestion.chapterID, questionID: savedQuestion.questionID, isSaved: isSaved)
+                        },
+                        onContinue: { continueAfterBackendSavedQuestion(savedQuestion) }
                     )
                 }
             } else {
@@ -325,10 +342,7 @@ struct V2RootView: View {
                 return nil
             }
             return V2ReviewFixture.question(for: savedQuestion)
-        case .savedBackendQuestion(let favoriteID):
-            guard let savedQuestion = backendSavedQuestionItem(id: favoriteID) else {
-                return nil
-            }
+        case .savedBackendQuestion(let savedQuestion):
             return activeQuestion(unitID: savedQuestion.unitID, questionID: savedQuestion.questionID)
         default:
             return nil
@@ -361,8 +375,8 @@ struct V2RootView: View {
         }
         selectedTab = .notes
         routeStack.removeAll()
-        questionInteractionStates.removeValue(forKey: backendSavedQuestionStateKey(favoriteID: favoriteID))
-        route = .savedBackendQuestion(favoriteID: favoriteID)
+        questionInteractionStates.removeValue(forKey: backendSavedQuestionStateKey(questionID: savedQuestion.questionID))
+        route = .savedBackendQuestion(item: savedQuestion)
     }
 
     private func openGeneratingChapter(id: String?) {
@@ -437,8 +451,8 @@ struct V2RootView: View {
         "notes::saved-question::\(index)"
     }
 
-    private func backendSavedQuestionStateKey(favoriteID: String) -> String {
-        "notes::backend-saved-question::\(favoriteID)"
+    private func backendSavedQuestionStateKey(questionID: String) -> String {
+        "notes::backend-saved-question::\(questionID)"
     }
 
     private func continueAfterSavedQuestion(index: Int) {
@@ -453,11 +467,11 @@ struct V2RootView: View {
         }
     }
 
-    private func continueAfterBackendSavedQuestion(favoriteID: String) {
-        questionInteractionStates.removeValue(forKey: backendSavedQuestionStateKey(favoriteID: favoriteID))
+    private func continueAfterBackendSavedQuestion(_ currentQuestion: V2SavedQuestionDisplayItem) {
+        questionInteractionStates.removeValue(forKey: backendSavedQuestionStateKey(questionID: currentQuestion.questionID))
 
         let savedQuestions = backendSavedQuestionItems
-        guard let currentIndex = savedQuestions.firstIndex(where: { $0.id == favoriteID }) else {
+        guard let currentIndex = savedQuestions.firstIndex(where: { $0.questionID == currentQuestion.questionID }) else {
             resetToHome(tab: .notes)
             return
         }
@@ -473,8 +487,8 @@ struct V2RootView: View {
             resetToHome(tab: .notes)
             return
         }
-        questionInteractionStates.removeValue(forKey: backendSavedQuestionStateKey(favoriteID: nextQuestion.id))
-        replaceRoute(.savedBackendQuestion(favoriteID: nextQuestion.id))
+        questionInteractionStates.removeValue(forKey: backendSavedQuestionStateKey(questionID: nextQuestion.questionID))
+        replaceRoute(.savedBackendQuestion(item: nextQuestion))
     }
 
     private func questionInteractionBinding(
@@ -495,11 +509,18 @@ struct V2RootView: View {
         )
     }
 
-    private func multipleChoiceStateBinding(key: String) -> Binding<V2MultipleChoiceInteractionState> {
+    private func multipleChoiceStateBinding(
+        key: String,
+        favoriteOverride: Bool? = nil
+    ) -> Binding<V2MultipleChoiceInteractionState> {
         let interaction = questionInteractionBinding(key: key)
         return Binding(
             get: {
-                interaction.wrappedValue.multipleChoice
+                var state = interaction.wrappedValue.multipleChoice
+                if let favoriteOverride {
+                    state.isFavoriteSaved = favoriteOverride
+                }
+                return state
             },
             set: { newValue in
                 var rootState = interaction.wrappedValue
@@ -513,14 +534,25 @@ struct V2RootView: View {
         unitID: String,
         questionID: String
     ) -> Binding<V2MultipleChoiceInteractionState> {
-        multipleChoiceStateBinding(key: questionStateKey(unitID: unitID, questionID: questionID))
+        let favoriteOverride = usesFixtures ? nil : isBackendQuestionFavorite(questionID: questionID)
+        return multipleChoiceStateBinding(
+            key: questionStateKey(unitID: unitID, questionID: questionID),
+            favoriteOverride: favoriteOverride
+        )
     }
 
-    private func matchingStateBinding(key: String) -> Binding<V2MatchingInteractionState> {
+    private func matchingStateBinding(
+        key: String,
+        favoriteOverride: Bool? = nil
+    ) -> Binding<V2MatchingInteractionState> {
         let interaction = questionInteractionBinding(key: key)
         return Binding(
             get: {
-                interaction.wrappedValue.matching
+                var state = interaction.wrappedValue.matching
+                if let favoriteOverride {
+                    state.isFavoriteSaved = favoriteOverride
+                }
+                return state
             },
             set: { newValue in
                 var rootState = interaction.wrappedValue
@@ -534,7 +566,11 @@ struct V2RootView: View {
         unitID: String,
         questionID: String
     ) -> Binding<V2MatchingInteractionState> {
-        matchingStateBinding(key: questionStateKey(unitID: unitID, questionID: questionID))
+        let favoriteOverride = usesFixtures ? nil : isBackendQuestionFavorite(questionID: questionID)
+        return matchingStateBinding(
+            key: questionStateKey(unitID: unitID, questionID: questionID),
+            favoriteOverride: favoriteOverride
+        )
     }
 
     private func continueAfterUnit(unitID: String) {
@@ -1123,6 +1159,84 @@ struct V2RootView: View {
         activeChapter?.units.first { unit in
             unit.questions.contains { $0.id == questionID }
         }?.id
+    }
+
+    private func isBackendQuestionFavorite(questionID: String) -> Bool {
+        guard let chapterID = backendChapter?.id else {
+            return false
+        }
+        return isBackendQuestionFavorite(chapterID: chapterID, questionID: questionID)
+    }
+
+    private func isBackendQuestionFavorite(chapterID: String, questionID: String) -> Bool {
+        backendFavoriteRecord(chapterID: chapterID, questionID: questionID) != nil
+    }
+
+    private func backendFavoriteRecord(chapterID: String, questionID: String) -> FavoriteQuestionRecord? {
+        backendFavoriteQuestions.first { record in
+            record.chapterId == chapterID && record.questionId == questionID
+        }
+    }
+
+    private func toggleBackendFavorite(questionID: String, isSaved: Bool) {
+        guard let chapterID = backendChapter?.id else {
+            return
+        }
+        toggleBackendFavorite(chapterID: chapterID, questionID: questionID, isSaved: isSaved)
+    }
+
+    private func toggleBackendFavorite(chapterID: String, questionID: String, isSaved: Bool) {
+        guard !usesFixtures else {
+            return
+        }
+
+        let previous = backendFavoriteQuestions
+
+        if isSaved {
+            guard backendFavoriteRecord(chapterID: chapterID, questionID: questionID) == nil else {
+                return
+            }
+            let localRecord = FavoriteQuestionRecord(
+                id: "local-\(chapterID)-\(questionID)",
+                chapterId: chapterID,
+                questionId: questionID,
+                createdAt: Date.nowISO8601
+            )
+            backendFavoriteQuestions.insert(localRecord, at: 0)
+
+            Task {
+                do {
+                    let saved = try await apiClient.createFavoriteQuestion(chapterId: chapterID, questionId: questionID)
+                    await MainActor.run {
+                        backendFavoriteQuestions.removeAll { record in
+                            record.chapterId == chapterID && record.questionId == questionID
+                        }
+                        backendFavoriteQuestions.insert(saved, at: 0)
+                    }
+                } catch {
+                    await MainActor.run {
+                        backendFavoriteQuestions = previous
+                        generationErrorText = error.localizedDescription
+                    }
+                }
+            }
+        } else {
+            guard let existing = backendFavoriteRecord(chapterID: chapterID, questionID: questionID) else {
+                return
+            }
+            backendFavoriteQuestions.removeAll { $0.id == existing.id }
+
+            Task {
+                do {
+                    _ = try await apiClient.deleteFavoriteQuestion(id: existing.id)
+                } catch {
+                    await MainActor.run {
+                        backendFavoriteQuestions = previous
+                        generationErrorText = error.localizedDescription
+                    }
+                }
+            }
+        }
     }
 
     private func backendSavedQuestionItem(id: String) -> V2SavedQuestionDisplayItem? {
