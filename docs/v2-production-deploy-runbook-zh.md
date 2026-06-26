@@ -64,9 +64,11 @@
 - iOS Debug simulator compile；
 - iOS Release simulator compile。
 
-当前第一次验证通过的 CI run：
+当前最新候选提交验证通过的 CI run：
 
-- `https://github.com/MaxHan7/ShiBei/actions/runs/28213301846`
+- `https://github.com/MaxHan7/ShiBei/actions/runs/28213637178`
+
+备注：CI 曾在 GitHub runner Xcode 16.4 上暴露通知页 SwiftUI body 类型检查失败；候选提交已拆分该布局并通过 Debug/Release 远端编译。
 
 CI 通过后，再在本地或 release 机器上跑以下人工确认项：
 

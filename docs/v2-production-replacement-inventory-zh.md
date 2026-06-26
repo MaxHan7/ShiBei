@@ -137,8 +137,10 @@ xcodebuild -project "拾贝/拾贝.xcodeproj" -scheme "拾贝" -destination "gen
 xcodebuild -project "拾贝/拾贝.xcodeproj" -scheme "拾贝" -destination "generic/platform=iOS Simulator" -configuration Release CODE_SIGNING_ALLOWED=NO build
 ```
 
-- GitHub Actions `V2 Production Readiness` 首次验证通过：
-  - `https://github.com/MaxHan7/ShiBei/actions/runs/28213301846`
+- GitHub Actions `V2 Production Readiness` 最新候选提交验证通过：
+  - `https://github.com/MaxHan7/ShiBei/actions/runs/28213637178`
+  - 覆盖 root checks、iOS Debug simulator build、iOS Release simulator build。
+  - 中间曾暴露 GitHub runner Xcode 16.4 对大 SwiftUI body 的类型检查失败，已通过拆分通知页布局收口。
 
 ## 当前生产替换阻塞项
 

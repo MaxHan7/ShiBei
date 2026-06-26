@@ -517,3 +517,10 @@ Interpretation:
   - final signed archive/export check with `npm run check:ios-signing -- --app /path/to/拾贝.app`.
 - First validation run passed:
   - https://github.com/MaxHan7/ShiBei/actions/runs/28213301846
+
+### 2026-06-26: CI stability checkpoint
+
+- A later CI run exposed a GitHub runner Xcode 16.4 SwiftUI type-check failure in the notification screen.
+- Refactored the notification screen into smaller SwiftUI subviews so Debug and Release simulator builds type-check reliably in CI.
+- Latest candidate run passed:
+  - https://github.com/MaxHan7/ShiBei/actions/runs/28213637178
