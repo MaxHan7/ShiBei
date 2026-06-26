@@ -64,6 +64,10 @@
 - iOS Debug simulator compile；
 - iOS Release simulator compile。
 
+当前第一次验证通过的 CI run：
+
+- `https://github.com/MaxHan7/ShiBei/actions/runs/28213301846`
+
 CI 通过后，再在本地或 release 机器上跑以下人工确认项：
 
 ```bash

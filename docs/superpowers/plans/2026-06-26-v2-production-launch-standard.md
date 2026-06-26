@@ -515,3 +515,5 @@ Interpretation:
   - production smoke;
   - physical phone E2E;
   - final signed archive/export check with `npm run check:ios-signing -- --app /path/to/拾贝.app`.
+- First validation run passed:
+  - https://github.com/MaxHan7/ShiBei/actions/runs/28213301846
