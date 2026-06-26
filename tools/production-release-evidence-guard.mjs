@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { basename, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -9,6 +9,7 @@ const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const args = parseArgs(process.argv.slice(2));
 const expectedBaseUrl = args["base-url"] || "https://shibei-production.up.railway.app";
 const expectedBundleId = args["bundle-id"] || "com.maxhan.shibei";
+const evidenceDir = args["evidence-dir"] ? resolveFromRepo(args["evidence-dir"]) : "";
 const checks = [];
 
 if (args.help) {
@@ -16,7 +17,9 @@ if (args.help) {
   process.exit(0);
 }
 
-const deploymentIntent = readTextArg("deployment-intent", "deployment_intent_present");
+const deploymentIntent = readTextArg("deployment-intent", "deployment_intent_present", {
+  autoPath: () => findEvidenceFile((file) => basename(file) === "deployment-intent.md")
+});
 if (deploymentIntent !== null) {
   checks.push(check(
     "deployment_intent_title",
@@ -35,7 +38,9 @@ if (deploymentIntent !== null) {
   ));
 }
 
-const gateEvidence = readJsonArg("gate-json", "production_gate_json_present");
+const gateEvidence = readJsonArg("gate-json", "production_gate_json_present", {
+  autoPath: () => findProductionJsonEvidence(false)
+});
 if (gateEvidence) {
   assertProductionEvidence(gateEvidence, {
     prefix: "production_gate",
@@ -46,7 +51,9 @@ if (gateEvidence) {
   });
 }
 
-const smokeEvidence = readJsonArg("smoke-json", "production_smoke_json_present");
+const smokeEvidence = readJsonArg("smoke-json", "production_smoke_json_present", {
+  autoPath: () => findProductionJsonEvidence(true)
+});
 if (smokeEvidence) {
   assertProductionEvidence(smokeEvidence, {
     prefix: "production_smoke",
@@ -57,7 +64,9 @@ if (smokeEvidence) {
   });
 }
 
-const phoneE2E = readTextArg("phone-e2e", "phone_e2e_record_present");
+const phoneE2E = readTextArg("phone-e2e", "phone_e2e_record_present", {
+  autoPath: () => findEvidenceFile((file) => basename(file) === "phone-e2e.md")
+});
 if (phoneE2E !== null) {
   for (const marker of [
     "create chapter",
@@ -138,19 +147,32 @@ function printUsage() {
   console.log([
     "Usage:",
     "  npm run check:production-release-evidence -- \\",
+    "    --evidence-dir docs/production-readiness-evidence \\",
+    "    --phone-e2e docs/production-readiness-evidence/phone-e2e.md \\",
+    "    --signed-app /path/to/拾贝.app",
+    "",
+    "Or pass explicit evidence paths:",
+    "  npm run check:production-release-evidence -- \\",
     "    --deployment-intent docs/production-readiness-evidence/deployment-intent.md \\",
     "    --gate-json docs/production-readiness-evidence/production-gate.json \\",
     "    --smoke-json docs/production-readiness-evidence/production-smoke.json \\",
     "    --phone-e2e docs/production-readiness-evidence/phone-e2e.md \\",
     "    --signed-app /path/to/拾贝.app",
     "",
-    "This guard is intentionally strict. Run it only after deploy, no-side-effect gate, smoke, phone E2E, and final signed export are complete."
+    "This guard is intentionally strict. Run it only after deploy, no-side-effect gate, smoke, phone E2E, and final signed export are complete.",
+    "When --evidence-dir is provided, deployment-intent.md and phone-e2e.md are discovered by name, while production gate/smoke JSON files are selected by their smokeRequested value."
   ].join("\n"));
 }
 
-function readTextArg(argName, checkName) {
-  const path = args[argName];
-  checks.push(check(checkName, Boolean(path), `--${argName} is required`));
+function readTextArg(argName, checkName, options = {}) {
+  const explicitPath = args[argName];
+  const path = explicitPath || options.autoPath?.();
+  const source = explicitPath ? `--${argName}` : "--evidence-dir";
+  checks.push(check(
+    checkName,
+    Boolean(path),
+    path ? `${source} resolved ${path}` : `--${argName} is required`
+  ));
   if (!path) return null;
   const absolutePath = resolveFromRepo(path);
   checks.push(check(`${checkName}_file_exists`, existsSync(absolutePath), `${absolutePath} must exist`));
@@ -162,8 +184,8 @@ function resolveFromRepo(path) {
   return resolve(repoRoot, path);
 }
 
-function readJsonArg(argName, checkName) {
-  const text = readTextArg(argName, checkName);
+function readJsonArg(argName, checkName, options = {}) {
+  const text = readTextArg(argName, checkName, options);
   if (text === null) return null;
   try {
     return JSON.parse(text);
@@ -171,6 +193,34 @@ function readJsonArg(argName, checkName) {
     checks.push(check(`${checkName}_valid_json`, false, `must be valid JSON: ${error.message}`));
     return null;
   }
+}
+
+function findEvidenceFile(predicate) {
+  if (!evidenceDir || !existsSync(evidenceDir)) return "";
+  const files = readdirSync(evidenceDir)
+    .map((file) => resolve(evidenceDir, file))
+    .filter((file) => {
+      try {
+        return statSync(file).isFile() && predicate(file);
+      } catch {
+        return false;
+      }
+    })
+    .sort((left, right) => statSync(right).mtimeMs - statSync(left).mtimeMs);
+  return files[0] || "";
+}
+
+function findProductionJsonEvidence(smokeRequested) {
+  return findEvidenceFile((file) => {
+    if (!file.endsWith(".json")) return false;
+    if (!basename(file).includes("production")) return false;
+    try {
+      const evidence = JSON.parse(readFileSync(file, "utf8"));
+      return evidence.smokeRequested === smokeRequested;
+    } catch {
+      return false;
+    }
+  });
 }
 
 function assertProductionEvidence(evidence, options) {

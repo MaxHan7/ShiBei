@@ -263,6 +263,14 @@ npm --prefix backend run gate:production -- \
 
 ```bash
 npm run check:production-release-evidence -- \
+  --evidence-dir docs/production-readiness-evidence \
+  --signed-app /path/to/拾贝.app
+```
+
+如果证据文件不在同一个目录，或需要手动指定某次 artifact，也可以使用显式路径：
+
+```bash
+npm run check:production-release-evidence -- \
   --deployment-intent docs/production-readiness-evidence/deployment-intent.md \
   --gate-json docs/production-readiness-evidence/production-gate.json \
   --smoke-json docs/production-readiness-evidence/production-smoke.json \
@@ -278,6 +286,8 @@ npm run check:production-release-evidence -- \
 - V2 capability、database、APNS production、bundle id 全部通过；
 - 手机 E2E 记录覆盖真实生成、进度、复习、查看原文返回、收藏、通知；
 - 最终导出的 `.app` 通过 `ios-signing-guard`。
+
+使用 `--evidence-dir` 时，脚本会按文件名寻找 `deployment-intent.md` 和 `phone-e2e.md`，并通过 JSON 内的 `smokeRequested` 区分无副作用 gate 与 smoke 证据。这样 GitHub Actions 下载下来的时间戳证据可以直接放进 `docs/production-readiness-evidence/`，不需要人工改名。
 
 这一步是 Release flip 的最后一道本地证据检查。它不是现在就能通过的检查；它必须在真实 production 部署和最终签名导出之后运行。
 

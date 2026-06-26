@@ -7,6 +7,8 @@
 - 当前分支：`codex/shibei-v2-isolated-build`
 - 本次盘点基线：候选 PR head（最新提交与 checks 以 PR 为准）
 - 最近 checkpoint：
+  - `627fbdc Merge remote-tracking branch 'origin/master' into codex/shibei-v2-isolated-build`
+  - `f23b7f0 chore: add production release evidence guard`
   - `e95bede ci: require rollback evidence for railway deploy`
   - `1098dc4 ci: stabilize guarded railway deploy workflow`
   - `ebc5383 ci: add guarded railway production deploy workflow`
@@ -153,6 +155,10 @@ xcodebuild -project "拾贝/拾贝.xcodeproj" -scheme "拾贝" -destination "gen
   - workflow：`V2 Production Railway Deploy`
   - 部署前必须输入目标 service id、旧 production deployment id、数据库备份引用和回滚确认短语。
   - workflow 会先产出 deployment intent artifact，再执行部署和 production gate。
+- 已新增 Release 前最终证据 gate：
+  - 命令：`npm run check:production-release-evidence -- --evidence-dir docs/production-readiness-evidence --signed-app /path/to/拾贝.app`
+  - 支持自动发现 deployment intent、无副作用 gate JSON、smoke JSON 和手机 E2E 记录。
+  - 会继续强制最终签名 `.app` 通过 production APNS / distribution signing 检查。
 
 ## 当前生产替换阻塞项
 
