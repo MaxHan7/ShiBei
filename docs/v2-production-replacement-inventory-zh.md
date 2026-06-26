@@ -163,6 +163,9 @@ xcodebuild -project "拾贝/拾贝.xcodeproj" -scheme "拾贝" -destination "gen
   - 模板：`docs/production-readiness-evidence/deployment-inputs.template.md`
   - 用途：上线前让有 Railway 权限的人记录 service id、旧 deployment、数据库备份、回滚方式和必要 secret 是否存在。
   - 注意：它不是最终证据；正式部署证据仍由 `deployment-intent.md` 或等效审计记录提供。
+- 已新增部署输入 preflight：
+  - 命令：`npm run check:production-deploy-inputs -- --inputs docs/production-readiness-evidence/YYYYMMDD-deployment-inputs.md`
+  - 用途：部署前检查输入表是否漏填、是否保持第一轮 smoke disabled、是否误写 model key / database URL / APNS private key 等 secret 值。
 - 已新增手机 E2E 证据模板：
   - 模板：`docs/production-readiness-evidence/phone-e2e.template.md`
   - 完成手机验收后复制为 `phone-e2e.md` 并填写真实结果，最终 gate 才会自动读取。
