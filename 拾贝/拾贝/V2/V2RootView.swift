@@ -187,6 +187,8 @@ struct V2RootView: View {
             V2ProfileView(
                 usesMockData: $usesMockData,
                 allowsMockDataToggle: allowsMockDataToggle,
+                reviewedCount: profileReviewedKnowledgeCountText,
+                streakDays: profileStreakDaysText,
                 onBack: goBack
             )
         case .generatingChapterDetail:
@@ -680,6 +682,79 @@ struct V2RootView: View {
             return max(completedBackendCount, 1)
         }
         return completedBackendCount
+    }
+
+    private var profileReviewedKnowledgeCountText: String {
+        if usesFixtures {
+            return "35"
+        }
+        return String(profileReviewedKnowledgeCount)
+    }
+
+    private var profileStreakDaysText: String {
+        if usesFixtures {
+            return "7"
+        }
+        return String(profileLearningStreakDays)
+    }
+
+    private var profileReviewedKnowledgeCount: Int {
+        backendChapters.reduce(0) { total, chapter in
+            total + reviewedKnowledgeCount(in: chapter)
+        }
+    }
+
+    private func reviewedKnowledgeCount(in chapter: V2BackendChapter) -> Int {
+        let units = chapter.units ?? []
+        guard !units.isEmpty, let session = chapter.v2ReviewSession else {
+            return 0
+        }
+
+        if session.completedAt != nil {
+            return units.count
+        }
+
+        let unitIds = Set(units.map(\.id))
+        let reviewedUnitIds = Set(
+            session.completedStepIds.compactMap { stepId -> String? in
+                guard let separatorIndex = stepId.firstIndex(of: ":") else {
+                    return nil
+                }
+                let unitId = String(stepId[..<separatorIndex])
+                return unitIds.contains(unitId) ? unitId : nil
+            }
+        )
+        return reviewedUnitIds.count
+    }
+
+    private var profileLearningStreakDays: Int {
+        let calendar = Calendar.current
+        let activeDays = Set(
+            backendChapters.compactMap { chapter -> Date? in
+                guard let session = chapter.v2ReviewSession else {
+                    return nil
+                }
+                return (session.completedAt ?? session.updatedAt).v2ISO8601Date
+                    ?? session.createdAt.v2ISO8601Date
+            }
+            .map { calendar.startOfDay(for: $0) }
+        )
+
+        guard !activeDays.isEmpty else {
+            return 0
+        }
+
+        var streak = 0
+        var day = calendar.startOfDay(for: Date())
+        while activeDays.contains(day) {
+            streak += 1
+            guard let previousDay = calendar.date(byAdding: .day, value: -1, to: day) else {
+                break
+            }
+            day = previousDay
+        }
+
+        return streak
     }
 
     private var activeFirstUnitID: String {

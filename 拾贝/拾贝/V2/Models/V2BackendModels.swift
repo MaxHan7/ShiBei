@@ -127,13 +127,28 @@ struct V2BackendGenerationProgress: Decodable, Equatable {
     }
 }
 
-private extension String {
+extension String {
+    var v2ISO8601Date: Date? {
+        V2ISO8601DateParsers.fractional.date(from: self)
+            ?? V2ISO8601DateParsers.standard.date(from: self)
+    }
+
     func v2TruncatedProgressText(maxCharacters: Int) -> String {
         guard count > maxCharacters else {
             return self
         }
         return String(prefix(maxCharacters)) + "..."
     }
+}
+
+private enum V2ISO8601DateParsers {
+    static let fractional: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    static let standard = ISO8601DateFormatter()
 }
 
 struct V2BackendChapter: Decodable, Equatable {

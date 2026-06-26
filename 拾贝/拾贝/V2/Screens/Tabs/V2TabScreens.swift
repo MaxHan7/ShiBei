@@ -1080,6 +1080,8 @@ private struct V2NotificationFailureReasonCard: View {
 struct V2ProfileView: View {
     @Binding var usesMockData: Bool
     let allowsMockDataToggle: Bool
+    let reviewedCount: String
+    let streakDays: String
     let onBack: () -> Void
 
     var body: some View {
@@ -1109,8 +1111,8 @@ struct V2ProfileView: View {
                         V2ProfileHeaderCard(
                             name: "Cappy",
                             bio: "这里是我的自我介绍~",
-                            reviewedCount: "35",
-                            streakDays: "7"
+                            reviewedCount: reviewedCount,
+                            streakDays: streakDays
                         )
 
                         V2ProfileSettingsCard()
