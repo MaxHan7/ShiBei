@@ -1887,13 +1887,13 @@ private enum V2UnitOverviewBoardMetrics {
     static let stageWidth: CGFloat = 321
     static let stageHeight: CGFloat = 355
     static let textX: CGFloat = 29
-    static let textY: CGFloat = 35
+    static let textY: CGFloat = 27
     static let textWidth: CGFloat = 263
     static let labelBottomSpacing: CGFloat = 27
     static let bodyFont = Font.system(size: 16, weight: .regular, design: .default)
     static let lineSpacing: CGFloat = 11.2
     static let mascotX: CGFloat = 204
-    static let mascotY: CGFloat = 175
+    static let mascotY: CGFloat = 187
     static let mascotWidth: CGFloat = 153
     static let mascotHeight: CGFloat = 180
 }
