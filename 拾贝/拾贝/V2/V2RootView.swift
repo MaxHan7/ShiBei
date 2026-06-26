@@ -242,7 +242,7 @@ struct V2RootView: View {
                 V2ChapterOverviewView(
                     chapter: chapter,
                     onBack: goBack,
-                    onContinue: openFirstUnit
+                    onContinue: continueAfterChapterOverview
                 )
             } else {
                 V2MissingRouteView(onBack: goBack)
@@ -253,7 +253,7 @@ struct V2RootView: View {
                     unit: unit,
                     progress: progressIndex(unitID: unitID),
                     onBack: goBack,
-                    onContinue: { openFirstQuestion(in: unitID) }
+                    onContinue: { continueAfterUnitOverview(unitID: unitID) }
                 )
             } else {
                 V2MissingRouteView(onBack: goBack)
@@ -378,7 +378,7 @@ struct V2RootView: View {
                 V2ChapterSummaryView(
                     chapter: chapter,
                     onBack: goBack,
-                    onHome: { resetToHome(tab: .learning) },
+                    onHome: completeChapterReviewAndReturnHome,
                     onDetail: { pushRoute(.chapterDetail) }
                 )
             } else {
@@ -491,6 +491,32 @@ struct V2RootView: View {
             return
         }
         replaceRoute(.question(unitID: unitID, questionID: questionID))
+    }
+
+    private func continueAfterChapterOverview() {
+        guard usesBackendReviewChapter else {
+            openFirstUnit()
+            return
+        }
+
+        Task {
+            await advanceBackendReviewAndRoute(fallback: .unitOverview(unitID: activeFirstUnitID))
+        }
+    }
+
+    private func continueAfterUnitOverview(unitID: String) {
+        guard usesBackendReviewChapter else {
+            openFirstQuestion(in: unitID)
+            return
+        }
+
+        let fallback: V2AppRoute = firstQuestionID(in: unitID)
+            .map { .question(unitID: unitID, questionID: $0) }
+            ?? .unitSummary(unitID: unitID)
+
+        Task {
+            await advanceBackendReviewAndRoute(fallback: fallback)
+        }
     }
 
     private func continueAfterQuestion(unitID: String, questionID: String) {
@@ -645,10 +671,39 @@ struct V2RootView: View {
     }
 
     private func continueAfterUnit(unitID: String) {
+        guard usesBackendReviewChapter else {
+            advanceLocalAfterUnit(unitID: unitID)
+            return
+        }
+
+        Task {
+            await advanceBackendReviewAndRoute(fallback: routeAfterUnitSummary(unitID: unitID))
+        }
+    }
+
+    private func advanceLocalAfterUnit(unitID: String) {
         if let nextUnit = nextUnit(after: unitID) {
             replaceRoute(.unitOverview(unitID: nextUnit.id))
         } else {
             replaceRoute(.chapterSummary)
+        }
+    }
+
+    private func routeAfterUnitSummary(unitID: String) -> V2AppRoute {
+        if let nextUnit = nextUnit(after: unitID) {
+            return .unitOverview(unitID: nextUnit.id)
+        }
+        return .chapterSummary
+    }
+
+    private func completeChapterReviewAndReturnHome() {
+        guard usesBackendReviewChapter else {
+            resetToHome(tab: .learning)
+            return
+        }
+
+        Task {
+            await advanceBackendReviewAndRoute(fallback: .chapterSummary, resetHomeOnCompletion: true)
         }
     }
 
@@ -688,20 +743,23 @@ struct V2RootView: View {
         if usesFixtures {
             return V2HomeFixture.home
         }
-        guard let activeLearningReviewChapter else {
+        guard let activeLearningReviewChapter,
+              let activeLearningBackendChapter else {
             return V2HomeFixture.empty
         }
-        return V2HomeData(chapter: activeLearningReviewChapter)
+        return V2HomeData(
+            chapter: activeLearningReviewChapter,
+            reviewSession: activeLearningBackendChapter.v2ReviewSession
+        )
     }
 
     private var activeLearningBackendChapter: V2BackendChapter? {
         backendChapters.first { chapter in
             guard chapter.status == "completed",
-                  let session = chapter.v2ReviewSession,
-                  session.completedAt == nil else {
+                  chapter.toReviewChapterData() != nil else {
                 return false
             }
-            return chapter.toReviewChapterData() != nil
+            return chapter.v2ReviewSession?.completedAt == nil
         }
     }
 
@@ -1327,6 +1385,32 @@ struct V2RootView: View {
     }
 
     @MainActor
+    private func advanceBackendReviewAndRoute(
+        fallback: V2AppRoute,
+        resetHomeOnCompletion: Bool = false
+    ) async {
+        do {
+            guard let session = try await ensureV2ReviewSession() else {
+                routeToReviewCard(fallback)
+                return
+            }
+
+            let response = try await apiClient.advanceV2ReviewSession(sessionId: session.id)
+            applyV2ReviewSessionResponse(response)
+
+            if resetHomeOnCompletion, response.reviewSession?.completedAt != nil {
+                resetToHome(tab: .learning)
+                return
+            }
+
+            routeToReviewCard(route(for: response.reviewSession?.currentCard) ?? fallback)
+        } catch {
+            generationErrorText = error.localizedDescription
+            routeToReviewCard(fallback)
+        }
+    }
+
+    @MainActor
     private func persistBackendAnswerAndContinue(unitID: String, questionID: String) async {
         guard let payload = backendAnswerPayload(unitID: unitID, questionID: questionID) else {
             advanceLocalAfterQuestion(unitID: unitID, questionID: questionID)
@@ -1353,12 +1437,27 @@ struct V2RootView: View {
             if let updatedSession = answerResponse.reviewSession {
                 let advanceResponse = try await apiClient.advanceV2ReviewSession(sessionId: updatedSession.id)
                 applyV2ReviewSessionResponse(advanceResponse)
+                questionInteractionStates.removeValue(forKey: questionStateKey(unitID: unitID, questionID: questionID))
+                routeToReviewCard(route(for: advanceResponse.reviewSession?.currentCard) ?? localRouteAfterQuestion(unitID: unitID, questionID: questionID))
+                return
             }
         } catch {
             generationErrorText = error.localizedDescription
         }
 
         advanceLocalAfterQuestion(unitID: unitID, questionID: questionID)
+    }
+
+    private func routeToReviewCard(_ route: V2AppRoute) {
+        selectedTab = .learning
+        replaceRoute(route)
+    }
+
+    private func localRouteAfterQuestion(unitID: String, questionID: String) -> V2AppRoute {
+        if let nextQuestion = nextQuestion(after: questionID, in: unitID) {
+            return .question(unitID: unitID, questionID: nextQuestion.id)
+        }
+        return .unitSummary(unitID: unitID)
     }
 
     @MainActor

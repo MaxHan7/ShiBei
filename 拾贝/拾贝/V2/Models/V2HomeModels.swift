@@ -84,12 +84,19 @@ struct V2HomeData {
     }
 
     init(chapter: V2ReviewChapterData) {
+        self.init(chapter: chapter, reviewSession: nil)
+    }
+
+    init(chapter: V2ReviewChapterData, reviewSession: V2BackendReviewSession?) {
+        let currentNodeID = V2HomeData.currentNodeID(for: chapter, reviewSession: reviewSession)
+        let completedUnitIDs = V2HomeData.completedUnitIDs(for: chapter, reviewSession: reviewSession)
+        let completedQuestionCounts = V2HomeData.completedQuestionCounts(for: chapter, reviewSession: reviewSession)
         let startNode = V2LearningPathNodeData(
             id: "start",
             title: "开始",
             subtitle: "章节概要",
             kind: .start,
-            state: .start,
+            state: currentNodeID == "start" ? .current : .completed,
             completedQuestionCount: 0,
             totalQuestionCount: 0,
             position: CGPoint(x: 0.66, y: 0.88)
@@ -101,8 +108,12 @@ struct V2HomeData {
                 title: "单元\(index + 1)",
                 subtitle: unit.title,
                 kind: .unit,
-                state: index == 0 ? .current : .locked,
-                completedQuestionCount: 0,
+                state: V2HomeData.nodeState(
+                    unitID: unit.id,
+                    currentNodeID: currentNodeID,
+                    completedUnitIDs: completedUnitIDs
+                ),
+                completedQuestionCount: completedQuestionCounts[unit.id, default: 0],
                 totalQuestionCount: unit.questions.count,
                 position: CGPoint(x: 0, y: 0)
             )
@@ -113,7 +124,7 @@ struct V2HomeData {
             title: chapter.title
         )
         self.nodes = [startNode] + unitNodes
-        self.currentNodeID = unitNodes.first?.id ?? startNode.id
+        self.currentNodeID = currentNodeID
     }
 
     var isEmpty: Bool {
@@ -128,5 +139,100 @@ struct V2HomeData {
         let lastBottomEligibleIndex = max(0, nodes.count - 3)
         let anchorIndex = min(currentIndex, lastBottomEligibleIndex)
         return nodes[anchorIndex].id
+    }
+
+    private static func currentNodeID(
+        for chapter: V2ReviewChapterData,
+        reviewSession: V2BackendReviewSession?
+    ) -> String {
+        guard let reviewSession else {
+            return chapter.units.first?.id ?? "start"
+        }
+
+        if reviewSession.completedAt != nil {
+            return chapter.units.last?.id ?? "start"
+        }
+
+        if reviewSession.currentCard.type == "chapter_overview" {
+            return "start"
+        }
+
+        if let unitID = reviewSession.currentCard.unitId,
+           chapter.units.contains(where: { $0.id == unitID }) {
+            return unitID
+        }
+
+        return chapter.units.first?.id ?? "start"
+    }
+
+    private static func completedUnitIDs(
+        for chapter: V2ReviewChapterData,
+        reviewSession: V2BackendReviewSession?
+    ) -> Set<String> {
+        guard let reviewSession else {
+            return []
+        }
+
+        if reviewSession.completedAt != nil {
+            return Set(chapter.units.map(\.id))
+        }
+
+        let unitIDs = Set(chapter.units.map(\.id))
+        return Set(
+            reviewSession.completedStepIds.compactMap { stepID in
+                guard stepID.hasSuffix(":summary"),
+                      let separatorIndex = stepID.firstIndex(of: ":") else {
+                    return nil
+                }
+                let unitID = String(stepID[..<separatorIndex])
+                return unitIDs.contains(unitID) ? unitID : nil
+            }
+        )
+    }
+
+    private static func completedQuestionCounts(
+        for chapter: V2ReviewChapterData,
+        reviewSession: V2BackendReviewSession?
+    ) -> [String: Int] {
+        guard let reviewSession else {
+            return [:]
+        }
+
+        let questionIDsByUnitID = Dictionary(
+            uniqueKeysWithValues: chapter.units.map { unit in
+                (unit.id, Set(unit.questions.map(\.id)))
+            }
+        )
+        var counts: [String: Int] = [:]
+
+        for stepID in reviewSession.completedStepIds {
+            guard let separatorIndex = stepID.firstIndex(of: ":") else {
+                continue
+            }
+            let unitID = String(stepID[..<separatorIndex])
+            let questionID = String(stepID[stepID.index(after: separatorIndex)...])
+            guard questionIDsByUnitID[unitID]?.contains(questionID) == true else {
+                continue
+            }
+            counts[unitID, default: 0] += 1
+        }
+
+        return counts
+    }
+
+    private static func nodeState(
+        unitID: String,
+        currentNodeID: String,
+        completedUnitIDs: Set<String>
+    ) -> V2LearningPathNodeState {
+        if completedUnitIDs.contains(unitID) {
+            return .completed
+        }
+
+        if unitID == currentNodeID {
+            return .current
+        }
+
+        return .locked
     }
 }
