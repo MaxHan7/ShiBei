@@ -30,7 +30,19 @@ This template is not accepted as final release evidence. The deploy workflow wri
 - Rollback command or console path:
 - Rollback owner:
 
-## Database Backup
+## Data Strategy
+
+- Data strategy: preserve-data / reset-data
+- Data reset confirmation: reset-old-test-data / n/a
+- Old production data status: test data only / real user data / unknown
+- Old data export reference:
+- Old data export created/verified at:
+
+Use `reset-data` only for the current V2 first production test if old production test data can be deleted and V2 starts from an empty database. This is not the long-term production strategy.
+
+Use `preserve-data` for real users or anytime old production data must survive. In that mode, the backup/restore fields below are required.
+
+## Preserve-Data Backup
 
 - Backup/snapshot reference:
 - Backup created/verified at:

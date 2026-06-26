@@ -40,6 +40,7 @@ if (inputsPath && existsSync(inputsPath)) {
     "inputs file must use the V2 production deploy inputs template"
   ));
   checkRequiredFields(markdown);
+  checkDataStrategy(markdown);
   checkRequiredSecretPresence(markdown);
   checkSafety(markdown);
 }
@@ -76,11 +77,10 @@ function checkRequiredFields(text) {
     ["Rollback method", "rollback_method"],
     ["Rollback command or console path", "rollback_command_or_console_path"],
     ["Rollback owner", "rollback_owner"],
-    ["Backup/snapshot reference", "backup_snapshot_reference"],
-    ["Backup created/verified at", "backup_created_verified_at"],
-    ["Restore method", "restore_method"],
-    ["Restore owner", "restore_owner"],
-    ["Restore rehearsal status", "restore_rehearsal_status"],
+    ["Data strategy", "data_strategy"],
+    ["Old production data status", "old_production_data_status"],
+    ["Old data export reference", "old_data_export_reference"],
+    ["Old data export created/verified at", "old_data_export_created_verified_at"],
     ["First deploy should use smoke after gate", "first_deploy_smoke_after_gate"],
     ["Reason to proceed", "reason_to_proceed"],
     ["Known risks", "known_risks"]
@@ -114,6 +114,56 @@ function checkRequiredFields(text) {
     /^no$/i.test(getMarkdownField(text, "First deploy should use smoke after gate")),
     "first deploy must keep smoke disabled until readiness gate passes"
   ));
+}
+
+function checkDataStrategy(text) {
+  const strategy = getMarkdownField(text, "Data strategy");
+  checks.push(check(
+    "data_strategy_allowed",
+    ["preserve-data", "reset-data"].includes(strategy),
+    "Data strategy must be preserve-data or reset-data"
+  ));
+
+  if (strategy === "reset-data") {
+    checks.push(check(
+      "data_reset_confirmation",
+      getMarkdownField(text, "Data reset confirmation") === "reset-old-test-data",
+      "reset-data requires Data reset confirmation: reset-old-test-data"
+    ));
+    checks.push(check(
+      "old_data_status_test_only",
+      /^test data only$/i.test(getMarkdownField(text, "Old production data status")),
+      "reset-data requires Old production data status: test data only"
+    ));
+    for (const label of [
+      "Backup/snapshot reference",
+      "Backup created/verified at",
+      "Restore method",
+      "Restore owner",
+      "Restore rehearsal status"
+    ]) {
+      checks.push(check(
+        `preserve_data_${slug(label)}_not_required`,
+        true,
+        `${label} is not required for reset-data because old test data may be cleared`
+      ));
+    }
+    return;
+  }
+
+  for (const [label, name] of [
+    ["Backup/snapshot reference", "backup_snapshot_reference"],
+    ["Backup created/verified at", "backup_created_verified_at"],
+    ["Restore method", "restore_method"],
+    ["Restore owner", "restore_owner"],
+    ["Restore rehearsal status", "restore_rehearsal_status"]
+  ]) {
+    checks.push(check(
+      `field_${name}`,
+      hasFilledMarkdownField(text, label),
+      `${label} must be filled for preserve-data`
+    ));
+  }
 }
 
 function checkRequiredSecretPresence(text) {
@@ -178,7 +228,8 @@ function printUsage() {
     "    --inputs docs/production-readiness-evidence/YYYYMMDD-deployment-inputs.md",
     "",
     "This preflight guard is for the human deployment handoff before running the Railway deploy workflow.",
-    "It checks that Railway target, rollback point, database backup, and secret-presence fields are filled without storing secret values.",
+    "It checks that Railway target, rollback point, data strategy, and secret-presence fields are filled without storing secret values.",
+    "Data strategy may be preserve-data or reset-data. reset-data still requires an old data export reference and explicit reset-old-test-data confirmation.",
     "It does not replace the final release evidence guard."
   ].join("\n"));
 }

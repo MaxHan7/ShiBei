@@ -166,6 +166,7 @@ xcodebuild -project "拾贝/拾贝.xcodeproj" -scheme "拾贝" -destination "gen
 - 已新增部署输入 preflight：
   - 命令：`npm run check:production-deploy-inputs -- --inputs docs/production-readiness-evidence/YYYYMMDD-deployment-inputs.md`
   - 用途：部署前检查输入表是否漏填、是否保持第一轮 smoke disabled、是否误写 model key / database URL / APNS private key 等 secret 值。
+  - 当前支持两种数据策略：`preserve-data` 强制备份/恢复字段；`reset-data` 用于本轮 V2 首次 production test，要求旧数据可清空确认和旧数据导出引用。
 - 已新增手机 E2E 证据模板：
   - 模板：`docs/production-readiness-evidence/phone-e2e.template.md`
   - 完成手机验收后复制为 `phone-e2e.md` 并填写真实结果，最终 gate 才会自动读取。

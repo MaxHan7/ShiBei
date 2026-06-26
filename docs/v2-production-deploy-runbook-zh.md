@@ -17,7 +17,9 @@
 ## 不允许跳过的原则
 
 - 不在不知道 Railway 当前 deployment id 的情况下直接替换。
-- 不在没有数据库备份/恢复路径的情况下做 production smoke。
+- 不在没有明确数据策略的情况下做 production smoke。
+- `preserve-data` 模式下，不在没有数据库备份/恢复路径的情况下做 production smoke。
+- `reset-data` 模式只允许用于本轮 V2 首次 production test：旧 production 数据必须确认只是可丢弃测试数据，并且先做一次旧数据导出记录。
 - 不在 `gate:production` 默认无副作用检查失败时运行 `--smoke`。
 - 不把任何模型 Key、数据库 URL、APNS 私钥写进文档、commit、issue 或 PR。
 - 不把 `experiments/shibei-v2/backend` 当作正式部署路径；正式路径是根目录 `backend/`。
@@ -32,12 +34,13 @@
 - 当前 Railway deployment id：
 - 当前 Railway service 连接的 GitHub branch：
 - Railway autodeploy 是否开启：
-- 数据库备份名称或快照时间：
-- 数据库恢复方式：
+- 数据策略：`preserve-data` 或 `reset-data`
+- 如果是 `reset-data`：旧 production 数据状态、清空确认、旧数据导出引用和导出时间
+- 如果是 `preserve-data`：数据库备份名称或快照时间、数据库恢复方式
 
 如果任何一项无法记录，停止上线。
 
-可选但推荐：先复制 `docs/production-readiness-evidence/deployment-inputs.template.md` 作为部署输入核对表，给有 Railway 权限的操作者逐项填写 service id、旧 deployment、数据库备份和回滚路径。这个模板只用于人工准备，不会被最终 Release evidence gate 当作正式部署证据；正式部署证据仍由 GitHub Actions 部署 workflow 生成的 `deployment-intent.md` 或等效审计记录提供。
+可选但推荐：先复制 `docs/production-readiness-evidence/deployment-inputs.template.md` 作为部署输入核对表，给有 Railway 权限的操作者逐项填写 service id、旧 deployment、数据策略和回滚路径。这个模板只用于人工准备，不会被最终 Release evidence gate 当作正式部署证据；正式部署证据仍由 GitHub Actions 部署 workflow 生成的 `deployment-intent.md` 或等效审计记录提供。
 
 填写完成后，可以先用本地 preflight 检查是否漏填或误写 secret：
 
@@ -47,6 +50,13 @@ npm run check:production-deploy-inputs -- \
 ```
 
 这个检查只确认上线输入是否完整、是否没有把密钥值写进文件；它不会连接 Railway，也不会替代部署后的 production gate / smoke / 手机 E2E。
+
+本轮 V2 首次 production test 的当前决策：
+
+- 数据策略：`reset-data`
+- 决策人确认：旧 production 测试数据可以清空，V2 从空库重新测试。
+- 额外保险：清空前先导出一份旧数据，记录为 `Old data export reference`。
+- 注意：`reset-data` 不是长期策略。正式开放真实用户前，必须回到 `preserve-data`，补齐备份、恢复演练和迁移策略。
 
 ### 2. 确认环境变量
 
