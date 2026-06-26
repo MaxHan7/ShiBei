@@ -5,11 +5,11 @@
 ## 当前仓库节点
 
 - 当前分支：`codex/shibei-v2-isolated-build`
-- 当前提交：`5d4a7fdf9149597def15a468ff64df13349fdfe1`
+- 当前提交：`0322bc62ddf8aedbc354af4ddbb178f1bb5a4752`
 - 最近 checkpoint：
-  - `5d4a7fd docs: plan v2 production replacement readiness`
-  - `ffb2b42 style: continue v2 typography cleanup`
-  - `16db5ef style: normalize v2 typography tokens`
+  - `0322bc6 chore: add v2 production readiness gate`
+  - `1cba6b3 docs: link v2 production replacement draft pr`
+  - `15090a1 chore: expose v2 backend capabilities in health`
 
 ## 当前线上服务
 
@@ -44,7 +44,8 @@
 - 线上服务当前可用。
 - 线上已经使用 PostgreSQL。
 - 线上 APNS 已配置 production，bundle id 是 `com.maxhan.shibei`。
-- 替换前必须记录 Railway 当前 deployment id 和数据库备份位置；本次只读盘点没有拿到 Railway CLI 信息。
+- 线上当前仍未暴露 V2 capability flags；`gate:production` 会在 V2 capability 检查处失败。
+- 替换前必须记录 Railway 当前 deployment id 和数据库备份位置；当前本地没有 Railway CLI 登录态，不能直接确认或触发 Railway 生产部署。
 
 ## 当前根目录生产 App
 
@@ -92,10 +93,19 @@
 结论：
 
 - 当前 Railway 默认从根目录部署，不会自动部署 `experiments/shibei-v2/backend`。
-- 替换路径必须二选一：
-  1. 把 V2 后端能力迁入根 `backend`，沿用当前 Railway 服务结构。
-  2. 修改 Railway 的 build/start 路径，让同一个 service 改跑 V2 backend。
-- 推荐优先评估方案 1，因为它更符合“替换同一个 service，同时尽量不改变部署外壳”的原则。
+- V2 后端能力已经迁入根 `backend`，推荐继续沿用当前 Railway 服务结构，不切换到 `experiments/shibei-v2/backend`。
+- 当前替换路径的核心是把目标 Railway service 部署到当前根 backend commit，而不是更改服务外壳。
+- 部署方式必须由有 Railway 权限的人执行或授权：
+  1. 如果 Railway service 连接的是 `master` 分支：合并 PR 后自动部署，或在 Railway 面板执行 Deploy Latest Commit。
+  2. 如果 Railway service 支持手动部署当前分支/commit：在 Railway 面板选择本 PR/commit 部署。
+  3. 如果使用 CLI：需要 Railway 登录态或 `RAILWAY_TOKEN`，再执行 `railway up` 到目标 service。
+- 不论哪种部署方式，部署后先运行无副作用 gate：
+
+```bash
+npm --prefix backend run gate:production -- --base-url https://shibei-production.up.railway.app
+```
+
+- 只有无副作用 gate 通过后，才允许运行 `--smoke` 或进行手机真实生成测试。
 
 ## 已验证的 V2 基线
 
@@ -134,4 +144,3 @@
 2. 决定 backend replacement path。
 3. 决定 frontend replacement path。
 4. 再开始改 root production backend / root production iOS target。
-

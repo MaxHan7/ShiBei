@@ -168,6 +168,10 @@ Purpose: Make the actual replacement reversible.
 - [ ] Record old backend commit.
 - [ ] Record old iOS commit/build.
 - [ ] Record current Railway deployment id/version.
+- [ ] Record the Railway deployment authority and method:
+  - connected GitHub branch and whether autodeploy is enabled,
+  - or Railway dashboard manual Deploy Latest Commit,
+  - or Railway CLI with an authenticated project/service.
 - [ ] Confirm database backup is available and restorable.
 - [ ] Confirm Railway environment variables required by V2 are set.
 - [ ] Confirm APNS production configuration for `com.maxhan.shibei`.
@@ -353,3 +357,32 @@ Interpretation:
 - Interpretation:
   - this failure is a deployment-version gate, not a phone-client gate;
   - do not run production smoke or phone E2E against production until this command passes without `--smoke`.
+
+### 2026-06-26: Railway deployment-path audit checkpoint
+
+- Root Railway config remains:
+  - build command: `npm run build`
+  - start command: `npm start`
+  - healthcheck: `/api/health`
+- GitHub PR for the V2 replacement candidate remains draft:
+  - https://github.com/MaxHan7/ShiBei/pull/3
+  - base: `master`
+  - head: `codex/shibei-v2-isolated-build`
+- Current local environment has GitHub CLI auth but no Railway CLI/login context.
+- Railway official deployment paths to use after human/operator confirmation:
+  - connected GitHub branch autodeploys when a new commit lands on that branch;
+  - Railway dashboard can manually deploy the latest commit from the connected GitHub branch;
+  - Railway CLI can deploy local code with `railway up`, but requires Railway project/service auth.
+- Current decision:
+  - do not merge or deploy blindly from Codex without Railway deployment id, database backup, and an agreed rollback point;
+  - once the V2-capable backend commit is deployed, immediately run:
+
+    ```bash
+    npm --prefix backend run gate:production -- --base-url https://shibei-production.up.railway.app
+    ```
+
+  - only if that passes, run the explicit smoke:
+
+    ```bash
+    npm --prefix backend run gate:production -- --base-url https://shibei-production.up.railway.app --smoke
+    ```
