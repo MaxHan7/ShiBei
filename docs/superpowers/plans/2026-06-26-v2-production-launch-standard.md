@@ -280,3 +280,32 @@ Exit criteria:
 Next required action:
 
 - Deploy or otherwise run the root `backend/` currently on this branch in a controlled environment, then rerun the same smoke command before flipping iOS Release to V2.
+
+### 2026-06-26: Health capability probe checkpoint
+
+- Added explicit root backend health capabilities:
+  - `legacyChapterGeneration`
+  - `v2ChapterGeneration`
+  - `v2ReviewSessions`
+  - `favoriteQuestions`
+  - `notifications`
+  - `sourceAnchors`
+- Added unit coverage for production-critical capability flags.
+- Updated `preflight:phone` to require `health.capabilities.v2ChapterGeneration === true`.
+- Root backend validation passed:
+
+  ```bash
+  npm --prefix backend run check
+  ```
+
+- Production preflight now fails without creating smoke data, which is the desired behavior until the V2-capable backend is deployed:
+
+  ```text
+  FAIL v2_chapter_generation_capability - health.capabilities.v2ChapterGeneration must be true
+  ```
+
+Interpretation:
+
+- The local/root backend is ready to advertise V2 capability.
+- The currently deployed production service is still an older deployment from the perspective of V2 creation.
+- The next production-readiness step is deployment/version alignment, not more client-side debugging.

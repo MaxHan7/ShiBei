@@ -55,6 +55,7 @@ import {
   upsertPushToken as upsertDatabasePushToken
 } from "./db.js";
 import { apnsConfigurationSummary, isAPNSConfigured, sendGenerationNotification } from "./apns.js";
+import { buildServiceCapabilities } from "./serviceCapabilities.js";
 import { enqueueV2ChapterGeneration } from "./v2/generation/v2ChapterQueue.js";
 import {
   advanceReviewCardV2,
@@ -1951,6 +1952,7 @@ const server = createServer(async (req, res) => {
       database,
       queue,
       apns: apnsConfigurationSummary(),
+      capabilities: buildServiceCapabilities(),
       chapterCount: count,
       memoryChapterCount: count
     });

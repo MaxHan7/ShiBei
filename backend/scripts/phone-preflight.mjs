@@ -44,6 +44,7 @@ try {
   checks.push(check("backend_health", health?.ok === true, `GET ${baseUrl}/api/health`));
   checks.push(check("database_health", health?.database?.ok === true, "health.database.ok must be true"));
   checks.push(check("queue_visible", Boolean(health?.queue), "health.queue must be present"));
+  checks.push(check("v2_chapter_generation_capability", health?.capabilities?.v2ChapterGeneration === true, "health.capabilities.v2ChapterGeneration must be true"));
 } catch (error) {
   checks.push(check("backend_health", false, `${baseUrl}/api/health failed: ${error.message}`));
 }
