@@ -1036,6 +1036,7 @@ struct V2ChapterDetailView: View {
     let onBack: () -> Void
     let onContinue: () -> Void
     let onSource: () -> Void
+    let onDelete: () -> Void
 
     private var totalQuestionCount: Int {
         chapter.units.reduce(0) { $0 + $1.questions.count }
@@ -1062,7 +1063,9 @@ struct V2ChapterDetailView: View {
     var body: some View {
         V2FlowScreen(
             title: "章节详情",
-            onBack: onBack
+            showDeleteButton: true,
+            onBack: onBack,
+            onDelete: onDelete
         ) {
             ScrollView(showsIndicators: false) {
                 ZStack(alignment: .top) {

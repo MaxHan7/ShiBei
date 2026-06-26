@@ -59,10 +59,12 @@ struct V2FlowTopBar: View {
     var titleColor: Color = V2Color.topTitle
     let showSourceButton: Bool
     let showFavoriteButton: Bool
+    let showDeleteButton: Bool
     let isFavoriteSaved: Bool
     let onBack: () -> Void
     let onSource: () -> Void
     let onFavorite: () -> Void
+    let onDelete: () -> Void
 
     init(
         title: String,
@@ -70,20 +72,24 @@ struct V2FlowTopBar: View {
         titleColor: Color = V2Color.topTitle,
         showSourceButton: Bool = false,
         showFavoriteButton: Bool = false,
+        showDeleteButton: Bool = false,
         isFavoriteSaved: Bool = false,
         onBack: @escaping () -> Void,
         onSource: @escaping () -> Void = {},
-        onFavorite: @escaping () -> Void = {}
+        onFavorite: @escaping () -> Void = {},
+        onDelete: @escaping () -> Void = {}
     ) {
         self.title = title
         self.titleFont = titleFont
         self.titleColor = titleColor
         self.showSourceButton = showSourceButton
         self.showFavoriteButton = showFavoriteButton
+        self.showDeleteButton = showDeleteButton
         self.isFavoriteSaved = isFavoriteSaved
         self.onBack = onBack
         self.onSource = onSource
         self.onFavorite = onFavorite
+        self.onDelete = onDelete
     }
 
     var body: some View {
@@ -99,6 +105,8 @@ struct V2FlowTopBar: View {
                 Spacer()
                 if showFavoriteButton {
                     V2QuestionFavoriteButton(isSaved: isFavoriteSaved, action: onFavorite)
+                } else if showDeleteButton {
+                    V2CircleIconButton(kind: .delete, action: onDelete)
                 } else if showSourceButton {
                     V2CircleIconButton(kind: .sourceDocument, action: onSource)
                 }
@@ -114,10 +122,12 @@ struct V2FlowScreen<Content: View>: View {
     var titleColor: Color = V2Color.topTitle
     var showSourceButton: Bool = false
     var showFavoriteButton: Bool = false
+    var showDeleteButton: Bool = false
     var isFavoriteSaved: Bool = false
     let onBack: () -> Void
     var onSource: () -> Void = {}
     var onFavorite: () -> Void = {}
+    var onDelete: () -> Void = {}
     @ViewBuilder let content: () -> Content
 
     var body: some View {
@@ -137,10 +147,12 @@ struct V2FlowScreen<Content: View>: View {
                         titleColor: titleColor,
                         showSourceButton: showSourceButton,
                         showFavoriteButton: showFavoriteButton,
+                        showDeleteButton: showDeleteButton,
                         isFavoriteSaved: isFavoriteSaved,
                         onBack: onBack,
                         onSource: onSource,
-                        onFavorite: onFavorite
+                        onFavorite: onFavorite,
+                        onDelete: onDelete
                     )
                 }
                 .zIndex(20)

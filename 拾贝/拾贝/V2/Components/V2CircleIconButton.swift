@@ -13,6 +13,7 @@ enum V2CircleIconKind {
     case profile
     case back
     case sourceDocument
+    case delete
 }
 
 struct V2CircleIconButton: View {
@@ -48,6 +49,8 @@ struct V2CircleIconButton: View {
             circleAsset("V2CircleButtonNotification")
         case .profile:
             circleAsset("V2CircleButtonProfile")
+        case .delete:
+            systemIcon("trash")
         }
     }
 
@@ -56,6 +59,30 @@ struct V2CircleIconButton: View {
             .resizable()
             .renderingMode(.original)
             .frame(width: V2TopCircleButtonMetrics.canvasWidth, height: V2TopCircleButtonMetrics.canvasHeight)
+    }
+
+    private func systemIcon(_ name: String) -> some View {
+        ZStack {
+            Circle()
+                .fill(V2Color.surfaceCircleButton)
+                .frame(
+                    width: V2TopCircleButtonMetrics.visualCircleDiameter,
+                    height: V2TopCircleButtonMetrics.visualCircleDiameter
+                )
+                .shadow(
+                    color: Color(hex: 0x98A35E).opacity(0.15),
+                    radius: 0.75,
+                    x: 0,
+                    y: 2
+                )
+                .position(x: V2TopCircleButtonMetrics.centerX, y: V2TopCircleButtonMetrics.visualCenterY)
+
+            Image(systemName: name)
+                .font(.system(size: 19, weight: .regular))
+                .foregroundStyle(V2Color.textPrimary)
+                .position(x: V2TopCircleButtonMetrics.centerX, y: V2TopCircleButtonMetrics.visualCenterY)
+        }
+        .frame(width: V2TopCircleButtonMetrics.canvasWidth, height: V2TopCircleButtonMetrics.canvasHeight)
     }
 
     private var unreadBadge: some View {
@@ -71,6 +98,7 @@ struct V2CircleIconButton: View {
         case .profile: "个人主页"
         case .back: "返回"
         case .sourceDocument: "查看原文"
+        case .delete: "删除章节"
         }
     }
 }

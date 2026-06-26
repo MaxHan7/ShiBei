@@ -220,7 +220,8 @@ struct V2RootView: View {
                     primaryActionTitle: chapterDetailPrimaryActionTitle,
                     onBack: goBack,
                     onContinue: continueFromChapterDetail,
-                    onSource: openOriginalSourceLink
+                    onSource: openOriginalSourceLink,
+                    onDelete: { showsDeleteChapterConfirmation = true }
                 )
             } else {
                 V2MissingRouteView(onBack: goBack)
