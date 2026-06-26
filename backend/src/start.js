@@ -10,7 +10,10 @@ const processes = new Map();
 let shuttingDown = false;
 
 async function main() {
-  if (hasDatabase) await initDatabase();
+  if (hasDatabase) {
+    await initDatabase();
+    process.env.SHIBEI_DB_INITIALIZED_BY_PARENT = "1";
+  }
 
   startProcess("server", ["src/server.js"]);
 

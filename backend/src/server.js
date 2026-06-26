@@ -82,6 +82,7 @@ const REVIEW_SESSION_SCHEMA_VERSION = 2;
 const MAX_REINFORCEMENTS_PER_QUESTION = 2;
 const GENERATION_JOB_TIMEOUT_MS = readPositiveInt(process.env.GENERATION_JOB_TIMEOUT_MS, 360_000);
 const PENDING_PUSH_REPLAY_WINDOW_MS = readPositiveInt(process.env.PENDING_PUSH_REPLAY_WINDOW_MS, 30 * 60 * 1000);
+const databaseInitializedByParent = process.env.SHIBEI_DB_INITIALIZED_BY_PARENT === "1";
 
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
@@ -2273,7 +2274,11 @@ const server = createServer(async (req, res) => {
 });
 
 function startServer() {
-  return initDatabase()
+  const initialization = databaseInitializedByParent
+    ? Promise.resolve({ storage: hasDatabase ? "postgres" : "memory" })
+    : initDatabase();
+
+  return initialization
     .then((result) => {
       server.listen(port, host, () => {
         console.log(`拾贝 Demo 已启动：http://${host}:${port} (${result.storage})`);

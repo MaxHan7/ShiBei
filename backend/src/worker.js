@@ -12,6 +12,7 @@ const concurrency = readPositiveInt(process.env.GENERATION_WORKER_CONCURRENCY, 2
 const pollMs = readPositiveInt(process.env.GENERATION_WORKER_POLL_MS, 1_000);
 const lockMs = readPositiveInt(process.env.GENERATION_JOB_LOCK_MS, 420_000);
 const shutdownTimeoutMs = readPositiveInt(process.env.GENERATION_WORKER_SHUTDOWN_MS, 30_000);
+const databaseInitializedByParent = process.env.SHIBEI_DB_INITIALIZED_BY_PARENT === "1";
 
 let shuttingDown = false;
 const active = new Set();
@@ -23,7 +24,7 @@ async function main() {
     return;
   }
 
-  await initDatabase();
+  if (!databaseInitializedByParent) await initDatabase();
   console.log(`Generation worker started: ${workerId} concurrency=${concurrency}`);
   installShutdownHandlers();
   await Promise.all(Array.from({ length: concurrency }, (_, index) => workerLoop(index + 1)));
