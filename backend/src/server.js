@@ -34,11 +34,13 @@ import {
   deleteFavoriteQuestion as deleteDatabaseFavoriteQuestion,
   deleteNotificationsForChapter,
   enqueueGenerationJob,
+  enqueueIdempotentGenerationJob,
   ensureDevice,
   getFavoriteQuestion as getDatabaseFavoriteQuestion,
   getChapter as getDatabaseChapter,
   getGenerationQueueSummary,
   getNotification as getDatabaseNotification,
+  getPendingGenerationJobByIdempotencyKey,
   hasDatabase,
   initDatabase,
   listChapters as listDatabaseChapters,
@@ -53,6 +55,16 @@ import {
   upsertPushToken as upsertDatabasePushToken
 } from "./db.js";
 import { apnsConfigurationSummary, isAPNSConfigured, sendGenerationNotification } from "./apns.js";
+import { enqueueV2ChapterGeneration } from "./v2/generation/v2ChapterQueue.js";
+import {
+  advanceReviewCardV2,
+  answerQuestionV2,
+  createReviewSessionV2,
+  normalizeReviewSessionV2,
+  openSourceFromReviewV2,
+  returnFromSourceToReviewV2,
+  setQuestionFeedbackVisibleV2
+} from "./v2/state/reviewSessionV2.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const projectRoot = resolve(__dirname, "..", "..");
@@ -141,6 +153,35 @@ async function handleCreateChapter(req, res) {
     message: "已排队，正在等待生成。"
   });
   if (!hasDatabase) void runChapterGeneration(deviceId, submittedChapter.id, body);
+}
+
+async function handleCreateV2Chapter(req, res) {
+  if (!hasDatabase) {
+    sendJson(res, 503, {
+      errorCode: "v2_queue_requires_database",
+      message: "V2 本地队列测试需要配置 DATABASE_URL 后再启动 backend。"
+    });
+    return;
+  }
+
+  const body = await readBody(req);
+  const deviceId = getDeviceId(req);
+  const result = await enqueueV2ChapterGeneration({
+    deviceId,
+    body,
+    deps: {
+      getPendingGenerationJobByIdempotencyKey,
+      getChapter: getDatabaseChapter,
+      upsertChapter: upsertDatabaseChapter,
+      enqueueIdempotentGenerationJob
+    }
+  });
+
+  sendJson(res, 202, {
+    ...result,
+    chapter: serializeChapterForClient(result.chapter),
+    message: result.generationProgress?.displayText || "已收到文章，准备生成"
+  });
 }
 
 async function handleCreateQualityRun(req, res) {
@@ -717,6 +758,7 @@ function normalizeChapterSource(chapter, chapterId) {
     accountOrDomain,
     rawInput,
     extractedText,
+    blocks: normalizeV2SourceBlocks(source.blocks),
     chapterId,
     account: accountOrDomain,
     rawText: rawInput,
@@ -890,6 +932,85 @@ function normalizeQuestionOptions(options) {
   }));
 }
 
+function normalizeV2SourceBlocks(blocks) {
+  if (!Array.isArray(blocks)) return [];
+  return blocks.map((block, index) => ({
+    id: toStringValue(block?.id || `p-${String(index + 1).padStart(3, "0")}`),
+    type: toStringValue(block?.type || "paragraph"),
+    text: toStringValue(block?.text || "")
+  })).filter((block) => block.text);
+}
+
+function normalizeV2SummaryCard(summaryCard) {
+  if (!summaryCard || typeof summaryCard !== "object" || Array.isArray(summaryCard)) return null;
+  return {
+    text: toStringValue(summaryCard.text || ""),
+    ...(summaryCard.note ? { note: toStringValue(summaryCard.note) } : {})
+  };
+}
+
+function normalizeV2ChapterSummary(chapterSummary) {
+  if (!chapterSummary || typeof chapterSummary !== "object" || Array.isArray(chapterSummary)) return null;
+  return {
+    title: toStringValue(chapterSummary.title || "章节完成"),
+    statsText: toStringValue(chapterSummary.statsText || ""),
+    encouragementText: toStringValue(chapterSummary.encouragementText || "")
+  };
+}
+
+function normalizeV2Units(units) {
+  if (!Array.isArray(units)) return [];
+  return units.map((unit, index) => ({
+    id: toStringValue(unit?.id || `unit-${index + 1}`),
+    order: toIntegerValue(unit?.order, index + 1),
+    title: toStringValue(unit?.title || `知识点 ${index + 1}`),
+    nodeLabel: toStringValue(unit?.nodeLabel || unit?.title || ""),
+    shortSummary: toStringValue(unit?.shortSummary || ""),
+    detailSummary: toStringValue(unit?.detailSummary || ""),
+    why: toStringValue(unit?.why || ""),
+    sourceAnchor: normalizeV2SourceAnchor(unit?.sourceAnchor),
+    overview: {
+      text: toStringValue(unit?.overview?.text || unit?.overview || "")
+    },
+    questions: normalizeV2UnitQuestions(unit?.questions),
+    summary: {
+      title: toStringValue(unit?.summary?.title || "单元完成"),
+      text: toStringValue(unit?.summary?.text || "")
+    }
+  }));
+}
+
+function normalizeV2SourceAnchor(anchor) {
+  if (!anchor || typeof anchor !== "object" || Array.isArray(anchor)) return null;
+  return {
+    id: toStringValue(anchor.id || ""),
+    label: toStringValue(anchor.label || ""),
+    blockIds: Array.isArray(anchor.blockIds) ? anchor.blockIds.map((id) => toStringValue(id)).filter(Boolean) : [],
+    quote: toStringValue(anchor.quote || "")
+  };
+}
+
+function normalizeV2UnitQuestions(questions) {
+  if (!Array.isArray(questions)) return [];
+  return questions.map((question, index) => ({
+    id: toStringValue(question?.id || `q-${index + 1}`),
+    type: toStringValue(question?.type || "multiple_choice"),
+    stem: toStringValue(question?.stem || question?.prompt || ""),
+    options: normalizeQuestionOptions(question?.options),
+    correctOptionId: toStringValue(question?.correctOptionId || ""),
+    leftItems: normalizeQuestionOptions(question?.leftItems),
+    rightItems: normalizeQuestionOptions(question?.rightItems),
+    pairs: Array.isArray(question?.pairs)
+      ? question.pairs.map((pair) => ({
+        leftId: toStringValue(pair?.leftId || ""),
+        rightId: toStringValue(pair?.rightId || "")
+      })).filter((pair) => pair.leftId && pair.rightId)
+      : [],
+    explanation: toStringValue(question?.explanation || question?.shortExplanation || ""),
+    sourceAnchorId: toStringValue(question?.sourceAnchorId || "")
+  }));
+}
+
 function normalizeQualityScore(qualityScore) {
   if (!qualityScore || typeof qualityScore !== "object" || Array.isArray(qualityScore)) return null;
   return Object.fromEntries(
@@ -938,9 +1059,11 @@ function ensureChapterRecord(chapter) {
   const knowledgePoints = normalizeKnowledgePoints(chapter.knowledgePoints || [], id);
   const filteredKnowledgePoints = normalizeKnowledgePoints(chapter.filteredKnowledgePoints || [], id);
   const questions = normalizeQuestions(chapter.questions || [], id, knowledgePoints);
+  const units = normalizeV2Units(chapter.units || []);
   const status = normalizeChapterStatus(chapter.status || "completed");
   const baseChapter = { ...chapter, id, source, knowledgePoints, questions };
   return {
+    schemaVersion: toStringValue(chapter.schemaVersion || ""),
     id,
     title: toStringValue(chapter.title || chapter.chapterTitle || source.title || "未命名章节"),
     status,
@@ -950,12 +1073,22 @@ function ensureChapterRecord(chapter) {
     sourceType: source.type,
     sourceText: source.rawInput || source.extractedText || "",
     coreSummary: toStringValue(chapter.coreSummary || ""),
+    summaryCard: normalizeV2SummaryCard(chapter.summaryCard),
+    units,
+    chapterSummary: normalizeV2ChapterSummary(chapter.chapterSummary),
     knowledgePoints,
     filteredKnowledgePoints,
     questions,
     qualitySummary: normalizeQualitySummary(chapter.qualitySummary),
     generationMeta: normalizeGenerationMeta(chapter.generationMeta),
+    generationProgress: normalizeGenerationProgress(
+      chapter.generationProgress ||
+      chapter.generationMeta?.v2Progress ||
+      chapter.generationMeta?.generationProgress,
+      id
+    ),
     reviewSession: chapter.reviewSession ? normalizeReviewSession(chapter.reviewSession, baseChapter) : null,
+    v2ReviewSession: chapter.v2ReviewSession || chapter.v2_review_session || null,
     masteredPoints: toIntegerValue(chapter.masteredPoints, 0),
     removedQuestionIds: Array.isArray(chapter.removedQuestionIds) ? chapter.removedQuestionIds.map((id) => toStringValue(id)).filter(Boolean) : [],
     downgradedQuestionIds: Array.isArray(chapter.downgradedQuestionIds) ? chapter.downgradedQuestionIds.map((id) => toStringValue(id)).filter(Boolean) : [],
@@ -972,6 +1105,34 @@ function serializeChapterForClient(chapter) {
 
 function serializeChaptersForClient(chapters = []) {
   return chapters.map(serializeChapterForClient);
+}
+
+function normalizeGenerationProgress(progress, chapterId = "") {
+  if (!progress || typeof progress !== "object" || Array.isArray(progress)) return null;
+  return {
+    jobId: toStringValue(progress.jobId || ""),
+    chapterId: toStringValue(progress.chapterId || chapterId),
+    status: toStringValue(progress.status || ""),
+    stage: toStringValue(progress.stage || ""),
+    stageGroup: toStringValue(progress.stageGroup || ""),
+    displayText: toStringValue(progress.displayText || ""),
+    progress:
+      progress.progress === null || progress.progress === undefined
+        ? null
+        : Number.isFinite(Number(progress.progress))
+          ? Number(progress.progress)
+          : null,
+    retryCount: toIntegerValue(progress.retryCount, 0),
+    userVisible: progress.userVisible === undefined ? true : Boolean(progress.userVisible),
+    ...(progress.unitIndex === null || progress.unitIndex === undefined ? {} : { unitIndex: toIntegerValue(progress.unitIndex, 0) }),
+    ...(progress.unitTitle ? { unitTitle: toStringValue(progress.unitTitle) } : {}),
+    ...(progress.attempt === null || progress.attempt === undefined ? {} : { attempt: toIntegerValue(progress.attempt, 0) }),
+    ...(progress.maxAttempts === null || progress.maxAttempts === undefined ? {} : { maxAttempts: toIntegerValue(progress.maxAttempts, 0) }),
+    canRetry: Boolean(progress.canRetry),
+    updatedAt: toStringValue(progress.updatedAt || ""),
+    ...(progress.failureCode ? { failureCode: toStringValue(progress.failureCode) } : {}),
+    ...(progress.failureMessage ? { failureMessage: toStringValue(progress.failureMessage) } : {})
+  };
 }
 
 function normalizeGenerationMeta(generationMeta) {
@@ -1656,6 +1817,58 @@ async function handleQuestionFeedback(deviceId, questionId, body = {}) {
   return { chapter, feedback, reviewSession: chapter.reviewSession };
 }
 
+function isV2ReviewableChapter(chapter) {
+  return Boolean(
+    chapter &&
+    String(chapter.status || "") === "completed" &&
+    Array.isArray(chapter.units) &&
+    chapter.units.length > 0
+  );
+}
+
+function startOrResumeV2ReviewSession(chapter) {
+  if (!isV2ReviewableChapter(chapter)) {
+    const error = new Error("这个章节暂时不能开始 V2 复习。");
+    error.statusCode = 422;
+    throw error;
+  }
+
+  const existingSession = chapter.v2ReviewSession
+    ? normalizeReviewSessionV2(chapter, chapter.v2ReviewSession)
+    : null;
+
+  chapter.v2ReviewSession = existingSession?.status === "active"
+    ? existingSession
+    : createReviewSessionV2(chapter);
+  chapter.updatedAt = new Date().toISOString();
+  return chapter.v2ReviewSession;
+}
+
+function applyV2ReviewSessionMutation(chapter, mutator) {
+  if (!isV2ReviewableChapter(chapter)) {
+    const error = new Error("这个章节暂时不能继续 V2 复习。");
+    error.statusCode = 422;
+    throw error;
+  }
+
+  const currentSession = chapter.v2ReviewSession
+    ? normalizeReviewSessionV2(chapter, chapter.v2ReviewSession)
+    : createReviewSessionV2(chapter);
+  chapter.v2ReviewSession = mutator(currentSession);
+  chapter.updatedAt = new Date().toISOString();
+  return chapter.v2ReviewSession;
+}
+
+function serializeV2ReviewSessionResponse(chapter, reviewSession) {
+  const responseChapter = serializeChapterForClient(chapter);
+  return {
+    chapter: responseChapter,
+    reviewSession: reviewSession
+      ? normalizeReviewSessionV2(responseChapter, reviewSession)
+      : null
+  };
+}
+
 function normalizeFeedbackType(type) {
   if (type === "wrong_answer") return "answer_wrong";
   if (type === "unrelated_source") return "unrelated_to_source";
@@ -1787,6 +2000,11 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "POST" && req.url === "/api/v2/chapters") {
+    await handleCreateV2Chapter(req, res);
+    return;
+  }
+
   if (req.method === "GET" && req.url === "/api/chapters") {
     const chapters = await listStoredChapters(deviceId);
     sendJson(res, 200, { chapters: sortByCreatedAtDesc(serializeChaptersForClient(chapters)) });
@@ -1892,6 +2110,66 @@ const server = createServer(async (req, res) => {
   const regenerateMatch = req.url?.match(/^\/api\/chapters\/([^/]+)\/regenerate$/);
   if (regenerateMatch && req.method === "POST") {
     await handleRegenerateChapter(req, res, decodeURIComponent(regenerateMatch[1]));
+    return;
+  }
+
+  const v2ReviewSessionMatch = req.url?.match(/^\/api\/v2\/chapters\/([^/]+)\/review-session$/);
+  if (v2ReviewSessionMatch && (req.method === "GET" || req.method === "POST")) {
+    const chapter = await getStoredChapter(deviceId, decodeURIComponent(v2ReviewSessionMatch[1]));
+    if (!chapter) {
+      sendJson(res, 404, { errorCode: "chapter_not_found", message: "章节不存在。" });
+      return;
+    }
+    if (!isV2ReviewableChapter(chapter)) {
+      sendJson(res, 422, { errorCode: "chapter_not_reviewable", message: "这个章节暂时不能开始 V2 复习。", chapter: serializeChapterForClient(chapter) });
+      return;
+    }
+    try {
+      const reviewSession = req.method === "POST"
+        ? startOrResumeV2ReviewSession(chapter)
+        : chapter.v2ReviewSession ? normalizeReviewSessionV2(chapter, chapter.v2ReviewSession) : null;
+      if (reviewSession) chapter.v2ReviewSession = reviewSession;
+      await upsertStoredChapter(deviceId, chapter);
+      sendJson(res, 200, serializeV2ReviewSessionResponse(chapter, reviewSession));
+    } catch (error) {
+      sendJson(res, error.statusCode || 422, { errorCode: "v2_review_session_unavailable", message: error.message || "V2 复习会话不可用。" });
+    }
+    return;
+  }
+
+  const v2ReviewSessionActionMatch = req.url?.match(/^\/api\/v2\/review-sessions\/([^/]+)\/(advance|answer|feedback-visibility|source-open|source-return)$/);
+  if (v2ReviewSessionActionMatch && req.method === "POST") {
+    const sessionId = decodeURIComponent(v2ReviewSessionActionMatch[1]);
+    const action = v2ReviewSessionActionMatch[2];
+    const chapters = await listStoredChapters(deviceId);
+    const chapter = chapters.find((item) => item.v2ReviewSession?.id === sessionId);
+    if (!chapter) {
+      sendJson(res, 404, { errorCode: "v2_review_session_not_found", message: "V2 复习会话不存在。" });
+      return;
+    }
+    try {
+      const body = await readBody(req);
+      const reviewSession = applyV2ReviewSessionMutation(chapter, (session) => {
+        switch (action) {
+        case "advance":
+          return advanceReviewCardV2(chapter, session);
+        case "answer":
+          return answerQuestionV2(chapter, session, body);
+        case "feedback-visibility":
+          return setQuestionFeedbackVisibleV2(chapter, session, body);
+        case "source-open":
+          return openSourceFromReviewV2(chapter, session, body);
+        case "source-return":
+          return returnFromSourceToReviewV2(chapter, session);
+        default:
+          return session;
+        }
+      });
+      await upsertStoredChapter(deviceId, chapter);
+      sendJson(res, 200, serializeV2ReviewSessionResponse(chapter, reviewSession));
+    } catch (error) {
+      sendJson(res, error.statusCode || 422, { errorCode: "v2_review_session_update_failed", message: error.message || "V2 复习状态保存失败。" });
+    }
     return;
   }
 
@@ -2018,5 +2296,6 @@ export {
   recordSessionAttempt,
   saveCostRunResponse,
   serializeChapterForClient,
-  startOrResumeReviewSession
+  startOrResumeReviewSession,
+  startOrResumeV2ReviewSession
 };
