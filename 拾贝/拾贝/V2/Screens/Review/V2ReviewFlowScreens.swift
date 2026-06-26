@@ -1264,7 +1264,7 @@ private struct V2ChapterDetailHeroActionContent: View {
     let width: CGFloat
 
     static func width(for title: String, minWidth: CGFloat, maxWidth: CGFloat) -> CGFloat {
-        let font = UIFont.systemFont(ofSize: 12, weight: .regular)
+        let font = UIFont.systemFont(ofSize: 14, weight: .regular)
         let textWidth = ceil((title as NSString).size(withAttributes: [.font: font]).width)
         let desiredWidth = 12 + 34 + 8 + textWidth + 14
         return min(max(desiredWidth, minWidth), maxWidth)
@@ -1279,11 +1279,11 @@ private struct V2ChapterDetailHeroActionContent: View {
                 .frame(width: 34, height: 34)
 
             Text(title)
-                .font(V2Typography.caption)
+                .font(V2ChapterDetailTextMetrics.heroChipFont)
                 .foregroundStyle(Color(hex: 0x767676))
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .minimumScaleFactor(0.75)
+                .minimumScaleFactor(0.85)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.leading, 12)
@@ -1521,6 +1521,7 @@ private enum V2ChapterDetailTextMetrics {
     static let bodySmallFont = V2Typography.bodySmall
     static let rowTitleFont = V2Typography.bodySmall
     static let metadataFont = V2Typography.bodySmall
+    static let heroChipFont = V2Typography.bodySmall
     static let indexFont = Font.system(size: 13, weight: .medium, design: .default)
     static let bodyLineSpacing: CGFloat = 7
     static let bodySmallLineSpacing: CGFloat = 6
