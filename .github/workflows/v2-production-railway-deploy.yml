@@ -241,16 +241,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+      RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Refuse missing Railway token
+      - name: Refuse missing Railway API token
         run: |
-          if [ -z "$RAILWAY_TOKEN" ]; then
-            echo "Repository secret RAILWAY_TOKEN is required."
+          if [ -z "$RAILWAY_API_TOKEN" ]; then
+            echo "Repository secret RAILWAY_API_TOKEN is required."
             exit 1
           fi
 
