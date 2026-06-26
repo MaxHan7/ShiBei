@@ -205,7 +205,7 @@ struct V2RootView: View {
                 V2GeneratingChapterDetailView(
                     progress: backendChapter?.progress?.progress ?? 0,
                     statusText: generationDisplayText,
-                    isCompleted: backendReviewChapter != nil,
+                    isCompleted: backendChapter?.toReviewChapterData() != nil,
                     onBack: goBack,
                     onSource: openOriginalSourceLink,
                     onOpenChapter: { replaceRoute(.chapterDetail) },
@@ -1021,6 +1021,8 @@ struct V2RootView: View {
         upsertBackendChapter(chapter)
         if previousChapterID != chapter.id {
             generationErrorText = ""
+            backendReviewChapter = nil
+            v2ReviewSession = nil
         }
         if let reviewChapter = chapter.toReviewChapterData() {
             backendReviewChapter = reviewChapter

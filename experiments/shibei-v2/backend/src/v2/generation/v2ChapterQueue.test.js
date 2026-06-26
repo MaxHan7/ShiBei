@@ -101,6 +101,39 @@ test("reuses existing pending V2 generation job", async () => {
   );
 });
 
+test("allows the same source URL to be generated again with a new client request id", async () => {
+  const calls = [];
+  const chapters = new Map();
+  const jobs = new Map();
+  const deps = mockDeps({ calls, chapters, jobs });
+  const sourceUrl = "https://mp.weixin.qq.com/s/example";
+
+  const first = await enqueueV2ChapterGeneration({
+    deviceId: "device-1",
+    body: {
+      clientRequestId: "upload-001",
+      sourceType: "wechat_article",
+      sourceUrl
+    },
+    deps
+  });
+  const second = await enqueueV2ChapterGeneration({
+    deviceId: "device-1",
+    body: {
+      clientRequestId: "upload-002",
+      sourceType: "wechat_article",
+      sourceUrl
+    },
+    deps
+  });
+
+  assert.equal(first.reused, false);
+  assert.equal(second.reused, false);
+  assert.notEqual(first.chapter.id, second.chapter.id);
+  assert.equal(first.job.idempotencyKey, "upload-001");
+  assert.equal(second.job.idempotencyKey, "upload-002");
+});
+
 function mockDeps({ calls, chapters, jobs }) {
   return {
     getPendingGenerationJobByIdempotencyKey: async (_deviceId, key) => {
