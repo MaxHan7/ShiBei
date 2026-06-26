@@ -20,21 +20,21 @@ test("counts unicode article characters consistently", () => {
 });
 
 test("validates V2 article input against the MVP length cap", () => {
-  assert.equal(DEFAULT_V2_MAX_ARTICLE_CHARS, 10000);
+  assert.equal(DEFAULT_V2_MAX_ARTICLE_CHARS, 50000);
 
-  const ok = validateV2ArticleInput({ rawText: "a".repeat(10000) });
+  const ok = validateV2ArticleInput({ rawText: "a".repeat(50000) });
   assert.equal(ok.ok, true);
-  assert.equal(ok.charCount, 10000);
+  assert.equal(ok.charCount, 50000);
 
-  const tooLong = validateV2ArticleInput({ rawText: "a".repeat(10001) });
+  const tooLong = validateV2ArticleInput({ rawText: "a".repeat(50001) });
   assert.equal(tooLong.ok, false);
   assert.equal(tooLong.code, "input_too_long");
-  assert.equal(tooLong.maxChars, 10000);
+  assert.equal(tooLong.maxChars, 50000);
 });
 
 test("throws a non-retryable input limit error before model generation", () => {
   assert.throws(
-    () => assertV2ArticleInputWithinLimits({ rawText: "a".repeat(10001) }),
+    () => assertV2ArticleInputWithinLimits({ rawText: "a".repeat(50001) }),
     (error) => {
       assert.equal(error.code, "input_too_long");
       assert.equal(error.status, "failed_input");

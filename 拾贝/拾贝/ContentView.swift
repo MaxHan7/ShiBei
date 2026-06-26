@@ -33,7 +33,7 @@ struct ContentView: View {
         return !arguments.contains("-ShibeiUseLegacyRoot")
             && environment["SHIBEI_USE_LEGACY_ROOT"] != "1"
         #else
-        return false
+        return true
         #endif
     }
 }

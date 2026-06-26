@@ -188,8 +188,6 @@ struct V2GeneratingChapterDetailView: View {
     let progress: Double
     let statusText: String
     let isCompleted: Bool
-    let isFailed: Bool
-    let failureReason: String
     let onBack: () -> Void
     let onSource: () -> Void
     let onOpenChapter: () -> Void
@@ -217,8 +215,6 @@ struct V2GeneratingChapterDetailView: View {
                         progress: CGFloat(progress),
                         statusText: statusText,
                         isCompleted: isCompleted,
-                        isFailed: isFailed,
-                        failureReason: failureReason,
                         onSource: onSource,
                         onOpenChapter: onOpenChapter,
                         onDelete: onDelete
@@ -892,14 +888,16 @@ private struct V2NotificationDecorations: View {
     }
 }
 
-struct V2NotificationFailureDetailView: View {
+struct V2GenerationFailureDetailView: View {
+    var title = "章节详情"
+    var failureReason = "当前链接正文提取失败，可能是网页暂时无法访问，或正文格式还不支持。"
     let onBack: () -> Void
     let onSource: () -> Void
     let onRegenerate: () -> Void
 
     var body: some View {
         V2FlowScreen(
-            title: "通知详情",
+            title: title,
             onBack: onBack
         ) {
             GeometryReader { geometry in
@@ -915,6 +913,7 @@ struct V2NotificationFailureDetailView: View {
                         .zIndex(1)
 
                     V2NotificationFailureDetailCard(
+                        failureReason: failureReason,
                         onSource: onSource,
                         onRegenerate: onRegenerate
                     )
@@ -950,6 +949,7 @@ struct V2NotificationFailureDetailView: View {
 }
 
 private struct V2NotificationFailureDetailCard: View {
+    let failureReason: String
     let onSource: () -> Void
     let onRegenerate: () -> Void
 
@@ -991,7 +991,7 @@ private struct V2NotificationFailureDetailCard: View {
             )
             .position(x: 249, y: 45)
 
-            V2NotificationFailureReasonCard()
+            V2NotificationFailureReasonCard(reason: failureReason)
                 .position(x: 163, y: 142)
 
             Button(action: onRegenerate) {
@@ -1081,6 +1081,8 @@ private struct V2FailureSourceLinkGlyph: Shape {
 }
 
 private struct V2NotificationFailureReasonCard: View {
+    let reason: String
+
     private let failureAccent = Color(hex: 0xF69582)
     private let failureTitle = Color(hex: 0x575757)
     private let failureBody = Color(hex: 0x69655F)
@@ -1114,10 +1116,11 @@ private struct V2NotificationFailureReasonCard: View {
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(failureTitle)
 
-                Text("当前链接正文提取失败，可能是网页暂时无法访问，或正文格式还不支持。")
+                Text(reason)
                     .font(V2Typography.labelRegular)
                     .foregroundStyle(failureBody)
                     .lineSpacing(5)
+                    .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(width: 204, alignment: .leading)

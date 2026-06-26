@@ -996,25 +996,12 @@ struct V2GeneratingChapterDetailCard: View {
     let progress: CGFloat
     let statusText: String
     let isCompleted: Bool
-    let isFailed: Bool
-    let failureReason: String
     let onSource: () -> Void
     let onOpenChapter: () -> Void
     let onDelete: () -> Void
 
     private var accentColor: Color {
-        isFailed ? Color(hex: 0xF69582) : Color(hex: 0xADD3FF)
-    }
-
-    private var cardTitle: String {
-        isFailed ? "章节生成失败" : "章节正在生成"
-    }
-
-    private var detailText: String {
-        if isFailed {
-            return failureReason.isEmpty ? "生成失败，请删除后重新上传。" : failureReason
-        }
-        return statusText
+        Color(hex: 0xADD3FF)
     }
 
     var body: some View {
@@ -1023,20 +1010,11 @@ struct V2GeneratingChapterDetailCard: View {
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
 
-            Group {
-                if isFailed {
-                    Image("V2NotificationFailureDetailIcon")
-                        .resizable()
-                        .renderingMode(.original)
-                        .scaledToFit()
-                } else {
-                    V2GeneratingClockBadge()
-                }
-            }
+            V2GeneratingClockBadge()
             .frame(width: 34, height: 34)
             .offset(x: 23, y: 21)
 
-            Text(cardTitle)
+            Text("章节正在生成")
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color(hex: 0x575757))
                 .frame(width: 136, height: 39, alignment: .leading)
@@ -1045,18 +1023,16 @@ struct V2GeneratingChapterDetailCard: View {
             V2GeneratingSourceLinkChip(accent: accentColor, action: onSource)
                 .offset(x: 201, y: 20)
 
-            Text(detailText)
+            Text(statusText)
                 .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(Color(hex: 0x736D78))
-                .lineLimit(isFailed ? 2 : 1)
-                .frame(width: 283, height: isFailed ? 58 : 27, alignment: .leading)
+                .lineLimit(1)
+                .frame(width: 283, height: 27, alignment: .leading)
                 .offset(x: 21, y: 98)
 
-            if !isFailed {
-                V2GeneratingProgressBar(progress: progress)
-                    .frame(width: 280, height: 43)
-                    .offset(x: 21, y: 146)
-            }
+            V2GeneratingProgressBar(progress: progress)
+                .frame(width: 280, height: 43)
+                .offset(x: 21, y: 146)
 
             if isCompleted {
                 Button(action: onOpenChapter) {
@@ -1074,13 +1050,13 @@ struct V2GeneratingChapterDetailCard: View {
                 .offset(x: 74.5, y: 184)
             } else {
                 Button(action: onDelete) {
-                    Text(isFailed ? "删除章节" : "取消生成")
+                    Text("取消生成")
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(isFailed ? .white : Color(hex: 0x6E7378))
+                        .foregroundStyle(Color(hex: 0x6E7378))
                         .frame(width: 180, height: 36)
                         .background(
                             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .fill(isFailed ? Color(hex: 0xF69582) : V2Color.surfaceCream)
+                                .fill(V2Color.surfaceCream)
                                 .shadow(color: accentColor.opacity(0.24), radius: 3, x: 0, y: 4)
                         )
                 }

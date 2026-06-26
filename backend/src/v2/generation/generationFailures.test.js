@@ -8,7 +8,7 @@ import {
 } from "./generationFailures.js";
 
 test("classifies overlong input as non-retryable user input failure", () => {
-  const error = new Error("这篇文章目前太长，建议控制在 10000 字以内。");
+  const error = new Error("这篇文章目前太长，建议控制在 50000 字以内。");
   error.code = "input_too_long";
 
   const failure = classifyV2GenerationFailure(error);

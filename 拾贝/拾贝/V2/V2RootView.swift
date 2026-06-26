@@ -147,10 +147,12 @@ struct V2RootView: View {
                 notifications: backendNotifications,
                 onBack: goBack,
                 onOpenSuccess: { pushRoute(.chapterDetail) },
-                onOpenFailure: { pushRoute(.notificationFailureDetail) }
+                onOpenFailure: { pushRoute(.generationFailureDetail) }
             )
-        case .notificationFailureDetail:
-            V2NotificationFailureDetailView(
+        case .generationFailureDetail:
+            V2GenerationFailureDetailView(
+                title: "章节详情",
+                failureReason: activeGenerationFailureReason,
                 onBack: goBack,
                 onSource: openSource,
                 onRegenerate: showGeneratedChapterDetail
@@ -162,18 +164,27 @@ struct V2RootView: View {
                 onBack: goBack
             )
         case .generatingChapterDetail:
-            V2GeneratingChapterDetailView(
-                progress: backendChapter?.progress?.progress ?? 0,
-                statusText: generationDisplayText,
-                isCompleted: backendReviewChapter != nil,
-                isFailed: isActiveGenerationFailed,
-                failureReason: activeGenerationFailureReason,
-                onBack: goBack,
-                onSource: openSource,
-                onOpenChapter: { replaceRoute(.chapterDetail) },
-                onDelete: { showsDeleteChapterConfirmation = true }
-            )
-            .id(isActiveGenerationFailed ? "generating-detail-failed" : "generating-detail-running")
+            if isActiveGenerationFailed {
+                V2GenerationFailureDetailView(
+                    title: "章节详情",
+                    failureReason: activeGenerationFailureReason,
+                    onBack: goBack,
+                    onSource: openSource,
+                    onRegenerate: showGeneratedChapterDetail
+                )
+                .id("generating-detail-failed")
+            } else {
+                V2GeneratingChapterDetailView(
+                    progress: backendChapter?.progress?.progress ?? 0,
+                    statusText: generationDisplayText,
+                    isCompleted: backendReviewChapter != nil,
+                    onBack: goBack,
+                    onSource: openSource,
+                    onOpenChapter: { replaceRoute(.chapterDetail) },
+                    onDelete: { showsDeleteChapterConfirmation = true }
+                )
+                .id("generating-detail-running")
+            }
         case .chapterDetail:
             if let chapter = activeChapter {
                 V2ChapterDetailView(

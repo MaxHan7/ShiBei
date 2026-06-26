@@ -183,7 +183,7 @@ test("rejects overlong V2 article input before model generation", async () => {
   const result = await runV2GenerationJob({
     id: "chapter-001",
     title: "Long",
-    rawText: "字".repeat(10001)
+    rawText: "字".repeat(50001)
   }, {
     generateReviewPath: async () => {
       called = true;

@@ -2,7 +2,7 @@ import Foundation
 
 enum V2AppRoute: Equatable {
     case notifications
-    case notificationFailureDetail
+    case generationFailureDetail
     case profile
     case generatingChapterDetail
     case chapterDetail

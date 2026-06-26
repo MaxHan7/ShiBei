@@ -1,4 +1,4 @@
-export const DEFAULT_V2_MAX_ARTICLE_CHARS = 10000;
+export const DEFAULT_V2_MAX_ARTICLE_CHARS = 50000;
 
 export function readV2MaxArticleChars(env = process.env) {
   const raw = Number(env.V2_MAX_ARTICLE_CHARS);
