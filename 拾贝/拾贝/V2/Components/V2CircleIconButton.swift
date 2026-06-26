@@ -22,13 +22,16 @@ struct V2CircleIconButton: View {
 
     var body: some View {
         Button(action: action) {
-            buttonContent
-                .overlay(alignment: .topTrailing) {
-                    if kind == .notification && showsUnreadBadge {
-                        unreadBadge
-                    }
+            ZStack {
+                buttonContent
+
+                if kind == .notification && showsUnreadBadge {
+                    unreadBadge
+                        .position(x: 32, y: 8)
                 }
-                .contentShape(Circle())
+            }
+            .frame(width: V2TopCircleButtonMetrics.canvasWidth, height: V2TopCircleButtonMetrics.canvasHeight)
+            .contentShape(Circle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(accessibilityLabel)
@@ -59,7 +62,6 @@ struct V2CircleIconButton: View {
         Circle()
             .fill(V2Color.notificationBadge)
             .frame(width: 8, height: 8)
-            .offset(x: -8, y: 6)
             .accessibilityHidden(true)
     }
 
