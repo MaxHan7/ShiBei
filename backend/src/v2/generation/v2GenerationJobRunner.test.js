@@ -101,6 +101,50 @@ test("extracts article links before running V2 generation", async () => {
   );
 });
 
+test("persists extracted article author before model output can overwrite source", async () => {
+  const calls = [];
+  const chapters = new Map([
+    ["chapter-1", {
+      id: "chapter-1",
+      title: "文章链接",
+      status: "submitted",
+      source: { type: "article_link", url: "https://mp.weixin.qq.com/s/example" },
+      generationMeta: {},
+      createdAt: "2026-06-24T00:00:00.000Z"
+    }]
+  ]);
+  const deps = mockDeps({
+    calls,
+    chapters,
+    extractSourceContent: async (input) => ({
+      sourceType: "article_link",
+      sourceTitle: "提取后的标题",
+      sourceUrl: input.sourceUrl,
+      sourceAccount: "吴 琼、王婧等",
+      rawText: "提取后的正文内容。".repeat(20)
+    }),
+    runV2GenerationJob: async (input) => ({
+      status: "completed",
+      chapter: {
+        schemaVersion: "v2_review_path_1",
+        id: input.chapterId,
+        title: input.sourceTitle,
+        status: "completed",
+        units: []
+      }
+    })
+  });
+
+  await runV2GenerationQueuedJob(baseJob({
+    sourceType: "article_link",
+    sourceUrl: "https://mp.weixin.qq.com/s/example",
+    sourceTitle: "文章链接"
+  }), deps);
+
+  assert.equal(chapters.get("chapter-1").source.author, "吴 琼、王婧等");
+  assert.equal(chapters.get("chapter-1").source.accountOrDomain, "吴 琼、王婧等");
+});
+
 test("stores source extraction failures without calling the model", async () => {
   const calls = [];
   const chapters = new Map([

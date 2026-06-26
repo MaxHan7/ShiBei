@@ -379,13 +379,26 @@ extension V2BackendChapter {
             title: title,
             overview: summaryCard?.text ?? "",
             sourceTitle: source?.title ?? title,
-            sourceAuthor: source?.author ?? source?.accountOrDomain ?? source?.account ?? "",
+            sourceAuthor: sourceDisplayAuthor,
             sourceURL: source?.url ?? "",
             sourceBody: sourceBlocks,
             units: units.enumerated().map { index, unit in
                 unit.toReviewUnitData(index: index, sourceBlocks: sourceBlocks)
             }
         )
+    }
+
+    private var sourceDisplayAuthor: String {
+        let candidates = [
+            source?.author,
+            source?.accountOrDomain,
+            source?.account,
+            source?.title,
+            source?.url.flatMap { URL(string: $0)?.host?.replacingOccurrences(of: "www.", with: "") }
+        ]
+        return candidates
+            .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .first { !$0.isEmpty } ?? "未知来源"
     }
 
     private func sourceBodyBlocks() -> [V2SourceArticleBlock] {

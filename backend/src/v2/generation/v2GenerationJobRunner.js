@@ -84,6 +84,7 @@ export async function runV2GenerationQueuedJob(job, deps = {}) {
       id: job.chapterId,
       status: "completed",
       displayStatusText: result.displayStatusText || "已生成",
+      source: mergeV2ChapterSource(latest?.source || existing?.source, result.chapter?.source),
       generationProgress,
       generationMeta: {
         ...(result.chapter?.generationMeta || {}),
@@ -174,7 +175,7 @@ async function resolveV2QueuedGenerationInput(job, input, services) {
     sourceAccount: input.sourceAccount
   });
 
-  return {
+  const resolvedInput = {
     ...input,
     sourceType: "text",
     originalSourceType: source.sourceType || input.sourceType,
@@ -196,6 +197,26 @@ async function resolveV2QueuedGenerationInput(job, input, services) {
       cleanedText: source.rawText || ""
     }
   };
+
+  await persistResolvedV2Source(job, resolvedInput, services);
+  return resolvedInput;
+}
+
+async function persistResolvedV2Source(job, resolvedInput, services) {
+  const existing = await services.getChapter(job.deviceId, job.chapterId);
+  if (!existing || existing.status === "completed") return;
+
+  await services.upsertChapter(job.deviceId, {
+    ...existing,
+    title: resolvedInput.sourceTitle || existing.title,
+    source: {
+      ...(existing.source || {}),
+      ...(resolvedInput.source || {})
+    },
+    sourceType: resolvedInput.originalSourceType || existing.sourceType,
+    sourceText: resolvedInput.source?.rawInput || existing.sourceText || "",
+    updatedAt: new Date().toISOString()
+  });
 }
 
 async function persistV2GenerationProgress(job, progress, services) {
@@ -253,6 +274,25 @@ function buildFailedV2Chapter({ job, existing, result, input }) {
     createdAt: existing?.createdAt || now,
     updatedAt: now
   };
+}
+
+function mergeV2ChapterSource(fallbackSource = {}, source = {}) {
+  const merged = {
+    ...(fallbackSource || {}),
+    ...(source || {})
+  };
+  for (const key of ["author", "account", "accountOrDomain", "title", "url"]) {
+    if (!toNonEmptyString(merged[key])) {
+      const fallbackValue = toNonEmptyString(fallbackSource?.[key]);
+      if (fallbackValue) merged[key] = fallbackValue;
+    }
+  }
+  return merged;
+}
+
+function toNonEmptyString(value) {
+  const text = String(value || "").trim();
+  return text || "";
 }
 
 function buildRetryingProgress(job, result = {}) {
