@@ -37,7 +37,7 @@
 - Reference: `/Users/hanmingyu/Downloads/拾贝-v2-baseline/experiments/shibei-v2/ios/拾贝/Services/APIClient.swift`
 - Test: `/Users/hanmingyu/Downloads/拾贝-v2-baseline/拾贝/拾贝.xcodeproj`
 
-- [ ] **Step 1: Add V2 API methods to root production APIClient**
+- [x] **Step 1: Add V2 API methods to root production APIClient**
 
   Add only the V2 methods that the V2 SwiftUI flow needs:
 
@@ -60,11 +60,11 @@
   static let productionBaseURL = URL(string: "https://shibei-production.up.railway.app")!
   ```
 
-- [ ] **Step 2: Keep Debug override production-safe**
+- [x] **Step 2: Keep Debug override production-safe**
 
   Root Debug can support a launch argument like `-ShibeiV2APIBaseURL`, but Release must still use Railway production. Do not copy the experiment file's `static let productionBaseURL = APIClient.localBaseURL`.
 
-- [ ] **Step 3: Build root iOS target**
+- [x] **Step 3: Build root iOS target**
 
   Run:
 
@@ -74,7 +74,7 @@
 
   Expected: build succeeds with root bundle id and no V2 API type errors.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
   ```bash
   git add 拾贝/拾贝/Services/APIClient.swift
@@ -90,19 +90,19 @@
 - Reference: `/Users/hanmingyu/Downloads/拾贝-v2-baseline/experiments/shibei-v2/ios/拾贝/V2/Models/V2BackendModels.swift`
 - Reference: `/Users/hanmingyu/Downloads/拾贝-v2-baseline/backend/src/server.js`
 
-- [ ] **Step 1: Copy V2 backend DTOs into root app**
+- [x] **Step 1: Copy V2 backend DTOs into root app**
 
   Copy V2 response models for chapter generation, review session, answer, matching pairs, source anchors and progress.
 
-- [ ] **Step 2: Preserve production decode behavior**
+- [x] **Step 2: Preserve production decode behavior**
 
   Use root `APIClient.decode` error reporting so production decode failures include the precise missing field path.
 
-- [ ] **Step 3: Confirm payload match against root backend serializers**
+- [x] **Step 3: Confirm payload match against root backend serializers**
 
   Check root backend `serializeChapterForClient` and V2 review session serializers. Confirm the iOS model has optional fields for fields that can be missing during `pending` and `generating` states.
 
-- [ ] **Step 4: Build root iOS target**
+- [x] **Step 4: Build root iOS target**
 
   Run:
 
@@ -112,7 +112,7 @@
 
   Expected: V2 DTOs compile in the production App target.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
   ```bash
   git add 拾贝/拾贝/V2/Models
@@ -133,6 +133,8 @@
 
   Production Release must not boot into mock fixture. Debug can expose mock mode through the existing settings/debug surface.
 
+  2026-06-26 update: root `ContentView` now keeps Release on the legacy production entry while Debug enters V2 by default. V2 fixture use is gated through `usesFixtures`, so Release cannot activate fixture data even if an AppStorage value exists.
+
 - [ ] **Step 2: Add V2 real-data mode**
 
   Route V2 generation and review to real backend when data mode is `.cloudAPI` or `.localAPI`.
@@ -140,6 +142,8 @@
 - [ ] **Step 3: Keep mock data isolated**
 
   Mock data can remain for component inspection, but every mock-only action must be guarded by Debug or explicit mock mode. Real user flow must never depend on `V2ReviewFixture`.
+
+  2026-06-26 update: V2 profile's mock toggle is hidden whenever `allowsMockDataToggle` is false. Remaining work is to connect real notes/favorites to production data instead of fixture-only saved questions.
 
 - [ ] **Step 4: Add a regression checklist**
 
@@ -168,19 +172,19 @@
 - Create: `/Users/hanmingyu/Downloads/拾贝-v2-baseline/拾贝/拾贝/V2/Assets/**` if needed by project conventions
 - Reference: `/Users/hanmingyu/Downloads/拾贝-v2-baseline/experiments/shibei-v2/ios/拾贝/V2/**`
 
-- [ ] **Step 1: Copy V2 design system and components**
+- [x] **Step 1: Copy V2 design system and components**
 
   Preserve the latest standardized top button/header positions, typography tokens, bottom button placement, and recently fixed dialog/card styles.
 
-- [ ] **Step 2: Copy V2 screens**
+- [x] **Step 2: Copy V2 screens**
 
   Include home, upload, all chapters, generating detail, chapter detail, source article, review flow, notes, notifications, profile, unit summary and chapter summary.
 
-- [ ] **Step 3: Register V2 assets in root project**
+- [x] **Step 3: Register V2 assets in root project**
 
   Copy only the assets used by the production V2 screens. Do not copy quality report HTML or experiment-only fixtures as production assets.
 
-- [ ] **Step 4: Build root iOS target**
+- [x] **Step 4: Build root iOS target**
 
   Run:
 
@@ -190,7 +194,7 @@
 
   Expected: root target compiles with V2 UI.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
   ```bash
   git add 拾贝/拾贝/V2 拾贝/拾贝/Assets.xcassets

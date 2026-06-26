@@ -12,12 +12,29 @@ struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
-        RootView(store: store)
+        Group {
+            if shouldUseV2Root {
+                V2RootView()
+            } else {
+                RootView(store: store)
+            }
+        }
             .task(id: scenePhase) {
                 guard scenePhase == .active else { return }
                 await store.refreshVisibleProcessingChapterFromAPI()
                 await store.syncPushTokenIfAuthorized()
             }
+    }
+
+    private var shouldUseV2Root: Bool {
+        #if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        let environment = ProcessInfo.processInfo.environment
+        return !arguments.contains("-ShibeiUseLegacyRoot")
+            && environment["SHIBEI_USE_LEGACY_ROOT"] != "1"
+        #else
+        return false
+        #endif
     }
 }
 

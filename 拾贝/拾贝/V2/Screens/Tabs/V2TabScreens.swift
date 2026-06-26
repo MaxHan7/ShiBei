@@ -925,6 +925,7 @@ private struct V2NotificationFailureReasonCard: View {
 
 struct V2ProfileView: View {
     @Binding var usesMockData: Bool
+    let allowsMockDataToggle: Bool
     let onBack: () -> Void
 
     var body: some View {
@@ -960,7 +961,9 @@ struct V2ProfileView: View {
 
                         V2ProfileSettingsCard()
 
-                        V2RuntimeModeCard(usesMockData: $usesMockData)
+                        if allowsMockDataToggle {
+                            V2RuntimeModeCard(usesMockData: $usesMockData)
+                        }
                     }
                     .frame(maxWidth: V2Layout.contentMaxWidth)
                     .frame(maxWidth: .infinity)

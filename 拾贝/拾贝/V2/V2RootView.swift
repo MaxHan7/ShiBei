@@ -21,7 +21,21 @@ struct V2RootView: View {
     @State private var isSubmittingGeneration = false
     @State private var hasLoadedInitialBackendChapter = false
 
-    private let apiClient = APIClient()
+    private let apiClient: APIClient
+    private let allowsMockDataToggle: Bool
+
+    init(apiClient: APIClient = APIClient(), allowsMockDataToggle: Bool? = nil) {
+        self.apiClient = apiClient
+        #if DEBUG
+        self.allowsMockDataToggle = allowsMockDataToggle ?? true
+        #else
+        self.allowsMockDataToggle = false
+        #endif
+    }
+
+    private var usesFixtures: Bool {
+        allowsMockDataToggle && usesMockData
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -49,7 +63,7 @@ struct V2RootView: View {
                 .zIndex(101)
             }
         }
-        .task(id: usesMockData) {
+        .task(id: usesFixtures) {
             await loadLatestBackendChapterIfNeeded()
         }
     }
@@ -78,7 +92,7 @@ struct V2RootView: View {
         case .materials:
             V2MaterialsView(
                 selectedTab: $selectedTab,
-                usesMockData: usesMockData,
+                usesMockData: usesFixtures,
                 showsGeneratingChapterCard: showsGeneratingChapterCard,
                 generatingChapterTitle: backendChapter?.title ?? "正在生成新的章节",
                 generatingProgressText: generationDisplayText,
@@ -99,7 +113,7 @@ struct V2RootView: View {
         case .notes:
             V2NotesView(
                 selectedTab: $selectedTab,
-                usesMockData: usesMockData,
+                usesMockData: usesFixtures,
                 onOpenSavedQuestion: openSavedQuestion
             )
         }
@@ -110,7 +124,7 @@ struct V2RootView: View {
         switch route {
         case .notifications:
             V2NotificationView(
-                usesMockData: usesMockData,
+                usesMockData: usesFixtures,
                 onBack: goBack,
                 onOpenSuccess: { pushRoute(.chapterDetail) },
                 onOpenFailure: { pushRoute(.notificationFailureDetail) }
@@ -124,6 +138,7 @@ struct V2RootView: View {
         case .profile:
             V2ProfileView(
                 usesMockData: $usesMockData,
+                allowsMockDataToggle: allowsMockDataToggle,
                 onBack: goBack
             )
         case .generatingChapterDetail:
@@ -289,7 +304,7 @@ struct V2RootView: View {
     }
 
     private func openSavedQuestion(index: Int) {
-        guard usesMockData else {
+        guard usesFixtures else {
             return
         }
         selectedTab = .notes
@@ -438,11 +453,11 @@ struct V2RootView: View {
     }
 
     private var activeChapter: V2ReviewChapterData? {
-        backendReviewChapter ?? (usesMockData ? V2ReviewFixture.chapter : nil)
+        backendReviewChapter ?? (usesFixtures ? V2ReviewFixture.chapter : nil)
     }
 
     private var activeHomeData: V2HomeData {
-        if usesMockData {
+        if usesFixtures {
             return V2HomeFixture.home
         }
         guard usesBackendReviewChapter else {
@@ -477,7 +492,7 @@ struct V2RootView: View {
     }
 
     private var usesBackendReviewChapter: Bool {
-        !usesMockData && backendReviewChapter != nil && backendChapter?.status == "completed"
+        !usesFixtures && backendReviewChapter != nil && backendChapter?.status == "completed"
     }
 
     private func activeUnit(id: String) -> V2ReviewUnitData? {
@@ -624,7 +639,7 @@ struct V2RootView: View {
 
     @MainActor
     private func loadLatestBackendChapterIfNeeded() async {
-        guard !usesMockData, !hasLoadedInitialBackendChapter else {
+        guard !usesFixtures, !hasLoadedInitialBackendChapter else {
             return
         }
         hasLoadedInitialBackendChapter = true
