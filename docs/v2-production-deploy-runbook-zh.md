@@ -1,0 +1,206 @@
+# 拾贝 V2 生产替换部署 Runbook
+
+更新时间：2026-06-26
+
+这份 runbook 用于把 V2-capable root backend 部署到当前同一个 Railway production service，并在通过 gate 后继续手机/正式包验收。它不是 UI/Prompt 设计文档；它只回答上线操作时“该先看什么、点什么、跑什么、失败时停在哪里”。
+
+## 当前状态
+
+- 目标生产 URL：`https://shibei-production.up.railway.app`
+- 目标生产 bundle id：`com.maxhan.shibei`
+- 候选分支：`codex/shibei-v2-isolated-build`
+- 候选 PR：`https://github.com/MaxHan7/ShiBei/pull/3`
+- 当前生产 gate 预期失败点：production health 里缺少 V2 capability flags。
+- 当前结论：本地/root backend 已有 V2 能力；线上 production service 还没有部署到这份 V2-capable commit。
+
+## 不允许跳过的原则
+
+- 不在不知道 Railway 当前 deployment id 的情况下直接替换。
+- 不在没有数据库备份/恢复路径的情况下做 production smoke。
+- 不在 `gate:production` 默认无副作用检查失败时运行 `--smoke`。
+- 不把任何模型 Key、数据库 URL、APNS 私钥写进文档、commit、issue 或 PR。
+- 不把 `experiments/shibei-v2/backend` 当作正式部署路径；正式路径是根目录 `backend/`。
+
+## 部署前确认
+
+### 1. 记录回滚点
+
+需要人工在 Railway / GitHub / 本地记录：
+
+- 旧 backend git commit：
+- 当前 Railway deployment id：
+- 当前 Railway service 连接的 GitHub branch：
+- Railway autodeploy 是否开启：
+- 数据库备份名称或快照时间：
+- 数据库恢复方式：
+
+如果任何一项无法记录，停止上线。
+
+### 2. 确认环境变量
+
+只确认 key 是否存在，不记录值：
+
+- `DATABASE_URL`
+- `DEEPSEEK_API_KEY` 或 `OPENAI_API_KEY`
+- `AI_PROVIDER`
+- `DEEPSEEK_MODEL` 或 `OPENAI_MODEL`
+- `APNS_TEAM_ID`
+- `APNS_KEY_ID`
+- `APNS_BUNDLE_ID`
+- `APNS_PRIVATE_KEY_BASE64` 或 `APNS_PRIVATE_KEY`
+- `APNS_ENV`
+
+生产期望：
+
+- `APNS_BUNDLE_ID=com.maxhan.shibei`
+- `APNS_ENV=production`
+
+### 3. 本地候选代码检查
+
+```bash
+git status --short
+npm --prefix backend run check
+xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic/platform=iOS Simulator' -configuration Debug build
+xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic/platform=iOS' -configuration Release build
+```
+
+如果任何一项失败，停止上线。
+
+## 部署方式
+
+选择一种，不要混用：
+
+### 方式 A：Railway GitHub 自动部署
+
+适用条件：
+
+- Railway service 连接 `master` 或另一个明确分支。
+- 已确认合并 PR 会触发目标 production service 部署。
+
+步骤：
+
+1. 将 PR 从 Draft 改为 Ready only after all pre-merge checks are acceptable.
+2. 合并 PR 到 Railway 连接的分支。
+3. 在 Railway 面板观察新 deployment 完成。
+4. 记录新 deployment id。
+
+### 方式 B：Railway 面板手动 Deploy Latest Commit
+
+适用条件：
+
+- Railway service 已连接 GitHub 分支。
+- 操作者能在 Railway 面板选择目标服务并手动部署 latest commit。
+
+步骤：
+
+1. 确认 connected branch 上的 latest commit 是 V2 候选 commit。
+2. 在 Railway 面板对目标 service 执行 Deploy Latest Commit。
+3. 等待 healthcheck 通过。
+4. 记录新 deployment id。
+
+### 方式 C：Railway CLI 手动部署
+
+适用条件：
+
+- 本机已登录 Railway，或 CI 有 `RAILWAY_TOKEN`。
+- 已明确选择目标 project / environment / service。
+
+步骤：
+
+```bash
+railway link
+railway status
+railway up
+```
+
+只有 `railway status` 显示的 project / environment / service 与 production 目标一致时才允许执行 `railway up`。
+
+## 部署后 Gate
+
+### 1. 无副作用生产 gate
+
+```bash
+npm --prefix backend run gate:production -- --base-url https://shibei-production.up.railway.app
+```
+
+必须看到：
+
+- backend health pass
+- database health pass
+- queue visible pass
+- `capability_v2ChapterGeneration` pass
+- `capability_v2ReviewSessions` pass
+- `capability_favoriteQuestions` pass
+- `capability_notifications` pass
+- `capability_sourceAnchors` pass
+- APNS production checks pass
+
+如果 capability 仍然失败，说明 production 没部署到当前 V2-capable backend，停止，不跑 smoke。
+
+### 2. 生产 controlled smoke
+
+只有上一步通过后才运行：
+
+```bash
+npm --prefix backend run gate:production -- --base-url https://shibei-production.up.railway.app --smoke
+```
+
+通过标准：
+
+- 创建 V2 chapter 成功。
+- 生成 progress 能推进。
+- 最终 completed，或在明确失败输入下进入可解释 failed state。
+- 不出现永久卡在 generating / running 的状态。
+
+### 3. 手机 E2E
+
+用真实手机或 TestFlight/internal build 验证：
+
+- 输入链接/文本。
+- 进入章节正在生成详情页。
+- 看到用户可读阶段文案。
+- 完成后进入章节详情。
+- 开始复习并完成至少一题选择题。
+- 如果生成连线题，完成一题连线题。
+- 从题目查看原文，再返回，不丢答题状态。
+- 收藏题目，进入笔记页打开收藏题目。
+- 杀进程重开，复习状态仍能恢复。
+
+## 停止条件
+
+遇到以下任一情况，立即停止继续上线：
+
+- `gate:production` 默认模式失败。
+- `--smoke` 创建章节失败或永久卡住。
+- 生产 DB 连接失败或 queue 长时间堆积。
+- APNS production 配置不匹配 `com.maxhan.shibei`。
+- 手机 E2E 丢失复习进度、收藏状态或 source anchor。
+- 新部署后旧版核心功能不可用。
+
+## 回滚路径
+
+优先级从低破坏性到高破坏性：
+
+1. Railway 回滚到旧 deployment id。
+2. 如果是 GitHub branch autodeploy，revert merge commit 并等待重新部署。
+3. 如果数据被错误写入但 schema 未破坏，优先用代码修复兼容读取。
+4. 如果出现数据破坏，按上线前记录的数据库备份恢复。
+5. 如果客户端已发版且出现严重问题，准备 iOS hotfix 或回滚说明。
+
+回滚后立即运行：
+
+```bash
+curl https://shibei-production.up.railway.app/api/health
+```
+
+并确认旧版 App 的核心生成/章节列表/通知路径恢复。
+
+## 当前下一步
+
+当前 Codex 环境没有 Railway 登录态，无法直接执行 production deployment。需要有 Railway 权限的操作者完成以下任一动作：
+
+1. 在 Railway 面板确认当前 service 连接分支和当前 deployment id。
+2. 创建数据库备份或确认可恢复快照。
+3. 将目标 service 部署到 V2 候选 commit。
+4. 部署后把 deployment id 记录回本文件或 `docs/v2-production-replacement-inventory-zh.md`。
+5. 运行本文件的生产 gate 命令。

@@ -19,6 +19,7 @@
 - Production bundle id: `com.maxhan.shibei`.
 - Root iOS production URL: `https://shibei-production.up.railway.app`.
 - Root Railway service uses root `backend/` through root `railway.json`.
+- Production deploy runbook: `docs/v2-production-deploy-runbook-zh.md`.
 - Root backend already contains V2 backend modules under `backend/src/v2`.
 - Debug root iOS currently defaults to V2 UI; Release still stays on legacy UI as a safety gate.
 - V2 fixtures are gated by `usesFixtures`; Release must not allow fixture mode.
@@ -375,6 +376,7 @@ Interpretation:
   - Railway CLI can deploy local code with `railway up`, but requires Railway project/service auth.
 - Current decision:
   - do not merge or deploy blindly from Codex without Railway deployment id, database backup, and an agreed rollback point;
+  - use `docs/v2-production-deploy-runbook-zh.md` as the operator checklist for production replacement;
   - once the V2-capable backend commit is deployed, immediately run:
 
     ```bash
