@@ -63,11 +63,9 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Install Railway CLI and PostgreSQL client
+      - name: Install Railway CLI
         run: |
           npm install --global @railway/cli
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
 
       - name: Resolve database URL from Railway variables
         run: |
@@ -90,13 +88,20 @@ jobs:
           metadata_file="production-db-export/${stamp}-shibei-production-old-test-data.md"
           restore_list_file="production-db-export/${stamp}-pg-restore-list.txt"
 
-          pg_dump "$DATABASE_URL" \
+          docker run --rm \
+            -e DATABASE_URL \
+            -v "$PWD/production-db-export:/backup" \
+            postgres:18 \
+            pg_dump "$DATABASE_URL" \
             --format=custom \
             --no-owner \
             --no-acl \
-            --file "$backup_file"
+            --file "/backup/$(basename "$backup_file")"
 
-          pg_restore --list "$backup_file" > "$restore_list_file"
+          docker run --rm \
+            -v "$PWD/production-db-export:/backup" \
+            postgres:18 \
+            pg_restore --list "/backup/$(basename "$backup_file")" > "$restore_list_file"
           backup_sha="$(sha256sum "$backup_file" | awk '{print $1}')"
           backup_size="$(wc -c < "$backup_file" | tr -d ' ')"
 
