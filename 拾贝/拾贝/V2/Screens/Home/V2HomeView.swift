@@ -177,6 +177,14 @@ struct V2HomeView: View {
         pathArea: V2HomePathArea,
         with proxy: ScrollViewProxy
     ) {
+        if selectedNodeID == node.id {
+            pendingNodeSelectionID = nil
+            withAnimation(.easeOut(duration: 0.16)) {
+                selectedNodeID = nil
+            }
+            return
+        }
+
         pendingNodeSelectionID = node.id
         selectedNodeID = nil
 
