@@ -34,8 +34,14 @@ struct ChapterInput: Equatable {
            scheme == "http" || scheme == "https",
            let host = url.host?.lowercased(),
            !host.isEmpty {
+            let sourceType: SourceType
+            if isWechatArticleHost(host) {
+                sourceType = .wechatArticle
+            } else {
+                sourceType = isVideoHost(host) ? .videoLink : .articleLink
+            }
             return ChapterInput(
-                sourceType: isVideoHost(host) ? .videoLink : .articleLink,
+                sourceType: sourceType,
                 rawText: nil,
                 sourceUrl: trimmed,
                 sourceTitle: nil,
@@ -92,5 +98,9 @@ struct ChapterInput: Equatable {
         ].contains { domain in
             host == domain || host.hasSuffix(".\(domain)")
         }
+    }
+
+    private static func isWechatArticleHost(_ host: String) -> Bool {
+        host == "mp.weixin.qq.com"
     }
 }

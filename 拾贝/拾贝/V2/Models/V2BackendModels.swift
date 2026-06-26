@@ -324,14 +324,30 @@ extension V2BackendChapter {
     }
 
     var sourceLabel: String {
+        if isWechatSource {
+            return "微信公众号"
+        }
+
         switch source?.type {
-        case "article_link", "wechat_article":
+        case "article_link":
             return "网页文章"
         case "video_link":
             return "视频"
         default:
             return "粘贴文字"
         }
+    }
+
+    private var isWechatSource: Bool {
+        if source?.type == "wechat_article" {
+            return true
+        }
+
+        guard let rawURL = source?.url ?? source?.rawInput,
+              let host = URL(string: rawURL)?.host?.lowercased() else {
+            return false
+        }
+        return host == "mp.weixin.qq.com"
     }
 
     func toReviewChapterData() -> V2ReviewChapterData? {

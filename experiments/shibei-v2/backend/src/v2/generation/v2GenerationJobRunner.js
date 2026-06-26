@@ -132,7 +132,7 @@ async function runResolvedV2GenerationJob({ job, input, services }) {
 }
 
 async function resolveV2QueuedGenerationInput(job, input, services) {
-  if (input.sourceType !== "article_link") {
+  if (input.sourceType !== "article_link" && input.sourceType !== "wechat_article") {
     return input;
   }
 
@@ -148,7 +148,7 @@ async function resolveV2QueuedGenerationInput(job, input, services) {
   );
 
   const source = await services.extractSourceContent({
-    sourceType: "article_link",
+    sourceType: input.sourceType,
     sourceUrl: input.sourceUrl,
     rawText: input.rawText,
     sourceTitle: input.sourceTitle,

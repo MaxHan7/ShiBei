@@ -69,6 +69,15 @@ final class APIClientDecodingTests: XCTestCase {
         XCTAssertTrue(input.canSubmit)
     }
 
+    func testParsesWechatArticleURLChapterInput() {
+        let input = ChapterInput.parse("https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A")
+
+        XCTAssertEqual(input.sourceType, .wechatArticle)
+        XCTAssertEqual(input.sourceUrl, "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A")
+        XCTAssertNil(input.rawText)
+        XCTAssertTrue(input.canSubmit)
+    }
+
     func testParsesVideoURLChapterInput() {
         let input = ChapterInput.parse("https://www.youtube.com/watch?v=abc123")
 
@@ -216,6 +225,93 @@ final class APIClientDecodingTests: XCTestCase {
         XCTAssertEqual(payload?["sourceType"] as? String, "article_link")
         XCTAssertNil(payload?["rawText"])
         XCTAssertEqual(payload?["sourceUrl"] as? String, "https://example.com/article")
+    }
+
+    func testEncodesWechatArticleChapterCreateRequestShape() throws {
+        let input = ChapterInput.parse("https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A")
+        let data = try JSONEncoder().encode(ChapterCreateRequest(input: input))
+        let payload = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+
+        XCTAssertEqual(payload?["sourceType"] as? String, "wechat_article")
+        XCTAssertNil(payload?["rawText"])
+        XCTAssertEqual(payload?["sourceUrl"] as? String, "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A")
+    }
+
+    func testEncodesV2WechatArticleChapterCreateRequestShape() throws {
+        let request = V2CreateChapterRequest(
+            clientRequestId: "ios-v2-test",
+            sourceType: ChapterInput.parse("https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A").sourceType.rawValue,
+            sourceUrl: "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+            sourceTitle: nil,
+            rawText: nil
+        )
+        let data = try JSONEncoder().encode(request)
+        let payload = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+
+        XCTAssertEqual(payload?["sourceType"] as? String, "wechat_article")
+        XCTAssertEqual(payload?["sourceUrl"] as? String, "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A")
+    }
+
+    func testV2SourceLabelDistinguishesWechatArticle() {
+        let chapter = V2BackendChapter(
+            schemaVersion: "v2_review_path_1",
+            id: "chapter-wechat",
+            title: "游戏化体验",
+            status: "completed",
+            displayStatusText: nil,
+            failureReason: nil,
+            source: V2BackendSource(
+                type: "wechat_article",
+                title: "游戏化体验",
+                author: nil,
+                account: "公众号",
+                accountOrDomain: "公众号",
+                url: "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+                rawText: nil,
+                cleanedText: nil,
+                rawInput: nil,
+                extractedText: nil,
+                blocks: nil
+            ),
+            summaryCard: nil,
+            units: nil,
+            chapterSummary: nil,
+            generationProgress: nil,
+            v2ReviewSession: nil
+        )
+
+        XCTAssertEqual(chapter.sourceLabel, "微信公众号")
+    }
+
+    func testV2SourceLabelInfersWechatArticleFromLegacyTextTypeURL() {
+        let chapter = V2BackendChapter(
+            schemaVersion: "v2_review_path_1",
+            id: "chapter-wechat-legacy",
+            title: "游戏化体验",
+            status: "completed",
+            displayStatusText: nil,
+            failureReason: nil,
+            source: V2BackendSource(
+                type: "text",
+                title: "游戏化体验",
+                author: nil,
+                account: nil,
+                accountOrDomain: nil,
+                url: "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+                rawText: nil,
+                cleanedText: nil,
+                rawInput: nil,
+                extractedText: nil,
+                blocks: nil
+            ),
+            summaryCard: nil,
+            units: nil,
+            chapterSummary: nil,
+            generationProgress: nil,
+            v2ReviewSession: nil
+        )
+
+        XCTAssertEqual(chapter.sourceLabel, "微信公众号")
     }
 
     func testEncodesVideoLinkChapterCreateRequestShape() throws {

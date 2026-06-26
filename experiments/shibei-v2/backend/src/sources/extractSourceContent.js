@@ -21,12 +21,12 @@ export async function extractSourceContent(input) {
     );
   }
 
-  if (sourceType !== "article_link") {
+  if (sourceType !== "article_link" && sourceType !== "wechat_article") {
     throw sourceFailure("failed_extract_article", "暂不支持这种内容来源。请粘贴文字或文章链接。");
   }
 
   const sourceUrl = normalizeUrl(input.sourceUrl || input.rawText);
-  if (isWechatArticleUrl(sourceUrl)) {
+  if (sourceType === "wechat_article" || isWechatArticleUrl(sourceUrl)) {
     return extractWechatArticle(sourceUrl);
   }
   return extractWebArticle(sourceUrl);
@@ -161,7 +161,7 @@ async function extractWechatArticle(sourceUrl) {
       const rawText = cleanExtractedText(data.rawText);
       ensureArticleText(rawText);
       return {
-        sourceType: "article_link",
+        sourceType: "wechat_article",
         sourceTitle: cleanExtractedText(data.title) || "公众号文章",
         sourceUrl,
         sourceAccount: cleanExtractedText(data.account) || "mp.weixin.qq.com",
@@ -198,6 +198,7 @@ async function extractWechatArticleFromStaticHtml(sourceUrl) {
     ensureArticleText(extracted.rawText);
     return {
       ...extracted,
+      sourceType: "wechat_article",
       sourceAccount: extracted.sourceAccount === "mp.weixin.qq.com"
         ? inferWechatAccount(extracted.rawText) || extracted.sourceAccount
         : extracted.sourceAccount

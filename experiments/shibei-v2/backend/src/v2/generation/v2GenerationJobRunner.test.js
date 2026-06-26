@@ -77,18 +77,19 @@ test("extracts article links before running V2 generation", async () => {
 
   const result = await runV2GenerationQueuedJob(baseJob({
     sourceType: "article_link",
-    sourceUrl: "https://mp.weixin.qq.com/s/example",
+    sourceUrl: "https://example.com/article",
     sourceTitle: "文章链接"
   }), deps);
 
   assert.equal(result.status, "completed");
-  assert.equal(calls.find((call) => call.name === "extractSourceContent").input.sourceUrl, "https://mp.weixin.qq.com/s/example");
+  assert.equal(calls.find((call) => call.name === "extractSourceContent").input.sourceUrl, "https://example.com/article");
   const modelInput = calls.find((call) => call.name === "runV2GenerationJob").input;
   assert.equal(modelInput.sourceType, "text");
   assert.equal(modelInput.originalSourceType, "article_link");
   assert.equal(modelInput.sourceTitle, "提取后的标题");
   assert.match(modelInput.rawText, /提取后的正文内容/);
-  assert.equal(chapters.get("chapter-1").source.url, "https://mp.weixin.qq.com/s/example");
+  assert.equal(chapters.get("chapter-1").source.type, "article_link");
+  assert.equal(chapters.get("chapter-1").source.url, "https://example.com/article");
   assert.equal(
     calls.some((call) =>
       call.name === "updateGenerationJob" &&
@@ -96,6 +97,62 @@ test("extracts article links before running V2 generation", async () => {
     ),
     true
   );
+});
+
+test("preserves wechat source type after extracting V2 article links", async () => {
+  const calls = [];
+  const chapters = new Map([
+    ["chapter-1", {
+      id: "chapter-1",
+      title: "公众号文章",
+      status: "submitted",
+      generationMeta: {},
+      createdAt: "2026-06-24T00:00:00.000Z"
+    }]
+  ]);
+  const deps = mockDeps({
+    calls,
+    chapters,
+    extractSourceContent: async (input) => {
+      calls.push({ name: "extractSourceContent", input });
+      return {
+        sourceType: "wechat_article",
+        sourceTitle: "游戏化体验",
+        sourceUrl: input.sourceUrl,
+        sourceAccount: "体验进阶",
+        rawText: "公众号正文内容。".repeat(30)
+      };
+    },
+    runV2GenerationJob: async (input) => {
+      calls.push({ name: "runV2GenerationJob", input });
+      return {
+        status: "completed",
+        chapter: {
+          schemaVersion: "v2_review_path_1",
+          id: input.chapterId,
+          title: input.sourceTitle,
+          status: "completed",
+          source: input.source,
+          units: []
+        }
+      };
+    }
+  });
+
+  const result = await runV2GenerationQueuedJob(baseJob({
+    sourceType: "wechat_article",
+    sourceUrl: "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+    sourceTitle: "公众号文章"
+  }), deps);
+
+  assert.equal(result.status, "completed");
+  assert.equal(calls.find((call) => call.name === "extractSourceContent").input.sourceType, "wechat_article");
+  const modelInput = calls.find((call) => call.name === "runV2GenerationJob").input;
+  assert.equal(modelInput.sourceType, "text");
+  assert.equal(modelInput.originalSourceType, "wechat_article");
+  assert.equal(modelInput.source.type, "wechat_article");
+  assert.equal(modelInput.source.accountOrDomain, "体验进阶");
+  assert.equal(chapters.get("chapter-1").source.type, "wechat_article");
 });
 
 test("stores source extraction failures without calling the model", async () => {
