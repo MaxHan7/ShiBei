@@ -708,25 +708,73 @@ private struct V2NotificationScreenContent: View {
 
     var body: some View {
         GeometryReader { geometry in
-            ZStack(alignment: .topLeading) {
-                V2NotificationDecorations(width: geometry.size.width)
-
-                V2NotificationList(
-                    unreadCount: unreadCount,
-                    notifications: notifications,
-                    onOpenSuccess: onOpenSuccess,
-                    onOpenFailure: onOpenFailure
-                )
-                .frame(width: V2Layout.contentMaxWidth)
-                .position(
-                    x: geometry.size.width / 2,
-                    y: 36 + (82 + 22 + 108 * 2 + 22 * 2) / 2
-                )
-                .zIndex(3)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            V2NotificationLayer(
+                width: geometry.size.width,
+                unreadCount: unreadCount,
+                notifications: notifications,
+                onOpenSuccess: onOpenSuccess,
+                onOpenFailure: onOpenFailure
+            )
         }
-        .frame(height: 760)
+        .frame(height: V2NotificationLayout.screenHeight)
+    }
+}
+
+private enum V2NotificationLayout {
+    static let screenHeight: CGFloat = 760
+    static let listTop: CGFloat = 36
+    static let summaryHeight: CGFloat = 82
+    static let cardHeight: CGFloat = 108
+    static let verticalGap: CGFloat = 22
+
+    static var listCenterY: CGFloat {
+        listTop + (summaryHeight + verticalGap + cardHeight * 2 + verticalGap * 2) / 2
+    }
+}
+
+private struct V2NotificationLayer: View {
+    let width: CGFloat
+    let unreadCount: Int
+    let notifications: [NotificationItem]
+    let onOpenSuccess: () -> Void
+    let onOpenFailure: () -> Void
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            V2NotificationDecorations(width: width)
+
+            V2NotificationPositionedList(
+                width: width,
+                unreadCount: unreadCount,
+                notifications: notifications,
+                onOpenSuccess: onOpenSuccess,
+                onOpenFailure: onOpenFailure
+            )
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+}
+
+private struct V2NotificationPositionedList: View {
+    let width: CGFloat
+    let unreadCount: Int
+    let notifications: [NotificationItem]
+    let onOpenSuccess: () -> Void
+    let onOpenFailure: () -> Void
+
+    var body: some View {
+        V2NotificationList(
+            unreadCount: unreadCount,
+            notifications: notifications,
+            onOpenSuccess: onOpenSuccess,
+            onOpenFailure: onOpenFailure
+        )
+        .frame(width: V2Layout.contentMaxWidth)
+        .position(
+            x: width / 2,
+            y: V2NotificationLayout.listCenterY
+        )
+        .zIndex(3)
     }
 }
 
@@ -739,23 +787,20 @@ private struct V2NotificationList: View {
     var body: some View {
         VStack(spacing: 22) {
             V2NotificationSummaryBanner(unreadCount: unreadCount)
+            notificationCards
+        }
+    }
 
-            if notifications.isEmpty {
-                V2InfoCard {
-                    Text("暂无通知")
-                        .font(V2Typography.body)
-                        .foregroundStyle(V2Color.textSecondary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                }
-            } else {
-                ForEach(notifications) { notification in
-                    V2NotificationCard(
-                        title: notification.title,
-                        message: notification.body,
-                        isSuccess: notification.type == .generationCompleted,
-                        action: action(for: notification)
-                    )
-                }
+    @ViewBuilder
+    private var notificationCards: some View {
+        if notifications.isEmpty {
+            V2NotificationEmptyCard()
+        } else {
+            ForEach(notifications) { notification in
+                V2NotificationRow(
+                    notification: notification,
+                    action: action(for: notification)
+                )
             }
         }
     }
@@ -767,6 +812,31 @@ private struct V2NotificationList: View {
         case .generationFailed:
             return onOpenFailure
         }
+    }
+}
+
+private struct V2NotificationEmptyCard: View {
+    var body: some View {
+        V2InfoCard {
+            Text("暂无通知")
+                .font(V2Typography.body)
+                .foregroundStyle(V2Color.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+        }
+    }
+}
+
+private struct V2NotificationRow: View {
+    let notification: NotificationItem
+    let action: () -> Void
+
+    var body: some View {
+        V2NotificationCard(
+            title: notification.title,
+            message: notification.body,
+            isSuccess: notification.type == .generationCompleted,
+            action: action
+        )
     }
 }
 
