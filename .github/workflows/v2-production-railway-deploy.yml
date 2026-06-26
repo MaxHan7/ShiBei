@@ -160,11 +160,9 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Install Railway CLI and PostgreSQL client
+      - name: Install Railway CLI
         run: |
           npm install --global @railway/cli
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
 
       - name: Resolve database URL from Railway variables
         run: |
@@ -181,7 +179,10 @@ jobs:
       - name: Truncate app-owned production test tables
         run: |
           set -euo pipefail
-          psql "$DATABASE_URL" --set=ON_ERROR_STOP=1 <<'SQL'
+          docker run --rm -i \
+            -e DATABASE_URL \
+            postgres:18 \
+            psql "$DATABASE_URL" --set=ON_ERROR_STOP=1 <<'SQL'
           DO $$
           DECLARE
             table_names text[] := ARRAY[
