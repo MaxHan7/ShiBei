@@ -232,7 +232,7 @@
 
 - [ ] **Step 3: Confirm input limit UX**
 
-  If backend rejects long input, the generating detail screen must show a readable error rather than staying stuck. Current backend target limit is approximately 6000 Chinese characters for MVP.
+  If backend rejects long input, the generating detail screen must show a readable error rather than staying stuck. Current backend target limit is approximately 10000 Chinese characters for MVP.
 
 - [ ] **Step 4: Commit**
 

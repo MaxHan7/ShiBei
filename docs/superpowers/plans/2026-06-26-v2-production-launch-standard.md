@@ -108,7 +108,7 @@ Purpose: Make generation stable enough for real users.
   - permanent failure does not loop indefinitely,
   - repeated submit of same source does not duplicate active work unexpectedly.
 - [ ] Verify article length protection:
-  - MVP limit is enforced around the agreed 6000 Chinese-character class of input,
+  - MVP limit is enforced around the agreed 10000 Chinese-character class of input,
   - over-limit failure is immediate and user-facing.
 - [ ] Confirm secrets are only in environment variables, never committed.
 
