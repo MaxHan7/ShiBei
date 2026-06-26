@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -19,6 +20,7 @@ const requiredCapabilities = [
 
 const checks = [];
 let health = null;
+let smokeResult = { status: "skipped", detail: shouldRunSmoke ? "waiting_for_readiness_gate" : "not_requested" };
 
 try {
   health = await fetchJson(`${baseUrl}/api/health`, 8_000);
@@ -45,6 +47,7 @@ printReport({ baseUrl, health, checks, shouldRunSmoke, isProduction });
 
 const failed = checks.filter((item) => !item.ok);
 if (failed.length > 0) {
+  writeEvidence({ baseUrl, health, checks, shouldRunSmoke, isProduction, smokeResult });
   console.error("");
   console.error(`Production readiness gate failed: ${failed.map((item) => item.name).join(", ")}`);
   if (failed.some((item) => item.name.startsWith("capability_"))) {
@@ -54,7 +57,16 @@ if (failed.length > 0) {
 }
 
 if (shouldRunSmoke) {
-  await runSmoke({ baseUrl });
+  const exitCode = await runSmoke({ baseUrl });
+  smokeResult = exitCode === 0
+    ? { status: "passed", detail: "controlled_v2_queue_smoke_passed" }
+    : { status: "failed", detail: `controlled_v2_queue_smoke_exit_${exitCode}` };
+  writeEvidence({ baseUrl, health, checks, shouldRunSmoke, isProduction, smokeResult });
+  if (exitCode !== 0) {
+    process.exit(exitCode);
+  }
+} else {
+  writeEvidence({ baseUrl, health, checks, shouldRunSmoke, isProduction, smokeResult });
 }
 
 function parseArgs(argv) {
@@ -139,7 +151,96 @@ async function runSmoke({ baseUrl }) {
     child.on("error", () => resolvePromise(1));
   });
 
-  if (exitCode !== 0) {
-    process.exit(exitCode);
+  return exitCode;
+}
+
+function writeEvidence({ baseUrl, health, checks, shouldRunSmoke, isProduction, smokeResult }) {
+  const evidence = buildEvidence({ baseUrl, health, checks, shouldRunSmoke, isProduction, smokeResult });
+  if (args["json-out"]) {
+    writeTextFile(args["json-out"], `${JSON.stringify(evidence, null, 2)}\n`);
   }
+  if (args["markdown-out"]) {
+    writeTextFile(args["markdown-out"], renderMarkdownEvidence(evidence));
+  }
+}
+
+function buildEvidence({ baseUrl, health, checks, shouldRunSmoke, isProduction, smokeResult }) {
+  const failed = checks.filter((item) => !item.ok).map((item) => item.name);
+  return {
+    generatedAt: new Date().toISOString(),
+    gitSha: process.env.GITHUB_SHA || readGitSha(),
+    baseUrl,
+    productionMode: isProduction,
+    smokeRequested: shouldRunSmoke,
+    status: failed.length === 0 && smokeResult.status !== "failed" ? "passed" : "failed",
+    failedChecks: failed,
+    queue: health?.queue
+      ? {
+          queued: health.queue.queued ?? null,
+          running: health.queue.running ?? null,
+          failed: health.queue.failed ?? null,
+          completed: health.queue.completed ?? null
+        }
+      : null,
+    capabilities: health?.capabilities ?? null,
+    apns: health?.apns
+      ? {
+          configured: health.apns.configured ?? null,
+          environment: health.apns.environment ?? null,
+          bundleId: health.apns.bundleId ?? null
+        }
+      : null,
+    database: health?.database
+      ? {
+          ok: health.database.ok ?? null
+        }
+      : null,
+    smoke: smokeResult,
+    checks
+  };
+}
+
+function renderMarkdownEvidence(evidence) {
+  const lines = [
+    "# Shibei V2 Production Readiness Evidence",
+    "",
+    `- Generated at: \`${evidence.generatedAt}\``,
+    `- Base URL: \`${evidence.baseUrl}\``,
+    `- Production mode: \`${evidence.productionMode}\``,
+    `- Overall status: \`${evidence.status}\``,
+    `- Smoke: \`${evidence.smoke.status}\` (${evidence.smoke.detail})`,
+    ""
+  ];
+  if (evidence.queue) {
+    lines.push(`- Queue: queued ${evidence.queue.queued}, running ${evidence.queue.running}, failed ${evidence.queue.failed}, completed ${evidence.queue.completed}`);
+    lines.push("");
+  }
+  lines.push("## Checks", "");
+  for (const item of evidence.checks) {
+    lines.push(`- ${item.ok ? "PASS" : "FAIL"} \`${item.name}\` - ${item.detail}`);
+  }
+  if (evidence.failedChecks.length > 0) {
+    lines.push("", "## Failed Checks", "");
+    for (const name of evidence.failedChecks) {
+      lines.push(`- \`${name}\``);
+    }
+  }
+  lines.push("");
+  return `${lines.join("\n")}\n`;
+}
+
+function writeTextFile(path, text) {
+  const outputPath = resolve(path);
+  mkdirSync(dirname(outputPath), { recursive: true });
+  writeFileSync(outputPath, text);
+  console.log(`evidence=${outputPath}`);
+}
+
+function readGitSha() {
+  const result = spawnSync("git", ["rev-parse", "HEAD"], {
+    cwd: resolve(dirname(fileURLToPath(import.meta.url)), "../.."),
+    encoding: "utf8"
+  });
+  if (result.status !== 0) return null;
+  return result.stdout.trim() || null;
 }

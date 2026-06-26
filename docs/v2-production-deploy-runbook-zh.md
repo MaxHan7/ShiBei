@@ -164,12 +164,33 @@ npm --prefix backend run gate:production -- --base-url https://shibei-production
 
 如果 capability 仍然失败，说明 production 没部署到当前 V2-capable backend，停止，不跑 smoke。
 
+建议部署后同时保存证据文件：
+
+```bash
+npm --prefix backend run gate:production -- \
+  --base-url https://shibei-production.up.railway.app \
+  --json-out docs/production-readiness-evidence/YYYYMMDD-HHMM-production-gate.json \
+  --markdown-out docs/production-readiness-evidence/YYYYMMDD-HHMM-production-gate.md
+```
+
+证据文件会记录 base URL、当前 git commit、queue 状态、V2 capability、APNS 摘要、每个 gate check 的 pass/fail。默认模式无副作用，可以在 smoke 前反复运行。
+
 ### 2. 生产 controlled smoke
 
 只有上一步通过后才运行：
 
 ```bash
 npm --prefix backend run gate:production -- --base-url https://shibei-production.up.railway.app --smoke
+```
+
+如果要保存 smoke 证据：
+
+```bash
+npm --prefix backend run gate:production -- \
+  --base-url https://shibei-production.up.railway.app \
+  --smoke \
+  --json-out docs/production-readiness-evidence/YYYYMMDD-HHMM-production-smoke.json \
+  --markdown-out docs/production-readiness-evidence/YYYYMMDD-HHMM-production-smoke.md
 ```
 
 通过标准：

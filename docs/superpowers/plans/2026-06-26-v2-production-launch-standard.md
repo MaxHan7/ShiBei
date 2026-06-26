@@ -221,10 +221,29 @@ Purpose: Replace the same production service only after the above gates pass.
   npm --prefix backend run gate:production -- --base-url https://shibei-production.up.railway.app
   ```
 
+- [ ] Save the no-side-effect production gate evidence:
+
+  ```bash
+  npm --prefix backend run gate:production -- \
+    --base-url https://shibei-production.up.railway.app \
+    --json-out docs/production-readiness-evidence/YYYYMMDD-HHMM-production-gate.json \
+    --markdown-out docs/production-readiness-evidence/YYYYMMDD-HHMM-production-gate.md
+  ```
+
 - [ ] Run a production-safe smoke chapter generation with a controlled source only after the readiness gate passes:
 
   ```bash
   npm --prefix backend run gate:production -- --base-url https://shibei-production.up.railway.app --smoke
+  ```
+
+- [ ] Save the explicit smoke evidence:
+
+  ```bash
+  npm --prefix backend run gate:production -- \
+    --base-url https://shibei-production.up.railway.app \
+    --smoke \
+    --json-out docs/production-readiness-evidence/YYYYMMDD-HHMM-production-smoke.json \
+    --markdown-out docs/production-readiness-evidence/YYYYMMDD-HHMM-production-smoke.md
   ```
 
 - [ ] Submit iOS build or distribute the release candidate.
