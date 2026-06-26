@@ -1,0 +1,133 @@
+name: V2 Production Railway Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type deploy-v2-production to confirm this deployment
+        required: true
+      railway_service_id:
+        description: Target Railway service id
+        required: true
+      base_url:
+        description: Production backend base URL for post-deploy gate
+        required: true
+        default: https://shibei-production.up.railway.app
+      smoke_after_gate:
+        description: Run explicit smoke only after readiness passes
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v2-production-railway-deploy
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate candidate before deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Refuse missing confirmation
+        if: ${{ inputs.confirmation != 'deploy-v2-production' }}
+        run: |
+          echo "confirmation must be exactly deploy-v2-production"
+          exit 1
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm --prefix backend ci
+
+      - name: Run root production checks
+        run: npm run check
+
+  deploy:
+    name: Deploy root backend to Railway
+    needs: validate
+    runs-on: ubuntu-latest
+    container: ghcr.io/railwayapp/cli:latest
+    timeout-minutes: 20
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Refuse missing Railway token
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "Repository secret RAILWAY_TOKEN is required."
+            exit 1
+          fi
+
+      - name: Deploy to Railway
+        run: railway up --ci --service "${{ inputs.railway_service_id }}"
+
+  gate:
+    name: Post-deploy production gate
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm --prefix backend ci
+
+      - name: Wait for backend health
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error "${{ inputs.base_url }}/api/health" >/dev/null; then
+              exit 0
+            fi
+            echo "Waiting for healthcheck attempt ${attempt}/30..."
+            sleep 5
+          done
+          echo "Backend healthcheck did not become ready in time."
+          exit 1
+
+      - name: Run post-deploy production gate
+        run: |
+          mkdir -p production-readiness-evidence
+          stamp="$(date -u +'%Y%m%d-%H%M%S')"
+          args=(
+            --base-url "${{ inputs.base_url }}"
+            --json-out "production-readiness-evidence/${stamp}-production-gate.json"
+            --markdown-out "production-readiness-evidence/${stamp}-production-gate.md"
+          )
+          if [ "${{ inputs.smoke_after_gate }}" = "true" ]; then
+            args+=(--smoke)
+          fi
+          npm --prefix backend run gate:production -- "${args[@]}"
+
+      - name: Upload gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v2-production-deploy-gate-evidence
+          path: production-readiness-evidence/
+          if-no-files-found: warn

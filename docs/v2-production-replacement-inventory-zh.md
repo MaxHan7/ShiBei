@@ -111,6 +111,7 @@ npm --prefix backend run gate:routes
   1. 如果 Railway service 连接的是 `master` 分支：合并 PR 后自动部署，或在 Railway 面板执行 Deploy Latest Commit。
   2. 如果 Railway service 支持手动部署当前分支/commit：在 Railway 面板选择本 PR/commit 部署。
   3. 如果使用 CLI：需要 Railway 登录态或 `RAILWAY_TOKEN`，再执行 `railway up` 到目标 service。
+  4. 如果使用 GitHub Actions：配置仓库 secret `RAILWAY_TOKEN`，手动触发 `V2 Production Railway Deploy`，输入目标 Railway service id 和确认短语。
 - 不论哪种部署方式，部署后先运行无副作用 gate：
 
 ```bash
