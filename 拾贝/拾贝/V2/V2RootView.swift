@@ -18,6 +18,7 @@ struct V2RootView: View {
     @State private var backendReviewChapter: V2ReviewChapterData?
     @State private var v2ReviewSession: V2BackendReviewSession?
     @State private var backendNotifications: [NotificationItem] = []
+    @State private var backendFavoriteQuestions: [FavoriteQuestionRecord] = []
     @State private var generationPollingTask: Task<Void, Never>?
     @State private var generationErrorText = ""
     @State private var isSubmittingGeneration = false
@@ -117,7 +118,9 @@ struct V2RootView: View {
             V2NotesView(
                 selectedTab: $selectedTab,
                 usesMockData: usesFixtures,
-                onOpenSavedQuestion: openSavedQuestion
+                savedQuestions: backendSavedQuestionItems,
+                onOpenSavedQuestion: openSavedQuestion,
+                onOpenBackendSavedQuestion: openBackendSavedQuestion
             )
         }
     }
@@ -256,6 +259,35 @@ struct V2RootView: View {
             } else {
                 V2MissingRouteView(onBack: goBack)
             }
+        case .savedBackendQuestion(let favoriteID):
+            if let savedQuestion = backendSavedQuestionItem(id: favoriteID),
+               let question = activeQuestion(unitID: savedQuestion.unitID, questionID: savedQuestion.questionID) {
+                let progress = (current: 0, total: 1)
+                switch question.kind {
+                case .multipleChoice:
+                    V2MultipleChoiceQuestionView(
+                        question: question,
+                        unitTitle: savedQuestion.unitTitle,
+                        progress: progress,
+                        state: multipleChoiceStateBinding(key: backendSavedQuestionStateKey(favoriteID: favoriteID)),
+                        onBack: goBack,
+                        onSource: openSource,
+                        onContinue: { continueAfterBackendSavedQuestion(favoriteID: favoriteID) }
+                    )
+                case .matching:
+                    V2MatchingQuestionView(
+                        question: question,
+                        unitTitle: savedQuestion.unitTitle,
+                        progress: progress,
+                        state: matchingStateBinding(key: backendSavedQuestionStateKey(favoriteID: favoriteID)),
+                        onBack: goBack,
+                        onSource: openSource,
+                        onContinue: { continueAfterBackendSavedQuestion(favoriteID: favoriteID) }
+                    )
+                }
+            } else {
+                V2MissingRouteView(onBack: goBack)
+            }
         case .unitSummary(let unitID):
             if let unit = activeUnit(id: unitID) {
                 V2UnitSummaryView(
@@ -293,6 +325,11 @@ struct V2RootView: View {
                 return nil
             }
             return V2ReviewFixture.question(for: savedQuestion)
+        case .savedBackendQuestion(let favoriteID):
+            guard let savedQuestion = backendSavedQuestionItem(id: favoriteID) else {
+                return nil
+            }
+            return activeQuestion(unitID: savedQuestion.unitID, questionID: savedQuestion.questionID)
         default:
             return nil
         }
@@ -315,6 +352,17 @@ struct V2RootView: View {
         routeStack.removeAll()
         questionInteractionStates.removeValue(forKey: savedQuestionStateKey(index: index))
         route = .savedQuestion(index: index)
+    }
+
+    private func openBackendSavedQuestion(favoriteID: String) {
+        guard let savedQuestion = backendSavedQuestionItem(id: favoriteID),
+              selectBackendChapter(id: savedQuestion.chapterID) else {
+            return
+        }
+        selectedTab = .notes
+        routeStack.removeAll()
+        questionInteractionStates.removeValue(forKey: backendSavedQuestionStateKey(favoriteID: favoriteID))
+        route = .savedBackendQuestion(favoriteID: favoriteID)
     }
 
     private func openGeneratingChapter(id: String?) {
@@ -389,6 +437,10 @@ struct V2RootView: View {
         "notes::saved-question::\(index)"
     }
 
+    private func backendSavedQuestionStateKey(favoriteID: String) -> String {
+        "notes::backend-saved-question::\(favoriteID)"
+    }
+
     private func continueAfterSavedQuestion(index: Int) {
         questionInteractionStates.removeValue(forKey: savedQuestionStateKey(index: index))
 
@@ -399,6 +451,30 @@ struct V2RootView: View {
         } else {
             resetToHome(tab: .notes)
         }
+    }
+
+    private func continueAfterBackendSavedQuestion(favoriteID: String) {
+        questionInteractionStates.removeValue(forKey: backendSavedQuestionStateKey(favoriteID: favoriteID))
+
+        let savedQuestions = backendSavedQuestionItems
+        guard let currentIndex = savedQuestions.firstIndex(where: { $0.id == favoriteID }) else {
+            resetToHome(tab: .notes)
+            return
+        }
+
+        let nextIndex = currentIndex + 1
+        guard savedQuestions.indices.contains(nextIndex) else {
+            resetToHome(tab: .notes)
+            return
+        }
+
+        let nextQuestion = savedQuestions[nextIndex]
+        guard selectBackendChapter(id: nextQuestion.chapterID) else {
+            resetToHome(tab: .notes)
+            return
+        }
+        questionInteractionStates.removeValue(forKey: backendSavedQuestionStateKey(favoriteID: nextQuestion.id))
+        replaceRoute(.savedBackendQuestion(favoriteID: nextQuestion.id))
     }
 
     private func questionInteractionBinding(
@@ -507,6 +583,12 @@ struct V2RootView: View {
 
     private var activeFirstUnitID: String {
         activeChapter?.units.first?.id ?? ""
+    }
+
+    private var backendSavedQuestionItems: [V2SavedQuestionDisplayItem] {
+        backendFavoriteQuestions.compactMap { record in
+            backendSavedQuestionItem(record: record)
+        }
     }
 
     private var generationDisplayText: String {
@@ -681,6 +763,7 @@ struct V2RootView: View {
 
         do {
             backendNotifications = (try? await apiClient.fetchNotifications()) ?? []
+            backendFavoriteQuestions = (try? await apiClient.fetchFavoriteQuestions()) ?? []
             let chapters = try await apiClient.fetchV2Chapters()
             backendChapters = chapters
             guard let latestChapter = chapters.first else {
@@ -837,6 +920,11 @@ struct V2RootView: View {
         }
 
         if case .savedQuestion = route {
+            resetToHome(tab: .notes)
+            return
+        }
+
+        if case .savedBackendQuestion = route {
             resetToHome(tab: .notes)
             return
         }
@@ -1035,6 +1123,40 @@ struct V2RootView: View {
         activeChapter?.units.first { unit in
             unit.questions.contains { $0.id == questionID }
         }?.id
+    }
+
+    private func backendSavedQuestionItem(id: String) -> V2SavedQuestionDisplayItem? {
+        guard let record = backendFavoriteQuestions.first(where: { $0.id == id }) else {
+            return nil
+        }
+        return backendSavedQuestionItem(record: record)
+    }
+
+    private func backendSavedQuestionItem(record: FavoriteQuestionRecord) -> V2SavedQuestionDisplayItem? {
+        guard let chapter = backendChapters.first(where: { $0.id == record.chapterId }),
+              let reviewChapter = chapter.toReviewChapterData() else {
+            return nil
+        }
+
+        for (unitIndex, unit) in reviewChapter.units.enumerated() {
+            guard let question = unit.questions.first(where: { $0.id == record.questionId }) else {
+                continue
+            }
+
+            return V2SavedQuestionDisplayItem(
+                id: record.id,
+                chapterID: record.chapterId,
+                chapterTitle: reviewChapter.title,
+                unitID: unit.id,
+                unitTitle: "单元\(unitIndex + 1)",
+                questionID: question.id,
+                title: question.prompt.isEmpty ? question.title : question.prompt,
+                source: reviewChapter.title,
+                type: question.kind == .matching ? "连线题" : "选择题"
+            )
+        }
+
+        return nil
     }
 
     @MainActor

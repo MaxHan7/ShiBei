@@ -12,6 +12,7 @@ enum V2AppRoute: Equatable {
     case unitOverview(unitID: String)
     case question(unitID: String, questionID: String)
     case savedQuestion(index: Int)
+    case savedBackendQuestion(favoriteID: String)
     case unitSummary(unitID: String)
     case chapterSummary
 }
@@ -153,6 +154,18 @@ struct V2MatchingPairData: Identifiable, Equatable {
 struct V2SavedQuestionData: Identifiable, Equatable {
     let id: String
     let unitID: String
+    let questionID: String
+    let title: String
+    let source: String
+    let type: String
+}
+
+struct V2SavedQuestionDisplayItem: Identifiable, Equatable {
+    let id: String
+    let chapterID: String
+    let chapterTitle: String
+    let unitID: String
+    let unitTitle: String
     let questionID: String
     let title: String
     let source: String

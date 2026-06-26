@@ -516,7 +516,9 @@ struct V2DiscoverView: View {
 struct V2NotesView: View {
     @Binding var selectedTab: V2HomeTab
     let usesMockData: Bool
+    let savedQuestions: [V2SavedQuestionDisplayItem]
     let onOpenSavedQuestion: (Int) -> Void
+    let onOpenBackendSavedQuestion: (String) -> Void
 
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "笔记") {
@@ -525,7 +527,7 @@ struct V2NotesView: View {
                     .zIndex(0)
                     .allowsHitTesting(false)
 
-                V2NotesSummaryCard(count: usesMockData ? 20 : 0)
+                V2NotesSummaryCard(count: savedQuestionCount)
                     .offset(y: V2NotesPageMetrics.summaryY)
                     .zIndex(2)
 
@@ -553,6 +555,21 @@ struct V2NotesView: View {
                         .offset(y: V2NotesPageMetrics.cardY(for: index))
                         .zIndex(2)
                     }
+                } else if !savedQuestions.isEmpty {
+                    ForEach(Array(savedQuestions.enumerated()), id: \.element.id) { index, savedQuestion in
+                        Button {
+                            onOpenBackendSavedQuestion(savedQuestion.id)
+                        } label: {
+                            V2SavedQuestionCard(
+                                title: savedQuestion.title,
+                                source: savedQuestion.source,
+                                type: savedQuestion.type
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .offset(y: V2NotesPageMetrics.cardY(for: index))
+                        .zIndex(2)
+                    }
                 } else {
                     V2InfoCard {
                         Text("还没有收藏题目")
@@ -566,6 +583,10 @@ struct V2NotesView: View {
             }
             .frame(width: V2Layout.contentMaxWidth, height: V2NotesPageMetrics.contentHeight, alignment: .topLeading)
         }
+    }
+
+    private var savedQuestionCount: Int {
+        usesMockData ? V2ReviewFixture.savedQuestions.count : savedQuestions.count
     }
 }
 
