@@ -1313,22 +1313,22 @@ private struct V2ChapterDetailSummaryCard: View {
                     .frame(width: 23, height: 23)
 
                 Text("文章核心")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(V2ChapterDetailTextMetrics.sectionTitleFont)
                     .foregroundStyle(Color(hex: 0x575757))
-                    .frame(height: 26, alignment: .center)
+                    .frame(height: 28, alignment: .center)
             }
             .padding(.leading, contentLeading)
-            .padding(.top, 13)
+            .padding(.top, 16)
 
             Text(summary)
-                .font(.system(size: 13, weight: .regular))
+                .font(V2ChapterDetailTextMetrics.bodyFont)
                 .foregroundStyle(Color(hex: 0x575757))
-                .lineSpacing(6)
+                .lineSpacing(V2ChapterDetailTextMetrics.bodyLineSpacing)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(width: contentWidth, alignment: .topLeading)
                 .padding(.leading, contentLeading)
-                .padding(.top, 10)
-                .padding(.bottom, 20)
+                .padding(.top, 12)
+                .padding(.bottom, 24)
         }
         .frame(width: V2Layout.contentMaxWidth, alignment: .topLeading)
         .background(
@@ -1358,21 +1358,19 @@ private struct V2ChapterDetailKnowledgeCard: View {
 
                 HStack(alignment: .firstTextBaseline, spacing: 0) {
                     Text("知识点")
-                        .font(.system(size: 13, weight: .bold))
+                        .font(V2ChapterDetailTextMetrics.sectionTitleFont)
                         .foregroundStyle(Color(hex: 0x575757))
-                        .tracking(-0.24)
 
                     Text("（\(count)）")
-                        .font(V2Typography.caption)
+                        .font(V2ChapterDetailTextMetrics.metadataFont)
                         .foregroundStyle(Color(hex: 0x878787))
-                        .tracking(-0.24)
                 }
-                .frame(height: 23, alignment: .center)
+                .frame(height: 28, alignment: .center)
             }
             .padding(.leading, contentLeading)
             .padding(.top, 18)
 
-            VStack(spacing: 10) {
+            VStack(spacing: 12) {
                 ForEach(Array(units.enumerated()), id: \.element.id) { index, unit in
                     VStack(alignment: .leading, spacing: 8) {
                         V2ChapterDetailKnowledgeRow(
@@ -1396,9 +1394,9 @@ private struct V2ChapterDetailKnowledgeCard: View {
                     }
                 }
             }
-            .padding(.top, 20)
+            .padding(.top, 18)
             .padding(.leading, contentLeading)
-            .padding(.bottom, 24)
+            .padding(.bottom, 26)
         }
         .frame(width: V2Layout.contentMaxWidth, alignment: .topLeading)
         .background(
@@ -1423,17 +1421,15 @@ private struct V2ChapterDetailKnowledgeRow: View {
                         .fill(V2Color.pageGreenBackground)
 
                     Text("\(index)")
-                        .font(.system(size: 12, weight: .regular))
+                        .font(V2ChapterDetailTextMetrics.indexFont)
                         .foregroundStyle(V2Color.primary)
-                        .tracking(-0.24)
                 }
-                .frame(width: 20, height: 20)
+                .frame(width: 22, height: 22)
                 .padding(.leading, 9)
 
                 Text(title)
-                    .font(.system(size: 12, weight: .regular))
+                    .font(V2ChapterDetailTextMetrics.rowTitleFont)
                     .foregroundStyle(Color(hex: 0x575757))
-                    .tracking(-0.24)
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -1442,7 +1438,7 @@ private struct V2ChapterDetailKnowledgeRow: View {
                     .frame(width: 24, height: 24)
                     .padding(.trailing, 9)
             }
-            .frame(width: 274, height: 50)
+            .frame(width: 274, height: 54)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(V2Color.surfaceCream)
@@ -1483,20 +1479,19 @@ private struct V2ChapterDetailKnowledgeExpansionPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(overview)
-                .font(.system(size: 11, weight: .regular))
+                .font(V2ChapterDetailTextMetrics.bodySmallFont)
                 .foregroundStyle(Color(hex: 0x575757))
-                .lineSpacing(6)
+                .lineSpacing(V2ChapterDetailTextMetrics.bodySmallLineSpacing)
                 .fixedSize(horizontal: false, vertical: true)
-                .frame(width: 232, alignment: .topLeading)
-                .padding(.top, 23)
-                .padding(.leading, 20)
+                .frame(width: 238, alignment: .topLeading)
+                .padding(.top, 20)
+                .padding(.leading, 18)
 
             Button(action: action) {
                 Text(actionTitle)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(V2Typography.bodySmallEmphasis)
                     .foregroundStyle(.white)
-                    .tracking(-0.24)
-                    .frame(width: 215, height: 28)
+                    .frame(width: 224, height: 34)
                     .background(
                         RoundedRectangle(cornerRadius: 10, style: .continuous)
                             .fill(V2Color.primaryAction)
@@ -1506,7 +1501,7 @@ private struct V2ChapterDetailKnowledgeExpansionPanel: View {
             .buttonStyle(.plain)
             .frame(maxWidth: .infinity)
             .padding(.top, 18)
-            .padding(.bottom, 12)
+            .padding(.bottom, 14)
         }
         .frame(width: 274, alignment: .topLeading)
         .background(
@@ -1518,6 +1513,17 @@ private struct V2ChapterDetailKnowledgeExpansionPanel: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("知识点详情")
     }
+}
+
+private enum V2ChapterDetailTextMetrics {
+    static let sectionTitleFont = V2Typography.bodyEmphasis
+    static let bodyFont = V2Typography.body
+    static let bodySmallFont = V2Typography.bodySmall
+    static let rowTitleFont = V2Typography.bodySmall
+    static let metadataFont = V2Typography.bodySmall
+    static let indexFont = Font.system(size: 13, weight: .medium, design: .default)
+    static let bodyLineSpacing: CGFloat = 7
+    static let bodySmallLineSpacing: CGFloat = 6
 }
 
 struct V2RecommendedArticleDetailView: View {
