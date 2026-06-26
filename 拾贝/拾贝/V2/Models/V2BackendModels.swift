@@ -168,6 +168,25 @@ struct V2BackendChapter: Decodable, Equatable {
 
 extension V2BackendChapter: Identifiable {}
 
+extension V2BackendChapter {
+    func replacingReviewSession(_ reviewSession: V2BackendReviewSession?) -> V2BackendChapter {
+        V2BackendChapter(
+            schemaVersion: schemaVersion,
+            id: id,
+            title: title,
+            status: status,
+            displayStatusText: displayStatusText,
+            failureReason: failureReason,
+            source: source,
+            summaryCard: summaryCard,
+            units: units,
+            chapterSummary: chapterSummary,
+            generationProgress: generationProgress,
+            v2ReviewSession: reviewSession
+        )
+    }
+}
+
 struct V2BackendReviewSession: Codable, Equatable {
     let schemaVersion: String
     let id: String

@@ -1374,8 +1374,10 @@ struct V2RootView: View {
     }
 
     private func applyV2ReviewSessionResponse(_ response: V2ReviewSessionResponse) {
-        applyBackendChapter(response.chapter)
-        if let session = response.reviewSession {
+        let responseSession = response.reviewSession ?? response.chapter.v2ReviewSession
+        let chapterWithSession = response.chapter.replacingReviewSession(responseSession)
+        applyBackendChapter(chapterWithSession)
+        if let session = responseSession {
             v2ReviewSession = session
             hydrateLocalQuestionStates(from: session)
         }
