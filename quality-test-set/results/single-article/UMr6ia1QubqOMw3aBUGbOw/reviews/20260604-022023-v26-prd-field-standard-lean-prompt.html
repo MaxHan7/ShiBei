@@ -1,0 +1,1328 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>v26 出题审查</title>
+<style>
+:root{--bg:#fbf7ef;--card:#fffdf8;--ink:#211f1b;--muted:#766f64;--line:#eadbc6;--brand:#df9355;--ok:#eaf8ef;--okline:#a8e2bb;--yellow:#f7d957}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC",sans-serif}.top{position:sticky;top:0;z-index:3;background:rgba(251,247,239,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);padding:22px 32px}.top h1{margin:0 0 8px;font-size:30px}.top p{margin:0;color:var(--muted);font-size:15px}.layout{display:grid;grid-template-columns:360px minmax(0,1fr);gap:24px;padding:24px 32px}.nav{position:sticky;top:104px;align-self:start;max-height:calc(100vh - 124px);overflow:auto}.nav a{display:block;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:12px}.nav span{font-size:13px;color:var(--brand);font-weight:800}.nav b{display:block;font-size:15px;line-height:1.35;margin:4px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.nav small{color:var(--muted);line-height:1.3}.question-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:28px 32px;margin-bottom:28px;box-shadow:0 18px 40px rgba(87,57,24,.05)}.meta-row{display:flex;gap:10px;align-items:center;color:var(--muted);font-weight:700;flex-wrap:wrap}.dot{width:10px;height:10px;border-radius:50%;background:var(--yellow);display:inline-block}.question-card h2{font-size:30px;line-height:1.25;margin:18px 0 18px}.kp{color:var(--muted);font-size:17px;line-height:1.6}.kp b{color:var(--brand)}.options{display:grid;gap:12px;margin:20px 0 28px}.option{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;border:1px solid var(--line);border-radius:16px;padding:16px 18px;font-size:20px;line-height:1.4}.option.correct{background:var(--ok);border-color:var(--okline)}.option em{font-style:normal;color:#22853e;font-size:13px;font-weight:800}section{border-top:1px solid var(--line);padding-top:18px;margin-top:18px}h3{font-size:18px;margin:0 0 8px}p{font-size:18px;line-height:1.7}.source{white-space:pre-wrap;color:#5f584f}details{margin-top:20px;color:var(--muted)}pre{white-space:pre-wrap;background:#f5efe4;border-radius:14px;padding:14px;overflow:auto}@media(max-width:900px){.layout{display:block;padding:16px}.nav{position:static;max-height:none}.question-card{padding:22px 18px}.question-card h2{font-size:24px}.top{padding:18px}.option{font-size:17px}}
+</style>
+</head>
+<body>
+<header class="top"><h1>v26 出题审查</h1><p>字段标准精简 Prompt · 20 道题 · JSON: /Users/hanmingyu/Downloads/拾贝-prompt-lab/quality-test-set/results/single-article/UMr6ia1QubqOMw3aBUGbOw/runs/20260604-022023-v26-prd-field-standard-lean-prompt.json</p></header>
+<main class="layout"><aside class="nav"><a href="#q-1"><span>q-1</span><b>你的团队用Claude Code开发了一个AI聊天demo，demo能跑通一次对话。现在团队想让这个demo成为产品功能，要求每次用户对话行为都稳定可控。你应该优先考虑什么？</b><small>Demo与工程的核心矛盾：一次能跑 vs 每次可控</small></a><a href="#q-2"><span>q-2</span><b>你正在用Claude Code写一个内部工具demo，朋友建议你用hook来管理文件操作。你觉得当前阶段不需要，因为demo跑起来没问题。你的判断是否正确？</b><small>Demo与工程的核心矛盾：一次能跑 vs 每次可控</small></a><a href="#q-3"><span>q-3</span><b>你的同事说：“Hook能让AI在每次修改代码后自动格式化，这样每次行为都一致，非常适合工程化。”这个说法对吗？</b><small>Demo与工程的核心矛盾：一次能跑 vs 每次可控</small></a><a href="#q-4"><span>q-4</span><b>在Claude Code中，hook的本质是什么？</b><small>Hook的核心定义：确定性节点控制器</small></a><a href="#q-6"><span>q-6</span><b>关于hook与prompt的区别，以下哪项正确？</b><small>Hook的核心定义：确定性节点控制器</small></a><a href="#q-7"><span>q-7</span><b>为什么“每次都必须发生”的行为（如每次修改代码后格式化）不应只写在prompt里？</b><small>Hook与Prompt的关键区别：请求 vs 机制</small></a><a href="#q-8-rewrite-1-1"><span>q-8-rewrite-1-1</span><b>每次代码修改后必须自动格式化，以下哪种方式最可靠？</b><small>Hook与Prompt的关键区别：请求 vs 机制</small></a><a href="#q-9"><span>q-9</span><b>以下哪个场景最适合使用hook而非prompt？</b><small>Hook与Prompt的关键区别：请求 vs 机制</small></a><a href="#q-10"><span>q-10</span><b>产品经理使用Claude Code时，以下哪种认知最危险？</b><small>产品经理的常见认知误区：自然语言指挥=掌握工程流</small></a><a href="#q-11"><span>q-11</span><b>当一个demo从个人尝试转为团队复用时，产品经理最应关注以下哪个问题？</b><small>产品经理的常见认知误区：自然语言指挥=掌握工程流</small></a><a href="#q-12"><span>q-12</span><b>以下哪一项不是产品经理在使用AI coding时容易忽略的工程问题？</b><small>产品经理的常见认知误区：自然语言指挥=掌握工程流</small></a><a href="#q-13"><span>q-13</span><b>你的AI session越来越长，AI开始出现一些之前没有的问题（如修改了不该动的文件）。根据文章，这对应哪个使用hook的信号？</b><small>使用Hook的四个信号</small></a><a href="#q-14"><span>q-14</span><b>你在使用Claude Code时，发现AI总是忘记在代码里加错误处理，你已经口头提醒了三次。此时你应该？</b><small>使用Hook的四个信号</small></a><a href="#q-15"><span>q-15</span><b>你准备将一个AI生成的demo交给同事继续开发。在交接前，你应该首先做什么？</b><small>使用Hook的四个信号</small></a><a href="#q-16-rewrite-2-1"><span>q-16-rewrite-2-1</span><b>你在使用Claude Code编写代码，希望在每次Claude生成代码后自动进行代码格式化整理，应该使用哪个Hook场景？</b><small>四类高频Hook场景</small></a><a href="#q-17"><span>q-17</span><b>你希望AI在执行可能危险的操作（如删除文件）之前，先确认是否允许。应该使用哪类hook？</b><small>四类高频Hook场景</small></a><a href="#q-18"><span>q-18</span><b>你希望AI在每次编写代码前都了解项目架构和命名约定。应该使用以下哪种机制？</b><small>Hook、Prompt、CLAUDE.md、CI的职责分工</small></a><a href="#q-19"><span>q-19</span><b>你希望确保所有代码在合并到主分支前都通过单元测试，且不关心代码来源。应该使用以下哪种机制？</b><small>Hook、Prompt、CLAUDE.md、CI的职责分工</small></a><a href="#q-20"><span>q-20</span><b>你的团队用Claude Code开发了一个demo，现在要转为团队复用的产品。以下哪个问题最应该由产品经理首先提出？</b><small>产品经理需补上的工程边界问题清单</small></a><a href="#q-21"><span>q-21</span><b>产品经理小张在使用Claude Code后，希望确保AI每次生成的代码都经过格式化。她应该把哪些规则写进项目？</b><small>产品经理需补上的工程边界问题清单</small></a></aside><section><article class="question-card" id="q-1">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-1</span>
+      <span>scenario_judgment</span>
+      <span>core_understanding</span>
+      <span>low</span>
+    </div>
+    <h2>你的团队用Claude Code开发了一个AI聊天demo，demo能跑通一次对话。现在团队想让这个demo成为产品功能，要求每次用户对话行为都稳定可控。你应该优先考虑什么？</h2>
+    <p class="kp"><b>Demo与工程的核心矛盾：一次能跑 vs 每次可控</b><br>Vibe coding负责起飞，hook负责别偏航。</p>
+    <div class="options"><div class="option "><b>A</b><span>继续优化prompt，让AI更听话</span></div><div class="option correct"><b>B</b><span>引入hook，在关键节点强制检查行为</span><em>正确</em></div><div class="option "><b>C</b><span>增加更多训练数据</span></div><div class="option "><b>D</b><span>重写一遍代码，确保没有bug</span></div></div>
+    <section><h3>正确理解</h3><p>从demo到工程的关键是行为可控，hook通过机制保证每次执行的一致性。</p></section>
+    <section><h3>常见误区</h3><p>以为优化prompt就能解决所有问题，但prompt只是请求，无法强制行为。</p></section>
+    <section><h3>解释</h3><p>Demo只需要“这次能跑”，而工程要求每次行为可控。Hook通过在固定节点强制执行检查，能将不可控行为拦住，实现从demo到工程的过渡。</p></section>
+    <section><h3>来源片段</h3><p class="source">但问题是，demo 只要“这次能跑”；工程要的是每次的行为可控。hook 就卡在这两个世界中间。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 4,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.5,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;source_coverage_incomplete&quot;,
+    &quot;misconception_not_grounded&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 5,
+    &quot;explanationFaithfulnessScore&quot;: 5,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 2,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 2,
+    &quot;claimFidelityScore&quot;: 4,
+    &quot;cognitiveActionFitScore&quot;: 5,
+    &quot;coreUnderstandingScore&quot;: 5,
+    &quot;boundaryDiscriminationFitScore&quot;: 3,
+    &quot;scenarioApplicationScore&quot;: 5,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 4.5,
+    &quot;reviewFrictionScore&quot;: 4,
+    &quot;visibleReadingLoad&quot;: 143,
+    &quot;stemLength&quot;: 86,
+    &quot;maxOptionLength&quot;: 18,
+    &quot;reviewFrictionReasons&quot;: [
+      &quot;scenario_background_too_long&quot;
+    ],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 4,
+  &quot;sourceCoverageScore&quot;: 2
+}</pre></details>
+  </article><article class="question-card" id="q-2">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-2</span>
+      <span>scenario_judgment</span>
+      <span>core_understanding</span>
+      <span>low</span>
+    </div>
+    <h2>你正在用Claude Code写一个内部工具demo，朋友建议你用hook来管理文件操作。你觉得当前阶段不需要，因为demo跑起来没问题。你的判断是否正确？</h2>
+    <p class="kp"><b>Demo与工程的核心矛盾：一次能跑 vs 每次可控</b><br>Vibe coding负责起飞，hook负责别偏航。</p>
+    <div class="options"><div class="option "><b>A</b><span>错误，即使demo也应用hook保证每次一致</span></div><div class="option correct"><b>B</b><span>正确，demo只要跑通一次就够了</span><em>正确</em></div><div class="option "><b>C</b><span>正确，但应该用prompt替代hook</span></div><div class="option "><b>D</b><span>错误，但可以先不管，等出现问题再上hook</span></div></div>
+    <section><h3>正确理解</h3><p>Demo可以容忍一次性成功，工程才需要每次可控，所以demo阶段不一定需要hook。</p></section>
+    <section><h3>常见误区</h3><p>认为任何AI项目一开始就需要hook，但实际hook是解决从demo到工程过渡时的矛盾。</p></section>
+    <section><h3>解释</h3><p>Demo阶段的核心目标是验证想法，只要求“这次能跑”，不需要每次行为可控。Hook是为工程化准备的，当demo要复用或行为需要稳定时再引入。</p></section>
+    <section><h3>来源片段</h3><p class="source">一个产品经理用 AI 做 demo，最自然的目标不是工程化可交付的版本，所以在用于产品演示的阶段，不需要严格的控制。你描述页面、描述交互、描述业务流程，AI 生成代码，你看一眼哪里不对，再用自然语言补充一下，就可以修改。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 5,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.7,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;source_coverage_incomplete&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 4,
+    &quot;explanationFaithfulnessScore&quot;: 5,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 3,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 2,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 5,
+    &quot;coreUnderstandingScore&quot;: 5,
+    &quot;boundaryDiscriminationFitScore&quot;: 4,
+    &quot;scenarioApplicationScore&quot;: 5,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 155,
+    &quot;stemLength&quot;: 77,
+    &quot;maxOptionLength&quot;: 22,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 2
+}</pre></details>
+  </article><article class="question-card" id="q-3">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-3</span>
+      <span>scenario_judgment</span>
+      <span>scenario_application</span>
+      <span>low</span>
+    </div>
+    <h2>你的同事说：“Hook能让AI在每次修改代码后自动格式化，这样每次行为都一致，非常适合工程化。”这个说法对吗？</h2>
+    <p class="kp"><b>Demo与工程的核心矛盾：一次能跑 vs 每次可控</b><br>Vibe coding负责起飞，hook负责别偏航。</p>
+    <div class="options"><div class="option correct"><b>A</b><span>对，hook强制行为可控，符合工程要求</span><em>正确</em></div><div class="option "><b>B</b><span>对，但只适用于demo阶段</span></div><div class="option "><b>C</b><span>不对，hook无法控制格式化行为</span></div><div class="option "><b>D</b><span>不对，格式化应该由prompt提醒，hook太复杂</span></div></div>
+    <section><h3>正确理解</h3><p>Hook适合将重复性、确定性的行为自动化，从而保证每次输出可控，是工程化的有力工具。</p></section>
+    <section><h3>常见误区</h3><p>认为格式化应该靠prompt提醒AI，但prompt无法强制，hook通过机制保证。</p></section>
+    <section><h3>解释</h3><p>Hook通过自动化机制确保每次代码修改后都格式化，实现了行为可控，这正是工程化所需。</p></section>
+    <section><h3>来源片段</h3><p class="source">官方文档的说法更工程化：hooks 会在 Claude Code 生命周期中的特定点触发；事件发生后，系统把相关 JSON 上下文传给你的 hook handler，handler 可以检查输入、执行动作，并在必要时返回一个 decision。翻译成人话就是：AI 正要做一件事、刚做完一件事、会话刚开始、准备结束时，你都可以插一段确定性的流程。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 5,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.7,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;explanation_not_tied_to_answer&quot;,
+    &quot;misconception_not_reflected_in_options&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 5,
+    &quot;explanationFaithfulnessScore&quot;: 1,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 1,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 4,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 5,
+    &quot;coreUnderstandingScore&quot;: 3,
+    &quot;boundaryDiscriminationFitScore&quot;: 5,
+    &quot;scenarioApplicationScore&quot;: 5,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 128,
+    &quot;stemLength&quot;: 55,
+    &quot;maxOptionLength&quot;: 25,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 4
+}</pre></details>
+  </article><article class="question-card" id="q-4">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-4</span>
+      <span>multiple_choice</span>
+      <span>core_understanding</span>
+      <span>low</span>
+    </div>
+    <h2>在Claude Code中，hook的本质是什么？</h2>
+    <p class="kp"><b>Hook的核心定义：确定性节点控制器</b><br>Hook是AI agent关键动作前后的控制器，而非另一个提示词。</p>
+    <div class="options"><div class="option "><b>A</b><span>一个用于调试的工具</span></div><div class="option "><b>B</b><span>一种更强大的提示词</span></div><div class="option "><b>C</b><span>一种新的编程语言</span></div><div class="option correct"><b>D</b><span>在AI agent关键节点自动执行预定义动作的控制器</span><em>正确</em></div></div>
+    <section><h3>正确理解</h3><p>Hook是确定性节点控制器，在关键动作前后自动执行规则。</p></section>
+    <section><h3>常见误区</h3><p>容易将hook与prompt混淆，认为hook是另一种形式的提示词，但hook是机制，prompt是请求。</p></section>
+    <section><h3>解释</h3><p>Hook是在AI agent的固定节点自动执行你定义好的命令、HTTP请求、提示词或工具调用的控制器，而非另一个提示词。</p></section>
+    <section><h3>来源片段</h3><p class="source">hook 不是替代 agent，而是在 agent 的关键动作前后加规则、上下文和验证</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 4,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.5,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 4,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 4
+    },
+    &quot;judgeAverage&quot;: 4.7
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;explanation_not_tied_to_answer&quot;,
+    &quot;source_coverage_incomplete&quot;,
+    &quot;misconception_not_reflected_in_options&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 5,
+    &quot;explanationFaithfulnessScore&quot;: 3,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 2,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 2,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 5,
+    &quot;coreUnderstandingScore&quot;: 5,
+    &quot;boundaryDiscriminationFitScore&quot;: 5,
+    &quot;scenarioApplicationScore&quot;: 2,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 4.8,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 75,
+    &quot;stemLength&quot;: 24,
+    &quot;maxOptionLength&quot;: 25,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 2
+}</pre></details>
+  </article><article class="question-card" id="q-6">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-6</span>
+      <span>multiple_choice</span>
+      <span>misconception_boundary</span>
+      <span>high</span>
+    </div>
+    <h2>关于hook与prompt的区别，以下哪项正确？</h2>
+    <p class="kp"><b>Hook的核心定义：确定性节点控制器</b><br>Hook是AI agent关键动作前后的控制器，而非另一个提示词。</p>
+    <div class="options"><div class="option "><b>A</b><span>prompt比hook更可靠</span></div><div class="option "><b>B</b><span>hook和prompt完全相同</span></div><div class="option correct"><b>C</b><span>hook是系统层面的机制，prompt是模型层面的请求</span><em>正确</em></div><div class="option "><b>D</b><span>hook是写prompt的一种方式</span></div></div>
+    <section><h3>正确理解</h3><p>Hook是确定性机制，prompt是建议性请求，两者本质不同。</p></section>
+    <section><h3>常见误区</h3><p>认为hook只是prompt的另一种写法，忽略了机制与请求的根本区别。</p></section>
+    <section><h3>解释</h3><p>Prompt是请求模型记住并遵循指令，依赖模型自觉；hook是系统自动执行，不依赖模型决策。</p></section>
+    <section><h3>来源片段</h3><p class="source">这和“把规则写进 prompt”最大的区别在于：prompt 是请求模型记住；hook 是让系统执行。你可以反复对 AI 说“改完代码记得格式化”，也可以在 PostToolUse 里规定，只要它编辑了文件，就自动跑 formatter。前者靠模型自觉，后者靠机制。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 5,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.7,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 4,
+    &quot;explanationFaithfulnessScore&quot;: 5,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 4,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 5,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 5,
+    &quot;coreUnderstandingScore&quot;: 5,
+    &quot;boundaryDiscriminationFitScore&quot;: 5,
+    &quot;scenarioApplicationScore&quot;: 2,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 97,
+    &quot;stemLength&quot;: 24,
+    &quot;maxOptionLength&quot;: 27,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 5
+}</pre></details>
+  </article><article class="question-card" id="q-7">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-7</span>
+      <span>multiple_choice</span>
+      <span>core_understanding</span>
+      <span>low</span>
+    </div>
+    <h2>为什么“每次都必须发生”的行为（如每次修改代码后格式化）不应只写在prompt里？</h2>
+    <p class="kp"><b>Hook与Prompt的关键区别：请求 vs 机制</b><br>对于每次都必须发生的行为，不应只依赖prompt，应使用hook。</p>
+    <div class="options"><div class="option "><b>A</b><span>因为prompt只对单次对话有效，无法跨会话复用</span></div><div class="option "><b>B</b><span>因为prompt中写不下这么多规则</span></div><div class="option "><b>C</b><span>因为prompt会降低模型性能</span></div><div class="option correct"><b>D</b><span>因为prompt只能请求模型记得做，模型可能忘记，而hook是自动强制执行的</span><em>正确</em></div></div>
+    <section><h3>正确理解</h3><p>对于确定性、重复性行为，hook比prompt更可靠，因为hook是系统强制而非模型自觉。</p></section>
+    <section><h3>常见误区</h3><p>认为prompt足够覆盖所有重复行为，忽略了prompt的不确定性。</p></section>
+    <section><h3>解释</h3><p>Prompt是请求模型记住并执行，但模型可能忽略或忘记；hook通过系统机制自动执行，确保每次都发生。</p></section>
+    <section><h3>来源片段</h3><p class="source">这和“把规则写进 prompt”最大的区别在于：prompt 是请求模型记住；hook 是让系统执行。你可以反复对 AI 说“改完代码记得格式化”，也可以在 PostToolUse 里规定，只要它编辑了文件，就自动跑 formatter。前者靠模型自觉，后者靠机制。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 5,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.7,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;misconception_not_reflected_in_options&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 5,
+    &quot;explanationFaithfulnessScore&quot;: 5,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 2,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 5,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 5,
+    &quot;coreUnderstandingScore&quot;: 5,
+    &quot;boundaryDiscriminationFitScore&quot;: 4,
+    &quot;scenarioApplicationScore&quot;: 2,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 4.5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 135,
+    &quot;stemLength&quot;: 41,
+    &quot;maxOptionLength&quot;: 38,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 5
+}</pre></details>
+  </article><article class="question-card" id="q-8-rewrite-1-1">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-8-rewrite-1-1</span>
+      <span>multiple_choice</span>
+      <span>scenario_application</span>
+      <span>low</span>
+    </div>
+    <h2>每次代码修改后必须自动格式化，以下哪种方式最可靠？</h2>
+    <p class="kp"><b>Hook与Prompt的关键区别：请求 vs 机制</b><br>对于每次都必须发生的行为，不应只依赖prompt，应使用hook。</p>
+    <div class="options"><div class="option "><b>A</b><span>在项目 README 中写明格式化要求</span></div><div class="option "><b>B</b><span>在系统提示中要求“每次改完代码记得格式化”</span></div><div class="option correct"><b>C</b><span>在 PostToolUse 钩子中设置自动运行 formatter</span><em>正确</em></div><div class="option "><b>D</b><span>依赖模型训练时形成的习惯</span></div></div>
+    <section><h3>正确理解</h3><p>对于每次必须执行的行为，应使用系统机制（如钩子）而非仅依赖提示，因为提示本质是请求，模型可能忽略。</p></section>
+    <section><h3>常见误区</h3><p>认为在 prompt 中强调“必须”就能让模型始终遵守，忽略了模型可能遗忘或忽略提示。</p></section>
+    <section><h3>解释</h3><p>钩子（hook）由系统强制执行，不依赖模型自觉性，能确保每次编辑后都自动格式化。而提示（prompt）只是请求，无法保证。</p></section>
+    <section><h3>来源片段</h3><p class="source">hook 管的是“事件发生时必须执行的动作”。比如改完文件就格式化，跑危险命令前先检查，session 结束前确认测试。它适合确定性、可自动化、可阻断的规则。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 4,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.5,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 4,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 4,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 4.7
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;source_coverage_incomplete&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 5,
+    &quot;explanationFaithfulnessScore&quot;: 4,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 3,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 1,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 5,
+    &quot;coreUnderstandingScore&quot;: 5,
+    &quot;boundaryDiscriminationFitScore&quot;: 3,
+    &quot;scenarioApplicationScore&quot;: 5,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 105,
+    &quot;stemLength&quot;: 25,
+    &quot;maxOptionLength&quot;: 30,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 1
+}</pre></details>
+  </article><article class="question-card" id="q-9">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-9</span>
+      <span>multiple_choice</span>
+      <span>misconception_boundary</span>
+      <span>low</span>
+    </div>
+    <h2>以下哪个场景最适合使用hook而非prompt？</h2>
+    <p class="kp"><b>Hook与Prompt的关键区别：请求 vs 机制</b><br>对于每次都必须发生的行为，不应只依赖prompt，应使用hook。</p>
+    <div class="options"><div class="option "><b>A</b><span>让AI了解项目架构</span></div><div class="option correct"><b>B</b><span>每次AI执行删除文件操作前都必须确认</span><em>正确</em></div><div class="option "><b>C</b><span>让AI采用更友好的语气回复</span></div><div class="option "><b>D</b><span>希望AI在写代码时优先考虑性能</span></div></div>
+    <section><h3>正确理解</h3><p>对于必须强制执行的确定性动作（如拦截风险），hook是唯一可靠方案。</p></section>
+    <section><h3>常见误区</h3><p>误将偏好类指令（如语气、性能偏好）当作hook使用场景，但实际上这些更适合prompt。</p></section>
+    <section><h3>解释</h3><p>删除文件是危险操作，需要每次强制拦截确认，prompt无法保证AI每次都会询问，hook可以。</p></section>
+    <section><h3>来源片段</h3><p class="source">第二类，是执行前拦截风险。 PreToolUse 可以在 Bash 或其他工具调用前触发。你可以拦 `rm -rf`、拦生产数据库命令、拦对 `.env` 的读取、拦把密钥写进日志。这里 hook 像门禁，不负责写代码，但负责让 AI 别一脚踩进坑里。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 5,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.7,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;explanation_not_tied_to_answer&quot;,
+    &quot;misconception_not_reflected_in_options&quot;,
+    &quot;boundary_confusion_not_real&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 4,
+    &quot;explanationFaithfulnessScore&quot;: 3,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 1,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 4,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 3,
+    &quot;coreUnderstandingScore&quot;: 3,
+    &quot;boundaryDiscriminationFitScore&quot;: 3,
+    &quot;scenarioApplicationScore&quot;: 5,
+    &quot;cognitiveActionIssue&quot;: &quot;boundary_confusion_not_real&quot;,
+    &quot;evidenceLearningValueScore&quot;: 4.8,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 79,
+    &quot;stemLength&quot;: 24,
+    &quot;maxOptionLength&quot;: 18,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: [
+      &quot;boundary_confusion_not_real&quot;
+    ]
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 4
+}</pre></details>
+  </article><article class="question-card" id="q-10">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-10</span>
+      <span>multiple_choice</span>
+      <span>core_understanding</span>
+      <span>low</span>
+    </div>
+    <h2>产品经理使用Claude Code时，以下哪种认知最危险？</h2>
+    <p class="kp"><b>产品经理的常见认知误区：自然语言指挥=掌握工程流</b><br>Vibe coding让demo变快，但工程需要行为可控，hook是弥补这一差距的关键。</p>
+    <div class="options"><div class="option "><b>A</b><span>“prompt比hook更灵活”</span></div><div class="option correct"><b>B</b><span>“自然语言能指挥AI写代码就够了，不需要了解工程细节”</span><em>正确</em></div><div class="option "><b>C</b><span>“AI能自动格式化代码”</span></div><div class="option "><b>D</b><span>“hook可以替代CI”</span></div></div>
+    <section><h3>正确理解</h3><p>产品经理需要补上工程边界意识，不能仅满足于AI写demo。</p></section>
+    <section><h3>常见误区</h3><p>认为自然语言驱动是AI工程的终点，实际上工程需要hook等机制保证可控性。</p></section>
+    <section><h3>解释</h3><p>文章指出，很多人误以为能用自然语言指挥AI就等于掌握了工程流，忽略了拦截危险动作、自动化重复操作等工程环节。</p></section>
+    <section><h3>来源片段</h3><p class="source">这才是 AI 产品经理需要补上的工程直觉。不是每个人都要成为 DevOps 工程师，但每个负责 AI 产品的人，都要知道“自然语言驱动代码”不是终点。越是能用一句话生成 demo，越要知道在哪些地方不能只靠一句话。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 5,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.7,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;source_coverage_incomplete&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 5,
+    &quot;explanationFaithfulnessScore&quot;: 5,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 5,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 3,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 4,
+    &quot;coreUnderstandingScore&quot;: 4,
+    &quot;boundaryDiscriminationFitScore&quot;: 5,
+    &quot;scenarioApplicationScore&quot;: 2,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 95,
+    &quot;stemLength&quot;: 28,
+    &quot;maxOptionLength&quot;: 27,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 3
+}</pre></details>
+  </article><article class="question-card" id="q-11">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-11</span>
+      <span>multiple_choice</span>
+      <span>scenario_application</span>
+      <span>low</span>
+    </div>
+    <h2>当一个demo从个人尝试转为团队复用时，产品经理最应关注以下哪个问题？</h2>
+    <p class="kp"><b>产品经理的常见认知误区：自然语言指挥=掌握工程流</b><br>Vibe coding让demo变快，但工程需要行为可控，hook是弥补这一差距的关键。</p>
+    <div class="options"><div class="option "><b>A</b><span>AI的模型版本是否最新</span></div><div class="option "><b>B</b><span>AI能否生成更漂亮的UI</span></div><div class="option "><b>C</b><span>AI的对话速度是否够快</span></div><div class="option correct"><b>D</b><span>AI能否删除文件、读取本地密钥等危险行为是否被拦截</span><em>正确</em></div></div>
+    <section><h3>正确理解</h3><p>产品经理需要识别出AI可能的安全和一致性问题，并推动工程化解决。</p></section>
+    <section><h3>常见误区</h3><p>只关注功能实现和用户体验，忽略底层行为控制。</p></section>
+    <section><h3>解释</h3><p>团队复用需要工程可控，必须考虑AI的危险操作边界，如文件删除、密钥读取等，这些需要通过hook等措施预防。</p></section>
+    <section><h3>来源片段</h3><p class="source">我后来跟那位产品经理解释 hook，她很快就明白了。她不需要马上写复杂脚本，但她需要知道：当一个 demo 从“我自己试试”变成“团队要复用”，就必须有人问这些问题。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 3,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.3,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;source_coverage_incomplete&quot;,
+    &quot;misconception_not_reflected_in_options&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 4,
+    &quot;explanationFaithfulnessScore&quot;: 4,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 2,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 2,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 4,
+    &quot;coreUnderstandingScore&quot;: 3,
+    &quot;boundaryDiscriminationFitScore&quot;: 5,
+    &quot;scenarioApplicationScore&quot;: 4,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 94,
+    &quot;stemLength&quot;: 35,
+    &quot;maxOptionLength&quot;: 25,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 2
+}</pre></details>
+  </article><article class="question-card" id="q-12">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-12</span>
+      <span>multiple_choice</span>
+      <span>misconception_boundary</span>
+      <span>low</span>
+    </div>
+    <h2>以下哪一项不是产品经理在使用AI coding时容易忽略的工程问题？</h2>
+    <p class="kp"><b>产品经理的常见认知误区：自然语言指挥=掌握工程流</b><br>Vibe coding让demo变快，但工程需要行为可控，hook是弥补这一差距的关键。</p>
+    <div class="options"><div class="option correct"><b>A</b><span>AI模型是否使用了最新训练数据</span><em>正确</em></div><div class="option "><b>B</b><span>有没有把不可接受的行为拦住</span></div><div class="option "><b>C</b><span>有没有把重复动作自动化</span></div><div class="option "><b>D</b><span>AI结束后是否完成了最低限度检查</span></div></div>
+    <section><h3>正确理解</h3><p>产品经理应关注行为可控性、自动化检查等工程细节，而非模型训练数据。</p></section>
+    <section><h3>常见误区</h3><p>误以为所有技术细节都需要产品经理关注，但实际应聚焦于行为边界。</p></section>
+    <section><h3>解释</h3><p>模型数据版本属于底层技术选型，不是产品经理在工程流中直接关注的问题；而A、B、D都是文章指出的容易被忽略的工程边界问题。</p></section>
+    <section><h3>来源片段</h3><p class="source">出现这样的误会，这不是她不懂技术，或者不愿意学习新的东西，恰恰相反，很多产品经理现在比工程师更早感受到 AI coding 的用途：打开 Claude Code、Cursor、Codex 或类似工具，把需求说清楚，等它读文件、改代码、跑项目，半天就能把可用的产品demo做出来。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 3,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.3,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;source_coverage_incomplete&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 4,
+    &quot;explanationFaithfulnessScore&quot;: 5,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 5,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 3,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 4,
+    &quot;coreUnderstandingScore&quot;: 3,
+    &quot;boundaryDiscriminationFitScore&quot;: 4,
+    &quot;scenarioApplicationScore&quot;: 2,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 88,
+    &quot;stemLength&quot;: 33,
+    &quot;maxOptionLength&quot;: 16,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 3
+}</pre></details>
+  </article><article class="question-card" id="q-13">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-13</span>
+      <span>scenario_judgment</span>
+      <span>scenario_application</span>
+      <span>low</span>
+    </div>
+    <h2>你的AI session越来越长，AI开始出现一些之前没有的问题（如修改了不该动的文件）。根据文章，这对应哪个使用hook的信号？</h2>
+    <p class="kp"><b>使用Hook的四个信号</b><br>Hook不是一开始就需要，而是在从“可运行”走向“可复用”时介入。</p>
+    <div class="options"><div class="option "><b>A</b><span>AI开始碰危险动作</span></div><div class="option "><b>B</b><span>demo要交给别人继续改</span></div><div class="option correct"><b>C</b><span>AI session变长了</span><em>正确</em></div><div class="option "><b>D</b><span>同样的提醒说了三遍</span></div></div>
+    <section><h3>正确理解</h3><p>session变长是AI行为失控的前兆，需要hook来规范。</p></section>
+    <section><h3>常见误区</h3><p>可能认为session变长是好事，但实际可能意味着AI在无效循环或产生错误。</p></section>
+    <section><h3>解释</h3><p>文章指出四个信号之一就是AI session变长，这通常意味着AI产生了更多不确定行为，需要hook来管控。</p></section>
+    <section><h3>来源片段</h3><p class="source">第四个信号，是 AI session 变长了。 短会话里，模型还能记住你刚才说过什么；长会话里，文件改动、上下文压缩、后台任务、未提交变更会慢慢堆起来。Stop hook 的意义就在这里：当 agent 准备结束时，检查它是不是真的做完，而不是只写了一句“完成了”。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 3,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.3,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 4,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 4
+    },
+    &quot;judgeAverage&quot;: 4.7
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;cognitive_action_weak&quot;,
+    &quot;scenario_is_restatement&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 4,
+    &quot;explanationFaithfulnessScore&quot;: 5,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 3,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 5,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 2,
+    &quot;coreUnderstandingScore&quot;: 5,
+    &quot;boundaryDiscriminationFitScore&quot;: 5,
+    &quot;scenarioApplicationScore&quot;: 2,
+    &quot;cognitiveActionIssue&quot;: &quot;scenario_is_restatement&quot;,
+    &quot;evidenceLearningValueScore&quot;: 5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 106,
+    &quot;stemLength&quot;: 64,
+    &quot;maxOptionLength&quot;: 12,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: [
+      &quot;cognitive_action_weak&quot;,
+      &quot;scenario_is_restatement&quot;
+    ]
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 5
+}</pre></details>
+  </article><article class="question-card" id="q-14">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-14</span>
+      <span>scenario_judgment</span>
+      <span>scenario_application</span>
+      <span>low</span>
+    </div>
+    <h2>你在使用Claude Code时，发现AI总是忘记在代码里加错误处理，你已经口头提醒了三次。此时你应该？</h2>
+    <p class="kp"><b>使用Hook的四个信号</b><br>Hook不是一开始就需要，而是在从“可运行”走向“可复用”时介入。</p>
+    <div class="options"><div class="option "><b>A</b><span>在prompt里加一条规则</span></div><div class="option "><b>B</b><span>继续耐心提醒第四次</span></div><div class="option "><b>C</b><span>放弃使用AI，自己写代码</span></div><div class="option correct"><b>D</b><span>引入hook，在PostToolUse中自动添加错误处理模板</span><em>正确</em></div></div>
+    <section><h3>正确理解</h3><p>当重复提醒无效时，应使用hook将动作自动化。</p></section>
+    <section><h3>常见误区</h3><p>继续使用prompt试图说服AI，但应该转向hook。</p></section>
+    <section><h3>解释</h3><p>同样的提醒说了三遍是引入hook的信号，说明AI无法通过prompt记住，需要机制强制。</p></section>
+    <section><h3>来源片段</h3><p class="source">但也正因为它太顺，很多人会误以为“会用自然语言指挥 Claude Code”就等于“掌握了 AI 工程流”。忽略了：你有没有把不可接受的行为拦住，有没有把重复动作自动化，有没有在 AI 结束前逼它完成最低限度的检查。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 3,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.3,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;explanation_overextends_source&quot;,
+    &quot;claim_overextended&quot;,
+    &quot;misconception_not_grounded&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 5,
+    &quot;explanationFaithfulnessScore&quot;: 1,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 1,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 4,
+    &quot;claimFidelityScore&quot;: 3,
+    &quot;cognitiveActionFitScore&quot;: 5,
+    &quot;coreUnderstandingScore&quot;: 3,
+    &quot;boundaryDiscriminationFitScore&quot;: 5,
+    &quot;scenarioApplicationScore&quot;: 5,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 115,
+    &quot;stemLength&quot;: 51,
+    &quot;maxOptionLength&quot;: 30,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 4
+}</pre></details>
+  </article><article class="question-card" id="q-15">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-15</span>
+      <span>scenario_judgment</span>
+      <span>scenario_application</span>
+      <span>low</span>
+    </div>
+    <h2>你准备将一个AI生成的demo交给同事继续开发。在交接前，你应该首先做什么？</h2>
+    <p class="kp"><b>使用Hook的四个信号</b><br>Hook不是一开始就需要，而是在从“可运行”走向“可复用”时介入。</p>
+    <div class="options"><div class="option "><b>A</b><span>清理所有的代码注释</span></div><div class="option "><b>B</b><span>升级AI模型版本</span></div><div class="option correct"><b>C</b><span>引入hook，确保关键行为可控</span><em>正确</em></div><div class="option "><b>D</b><span>写一份详细的使用文档</span></div></div>
+    <section><h3>正确理解</h3><p>交接demo时需要工程化，hook是确保行为可控的关键。</p></section>
+    <section><h3>常见误区</h3><p>只关注文档而忽略了行为控制机制。</p></section>
+    <section><h3>解释</h3><p>demo交给别人继续改是引入hook的信号，因为别人可能不了解AI行为边界，需要hook来保证安全。</p></section>
+    <section><h3>来源片段</h3><p class="source">出现这样的误会，这不是她不懂技术，或者不愿意学习新的东西，恰恰相反，很多产品经理现在比工程师更早感受到 AI coding 的用途：打开 Claude Code、Cursor、Codex 或类似工具，把需求说清楚，等它读文件、改代码、跑项目，半天就能把可用的产品demo做出来。
+
+但问题是，demo 只要“这次能跑”；工程要的是每次的行为可控。hook 就卡在这两个世界中间。
+
+AI coding 先改变的是“从想法到可运行页面”的速度
+
+hook是什么？不是另一个提示词，它是一个控制器</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 4,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.5,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;explanation_not_tied_to_answer&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 5,
+    &quot;explanationFaithfulnessScore&quot;: 3,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 3,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 4,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 5,
+    &quot;coreUnderstandingScore&quot;: 5,
+    &quot;boundaryDiscriminationFitScore&quot;: 3,
+    &quot;scenarioApplicationScore&quot;: 5,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 4.5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 80,
+    &quot;stemLength&quot;: 38,
+    &quot;maxOptionLength&quot;: 15,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 4
+}</pre></details>
+  </article><article class="question-card" id="q-16-rewrite-2-1">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-16-rewrite-2-1</span>
+      <span>scenario_judgment</span>
+      <span>scenario_application</span>
+      <span>low</span>
+    </div>
+    <h2>你在使用Claude Code编写代码，希望在每次Claude生成代码后自动进行代码格式化整理，应该使用哪个Hook场景？</h2>
+    <p class="kp"><b>四类高频Hook场景</b><br>初学者只需掌握四类高频场景即可有效使用hook。</p>
+    <div class="options"><div class="option "><b>A</b><span>结束前Hook（结束前验收）</span></div><div class="option "><b>B</b><span>会话开始Hook（会话开始时注入上下文）</span></div><div class="option correct"><b>C</b><span>PostToolUse（改完之后自动整理）</span><em>正确</em></div><div class="option "><b>D</b><span>PreToolUse（执行前拦截风险）</span></div></div>
+    <section><h3>正确理解</h3><p>该场景对应第一类高频场景：改完之后自动整理，应使用PostToolUse。</p></section>
+    <section><h3>常见误区</h3><p>可能误以为需要PreToolUse来预处理，但实际PostToolUse才是执行后的整理步骤。</p></section>
+    <section><h3>解释</h3><p>PostToolUse hook在工具使用后触发，适合用于自动整理改进。其他场景中，PreToolUse用于执行前拦截风险，会话开始Hook用于注入上下文，结束前Hook用于验收。</p></section>
+    <section><h3>来源片段</h3><p class="source">第一类，是改完之后自动整理。 PostToolUse 可以匹配 Edit 或 Write。只要 AI 写了文件，就自动跑 prettier、eslint、ruff、black、go fmt，或者你项目里的格式化命令。这个场景最适合从 demo 升级到可维护代码，因为它不打断创作速度，却能减少“看起来能跑、实际很脏”的尾巴。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 5,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.7,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 4,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 3,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 3
+    },
+    &quot;judgeAverage&quot;: 4.2
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;source_coverage_incomplete&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 5,
+    &quot;explanationFaithfulnessScore&quot;: 5,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 3,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 2,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 4,
+    &quot;coreUnderstandingScore&quot;: 3,
+    &quot;boundaryDiscriminationFitScore&quot;: 3,
+    &quot;scenarioApplicationScore&quot;: 4,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 134,
+    &quot;stemLength&quot;: 60,
+    &quot;maxOptionLength&quot;: 21,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 2
+}</pre></details>
+  </article><article class="question-card" id="q-17">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-17</span>
+      <span>scenario_judgment</span>
+      <span>scenario_application</span>
+      <span>low</span>
+    </div>
+    <h2>你希望AI在执行可能危险的操作（如删除文件）之前，先确认是否允许。应该使用哪类hook？</h2>
+    <p class="kp"><b>四类高频Hook场景</b><br>初学者只需掌握四类高频场景即可有效使用hook。</p>
+    <div class="options"><div class="option "><b>A</b><span>SessionStart hook — 开始时注入规则</span></div><div class="option correct"><b>B</b><span>PreToolUse — 执行前拦截或确认</span><em>正确</em></div><div class="option "><b>C</b><span>Stop hook — 会话结束前提醒</span></div><div class="option "><b>D</b><span>PostToolUse — 执行后检查</span></div></div>
+    <section><h3>正确理解</h3><p>PreToolUse用于“执行前拦截风险”场景。</p></section>
+    <section><h3>常见误区</h3><p>可能误用PostToolUse，但那时操作已经发生，无法阻止。</p></section>
+    <section><h3>解释</h3><p>PreToolUse在工具执行前触发，适合执行前拦截风险，比如要求确认或阻止操作。</p></section>
+    <section><h3>来源片段</h3><p class="source">第二类，是执行前拦截风险。 PreToolUse 可以在 Bash 或其他工具调用前触发。你可以拦 `rm -rf`、拦生产数据库命令、拦对 `.env` 的读取、拦把密钥写进日志。这里 hook 像门禁，不负责写代码，但负责让 AI 别一脚踩进坑里。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 5,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.7,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;misconception_not_reflected_in_options&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 5,
+    &quot;explanationFaithfulnessScore&quot;: 5,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 1,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 5,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 5,
+    &quot;coreUnderstandingScore&quot;: 3,
+    &quot;boundaryDiscriminationFitScore&quot;: 3,
+    &quot;scenarioApplicationScore&quot;: 5,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 4.5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 120,
+    &quot;stemLength&quot;: 44,
+    &quot;maxOptionLength&quot;: 24,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 5
+}</pre></details>
+  </article><article class="question-card" id="q-18">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-18</span>
+      <span>scenario_judgment</span>
+      <span>misconception_boundary</span>
+      <span>low</span>
+    </div>
+    <h2>你希望AI在每次编写代码前都了解项目架构和命名约定。应该使用以下哪种机制？</h2>
+    <p class="kp"><b>Hook、Prompt、CLAUDE.md、CI的职责分工</b><br>这几者互补而不重叠，hook不能替代CI，CI也不能替代hook。</p>
+    <div class="options"><div class="option correct"><b>A</b><span>在CLAUDE.md中写明架构和约定</span><em>正确</em></div><div class="option "><b>B</b><span>在hook中每次注入架构信息</span></div><div class="option "><b>C</b><span>在CI中检查架构符合度</span></div><div class="option "><b>D</b><span>在prompt中写明架构和约定</span></div></div>
+    <section><h3>正确理解</h3><p>CLAUDE.md适合管理项目长期背景，如架构、命名约定。</p></section>
+    <section><h3>常见误区</h3><p>误认为应该写在prompt或hook中，但prompt只有当前会话有效，hook更适合事件驱动动作。</p></section>
+    <section><h3>解释</h3><p>CLAUDE.md用于提供长期背景，让AI在每次工作前理解环境。</p></section>
+    <section><h3>来源片段</h3><p class="source">CLAUDE.md 或项目规则文档管的是“长期背景”。比如项目架构、命名约定、不要碰的目录、常用命令、发布流程。它适合让 AI 在每次工作前理解环境。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 5,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.7,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;boundary_confusion_not_real&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 5,
+    &quot;explanationFaithfulnessScore&quot;: 5,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 3,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 5,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 3,
+    &quot;coreUnderstandingScore&quot;: 5,
+    &quot;boundaryDiscriminationFitScore&quot;: 3,
+    &quot;scenarioApplicationScore&quot;: 5,
+    &quot;cognitiveActionIssue&quot;: &quot;boundary_confusion_not_real&quot;,
+    &quot;evidenceLearningValueScore&quot;: 5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 95,
+    &quot;stemLength&quot;: 37,
+    &quot;maxOptionLength&quot;: 18,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: [
+      &quot;boundary_confusion_not_real&quot;
+    ]
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 5
+}</pre></details>
+  </article><article class="question-card" id="q-19">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-19</span>
+      <span>scenario_judgment</span>
+      <span>core_understanding</span>
+      <span>low</span>
+    </div>
+    <h2>你希望确保所有代码在合并到主分支前都通过单元测试，且不关心代码来源。应该使用以下哪种机制？</h2>
+    <p class="kp"><b>Hook、Prompt、CLAUDE.md、CI的职责分工</b><br>这几者互补而不重叠，hook不能替代CI，CI也不能替代hook。</p>
+    <div class="options"><div class="option correct"><b>A</b><span>在CI中配置测试要求</span><em>正确</em></div><div class="option "><b>B</b><span>在CLAUDE.md中说明测试要求</span></div><div class="option "><b>C</b><span>在hook的PostToolUse中每次运行测试</span></div><div class="option "><b>D</b><span>在prompt中要求AI每次提交前运行测试</span></div></div>
+    <section><h3>正确理解</h3><p>CI是合并前的门槛，hook是开发过程中的预防，两者互补。</p></section>
+    <section><h3>常见误区</h3><p>认为hook可以替代CI，但hook无法覆盖所有来源的代码（如手动提交）。</p></section>
+    <section><h3>解释</h3><p>CI是进入主干前的最终裁判，不关心代码来源，只要求通过测试。</p></section>
+    <section><h3>来源片段</h3><p class="source">CI 管的是“进入主干前的最终裁判”。它不关心你是人写的还是 AI 写的，只关心代码能不能通过团队统一门槛。hook 不能替代 CI，CI 也不能替代 hook。hook 是把问题尽早挡住，CI 是把漏网之鱼拦在合并前。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 4,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.5,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;claim_overextended&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 4,
+    &quot;explanationFaithfulnessScore&quot;: 5,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 3,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 5,
+    &quot;claimFidelityScore&quot;: 2,
+    &quot;cognitiveActionFitScore&quot;: 4,
+    &quot;coreUnderstandingScore&quot;: 4,
+    &quot;boundaryDiscriminationFitScore&quot;: 3,
+    &quot;scenarioApplicationScore&quot;: 5,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 117,
+    &quot;stemLength&quot;: 45,
+    &quot;maxOptionLength&quot;: 24,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 5
+}</pre></details>
+  </article><article class="question-card" id="q-20">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-20</span>
+      <span>scenario_judgment</span>
+      <span>scenario_application</span>
+      <span>low</span>
+    </div>
+    <h2>你的团队用Claude Code开发了一个demo，现在要转为团队复用的产品。以下哪个问题最应该由产品经理首先提出？</h2>
+    <p class="kp"><b>产品经理需补上的工程边界问题清单</b><br>这些问题是AI产品经理培养工程直觉的起点。</p>
+    <div class="options"><div class="option "><b>A</b><span>AI的UI设计是否美观？</span></div><div class="option "><b>B</b><span>AI的代码是否用了最新语法？</span></div><div class="option correct"><b>C</b><span>AI能否读取本地密钥？</span><em>正确</em></div><div class="option "><b>D</b><span>AI的响应速度是否够快？</span></div></div>
+    <section><h3>正确理解</h3><p>产品经理需要问出工程边界问题，确保AI行为可控。</p></section>
+    <section><h3>常见误区</h3><p>只关注功能性和用户体验，忽略安全边界。</p></section>
+    <section><h3>解释</h3><p>当demo转为团队复用时，必须考虑AI的边界行为，如能否读取本地密钥、删除文件等安全问题。</p></section>
+    <section><h3>来源片段</h3><p class="source">CI 管的是“进入主干前的最终裁判”。它不关心你是人写的还是 AI 写的，只关心代码能不能通过团队统一门槛。hook 不能替代 CI，CI 也不能替代 hook。hook 是把问题尽早挡住，CI 是把漏网之鱼拦在合并前。
+
+产品经理真正该学的，是能力的边界
+
+我后来跟那位产品经理解释 hook，她很快就明白了。她不需要马上写复杂脚本，但她需要知道：当一个 demo 从“我自己试试”变成“团队要复用”，就必须有人问这些问题。
+
+AI 能不能删文件？删哪些文件前必须拦？
+
+AI 改完页面后，是否自动跑格式化、类型检查和基础测试？
+
+AI 能不能读取本地密钥、客户数据、生产配置？</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 5,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.7,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;source_coverage_incomplete&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 5,
+    &quot;explanationFaithfulnessScore&quot;: 5,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 3,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 3,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 4,
+    &quot;coreUnderstandingScore&quot;: 3,
+    &quot;boundaryDiscriminationFitScore&quot;: 4,
+    &quot;scenarioApplicationScore&quot;: 4,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 4,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 106,
+    &quot;stemLength&quot;: 57,
+    &quot;maxOptionLength&quot;: 14,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 3
+}</pre></details>
+  </article><article class="question-card" id="q-21">
+    <div class="meta-row">
+      <span class="dot"></span>
+      <span>q-21</span>
+      <span>scenario_judgment</span>
+      <span>scenario_application</span>
+      <span>low</span>
+    </div>
+    <h2>产品经理小张在使用Claude Code后，希望确保AI每次生成的代码都经过格式化。她应该把哪些规则写进项目？</h2>
+    <p class="kp"><b>产品经理需补上的工程边界问题清单</b><br>这些问题是AI产品经理培养工程直觉的起点。</p>
+    <div class="options"><div class="option "><b>A</b><span>在CI中配置格式化检查</span></div><div class="option "><b>B</b><span>在prompt中写“请格式化代码”</span></div><div class="option "><b>C</b><span>在CLAUDE.md中描述格式化要求</span></div><div class="option correct"><b>D</b><span>在hook中设置PostToolUse自动运行格式化工具</span><em>正确</em></div></div>
+    <section><h3>正确理解</h3><p>对于重复性自动化动作，hook是最佳选择。</p></section>
+    <section><h3>常见误区</h3><p>认为prompt或文档足够，但无法保证每次执行。</p></section>
+    <section><h3>解释</h3><p>格式化是每次修改后的确定性动作，hook最适合自动强制格式化。</p></section>
+    <section><h3>来源片段</h3><p class="source">第二个信号，是同样的提醒你已经说了三遍。 “改完记得格式化”“别动这个目录”“跑一下测试”“生成的文件放到 docs/assets 下面”“HTML 不要加 JS”。这些话如果每次都要重复，说明它不该继续待在聊天里，而应该变成项目级规则。</p></section>
+    <details><summary>机器诊断</summary><pre>{
+  &quot;qualityScore&quot;: {
+    &quot;sourceSupport&quot;: 4,
+    &quot;answerUniqueness&quot;: 5,
+    &quot;understandingDepth&quot;: 3,
+    &quot;clarity&quot;: 5,
+    &quot;distractorQuality&quot;: 4,
+    &quot;reviewValue&quot;: 5,
+    &quot;average&quot;: 4.3,
+    &quot;judge&quot;: {
+      &quot;sourceSupport&quot;: 5,
+      &quot;answerUniqueness&quot;: 5,
+      &quot;understandingDepth&quot;: 5,
+      &quot;clarity&quot;: 5,
+      &quot;distractorQuality&quot;: 5,
+      &quot;reviewValue&quot;: 5
+    },
+    &quot;judgeAverage&quot;: 5
+  },
+  &quot;qualityAction&quot;: &quot;pass&quot;,
+  &quot;confidenceReasons&quot;: [
+    &quot;source_coverage_incomplete&quot;
+  ],
+  &quot;blockingReasons&quot;: [],
+  &quot;trustDiagnostics&quot;: {
+    &quot;answerGroundingScore&quot;: 4,
+    &quot;explanationFaithfulnessScore&quot;: 4,
+    &quot;contextRelevanceScore&quot;: 5,
+    &quot;misconceptionSupportScore&quot;: 3,
+    &quot;sourcePrecisionScore&quot;: 5,
+    &quot;sourceCoverageScore&quot;: 1,
+    &quot;claimFidelityScore&quot;: 5,
+    &quot;cognitiveActionFitScore&quot;: 5,
+    &quot;coreUnderstandingScore&quot;: 3,
+    &quot;boundaryDiscriminationFitScore&quot;: 3,
+    &quot;scenarioApplicationScore&quot;: 5,
+    &quot;cognitiveActionIssue&quot;: &quot;&quot;,
+    &quot;evidenceLearningValueScore&quot;: 5,
+    &quot;reviewFrictionScore&quot;: 5,
+    &quot;visibleReadingLoad&quot;: 128,
+    &quot;stemLength&quot;: 54,
+    &quot;maxOptionLength&quot;: 28,
+    &quot;reviewFrictionReasons&quot;: [],
+    &quot;pedagogyWarnings&quot;: [],
+    &quot;pedagogyReasons&quot;: []
+  },
+  &quot;reviewFrictionScore&quot;: 5,
+  &quot;sourceCoverageScore&quot;: 1
+}</pre></details>
+  </article></section></main>
+</body>
+</html>

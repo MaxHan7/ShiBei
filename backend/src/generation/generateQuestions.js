@@ -1,6 +1,9 @@
 import { callOpenAIJson } from "./openaiClient.js";
 import { expectedQuestionType } from "./evaluateQuestions.js";
-import { questionSchema, questionSystemPrompt } from "./prompts/questions.js";
+import {
+  questionSchema,
+  questionSystemPrompt
+} from "./prompts/questions.js";
 
 export async function generateQuestions({
   knowledgePoints,
@@ -85,28 +88,26 @@ export function buildUserPrompt({ points, rewrite, rewriteContext, supplement, s
   const rewriteCount = points[0]?.targetQuestionCount || 1;
   const promptPoints = points.map(sanitizeQuestionPromptPoint);
   const supplementInstruction = supplement
-    ? `这是补题任务。请只为给定知识点补充最多 ${rewriteCount} 道新题。
-已有题目和缺口：${supplementContext || "当前知识点还需要补充可靠题目"}
-请补充真正不同的理解角度；如果只能重复已有题，宁可少补。`
+    ? `任务类型：supplement
+只为给定知识点补充最多 ${rewriteCount} 道新题。
+缺口：${supplementContext || "当前知识点还需要补充可靠题目"}
+只补不同理解角度；如果只能重复已有题，少补或不补。`
     : "";
   const rewriteInstruction = rewrite
-    ? `上一题没有通过质量检查。请只为给定知识点重写 ${rewriteCount} 道题。
-需要修复的问题：${rewriteContext || "质量检查未通过"}
+    ? `任务类型：rewrite
+只为给定知识点重写 ${rewriteCount} 道题。
+需要修复：${rewriteContext || "质量检查未通过"}
 ${rewriteGuidance(rewriteContext)}
-重写时优先修复题目本身：答案唯一、来源支撑、解释忠实、题卡轻。`
+优先修复题目本身，不要扩大考察范围。`
     : "";
 
-  return `${supplementInstruction || rewriteInstruction}
-请根据下面的知识点生成题目。
+  const taskInstruction = supplementInstruction || rewriteInstruction || "任务类型：initial";
 
-生成方式：
-- targetQuestionCount 是最多尝试题数，不是硬指标。
-- 每个知识点至少尝试 1 道可靠题；如果自然、有来源、有不同理解角度，可以生成 2-3 道。
-- 不要为了凑数量生成换壳重复题。
-- preferredQuestionType 只是推荐题型；如果其它题型更自然，可以选择其它允许题型。
-- 如果题目练习误区或边界，题干要直接呈现需要区分的两个相邻概念、场景或判断边界；不要把辨析任务完全藏在选项里。
-- sourceSnippet 不要改写；优先使用 sourceQuote 中能支撑题目和解释的部分。
-- 如果来源不足以支持题目、答案会不唯一、或解释只能靠常识补全，请少出题。
+  return `${taskInstruction}
+
+请根据下面的知识点生成题目。
+targetQuestionCount 是温和目标：可靠、自然、角度不同才生成；否则少出。
+preferredQuestionType 只是推荐题型，选择最自然的允许题型。
 
 知识点：
 ${JSON.stringify(promptPoints, null, 2)}`;
@@ -197,22 +198,22 @@ function rewriteGuidance(context = "") {
   const issues = String(context);
   const guidance = [];
   if (/distractorQuality|干扰/.test(issues)) {
-    guidance.push("干扰项修复：优先使用 confusionCandidates 或同一知识点里的真实相邻概念；错误选项要有清楚错因，不要使用无关、极端或一眼排除项。");
+    guidance.push("干扰项：让选项组回到同一判断空间，移除重复、无关、极端或第二正确答案。");
   }
   if (/answerUniqueness|答案|唯一/.test(issues)) {
-    guidance.push("答案唯一性修复：只保留一个能被来源明确支持的正确答案，其他选项要有清楚错因。");
+    guidance.push("答案唯一：只保留一个能被来源明确支持的正确答案。");
   }
   if (/understandingDepth|理解|source_repetition|原文/.test(issues)) {
-    guidance.push("理解深度修复：考用户是否理解主张、边界或应用，不要问原文复述。");
+    guidance.push("理解深度：考主张、边界或应用，不要问原文复述。");
   }
   if (/review_friction|friction|question_card_too_heavy|stem_too_long|scenario_background_too_long|option_too_explanatory|题卡|阅读负担|过长/.test(issues)) {
-    guidance.push("题卡压缩修复：题干和选项只保留做判断所需的信息，把背景、证据链和解释移到答后字段。");
+    guidance.push("题卡压缩：题干和选项只保留做判断所需的信息，把背景、证据链和解释移到答后字段。");
   }
   if (/source|来源/.test(issues)) {
-    guidance.push("来源修复：sourceSnippet 必须来自 sourceQuote 或原文，能支撑题目和解释，不要改写或概括。");
+    guidance.push("来源：sourceSnippet 必须来自 sourceQuote 或原文，定位本题锚点，不改写或概括。");
   }
   if (/question_type|题型/.test(issues)) {
-    guidance.push("题型提示：题型只是表达方式，选择最自然、最能帮助理解的题型，保证选项结构合法。");
+    guidance.push("题型：题型只是表达方式，选择最自然的允许题型并保证结构合法。");
   }
   return guidance.join("\n");
 }
