@@ -873,6 +873,8 @@ struct V2SourceArticleView: View {
                         .padding(.top, V2Layout.topChromeReservedHeight + 40)
                         .padding(.bottom, 42)
                     }
+                    .background(V2Color.surfaceCream)
+                    .scrollContentBackground(.hidden)
                     .onAppear {
                         guard let highlightedBlockID else {
                             return
@@ -1522,6 +1524,9 @@ struct V2RecommendedArticleDetailView: View {
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
+            V2Color.surfaceCream
+                .ignoresSafeArea()
+
             V2FlowScreen(title: "", onBack: onBack) {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 19) {
@@ -1540,7 +1545,10 @@ struct V2RecommendedArticleDetailView: View {
                     .padding(.top, 23)
                     .padding(.bottom, 116)
                 }
+                .background(V2Color.surfaceCream)
+                .scrollContentBackground(.hidden)
             }
+            .background(V2Color.surfaceCream)
 
             if showsAddPopover {
                 Color.black
