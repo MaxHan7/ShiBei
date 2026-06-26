@@ -3,11 +3,31 @@ import Foundation
 struct APIClient {
     #if DEBUG
     static let localBaseURL = URL(string: "http://127.0.0.1:5173")!
-    static let defaultBaseURL = APIClient.localBaseURL
+    static var defaultBaseURL: URL {
+        launchArgumentBaseURL ?? localBaseURL
+    }
     #else
     static let defaultBaseURL = APIClient.productionBaseURL
     #endif
     static let productionBaseURL = URL(string: "https://shibei-production.up.railway.app")!
+
+    #if DEBUG
+    private static var launchArgumentBaseURL: URL? {
+        let arguments = ProcessInfo.processInfo.arguments
+        for flag in ["-ShibeiAPIBaseURL", "-ShibeiV2APIBaseURL"] {
+            if let index = arguments.firstIndex(of: flag) {
+                let valueIndex = arguments.index(after: index)
+                if valueIndex < arguments.endIndex, let url = URL(string: arguments[valueIndex]) {
+                    return url
+                }
+            }
+        }
+        if let value = ProcessInfo.processInfo.environment["SHIBEI_API_BASE_URL"] ?? ProcessInfo.processInfo.environment["SHIBEI_V2_API_BASE_URL"] {
+            return URL(string: value)
+        }
+        return nil
+    }
+    #endif
 
     var baseURL: URL
     var session: URLSession
