@@ -13,6 +13,7 @@ struct V2RootView: View {
     @State private var showsGenerationStartedDialog = false
     @State private var showsGeneratingChapterCard = false
     @State private var questionInteractionStates: [String: V2QuestionInteractionState] = [:]
+    @State private var backendChapters: [V2BackendChapter] = []
     @State private var backendChapter: V2BackendChapter?
     @State private var backendReviewChapter: V2ReviewChapterData?
     @State private var v2ReviewSession: V2BackendReviewSession?
@@ -94,12 +95,13 @@ struct V2RootView: View {
             V2MaterialsView(
                 selectedTab: $selectedTab,
                 usesMockData: usesFixtures,
+                backendChapters: backendChapters,
                 showsGeneratingChapterCard: showsGeneratingChapterCard,
                 generatingChapterTitle: backendChapter?.title ?? "正在生成新的章节",
                 generatingProgressText: generationDisplayText,
                 generatedChapter: backendReviewChapter,
-                openGeneratingChapter: { pushRoute(.generatingChapterDetail) },
-                openChapter: { pushRoute(.chapterDetail) }
+                openGeneratingChapter: openGeneratingChapter(id:),
+                openChapter: openBackendChapter
             )
         case .upload:
             V2UploadView(
@@ -313,6 +315,37 @@ struct V2RootView: View {
         routeStack.removeAll()
         questionInteractionStates.removeValue(forKey: savedQuestionStateKey(index: index))
         route = .savedQuestion(index: index)
+    }
+
+    private func openGeneratingChapter(id: String?) {
+        guard let id, selectBackendChapter(id: id) else {
+            pushRoute(.generatingChapterDetail)
+            return
+        }
+        selectedTab = .materials
+        pushRoute(.generatingChapterDetail)
+    }
+
+    private func openBackendChapter(id: String) {
+        guard selectBackendChapter(id: id) else {
+            pushRoute(.chapterDetail)
+            return
+        }
+        selectedTab = .materials
+        if backendReviewChapter != nil {
+            pushRoute(.chapterDetail)
+        } else {
+            pushRoute(.generatingChapterDetail)
+        }
+    }
+
+    @discardableResult
+    private func selectBackendChapter(id: String) -> Bool {
+        guard let chapter = backendChapters.first(where: { $0.id == id }) else {
+            return false
+        }
+        applyBackendChapter(chapter)
+        return true
     }
 
     private func openFirstUnit() {
@@ -648,7 +681,9 @@ struct V2RootView: View {
 
         do {
             backendNotifications = (try? await apiClient.fetchNotifications()) ?? []
-            guard let latestChapter = try await apiClient.fetchV2Chapters().first else {
+            let chapters = try await apiClient.fetchV2Chapters()
+            backendChapters = chapters
+            guard let latestChapter = chapters.first else {
                 return
             }
             applyBackendChapter(latestChapter)
@@ -663,6 +698,7 @@ struct V2RootView: View {
     private func applyBackendChapter(_ chapter: V2BackendChapter) {
         let previousChapterID = backendChapter?.id
         backendChapter = chapter
+        upsertBackendChapter(chapter)
         if previousChapterID != chapter.id {
             generationErrorText = ""
         }
@@ -680,6 +716,14 @@ struct V2RootView: View {
         } else if isFailedGenerationStatus(chapter.status) || chapter.progress?.status == "failed" {
             showsGeneratingChapterCard = true
             isSubmittingGeneration = false
+        }
+    }
+
+    private func upsertBackendChapter(_ chapter: V2BackendChapter) {
+        if let index = backendChapters.firstIndex(where: { $0.id == chapter.id }) {
+            backendChapters[index] = chapter
+        } else {
+            backendChapters.insert(chapter, at: 0)
         }
     }
 

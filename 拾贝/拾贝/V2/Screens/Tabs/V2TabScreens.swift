@@ -48,12 +48,13 @@ struct V2TabScaffold<Content: View>: View {
 struct V2MaterialsView: View {
     @Binding var selectedTab: V2HomeTab
     let usesMockData: Bool
+    let backendChapters: [V2BackendChapter]
     let showsGeneratingChapterCard: Bool
     let generatingChapterTitle: String
     let generatingProgressText: String
     let generatedChapter: V2ReviewChapterData?
-    let openGeneratingChapter: () -> Void
-    let openChapter: () -> Void
+    let openGeneratingChapter: (String?) -> Void
+    let openChapter: (String) -> Void
 
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "全部章节") {
@@ -74,7 +75,9 @@ struct V2MaterialsView: View {
                 .padding(.bottom, 16)
 
                 if showsGeneratingChapterCard {
-                    Button(action: openGeneratingChapter) {
+                    Button {
+                        openGeneratingChapter(backendChapters.first?.id)
+                    } label: {
                         V2ChapterCard(
                             title: generatingChapterTitle,
                             status: .generating,
@@ -88,21 +91,30 @@ struct V2MaterialsView: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
-                if let generatedChapter {
-                    Button(action: openChapter) {
+                ForEach(backendChapters.filter { !showsGeneratingChapterCard || $0.id != backendChapters.first?.id }) { chapter in
+                    Button {
+                        if chapter.isV2GenerationPending {
+                            openGeneratingChapter(chapter.id)
+                        } else {
+                            openChapter(chapter.id)
+                        }
+                    } label: {
                         V2ChapterCard(
-                            title: generatedChapter.title,
-                            status: .notStarted,
-                            source: generatedChapter.sourceURL.isEmpty ? "粘贴文字" : "网页文章",
-                            knowledgeCount: generatedChapter.units.count,
-                            questionCount: generatedChapter.units.reduce(0) { $0 + $1.questions.count }
+                            title: chapter.title,
+                            status: chapter.v2ListStatus,
+                            source: chapter.sourceLabel,
+                            knowledgeCount: chapter.units?.count ?? 0,
+                            questionCount: chapter.questionCount,
+                            generationProgressText: chapter.progress?.displayTextOrFallback ?? chapter.displayStatusText
                         )
                     }
                     .buttonStyle(.plain)
                 }
 
                 if usesMockData {
-                    Button(action: openChapter) {
+                    Button {
+                        openChapter("v2-fixture")
+                    } label: {
                         V2ChapterCard(
                             title: V2ReviewFixture.chapter.title,
                             status: .reviewing,
@@ -113,7 +125,9 @@ struct V2MaterialsView: View {
                     }
                     .buttonStyle(.plain)
 
-                    Button(action: openChapter) {
+                    Button {
+                        openChapter("v2-fixture")
+                    } label: {
                         V2ChapterCard(
                             title: "Claude Code hooks：把自动化放进工作流",
                             status: .notStarted,
@@ -124,7 +138,9 @@ struct V2MaterialsView: View {
                     }
                     .buttonStyle(.plain)
 
-                    Button(action: openChapter) {
+                    Button {
+                        openChapter("v2-fixture")
+                    } label: {
                         V2ChapterCard(
                             title: "游戏化设计如何改善学习体验",
                             status: .completed,
@@ -134,7 +150,7 @@ struct V2MaterialsView: View {
                         )
                     }
                     .buttonStyle(.plain)
-                } else if !showsGeneratingChapterCard && generatedChapter == nil {
+                } else if !showsGeneratingChapterCard && backendChapters.isEmpty && generatedChapter == nil {
                     V2InfoCard {
                         Text("还没有生成章节")
                             .font(V2Typography.body)
@@ -144,6 +160,25 @@ struct V2MaterialsView: View {
                 }
             }
         }
+    }
+}
+
+private extension V2BackendChapter {
+    var isV2GenerationPending: Bool {
+        status != "completed"
+    }
+
+    var v2ListStatus: V2ChapterReviewStatus {
+        if isV2GenerationPending {
+            return .generating
+        }
+        if v2ReviewSession?.completedAt != nil {
+            return .completed
+        }
+        if v2ReviewSession != nil {
+            return .reviewing
+        }
+        return .notStarted
     }
 }
 

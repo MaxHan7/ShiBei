@@ -84,6 +84,8 @@ struct V2BackendChapter: Decodable, Equatable {
     let v2ReviewSession: V2BackendReviewSession?
 }
 
+extension V2BackendChapter: Identifiable {}
+
 struct V2BackendReviewSession: Codable, Equatable {
     let schemaVersion: String
     let id: String
