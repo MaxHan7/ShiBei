@@ -632,35 +632,10 @@ private struct V2PathCycleLayout {
         guard nodeCount > 1 else { return Path() }
 
         let lastReferencePoint = template.referenceSlot(at: nodeCount - 1)
-        var path = template.connectionPath(
+        return template.connectionPath(
             stoppingAtReferenceY: lastReferencePoint.y,
             transform: transformReferencePoint(_:)
         )
-
-        if nodeCount > template.referenceSlotCount {
-            appendRepeatedConnections(to: &path)
-        }
-
-        return path
-    }
-
-    private func appendRepeatedConnections(to path: inout Path) {
-        let firstRepeatedIndex = max(1, template.referenceSlotCount - 1)
-        guard nodeCount > firstRepeatedIndex + 1 else {
-            return
-        }
-
-        var previous = point(at: firstRepeatedIndex)
-        for index in (firstRepeatedIndex + 1)..<nodeCount {
-            let current = point(at: index)
-            let midY = (previous.y + current.y) / 2
-            path.addCurve(
-                to: current,
-                control1: CGPoint(x: previous.x, y: midY),
-                control2: CGPoint(x: current.x, y: midY)
-            )
-            previous = current
-        }
     }
 
     private func transformReferencePoint(_ point: CGPoint) -> CGPoint {
@@ -849,7 +824,7 @@ private struct V2PathCycleTemplate {
         transform: (CGPoint) -> CGPoint
     ) -> Path {
         var path = Path()
-        let segments = connectionSegments
+        let segments = connectionSegments(stoppingAtReferenceY: stopY)
         guard let first = segments.first else { return path }
 
         path.move(to: transform(first.start))
@@ -869,10 +844,29 @@ private struct V2PathCycleTemplate {
         return path
     }
 
+    private func connectionSegments(stoppingAtReferenceY stopY: CGFloat) -> [V2CubicPathSegment] {
+        baseConnectionSegments + repeatedConnectionSegments(stoppingAtReferenceY: stopY)
+    }
+
+    private func repeatedConnectionSegments(stoppingAtReferenceY stopY: CGFloat) -> [V2CubicPathSegment] {
+        guard let topEndY = baseConnectionSegments.last?.end.y, stopY < topEndY else {
+            return []
+        }
+
+        let cycleCount = max(1, Int(ceil((topEndY - stopY) / repeatedCycleHeight)))
+        let repeatedTemplate = Array(baseConnectionSegments.suffix(4))
+        return (1...cycleCount).flatMap { cycle in
+            repeatedTemplate.map { segment in
+                segment.offsetBy(dy: -repeatedCycleHeight * CGFloat(cycle))
+            }
+        }
+    }
+
     // Source: design-assets/path-cycle-node-placement-reference.svg.
-    // The route is the Figma-approved repeated half-arc template, not a
-    // point-to-point interpolation between node centers.
-    private var connectionSegments: [V2CubicPathSegment] {
+    // The route is the Figma-approved repeated half-arc template. For chapters
+    // with more units than the first artboard, the upper half-arc is repeated
+    // by vertical offset so every later unit keeps the same curve language.
+    private var baseConnectionSegments: [V2CubicPathSegment] {
         [
             V2CubicPathSegment(
                 start: CGPoint(x: 147.5, y: 954.811),
@@ -985,6 +979,15 @@ private struct V2CubicPathSegment {
         CGPoint(
             x: a.x + (b.x - a.x) * t,
             y: a.y + (b.y - a.y) * t
+        )
+    }
+
+    func offsetBy(dy: CGFloat) -> V2CubicPathSegment {
+        V2CubicPathSegment(
+            start: CGPoint(x: start.x, y: start.y + dy),
+            control1: CGPoint(x: control1.x, y: control1.y + dy),
+            control2: CGPoint(x: control2.x, y: control2.y + dy),
+            end: CGPoint(x: end.x, y: end.y + dy)
         )
     }
 }
