@@ -122,7 +122,7 @@ struct V2RootView: View {
                 showsUnreadNotificationBadge: hasUnreadNotifications,
                 onOpenNotifications: { pushRoute(.notifications) },
                 onOpenProfile: { pushRoute(.profile) },
-                onOpenChapterDetail: { pushRoute(.chapterDetail) },
+                onOpenChapterDetail: openActiveLearningChapterDetail,
                 onOpenNode: openNode
             )
         case .materials:
@@ -409,12 +409,22 @@ struct V2RootView: View {
     }
 
     private func openNode(_ node: V2LearningPathNodeData) {
+        guard selectActiveLearningChapter() else {
+            return
+        }
         selectedTab = .learning
         if node.kind == .start {
             resetToRoute(.chapterOverview, tab: .learning)
         } else {
             resetToRoute(.unitOverview(unitID: node.id), tab: .learning)
         }
+    }
+
+    private func openActiveLearningChapterDetail() {
+        guard selectActiveLearningChapter() else {
+            return
+        }
+        pushRoute(.chapterDetail)
     }
 
     private func openSavedQuestion(index: Int) {
@@ -666,14 +676,34 @@ struct V2RootView: View {
         if usesFixtures {
             return V2HomeFixture.home
         }
-        guard usesBackendReviewChapter else {
+        guard let activeLearningReviewChapter else {
             return V2HomeFixture.empty
         }
+        return V2HomeData(chapter: activeLearningReviewChapter)
+    }
 
-        guard let activeChapter else {
-            return V2HomeFixture.empty
+    private var activeLearningBackendChapter: V2BackendChapter? {
+        backendChapters.first { chapter in
+            guard chapter.status == "completed",
+                  let session = chapter.v2ReviewSession,
+                  session.completedAt == nil else {
+                return false
+            }
+            return chapter.toReviewChapterData() != nil
         }
-        return V2HomeData(chapter: activeChapter)
+    }
+
+    private var activeLearningReviewChapter: V2ReviewChapterData? {
+        activeLearningBackendChapter?.toReviewChapterData()
+    }
+
+    @discardableResult
+    private func selectActiveLearningChapter() -> Bool {
+        guard let chapter = activeLearningBackendChapter else {
+            return false
+        }
+        applyBackendChapter(chapter)
+        return true
     }
 
     private var generatedChapterCount: Int {
