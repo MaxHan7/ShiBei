@@ -101,6 +101,65 @@ test("extracts article links before running V2 generation", async () => {
   );
 });
 
+test("extracts wechat article links before running V2 generation", async () => {
+  const calls = [];
+  const chapters = new Map([
+    ["chapter-1", {
+      id: "chapter-1",
+      title: "公众号文章",
+      status: "submitted",
+      source: { type: "wechat_article", url: "https://mp.weixin.qq.com/s/example" },
+      generationMeta: {},
+      createdAt: "2026-06-24T00:00:00.000Z"
+    }]
+  ]);
+  const deps = mockDeps({
+    calls,
+    chapters,
+    extractSourceContent: async (input) => {
+      calls.push({ name: "extractSourceContent", input });
+      return {
+        sourceType: "article_link",
+        sourceTitle: "游戏化体验",
+        sourceUrl: input.sourceUrl,
+        sourceAccount: "拾贝测试号",
+        rawText: "游戏化体验不是简单加积分，而是通过规则、反馈和动机设计提升用户体验。".repeat(20)
+      };
+    },
+    runV2GenerationJob: async (input) => {
+      calls.push({ name: "runV2GenerationJob", input });
+      return {
+        status: "completed",
+        chapter: {
+          schemaVersion: "v2_review_path_1",
+          id: input.chapterId,
+          title: input.sourceTitle,
+          status: "completed",
+          source: input.source,
+          units: []
+        }
+      };
+    }
+  });
+
+  const result = await runV2GenerationQueuedJob(baseJob({
+    sourceType: "wechat_article",
+    sourceUrl: "https://mp.weixin.qq.com/s/example",
+    sourceTitle: "公众号文章"
+  }), deps);
+
+  assert.equal(result.status, "completed");
+  assert.equal(calls.find((call) => call.name === "extractSourceContent").input.sourceType, "article_link");
+  const modelInput = calls.find((call) => call.name === "runV2GenerationJob").input;
+  assert.equal(modelInput.sourceType, "text");
+  assert.equal(modelInput.originalSourceType, "wechat_article");
+  assert.equal(modelInput.source.type, "wechat_article");
+  assert.equal(modelInput.source.accountOrDomain, "拾贝测试号");
+  assert.match(modelInput.rawText, /游戏化体验/);
+  assert.equal(chapters.get("chapter-1").source.type, "wechat_article");
+  assert.equal(chapters.get("chapter-1").source.author, "拾贝测试号");
+});
+
 test("persists extracted article author before model output can overwrite source", async () => {
   const calls = [];
   const chapters = new Map([

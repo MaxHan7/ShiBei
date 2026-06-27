@@ -5,6 +5,7 @@ import {
   assertV2ArticleInputWithinLimits,
   countV2ArticleChars,
   DEFAULT_V2_MAX_ARTICLE_CHARS,
+  DEFAULT_V2_MIN_ARTICLE_CHARS,
   extractV2ArticleText,
   validateV2ArticleInput
 } from "./generationLimits.js";
@@ -21,6 +22,7 @@ test("counts unicode article characters consistently", () => {
 
 test("validates V2 article input against the MVP length cap", () => {
   assert.equal(DEFAULT_V2_MAX_ARTICLE_CHARS, 50000);
+  assert.equal(DEFAULT_V2_MIN_ARTICLE_CHARS, 1);
 
   const ok = validateV2ArticleInput({ rawText: "a".repeat(50000) });
   assert.equal(ok.ok, true);
@@ -32,11 +34,32 @@ test("validates V2 article input against the MVP length cap", () => {
   assert.equal(tooLong.maxChars, 50000);
 });
 
+test("rejects empty V2 article text before source map generation", () => {
+  const empty = validateV2ArticleInput({ rawText: "" });
+  assert.equal(empty.ok, false);
+  assert.equal(empty.code, "empty_article_text");
+  assert.equal(empty.charCount, 0);
+  assert.equal(empty.minChars, 1);
+});
+
 test("throws a non-retryable input limit error before model generation", () => {
   assert.throws(
     () => assertV2ArticleInputWithinLimits({ rawText: "a".repeat(50001) }),
     (error) => {
       assert.equal(error.code, "input_too_long");
+      assert.equal(error.status, "failed_input");
+      assert.equal(error.retryable, false);
+      assert.equal(error.failedStage, "input_validation");
+      return true;
+    }
+  );
+});
+
+test("throws a non-retryable empty article error before model generation", () => {
+  assert.throws(
+    () => assertV2ArticleInputWithinLimits({ rawText: "" }),
+    (error) => {
+      assert.equal(error.code, "empty_article_text");
       assert.equal(error.status, "failed_input");
       assert.equal(error.retryable, false);
       assert.equal(error.failedStage, "input_validation");

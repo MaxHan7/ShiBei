@@ -3,6 +3,7 @@ const DEFAULT_RETRY_MAX_MS = 120_000;
 
 export const V2_GENERATION_FAILURE_CODE = Object.freeze({
   INPUT_TOO_LONG: "input_too_long",
+  EMPTY_ARTICLE_TEXT: "empty_article_text",
   MISSING_API_KEY: "missing_api_key",
   STRUCTURED_OUTPUT_FAILED: "structured_output_failed",
   PROVIDER_TIMEOUT: "provider_timeout",
@@ -27,6 +28,18 @@ export function classifyV2GenerationFailure(error) {
       retryable: false,
       canRetry: false,
       displayStatusText: "文章太长"
+    });
+  }
+
+  if (error?.code === V2_GENERATION_FAILURE_CODE.EMPTY_ARTICLE_TEXT) {
+    return failureClass({
+      code: V2_GENERATION_FAILURE_CODE.EMPTY_ARTICLE_TEXT,
+      status: "failed_input",
+      failedStage: "input_validation",
+      failureReason: message,
+      retryable: false,
+      canRetry: false,
+      displayStatusText: "原文为空"
     });
   }
 

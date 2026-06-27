@@ -152,7 +152,7 @@ async function runResolvedV2GenerationJob({ job, input, services }) {
 }
 
 async function resolveV2QueuedGenerationInput(job, input, services) {
-  if (input.sourceType !== "article_link") {
+  if (!isExtractableArticleSource(input.sourceType)) {
     return input;
   }
 
@@ -178,14 +178,14 @@ async function resolveV2QueuedGenerationInput(job, input, services) {
   const resolvedInput = {
     ...input,
     sourceType: "text",
-    originalSourceType: source.sourceType || input.sourceType,
+    originalSourceType: input.sourceType || source.sourceType,
     sourceTitle: source.sourceTitle || input.sourceTitle || input.title || "",
     sourceUrl: source.sourceUrl || input.sourceUrl || "",
     sourceAccount: source.sourceAccount || input.sourceAccount || "",
     rawText: source.rawText || "",
     cleanedText: source.rawText || "",
     source: {
-      type: source.sourceType || input.sourceType,
+      type: input.sourceType || source.sourceType,
       title: source.sourceTitle || input.sourceTitle || input.title || "",
       url: source.sourceUrl || input.sourceUrl || "",
       author: source.sourceAccount || input.sourceAccount || input.author || "",
@@ -200,6 +200,10 @@ async function resolveV2QueuedGenerationInput(job, input, services) {
 
   await persistResolvedV2Source(job, resolvedInput, services);
   return resolvedInput;
+}
+
+function isExtractableArticleSource(sourceType) {
+  return sourceType === "article_link" || sourceType === "wechat_article";
 }
 
 async function persistResolvedV2Source(job, resolvedInput, services) {

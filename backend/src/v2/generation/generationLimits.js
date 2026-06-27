@@ -1,4 +1,5 @@
 export const DEFAULT_V2_MAX_ARTICLE_CHARS = 50000;
+export const DEFAULT_V2_MIN_ARTICLE_CHARS = 1;
 
 export function readV2MaxArticleChars(env = process.env) {
   const raw = Number(env.V2_MAX_ARTICLE_CHARS);
@@ -23,9 +24,23 @@ export function countV2ArticleChars(text) {
   return Array.from(String(text || "")).length;
 }
 
-export function validateV2ArticleInput(input, { maxChars = readV2MaxArticleChars() } = {}) {
+export function validateV2ArticleInput(input, {
+  maxChars = readV2MaxArticleChars(),
+  minChars = DEFAULT_V2_MIN_ARTICLE_CHARS
+} = {}) {
   const text = extractV2ArticleText(input);
   const charCount = countV2ArticleChars(text);
+
+  if (charCount < minChars) {
+    return {
+      ok: false,
+      code: "empty_article_text",
+      charCount,
+      minChars,
+      maxChars,
+      message: "没有提取到可用于生成的正文，请检查链接后重试或直接粘贴正文。"
+    };
+  }
 
   if (charCount > maxChars) {
     return {
