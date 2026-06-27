@@ -36,6 +36,7 @@ test("starts a V2 review session at chapter overview before any unit is current"
   });
   assert.deepEqual(session.questionStates, {});
   assert.deepEqual(session.completedStepIds, []);
+  assert.deepEqual(session.needsReviewQuestionIds, []);
   assert.equal(deriveCurrentUnitIdFromSessionV2(reviewPath, session), "start");
 });
 
@@ -84,6 +85,123 @@ test("advances through chapter overview, unit overview, question feedback, and u
   if (nextQuestion) {
     assert.equal(session.currentCard.questionId, nextQuestion.id);
   }
+});
+
+test("replays incorrectly answered V2 questions after all new cards before chapter completion", async () => {
+  const [reviewPath] = await loadGoldenReviewPaths();
+  const firstUnit = reviewPath.units[0];
+  const firstQuestion = firstUnit.questions[0];
+  let session = createReviewSessionV2(reviewPath, { now: NOW });
+
+  session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+  session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+
+  session = answerQuestionV2(
+    reviewPath,
+    session,
+    {
+      unitId: firstUnit.id,
+      questionId: firstQuestion.id,
+      result: "incorrect",
+      selectedOptionId: "wrong-option"
+    },
+    { now: NOW }
+  );
+  assert.deepEqual(session.needsReviewQuestionIds, [firstQuestion.id]);
+  assert.equal(session.questionStates[firstQuestion.id].result, "incorrect");
+  assert.ok(!session.completedStepIds.includes(`${firstUnit.id}:${firstQuestion.id}`));
+
+  session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+
+  for (let guard = 0; guard < 200; guard += 1) {
+    if (
+      session.currentCard.type === "question" &&
+      session.currentCard.questionId === firstQuestion.id &&
+      reviewPath.units.every((unit) => session.completedStepIds.includes(`${unit.id}:summary`))
+    ) {
+      break;
+    }
+
+    assert.notEqual(session.currentCard.type, "chapter_summary");
+
+    if (session.currentCard.type === "question") {
+      const unit = reviewPath.units.find((candidate) => candidate.id === session.currentCard.unitId);
+      const question = unit.questions.find((candidate) => candidate.id === session.currentCard.questionId);
+      session = answerQuestionV2(
+        reviewPath,
+        session,
+        {
+          unitId: unit.id,
+          questionId: question.id,
+          result: "correct",
+          selectedOptionId: question.correctOptionId ?? null
+        },
+        { now: NOW }
+      );
+    }
+
+    session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+  }
+
+  assert.equal(session.currentCard.type, "question");
+  assert.equal(session.currentCard.questionId, firstQuestion.id);
+  assert.deepEqual(session.needsReviewQuestionIds, [firstQuestion.id]);
+
+  session = answerQuestionV2(
+    reviewPath,
+    session,
+    {
+      unitId: firstUnit.id,
+      questionId: firstQuestion.id,
+      result: "correct",
+      selectedOptionId: firstQuestion.correctOptionId ?? null
+    },
+    { now: NOW }
+  );
+  assert.deepEqual(session.needsReviewQuestionIds, []);
+  assert.ok(session.completedStepIds.includes(`${firstUnit.id}:${firstQuestion.id}`));
+
+  session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+  assert.equal(session.currentCard.type, "chapter_summary");
+});
+
+test("keeps a reinforcement question queued when it is answered incorrectly again", async () => {
+  const [reviewPath] = await loadGoldenReviewPaths();
+  const firstUnit = reviewPath.units[0];
+  const firstQuestion = firstUnit.questions[0];
+  const session = createReviewSessionV2(reviewPath, {
+    now: NOW
+  });
+  const sessionInReinforcement = {
+    ...session,
+    currentCard: {
+      type: "question",
+      chapterId: reviewPath.id,
+      unitId: firstUnit.id,
+      questionId: firstQuestion.id
+    },
+    completedStepIds: reviewPath.units.map((unit) => `${unit.id}:summary`),
+    needsReviewQuestionIds: [firstQuestion.id]
+  };
+
+  const answered = answerQuestionV2(
+    reviewPath,
+    sessionInReinforcement,
+    {
+      unitId: firstUnit.id,
+      questionId: firstQuestion.id,
+      result: "incorrect",
+      selectedOptionId: "wrong-option"
+    },
+    { now: NOW }
+  );
+
+  assert.deepEqual(answered.needsReviewQuestionIds, [firstQuestion.id]);
+  assert.ok(!answered.completedStepIds.includes(`${firstUnit.id}:${firstQuestion.id}`));
+
+  const advanced = advanceReviewCardV2(reviewPath, answered, { now: NOW });
+  assert.equal(advanced.currentCard.type, "question");
+  assert.equal(advanced.currentCard.questionId, firstQuestion.id);
 });
 
 test("finishes all cards at chapter summary and marks the session completed", async () => {

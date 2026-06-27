@@ -25,6 +25,7 @@ export function createReviewSessionV2(
     currentCard: chapterOverviewCard(reviewPath),
     questionStates: {},
     completedStepIds: [],
+    needsReviewQuestionIds: [],
     sourceRoute: null,
     createdAt: now,
     updatedAt: now,
@@ -51,6 +52,7 @@ export function normalizeReviewSessionV2(
     currentCard: normalizeCurrentCard(reviewPath, session.currentCard),
     questionStates: normalizeQuestionStates(session.questionStates),
     completedStepIds: normalizeCompletedStepIds(session.completedStepIds),
+    needsReviewQuestionIds: normalizeNeedsReviewQuestionIds(reviewPath, session.needsReviewQuestionIds),
     sourceRoute: session.sourceRoute ?? null,
     createdAt: session.createdAt || now,
     updatedAt: session.updatedAt || now,
@@ -89,7 +91,7 @@ export function advanceReviewCardV2(
   }
 
   if (currentCard.type === "question_feedback") {
-    nextSession.currentCard = nextCardAfterQuestionFeedback(reviewPath, currentCard);
+    nextSession.currentCard = nextCardAfterQuestionFeedback(reviewPath, nextSession, currentCard);
     return touchSession(nextSession, now);
   }
 
@@ -98,7 +100,7 @@ export function advanceReviewCardV2(
     const nextUnit = reviewPath.units[unitIndex + 1];
     nextSession.currentCard = nextUnit
       ? unitOverviewCard(reviewPath, nextUnit)
-      : chapterSummaryCard(reviewPath);
+      : firstNeedsReviewQuestionCard(reviewPath, nextSession) ?? chapterSummaryCard(reviewPath);
     return touchSession(nextSession, now);
   }
 
@@ -139,7 +141,15 @@ export function answerQuestionV2(
     feedbackVisible: true,
     answeredAt: now
   };
-  addCompletedStep(nextSession, questionStepId(unit.id, question.id));
+
+  if (normalizedResult === "correct") {
+    addCompletedStep(nextSession, questionStepId(unit.id, question.id));
+    removeNeedsReviewQuestion(nextSession, question.id);
+  } else {
+    removeCompletedStep(nextSession, questionStepId(unit.id, question.id));
+    scheduleNeedsReviewQuestion(nextSession, question.id);
+  }
+
   nextSession.currentCard = questionFeedbackCard(questionCard(reviewPath, unit, question));
 
   return touchSession(nextSession, now);
@@ -362,6 +372,24 @@ function normalizeCompletedStepIds(stepIds) {
   return [...new Set(stepIds.filter((stepId) => typeof stepId === "string" && stepId.length > 0))];
 }
 
+function normalizeNeedsReviewQuestionIds(reviewPath, questionIds) {
+  if (!Array.isArray(questionIds)) {
+    return [];
+  }
+
+  const validQuestionIds = new Set(
+    reviewPath.units.flatMap((unit) => unit.questions.map((question) => question.id))
+  );
+
+  return [
+    ...new Set(
+      questionIds.filter(
+        (questionId) => typeof questionId === "string" && validQuestionIds.has(questionId)
+      )
+    )
+  ];
+}
+
 function chapterOverviewCard(reviewPath) {
   return {
     type: "chapter_overview",
@@ -408,7 +436,11 @@ function chapterSummaryCard(reviewPath) {
   };
 }
 
-function nextCardAfterQuestionFeedback(reviewPath, card) {
+function nextCardAfterQuestionFeedback(reviewPath, session, card) {
+  if (allUnitSummariesCompleted(reviewPath, session)) {
+    return firstNeedsReviewQuestionCard(reviewPath, session) ?? chapterSummaryCard(reviewPath);
+  }
+
   const unit = findUnit(reviewPath, card.unitId);
   const questionIndex = unit.questions.findIndex((question) => question.id === card.questionId);
   const nextQuestion = unit.questions[questionIndex + 1];
@@ -448,6 +480,43 @@ function addCompletedStep(session, stepId) {
   if (!session.completedStepIds.includes(stepId)) {
     session.completedStepIds.push(stepId);
   }
+}
+
+function removeCompletedStep(session, stepId) {
+  session.completedStepIds = session.completedStepIds.filter((candidate) => candidate !== stepId);
+}
+
+function scheduleNeedsReviewQuestion(session, questionId) {
+  removeNeedsReviewQuestion(session, questionId);
+  session.needsReviewQuestionIds.push(questionId);
+}
+
+function removeNeedsReviewQuestion(session, questionId) {
+  session.needsReviewQuestionIds = session.needsReviewQuestionIds.filter(
+    (candidate) => candidate !== questionId
+  );
+}
+
+function firstNeedsReviewQuestionCard(reviewPath, session) {
+  for (const questionId of session.needsReviewQuestionIds) {
+    const unit = reviewPath.units.find((candidate) =>
+      candidate.questions.some((question) => question.id === questionId)
+    );
+    if (!unit) continue;
+
+    const question = unit.questions.find((candidate) => candidate.id === questionId);
+    if (question) {
+      return questionCard(reviewPath, unit, question);
+    }
+  }
+
+  return null;
+}
+
+function allUnitSummariesCompleted(reviewPath, session) {
+  return reviewPath.units.every((unit) =>
+    session.completedStepIds.includes(unitSummaryStepId(unit.id))
+  );
 }
 
 function resolveSourceAnchorForCard(reviewPath, card, sourceAnchorId) {
