@@ -46,6 +46,7 @@ struct V2RecommendedArticleItem: Decodable, Identifiable, Equatable {
     let source: String
     let sourceUrl: String?
     let sourceAuthor: String?
+    let coverImageUrl: String?
     let tags: [String]
     let description: String?
     let hasPreparedChapter: Bool?

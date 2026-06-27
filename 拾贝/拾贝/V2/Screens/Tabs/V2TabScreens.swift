@@ -534,6 +534,7 @@ struct V2DiscoverView: View {
                     V2RecommendedArticleCard(
                         title: article.title,
                         source: article.source,
+                        coverImageUrl: article.coverImageUrl,
                         tags: article.tags,
                         action: { openArticle(article) }
                     )

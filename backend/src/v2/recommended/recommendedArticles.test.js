@@ -6,6 +6,7 @@ import test from "node:test";
 
 import {
   cloneRecommendedArticleChapter,
+  getRecommendedArticleCoverPath,
   getRecommendedArticleDetail,
   importRecommendedArticleChapter,
   loadRecommendedArticleCatalog,
@@ -18,7 +19,9 @@ const NOW = "2026-06-27T00:00:00.000Z";
 test("loads recommended articles and derives filters from tags", async () => {
   const { catalogPath } = await writeTempCatalog();
   const catalog = await loadRecommendedArticleCatalog({ catalogPath });
-  const clientCatalog = serializeRecommendedArticleCatalogForClient(catalog);
+  const clientCatalog = serializeRecommendedArticleCatalogForClient(catalog, {
+    baseUrl: "https://example.test"
+  });
 
   assert.deepEqual(clientCatalog.filters, [
     { id: "all", title: "全部" },
@@ -28,6 +31,21 @@ test("loads recommended articles and derives filters from tags", async () => {
   assert.equal(clientCatalog.articles.length, 1);
   assert.equal(clientCatalog.articles[0].id, "article-001");
   assert.equal(clientCatalog.articles[0].hasPreparedChapter, true);
+  assert.equal(
+    clientCatalog.articles[0].coverImageUrl,
+    "https://example.test/api/v2/recommended-articles/article-001/cover"
+  );
+});
+
+test("loads recommended article cover path from the catalog", async () => {
+  const { catalogPath, coverPath } = await writeTempCatalog();
+
+  const result = await getRecommendedArticleCoverPath({
+    articleId: "article-001",
+    catalogPath
+  });
+
+  assert.equal(result, coverPath);
 });
 
 test("rejects duplicated recommended article ids", () => {
@@ -102,15 +120,18 @@ test("loads recommended article detail with the prepared chapter preview", async
 async function writeTempCatalog() {
   const dir = await mkdtemp(join(tmpdir(), "shibei-recommended-"));
   const chapterPath = join(dir, "prepared-chapter.json");
+  const coverPath = join(dir, "cover.svg");
   const catalogPath = join(dir, "catalog.json");
 
   await writeFile(chapterPath, JSON.stringify(buildPreparedChapter()), "utf8");
+  await writeFile(coverPath, "<svg xmlns=\"http://www.w3.org/2000/svg\"/>", "utf8");
   await writeFile(
     catalogPath,
     JSON.stringify({
       schemaVersion: "recommended_articles_seed_1",
       articles: [
         buildCatalogArticle({
+          coverImagePath: "cover.svg",
           preparedChapterPath: "prepared-chapter.json"
         })
       ]
@@ -118,7 +139,7 @@ async function writeTempCatalog() {
     "utf8"
   );
 
-  return { catalogPath, chapterPath };
+  return { catalogPath, chapterPath, coverPath };
 }
 
 function buildCatalogArticle(overrides = {}) {
@@ -128,6 +149,7 @@ function buildCatalogArticle(overrides = {}) {
     source: "微信公众号",
     sourceUrl: "https://example.com/article",
     sourceAuthor: "作者",
+    coverImagePath: "cover.svg",
     tags: ["产品", "学习"],
     description: "一篇适合预生成复习路径的好文。",
     preparedChapterPath: "prepared-chapter.json",

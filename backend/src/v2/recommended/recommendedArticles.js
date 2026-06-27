@@ -59,7 +59,7 @@ export async function importRecommendedArticleChapter({
   const savedChapter = await services.upsertChapter(deviceId, chapter);
 
   return {
-    article: serializeRecommendedArticleForClient(article),
+    article,
     chapter: savedChapter
   };
 }
@@ -82,7 +82,7 @@ export async function getRecommendedArticleDetail({
   const preparedChapter = await loadPreparedRecommendedChapter(article);
 
   return {
-    article: serializeRecommendedArticleForClient(article),
+    article,
     chapter: cloneRecommendedArticleChapter(article, preparedChapter, {
       chapterId: preparedChapter.id || article.id,
       now: preparedChapter.updatedAt || preparedChapter.createdAt || new Date().toISOString()
@@ -90,20 +90,49 @@ export async function getRecommendedArticleDetail({
   };
 }
 
-export function serializeRecommendedArticleCatalogForClient(catalog) {
+export async function getRecommendedArticleCoverPath({
+  articleId,
+  catalogPath
+} = {}) {
+  if (!articleId) throw new Error("recommended article id is required");
+
+  const catalog = await loadRecommendedArticleCatalog({ catalogPath });
+  const article = catalog.articles.find((candidate) => candidate.id === articleId);
+  if (!article) {
+    const error = new Error("推荐文章不存在。");
+    error.statusCode = 404;
+    error.errorCode = "recommended_article_not_found";
+    throw error;
+  }
+  if (!article.coverImagePath) {
+    const error = new Error("推荐文章还没有配置封面。");
+    error.statusCode = 404;
+    error.errorCode = "recommended_article_cover_not_found";
+    throw error;
+  }
+
+  return article.coverImagePath;
+}
+
+export function serializeRecommendedArticleCatalogForClient(catalog, options = {}) {
   return {
     filters: catalog.filters,
-    articles: catalog.articles.map(serializeRecommendedArticleForClient)
+    articles: catalog.articles.map((article) => serializeRecommendedArticleForClient(article, options))
   };
 }
 
-export function serializeRecommendedArticleForClient(article) {
+export function serializeRecommendedArticleForClient(article, { baseUrl = "" } = {}) {
+  const coverImageUrl = article.coverImagePath && baseUrl
+    ? `${baseUrl}/api/v2/recommended-articles/${encodeURIComponent(article.id)}/cover`
+    : "";
+
   return {
     id: article.id,
     title: article.title,
     source: article.source,
     sourceUrl: article.sourceUrl,
     sourceAuthor: article.sourceAuthor,
+    coverImageUrl,
     tags: article.tags,
     description: article.description,
     hasPreparedChapter: Boolean(article.preparedChapterPath)
@@ -183,6 +212,7 @@ function normalizeRecommendedArticle(article, { index, seenIds, catalogPath }) {
   if (tags.length === 0) throw new Error(`Recommended article ${id} must have tags`);
 
   const preparedChapterPath = stringValue(article.preparedChapterPath);
+  const coverImagePath = stringValue(article.coverImagePath);
 
   return {
     id,
@@ -192,6 +222,9 @@ function normalizeRecommendedArticle(article, { index, seenIds, catalogPath }) {
     sourceAuthor: stringValue(article.sourceAuthor),
     tags: [...new Set(tags)],
     description: stringValue(article.description),
+    coverImagePath: coverImagePath
+      ? resolve(dirname(catalogPath), coverImagePath)
+      : "",
     preparedChapterPath: preparedChapterPath
       ? resolve(dirname(catalogPath), preparedChapterPath)
       : ""

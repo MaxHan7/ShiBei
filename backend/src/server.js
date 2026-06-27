@@ -58,10 +58,12 @@ import { apnsConfigurationSummary, isAPNSConfigured, sendGenerationNotification 
 import { buildServiceCapabilities } from "./serviceCapabilities.js";
 import { enqueueV2ChapterGeneration } from "./v2/generation/v2ChapterQueue.js";
 import {
+  getRecommendedArticleCoverPath,
   getRecommendedArticleDetail,
   importRecommendedArticleChapter,
   loadRecommendedArticleCatalog,
-  serializeRecommendedArticleCatalogForClient
+  serializeRecommendedArticleCatalogForClient,
+  serializeRecommendedArticleForClient
 } from "./v2/recommended/recommendedArticles.js";
 import {
   advanceReviewCardV2,
@@ -96,7 +98,12 @@ const contentTypes = {
   ".css": "text/css; charset=utf-8",
   ".js": "application/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
-  ".md": "text/markdown; charset=utf-8"
+  ".md": "text/markdown; charset=utf-8",
+  ".svg": "image/svg+xml; charset=utf-8",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp"
 };
 
 function sendJson(res, statusCode, body) {
@@ -115,6 +122,16 @@ function sendText(res, statusCode, body, contentType = "text/plain; charset=utf-
     "access-control-allow-origin": "*"
   });
   res.end(body);
+}
+
+function requestBaseUrl(req) {
+  const hostHeader = req.headers["x-forwarded-host"] || req.headers.host;
+  const host = Array.isArray(hostHeader) ? hostHeader[0] : hostHeader;
+  const protoHeader = req.headers["x-forwarded-proto"];
+  const proto = Array.isArray(protoHeader) ? protoHeader[0] : protoHeader;
+  if (!host) return process.env.SHIBEI_PUBLIC_BASE_URL || "";
+  const inferredProto = proto || (host.endsWith(".up.railway.app") ? "https" : "http");
+  return `${inferredProto}://${host}`;
 }
 
 async function readBody(req) {
@@ -2029,11 +2046,33 @@ const server = createServer(async (req, res) => {
   if (req.method === "GET" && req.url === "/api/v2/recommended-articles") {
     try {
       const catalog = await loadRecommendedArticleCatalog();
-      sendJson(res, 200, serializeRecommendedArticleCatalogForClient(catalog));
+      sendJson(res, 200, serializeRecommendedArticleCatalogForClient(catalog, { baseUrl: requestBaseUrl(req) }));
     } catch (error) {
       sendJson(res, 500, {
         errorCode: "recommended_articles_unavailable",
         message: error instanceof Error ? error.message : "推荐文章暂时不可用。"
+      });
+    }
+    return;
+  }
+
+  const recommendedArticleCoverMatch = req.url?.match(/^\/api\/v2\/recommended-articles\/([^/]+)\/cover$/);
+  if (recommendedArticleCoverMatch && req.method === "GET") {
+    try {
+      const coverPath = await getRecommendedArticleCoverPath({
+        articleId: decodeURIComponent(recommendedArticleCoverMatch[1])
+      });
+      const data = await readFile(coverPath);
+      res.writeHead(200, {
+        "content-type": contentTypes[extname(coverPath)] || "application/octet-stream",
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=3600"
+      });
+      res.end(data);
+    } catch (error) {
+      sendJson(res, error.statusCode || 500, {
+        errorCode: error.errorCode || "recommended_article_cover_unavailable",
+        message: error instanceof Error ? error.message : "推荐文章封面暂时不可用。"
       });
     }
     return;
@@ -2046,7 +2085,7 @@ const server = createServer(async (req, res) => {
         articleId: decodeURIComponent(recommendedArticleDetailMatch[1])
       });
       sendJson(res, 200, {
-        article: result.article,
+        article: serializeRecommendedArticleForClient(result.article, { baseUrl: requestBaseUrl(req) }),
         chapter: serializeChapterForClient(result.chapter)
       });
     } catch (error) {
@@ -2069,7 +2108,7 @@ const server = createServer(async (req, res) => {
         }
       });
       sendJson(res, 201, {
-        article: result.article,
+        article: serializeRecommendedArticleForClient(result.article, { baseUrl: requestBaseUrl(req) }),
         chapter: serializeChapterForClient(result.chapter)
       });
     } catch (error) {

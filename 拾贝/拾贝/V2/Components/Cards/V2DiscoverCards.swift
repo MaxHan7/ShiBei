@@ -114,6 +114,7 @@ struct V2ArticleTagPill: View {
 struct V2RecommendedArticleCard: View {
     let title: String
     let source: String
+    let coverImageUrl: String?
     let tags: [String]
     let action: () -> Void
 
@@ -127,13 +128,9 @@ struct V2RecommendedArticleCard: View {
                         .fill(V2Color.surfaceCream)
                         .v2Shadow()
 
-                    Image("V2DiscoverArticleThumbnail")
-                        .resizable()
-                        .renderingMode(.original)
-                        .scaledToFill()
-                        .frame(width: 126, height: V2RecommendedArticleCardMetrics.cardHeight)
+                    V2RecommendedArticleCoverImage(urlString: coverImageUrl)
+                        .frame(width: V2RecommendedArticleCardMetrics.coverWidth, height: V2RecommendedArticleCardMetrics.cardHeight)
                         .frame(maxWidth: .infinity, alignment: .trailing)
-                        .clipped()
 
                     RoundedRectangle(cornerRadius: V2RecommendedArticleCardMetrics.cornerRadius, style: .continuous)
                         .fill(V2Color.surfaceCream)
@@ -181,9 +178,44 @@ struct V2RecommendedArticleCard: View {
     }
 }
 
+private struct V2RecommendedArticleCoverImage: View {
+    let urlString: String?
+
+    var body: some View {
+        Group {
+            if let urlString,
+               let url = URL(string: urlString) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    case .failure, .empty:
+                        fallbackImage
+                    @unknown default:
+                        fallbackImage
+                    }
+                }
+            } else {
+                fallbackImage
+            }
+        }
+        .clipped()
+    }
+
+    private var fallbackImage: some View {
+        Image("V2DiscoverArticleThumbnail")
+            .resizable()
+            .renderingMode(.original)
+            .scaledToFill()
+    }
+}
+
 private enum V2RecommendedArticleCardMetrics {
     static let cardHeight: CGFloat = 124
     static let infoWidth: CGFloat = 236
+    static let coverWidth: CGFloat = 126
     static let cornerRadius: CGFloat = 15
     static let titleX: CGFloat = 24
     static let titleY: CGFloat = 16

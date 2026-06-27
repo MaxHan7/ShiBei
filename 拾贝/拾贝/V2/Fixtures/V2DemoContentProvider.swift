@@ -13,6 +13,7 @@ enum V2DemoContentProvider {
             source: "微信公众号",
             sourceUrl: "https://example.com/anthropic-agents",
             sourceAuthor: "Anthropic",
+            coverImageUrl: nil,
             tags: ["AI", "产品"],
             description: "理解 AI Agents 在团队协作中的产品价值。",
             hasPreparedChapter: false
@@ -23,6 +24,7 @@ enum V2DemoContentProvider {
             source: "推荐阅读",
             sourceUrl: "https://example.com/dmc-learning",
             sourceAuthor: "拾贝精选",
+            coverImageUrl: nil,
             tags: ["AI", "学习"],
             description: "从 DMC 模型理解游戏化学习体验。",
             hasPreparedChapter: false
