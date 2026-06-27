@@ -55,10 +55,27 @@ struct V2CircleIconButton: View {
     }
 
     private func circleAsset(_ name: String) -> some View {
-        Image(name)
-            .resizable()
-            .renderingMode(.original)
-            .frame(width: V2TopCircleButtonMetrics.canvasWidth, height: V2TopCircleButtonMetrics.canvasHeight)
+        ZStack {
+            Circle()
+                .fill(V2Color.surfaceCircleButton)
+                .frame(
+                    width: V2TopCircleButtonMetrics.visualCircleDiameter,
+                    height: V2TopCircleButtonMetrics.visualCircleDiameter
+                )
+                .shadow(
+                    color: Color(hex: 0x98A35E).opacity(0.15),
+                    radius: 0.75,
+                    x: 0,
+                    y: 2
+                )
+                .position(x: V2TopCircleButtonMetrics.centerX, y: V2TopCircleButtonMetrics.visualCenterY)
+
+            Image(name)
+                .resizable()
+                .renderingMode(.original)
+                .frame(width: V2TopCircleButtonMetrics.canvasWidth, height: V2TopCircleButtonMetrics.canvasHeight)
+        }
+        .frame(width: V2TopCircleButtonMetrics.canvasWidth, height: V2TopCircleButtonMetrics.canvasHeight)
     }
 
     private var deleteButton: some View {
