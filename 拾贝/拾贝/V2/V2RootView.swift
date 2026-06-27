@@ -7,6 +7,8 @@ struct V2RootView: View {
     private var hasRequestedGenerationNotificationPermission = false
     @AppStorage("v2.usesMockData")
     private var usesMockData = false
+    @AppStorage("v2.activeLearningChapterID")
+    private var activeLearningChapterID = ""
 
     @State private var selectedTab: V2HomeTab = .learning
     @State private var routeStore = V2RouteStore()
@@ -751,13 +753,20 @@ struct V2RootView: View {
     }
 
     private var activeLearningBackendChapter: V2BackendChapter? {
-        backendChapters.first { chapter in
-            guard chapter.status == "completed",
-                  chapter.toReviewChapterData() != nil else {
-                return false
-            }
-            return chapter.v2ReviewSession?.completedAt == nil
+        if let chapter = backendChapters.first(where: { $0.id == activeLearningChapterID }),
+           isHomeLearningCandidate(chapter) {
+            return chapter
         }
+
+        return backendChapters.first(where: isHomeLearningCandidate)
+    }
+
+    private func isHomeLearningCandidate(_ chapter: V2BackendChapter) -> Bool {
+        guard chapter.status == "completed",
+              chapter.toReviewChapterData() != nil else {
+            return false
+        }
+        return chapter.v2ReviewSession?.completedAt == nil
     }
 
     private var activeLearningReviewChapter: V2ReviewChapterData? {
@@ -1124,6 +1133,9 @@ struct V2RootView: View {
             backendChapters.removeAll { $0.id == chapterID }
             backendNotifications.removeAll { $0.chapterId == chapterID }
             backendFavoriteQuestions.removeAll { $0.chapterId == chapterID }
+            if activeLearningChapterID == chapterID {
+                activeLearningChapterID = ""
+            }
             backendChapter = backendChapters.first
             backendReviewChapter = backendChapter?.toReviewChapterData()
             v2ReviewSession = backendChapter?.v2ReviewSession
@@ -1358,6 +1370,7 @@ struct V2RootView: View {
 
         do {
             let response = try await apiClient.startOrResumeV2ReviewSession(chapterId: chapterID)
+            activeLearningChapterID = chapterID
             applyV2ReviewSessionResponse(response)
             selectedTab = .learning
             routeStore.clearStack()

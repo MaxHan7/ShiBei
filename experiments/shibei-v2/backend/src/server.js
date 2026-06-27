@@ -1198,6 +1198,16 @@ function serializeFavoriteQuestionsForClient(favorites = []) {
   return favorites.map(serializeFavoriteQuestionForClient);
 }
 
+function chapterHasQuestion(chapter, questionId) {
+  if (!chapter || !questionId) return false;
+  if ((chapter.questions || []).some((question) => question.id === questionId)) {
+    return true;
+  }
+  return (chapter.units || []).some((unit) => {
+    return (unit.questions || []).some((question) => question.id === questionId);
+  });
+}
+
 function normalizeFeedbackRecords(feedbackRecords) {
   if (!Array.isArray(feedbackRecords)) return [];
   return feedbackRecords.map((feedback, index) => ({
@@ -2022,7 +2032,7 @@ const server = createServer(async (req, res) => {
     const chapterId = toStringValue(body.chapterId || body.chapter_id || "");
     const questionId = toStringValue(body.questionId || body.question_id || "");
     const chapter = chapterId ? await getStoredChapter(deviceId, chapterId) : null;
-    const questionExists = Boolean(chapter?.questions?.some((question) => question.id === questionId));
+    const questionExists = chapterHasQuestion(chapter, questionId);
     if (!chapter || !questionExists) {
       sendJson(res, 404, { errorCode: "favorite_question_not_found", message: "收藏的题目不存在。" });
       return;
