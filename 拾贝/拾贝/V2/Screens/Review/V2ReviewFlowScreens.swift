@@ -1067,7 +1067,7 @@ struct V2ChapterDetailView: View {
                 ZStack(alignment: .top) {
                     V2ChapterDetailBackgroundDecorations()
 
-                    VStack(spacing: 25) {
+                    VStack(spacing: V2ChapterDetailLayoutMetrics.cardVerticalSpacing) {
                         V2ChapterDetailHeroCard(
                             title: chapter.title,
                             author: chapter.sourceAuthor,
@@ -1088,8 +1088,8 @@ struct V2ChapterDetailView: View {
                     .frame(maxWidth: V2Layout.contentMaxWidth)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.top, 28)
-                .padding(.bottom, 34)
+                .padding(.top, V2ChapterDetailLayoutMetrics.screenTopPadding)
+                .padding(.bottom, V2ChapterDetailLayoutMetrics.screenBottomPadding)
             }
         }
     }
@@ -1108,6 +1108,34 @@ struct V2ChapterDetailView: View {
             return .notStarted
         }
     }
+}
+
+private enum V2ChapterDetailLayoutMetrics {
+    static let screenTopPadding: CGFloat = 28
+    static let screenBottomPadding: CGFloat = V2Spacing.xl + V2Spacing.xs / 2
+    static let cardVerticalSpacing: CGFloat = V2Spacing.lg
+
+    static let heroCardBodyHeight: CGFloat = 252
+    static let heroCardFrameHeight: CGFloat = 260
+    static let heroTitleX: CGFloat = 27
+    static let heroTitleY: CGFloat = 23
+    static let heroMetadataX: CGFloat = 25
+    static let heroMetadataY: CGFloat = 123
+    static let heroPrimaryActionX: CGFloat = heroMetadataX
+    static let heroPrimaryActionY: CGFloat = 184
+    static let heroPrimaryActionWidth: CGFloat = V2Layout.contentMaxWidth - 50
+    static let heroPrimaryActionHeight: CGFloat = 42
+
+    static let cardContentLeading: CGFloat = V2Spacing.lg
+    static let sectionHeaderTopPadding: CGFloat = V2Spacing.md
+    static let sectionBodyTopGap: CGFloat = V2Spacing.md - V2Spacing.xs
+    static let sectionBodyBottomPadding: CGFloat = V2Spacing.lg
+
+    static let knowledgeHeaderTopPadding: CGFloat = V2Spacing.md + V2Spacing.xs / 2
+    static let knowledgeListTopGap: CGFloat = V2Spacing.md + V2Spacing.xs / 2
+    static let knowledgeListBottomPadding: CGFloat = V2Spacing.lg + V2Spacing.xs / 2
+    static let knowledgeRowSpacing: CGFloat = V2Spacing.md - V2Spacing.xs
+    static let knowledgeExpansionSpacing: CGFloat = V2Spacing.sm
 }
 
 private struct V2ChapterDetailBackgroundDecorations: View {
@@ -1147,15 +1175,13 @@ private struct V2ChapterDetailHeroCard: View {
     let primaryActionTitle: String
     let onSource: () -> Void
     let onStartReview: () -> Void
-    private let cardBodyHeight: CGFloat = 235
-    private let cardFrameHeight: CGFloat = 243
 
     var body: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
-                .frame(width: V2Layout.contentMaxWidth, height: cardBodyHeight)
+                .frame(width: V2Layout.contentMaxWidth, height: V2ChapterDetailLayoutMetrics.heroCardBodyHeight)
 
             Text(title)
                 .font(.system(size: 16, weight: .semibold))
@@ -1164,7 +1190,10 @@ private struct V2ChapterDetailHeroCard: View {
                 .lineLimit(4)
                 .truncationMode(.tail)
                 .frame(width: 180, height: 82, alignment: .topLeading)
-                .offset(x: 27, y: 23)
+                .offset(
+                    x: V2ChapterDetailLayoutMetrics.heroTitleX,
+                    y: V2ChapterDetailLayoutMetrics.heroTitleY
+                )
 
             HStack(spacing: 21) {
                 V2ChapterDetailHeroActionButton(
@@ -1184,7 +1213,10 @@ private struct V2ChapterDetailHeroCard: View {
                     )
                 )
             }
-            .offset(x: 25, y: 123)
+            .offset(
+                x: V2ChapterDetailLayoutMetrics.heroMetadataX,
+                y: V2ChapterDetailLayoutMetrics.heroMetadataY
+            )
 
             Image("V2BgDecoSmallPlantCluster")
                 .resizable()
@@ -1199,7 +1231,10 @@ private struct V2ChapterDetailHeroCard: View {
                 Text(primaryActionTitle)
                     .font(V2Typography.primaryButton)
                     .foregroundStyle(.white)
-                    .frame(width: V2Layout.contentMaxWidth - 50, height: 42)
+                    .frame(
+                        width: V2ChapterDetailLayoutMetrics.heroPrimaryActionWidth,
+                        height: V2ChapterDetailLayoutMetrics.heroPrimaryActionHeight
+                    )
                     .background(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
                             .fill(V2Color.primaryAction)
@@ -1207,7 +1242,10 @@ private struct V2ChapterDetailHeroCard: View {
                     )
             }
             .buttonStyle(.plain)
-            .offset(x: 25, y: 184)
+            .offset(
+                x: V2ChapterDetailLayoutMetrics.heroPrimaryActionX,
+                y: V2ChapterDetailLayoutMetrics.heroPrimaryActionY
+            )
 
             Image("V2ChapterDetailMascot")
                 .resizable()
@@ -1216,7 +1254,7 @@ private struct V2ChapterDetailHeroCard: View {
                 .frame(width: 158, height: 178)
                 .offset(x: 216, y: -32)
         }
-        .frame(width: V2Layout.contentMaxWidth, height: cardFrameHeight, alignment: .topLeading)
+        .frame(width: V2Layout.contentMaxWidth, height: V2ChapterDetailLayoutMetrics.heroCardFrameHeight, alignment: .topLeading)
     }
 }
 
@@ -1295,8 +1333,8 @@ private struct V2ChapterDetailHeroActionContent: View {
 
 private struct V2ChapterDetailSummaryCard: View {
     let summary: String
-    private let contentLeading: CGFloat = 24
-    private let contentWidth: CGFloat = V2Layout.contentMaxWidth - 48
+    private let contentLeading: CGFloat = V2ChapterDetailLayoutMetrics.cardContentLeading
+    private let contentWidth: CGFloat = V2Layout.contentMaxWidth - V2ChapterDetailLayoutMetrics.cardContentLeading * 2
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -1313,7 +1351,7 @@ private struct V2ChapterDetailSummaryCard: View {
                     .frame(height: 28, alignment: .center)
             }
             .padding(.leading, contentLeading)
-            .padding(.top, 16)
+            .padding(.top, V2ChapterDetailLayoutMetrics.sectionHeaderTopPadding)
 
             Text(summary)
                 .font(V2ChapterDetailTextMetrics.bodyFont)
@@ -1322,8 +1360,8 @@ private struct V2ChapterDetailSummaryCard: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(width: contentWidth, alignment: .topLeading)
                 .padding(.leading, contentLeading)
-                .padding(.top, 12)
-                .padding(.bottom, 24)
+                .padding(.top, V2ChapterDetailLayoutMetrics.sectionBodyTopGap)
+                .padding(.bottom, V2ChapterDetailLayoutMetrics.sectionBodyBottomPadding)
         }
         .frame(width: V2Layout.contentMaxWidth, alignment: .topLeading)
         .background(
@@ -1340,7 +1378,7 @@ private struct V2ChapterDetailKnowledgeCard: View {
     let actionTitle: String
     let onStartReview: () -> Void
     @State private var expandedUnitID: String?
-    private let contentLeading: CGFloat = 24
+    private let contentLeading: CGFloat = V2ChapterDetailLayoutMetrics.cardContentLeading
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -1363,11 +1401,11 @@ private struct V2ChapterDetailKnowledgeCard: View {
                 .frame(height: 28, alignment: .center)
             }
             .padding(.leading, contentLeading)
-            .padding(.top, 18)
+            .padding(.top, V2ChapterDetailLayoutMetrics.knowledgeHeaderTopPadding)
 
-            VStack(spacing: 12) {
+            VStack(spacing: V2ChapterDetailLayoutMetrics.knowledgeRowSpacing) {
                 ForEach(Array(units.enumerated()), id: \.element.id) { index, unit in
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: V2ChapterDetailLayoutMetrics.knowledgeExpansionSpacing) {
                         V2ChapterDetailKnowledgeRow(
                             index: index + 1,
                             title: unit.title,
@@ -1389,9 +1427,9 @@ private struct V2ChapterDetailKnowledgeCard: View {
                     }
                 }
             }
-            .padding(.top, 18)
+            .padding(.top, V2ChapterDetailLayoutMetrics.knowledgeListTopGap)
             .padding(.leading, contentLeading)
-            .padding(.bottom, 26)
+            .padding(.bottom, V2ChapterDetailLayoutMetrics.knowledgeListBottomPadding)
         }
         .frame(width: V2Layout.contentMaxWidth, alignment: .topLeading)
         .background(
