@@ -280,7 +280,7 @@ struct V2QuestionOptionCard: View {
             case .normal:
                 Text(letter)
                     .font(.system(size: 16, weight: .regular, design: .default))
-                    .foregroundStyle(Color(hex: 0x575757))
+                    .foregroundStyle(V2Color.topTitle)
             case .correct:
                 CheckMarkShape()
                     .stroke(Color.white, style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round))
@@ -538,11 +538,11 @@ struct V2AnswerFeedbackPanel: View {
     }
 
     private var accent: Color {
-        isCorrect ? Color(hex: 0xA5AE66) : Color(hex: 0xF36454)
+        isCorrect ? V2Color.primaryAction : Color(hex: 0xF36454)
     }
 
     private var feedbackShadow: Color {
-        isCorrect ? Color(hex: 0xA5AE66).opacity(0.20) : Color(hex: 0xF36454).opacity(0.22)
+        isCorrect ? V2Color.primaryAction.opacity(0.20) : Color(hex: 0xF36454).opacity(0.22)
     }
 
     private var sourceColor: Color {
@@ -662,7 +662,7 @@ struct V2FeedbackActionButton: View {
     private var fill: Color {
         switch tone {
         case .correct:
-            return Color(hex: 0xA5AE66)
+            return V2Color.primaryAction
         case .wrong:
             return Color(hex: 0xF36454)
         case .disabled:
@@ -813,7 +813,7 @@ struct V2NotificationCard: View {
 
                 Text(message)
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundStyle(Color(hex: 0x575757).opacity(0.74))
+                    .foregroundStyle(V2Color.topTitle.opacity(0.74))
                     .lineSpacing(5)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
@@ -823,7 +823,7 @@ struct V2NotificationCard: View {
 
             Text(time)
                 .font(.system(size: 12, weight: .regular))
-                .foregroundStyle(Color(hex: 0x575757).opacity(0.62))
+                .foregroundStyle(V2Color.topTitle.opacity(0.62))
                 .lineLimit(1)
                 .frame(width: 46)
                 .position(x: 296, y: 28)
@@ -836,7 +836,7 @@ struct V2NotificationCard: View {
     }
 
     private var statusColor: Color {
-        isSuccess ? Color(hex: 0xA7AD62) : Color(hex: 0xED765C)
+        isSuccess ? Color(hex: 0xA7AD62) : V2Color.notificationBadge
     }
 
     private var iconShellFill: Color {
@@ -1065,7 +1065,7 @@ struct V2GeneratingChapterDetailCard: View {
 
             Text("章节正在生成")
                 .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(Color(hex: 0x575757))
+                .foregroundStyle(V2Color.topTitle)
                 .frame(width: 118, alignment: .leading)
                 .frame(minHeight: 39, alignment: .leading)
                 .offset(x: 59, y: 18)
@@ -1288,7 +1288,7 @@ struct V2GenerationStartedDialog: View {
 
             Text("章节正在生成中，\n完成后会通知你")
                 .font(.system(size: 16, weight: .regular))
-                .foregroundStyle(Color(hex: 0x575757))
+                .foregroundStyle(V2Color.topTitle)
                 .lineSpacing(8)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
@@ -1323,7 +1323,7 @@ struct V2GeneratedChaptersSummaryCard: View {
 
                 Text("\(count)")
                     .font(V2GeneratedChaptersSummaryCardMetrics.numberFont)
-                    .foregroundStyle(Color(hex: 0xA5AE66))
+                    .foregroundStyle(V2Color.primaryAction)
 
                 Text(" 个章节")
                     .font(V2GeneratedChaptersSummaryCardMetrics.textFont)
@@ -1368,7 +1368,7 @@ struct V2DiscoverChip: View {
                     .fill(isSelected ? Color(hex: 0x929A4F) : Color(hex: 0xFEF9F2))
                     .overlay(
                         RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .stroke(Color(hex: 0xDDE1AC), lineWidth: 1)
+                            .stroke(V2Color.decorativeLeaf, lineWidth: 1)
                     )
                     .v2Shadow()
             )
@@ -1402,7 +1402,7 @@ struct V2DiscoverHeroCard: View {
             Text("发现好内容")
                 .font(.system(size: 16, weight: .medium))
                 .tracking(-0.64)
-                .foregroundStyle(Color(hex: 0xA5AE66))
+                .foregroundStyle(V2Color.primaryAction)
                 .lineLimit(1)
                 .frame(width: V2DiscoverHeroCardMetrics.titleWidth, height: V2DiscoverHeroCardMetrics.titleHeight, alignment: .leading)
                 .offset(x: V2DiscoverHeroCardMetrics.textX, y: V2DiscoverHeroCardMetrics.titleY)
@@ -1410,7 +1410,7 @@ struct V2DiscoverHeroCard: View {
             Text("将知识一键变成复习路径，\n让“收藏“变成记住")
                 .font(V2Typography.labelRegular)
                 .tracking(-0.24)
-                .foregroundStyle(Color(hex: 0x575757))
+                .foregroundStyle(V2Color.topTitle)
                 .lineSpacing(5)
                 .lineLimit(2)
                 .frame(width: V2DiscoverHeroCardMetrics.subtitleWidth, height: V2DiscoverHeroCardMetrics.subtitleHeight, alignment: .topLeading)
@@ -1458,7 +1458,7 @@ struct V2ArticleTagPill: View {
                     .fill(Color(hex: 0xFEF9F2))
                     .overlay(
                         Capsule()
-                            .stroke(Color(hex: 0xDDE1AC), lineWidth: 1)
+                            .stroke(V2Color.decorativeLeaf, lineWidth: 1)
                     )
                     .v2Shadow()
             )
@@ -1580,7 +1580,7 @@ struct V2NotesSummaryCard: View {
                     .foregroundStyle(Color(hex: 0x383838))
                 Text("\(count)")
                     .font(V2NotesSummaryCardMetrics.numberFont)
-                    .foregroundStyle(Color(hex: 0xA5AE66))
+                    .foregroundStyle(V2Color.primaryAction)
                 Text(" 个题目")
                     .font(V2NotesSummaryCardMetrics.textFont)
                     .foregroundStyle(Color(hex: 0x383838))
@@ -1724,7 +1724,7 @@ struct V2ProfileHeaderCard: View {
 
             Text(bio)
                 .font(.system(size: 12, weight: .regular))
-                .foregroundStyle(Color(hex: 0x575757).opacity(0.72))
+                .foregroundStyle(V2Color.topTitle.opacity(0.72))
                 .lineLimit(1)
                 .offset(x: 127, y: 64)
 
@@ -1782,7 +1782,7 @@ struct V2ProfileStatCard: View {
 
                 Text(title)
                     .font(V2Typography.labelRegular)
-                    .foregroundStyle(Color(hex: 0x575757).opacity(0.72))
+                    .foregroundStyle(V2Color.topTitle.opacity(0.72))
                     .lineLimit(1)
                     .minimumScaleFactor(0.85)
             }
@@ -1795,7 +1795,7 @@ struct V2ProfileStatCard: View {
 
                 Text(unit)
                     .font(V2Typography.labelRegular)
-                    .foregroundStyle(Color(hex: 0x575757).opacity(0.72))
+                    .foregroundStyle(V2Color.topTitle.opacity(0.72))
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
@@ -1859,7 +1859,7 @@ struct V2ProfileSettingRow: View {
 
             Text(title)
                 .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(Color(hex: 0x575757))
+                .foregroundStyle(V2Color.topTitle)
 
             Spacer()
         }
@@ -1894,11 +1894,11 @@ struct V2UnitOverviewBoardCard: View {
             VStack(alignment: .leading, spacing: V2UnitOverviewBoardMetrics.labelBottomSpacing) {
                 Text("核心知识点：")
                     .font(V2UnitOverviewBoardMetrics.bodyFont)
-                    .foregroundStyle(Color(hex: 0x575757))
+                    .foregroundStyle(V2Color.topTitle)
 
                 Text(overview)
                     .font(V2UnitOverviewBoardMetrics.bodyFont)
-                    .foregroundStyle(Color(hex: 0x575757))
+                    .foregroundStyle(V2Color.topTitle)
                     .lineSpacing(V2UnitOverviewBoardMetrics.lineSpacing)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -1923,7 +1923,7 @@ private struct V2UnitBoardLeg: View {
 
     var body: some View {
         Capsule()
-            .fill(Color(hex: 0xDDE1AC))
+            .fill(V2Color.decorativeLeaf)
             .frame(width: 10, height: 72)
             .rotationEffect(.degrees(rotation), anchor: .top)
     }

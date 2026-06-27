@@ -35,11 +35,11 @@
 - Modify: `拾贝/拾贝/V2/Screens/Tabs/V2TabScreens.swift`
 - Modify: `docs/frontend/v2-frontend-architecture.md`
 
-- [ ] Create `V2DemoContentProvider` with demo recommended articles and notification fixtures.
-- [ ] Update `V2DiscoverView` to receive `articles` and `filters` from its initializer instead of hardcoding them in the view.
-- [ ] Keep `V2RootView` as the injector for now; do not introduce a full environment service yet.
-- [ ] Build with `xcodebuild -project 拾贝.xcodeproj -scheme 拾贝 -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build`.
-- [ ] Commit: `refactor: isolate v2 demo content`.
+- [x] Create `V2DemoContentProvider` with demo recommended articles and notification fixtures.
+- [x] Update `V2DiscoverView` to receive `articles` and `filters` from its initializer instead of hardcoding them in the view.
+- [x] Keep `V2RootView` as the injector for now; do not introduce a full environment service yet.
+- [x] Build with real-device destination because local Simulator runtime is unavailable.
+- [x] Commit: `refactor: isolate v2 demo content`.
 
 ## Checkpoint 2: Route State Boundary
 
@@ -49,24 +49,24 @@
 - Create: `拾贝/拾贝/V2/Navigation/V2RouteStore.swift`
 - Modify: `拾贝/拾贝/V2/V2RootView.swift`
 
-- [ ] Add a small value type that owns `currentRoute` and `stack`.
-- [ ] Move `pushRoute`, `replaceRoute`, `resetToRoute`, `resetToHome`, and simple `goBack` stack mutation into that type.
-- [ ] Keep special-case review/source back behavior in `V2RootView` until it can be tested separately.
-- [ ] Build.
-- [ ] Commit: `refactor: extract v2 route store`.
+- [x] Add a small value type that owns `currentRoute` and `stack`.
+- [x] Move `pushRoute`, `replaceRoute`, `resetToRoute`, `resetToHome`, and simple `goBack` stack mutation into that type.
+- [x] Keep special-case review/source back behavior in `V2RootView` until it can be tested separately.
+- [x] Build.
+- [x] Commit: `refactor: extract v2 route store`.
 
 ## Checkpoint 3: Generation State Boundary
 
 **Goal:** Reduce generation-specific state scattered through `V2RootView`.
 
 **Files:**
-- Create: `拾贝/拾贝/V2/State/V2GenerationUIState.swift`
+- Create: `拾贝/拾贝/V2/Models/V2GenerationState.swift`
 - Modify: `拾贝/拾贝/V2/V2RootView.swift`
 
-- [ ] Group generation dialog, polling task, generation error text, and pending original-source URL into a named UI state.
-- [ ] Keep API calls in `V2RootView` for this checkpoint; only group state and derived display text.
-- [ ] Build.
-- [ ] Commit: `refactor: group v2 generation ui state`.
+- [x] Group generation dialog, generation error text, submit state, card state, and pending original-source URL into a named UI state.
+- [x] Keep API calls and polling task in `V2RootView` for this checkpoint; only group UI state and simple transitions.
+- [x] Build.
+- [x] Commit: `refactor: group v2 generation ui state`.
 
 ## Checkpoint 4: Typography/Color Token Cleanup
 
@@ -79,10 +79,10 @@
   - `拾贝/拾贝/V2/Screens/Review/V2ReviewFlowScreens.swift`
   - `拾贝/拾贝/V2/Screens/Tabs/V2TabScreens.swift`
 
-- [ ] Add semantic aliases for repeated colors and fonts found in high-traffic components.
-- [ ] Replace only repeated semantic uses, not Figma-specific one-off drawing values.
-- [ ] Build.
-- [ ] Commit: `refactor: centralize v2 text and color tokens`.
+- [x] Reuse existing semantic color tokens for repeated colors found in high-traffic components.
+- [x] Replace only repeated semantic color uses, not Figma-specific one-off drawing values.
+- [x] Build.
+- [x] Commit: `refactor: centralize v2 text and color tokens`.
 
 ## Checkpoint 5: Component File Split
 
@@ -110,4 +110,3 @@
 - Do not replace Figma/SVG drawing constants unless they are proven page-level layout values.
 - Every checkpoint must build before commit.
 - Prefer injection from `V2RootView` before introducing global environment objects.
-

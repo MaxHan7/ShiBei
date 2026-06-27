@@ -469,7 +469,7 @@ private enum V2UploadInputCardMetrics {
     static let outerPadding: CGFloat = 18
     static let cardRadius: CGFloat = 20
     static let titleFont = Font.system(size: 16, weight: .regular)
-    static let titleColor = Color(hex: 0x575757)
+    static let titleColor = V2Color.topTitle
     static let titleToFieldSpacing: CGFloat = 20
     static let fieldHeight: CGFloat = 55
     static let fieldRadius: CGFloat = 15
@@ -478,7 +478,7 @@ private enum V2UploadInputCardMetrics {
     static let linkIconSize: CGFloat = 34
     static let placeholderFont = Font.system(size: 12, weight: .regular)
     static let placeholderColor = Color(hex: 0xB7B7B7)
-    static let inputTextColor = Color(hex: 0x575757)
+    static let inputTextColor = V2Color.topTitle
     static let fieldFill = Color(hex: 0xFFFBF6)
 }
 
@@ -939,7 +939,7 @@ private struct V2GenerationFailureDetailCard: View {
     let onDelete: () -> Void
 
     private let failureAccent = Color(hex: 0xF69582)
-    private let failureTitle = Color(hex: 0x575757)
+    private let failureTitle = V2Color.topTitle
     private let failureBody = Color(hex: 0x69655F)
     private let failureAccentShadow = V2ShadowSpec(
         color: Color(hex: 0xF69582).opacity(0.2),
@@ -1070,7 +1070,7 @@ private struct V2NotificationFailureReasonCard: View {
     let reason: String
 
     private let failureAccent = Color(hex: 0xF69582)
-    private let failureTitle = Color(hex: 0x575757)
+    private let failureTitle = V2Color.topTitle
     private let failureBody = Color(hex: 0x69655F)
     private let failureAccentShadow = V2ShadowSpec(
         color: Color(hex: 0xF69582).opacity(0.2),
@@ -1181,7 +1181,7 @@ private struct V2RuntimeModeCard: View {
                 VStack(alignment: .leading, spacing: 5) {
                     Text("演示数据")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(Color(hex: 0x575757))
+                        .foregroundStyle(V2Color.topTitle)
 
                     Text(usesMockData ? "正在展示组件库 mock 数据" : "正在使用真实测试数据")
                         .font(.system(size: 11, weight: .regular))

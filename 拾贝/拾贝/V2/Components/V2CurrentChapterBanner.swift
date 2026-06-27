@@ -83,13 +83,13 @@ private enum Metrics {
     static let titleLineSpacing: CGFloat = 3
     static let eyebrowFont = V2Typography.microEmphasis
     static let titleFont = Font.system(size: 16, weight: .regular, design: .default)
-    static let eyebrowFill = Color(hex: 0xA5AE66)
+    static let eyebrowFill = V2Color.primaryAction
     static let titleFill = Color(hex: 0x645B51)
 
     static let trailingActionWidth: CGFloat = 56
     static let dividerWidth: CGFloat = 1
     static let dividerHeight: CGFloat = 87
-    static let dividerFill = Color(hex: 0xE8EBBD)
+    static let dividerFill = V2Color.pageGreenBackground
     static let iconSize: CGFloat = 24
     static let actionHitSize: CGFloat = 44
     static let iconTrailing: CGFloat = 16

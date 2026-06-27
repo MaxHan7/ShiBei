@@ -643,7 +643,7 @@ private struct V2UnitCompletionResultBanner: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
-                .fill(Color(hex: 0xFDFAF2))
+                .fill(V2Color.surfaceCream)
                 .v2Shadow()
 
             Image("V2CompletionMedal")
@@ -671,7 +671,7 @@ private struct V2UnitCompletionResultBanner: View {
                 HStack(alignment: .lastTextBaseline, spacing: 3) {
                     Text("本单元复习")
                         .font(V2Typography.caption)
-                        .foregroundStyle(Color(hex: 0x575757))
+                        .foregroundStyle(V2Color.topTitle)
 
                     Text(accuracyText)
                         .font(.system(size: 17, weight: .bold))
@@ -679,7 +679,7 @@ private struct V2UnitCompletionResultBanner: View {
 
                     Text("正确率")
                         .font(V2Typography.caption)
-                        .foregroundStyle(Color(hex: 0x575757))
+                        .foregroundStyle(V2Color.topTitle)
                 }
                 .frame(width: 170)
             }
@@ -694,7 +694,7 @@ private struct V2UnitCompletionSummaryCard: View {
 
     var body: some View {
         RoundedRectangle(cornerRadius: 15, style: .continuous)
-            .fill(Color(hex: 0xFDFAF2))
+            .fill(V2Color.surfaceCream)
             .v2Shadow()
             .frame(width: V2Layout.contentMaxWidth, height: 241)
             .overlay {
@@ -797,7 +797,7 @@ private struct V2ChapterCompletionResultCard: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
-                .fill(Color(hex: 0xFDFAF2))
+                .fill(V2Color.surfaceCream)
                 .v2Shadow()
 
             Image("V2ChapterCompletionTitleRays")
@@ -824,7 +824,7 @@ private struct V2ChapterCompletionResultCard: View {
 
             Text("在了解过hook的原理和用法之后，你的vibe coding能力又更上一层楼了！")
                 .font(.system(size: 16, weight: .regular))
-                .foregroundStyle(Color(hex: 0x575757))
+                .foregroundStyle(V2Color.topTitle)
                 .multilineTextAlignment(.center)
                 .lineSpacing(7)
                 .frame(width: 269, height: 53)
@@ -918,7 +918,7 @@ private struct V2SourceArticleHeader: View {
         VStack(alignment: .leading, spacing: 24) {
             Text(title)
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(Color(hex: 0x575757))
+                .foregroundStyle(V2Color.topTitle)
                 .lineSpacing(10)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -1002,21 +1002,21 @@ private struct V2SourceArticleBlockView: View {
         case .heading:
             Text(block.text)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(Color(hex: 0x575757))
+                .foregroundStyle(V2Color.topTitle)
                 .lineSpacing(8)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
         case .paragraph:
             Text(block.text)
                 .font(.system(size: 16, weight: .regular))
-                .foregroundStyle(Color(hex: 0x575757))
+                .foregroundStyle(V2Color.topTitle)
                 .lineSpacing(8)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
         case .quote:
             Text(block.text)
                 .font(.system(size: 16, weight: .regular))
-                .foregroundStyle(Color(hex: 0x575757))
+                .foregroundStyle(V2Color.topTitle)
                 .lineSpacing(8)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.leading, 12)
@@ -1163,7 +1163,7 @@ private struct V2ChapterDetailHeroCard: View {
 
             Text(title)
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(Color(hex: 0x575757))
+                .foregroundStyle(V2Color.topTitle)
                 .lineSpacing(6)
                 .lineLimit(4)
                 .truncationMode(.tail)
@@ -1292,7 +1292,7 @@ private struct V2ChapterDetailHeroActionContent: View {
         .frame(minHeight: 44, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(Color(hex: 0xFDFAF2))
+                .fill(V2Color.surfaceCream)
                 .v2Shadow()
         )
     }
@@ -1314,7 +1314,7 @@ private struct V2ChapterDetailSummaryCard: View {
 
                 Text("文章核心")
                     .font(V2ChapterDetailTextMetrics.sectionTitleFont)
-                    .foregroundStyle(Color(hex: 0x575757))
+                    .foregroundStyle(V2Color.topTitle)
                     .frame(height: 28, alignment: .center)
             }
             .padding(.leading, contentLeading)
@@ -1322,7 +1322,7 @@ private struct V2ChapterDetailSummaryCard: View {
 
             Text(summary)
                 .font(V2ChapterDetailTextMetrics.bodyFont)
-                .foregroundStyle(Color(hex: 0x575757))
+                .foregroundStyle(V2Color.topTitle)
                 .lineSpacing(V2ChapterDetailTextMetrics.bodyLineSpacing)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(width: contentWidth, alignment: .topLeading)
@@ -1359,7 +1359,7 @@ private struct V2ChapterDetailKnowledgeCard: View {
                 HStack(alignment: .firstTextBaseline, spacing: 0) {
                     Text("知识点")
                         .font(V2ChapterDetailTextMetrics.sectionTitleFont)
-                        .foregroundStyle(Color(hex: 0x575757))
+                        .foregroundStyle(V2Color.topTitle)
 
                     Text("（\(count)）")
                         .font(V2ChapterDetailTextMetrics.metadataFont)
@@ -1429,7 +1429,7 @@ private struct V2ChapterDetailKnowledgeRow: View {
 
                 Text(title)
                     .font(V2ChapterDetailTextMetrics.rowTitleFont)
-                    .foregroundStyle(Color(hex: 0x575757))
+                    .foregroundStyle(V2Color.topTitle)
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -1464,7 +1464,7 @@ private struct V2ChapterDetailDisclosureArrow: View {
             path.addLine(to: CGPoint(x: 16, y: 10))
         }
         .stroke(
-            isExpanded ? V2Color.primaryAction : Color(hex: 0xE8EBBD),
+            isExpanded ? V2Color.primaryAction : V2Color.pageGreenBackground,
             style: StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round)
         )
         .rotationEffect(isExpanded ? .degrees(180) : .degrees(0))
@@ -1480,7 +1480,7 @@ private struct V2ChapterDetailKnowledgeExpansionPanel: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(overview)
                 .font(V2ChapterDetailTextMetrics.bodySmallFont)
-                .foregroundStyle(Color(hex: 0x575757))
+                .foregroundStyle(V2Color.topTitle)
                 .lineSpacing(V2ChapterDetailTextMetrics.bodySmallLineSpacing)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(width: 238, alignment: .topLeading)
@@ -1647,7 +1647,7 @@ private struct V2RecommendedArticleAddPopover: View {
 
             Text("将这篇好文生成复习路径？")
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(Color(hex: 0x575757))
+                .foregroundStyle(V2Color.topTitle)
                 .lineLimit(1)
                 .minimumScaleFactor(0.85)
                 .frame(width: 196, height: 18, alignment: .center)
