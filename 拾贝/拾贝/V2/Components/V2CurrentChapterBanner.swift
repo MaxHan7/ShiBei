@@ -29,11 +29,10 @@ struct V2CurrentChapterBanner: View {
                     Text(chapter.title)
                         .font(Metrics.titleFont)
                         .foregroundStyle(Metrics.titleFill)
-                        .lineLimit(2, reservesSpace: true)
+                        .lineLimit(2)
                         .truncationMode(.tail)
                         .lineSpacing(Metrics.titleLineSpacing)
                         .frame(width: titleWidth, height: Metrics.titleHeight, alignment: .leading)
-                        .offset(y: Metrics.titleVerticalAdjustment)
                         .clipped()
                 }
                 .position(
@@ -65,24 +64,21 @@ struct V2CurrentChapterBanner: View {
 private enum Metrics {
     // Source: Figma Pick The Shell node 548:1216.
     static let height: CGFloat = 88
-    static let cornerRadius: CGFloat = 15
+    static let cornerRadius: CGFloat = V2Radius.medium
     static let backgroundFill = Color(hex: 0xF9F8EE)
     static let shadowColor = Color(hex: 0xAFBA74).opacity(0.25)
-    static let shadowRadius: CGFloat = 4
-    static let shadowY: CGFloat = 4
+    static let shadowRadius: CGFloat = V2Spacing.xs
+    static let shadowY: CGFloat = V2Spacing.xs
 
     static let titleLeading: CGFloat = 13
     static let titleTrailingGap: CGFloat = 6
-    static let titleStackSpacing: CGFloat = 8
+    static let titleStackSpacing: CGFloat = 6
     static let textGroupCenterY: CGFloat = 46.5
-    static let eyebrowHeight: CGFloat = 14
+    static let eyebrowHeight: CGFloat = 16
     static let titleHeight: CGFloat = 48
-    // The SVG text is converted to paths. Native Text has extra ascender
-    // padding, so lift the title frame slightly to match the path bbox gap.
-    static let titleVerticalAdjustment: CGFloat = -1.5
     static let titleLineSpacing: CGFloat = 3
-    static let eyebrowFont = V2Typography.microEmphasis
-    static let titleFont = Font.system(size: 16, weight: .regular, design: .default)
+    static let eyebrowFont = V2Typography.label
+    static let titleFont = V2Typography.bodyEmphasis
     static let eyebrowFill = V2Color.primaryAction
     static let titleFill = Color(hex: 0x645B51)
 
