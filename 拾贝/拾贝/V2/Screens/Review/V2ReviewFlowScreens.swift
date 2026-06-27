@@ -157,6 +157,7 @@ struct V2MultipleChoiceQuestionView: View {
     let onBack: () -> Void
     let onSource: () -> Void
     var onFavoriteChange: (Bool) -> Void = { _ in }
+    var onAnswerReady: () -> Void = {}
     let onContinue: () -> Void
 
     var body: some View {
@@ -181,6 +182,7 @@ struct V2MultipleChoiceQuestionView: View {
                     onSelect: {
                         state.selectedIndex = $0
                         state.feedbackPanelVisible = true
+                        onAnswerReady()
                     },
                     onSource: onSource
                 )
@@ -299,6 +301,7 @@ struct V2MatchingQuestionView: View {
     let onBack: () -> Void
     let onSource: () -> Void
     var onFavoriteChange: (Bool) -> Void = { _ in }
+    var onAnswerReady: () -> Void = {}
     let onContinue: () -> Void
 
     var body: some View {
@@ -363,6 +366,11 @@ struct V2MatchingQuestionView: View {
                     .padding(.bottom, V2QuestionFeedbackMetrics.bottomLift)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .zIndex(10)
+                }
+            }
+            .onChange(of: isComplete) { _, newValue in
+                if newValue {
+                    onAnswerReady()
                 }
             }
         }

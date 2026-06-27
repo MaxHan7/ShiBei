@@ -274,6 +274,9 @@ struct V2RootView: View {
                         onFavoriteChange: { isSaved in
                             toggleBackendFavorite(questionID: questionID, isSaved: isSaved)
                         },
+                        onAnswerReady: {
+                            persistBackendAnswerProgress(unitID: unitID, questionID: questionID)
+                        },
                         onContinue: { continueAfterQuestion(unitID: unitID, questionID: questionID) }
                     )
                 case .matching:
@@ -286,6 +289,9 @@ struct V2RootView: View {
                         onSource: openSource,
                         onFavoriteChange: { isSaved in
                             toggleBackendFavorite(questionID: questionID, isSaved: isSaved)
+                        },
+                        onAnswerReady: {
+                            persistBackendAnswerProgress(unitID: unitID, questionID: questionID)
                         },
                         onContinue: { continueAfterQuestion(unitID: unitID, questionID: questionID) }
                     )
@@ -1421,6 +1427,38 @@ struct V2RootView: View {
         } catch {
             generationState.errorText = error.localizedDescription
             routeToReviewCard(fallback)
+        }
+    }
+
+    @MainActor
+    private func persistBackendAnswerProgress(unitID: String, questionID: String) {
+        guard usesBackendReviewChapter,
+              let payload = backendAnswerPayload(unitID: unitID, questionID: questionID) else {
+            return
+        }
+
+        Task {
+            do {
+                guard let session = try await ensureV2ReviewSession() else {
+                    return
+                }
+                let response = try await apiClient.answerV2Question(
+                    sessionId: session.id,
+                    unitId: unitID,
+                    questionId: questionID,
+                    result: payload.result,
+                    selectedOptionId: payload.selectedOptionId,
+                    matchedPairs: payload.matchedPairs,
+                    lockedPairIds: payload.lockedPairIds
+                )
+                await MainActor.run {
+                    applyV2ReviewSessionResponse(response)
+                }
+            } catch {
+                await MainActor.run {
+                    generationState.errorText = error.localizedDescription
+                }
+            }
         }
     }
 
