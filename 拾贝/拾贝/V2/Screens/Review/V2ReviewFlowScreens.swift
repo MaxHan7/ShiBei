@@ -1201,12 +1201,11 @@ private struct V2ChapterDetailHeroCard: View {
 
             Button(action: onStartReview) {
                 Text(primaryActionTitle)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(V2Typography.primaryButton)
                     .foregroundStyle(.white)
-                    .tracking(-0.24)
-                    .frame(width: 207, height: 28)
+                    .frame(width: V2Layout.contentMaxWidth - 50, height: 42)
                     .background(
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
                             .fill(V2Color.primaryAction)
                             .v2Shadow()
                     )
