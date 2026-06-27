@@ -1118,6 +1118,9 @@ private struct V2NotificationFailureReasonCard: View {
 }
 
 struct V2ProfileView: View {
+    @AppStorage("v2.profileAvatarImageData")
+    private var profileAvatarImageData = Data()
+
     @Binding var usesMockData: Bool
     let allowsMockDataToggle: Bool
     let reviewedCount: String
@@ -1152,7 +1155,8 @@ struct V2ProfileView: View {
                             name: "Cappy",
                             bio: "这里是我的自我介绍~",
                             reviewedCount: reviewedCount,
-                            streakDays: streakDays
+                            streakDays: streakDays,
+                            avatarImageData: $profileAvatarImageData
                         )
 
                         V2ProfileSettingsCard()

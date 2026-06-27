@@ -1,3 +1,4 @@
+import PhotosUI
 import SwiftUI
 
 struct V2ProfileHeaderCard: View {
@@ -5,6 +6,7 @@ struct V2ProfileHeaderCard: View {
     let bio: String
     let reviewedCount: String
     let streakDays: String
+    @Binding var avatarImageData: Data
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -12,19 +14,7 @@ struct V2ProfileHeaderCard: View {
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
 
-            Circle()
-                .fill(Color(hex: 0xEEF0C7))
-                .frame(width: 78, height: 78)
-                .overlay {
-                    Image("V2MascotStatic")
-                        .resizable()
-                        .renderingMode(.original)
-                        .scaledToFit()
-                        .frame(width: 78)
-                        .scaleEffect(0.8, anchor: .top)
-                        .offset(y: 7)
-                }
-                .clipShape(Circle())
+            V2ProfileAvatarPicker(avatarImageData: $avatarImageData)
                 .offset(x: 24, y: 16)
 
             Text(name)
@@ -75,6 +65,110 @@ private enum V2ProfileHeaderMetrics {
     static let statGroupWidth: CGFloat = cardWidth - 48
     static let statCardWidth: CGFloat = (statGroupWidth - 13) / 2
     static let statCardHeight: CGFloat = 82
+}
+
+private struct V2ProfileAvatarPicker: View {
+    @Binding var avatarImageData: Data
+    @State private var selectedPhotoItem: PhotosPickerItem?
+
+    var body: some View {
+        PhotosPicker(
+            selection: $selectedPhotoItem,
+            matching: .images,
+            photoLibrary: .shared()
+        ) {
+            ZStack(alignment: .bottomTrailing) {
+                avatarContent
+                    .frame(width: V2ProfileAvatarMetrics.size, height: V2ProfileAvatarMetrics.size)
+                    .background(Color(hex: 0xEEF0C7))
+                    .clipShape(Circle())
+
+                Circle()
+                    .fill(V2Color.surfaceCream)
+                    .frame(width: V2ProfileAvatarMetrics.badgeSize, height: V2ProfileAvatarMetrics.badgeSize)
+                    .overlay {
+                        Image(systemName: "camera.fill")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(V2Color.textPrimary.opacity(0.74))
+                    }
+                    .v2Shadow(V2Shadow.subtleGreen)
+                    .offset(x: 2, y: 2)
+            }
+            .contentShape(Circle())
+            .accessibilityLabel("更换头像")
+        }
+        .buttonStyle(.plain)
+        .onChange(of: selectedPhotoItem) { _, newItem in
+            guard let newItem else { return }
+            Task {
+                await updateAvatar(from: newItem)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var avatarContent: some View {
+        if let image = selectedAvatarImage {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+        } else {
+            Image("V2MascotStatic")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: V2ProfileAvatarMetrics.defaultMascotSize)
+                .scaleEffect(0.8, anchor: .top)
+                .offset(y: 7)
+        }
+    }
+
+    private var selectedAvatarImage: UIImage? {
+        guard !avatarImageData.isEmpty else {
+            return nil
+        }
+        return UIImage(data: avatarImageData)
+    }
+
+    @MainActor
+    private func updateAvatar(from item: PhotosPickerItem) async {
+        guard let data = try? await item.loadTransferable(type: Data.self),
+              let image = UIImage(data: data),
+              let compressedData = image.v2ProfileAvatarJPEGData() else {
+            selectedPhotoItem = nil
+            return
+        }
+
+        avatarImageData = compressedData
+        selectedPhotoItem = nil
+    }
+}
+
+private enum V2ProfileAvatarMetrics {
+    static let size: CGFloat = 78
+    static let defaultMascotSize: CGFloat = 78
+    static let badgeSize: CGFloat = 24
+    static let storedPixelSize: CGFloat = 320
+}
+
+private extension UIImage {
+    func v2ProfileAvatarJPEGData() -> Data? {
+        let targetSize = CGSize(
+            width: V2ProfileAvatarMetrics.storedPixelSize,
+            height: V2ProfileAvatarMetrics.storedPixelSize
+        )
+        let renderer = UIGraphicsImageRenderer(size: targetSize)
+        let renderedImage = renderer.image { _ in
+            let scale = max(targetSize.width / size.width, targetSize.height / size.height)
+            let drawSize = CGSize(width: size.width * scale, height: size.height * scale)
+            let drawOrigin = CGPoint(
+                x: (targetSize.width - drawSize.width) / 2,
+                y: (targetSize.height - drawSize.height) / 2
+            )
+            draw(in: CGRect(origin: drawOrigin, size: drawSize))
+        }
+        return renderedImage.jpegData(compressionQuality: 0.82)
+    }
 }
 
 struct V2ProfileStatCard: View {
