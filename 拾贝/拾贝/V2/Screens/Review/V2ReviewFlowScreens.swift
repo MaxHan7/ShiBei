@@ -858,49 +858,37 @@ struct V2SourceArticleView: View {
     }
 
     var body: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .top) {
-                V2Color.surfaceCream
-                    .ignoresSafeArea()
+        V2FlowScreen(title: "", backgroundColor: V2Color.surfaceCream, onBack: onBack) {
+            ScrollViewReader { proxy in
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 26) {
+                        V2SourceArticleHeader(
+                            title: chapter.title,
+                            author: chapter.sourceAuthor,
+                            onSource: openSourceURL
+                        )
 
-                ScrollViewReader { proxy in
-                    ScrollView(showsIndicators: false) {
-                        VStack(alignment: .leading, spacing: 26) {
-                            V2SourceArticleHeader(
-                                title: chapter.title,
-                                author: chapter.sourceAuthor,
-                                onSource: openSourceURL
-                            )
-
-                            V2SourceArticleBody(
-                                blocks: chapter.sourceBody,
-                                highlightedBlockID: highlightedBlockID
-                            )
-                        }
-                        .frame(width: min(329, geometry.size.width - 64), alignment: .leading)
-                        .padding(.top, V2Layout.topChromeReservedHeight + 40)
-                        .padding(.bottom, 42)
+                        V2SourceArticleBody(
+                            blocks: chapter.sourceBody,
+                            highlightedBlockID: highlightedBlockID
+                        )
                     }
-                    .background(V2Color.surfaceCream)
-                    .scrollContentBackground(.hidden)
-                    .onAppear {
-                        guard let highlightedBlockID else {
-                            return
-                        }
-                        DispatchQueue.main.async {
-                            proxy.scrollTo(highlightedBlockID, anchor: .center)
-                        }
+                    .v2PageContentWidth()
+                    .padding(.top, 40)
+                    .padding(.bottom, 42)
+                }
+                .background(V2Color.surfaceCream)
+                .scrollContentBackground(.hidden)
+                .onAppear {
+                    guard let highlightedBlockID else {
+                        return
+                    }
+                    DispatchQueue.main.async {
+                        proxy.scrollTo(highlightedBlockID, anchor: .center)
                     }
                 }
-
-                V2TopChrome {
-                    V2FlowTopBar(title: "", onBack: onBack)
-                }
-                .zIndex(20)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 
     private func openSourceURL() {
