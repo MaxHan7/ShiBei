@@ -1129,6 +1129,7 @@ private enum V2ChapterDetailLayoutMetrics {
     static let heroPrimaryActionY: CGFloat = 184
     static let heroPrimaryActionWidth: CGFloat = V2Layout.contentMaxWidth - 50
     static let heroPrimaryActionHeight: CGFloat = 42
+    static let heroAuthorChipWidth: CGFloat = heroPrimaryActionWidth - heroSourceChipWidth - heroMetadataSpacing
 
     static let cardContentLeading: CGFloat = V2Spacing.lg
     static let sectionHeaderTopPadding: CGFloat = V2Spacing.md
@@ -1210,13 +1211,10 @@ private struct V2ChapterDetailHeroCard: View {
                 V2ChapterDetailHeroInfoChip(
                     title: author,
                     iconName: "V2ChapterDetailSummaryActionIcon",
-                    width: V2ChapterDetailHeroActionContent.width(
-                        for: author,
-                        minWidth: V2ChapterDetailLayoutMetrics.heroInfoChipMinWidth,
-                        maxWidth: V2ChapterDetailLayoutMetrics.heroInfoChipMaxWidth
-                    )
+                    width: V2ChapterDetailLayoutMetrics.heroAuthorChipWidth
                 )
             }
+            .frame(width: V2ChapterDetailLayoutMetrics.heroPrimaryActionWidth, alignment: .leading)
             .offset(
                 x: V2ChapterDetailLayoutMetrics.heroMetadataX,
                 y: V2ChapterDetailLayoutMetrics.heroMetadataY
