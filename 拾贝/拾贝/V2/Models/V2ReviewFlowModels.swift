@@ -7,7 +7,7 @@ enum V2AppRoute: Equatable {
     case generatingChapterDetail
     case chapterDetail
     case sourceArticle
-    case recommendedArticle
+    case recommendedArticle(articleID: String)
     case chapterOverview
     case unitOverview(unitID: String)
     case question(unitID: String, questionID: String)

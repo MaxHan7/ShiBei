@@ -21,6 +21,11 @@ struct V2RootView: View {
     @State private var v2ReviewSession: V2BackendReviewSession?
     @State private var backendNotifications: [NotificationItem] = []
     @State private var backendFavoriteQuestions: [FavoriteQuestionRecord] = []
+    @State private var recommendedArticleFilters = V2DemoContentProvider.recommendedArticleFilters
+    @State private var recommendedArticles = V2DemoContentProvider.recommendedArticles
+    @State private var recommendedArticleChapters: [String: V2BackendChapter] = [:]
+    @State private var loadingRecommendedArticleIDs: Set<String> = []
+    @State private var importingRecommendedArticleIDs: Set<String> = []
     @State private var generationPollingTask: Task<Void, Never>?
     @State private var hasLoadedInitialBackendChapter = false
     @State private var showsStartupSplash = true
@@ -153,11 +158,10 @@ struct V2RootView: View {
         case .discover:
             V2DiscoverView(
                 selectedTab: $selectedTab,
-                filters: V2DemoContentProvider.recommendedArticleFilters,
-                articles: V2DemoContentProvider.recommendedArticles
-            ) {
-                pushRoute(.recommendedArticle)
-            }
+                filters: recommendedArticleFilters,
+                articles: recommendedArticles,
+                openArticle: openRecommendedArticle
+            )
         case .notes:
             V2NotesView(
                 selectedTab: $selectedTab,
@@ -241,11 +245,20 @@ struct V2RootView: View {
             } else {
                 V2MissingRouteView(onBack: goBack)
             }
-        case .recommendedArticle:
-            V2RecommendedArticleDetailView(
-                onBack: goBack,
-                onGenerate: showGeneratedChapterDetail
-            )
+        case .recommendedArticle(let articleID):
+            if let article = recommendedArticle(id: articleID) {
+                V2RecommendedArticleDetailView(
+                    article: article,
+                    chapter: recommendedArticleReviewChapter(id: articleID),
+                    isLoading: loadingRecommendedArticleIDs.contains(articleID),
+                    isImporting: importingRecommendedArticleIDs.contains(articleID),
+                    onBack: goBack,
+                    onLoad: { loadRecommendedArticleDetailIfNeeded(articleID: articleID) },
+                    onGenerate: { importRecommendedArticle(id: articleID) }
+                )
+            } else {
+                V2MissingRouteView(onBack: goBack)
+            }
         case .chapterOverview:
             if let chapter = activeChapter {
                 V2ChapterOverviewView(
@@ -496,6 +509,87 @@ struct V2RootView: View {
         }
         applyBackendChapter(chapter)
         return true
+    }
+
+    private func openRecommendedArticle(_ article: V2RecommendedArticleItem) {
+        pushRoute(.recommendedArticle(articleID: article.id))
+        loadRecommendedArticleDetailIfNeeded(articleID: article.id)
+    }
+
+    private func recommendedArticle(id: String) -> V2RecommendedArticleItem? {
+        recommendedArticles.first { $0.id == id }
+    }
+
+    private func recommendedArticleReviewChapter(id: String) -> V2ReviewChapterData? {
+        if usesFixtures {
+            return V2ReviewFixture.chapter
+        }
+        return recommendedArticleChapters[id]?.toReviewChapterData()
+    }
+
+    private func loadRecommendedArticleDetailIfNeeded(articleID: String) {
+        guard !usesFixtures,
+              recommendedArticleChapters[articleID] == nil,
+              !loadingRecommendedArticleIDs.contains(articleID) else {
+            return
+        }
+
+        loadingRecommendedArticleIDs.insert(articleID)
+        Task {
+            do {
+                let response = try await apiClient.fetchRecommendedArticleDetail(id: articleID)
+                await MainActor.run {
+                    mergeRecommendedArticle(response.article)
+                    recommendedArticleChapters[articleID] = response.chapter
+                    loadingRecommendedArticleIDs.remove(articleID)
+                }
+            } catch {
+                await MainActor.run {
+                    loadingRecommendedArticleIDs.remove(articleID)
+                    generationState.errorText = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func importRecommendedArticle(id articleID: String) {
+        guard !usesFixtures else {
+            showGeneratedChapterDetail()
+            return
+        }
+        guard !importingRecommendedArticleIDs.contains(articleID) else {
+            return
+        }
+
+        importingRecommendedArticleIDs.insert(articleID)
+        Task {
+            do {
+                let response = try await apiClient.importRecommendedArticle(id: articleID)
+                await MainActor.run {
+                    importingRecommendedArticleIDs.remove(articleID)
+                    mergeRecommendedArticle(response.article)
+                    recommendedArticleChapters[articleID] = response.chapter
+                    applyBackendChapter(response.chapter)
+                    activeLearningChapterID = response.chapter.id
+                    selectedTab = .materials
+                    generationState.resetAfterDelete()
+                    routeStore.reset(to: .chapterDetail)
+                }
+            } catch {
+                await MainActor.run {
+                    importingRecommendedArticleIDs.remove(articleID)
+                    generationState.errorText = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func mergeRecommendedArticle(_ article: V2RecommendedArticleItem) {
+        if let index = recommendedArticles.firstIndex(where: { $0.id == article.id }) {
+            recommendedArticles[index] = article
+        } else {
+            recommendedArticles.insert(article, at: 0)
+        }
     }
 
     private func openFirstUnit() {
@@ -1127,6 +1221,10 @@ struct V2RootView: View {
         do {
             backendNotifications = (try? await apiClient.fetchNotifications()) ?? []
             backendFavoriteQuestions = (try? await apiClient.fetchFavoriteQuestions()) ?? []
+            if let recommendedResponse = try? await apiClient.fetchRecommendedArticles() {
+                recommendedArticleFilters = recommendedResponse.filters
+                recommendedArticles = recommendedResponse.articles
+            }
             let chapters = try await apiClient.fetchV2Chapters()
             backendChapters = chapters
             guard let latestChapter = chapters.first else {

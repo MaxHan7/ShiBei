@@ -117,6 +117,18 @@ struct APIClient {
         return response.chapters
     }
 
+    func fetchRecommendedArticles() async throws -> V2RecommendedArticlesResponse {
+        try await get("/api/v2/recommended-articles")
+    }
+
+    func fetchRecommendedArticleDetail(id: String) async throws -> V2RecommendedArticleDetailResponse {
+        try await get("/api/v2/recommended-articles/\(encodedPathComponent(id))")
+    }
+
+    func importRecommendedArticle(id: String) async throws -> V2RecommendedArticleDetailResponse {
+        try await send("/api/v2/recommended-articles/\(encodedPathComponent(id))/import", method: "POST", body: EmptyRequest(), acceptsFailureBody: false)
+    }
+
     func startOrResumeV2ReviewSession(chapterId: String) async throws -> V2ReviewSessionResponse {
         try await send("/api/v2/chapters/\(encodedPathComponent(chapterId))/review-session", method: "POST", body: EmptyRequest(), acceptsFailureBody: false)
     }

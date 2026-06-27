@@ -1603,14 +1603,15 @@ private enum V2ChapterDetailTextMetrics {
 }
 
 struct V2RecommendedArticleDetailView: View {
+    let article: V2RecommendedArticleItem
+    let chapter: V2ReviewChapterData?
+    let isLoading: Bool
+    let isImporting: Bool
     let onBack: () -> Void
+    let onLoad: () -> Void
     let onGenerate: () -> Void
     @State private var showsAddPopover = false
     @Environment(\.openURL) private var openURL
-
-    private var chapter: V2ReviewChapterData {
-        V2ReviewFixture.chapter
-    }
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -1618,29 +1619,44 @@ struct V2RecommendedArticleDetailView: View {
                 .ignoresSafeArea()
 
             V2FlowScreen(title: "", backgroundColor: V2Color.surfaceCream, onBack: onBack) {
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 19) {
-                        V2SourceArticleHeader(
-                            title: chapter.title,
-                            author: chapter.sourceAuthor,
-                            onSource: openSourceURL
-                        )
+                Group {
+                    if let chapter {
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: 19) {
+                                V2SourceArticleHeader(
+                                    title: chapter.sourceTitle.isEmpty ? article.title : chapter.sourceTitle,
+                                    author: chapter.sourceAuthor,
+                                    onSource: openSourceURL
+                                )
 
-                        V2SourceArticleBody(
-                            blocks: chapter.sourceBody,
-                            highlightedBlockID: nil
-                        )
+                                V2SourceArticleBody(
+                                    blocks: chapter.sourceBody,
+                                    highlightedBlockID: nil
+                                )
+                            }
+                            .v2PageContentWidth()
+                            .padding(.top, 23)
+                            .padding(.bottom, 116)
+                        }
+                    } else {
+                        VStack(spacing: 14) {
+                            ProgressView()
+                                .tint(V2Color.primaryAction)
+                            Text(isLoading ? "正在加载好文" : "这篇好文暂时不可用")
+                                .font(V2Typography.body)
+                                .foregroundStyle(V2Color.topTitle)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
-                    .v2PageContentWidth()
-                    .padding(.top, 23)
-                    .padding(.bottom, 116)
                 }
                 .background(V2Color.surfaceCream)
-                .scrollContentBackground(.hidden)
             }
             .background(V2Color.surfaceCream)
+            .task(id: article.id) {
+                onLoad()
+            }
 
-            if showsAddPopover {
+            if showsAddPopover, chapter != nil {
                 Color.black
                     .opacity(0.20)
                     .ignoresSafeArea()
@@ -1650,7 +1666,10 @@ struct V2RecommendedArticleDetailView: View {
                         }
                     }
 
-                V2RecommendedArticleAddPopover(onGenerate: onGenerate)
+                V2RecommendedArticleAddPopover(isImporting: isImporting) {
+                    showsAddPopover = false
+                    onGenerate()
+                }
                     .padding(.trailing, 60)
                     .padding(.bottom, 84)
                     .transition(.opacity)
@@ -1661,13 +1680,16 @@ struct V2RecommendedArticleDetailView: View {
                     showsAddPopover.toggle()
                 }
             }
+            .opacity(chapter == nil ? 0.45 : 1)
+            .disabled(chapter == nil || isImporting)
             .padding(.trailing, V2Layout.floatingActionTrailingInset)
             .padding(.bottom, 30)
         }
     }
 
     private func openSourceURL() {
-        guard let url = URL(string: chapter.sourceURL) else {
+        let rawURL = article.sourceUrl ?? chapter?.sourceURL ?? ""
+        guard let url = URL(string: rawURL) else {
             return
         }
         openURL(url)
@@ -1710,6 +1732,7 @@ private struct V2RecommendedArticleAddButton: View {
 }
 
 private struct V2RecommendedArticleAddPopover: View {
+    let isImporting: Bool
     let onGenerate: () -> Void
 
     var body: some View {
@@ -1729,7 +1752,7 @@ private struct V2RecommendedArticleAddPopover: View {
                 .offset(x: 43, y: 23)
 
             Button(action: onGenerate) {
-                Text("开始生成")
+                Text(isImporting ? "正在准备" : "开始生成")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(width: 215, height: 28)
@@ -1739,6 +1762,7 @@ private struct V2RecommendedArticleAddPopover: View {
                             .v2Shadow()
                     )
             }
+            .disabled(isImporting)
             .buttonStyle(.plain)
             .offset(x: 33, y: 54)
         }

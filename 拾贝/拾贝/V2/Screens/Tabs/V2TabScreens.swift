@@ -499,16 +499,14 @@ struct V2DiscoverView: View {
     @Binding var selectedTab: V2HomeTab
     let filters: [V2RecommendedArticleFilter]
     let articles: [V2RecommendedArticleItem]
-    let openArticle: () -> Void
-    @State private var selectedFilter = V2RecommendedArticleFilter.all
+    let openArticle: (V2RecommendedArticleItem) -> Void
+    @State private var selectedFilterID = "all"
 
     private var filteredArticles: [V2RecommendedArticleItem] {
-        switch selectedFilter {
-        case .all:
+        if selectedFilterID == "all" {
             return articles
-        case .tag(let tag):
-            return articles.filter { $0.tags.contains(tag) }
         }
+        return articles.filter { $0.tags.contains(selectedFilterID) }
     }
 
     var body: some View {
@@ -519,16 +517,16 @@ struct V2DiscoverView: View {
                 HStack(spacing: 10) {
                     ForEach(filters) { filter in
                         Button {
-                            selectedFilter = filter
+                            selectedFilterID = filter.id
                         } label: {
                             V2DiscoverChip(
                                 title: filter.title,
-                                isSelected: selectedFilter == filter
+                                isSelected: selectedFilterID == filter.id
                             )
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("筛选：\(filter.title)")
-                        .accessibilityAddTraits(selectedFilter == filter ? .isSelected : [])
+                        .accessibilityAddTraits(selectedFilterID == filter.id ? .isSelected : [])
                     }
                 }
 
@@ -537,37 +535,12 @@ struct V2DiscoverView: View {
                         title: article.title,
                         source: article.source,
                         tags: article.tags,
-                        action: openArticle
+                        action: { openArticle(article) }
                     )
                 }
             }
         }
     }
-}
-
-enum V2RecommendedArticleFilter: Identifiable, Equatable {
-    case all
-    case tag(String)
-
-    var id: String {
-        title
-    }
-
-    var title: String {
-        switch self {
-        case .all:
-            return "全部"
-        case .tag(let tag):
-            return tag
-        }
-    }
-}
-
-struct V2RecommendedArticleItem: Identifiable, Equatable {
-    let id: String
-    let title: String
-    let source: String
-    let tags: [String]
 }
 
 struct V2NotesView: View {

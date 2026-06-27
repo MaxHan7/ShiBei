@@ -25,6 +25,32 @@ struct V2BackendChaptersResponse: Decodable {
     let chapters: [V2BackendChapter]
 }
 
+struct V2RecommendedArticlesResponse: Decodable {
+    let filters: [V2RecommendedArticleFilter]
+    let articles: [V2RecommendedArticleItem]
+}
+
+struct V2RecommendedArticleDetailResponse: Decodable {
+    let article: V2RecommendedArticleItem
+    let chapter: V2BackendChapter
+}
+
+struct V2RecommendedArticleFilter: Decodable, Identifiable, Equatable {
+    let id: String
+    let title: String
+}
+
+struct V2RecommendedArticleItem: Decodable, Identifiable, Equatable {
+    let id: String
+    let title: String
+    let source: String
+    let sourceUrl: String?
+    let sourceAuthor: String?
+    let tags: [String]
+    let description: String?
+    let hasPreparedChapter: Bool?
+}
+
 struct V2ReviewSessionResponse: Decodable {
     let chapter: V2BackendChapter
     let reviewSession: V2BackendReviewSession?
