@@ -423,6 +423,9 @@ struct V2RootView: View {
         selectedTab = .learning
         if node.kind == .start {
             resetToRoute(.chapterOverview, tab: .learning)
+        } else if node.id == v2ReviewSession?.currentCard.unitId,
+                  let currentRoute = route(for: v2ReviewSession?.currentCard) {
+            resetToRoute(currentRoute, tab: .learning)
         } else {
             resetToRoute(.unitOverview(unitID: node.id), tab: .learning)
         }
@@ -1452,7 +1455,10 @@ struct V2RootView: View {
                     lockedPairIds: payload.lockedPairIds
                 )
                 await MainActor.run {
-                    applyV2ReviewSessionResponse(response)
+                    applyV2ReviewSessionResponse(
+                        response,
+                        preservingCurrentCardIfMovedPastAnswerFor: (unitID: unitID, questionID: questionID)
+                    )
                 }
             } catch {
                 await MainActor.run {
@@ -1527,14 +1533,49 @@ struct V2RootView: View {
         return response.reviewSession
     }
 
-    private func applyV2ReviewSessionResponse(_ response: V2ReviewSessionResponse) {
-        let responseSession = response.reviewSession ?? response.chapter.v2ReviewSession
+    private func applyV2ReviewSessionResponse(
+        _ response: V2ReviewSessionResponse,
+        preservingCurrentCardIfMovedPastAnswerFor answeredQuestion: (unitID: String, questionID: String)? = nil
+    ) {
+        var responseSession = response.reviewSession ?? response.chapter.v2ReviewSession
+        if let answeredQuestion,
+           let currentCard = v2ReviewSession?.currentCard,
+           shouldPreserveCurrentCard(
+               currentCard,
+               insteadOfAnswerSaveFor: answeredQuestion
+           ),
+           let session = responseSession {
+            responseSession = V2BackendReviewSession(
+                schemaVersion: session.schemaVersion,
+                id: session.id,
+                chapterId: session.chapterId,
+                status: session.status,
+                currentCard: currentCard,
+                questionStates: session.questionStates,
+                completedStepIds: session.completedStepIds,
+                sourceRoute: session.sourceRoute,
+                createdAt: session.createdAt,
+                updatedAt: session.updatedAt,
+                completedAt: session.completedAt
+            )
+        }
         let chapterWithSession = response.chapter.replacingReviewSession(responseSession)
         applyBackendChapter(chapterWithSession)
         if let session = responseSession {
             v2ReviewSession = session
             hydrateLocalQuestionStates(from: session)
         }
+    }
+
+    private func shouldPreserveCurrentCard(
+        _ currentCard: V2BackendReviewCard,
+        insteadOfAnswerSaveFor answeredQuestion: (unitID: String, questionID: String)
+    ) -> Bool {
+        guard currentCard.type == "question" || currentCard.type == "question_feedback" else {
+            return true
+        }
+        return currentCard.unitId != answeredQuestion.unitID
+            || currentCard.questionId != answeredQuestion.questionID
     }
 
     private func route(for card: V2BackendReviewCard?) -> V2AppRoute? {
