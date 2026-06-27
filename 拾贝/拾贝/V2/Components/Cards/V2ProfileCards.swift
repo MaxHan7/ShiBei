@@ -4,12 +4,13 @@ import UIKit
 import UserNotifications
 
 struct V2ProfileHeaderCard: View {
-    let name: String
-    let bio: String
+    @Binding var name: String
     let reviewedCount: String
     let streakDays: String
     @Binding var avatarImageData: Data
     @Binding var selectedPresetAvatarName: String
+    @State private var showsNameEditor = false
+    @State private var draftName = ""
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -17,23 +18,41 @@ struct V2ProfileHeaderCard: View {
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
 
-            V2ProfileAvatarPicker(
-                avatarImageData: $avatarImageData,
-                selectedPresetAvatarName: $selectedPresetAvatarName
-            )
-                .offset(x: 24, y: 16)
+            HStack(alignment: .center, spacing: V2ProfileHeaderMetrics.identitySpacing) {
+                V2ProfileAvatarPicker(
+                    avatarImageData: $avatarImageData,
+                    selectedPresetAvatarName: $selectedPresetAvatarName
+                )
 
-            Text(name)
-                .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(V2Color.textPrimary)
-                .lineLimit(1)
-                .offset(x: 127, y: 29)
+                Button {
+                    draftName = displayName
+                    showsNameEditor = true
+                } label: {
+                    HStack(alignment: .center, spacing: V2ProfileHeaderMetrics.nameEditGap) {
+                        Text(displayName)
+                            .font(V2ProfileHeaderMetrics.nameFont)
+                            .foregroundStyle(V2Color.textPrimary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.82)
 
-            Text(bio)
-                .font(.system(size: 12, weight: .regular))
-                .foregroundStyle(V2Color.topTitle.opacity(0.72))
-                .lineLimit(1)
-                .offset(x: 127, y: 64)
+                        Image(systemName: "pencil")
+                            .font(V2ProfileHeaderMetrics.editIconFont)
+                            .foregroundStyle(V2Color.topTitle.opacity(0.68))
+                            .frame(
+                                width: V2ProfileHeaderMetrics.editIconTouchSize,
+                                height: V2ProfileHeaderMetrics.editIconTouchSize
+                            )
+                            .background(V2Color.surfaceCream.opacity(0.8))
+                            .clipShape(Circle())
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("编辑昵称")
+            }
+            .frame(width: V2ProfileHeaderMetrics.identityWidth, alignment: .leading)
+            .offset(x: V2ProfileHeaderMetrics.identityX, y: V2ProfileHeaderMetrics.identityY)
 
             Image("V2BgDecoSmallPlantCluster")
                 .resizable()
@@ -59,19 +78,133 @@ struct V2ProfileHeaderCard: View {
                 )
             }
             .frame(width: V2ProfileHeaderMetrics.statGroupWidth)
-            .offset(x: 24, y: 124)
+            .offset(x: V2ProfileHeaderMetrics.statGroupX, y: V2ProfileHeaderMetrics.statGroupY)
         }
         .frame(width: V2ProfileHeaderMetrics.cardWidth, height: V2ProfileHeaderMetrics.cardHeight)
+        .sheet(isPresented: $showsNameEditor) {
+            V2ProfileNameEditSheet(
+                draftName: $draftName,
+                onCancel: { showsNameEditor = false },
+                onSave: saveDraftName
+            )
+            .presentationDetents([.height(V2ProfileNameEditMetrics.sheetHeight)])
+            .presentationDragIndicator(.visible)
+        }
+    }
+
+    private var displayName: String {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmedName.isEmpty ? V2ProfileHeaderMetrics.defaultName : trimmedName
+    }
+
+    private func saveDraftName() {
+        let trimmedName = draftName.trimmingCharacters(in: .whitespacesAndNewlines)
+        name = trimmedName.isEmpty ? V2ProfileHeaderMetrics.defaultName : String(trimmedName.prefix(V2ProfileHeaderMetrics.nameCharacterLimit))
+        showsNameEditor = false
     }
 }
 
 private enum V2ProfileHeaderMetrics {
+    static let defaultName = "Cappy"
+    static let nameCharacterLimit = 16
     static let cardWidth: CGFloat = 321
-    static let cardHeight: CGFloat = 226
+    static let cardHeight: CGFloat = 208
     static let cornerRadius: CGFloat = 15
+    static let identityX: CGFloat = 24
+    static let identityY: CGFloat = 18
+    static let identityWidth: CGFloat = cardWidth - 48
+    static let identitySpacing: CGFloat = 24
+    static let nameEditGap: CGFloat = 8
+    static let editIconTouchSize: CGFloat = 28
+    static let nameFont = Font.system(size: 22, weight: .bold, design: .default)
+    static let editIconFont = Font.system(size: 13, weight: .semibold, design: .default)
+    static let statGroupX: CGFloat = 24
+    static let statGroupY: CGFloat = 110
     static let statGroupWidth: CGFloat = cardWidth - 48
     static let statCardWidth: CGFloat = (statGroupWidth - 13) / 2
     static let statCardHeight: CGFloat = 82
+}
+
+private struct V2ProfileNameEditSheet: View {
+    @Binding var draftName: String
+    let onCancel: () -> Void
+    let onSave: () -> Void
+    @FocusState private var isNameFocused: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: V2ProfileNameEditMetrics.sectionSpacing) {
+            HStack {
+                Text("编辑昵称")
+                    .font(V2Typography.cardTitle)
+                    .foregroundStyle(V2Color.textPrimary)
+
+                Spacer()
+
+                Button(action: onCancel) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(V2Color.textPrimary.opacity(0.72))
+                        .frame(
+                            width: V2ProfileNameEditMetrics.closeButtonSize,
+                            height: V2ProfileNameEditMetrics.closeButtonSize
+                        )
+                        .background(V2Color.surfaceCream)
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("关闭昵称编辑")
+            }
+
+            TextField("输入昵称", text: $draftName)
+                .font(V2Typography.body)
+                .foregroundStyle(V2Color.textPrimary)
+                .textInputAutocapitalization(.never)
+                .disableAutocorrection(true)
+                .focused($isNameFocused)
+                .padding(.horizontal, V2ProfileNameEditMetrics.inputHorizontalPadding)
+                .frame(height: V2ProfileNameEditMetrics.inputHeight)
+                .background(V2Color.surfaceCream)
+                .clipShape(RoundedRectangle(cornerRadius: V2ProfileNameEditMetrics.inputCornerRadius, style: .continuous))
+                .v2Shadow(V2Shadow.subtleGreen)
+                .onChange(of: draftName) { _, newValue in
+                    if newValue.count > V2ProfileHeaderMetrics.nameCharacterLimit {
+                        draftName = String(newValue.prefix(V2ProfileHeaderMetrics.nameCharacterLimit))
+                    }
+                }
+
+            Button(action: onSave) {
+                Text("保存")
+                    .font(V2Typography.primaryButton)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: V2ProfileNameEditMetrics.saveButtonHeight)
+                    .background(V2Color.primaryAction)
+                    .clipShape(RoundedRectangle(cornerRadius: V2ProfileNameEditMetrics.saveButtonCornerRadius, style: .continuous))
+                    .v2Shadow(V2Shadow.subtleGreen)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, V2ProfileNameEditMetrics.horizontalPadding)
+        .padding(.top, V2ProfileNameEditMetrics.topPadding)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(V2Color.surfaceCream.ignoresSafeArea())
+        .onAppear {
+            isNameFocused = true
+        }
+    }
+}
+
+private enum V2ProfileNameEditMetrics {
+    static let sheetHeight: CGFloat = 230
+    static let horizontalPadding: CGFloat = V2Spacing.lg
+    static let topPadding: CGFloat = 22
+    static let sectionSpacing: CGFloat = 18
+    static let closeButtonSize: CGFloat = 32
+    static let inputHeight: CGFloat = 50
+    static let inputHorizontalPadding: CGFloat = 16
+    static let inputCornerRadius: CGFloat = 14
+    static let saveButtonHeight: CGFloat = 46
+    static let saveButtonCornerRadius: CGFloat = 14
 }
 
 private struct V2ProfileAvatarPicker: View {

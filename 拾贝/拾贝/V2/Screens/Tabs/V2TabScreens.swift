@@ -1151,6 +1151,8 @@ struct V2ProfileView: View {
     private var profileAvatarImageData = Data()
     @AppStorage("v2.profilePresetAvatarName")
     private var profilePresetAvatarName = ""
+    @AppStorage("v2.profileDisplayName")
+    private var profileDisplayName = "Cappy"
 
     @Binding var usesMockData: Bool
     let allowsMockDataToggle: Bool
@@ -1183,8 +1185,7 @@ struct V2ProfileView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
                         V2ProfileHeaderCard(
-                            name: "Cappy",
-                            bio: "这里是我的自我介绍~",
+                            name: $profileDisplayName,
                             reviewedCount: reviewedCount,
                             streakDays: streakDays,
                             avatarImageData: $profileAvatarImageData,
