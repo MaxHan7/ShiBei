@@ -224,46 +224,81 @@ struct V2GenerationStartedDialog: View {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
-                .frame(width: 321, height: 142)
-                .offset(x: 4, y: 24)
+                .frame(width: V2GenerationStartedDialogMetrics.cardWidth, height: V2GenerationStartedDialogMetrics.cardHeight)
+                .offset(x: V2GenerationStartedDialogMetrics.cardX, y: V2GenerationStartedDialogMetrics.cardY)
 
             Image("V2GeneratingPopupWave")
                 .resizable()
                 .renderingMode(.original)
-                .frame(width: 321, height: 82)
-                .offset(x: 4, y: 84)
+                .frame(width: V2GenerationStartedDialogMetrics.waveWidth, height: V2GenerationStartedDialogMetrics.waveHeight)
+                .offset(x: V2GenerationStartedDialogMetrics.waveX, y: V2GenerationStartedDialogMetrics.waveY)
 
             Image("V2GeneratingPopupMascot")
                 .resizable()
                 .renderingMode(.original)
                 .scaledToFit()
-                .frame(width: 118, height: 141)
-                .offset(x: 197, y: 0)
+                .frame(
+                    width: V2GenerationStartedDialogMetrics.mascotWidth,
+                    height: V2GenerationStartedDialogMetrics.mascotHeight
+                )
+                .offset(x: V2GenerationStartedDialogMetrics.mascotX, y: V2GenerationStartedDialogMetrics.mascotY)
                 .allowsHitTesting(false)
 
-            Text("章节正在生成中，\n完成后会通知你")
+            Text(verbatim: "章节正在生成中，\n完成后会通知你")
                 .font(.system(size: 16, weight: .regular))
                 .foregroundStyle(V2Color.topTitle)
                 .lineSpacing(8)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
-                .frame(width: 115, height: 42, alignment: .leading)
-                .offset(x: 34, y: 62)
+                .frame(
+                    width: V2GenerationStartedDialogMetrics.messageWidth,
+                    height: V2GenerationStartedDialogMetrics.messageHeight,
+                    alignment: .leading
+                )
+                .offset(x: V2GenerationStartedDialogMetrics.messageX, y: V2GenerationStartedDialogMetrics.messageY)
 
             Button(action: onAcknowledge) {
-                Text("知道了")
+                Text(verbatim: "知道了")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(V2Color.primaryAction)
-                    .frame(width: 80, height: 32)
+                    .frame(
+                        width: V2GenerationStartedDialogMetrics.acknowledgeWidth,
+                        height: V2GenerationStartedDialogMetrics.acknowledgeHeight
+                    )
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .offset(x: 124, y: 130)
+            .offset(x: V2GenerationStartedDialogMetrics.acknowledgeX, y: V2GenerationStartedDialogMetrics.acknowledgeY)
         }
-        .frame(width: 329, height: 174)
+        .frame(width: V2GenerationStartedDialogMetrics.dialogWidth, height: V2GenerationStartedDialogMetrics.dialogHeight)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("章节正在生成中，完成后会通知你")
     }
+}
+
+private enum V2GenerationStartedDialogMetrics {
+    static let dialogWidth: CGFloat = 329
+    static let dialogHeight: CGFloat = 174
+    static let cardWidth: CGFloat = 321
+    static let cardHeight: CGFloat = 142
+    static let cardX: CGFloat = 4
+    static let cardY: CGFloat = 24
+    static let waveWidth: CGFloat = 321
+    static let waveHeight: CGFloat = 82
+    static let waveX: CGFloat = 4
+    static let waveY: CGFloat = 84
+    static let mascotWidth: CGFloat = 119
+    static let mascotHeight: CGFloat = 141
+    static let mascotX: CGFloat = 197
+    static let mascotY: CGFloat = 0
+    static let messageWidth: CGFloat = 115
+    static let messageHeight: CGFloat = 42
+    static let messageX: CGFloat = 34
+    static let messageY: CGFloat = 62
+    static let acknowledgeWidth: CGFloat = 80
+    static let acknowledgeHeight: CGFloat = 32
+    static let acknowledgeX: CGFloat = 124
+    static let acknowledgeY: CGFloat = 130
 }
 
 struct V2GeneratedChaptersSummaryCard: View {

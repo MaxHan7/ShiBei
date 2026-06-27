@@ -84,7 +84,7 @@ private enum V2DiscoverHeroCardMetrics {
     static let subtitleHeight: CGFloat = 41
     static let mascotX: CGFloat = 195
     static let mascotY: CGFloat = -21
-    static let mascotWidth: CGFloat = 112
+    static let mascotWidth: CGFloat = 113
     static let mascotHeight: CGFloat = 136
 }
 

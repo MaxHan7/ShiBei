@@ -2,6 +2,8 @@ import SwiftUI
 import UserNotifications
 
 struct V2RootView: View {
+    @AppStorage("v2.hasSeenGenerationStartedEducation")
+    private var hasSeenGenerationStartedEducation = false
     @AppStorage("v2.hasRequestedGenerationNotificationPermission")
     private var hasRequestedGenerationNotificationPermission = false
     @AppStorage("v2.usesMockData")
@@ -21,6 +23,7 @@ struct V2RootView: View {
     @State private var backendFavoriteQuestions: [FavoriteQuestionRecord] = []
     @State private var generationPollingTask: Task<Void, Never>?
     @State private var hasLoadedInitialBackendChapter = false
+    @State private var showsStartupSplash = true
     @State private var generationState = V2GenerationState()
 
     private let apiClient: APIClient
@@ -48,6 +51,12 @@ struct V2RootView: View {
             currentView
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
+            if showsStartupSplash {
+                V2SplashView()
+                    .transition(.opacity)
+                    .zIndex(200)
+            }
+
             if generationState.showsStartedDialog {
                 Color.black
                     .opacity(0.2)
@@ -70,7 +79,7 @@ struct V2RootView: View {
             }
         }
         .task(id: usesFixtures) {
-            await loadLatestBackendChapterIfNeeded()
+            await runStartupSequence()
         }
         .alert("删除章节", isPresented: $showsDeleteChapterConfirmation) {
             Button("取消", role: .cancel) {}
@@ -251,6 +260,7 @@ struct V2RootView: View {
             if let unit = activeUnit(id: unitID) {
                 V2UnitOverviewView(
                     unit: unit,
+                    unitTitle: unitDisplayTitle(id: unitID) ?? unit.title,
                     progress: progressIndex(unitID: unitID),
                     onBack: goBack,
                     onContinue: { continueAfterUnitOverview(unitID: unitID) }
@@ -1027,8 +1037,12 @@ struct V2RootView: View {
         generationPollingTask?.cancel()
         let clientRequestId = "ios-v2-\(UUID().uuidString)"
 
-        withAnimation(.easeOut(duration: 0.18)) {
-            generationState.showsStartedDialog = true
+        if hasSeenGenerationStartedEducation {
+            generationState.showsChapterCard = true
+        } else {
+            withAnimation(.easeOut(duration: 0.18)) {
+                generationState.showsStartedDialog = true
+            }
         }
 
         Task {
@@ -1082,6 +1096,25 @@ struct V2RootView: View {
                 generationPollingTask = nil
             }
         }
+    }
+
+    @MainActor
+    private func runStartupSequence() async {
+        async let minimumDisplayDuration: Void = sleepStartupSplashMinimumDuration()
+        await loadLatestBackendChapterIfNeeded()
+        await minimumDisplayDuration
+
+        guard showsStartupSplash else {
+            return
+        }
+
+        withAnimation(.easeOut(duration: 0.25)) {
+            showsStartupSplash = false
+        }
+    }
+
+    private func sleepStartupSplashMinimumDuration() async {
+        try? await Task.sleep(nanoseconds: 650_000_000)
     }
 
     @MainActor
@@ -1182,13 +1215,18 @@ struct V2RootView: View {
     private func showGeneratedChapterDetail() {
         selectedTab = .materials
         routeStore.reset(to: .generatingChapterDetail)
-        generationState.showsChapterCard = false
-        withAnimation(.easeOut(duration: 0.18)) {
-            generationState.showsStartedDialog = true
+        if hasSeenGenerationStartedEducation {
+            generationState.showsChapterCard = true
+        } else {
+            generationState.showsChapterCard = false
+            withAnimation(.easeOut(duration: 0.18)) {
+                generationState.showsStartedDialog = true
+            }
         }
     }
 
     private func dismissGenerationStartedDialog() {
+        hasSeenGenerationStartedEducation = true
         let shouldRequestNotificationPermission = !hasRequestedGenerationNotificationPermission
         if shouldRequestNotificationPermission {
             hasRequestedGenerationNotificationPermission = true

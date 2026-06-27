@@ -89,8 +89,8 @@ struct V2NotificationSummaryBanner: View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
-                .frame(width: 321, height: 82)
-                .offset(x: 4, y: 53)
+                .frame(width: V2NotificationSummaryBannerMetrics.cardWidth, height: V2NotificationSummaryBannerMetrics.cardHeight)
+                .offset(x: V2NotificationSummaryBannerMetrics.cardX, y: V2NotificationSummaryBannerMetrics.cardY)
                 .v2Shadow()
                 .zIndex(0)
 
@@ -98,14 +98,14 @@ struct V2NotificationSummaryBanner: View {
                 .resizable()
                 .renderingMode(.original)
                 .scaledToFit()
-                .frame(width: 118, height: 128)
-                .offset(x: 182, y: 7)
+                .frame(width: V2NotificationSummaryBannerMetrics.mascotWidth, height: V2NotificationSummaryBannerMetrics.mascotHeight)
+                .offset(x: V2NotificationSummaryBannerMetrics.mascotX, y: V2NotificationSummaryBannerMetrics.mascotY)
                 .zIndex(2)
 
             Image("V2NotificationBannerWave")
                 .resizable()
                 .renderingMode(.original)
-                .frame(width: 329, height: 143)
+                .frame(width: V2NotificationSummaryBannerMetrics.bannerWidth, height: V2NotificationSummaryBannerMetrics.bannerHeight)
                 .zIndex(3)
 
             HStack(alignment: .firstTextBaseline, spacing: 5) {
@@ -121,13 +121,29 @@ struct V2NotificationSummaryBanner: View {
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(V2Color.textPrimary)
             }
-            .padding(.leading, 26)
-            .padding(.top, 80)
-            .frame(maxWidth: 208, alignment: .leading)
+            .padding(.leading, V2NotificationSummaryBannerMetrics.textLeading)
+            .padding(.top, V2NotificationSummaryBannerMetrics.textTop)
+            .frame(maxWidth: V2NotificationSummaryBannerMetrics.textMaxWidth, alignment: .leading)
             .zIndex(4)
         }
-        .frame(width: 329, height: 143)
+        .frame(width: V2NotificationSummaryBannerMetrics.bannerWidth, height: V2NotificationSummaryBannerMetrics.bannerHeight)
     }
+}
+
+private enum V2NotificationSummaryBannerMetrics {
+    static let bannerWidth: CGFloat = 329
+    static let bannerHeight: CGFloat = 143
+    static let cardWidth: CGFloat = 321
+    static let cardHeight: CGFloat = 82
+    static let cardX: CGFloat = 4
+    static let cardY: CGFloat = 53
+    static let mascotWidth: CGFloat = 119
+    static let mascotHeight: CGFloat = 129
+    static let mascotX: CGFloat = 182
+    static let mascotY: CGFloat = 7
+    static let textLeading: CGFloat = 26
+    static let textTop: CGFloat = 80
+    static let textMaxWidth: CGFloat = 208
 }
 
 private struct V2NotificationChevron: View {

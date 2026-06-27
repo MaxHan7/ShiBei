@@ -96,12 +96,13 @@ private struct V2ChapterOverviewSummaryCard: View {
 
 struct V2UnitOverviewView: View {
     let unit: V2ReviewUnitData
+    let unitTitle: String
     let progress: (current: Int, total: Int)
     let onBack: () -> Void
     let onContinue: () -> Void
 
     var body: some View {
-        V2FlowScreen(title: "", onBack: onBack) {
+        V2FlowScreen(title: unitTitle, onBack: onBack) {
             ZStack(alignment: .top) {
                 V2UnitProgressBar(progressFraction: V2UnitOverviewPageMetrics.initialProgressFraction)
                     .v2PageContentWidth()
@@ -162,7 +163,7 @@ struct V2MultipleChoiceQuestionView: View {
 
     var body: some View {
         V2FlowScreen(
-            title: "",
+            title: unitTitle,
             showFavoriteButton: true,
             isFavoriteSaved: state.isFavoriteSaved,
             onBack: onBack,
@@ -284,10 +285,18 @@ private enum V2MultipleChoicePageMetrics {
     static let cardY: CGFloat = 65
     static let leftDecoY: CGFloat = 612
     static let rightDecoY: CGFloat = 648
-    static let mascotTop: CGFloat = 525
-    static let mascotWidth: CGFloat = 92.632
-    static let mascotHeight: CGFloat = 136
-    static let mascotCardOverlap: CGFloat = 67
+    private static let previousMascotRightAnchorWidth: CGFloat = 92.632
+    private static let previousMascotBottom: CGFloat = 661
+    private static let previousMascotCardOverlap: CGFloat = 67
+    private static let widerMascotVerticalClearance: CGFloat = 18
+    static let mascotWidth: CGFloat = 173
+    static let mascotHeight: CGFloat = 137
+    static let mascotTop: CGFloat = previousMascotBottom
+        - mascotHeight
+        + widerMascotVerticalClearance
+    static let mascotCardOverlap: CGFloat = previousMascotCardOverlap
+        + mascotWidth
+        - previousMascotRightAnchorWidth
     static let contentHeight: CGFloat = 760
 }
 
@@ -306,7 +315,7 @@ struct V2MatchingQuestionView: View {
 
     var body: some View {
         V2FlowScreen(
-            title: "",
+            title: unitTitle,
             showFavoriteButton: true,
             isFavoriteSaved: state.isFavoriteSaved,
             onBack: onBack,
@@ -783,16 +792,36 @@ private struct V2ChapterCompletionHero: View {
                 .resizable()
                 .renderingMode(.original)
                 .scaledToFit()
-                .frame(width: 347, height: 510)
-                .offset(x: 2, y: 0)
+                .frame(
+                    width: V2ChapterCompletionHeroMetrics.mascotWidth,
+                    height: V2ChapterCompletionHeroMetrics.mascotHeight
+                )
+                .offset(
+                    x: V2ChapterCompletionHeroMetrics.mascotX,
+                    y: V2ChapterCompletionHeroMetrics.mascotY
+                )
                 .zIndex(0)
 
             V2ChapterCompletionResultCard(chapter: chapter)
-                .offset(y: 255)
+                .offset(y: V2ChapterCompletionHeroMetrics.resultCardY)
                 .zIndex(1)
         }
-        .frame(width: 402, height: 500, alignment: .top)
+        .frame(
+            width: V2ChapterCompletionHeroMetrics.width,
+            height: V2ChapterCompletionHeroMetrics.height,
+            alignment: .top
+        )
     }
+}
+
+private enum V2ChapterCompletionHeroMetrics {
+    static let width: CGFloat = 402
+    static let height: CGFloat = 500
+    static let mascotWidth: CGFloat = 378
+    static let mascotHeight: CGFloat = 403
+    static let mascotX: CGFloat = 0
+    static let mascotY: CGFloat = 245
+    static let resultCardY: CGFloat = 255
 }
 
 private struct V2ChapterCompletionResultCard: View {
@@ -1126,6 +1155,10 @@ private enum V2ChapterDetailLayoutMetrics {
     static let heroPrimaryActionHeight: CGFloat = 42
     static let heroMetadataRowWidth: CGFloat = heroPrimaryActionWidth
     static let heroAuthorChipWidth: CGFloat = heroMetadataRowWidth - heroSourceChipWidth - heroMetadataSpacing
+    static let heroMascotWidth: CGFloat = 114
+    static let heroMascotHeight: CGFloat = 128
+    static let heroMascotX: CGFloat = 216
+    static let heroMascotY: CGFloat = -32
 
     static let cardContentLeading: CGFloat = V2Spacing.lg
     static let sectionHeaderTopPadding: CGFloat = V2Spacing.md
@@ -1249,8 +1282,14 @@ private struct V2ChapterDetailHeroCard: View {
                 .resizable()
                 .renderingMode(.original)
                 .scaledToFit()
-                .frame(width: 158, height: 178)
-                .offset(x: 216, y: -32)
+                .frame(
+                    width: V2ChapterDetailLayoutMetrics.heroMascotWidth,
+                    height: V2ChapterDetailLayoutMetrics.heroMascotHeight
+                )
+                .offset(
+                    x: V2ChapterDetailLayoutMetrics.heroMascotX,
+                    y: V2ChapterDetailLayoutMetrics.heroMascotY
+                )
         }
         .frame(width: V2Layout.contentMaxWidth, height: V2ChapterDetailLayoutMetrics.heroCardFrameHeight, alignment: .topLeading)
     }

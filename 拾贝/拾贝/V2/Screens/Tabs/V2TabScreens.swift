@@ -68,8 +68,14 @@ struct V2MaterialsView: View {
                         .resizable()
                         .renderingMode(.original)
                         .scaledToFit()
-                        .frame(width: 166, height: 137)
-                        .offset(x: 10, y: -6)
+                        .frame(
+                            width: V2MaterialsMascotMetrics.width,
+                            height: V2MaterialsMascotMetrics.height
+                        )
+                        .offset(
+                            x: V2MaterialsMascotMetrics.offsetX,
+                            y: V2MaterialsMascotMetrics.offsetY
+                        )
                         .opacity(0.98)
                         .allowsHitTesting(false)
                 }
@@ -155,6 +161,13 @@ struct V2MaterialsView: View {
             }
         }
     }
+}
+
+private enum V2MaterialsMascotMetrics {
+    static let width: CGFloat = 166
+    static let height: CGFloat = 138
+    static let offsetX: CGFloat = 10
+    static let offsetY: CGFloat = -6
 }
 
 private extension V2BackendChapter {
@@ -454,7 +467,7 @@ private enum V2Keyboard {
 
 private enum V2UploadMascotInputMetrics {
     static let maxWidth: CGFloat = 321
-    static let backWidth: CGFloat = 93
+    static let backWidth: CGFloat = 94
     static let frontWidth: CGFloat = 69
     static let groupHeight: CGFloat = 230
     static let backCenterXRatio: CGFloat = 0.808
@@ -657,8 +670,8 @@ private enum V2NotesPageMetrics {
     static let summaryY: CGFloat = 32
     static let mascotX: CGFloat = 206
     static let mascotY: CGFloat = -12
-    static let mascotWidth: CGFloat = 92.63
-    static let mascotHeight: CGFloat = 125.58
+    static let mascotWidth: CGFloat = 94
+    static let mascotHeight: CGFloat = 127
     static let firstCardY: CGFloat = 142
     static let cardGap: CGFloat = 19
     static let cardHeight: CGFloat = 136
@@ -893,8 +906,14 @@ struct V2GenerationFailureDetailView: View {
                         .resizable()
                         .renderingMode(.original)
                         .scaledToFit()
-                        .frame(width: 188, height: 206)
-                        .position(x: geometry.size.width / 2 + 3, y: 136)
+                        .frame(
+                            width: V2GenerationFailureDetailMetrics.mascotWidth,
+                            height: V2GenerationFailureDetailMetrics.mascotHeight
+                        )
+                        .position(
+                            x: geometry.size.width / 2 + V2GenerationFailureDetailMetrics.mascotCenterXOffset,
+                            y: V2GenerationFailureDetailMetrics.mascotCenterY
+                        )
                         .zIndex(1)
 
                     V2GenerationFailureDetailCard(
@@ -931,6 +950,13 @@ struct V2GenerationFailureDetailView: View {
             .offset(x: -6, y: 500)
             .allowsHitTesting(false)
     }
+}
+
+private enum V2GenerationFailureDetailMetrics {
+    static let mascotWidth: CGFloat = 188
+    static let mascotHeight: CGFloat = 207
+    static let mascotCenterXOffset: CGFloat = 3
+    static let mascotCenterY: CGFloat = 136
 }
 
 private struct V2GenerationFailureDetailCard: View {
@@ -1123,6 +1149,8 @@ private struct V2NotificationFailureReasonCard: View {
 struct V2ProfileView: View {
     @AppStorage("v2.profileAvatarImageData")
     private var profileAvatarImageData = Data()
+    @AppStorage("v2.profilePresetAvatarName")
+    private var profilePresetAvatarName = ""
 
     @Binding var usesMockData: Bool
     let allowsMockDataToggle: Bool
@@ -1159,7 +1187,8 @@ struct V2ProfileView: View {
                             bio: "这里是我的自我介绍~",
                             reviewedCount: reviewedCount,
                             streakDays: streakDays,
-                            avatarImageData: $profileAvatarImageData
+                            avatarImageData: $profileAvatarImageData,
+                            selectedPresetAvatarName: $profilePresetAvatarName
                         )
 
                         V2ProfileSettingsCard()

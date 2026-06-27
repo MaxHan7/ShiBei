@@ -7,6 +7,7 @@ struct V2ProfileHeaderCard: View {
     let reviewedCount: String
     let streakDays: String
     @Binding var avatarImageData: Data
+    @Binding var selectedPresetAvatarName: String
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -14,7 +15,10 @@ struct V2ProfileHeaderCard: View {
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
 
-            V2ProfileAvatarPicker(avatarImageData: $avatarImageData)
+            V2ProfileAvatarPicker(
+                avatarImageData: $avatarImageData,
+                selectedPresetAvatarName: $selectedPresetAvatarName
+            )
                 .offset(x: 24, y: 16)
 
             Text(name)
@@ -70,18 +74,18 @@ private enum V2ProfileHeaderMetrics {
 
 private struct V2ProfileAvatarPicker: View {
     @Binding var avatarImageData: Data
+    @Binding var selectedPresetAvatarName: String
     @State private var selectedPhotoItem: PhotosPickerItem?
+    @State private var showsAvatarSheet = false
 
     var body: some View {
-        PhotosPicker(
-            selection: $selectedPhotoItem,
-            matching: .images,
-            photoLibrary: .shared()
-        ) {
+        Button {
+            showsAvatarSheet = true
+        } label: {
             ZStack(alignment: .bottomTrailing) {
                 avatarContent
                     .frame(width: V2ProfileAvatarMetrics.size, height: V2ProfileAvatarMetrics.size)
-                    .background(Color(hex: 0xEEF0C7))
+                    .background(V2ProfileAvatarMetrics.backgroundColor)
                     .clipShape(Circle())
 
                 Circle()
@@ -99,6 +103,16 @@ private struct V2ProfileAvatarPicker: View {
             .accessibilityLabel("更换头像")
         }
         .buttonStyle(.plain)
+        .sheet(isPresented: $showsAvatarSheet) {
+            V2ProfileAvatarSelectionSheet(
+                avatarImageData: $avatarImageData,
+                selectedPresetAvatarName: $selectedPresetAvatarName,
+                selectedPhotoItem: $selectedPhotoItem,
+                onDismiss: { showsAvatarSheet = false }
+            )
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+        }
         .onChange(of: selectedPhotoItem) { _, newItem in
             guard let newItem else { return }
             Task {
@@ -114,14 +128,17 @@ private struct V2ProfileAvatarPicker: View {
                 .resizable()
                 .scaledToFill()
         } else {
-            Image("V2MascotStatic")
+            Image(effectivePresetAvatarName)
                 .resizable()
                 .renderingMode(.original)
                 .scaledToFit()
-                .frame(width: V2ProfileAvatarMetrics.defaultMascotSize)
-                .scaleEffect(0.8, anchor: .top)
-                .offset(y: 7)
+                .frame(width: V2ProfileAvatarMetrics.defaultMascotSize, height: V2ProfileAvatarMetrics.defaultMascotSize)
+                .padding(V2ProfileAvatarMetrics.avatarPadding)
         }
+    }
+
+    private var effectivePresetAvatarName: String {
+        selectedPresetAvatarName.isEmpty ? V2ProfilePresetAvatar.defaultAssetName : selectedPresetAvatarName
     }
 
     private var selectedAvatarImage: UIImage? {
@@ -141,8 +158,141 @@ private struct V2ProfileAvatarPicker: View {
         }
 
         avatarImageData = compressedData
+        selectedPresetAvatarName = ""
         selectedPhotoItem = nil
+        showsAvatarSheet = false
     }
+}
+
+private struct V2ProfileAvatarSelectionSheet: View {
+    @Binding var avatarImageData: Data
+    @Binding var selectedPresetAvatarName: String
+    @Binding var selectedPhotoItem: PhotosPickerItem?
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: V2ProfileAvatarMetrics.sheetSectionSpacing) {
+            HStack {
+                Text("选择头像")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(V2Color.textPrimary)
+
+                Spacer()
+
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(V2Color.textPrimary.opacity(0.72))
+                        .frame(width: 32, height: 32)
+                        .background(V2Color.surfaceCream)
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("关闭头像选择")
+            }
+
+            LazyVGrid(columns: V2ProfileAvatarMetrics.presetGridColumns, spacing: V2ProfileAvatarMetrics.presetGridSpacing) {
+                ForEach(V2ProfilePresetAvatar.allCases) { avatar in
+                    Button {
+                        selectedPresetAvatarName = avatar.assetName
+                        avatarImageData = Data()
+                        onDismiss()
+                    } label: {
+                        V2ProfilePresetAvatarCell(
+                            avatar: avatar,
+                            isSelected: avatarImageData.isEmpty && effectivePresetAvatarName == avatar.assetName
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("选择\(avatar.title)头像")
+                }
+            }
+
+            PhotosPicker(
+                selection: $selectedPhotoItem,
+                matching: .images,
+                photoLibrary: .shared()
+            ) {
+                HStack(spacing: 10) {
+                    Image(systemName: "photo")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text("从相册选择")
+                        .font(.system(size: 15, weight: .semibold))
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 13, weight: .semibold))
+                }
+                .foregroundStyle(V2Color.textPrimary)
+                .padding(.horizontal, 16)
+                .frame(height: V2ProfileAvatarMetrics.photoPickerHeight)
+                .background(V2Color.surfaceCream)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .v2Shadow(V2Shadow.subtleGreen)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, V2ProfileAvatarMetrics.sheetHorizontalPadding)
+        .padding(.top, V2ProfileAvatarMetrics.sheetTopPadding)
+        .padding(.bottom, V2ProfileAvatarMetrics.sheetBottomPadding)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(V2Color.pageGreenBackground.ignoresSafeArea())
+    }
+
+    private var effectivePresetAvatarName: String {
+        selectedPresetAvatarName.isEmpty ? V2ProfilePresetAvatar.defaultAssetName : selectedPresetAvatarName
+    }
+}
+
+private struct V2ProfilePresetAvatarCell: View {
+    let avatar: V2ProfilePresetAvatar
+    let isSelected: Bool
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(V2ProfileAvatarMetrics.backgroundColor)
+                .overlay {
+                    Circle()
+                        .stroke(
+                            isSelected ? V2Color.primaryAction : Color.clear,
+                            lineWidth: V2ProfileAvatarMetrics.selectedRingWidth
+                        )
+                }
+                .v2Shadow(V2Shadow.subtleGreen)
+
+            Image(avatar.assetName)
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .padding(V2ProfileAvatarMetrics.presetAvatarPadding)
+        }
+        .frame(width: V2ProfileAvatarMetrics.presetCellSize, height: V2ProfileAvatarMetrics.presetCellSize)
+    }
+}
+
+private struct V2ProfilePresetAvatar: Identifiable, CaseIterable {
+    let id: String
+    let title: String
+    let assetName: String
+
+    static let defaultAssetName = "V2MascotStatic"
+
+    static let allCases: [V2ProfilePresetAvatar] = [
+        .init(id: "static", title: "阅读", assetName: "V2MascotStatic"),
+        .init(id: "discover", title: "发现", assetName: "V2DiscoverHeroMascot"),
+        .init(id: "materials", title: "章节", assetName: "V2MaterialsMascot"),
+        .init(id: "notes", title: "笔记", assetName: "V2NotesMascot"),
+        .init(id: "notification", title: "通知", assetName: "V2NotificationMascot"),
+        .init(id: "chapterDetail", title: "详情", assetName: "V2ChapterDetailMascot"),
+        .init(id: "unitOverview", title: "知识点", assetName: "V2UnitOverviewMascot"),
+        .init(id: "matching", title: "练习", assetName: "V2MatchingMascot"),
+        .init(id: "generating", title: "生成中", assetName: "V2GeneratingChapterMascot"),
+        .init(id: "failed", title: "生成失败", assetName: "V2NotificationFailureDetailMascot"),
+        .init(id: "unitComplete", title: "单元完成", assetName: "V2MascotCompletion"),
+        .init(id: "chapterComplete", title: "章节完成", assetName: "V2ChapterCompletionMascot"),
+        .init(id: "splash", title: "启动", assetName: "V2SplashMascot"),
+        .init(id: "popup", title: "提醒", assetName: "V2GeneratingPopupMascot")
+    ]
 }
 
 private enum V2ProfileAvatarMetrics {
@@ -150,6 +300,21 @@ private enum V2ProfileAvatarMetrics {
     static let defaultMascotSize: CGFloat = 78
     static let badgeSize: CGFloat = 24
     static let storedPixelSize: CGFloat = 320
+    static let avatarPadding: CGFloat = 4
+    static let backgroundColor = Color(hex: 0xEEF0C7)
+    static let sheetHorizontalPadding: CGFloat = 24
+    static let sheetTopPadding: CGFloat = 22
+    static let sheetBottomPadding: CGFloat = 24
+    static let sheetSectionSpacing: CGFloat = 18
+    static let presetCellSize: CGFloat = 58
+    static let presetGridSpacing: CGFloat = 14
+    static let presetAvatarPadding: CGFloat = 8
+    static let selectedRingWidth: CGFloat = 2
+    static let photoPickerHeight: CGFloat = 50
+    static let presetGridColumns = Array(
+        repeating: GridItem(.fixed(presetCellSize), spacing: presetGridSpacing),
+        count: 4
+    )
 }
 
 private extension UIImage {
