@@ -12,14 +12,19 @@ struct V2ProfileSettingRow: View {
                 .frame(width: 33, height: 33)
 
             Text(title)
-                .font(.system(size: 12, weight: .medium))
+                .font(V2Typography.label)
                 .foregroundStyle(V2Color.topTitle)
 
             Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(V2Color.textMuted.opacity(0.72))
         }
         .frame(height: 56)
         .padding(.leading, 24)
-        .padding(.trailing, 31)
+        .padding(.trailing, 24)
+        .contentShape(Rectangle())
     }
 }
 

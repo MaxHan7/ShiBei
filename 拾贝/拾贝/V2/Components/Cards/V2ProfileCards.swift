@@ -1,5 +1,7 @@
 import PhotosUI
 import SwiftUI
+import UIKit
+import UserNotifications
 
 struct V2ProfileHeaderCard: View {
     let name: String
@@ -396,14 +398,29 @@ private enum V2ProfileStatMetrics {
 }
 
 struct V2ProfileSettingsCard: View {
+    @State private var activeSheet: V2ProfileSettingsSheet?
+
     var body: some View {
         VStack(spacing: 0) {
-            V2ProfileSettingRow(title: "通知设置", assetName: "V2ProfileSettingNotification")
+            Button {
+                activeSheet = .notifications
+            } label: {
+                V2ProfileSettingRow(title: "通知设置", assetName: "V2ProfileSettingNotification")
+            }
             V2ProfileSettingDivider()
-            V2ProfileSettingRow(title: "隐私说明", assetName: "V2ProfileSettingPrivacy")
+            Button {
+                activeSheet = .privacy
+            } label: {
+                V2ProfileSettingRow(title: "隐私说明", assetName: "V2ProfileSettingPrivacy")
+            }
             V2ProfileSettingDivider()
-            V2ProfileSettingRow(title: "账号说明", assetName: "V2ProfileSettingAccount")
+            Button {
+                activeSheet = .account
+            } label: {
+                V2ProfileSettingRow(title: "账号说明", assetName: "V2ProfileSettingAccount")
+            }
         }
+        .buttonStyle(.plain)
         .padding(.top, 10)
         .padding(.bottom, 10)
         .frame(width: 321, height: 190)
@@ -412,6 +429,11 @@ struct V2ProfileSettingsCard: View {
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
         )
+        .sheet(item: $activeSheet) { sheet in
+            V2ProfileSettingsSheetView(sheet: sheet)
+                .presentationDetents(sheet.detents)
+                .presentationDragIndicator(.visible)
+        }
     }
 }
 
@@ -423,4 +445,264 @@ private struct V2ProfileSettingDivider: View {
             .padding(.leading, 72)
             .padding(.trailing, 29)
     }
+}
+
+private enum V2ProfileSettingsSheet: String, Identifiable {
+    case notifications
+    case privacy
+    case account
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .notifications: "通知设置"
+        case .privacy: "隐私说明"
+        case .account: "账号说明"
+        }
+    }
+
+    var paragraphs: [String] {
+        switch self {
+        case .notifications:
+            [
+                "拾贝会在内容生成完成或失败时发送系统通知，帮助你回到对应章节继续复习。",
+                "如果你没有开启系统通知，仍然可以在 App 内通知页查看生成结果。成功通知打开后会自动归档，失败通知会保留到你处理或手动移除。"
+            ]
+        case .privacy:
+            [
+                "你提交的文字、文章链接和生成结果会发送到拾贝云端，用于提取知识点、生成题目和保存复习进度。",
+                "生成过程中，内容可能会被发送给第三方 AI 模型服务处理。拾贝不会把你的内容公开展示给其他用户。",
+                "服务器会保存章节、题目、通知、复习记录和题目反馈。你可以在“我的”页删除当前匿名设备下的数据。"
+            ]
+        case .account:
+            [
+                "当前版本使用匿名设备身份保存数据，不需要注册或登录账号。",
+                "匿名设备身份只用于区分你的章节、通知、复习记录和题目反馈。后续如果提供账号系统，会再提供数据迁移方案。"
+            ]
+        }
+    }
+
+    var detents: Set<PresentationDetent> {
+        switch self {
+        case .notifications: [.medium]
+        case .privacy, .account: [.medium, .large]
+        }
+    }
+}
+
+private struct V2ProfileSettingsSheetView: View {
+    let sheet: V2ProfileSettingsSheet
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: V2ProfileSettingsSheetMetrics.sectionSpacing) {
+            V2ProfileSettingsSheetHeader(title: sheet.title) {
+                dismiss()
+            }
+
+            VStack(alignment: .leading, spacing: V2ProfileSettingsSheetMetrics.paragraphSpacing) {
+                ForEach(sheet.paragraphs, id: \.self) { paragraph in
+                    Text(paragraph)
+                        .font(V2Typography.bodySmall)
+                        .foregroundStyle(V2Color.textSecondary)
+                        .lineSpacing(V2ProfileSettingsSheetMetrics.paragraphLineSpacing)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+
+            if sheet == .notifications {
+                V2ProfileNotificationPermissionPanel()
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, V2ProfileSettingsSheetMetrics.horizontalPadding)
+        .padding(.top, V2ProfileSettingsSheetMetrics.topPadding)
+        .padding(.bottom, V2ProfileSettingsSheetMetrics.bottomPadding)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(V2Color.pageGreenBackground.ignoresSafeArea())
+    }
+}
+
+private struct V2ProfileSettingsSheetHeader: View {
+    let title: String
+    let onClose: () -> Void
+
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(V2Typography.cardTitle)
+                .foregroundStyle(V2Color.textPrimary)
+
+            Spacer()
+
+            Button(action: onClose) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(V2Color.textPrimary.opacity(0.72))
+                    .frame(
+                        width: V2ProfileSettingsSheetMetrics.closeButtonSize,
+                        height: V2ProfileSettingsSheetMetrics.closeButtonSize
+                    )
+                    .background(V2Color.surfaceCream)
+                    .clipShape(Circle())
+                    .v2Shadow(V2Shadow.subtleGreen)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("关闭")
+        }
+    }
+}
+
+private struct V2ProfileNotificationPermissionPanel: View {
+    @State private var status: UNAuthorizationStatus = .notDetermined
+    @State private var isRequesting = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: V2ProfileSettingsSheetMetrics.permissionPanelSpacing) {
+            HStack(spacing: V2ProfileSettingsSheetMetrics.permissionStatusGap) {
+                Circle()
+                    .fill(statusIndicatorColor)
+                    .frame(
+                        width: V2ProfileSettingsSheetMetrics.statusDotSize,
+                        height: V2ProfileSettingsSheetMetrics.statusDotSize
+                    )
+
+                Text(statusTitle)
+                    .font(V2Typography.bodySmallEmphasis)
+                    .foregroundStyle(V2Color.textPrimary)
+
+                Spacer()
+            }
+
+            Text(statusDescription)
+                .font(V2Typography.labelRegular)
+                .foregroundStyle(V2Color.textMuted)
+                .lineSpacing(3)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Button {
+                Task {
+                    await handlePrimaryAction()
+                }
+            } label: {
+                Text(primaryActionTitle)
+                    .font(V2Typography.primaryButton)
+                    .foregroundStyle(V2Color.surfaceCream)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: V2ProfileSettingsSheetMetrics.primaryButtonHeight)
+                    .background(V2Color.primaryAction)
+                    .clipShape(RoundedRectangle(cornerRadius: V2Radius.medium, style: .continuous))
+                    .v2Shadow(V2Shadow.subtleGreen)
+            }
+            .buttonStyle(.plain)
+            .disabled(isRequesting)
+            .opacity(isRequesting ? 0.72 : 1)
+        }
+        .padding(V2ProfileSettingsSheetMetrics.permissionPanelPadding)
+        .background(V2Color.surfaceCream)
+        .clipShape(RoundedRectangle(cornerRadius: V2Radius.medium, style: .continuous))
+        .v2Shadow(V2Shadow.subtleGreen)
+        .task {
+            await refreshStatus()
+        }
+    }
+
+    private var statusTitle: String {
+        switch status {
+        case .authorized, .provisional, .ephemeral:
+            "系统通知已开启"
+        case .denied:
+            "系统通知已关闭"
+        case .notDetermined:
+            "尚未开启系统通知"
+        @unknown default:
+            "通知状态未知"
+        }
+    }
+
+    private var statusDescription: String {
+        switch status {
+        case .authorized, .provisional, .ephemeral:
+            "生成完成或失败后，拾贝可以通过系统通知提醒你。"
+        case .denied:
+            "你已经在系统里关闭了通知。需要到 iOS 设置中重新允许拾贝发送通知。"
+        case .notDetermined:
+            "开启后，生成任务完成时即使暂时离开 App，也能收到提醒。"
+        @unknown default:
+            "可以前往系统设置检查拾贝的通知权限。"
+        }
+    }
+
+    private var statusIndicatorColor: Color {
+        switch status {
+        case .authorized, .provisional, .ephemeral:
+            V2Color.primaryAction
+        case .denied:
+            V2Color.notificationBadge
+        case .notDetermined:
+            V2Color.selectedBlueBorder
+        @unknown default:
+            V2Color.textMuted
+        }
+    }
+
+    private var primaryActionTitle: String {
+        switch status {
+        case .notDetermined:
+            isRequesting ? "正在开启..." : "开启通知"
+        case .authorized, .provisional, .ephemeral:
+            "打开系统设置"
+        case .denied:
+            "前往系统设置"
+        @unknown default:
+            "打开系统设置"
+        }
+    }
+
+    private func refreshStatus() async {
+        status = await PushNotificationService.authorizationStatus()
+    }
+
+    @MainActor
+    private func handlePrimaryAction() async {
+        switch status {
+        case .notDetermined:
+            isRequesting = true
+            _ = try? await PushNotificationService.requestAuthorizationAndRegister()
+            isRequesting = false
+            await refreshStatus()
+        case .authorized, .provisional, .ephemeral, .denied:
+            openAppNotificationSettings()
+            await refreshStatus()
+        @unknown default:
+            openAppNotificationSettings()
+            await refreshStatus()
+        }
+    }
+
+    @MainActor
+    private func openAppNotificationSettings() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else {
+            return
+        }
+        UIApplication.shared.open(url)
+    }
+}
+
+private enum V2ProfileSettingsSheetMetrics {
+    static let horizontalPadding: CGFloat = V2Spacing.lg
+    static let topPadding: CGFloat = 22
+    static let bottomPadding: CGFloat = V2Spacing.lg
+    static let sectionSpacing: CGFloat = 18
+    static let paragraphSpacing: CGFloat = 12
+    static let paragraphLineSpacing: CGFloat = 5
+    static let closeButtonSize: CGFloat = 32
+    static let permissionPanelPadding: CGFloat = 16
+    static let permissionPanelSpacing: CGFloat = 12
+    static let permissionStatusGap: CGFloat = 8
+    static let statusDotSize: CGFloat = 9
+    static let primaryButtonHeight: CGFloat = 46
 }
