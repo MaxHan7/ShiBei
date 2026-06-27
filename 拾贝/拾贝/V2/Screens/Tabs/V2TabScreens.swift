@@ -997,6 +997,8 @@ private struct V2GenerationFailureDetailCard: View {
 }
 
 private struct V2NotificationFailureSourceButton: View {
+    private static let width: CGFloat = 132
+
     let accent: Color
     let shadow: V2ShadowSpec
     let action: () -> Void
@@ -1022,17 +1024,18 @@ private struct V2NotificationFailureSourceButton: View {
                     .font(V2Typography.labelRegular)
                     .foregroundStyle(Color(hex: 0x767676))
                     .lineLimit(1)
+                    .layoutPriority(1)
             }
             .padding(.leading, 12)
             .padding(.trailing, 14)
-            .frame(width: 112, alignment: .leading)
+            .frame(width: Self.width, alignment: .leading)
             .frame(minHeight: 44, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(V2Color.surfaceCream)
                     .v2Shadow(shadow)
             )
-            .frame(width: 112, height: 44, alignment: .topLeading)
+            .frame(width: Self.width, height: 44, alignment: .topLeading)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("查看原文")

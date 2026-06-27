@@ -919,11 +919,11 @@ private struct V2SourceArticleHeader: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
 
-            HStack(spacing: 21) {
+            HStack(spacing: V2ChapterDetailLayoutMetrics.heroMetadataSpacing) {
                 V2ChapterDetailHeroActionButton(
                     title: "原文链接",
                     iconName: "V2ChapterDetailLinkActionIcon",
-                    width: 112,
+                    width: V2ChapterDetailLayoutMetrics.heroSourceChipWidth,
                     action: onSource
                 )
 
@@ -932,8 +932,8 @@ private struct V2SourceArticleHeader: View {
                     iconName: "V2ChapterDetailSummaryActionIcon",
                     width: V2ChapterDetailHeroActionContent.width(
                         for: author,
-                        minWidth: 112,
-                        maxWidth: 157
+                        minWidth: V2ChapterDetailLayoutMetrics.heroInfoChipMinWidth,
+                        maxWidth: V2ChapterDetailLayoutMetrics.heroInfoChipMaxWidth
                     )
                 )
             }
@@ -1121,6 +1121,10 @@ private enum V2ChapterDetailLayoutMetrics {
     static let heroTitleY: CGFloat = 23
     static let heroMetadataX: CGFloat = 25
     static let heroMetadataY: CGFloat = 123
+    static let heroMetadataSpacing: CGFloat = V2Spacing.md
+    static let heroSourceChipWidth: CGFloat = 132
+    static let heroInfoChipMinWidth: CGFloat = 112
+    static let heroInfoChipMaxWidth: CGFloat = 145
     static let heroPrimaryActionX: CGFloat = heroMetadataX
     static let heroPrimaryActionY: CGFloat = 184
     static let heroPrimaryActionWidth: CGFloat = V2Layout.contentMaxWidth - 50
@@ -1195,11 +1199,11 @@ private struct V2ChapterDetailHeroCard: View {
                     y: V2ChapterDetailLayoutMetrics.heroTitleY
                 )
 
-            HStack(spacing: 21) {
+            HStack(spacing: V2ChapterDetailLayoutMetrics.heroMetadataSpacing) {
                 V2ChapterDetailHeroActionButton(
                     title: "查看原文",
                     iconName: "V2ChapterDetailLinkActionIcon",
-                    width: 112,
+                    width: V2ChapterDetailLayoutMetrics.heroSourceChipWidth,
                     action: onSource
                 )
 
@@ -1208,8 +1212,8 @@ private struct V2ChapterDetailHeroCard: View {
                     iconName: "V2ChapterDetailSummaryActionIcon",
                     width: V2ChapterDetailHeroActionContent.width(
                         for: author,
-                        minWidth: 112,
-                        maxWidth: 157
+                        minWidth: V2ChapterDetailLayoutMetrics.heroInfoChipMinWidth,
+                        maxWidth: V2ChapterDetailLayoutMetrics.heroInfoChipMaxWidth
                     )
                 )
             }
@@ -1316,7 +1320,7 @@ private struct V2ChapterDetailHeroActionContent: View {
                 .foregroundStyle(Color(hex: 0x767676))
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .minimumScaleFactor(0.85)
+                .layoutPriority(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.leading, 12)

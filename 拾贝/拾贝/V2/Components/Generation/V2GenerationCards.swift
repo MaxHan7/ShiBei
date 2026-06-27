@@ -130,6 +130,8 @@ private struct V2GeneratingClockBadge: View {
 }
 
 private struct V2GeneratingSourceLinkChip: View {
+    private static let width: CGFloat = 132
+
     var accent: Color = Color(hex: 0xADD3FF)
     let action: () -> Void
 
@@ -154,10 +156,11 @@ private struct V2GeneratingSourceLinkChip: View {
                     .font(V2Typography.labelRegular)
                     .foregroundStyle(Color(hex: 0x767676))
                     .lineLimit(1)
+                    .layoutPriority(1)
             }
             .padding(.leading, 12)
             .padding(.trailing, 14)
-            .frame(width: 112, alignment: .leading)
+            .frame(width: Self.width, alignment: .leading)
             .frame(minHeight: 44, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -166,7 +169,7 @@ private struct V2GeneratingSourceLinkChip: View {
             )
         }
         .buttonStyle(.plain)
-        .frame(width: 112, height: 44, alignment: .topLeading)
+        .frame(width: Self.width, height: 44, alignment: .topLeading)
         .accessibilityLabel("查看原文")
     }
 }
