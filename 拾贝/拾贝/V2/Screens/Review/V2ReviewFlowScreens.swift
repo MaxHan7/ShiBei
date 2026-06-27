@@ -930,13 +930,10 @@ private struct V2SourceArticleHeader: View {
                 V2ChapterDetailHeroInfoChip(
                     title: author,
                     iconName: "V2ChapterDetailSummaryActionIcon",
-                    width: V2ChapterDetailHeroActionContent.width(
-                        for: author,
-                        minWidth: V2ChapterDetailLayoutMetrics.heroInfoChipMinWidth,
-                        maxWidth: V2ChapterDetailLayoutMetrics.heroInfoChipMaxWidth
-                    )
+                    width: V2ChapterDetailLayoutMetrics.heroAuthorChipWidth
                 )
             }
+            .frame(width: V2ChapterDetailLayoutMetrics.heroMetadataRowWidth, alignment: .leading)
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
     }
@@ -1123,13 +1120,12 @@ private enum V2ChapterDetailLayoutMetrics {
     static let heroMetadataY: CGFloat = 123
     static let heroMetadataSpacing: CGFloat = V2Spacing.md
     static let heroSourceChipWidth: CGFloat = 132
-    static let heroInfoChipMinWidth: CGFloat = 112
-    static let heroInfoChipMaxWidth: CGFloat = 145
     static let heroPrimaryActionX: CGFloat = heroMetadataX
     static let heroPrimaryActionY: CGFloat = 184
     static let heroPrimaryActionWidth: CGFloat = V2Layout.contentMaxWidth - 50
     static let heroPrimaryActionHeight: CGFloat = 42
-    static let heroAuthorChipWidth: CGFloat = heroPrimaryActionWidth - heroSourceChipWidth - heroMetadataSpacing
+    static let heroMetadataRowWidth: CGFloat = heroPrimaryActionWidth
+    static let heroAuthorChipWidth: CGFloat = heroMetadataRowWidth - heroSourceChipWidth - heroMetadataSpacing
 
     static let cardContentLeading: CGFloat = V2Spacing.lg
     static let sectionHeaderTopPadding: CGFloat = V2Spacing.md
@@ -1214,7 +1210,7 @@ private struct V2ChapterDetailHeroCard: View {
                     width: V2ChapterDetailLayoutMetrics.heroAuthorChipWidth
                 )
             }
-            .frame(width: V2ChapterDetailLayoutMetrics.heroPrimaryActionWidth, alignment: .leading)
+            .frame(width: V2ChapterDetailLayoutMetrics.heroMetadataRowWidth, alignment: .leading)
             .offset(
                 x: V2ChapterDetailLayoutMetrics.heroMetadataX,
                 y: V2ChapterDetailLayoutMetrics.heroMetadataY
@@ -1298,20 +1294,16 @@ private struct V2ChapterDetailHeroActionContent: View {
     let iconName: String
     let width: CGFloat
 
-    static func width(for title: String, minWidth: CGFloat, maxWidth: CGFloat) -> CGFloat {
-        let font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        let textWidth = ceil((title as NSString).size(withAttributes: [.font: font]).width)
-        let desiredWidth = 12 + 34 + 8 + textWidth + 14
-        return min(max(desiredWidth, minWidth), maxWidth)
-    }
-
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: V2ChapterDetailHeroChipMetrics.contentSpacing) {
             Image(iconName)
                 .resizable()
                 .renderingMode(.original)
                 .scaledToFit()
-                .frame(width: 34, height: 34)
+                .frame(
+                    width: V2ChapterDetailHeroChipMetrics.iconSize,
+                    height: V2ChapterDetailHeroChipMetrics.iconSize
+                )
 
             Text(title)
                 .font(V2ChapterDetailTextMetrics.heroChipFont)
@@ -1321,16 +1313,25 @@ private struct V2ChapterDetailHeroActionContent: View {
                 .layoutPriority(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.leading, 12)
-        .padding(.trailing, 14)
+        .padding(.leading, V2ChapterDetailHeroChipMetrics.leadingPadding)
+        .padding(.trailing, V2ChapterDetailHeroChipMetrics.trailingPadding)
         .frame(width: width, alignment: .leading)
-        .frame(minHeight: 44, alignment: .leading)
+        .frame(minHeight: V2ChapterDetailHeroChipMetrics.height, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: V2ChapterDetailHeroChipMetrics.cornerRadius, style: .continuous)
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
         )
     }
+}
+
+private enum V2ChapterDetailHeroChipMetrics {
+    static let height: CGFloat = 44
+    static let iconSize: CGFloat = height - 10
+    static let contentSpacing: CGFloat = V2Spacing.sm
+    static let leadingPadding: CGFloat = V2Spacing.md - V2Spacing.xs
+    static let trailingPadding: CGFloat = V2Spacing.md - V2Spacing.xs / 2
+    static let cornerRadius: CGFloat = V2Radius.small
 }
 
 private struct V2ChapterDetailSummaryCard: View {
