@@ -203,8 +203,9 @@ struct V2MatchingOptionCard: View {
                     .foregroundStyle(textColor)
                     .multilineTextAlignment(.center)
                     .lineSpacing(3)
-                    .lineLimit(3, reservesSpace: true)
-                    .frame(width: 112, height: 61, alignment: .center)
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(width: 112, alignment: .center)
             }
             .frame(width: 140, height: 90)
         }
