@@ -10,9 +10,7 @@ struct V2RootView: View {
 
     @State private var selectedTab: V2HomeTab = .learning
     @State private var routeStore = V2RouteStore()
-    @State private var showsGenerationStartedDialog = false
     @State private var showsDeleteChapterConfirmation = false
-    @State private var showsGeneratingChapterCard = false
     @State private var questionInteractionStates: [String: V2QuestionInteractionState] = [:]
     @State private var backendChapters: [V2BackendChapter] = []
     @State private var backendChapter: V2BackendChapter?
@@ -21,10 +19,8 @@ struct V2RootView: View {
     @State private var backendNotifications: [NotificationItem] = []
     @State private var backendFavoriteQuestions: [FavoriteQuestionRecord] = []
     @State private var generationPollingTask: Task<Void, Never>?
-    @State private var generationErrorText = ""
-    @State private var isSubmittingGeneration = false
     @State private var hasLoadedInitialBackendChapter = false
-    @State private var pendingOriginalSourceURLString = ""
+    @State private var generationState = V2GenerationState()
 
     private let apiClient: APIClient
     private let allowsMockDataToggle: Bool
@@ -51,7 +47,7 @@ struct V2RootView: View {
             currentView
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
-            if showsGenerationStartedDialog {
+            if generationState.showsStartedDialog {
                 Color.black
                     .opacity(0.2)
                     .ignoresSafeArea()
@@ -98,7 +94,7 @@ struct V2RootView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .shiBeiDidFailRemoteNotificationRegistration)) { notification in
             let message = notification.userInfo?["message"] as? String ?? "无法注册系统通知"
-            generationErrorText = message
+            generationState.errorText = message
         }
     }
 
@@ -130,7 +126,7 @@ struct V2RootView: View {
                 usesMockData: usesFixtures,
                 backendChapters: backendChapters,
                 generatedChapterCount: generatedChapterCount,
-                showsGeneratingChapterCard: showsGeneratingChapterCard,
+                showsGeneratingChapterCard: generationState.showsChapterCard,
                 generatingChapterTitle: backendChapter?.title ?? "正在生成新的章节",
                 generatingChapterStatus: isActiveGenerationFailed ? .failed : .generating,
                 generatingProgressText: generationDisplayText,
@@ -141,7 +137,7 @@ struct V2RootView: View {
         case .upload:
             V2UploadView(
                 selectedTab: $selectedTab,
-                isSubmittingGeneration: isSubmittingGeneration,
+                isSubmittingGeneration: generationState.isSubmitting,
                 onGenerate: startV2Generation
             )
         case .discover:
@@ -869,8 +865,8 @@ struct V2RootView: View {
     }
 
     private var generationDisplayText: String {
-        if !generationErrorText.isEmpty {
-            return generationErrorText
+        if !generationState.errorText.isEmpty {
+            return generationState.errorText
         }
         return backendChapter?.progress?.displayTextOrFallback ?? "正在提交生成任务..."
     }
@@ -885,7 +881,7 @@ struct V2RootView: View {
     private var activeGenerationFailureReason: String {
         let reason = backendChapter?.failureReason
             ?? backendChapter?.progress?.failureMessage
-            ?? generationErrorText
+            ?? generationState.errorText
         guard !reason.isEmpty else {
             return "生成失败，请删除后重新上传。"
         }
@@ -912,7 +908,7 @@ struct V2RootView: View {
     }
 
     private var originalSourceURLString: String {
-        backendChapter?.source?.url ?? activeChapter?.sourceURL ?? pendingOriginalSourceURLString
+        backendChapter?.source?.url ?? activeChapter?.sourceURL ?? generationState.pendingOriginalSourceURLString
     }
 
     private func unitDisplayTitle(id: String) -> String? {
@@ -980,19 +976,17 @@ struct V2RootView: View {
 
         selectedTab = .materials
         routeStore.reset(to: .generatingChapterDetail)
-        showsGeneratingChapterCard = false
         backendChapter = nil
         backendReviewChapter = nil
         v2ReviewSession = nil
         questionInteractionStates.removeAll()
-        generationErrorText = ""
-        pendingOriginalSourceURLString = URL(string: trimmed)?.scheme?.hasPrefix("http") == true ? trimmed : ""
-        isSubmittingGeneration = true
+        let originalSourceURLString = URL(string: trimmed)?.scheme?.hasPrefix("http") == true ? trimmed : ""
+        generationState.prepareForSubmission(originalSourceURLString: originalSourceURLString)
         generationPollingTask?.cancel()
         let clientRequestId = "ios-v2-\(UUID().uuidString)"
 
         withAnimation(.easeOut(duration: 0.18)) {
-            showsGenerationStartedDialog = true
+            generationState.showsStartedDialog = true
         }
 
         Task {
@@ -1002,15 +996,13 @@ struct V2RootView: View {
                     clientRequestId: clientRequestId
                 )
                 await MainActor.run {
-                    isSubmittingGeneration = false
+                    generationState.finishSubmitting()
                     applyBackendChapter(response.chapter)
                 }
                 startGenerationPolling(chapterID: response.chapter.id)
             } catch {
                 await MainActor.run {
-                    isSubmittingGeneration = false
-                    generationErrorText = error.localizedDescription
-                    showsGeneratingChapterCard = true
+                    generationState.markError(error.localizedDescription)
                 }
             }
         }
@@ -1038,7 +1030,7 @@ struct V2RootView: View {
                     }
                 } catch {
                     await MainActor.run {
-                        generationErrorText = error.localizedDescription
+                        generationState.errorText = error.localizedDescription
                     }
                 }
 
@@ -1070,7 +1062,7 @@ struct V2RootView: View {
                 startGenerationPolling(chapterID: latestChapter.id)
             }
         } catch {
-            generationErrorText = error.localizedDescription
+            generationState.errorText = error.localizedDescription
         }
     }
 
@@ -1079,7 +1071,7 @@ struct V2RootView: View {
         backendChapter = chapter
         upsertBackendChapter(chapter)
         if previousChapterID != chapter.id {
-            generationErrorText = ""
+            generationState.clearError()
             backendReviewChapter = nil
             v2ReviewSession = nil
         }
@@ -1091,13 +1083,13 @@ struct V2RootView: View {
             hydrateLocalQuestionStates(from: session)
         }
         if chapter.progress?.status == "completed" || chapter.status == "completed" {
-            showsGeneratingChapterCard = false
-            isSubmittingGeneration = false
-            generationErrorText = ""
+            generationState.showsChapterCard = false
+            generationState.finishSubmitting()
+            generationState.clearError()
         } else if isFailedGenerationStatus(chapter.status) || chapter.progress?.status == "failed" {
-            showsGeneratingChapterCard = true
-            isSubmittingGeneration = false
-            generationErrorText = ""
+            generationState.showsChapterCard = true
+            generationState.finishSubmitting()
+            generationState.clearError()
         }
     }
 
@@ -1135,21 +1127,19 @@ struct V2RootView: View {
             backendChapter = backendChapters.first
             backendReviewChapter = backendChapter?.toReviewChapterData()
             v2ReviewSession = backendChapter?.v2ReviewSession
-            showsGeneratingChapterCard = false
-            isSubmittingGeneration = false
-            generationErrorText = ""
+            generationState.resetAfterDelete()
             resetToHome(tab: .materials)
         } catch {
-            generationErrorText = error.localizedDescription
+            generationState.errorText = error.localizedDescription
         }
     }
 
     private func showGeneratedChapterDetail() {
         selectedTab = .materials
         routeStore.reset(to: .generatingChapterDetail)
-        showsGeneratingChapterCard = false
+        generationState.showsChapterCard = false
         withAnimation(.easeOut(duration: 0.18)) {
-            showsGenerationStartedDialog = true
+            generationState.showsStartedDialog = true
         }
     }
 
@@ -1160,12 +1150,12 @@ struct V2RootView: View {
         }
 
         withAnimation(.easeOut(duration: 0.16)) {
-            showsGenerationStartedDialog = false
+            generationState.showsStartedDialog = false
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
             withAnimation(.spring(response: 0.42, dampingFraction: 0.86)) {
-                showsGeneratingChapterCard = true
+                generationState.showsChapterCard = true
             }
         }
 
@@ -1208,7 +1198,7 @@ struct V2RootView: View {
             )
         } catch {
             await MainActor.run {
-                generationErrorText = error.localizedDescription
+                generationState.errorText = error.localizedDescription
             }
         }
     }
@@ -1267,7 +1257,7 @@ struct V2RootView: View {
                 backendNotifications[index] = updated
             }
         } catch {
-            generationErrorText = error.localizedDescription
+            generationState.errorText = error.localizedDescription
         }
     }
 
@@ -1281,7 +1271,7 @@ struct V2RootView: View {
             }
         } catch {
             await MainActor.run {
-                generationErrorText = error.localizedDescription
+                generationState.errorText = error.localizedDescription
             }
         }
     }
@@ -1373,7 +1363,7 @@ struct V2RootView: View {
             routeStore.clearStack()
             replaceRoute(route(for: response.reviewSession?.currentCard) ?? .unitOverview(unitID: activeFirstUnitID))
         } catch {
-            generationErrorText = error.localizedDescription
+            generationState.errorText = error.localizedDescription
             openFirstUnit()
         }
     }
@@ -1399,7 +1389,7 @@ struct V2RootView: View {
 
             routeToReviewCard(route(for: response.reviewSession?.currentCard) ?? fallback)
         } catch {
-            generationErrorText = error.localizedDescription
+            generationState.errorText = error.localizedDescription
             routeToReviewCard(fallback)
         }
     }
@@ -1436,7 +1426,7 @@ struct V2RootView: View {
                 return
             }
         } catch {
-            generationErrorText = error.localizedDescription
+            generationState.errorText = error.localizedDescription
         }
 
         advanceLocalAfterQuestion(unitID: unitID, questionID: questionID)
@@ -1650,7 +1640,7 @@ struct V2RootView: View {
                 } catch {
                     await MainActor.run {
                         backendFavoriteQuestions = previous
-                        generationErrorText = error.localizedDescription
+                        generationState.errorText = error.localizedDescription
                     }
                 }
             }
@@ -1666,7 +1656,7 @@ struct V2RootView: View {
                 } catch {
                     await MainActor.run {
                         backendFavoriteQuestions = previous
-                        generationErrorText = error.localizedDescription
+                        generationState.errorText = error.localizedDescription
                     }
                 }
             }
@@ -1716,7 +1706,7 @@ struct V2RootView: View {
             let response = try await apiClient.openV2SourceFromReview(sessionId: session.id, sourceAnchorId: sourceAnchorId)
             applyV2ReviewSessionResponse(response)
         } catch {
-            generationErrorText = error.localizedDescription
+            generationState.errorText = error.localizedDescription
         }
     }
 
@@ -1730,7 +1720,7 @@ struct V2RootView: View {
             let response = try await apiClient.returnFromV2SourceToReview(sessionId: session.id)
             applyV2ReviewSessionResponse(response)
         } catch {
-            generationErrorText = error.localizedDescription
+            generationState.errorText = error.localizedDescription
         }
     }
 }
