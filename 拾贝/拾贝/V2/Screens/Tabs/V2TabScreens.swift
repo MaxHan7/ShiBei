@@ -1018,8 +1018,8 @@ private struct V2NotificationFailureSourceButton: View {
                 }
                 .frame(width: 34, height: 34)
 
-                Text("原文链接")
-                    .font(V2Typography.caption)
+                Text("查看原文")
+                    .font(V2Typography.labelRegular)
                     .foregroundStyle(Color(hex: 0x767676))
                     .lineLimit(1)
             }
@@ -1035,7 +1035,7 @@ private struct V2NotificationFailureSourceButton: View {
             .frame(width: 112, height: 44, alignment: .topLeading)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("打开原文链接")
+        .accessibilityLabel("查看原文")
     }
 }
 

@@ -150,8 +150,8 @@ private struct V2GeneratingSourceLinkChip: View {
                 }
                 .frame(width: 34, height: 34)
 
-                Text("原文链接")
-                    .font(V2Typography.caption)
+                Text("查看原文")
+                    .font(V2Typography.labelRegular)
                     .foregroundStyle(Color(hex: 0x767676))
                     .lineLimit(1)
             }

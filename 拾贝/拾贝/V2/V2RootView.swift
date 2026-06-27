@@ -2,7 +2,6 @@ import SwiftUI
 import UserNotifications
 
 struct V2RootView: View {
-    @Environment(\.openURL) private var openURL
     @AppStorage("v2.hasRequestedGenerationNotificationPermission")
     private var hasRequestedGenerationNotificationPermission = false
     @AppStorage("v2.usesMockData")
@@ -181,7 +180,7 @@ struct V2RootView: View {
                 title: "章节详情",
                 failureReason: activeGenerationFailureReason,
                 onBack: goBack,
-                onSource: openOriginalSourceLink,
+                onSource: openSource,
                 onDelete: { showsDeleteChapterConfirmation = true }
             )
         case .profile:
@@ -198,7 +197,7 @@ struct V2RootView: View {
                     title: "章节详情",
                     failureReason: activeGenerationFailureReason,
                     onBack: goBack,
-                    onSource: openOriginalSourceLink,
+                    onSource: openSource,
                     onDelete: { showsDeleteChapterConfirmation = true }
                 )
                 .id("generating-detail-failed")
@@ -208,7 +207,7 @@ struct V2RootView: View {
                     statusText: generationDisplayText,
                     isCompleted: backendChapter?.toReviewChapterData() != nil,
                     onBack: goBack,
-                    onSource: openOriginalSourceLink,
+                    onSource: openSource,
                     onOpenChapter: { replaceRoute(.chapterDetail) },
                     onDelete: { showsDeleteChapterConfirmation = true }
                 )
@@ -221,7 +220,7 @@ struct V2RootView: View {
                     primaryActionTitle: chapterDetailPrimaryActionTitle,
                     onBack: goBack,
                     onContinue: continueFromChapterDetail,
-                    onSource: openOriginalSourceLink,
+                    onSource: openSource,
                     onDelete: { showsDeleteChapterConfirmation = true }
                 )
             } else {
@@ -945,10 +944,6 @@ struct V2RootView: View {
         activeUnit(id: unitID)?.questions.first { $0.id == questionID }
     }
 
-    private var originalSourceURLString: String {
-        backendChapter?.source?.url ?? activeChapter?.sourceURL ?? generationState.pendingOriginalSourceURLString
-    }
-
     private func unitDisplayTitle(id: String) -> String? {
         guard let activeChapter,
               let index = activeChapter.units.firstIndex(where: { $0.id == id }) else {
@@ -1329,13 +1324,6 @@ struct V2RootView: View {
             }
         }
         pushRoute(.sourceArticle)
-    }
-
-    private func openOriginalSourceLink() {
-        guard let url = URL(string: originalSourceURLString), !originalSourceURLString.isEmpty else {
-            return
-        }
-        openURL(url)
     }
 
     private func pushRoute(_ nextRoute: V2AppRoute) {
