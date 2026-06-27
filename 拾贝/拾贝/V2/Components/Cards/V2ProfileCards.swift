@@ -140,7 +140,7 @@ private struct V2ProfileAvatarPicker: View {
     }
 
     private var effectivePresetAvatarName: String {
-        selectedPresetAvatarName.isEmpty ? V2ProfilePresetAvatar.defaultAssetName : selectedPresetAvatarName
+        V2ProfilePresetAvatar.validAssetName(for: selectedPresetAvatarName)
     }
 
     private var selectedAvatarImage: UIImage? {
@@ -237,11 +237,11 @@ private struct V2ProfileAvatarSelectionSheet: View {
         .padding(.top, V2ProfileAvatarMetrics.sheetTopPadding)
         .padding(.bottom, V2ProfileAvatarMetrics.sheetBottomPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(V2Color.pageGreenBackground.ignoresSafeArea())
+        .background(V2ProfileAvatarMetrics.sheetBackground.ignoresSafeArea())
     }
 
     private var effectivePresetAvatarName: String {
-        selectedPresetAvatarName.isEmpty ? V2ProfilePresetAvatar.defaultAssetName : selectedPresetAvatarName
+        V2ProfilePresetAvatar.validAssetName(for: selectedPresetAvatarName)
     }
 }
 
@@ -277,24 +277,24 @@ private struct V2ProfilePresetAvatar: Identifiable, CaseIterable {
     let title: String
     let assetName: String
 
-    static let defaultAssetName = "V2MascotStatic"
+    static let defaultAssetName = "V2ProfileAvatarPreset01"
 
     static let allCases: [V2ProfilePresetAvatar] = [
-        .init(id: "static", title: "阅读", assetName: "V2MascotStatic"),
-        .init(id: "discover", title: "发现", assetName: "V2DiscoverHeroMascot"),
-        .init(id: "materials", title: "章节", assetName: "V2MaterialsMascot"),
-        .init(id: "notes", title: "笔记", assetName: "V2NotesMascot"),
-        .init(id: "notification", title: "通知", assetName: "V2NotificationMascot"),
-        .init(id: "chapterDetail", title: "详情", assetName: "V2ChapterDetailMascot"),
-        .init(id: "unitOverview", title: "知识点", assetName: "V2UnitOverviewMascot"),
-        .init(id: "matching", title: "练习", assetName: "V2MatchingMascot"),
-        .init(id: "generating", title: "生成中", assetName: "V2GeneratingChapterMascot"),
-        .init(id: "failed", title: "生成失败", assetName: "V2NotificationFailureDetailMascot"),
-        .init(id: "unitComplete", title: "单元完成", assetName: "V2MascotCompletion"),
-        .init(id: "chapterComplete", title: "章节完成", assetName: "V2ChapterCompletionMascot"),
-        .init(id: "splash", title: "启动", assetName: "V2SplashMascot"),
-        .init(id: "popup", title: "提醒", assetName: "V2GeneratingPopupMascot")
+        .init(id: "calm", title: "默认", assetName: "V2ProfileAvatarPreset01"),
+        .init(id: "working", title: "生成", assetName: "V2ProfileAvatarPreset02"),
+        .init(id: "reading", title: "阅读", assetName: "V2ProfileAvatarPreset03"),
+        .init(id: "failed", title: "提醒", assetName: "V2ProfileAvatarPreset04"),
+        .init(id: "article", title: "文章", assetName: "V2ProfileAvatarPreset05"),
+        .init(id: "notes", title: "笔记", assetName: "V2ProfileAvatarPreset06"),
+        .init(id: "book", title: "复习", assetName: "V2ProfileAvatarPreset07")
     ]
+
+    static func validAssetName(for storedAssetName: String) -> String {
+        guard allCases.contains(where: { $0.assetName == storedAssetName }) else {
+            return defaultAssetName
+        }
+        return storedAssetName
+    }
 }
 
 private enum V2ProfileAvatarMetrics {
@@ -302,15 +302,16 @@ private enum V2ProfileAvatarMetrics {
     static let defaultMascotSize: CGFloat = 78
     static let badgeSize: CGFloat = 24
     static let storedPixelSize: CGFloat = 320
-    static let avatarPadding: CGFloat = 4
+    static let avatarPadding: CGFloat = 0
     static let backgroundColor = Color(hex: 0xEEF0C7)
+    static let sheetBackground = V2Color.surfaceCream
     static let sheetHorizontalPadding: CGFloat = 24
     static let sheetTopPadding: CGFloat = 22
     static let sheetBottomPadding: CGFloat = 24
     static let sheetSectionSpacing: CGFloat = 18
     static let presetCellSize: CGFloat = 58
     static let presetGridSpacing: CGFloat = 14
-    static let presetAvatarPadding: CGFloat = 8
+    static let presetAvatarPadding: CGFloat = 0
     static let selectedRingWidth: CGFloat = 2
     static let photoPickerHeight: CGFloat = 50
     static let presetGridColumns = Array(
@@ -522,7 +523,7 @@ private struct V2ProfileSettingsSheetView: View {
         .padding(.top, V2ProfileSettingsSheetMetrics.topPadding)
         .padding(.bottom, V2ProfileSettingsSheetMetrics.bottomPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(V2Color.pageGreenBackground.ignoresSafeArea())
+        .background(V2ProfileSettingsSheetMetrics.sheetBackground.ignoresSafeArea())
     }
 }
 
@@ -693,6 +694,7 @@ private struct V2ProfileNotificationPermissionPanel: View {
 }
 
 private enum V2ProfileSettingsSheetMetrics {
+    static let sheetBackground = V2Color.surfaceCream
     static let horizontalPadding: CGFloat = V2Spacing.lg
     static let topPadding: CGFloat = 22
     static let bottomPadding: CGFloat = V2Spacing.lg
