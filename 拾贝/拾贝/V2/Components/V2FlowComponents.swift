@@ -120,6 +120,7 @@ struct V2FlowScreen<Content: View>: View {
     let title: String
     var titleFont: Font = V2Typography.pageTitle
     var titleColor: Color = V2Color.topTitle
+    var backgroundColor: Color = V2Color.pageGreenBackground
     var showSourceButton: Bool = false
     var showFavoriteButton: Bool = false
     var showDeleteButton: Bool = false
@@ -133,7 +134,7 @@ struct V2FlowScreen<Content: View>: View {
     var body: some View {
         GeometryReader { _ in
             ZStack(alignment: .top) {
-                V2Color.pageGreenBackground
+                backgroundColor
                     .ignoresSafeArea()
 
                 content()

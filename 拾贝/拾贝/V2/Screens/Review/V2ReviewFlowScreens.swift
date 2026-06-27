@@ -1549,7 +1549,7 @@ struct V2RecommendedArticleDetailView: View {
             V2Color.surfaceCream
                 .ignoresSafeArea()
 
-            V2FlowScreen(title: "", onBack: onBack) {
+            V2FlowScreen(title: "", backgroundColor: V2Color.surfaceCream, onBack: onBack) {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 19) {
                         V2SourceArticleHeader(
