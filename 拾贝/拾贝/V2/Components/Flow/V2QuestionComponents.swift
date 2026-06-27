@@ -199,12 +199,11 @@ struct V2MatchingOptionCard: View {
                     .stroke(border, lineWidth: 1.5)
 
                 Text(title)
-                    .font(.system(size: 14, weight: .regular))
+                    .font(V2Typography.bodySmall)
                     .foregroundStyle(textColor)
                     .multilineTextAlignment(.center)
-                    .lineSpacing(4)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.85)
+                    .lineSpacing(3)
+                    .lineLimit(3, reservesSpace: true)
                     .frame(width: 112, height: 61, alignment: .center)
             }
             .frame(width: 140, height: 90)
