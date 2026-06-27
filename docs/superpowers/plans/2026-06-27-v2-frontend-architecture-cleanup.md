@@ -90,8 +90,10 @@
 
 **Files:**
 - Split from `拾贝/拾贝/V2/Components/V2FlowComponents.swift` into:
-  - `拾贝/拾贝/V2/Components/Flow/V2FlowScaffold.swift`
+  - `拾贝/拾贝/V2/Components/V2FlowComponents.swift` for shared flow scaffold, top chrome, primary actions, and progress bar
   - `拾贝/拾贝/V2/Components/Flow/V2QuestionComponents.swift`
+  - `拾贝/拾贝/V2/Components/Flow/V2UnitOverviewComponents.swift`
+  - `拾贝/拾贝/V2/Components/Cards/V2BaseCardComponents.swift`
   - `拾贝/拾贝/V2/Components/Generation/V2GenerationCards.swift`
   - `拾贝/拾贝/V2/Components/Notifications/V2NotificationComponents.swift`
   - `拾贝/拾贝/V2/Components/Cards/V2ChapterCards.swift`
@@ -99,9 +101,9 @@
   - `拾贝/拾贝/V2/Components/Cards/V2NotesCards.swift`
   - `拾贝/拾贝/V2/Components/Cards/V2ProfileCards.swift`
 
-- [ ] Move code without behavior changes.
-- [ ] Build after each moved group.
-- [ ] Commit: `refactor: split v2 flow components`.
+- [x] Move code without behavior changes.
+- [x] Build after moved groups.
+- [x] Commit: `refactor: split v2 flow components`.
 
 ## Guardrails
 
