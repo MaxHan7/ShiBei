@@ -484,24 +484,10 @@ private enum V2UploadInputCardMetrics {
 
 struct V2DiscoverView: View {
     @Binding var selectedTab: V2HomeTab
+    let filters: [V2RecommendedArticleFilter]
+    let articles: [V2RecommendedArticleItem]
     let openArticle: () -> Void
     @State private var selectedFilter = V2RecommendedArticleFilter.all
-
-    private let filters: [V2RecommendedArticleFilter] = [.all, .tag("AI"), .tag("产品"), .tag("金融")]
-    private let articles: [V2RecommendedArticleItem] = [
-        V2RecommendedArticleItem(
-            id: "anthropic-ai-agents-product",
-            title: "Anthropic 设计总监：为何您的整个团队都应该使用 AI Agents 协同工作",
-            source: "微信公众号",
-            tags: ["AI", "产品"]
-        ),
-        V2RecommendedArticleItem(
-            id: "dmc-gamified-learning",
-            title: "DMC 模型如何影响游戏化学习体验",
-            source: "推荐阅读",
-            tags: ["AI", "学习"]
-        )
-    ]
 
     private var filteredArticles: [V2RecommendedArticleItem] {
         switch selectedFilter {
@@ -546,7 +532,7 @@ struct V2DiscoverView: View {
     }
 }
 
-private enum V2RecommendedArticleFilter: Identifiable, Equatable {
+enum V2RecommendedArticleFilter: Identifiable, Equatable {
     case all
     case tag(String)
 
@@ -564,7 +550,7 @@ private enum V2RecommendedArticleFilter: Identifiable, Equatable {
     }
 }
 
-private struct V2RecommendedArticleItem: Identifiable, Equatable {
+struct V2RecommendedArticleItem: Identifiable, Equatable {
     let id: String
     let title: String
     let source: String

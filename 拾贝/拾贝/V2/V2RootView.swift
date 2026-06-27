@@ -146,7 +146,11 @@ struct V2RootView: View {
                 onGenerate: startV2Generation
             )
         case .discover:
-            V2DiscoverView(selectedTab: $selectedTab) {
+            V2DiscoverView(
+                selectedTab: $selectedTab,
+                filters: V2DemoContentProvider.recommendedArticleFilters,
+                articles: V2DemoContentProvider.recommendedArticles
+            ) {
                 pushRoute(.recommendedArticle)
             }
         case .notes:
