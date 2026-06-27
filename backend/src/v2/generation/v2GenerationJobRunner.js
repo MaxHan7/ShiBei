@@ -319,12 +319,13 @@ function buildSourceExtractionFailureResult(job = {}, error) {
   const message = error instanceof Error
     ? error.message
     : "原文提取失败，请检查链接后重试。";
+  const userFacingMessage = userFacingSourceExtractionFailure(message);
   const failureCode = error?.code || error?.status || "failed_extract_article";
   return {
     status: "failed_generation",
     displayStatusText: "原文提取失败",
     failedStage: "source_extraction",
-    failureReason: message,
+    failureReason: userFacingMessage,
     retryable: false,
     canRetry: false,
     retryDelayMs: 0,
@@ -335,9 +336,26 @@ function buildSourceExtractionFailureResult(job = {}, error) {
       stage: V2_GENERATION_STAGE.FAILED,
       canRetry: false,
       failureCode,
-      failureMessage: message
+      failureMessage: userFacingMessage
     })
   };
+}
+
+function userFacingSourceExtractionFailure(message = "") {
+  const normalized = String(message || "").toLowerCase();
+  if (normalized.includes("timeout") || message.includes("超时")) {
+    return "原文链接访问超时，请稍后重试。";
+  }
+  if (message.includes("HTTP 403") || message.includes("HTTP 401")) {
+    return "这个链接暂时无法公开访问。可以换一个链接，或稍后重试。";
+  }
+  if (message.includes("HTTP 404")) {
+    return "没有找到这篇文章。可以检查链接是否正确。";
+  }
+  if (message.includes("正文太短") || message.includes("原文为空") || normalized.includes("empty")) {
+    return "没有提取到可用于生成的正文。可以检查原文链接，或稍后重试。";
+  }
+  return "原文提取失败，请检查链接后重试。";
 }
 
 function shouldRetryQueuedV2Job(job = {}, result = {}) {

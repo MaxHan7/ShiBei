@@ -52,7 +52,7 @@ test("classifies contract validation as a non-retryable internal failure", () =>
 
   assert.equal(failure.code, V2_GENERATION_FAILURE_CODE.CONTRACT_VALIDATION_FAILED);
   assert.equal(failure.failedStage, "contract_validation");
-  assert.equal(failure.failureReason, "payload.units must not be empty");
+  assert.equal(failure.failureReason, "内容生成时遇到结构处理异常。可以删除章节后重新生成。");
   assert.equal(failure.retryable, false);
   assert.equal(failure.canRetry, false);
 });

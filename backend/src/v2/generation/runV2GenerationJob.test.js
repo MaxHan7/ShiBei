@@ -92,7 +92,7 @@ test("maps missing API key errors to a non-retryable configuration failure", asy
   assert.equal(result.canRetry, false);
   assert.equal(result.generationProgress.failureCode, "missing_api_key");
   assert.equal(result.generationProgress.canRetry, false);
-  assert.match(result.failureReason, /API Key/);
+  assert.equal(result.failureReason, "生成服务暂时不可用，请稍后再试。");
 });
 
 test("maps quality discard to non-completed generation failure", async () => {
@@ -114,7 +114,7 @@ test("maps quality discard to non-completed generation failure", async () => {
   assert.equal(result.canRetry, true);
   assert.equal(result.generationProgress.failureCode, "quality_failed");
   assert.equal(result.generationProgress.canRetry, true);
-  assert.match(result.failureReason, /答案缺少来源支撑/);
+  assert.equal(result.failureReason, "这篇内容暂时没有生成出足够适合复习的题目。可以稍后重新生成。");
 });
 
 test("maps contract validation errors to non-retryable generation failure", async () => {
@@ -135,7 +135,7 @@ test("maps contract validation errors to non-retryable generation failure", asyn
   assert.equal(result.retryable, false);
   assert.equal(result.canRetry, false);
   assert.equal(result.generationProgress.failureCode, "contract_validation_failed");
-  assert.match(result.failureReason, /payload.units/);
+  assert.equal(result.failureReason, "内容生成时遇到结构处理异常。可以删除章节后重新生成。");
 });
 
 test("preserves model prompt stage when JSON generation fails", async () => {

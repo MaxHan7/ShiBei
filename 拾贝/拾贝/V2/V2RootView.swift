@@ -894,6 +894,35 @@ struct V2RootView: View {
         guard !reason.isEmpty else {
             return "生成失败，请删除后重新上传。"
         }
+        return userFacingGenerationFailureReason(reason)
+    }
+
+    private func userFacingGenerationFailureReason(_ reason: String) -> String {
+        let lowercasedReason = reason.lowercased()
+        let internalMarkers = [
+            "payload.",
+            "sourceanchor",
+            "blockids",
+            "schema",
+            "json",
+            "contract",
+            "playwright",
+            "api key",
+            "openai_api_key",
+            "deepseek_api_key"
+        ]
+        if internalMarkers.contains(where: { lowercasedReason.contains($0) }) {
+            return "生成时遇到结构处理异常。可以删除章节后重新生成。"
+        }
+        if lowercasedReason.contains("timeout") || reason.contains("超时") {
+            return "生成服务响应超时，请稍后重试。"
+        }
+        if reason.contains("HTTP 403") || reason.contains("HTTP 401") {
+            return "这个链接暂时无法公开访问。可以换一个链接，或稍后重试。"
+        }
+        if reason.contains("HTTP 404") {
+            return "没有找到这篇文章。可以检查链接是否正确。"
+        }
         return reason
     }
 

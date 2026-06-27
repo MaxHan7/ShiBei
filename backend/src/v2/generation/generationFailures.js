@@ -24,7 +24,7 @@ export function classifyV2GenerationFailure(error) {
       code: V2_GENERATION_FAILURE_CODE.INPUT_TOO_LONG,
       status: "failed_input",
       failedStage: "input_validation",
-      failureReason: message,
+      failureReason: "这篇文章内容太长，暂时无法生成。可以换一篇短一些的文章，或稍后再试。",
       retryable: false,
       canRetry: false,
       displayStatusText: "文章太长"
@@ -36,7 +36,7 @@ export function classifyV2GenerationFailure(error) {
       code: V2_GENERATION_FAILURE_CODE.EMPTY_ARTICLE_TEXT,
       status: "failed_input",
       failedStage: "input_validation",
-      failureReason: message,
+      failureReason: "没有提取到可用于生成的正文。可以检查原文链接，或稍后重试。",
       retryable: false,
       canRetry: false,
       displayStatusText: "原文为空"
@@ -47,7 +47,7 @@ export function classifyV2GenerationFailure(error) {
     return failureClass({
       code: V2_GENERATION_FAILURE_CODE.MISSING_API_KEY,
       failedStage: "model_calling",
-      failureReason: message,
+      failureReason: "生成服务暂时不可用，请稍后再试。",
       retryable: false,
       canRetry: false,
       displayStatusText: "模型配置缺失"
@@ -59,7 +59,7 @@ export function classifyV2GenerationFailure(error) {
       code: V2_GENERATION_FAILURE_CODE.QUALITY_FAILED,
       status: "failed_quality",
       failedStage: "quality_checking",
-      failureReason: summarizeMessages(error.issues, message),
+      failureReason: "这篇内容暂时没有生成出足够适合复习的题目。可以稍后重新生成。",
       retryable: false,
       canRetry: true,
       displayStatusText: "生成质量未通过"
@@ -70,7 +70,7 @@ export function classifyV2GenerationFailure(error) {
     return failureClass({
       code: V2_GENERATION_FAILURE_CODE.CONTRACT_VALIDATION_FAILED,
       failedStage: "contract_validation",
-      failureReason: summarizeMessages(error.errors, message),
+      failureReason: "内容生成时遇到结构处理异常。可以删除章节后重新生成。",
       retryable: false,
       canRetry: false,
       displayStatusText: "生成结果格式异常"
@@ -81,7 +81,7 @@ export function classifyV2GenerationFailure(error) {
     return failureClass({
       code: V2_GENERATION_FAILURE_CODE.PROVIDER_TIMEOUT,
       failedStage: error?.stage || "model_calling",
-      failureReason: message,
+      failureReason: "生成服务响应超时，请稍后重试。",
       retryable: true,
       canRetry: true,
       displayStatusText: "模型响应超时"
@@ -100,7 +100,7 @@ export function classifyV2GenerationFailure(error) {
     return failureClass({
       code: V2_GENERATION_FAILURE_CODE.STRUCTURED_OUTPUT_FAILED,
       failedStage: error?.stage || "structured_output",
-      failureReason: message,
+      failureReason: "生成服务返回不稳定，请稍后重试。",
       retryable: true,
       canRetry: true,
       displayStatusText: "模型输出格式不稳定"
@@ -111,7 +111,7 @@ export function classifyV2GenerationFailure(error) {
     return failureClass({
       code: V2_GENERATION_FAILURE_CODE.PROVIDER_RATE_LIMITED,
       failedStage: error?.stage || "model_calling",
-      failureReason: message,
+      failureReason: "当前生成请求较多，请稍后重试。",
       retryable: true,
       canRetry: true,
       displayStatusText: "模型服务繁忙"
@@ -128,7 +128,7 @@ export function classifyV2GenerationFailure(error) {
     return failureClass({
       code: V2_GENERATION_FAILURE_CODE.PROVIDER_UNAVAILABLE,
       failedStage: error?.stage || "model_calling",
-      failureReason: message,
+      failureReason: "生成服务暂时不可用，请稍后重试。",
       retryable: true,
       canRetry: true,
       displayStatusText: "模型服务暂时不可用"
@@ -138,7 +138,7 @@ export function classifyV2GenerationFailure(error) {
   return failureClass({
     code: V2_GENERATION_FAILURE_CODE.UNKNOWN,
     failedStage: error?.stage || "generating_questions",
-    failureReason: message,
+    failureReason: "生成过程中遇到临时问题，请稍后重试。",
     retryable: true,
     canRetry: true,
     displayStatusText: "生成失败"
