@@ -29,6 +29,15 @@ struct V2ProfileHeaderCard: View {
                 .lineLimit(1)
                 .offset(x: 127, y: 64)
 
+            Image("V2BgDecoSmallPlantCluster")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 60)
+                .opacity(0.86)
+                .offset(x: 241, y: 170)
+                .allowsHitTesting(false)
+
             HStack(spacing: 13) {
                 V2ProfileStatCard(
                     title: "已复习",
@@ -45,14 +54,6 @@ struct V2ProfileHeaderCard: View {
             }
             .frame(width: V2ProfileHeaderMetrics.statGroupWidth)
             .offset(x: 24, y: 124)
-
-            Image("V2BgDecoSmallPlantCluster")
-                .resizable()
-                .renderingMode(.original)
-                .scaledToFit()
-                .frame(width: 60)
-                .opacity(0.86)
-                .offset(x: 241, y: 170)
         }
         .frame(width: V2ProfileHeaderMetrics.cardWidth, height: V2ProfileHeaderMetrics.cardHeight)
     }
@@ -178,47 +179,55 @@ struct V2ProfileStatCard: View {
     let assetName: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                Image(assetName)
-                    .resizable()
-                    .renderingMode(.original)
-                    .frame(width: 32, height: 32)
-
-                Text(title)
-                    .font(V2Typography.labelRegular)
-                    .foregroundStyle(V2Color.topTitle.opacity(0.72))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.85)
-            }
-
-            HStack(alignment: .lastTextBaseline, spacing: 5) {
-                Text(value)
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(V2Color.textPrimary)
-                    .monospacedDigit()
-
-                Text(unit)
-                    .font(V2Typography.labelRegular)
-                    .foregroundStyle(V2Color.topTitle.opacity(0.72))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-            }
-            .lineLimit(1)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .frame(
-            width: V2ProfileHeaderMetrics.statCardWidth,
-            height: V2ProfileHeaderMetrics.statCardHeight,
-            alignment: .leading
-        )
-        .background(
+        ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
+
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .center, spacing: 8) {
+                    Image(assetName)
+                        .resizable()
+                        .renderingMode(.original)
+                        .frame(width: V2ProfileStatMetrics.iconSize, height: V2ProfileStatMetrics.iconSize)
+
+                    Text(title)
+                        .font(V2Typography.labelRegular)
+                        .foregroundStyle(V2Color.topTitle.opacity(0.72))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                HStack(alignment: .lastTextBaseline, spacing: 5) {
+                    Text(value)
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(V2Color.textPrimary)
+                        .monospacedDigit()
+
+                    Text(unit)
+                        .font(V2Typography.labelRegular)
+                        .foregroundStyle(V2Color.topTitle.opacity(0.72))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(.leading, V2ProfileStatMetrics.contentLeading)
+            .padding(.top, V2ProfileStatMetrics.contentTop)
+        }
+        .frame(
+            width: V2ProfileHeaderMetrics.statCardWidth,
+            height: V2ProfileHeaderMetrics.statCardHeight
         )
     }
+}
+
+private enum V2ProfileStatMetrics {
+    static let contentLeading: CGFloat = 12
+    static let contentTop: CGFloat = 10
+    static let iconSize: CGFloat = 32
 }
 
 struct V2ProfileSettingsCard: View {
