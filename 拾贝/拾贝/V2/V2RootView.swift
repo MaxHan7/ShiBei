@@ -9,8 +9,7 @@ struct V2RootView: View {
     private var usesMockData = false
 
     @State private var selectedTab: V2HomeTab = .learning
-    @State private var route: V2AppRoute?
-    @State private var routeStack: [V2AppRoute] = []
+    @State private var routeStore = V2RouteStore()
     @State private var showsGenerationStartedDialog = false
     @State private var showsDeleteChapterConfirmation = false
     @State private var showsGeneratingChapterCard = false
@@ -105,7 +104,7 @@ struct V2RootView: View {
 
     @ViewBuilder
     private var currentView: some View {
-        if let route {
+        if let route = routeStore.current {
             routeView(route)
         } else {
             tabView
@@ -392,7 +391,7 @@ struct V2RootView: View {
     }
 
     private var sourceQuestion: V2ReviewQuestionData? {
-        reviewQuestion(for: routeStack.last)
+        reviewQuestion(for: routeStore.previous)
     }
 
     private func reviewQuestion(for sourceRoute: V2AppRoute?) -> V2ReviewQuestionData? {
@@ -438,9 +437,8 @@ struct V2RootView: View {
             return
         }
         selectedTab = .notes
-        routeStack.removeAll()
         questionInteractionStates.removeValue(forKey: savedQuestionStateKey(index: index))
-        route = .savedQuestion(index: index)
+        routeStore.reset(to: .savedQuestion(index: index))
     }
 
     private func openBackendSavedQuestion(favoriteID: String) {
@@ -449,9 +447,8 @@ struct V2RootView: View {
             return
         }
         selectedTab = .notes
-        routeStack.removeAll()
         questionInteractionStates.removeValue(forKey: backendSavedQuestionStateKey(questionID: savedQuestion.questionID))
-        route = .savedBackendQuestion(item: savedQuestion)
+        routeStore.reset(to: .savedBackendQuestion(item: savedQuestion))
     }
 
     private func openGeneratingChapter(id: String?) {
@@ -721,7 +718,7 @@ struct V2RootView: View {
 
         let currentNodeID = V2HomeFixture.home.currentNodeID
         selectedTab = .learning
-        routeStack.removeAll()
+        routeStore.clearStack()
         if activeUnit(id: currentNodeID) != nil {
             replaceRoute(.unitOverview(unitID: currentNodeID))
         } else {
@@ -982,8 +979,7 @@ struct V2RootView: View {
         }
 
         selectedTab = .materials
-        routeStack.removeAll()
-        route = .generatingChapterDetail
+        routeStore.reset(to: .generatingChapterDetail)
         showsGeneratingChapterCard = false
         backendChapter = nil
         backendReviewChapter = nil
@@ -1150,8 +1146,7 @@ struct V2RootView: View {
 
     private func showGeneratedChapterDetail() {
         selectedTab = .materials
-        routeStack.removeAll()
-        route = .generatingChapterDetail
+        routeStore.reset(to: .generatingChapterDetail)
         showsGeneratingChapterCard = false
         withAnimation(.easeOut(duration: 0.18)) {
             showsGenerationStartedDialog = true
@@ -1296,7 +1291,7 @@ struct V2RootView: View {
             return
         }
 
-        let sourceAnchorId = reviewQuestion(for: route)?.sourceAnchorId ?? sourceQuestion?.sourceAnchorId
+        let sourceAnchorId = reviewQuestion(for: routeStore.current)?.sourceAnchorId ?? sourceQuestion?.sourceAnchorId
         if usesBackendReviewChapter {
             Task {
                 await openBackendSourceRouteIfPossible(sourceAnchorId: sourceAnchorId)
@@ -1313,35 +1308,30 @@ struct V2RootView: View {
     }
 
     private func pushRoute(_ nextRoute: V2AppRoute) {
-        if let route {
-            routeStack.append(route)
-        }
-        route = nextRoute
+        routeStore.push(nextRoute)
     }
 
     private func replaceRoute(_ nextRoute: V2AppRoute) {
-        route = nextRoute
+        routeStore.replace(with: nextRoute)
     }
 
     private func resetToRoute(_ nextRoute: V2AppRoute, tab: V2HomeTab? = nil) {
         if let tab {
             selectedTab = tab
         }
-        routeStack.removeAll()
-        route = nextRoute
+        routeStore.reset(to: nextRoute)
     }
 
     private func resetToHome(tab: V2HomeTab? = nil) {
         if let tab {
             selectedTab = tab
         }
-        routeStack.removeAll()
-        route = nil
+        routeStore.resetToRoot()
     }
 
     private func goBack() {
-        guard let route else {
-            routeStack.removeAll()
+        guard let route = routeStore.current else {
+            routeStore.clearStack()
             return
         }
 
@@ -1366,7 +1356,7 @@ struct V2RootView: View {
             return
         }
 
-        self.route = routeStack.popLast()
+        routeStore.pop()
     }
 
     @MainActor
@@ -1380,7 +1370,7 @@ struct V2RootView: View {
             let response = try await apiClient.startOrResumeV2ReviewSession(chapterId: chapterID)
             applyV2ReviewSessionResponse(response)
             selectedTab = .learning
-            routeStack.removeAll()
+            routeStore.clearStack()
             replaceRoute(route(for: response.reviewSession?.currentCard) ?? .unitOverview(unitID: activeFirstUnitID))
         } catch {
             generationErrorText = error.localizedDescription
