@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "recommended_articles_seed_1",
+  "articles": [
+    {
+      "id": "game-experience-design",
+      "title": "基于游戏化方法的持续性用户体验设计",
+      "source": "微信公众号",
+      "sourceUrl": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
+      "sourceAuthor": "吴 琼、王婧等",
+      "tags": ["产品", "学习"],
+      "description": "从心流、阶段反馈和身份建构理解长期体验设计。",
+      "preparedChapterPath": "recommended/game-experience-chapter.json"
+    }
+  ]
+}

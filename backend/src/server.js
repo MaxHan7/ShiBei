@@ -58,6 +58,12 @@ import { apnsConfigurationSummary, isAPNSConfigured, sendGenerationNotification 
 import { buildServiceCapabilities } from "./serviceCapabilities.js";
 import { enqueueV2ChapterGeneration } from "./v2/generation/v2ChapterQueue.js";
 import {
+  getRecommendedArticleDetail,
+  importRecommendedArticleChapter,
+  loadRecommendedArticleCatalog,
+  serializeRecommendedArticleCatalogForClient
+} from "./v2/recommended/recommendedArticles.js";
+import {
   advanceReviewCardV2,
   answerQuestionV2,
   createReviewSessionV2,
@@ -2017,6 +2023,61 @@ const server = createServer(async (req, res) => {
 
   if (req.method === "POST" && req.url === "/api/v2/chapters") {
     await handleCreateV2Chapter(req, res);
+    return;
+  }
+
+  if (req.method === "GET" && req.url === "/api/v2/recommended-articles") {
+    try {
+      const catalog = await loadRecommendedArticleCatalog();
+      sendJson(res, 200, serializeRecommendedArticleCatalogForClient(catalog));
+    } catch (error) {
+      sendJson(res, 500, {
+        errorCode: "recommended_articles_unavailable",
+        message: error instanceof Error ? error.message : "推荐文章暂时不可用。"
+      });
+    }
+    return;
+  }
+
+  const recommendedArticleDetailMatch = req.url?.match(/^\/api\/v2\/recommended-articles\/([^/]+)$/);
+  if (recommendedArticleDetailMatch && req.method === "GET") {
+    try {
+      const result = await getRecommendedArticleDetail({
+        articleId: decodeURIComponent(recommendedArticleDetailMatch[1])
+      });
+      sendJson(res, 200, {
+        article: result.article,
+        chapter: serializeChapterForClient(result.chapter)
+      });
+    } catch (error) {
+      sendJson(res, error.statusCode || 500, {
+        errorCode: error.errorCode || "recommended_article_detail_unavailable",
+        message: error instanceof Error ? error.message : "推荐文章详情暂时不可用。"
+      });
+    }
+    return;
+  }
+
+  const recommendedArticleImportMatch = req.url?.match(/^\/api\/v2\/recommended-articles\/([^/]+)\/import$/);
+  if (recommendedArticleImportMatch && req.method === "POST") {
+    try {
+      const result = await importRecommendedArticleChapter({
+        articleId: decodeURIComponent(recommendedArticleImportMatch[1]),
+        deviceId,
+        services: {
+          upsertChapter: upsertStoredChapter
+        }
+      });
+      sendJson(res, 201, {
+        article: result.article,
+        chapter: serializeChapterForClient(result.chapter)
+      });
+    } catch (error) {
+      sendJson(res, error.statusCode || 500, {
+        errorCode: error.errorCode || "recommended_article_import_failed",
+        message: error instanceof Error ? error.message : "推荐文章导入失败。"
+      });
+    }
     return;
   }
 
