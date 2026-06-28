@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm --prefix backend install && npm --prefix backend run build",
     "start": "npm --prefix backend start",
-    "check": "npm --prefix backend run check && node --check tools/ios-production-guard.mjs && node --check tools/ios-signing-guard.mjs && node --check tools/production-release-evidence-guard.mjs && node --check tools/production-deploy-inputs-guard.mjs && node --check tools/extract-railway-database-url.mjs && node tools/ios-production-guard.mjs",
+    "check": "npm --prefix backend run check && node --check tools/recallo-workspace-guard.mjs && node --check tools/ios-production-guard.mjs && node --check tools/ios-signing-guard.mjs && node --check tools/production-release-evidence-guard.mjs && node --check tools/production-deploy-inputs-guard.mjs && node --check tools/extract-railway-database-url.mjs && node tools/recallo-workspace-guard.mjs && node tools/ios-production-guard.mjs",
     "check:ios-production": "node tools/ios-production-guard.mjs",
     "check:ios-signing": "node tools/ios-signing-guard.mjs",
     "check:production-release-evidence": "node tools/production-release-evidence-guard.mjs",

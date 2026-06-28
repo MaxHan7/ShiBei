@@ -15,6 +15,8 @@ echo "  project: $PROJECT"
 echo "  bundle:  $BUNDLE_ID"
 echo "  device:  $DEVICE_ID"
 
+node "$ROOT_DIR/tools/recallo-workspace-guard.mjs"
+
 rm -rf "$DERIVED_DATA"
 xcodebuild \
   -allowProvisioningUpdates \
