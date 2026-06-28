@@ -889,14 +889,19 @@ struct V2SourceArticleView: View {
     }
 
     var body: some View {
-        V2FlowScreen(title: "", backgroundColor: V2Color.surfaceCream, onBack: onBack) {
+        V2FlowScreen(
+            title: "",
+            backgroundColor: V2Color.surfaceCream,
+            showSourceButton: hasSourceURL,
+            onBack: onBack,
+            onSource: openSourceURL
+        ) {
             ScrollViewReader { proxy in
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 26) {
                         V2SourceArticleHeader(
                             title: chapter.title,
-                            author: chapter.sourceAuthor,
-                            onSource: openSourceURL
+                            author: chapter.sourceAuthor
                         )
 
                         V2SourceArticleBody(
@@ -922,6 +927,10 @@ struct V2SourceArticleView: View {
         }
     }
 
+    private var hasSourceURL: Bool {
+        URL(string: chapter.sourceURL) != nil
+    }
+
     private func openSourceURL() {
         guard let url = URL(string: chapter.sourceURL) else {
             return
@@ -939,7 +948,6 @@ struct V2SourceArticleView: View {
 private struct V2SourceArticleHeader: View {
     let title: String
     let author: String
-    let onSource: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -950,21 +958,11 @@ private struct V2SourceArticleHeader: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
 
-            HStack(spacing: V2ChapterDetailLayoutMetrics.heroMetadataSpacing) {
-                V2ChapterDetailHeroActionButton(
-                    title: "原文链接",
-                    iconName: "V2ChapterDetailLinkActionIcon",
-                    width: V2ChapterDetailLayoutMetrics.heroSourceChipWidth,
-                    action: onSource
-                )
-
-                V2ChapterDetailHeroInfoChip(
-                    title: author,
-                    iconName: "V2ChapterDetailSummaryActionIcon",
-                    width: V2ChapterDetailLayoutMetrics.heroAuthorChipWidth
-                )
-            }
-            .frame(width: V2ChapterDetailLayoutMetrics.heroMetadataRowWidth, alignment: .leading)
+            V2ChapterDetailHeroInfoChip(
+                title: author,
+                iconName: "V2ChapterDetailSummaryActionIcon"
+            )
+            .fixedSize(horizontal: true, vertical: false)
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
     }
@@ -1323,7 +1321,7 @@ private struct V2ChapterDetailHeroActionButton: View {
 private struct V2ChapterDetailHeroInfoChip: View {
     let title: String
     let iconName: String
-    let width: CGFloat
+    var width: CGFloat? = nil
 
     var body: some View {
         V2ChapterDetailHeroActionContent(
@@ -1338,7 +1336,7 @@ private struct V2ChapterDetailHeroInfoChip: View {
 private struct V2ChapterDetailHeroActionContent: View {
     let title: String
     let iconName: String
-    let width: CGFloat
+    let width: CGFloat?
 
     var body: some View {
         HStack(spacing: V2ChapterDetailHeroChipMetrics.contentSpacing) {
@@ -1357,7 +1355,7 @@ private struct V2ChapterDetailHeroActionContent: View {
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .layoutPriority(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: width == nil ? nil : .infinity, alignment: .leading)
         }
         .padding(.leading, V2ChapterDetailHeroChipMetrics.leadingPadding)
         .padding(.trailing, V2ChapterDetailHeroChipMetrics.trailingPadding)
@@ -1625,15 +1623,20 @@ struct V2RecommendedArticleDetailView: View {
             V2Color.surfaceCream
                 .ignoresSafeArea()
 
-            V2FlowScreen(title: "", backgroundColor: V2Color.surfaceCream, onBack: onBack) {
+            V2FlowScreen(
+                title: "",
+                backgroundColor: V2Color.surfaceCream,
+                showSourceButton: hasSourceURL,
+                onBack: onBack,
+                onSource: openSourceURL
+            ) {
                 Group {
                     if let chapter {
                         ScrollView(showsIndicators: false) {
                             VStack(spacing: 19) {
                                 V2SourceArticleHeader(
                                     title: chapter.sourceTitle.isEmpty ? article.title : chapter.sourceTitle,
-                                    author: chapter.sourceAuthor,
-                                    onSource: openSourceURL
+                                    author: chapter.sourceAuthor
                                 )
 
                                 V2SourceArticleBody(
@@ -1692,6 +1695,11 @@ struct V2RecommendedArticleDetailView: View {
             .padding(.trailing, V2Layout.floatingActionTrailingInset)
             .padding(.bottom, 30)
         }
+    }
+
+    private var hasSourceURL: Bool {
+        let rawURL = article.sourceUrl ?? chapter?.sourceURL ?? ""
+        return URL(string: rawURL) != nil
     }
 
     private func openSourceURL() {

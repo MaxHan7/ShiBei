@@ -3,10 +3,9 @@
 <circle cx="22" cy="20.5" r="20.5" fill="#FDF9EE"/>
 </g>
 <g clip-path="url(#clip0_source)">
-<path d="M17.5 30C16.3954 30 15.5 29.1046 15.5 28V12H24.5L29.5 17V28C29.5 29.1046 28.6046 30 27.5 30H17.5Z" stroke="#44423D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M23.5 12V18H29.5" stroke="#44423D" stroke-width="1.5" stroke-linejoin="round"/>
-<path d="M19.5 22H25.5" stroke="#44423D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M19.5 26H25.5" stroke="#44423D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M19.8613 21.7012L22.8332 18.4344" stroke="#44423D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M18.6004 19.8057L17.4859 21.0307C16.6653 21.9328 16.7313 23.3293 17.6334 24.15C18.5355 24.9706 19.932 24.9046 20.7527 24.0025L21.8671 22.7775" stroke="#44423D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M20.8301 17.3574L21.9445 16.1324C22.7652 15.2303 24.1617 15.1643 25.0638 15.9849C25.9659 16.8056 26.0319 18.2021 25.2113 19.1042L24.0968 20.3293" stroke="#44423D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <defs>
 <filter id="filter0_d_source" x="0" y="0" width="44" height="44.5" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
