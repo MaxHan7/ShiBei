@@ -107,11 +107,11 @@ if (args["signed-app"]) {
   checks.push(check(
     "signed_app_argument_present",
     false,
-    "pass --signed-app /path/to/拾贝.app after TestFlight/App Store export"
+    "pass --signed-app /path/to/Recallo.app after TestFlight/App Store export"
   ));
 }
 
-console.log("# Shibei V2 Production Release Evidence Guard");
+console.log("# Recallo V2 Production Release Evidence Guard");
 console.log(`baseUrl=${expectedBaseUrl}`);
 console.log(`bundleId=${expectedBundleId}`);
 console.log("");
@@ -149,7 +149,7 @@ function printUsage() {
     "  npm run check:production-release-evidence -- \\",
     "    --evidence-dir docs/production-readiness-evidence \\",
     "    --phone-e2e docs/production-readiness-evidence/phone-e2e.md \\",
-    "    --signed-app /path/to/拾贝.app",
+    "    --signed-app /path/to/Recallo.app",
     "",
     "Or pass explicit evidence paths:",
     "  npm run check:production-release-evidence -- \\",
@@ -157,7 +157,7 @@ function printUsage() {
     "    --gate-json docs/production-readiness-evidence/production-gate.json \\",
     "    --smoke-json docs/production-readiness-evidence/production-smoke.json \\",
     "    --phone-e2e docs/production-readiness-evidence/phone-e2e.md \\",
-    "    --signed-app /path/to/拾贝.app",
+    "    --signed-app /path/to/Recallo.app",
     "",
     "This guard is intentionally strict. Run it only after deploy, no-side-effect gate, smoke, phone E2E, and final signed export are complete.",
     "When --evidence-dir is provided, deployment-intent.md and phone-e2e.md are discovered by name, while production gate/smoke JSON files are selected by their smokeRequested value."

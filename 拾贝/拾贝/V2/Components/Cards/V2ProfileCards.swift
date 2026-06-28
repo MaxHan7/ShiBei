@@ -600,13 +600,13 @@ private enum V2ProfileSettingsSheet: String, Identifiable {
         switch self {
         case .notifications:
             [
-                "拾贝会在内容生成完成或失败时发送系统通知，帮助你回到对应章节继续复习。",
+                "Recallo 会在内容生成完成或失败时发送系统通知，帮助你回到对应章节继续复习。",
                 "如果你没有开启系统通知，仍然可以在 App 内通知页查看生成结果。成功通知打开后会自动归档，失败通知会保留到你处理或手动移除。"
             ]
         case .privacy:
             [
-                "你提交的文字、文章链接和生成结果会发送到拾贝云端，用于提取知识点、生成题目和保存复习进度。",
-                "生成过程中，内容可能会被发送给第三方 AI 模型服务处理。拾贝不会把你的内容公开展示给其他用户。",
+                "你提交的文字、文章链接和生成结果会发送到Recallo 云端，用于提取知识点、生成题目和保存复习进度。",
+                "生成过程中，内容可能会被发送给第三方 AI 模型服务处理。Recallo 不会把你的内容公开展示给其他用户。",
                 "服务器会保存章节、题目、通知、复习记录和题目反馈。你可以在“我的”页删除当前匿名设备下的数据。"
             ]
         case .account:
@@ -760,13 +760,13 @@ private struct V2ProfileNotificationPermissionPanel: View {
     private var statusDescription: String {
         switch status {
         case .authorized, .provisional, .ephemeral:
-            "生成完成或失败后，拾贝可以通过系统通知提醒你。"
+            "生成完成或失败后，Recallo 可以通过系统通知提醒你。"
         case .denied:
-            "你已经在系统里关闭了通知。需要到 iOS 设置中重新允许拾贝发送通知。"
+            "你已经在系统里关闭了通知。需要到 iOS 设置中重新允许 Recallo 发送通知。"
         case .notDetermined:
             "开启后，生成任务完成时即使暂时离开 App，也能收到提醒。"
         @unknown default:
-            "可以前往系统设置检查拾贝的通知权限。"
+            "可以前往系统设置检查 Recallo 的通知权限。"
         }
     }
 

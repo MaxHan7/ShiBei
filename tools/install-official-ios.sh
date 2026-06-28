@@ -6,11 +6,11 @@ PROJECT="$ROOT_DIR/拾贝/拾贝.xcodeproj"
 SCHEME="拾贝"
 BUNDLE_ID="com.maxhan.shibei"
 DEVICE_ID="${1:-26BD96F1-4C9A-5123-92A7-6733CAE2BE21}"
-DESTINATION="${SHIBEI_IOS_DESTINATION:-id=00008130-000465522213803A}"
-DERIVED_DATA="${SHIBEI_IOS_DERIVED_DATA:-/tmp/shibei-official-device-build}"
-APP_PATH="$DERIVED_DATA/Build/Products/Debug-iphoneos/拾贝.app"
+DESTINATION="${RECALLO_IOS_DESTINATION:-${SHIBEI_IOS_DESTINATION:-id=00008130-000465522213803A}}"
+DERIVED_DATA="${RECALLO_IOS_DERIVED_DATA:-${SHIBEI_IOS_DERIVED_DATA:-/tmp/recallo-official-device-build}}"
+APP_PATH="$DERIVED_DATA/Build/Products/Debug-iphoneos/Recallo.app"
 
-echo "Building official ShiBei app"
+echo "Building official Recallo app"
 echo "  project: $PROJECT"
 echo "  bundle:  $BUNDLE_ID"
 echo "  device:  $DEVICE_ID"
@@ -33,7 +33,7 @@ if [[ "$ACTUAL_BUNDLE_ID" != "$BUNDLE_ID" ]]; then
   exit 1
 fi
 
-if [[ "$DISPLAY_NAME" != "拾贝" ]]; then
+if [[ "$DISPLAY_NAME" != "Recallo" ]]; then
   echo "Refusing to install wrong display name: $DISPLAY_NAME" >&2
   exit 1
 fi
@@ -41,4 +41,4 @@ fi
 xcrun devicectl device install app --device "$DEVICE_ID" "$APP_PATH"
 xcrun devicectl device process launch --device "$DEVICE_ID" "$BUNDLE_ID"
 
-echo "Installed and launched official ShiBei app: $BUNDLE_ID"
+echo "Installed and launched official Recallo app: $BUNDLE_ID"

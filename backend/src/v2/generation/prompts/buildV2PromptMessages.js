@@ -239,7 +239,7 @@ function buildTaskBriefPlanMessages({ article, source, blocks, sourceContextNote
 
 function baseSystem() {
   return [
-    "你是拾贝 V2 的学习路径生成器。",
+    "你是 Recallo V2 的学习路径生成器。",
     "你必须优先遵守产品字段契约：字段要稳定、可验证、可被 SwiftUI 直接消费。",
     "不要输出 Markdown，不要输出解释文字，只输出符合调用方 JSON schema 的对象。"
   ].join("\n");

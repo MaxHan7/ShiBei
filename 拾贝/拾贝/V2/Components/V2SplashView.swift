@@ -26,7 +26,7 @@ struct V2SplashView: View {
             )
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .accessibilityLabel("拾贝正在启动")
+        .accessibilityLabel("Recallo 正在启动")
     }
 }
 

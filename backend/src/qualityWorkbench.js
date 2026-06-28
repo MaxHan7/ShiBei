@@ -181,7 +181,7 @@ const autoLabelSchema = {
   required: ["labels"]
 };
 
-const autoLabelSystemPrompt = `你是拾贝出题系统的 AI 预标注审查员。你的任务不是重新出题，而是模拟严格但公正的人工审题员，给题目做预标注，供真人复核。
+const autoLabelSystemPrompt = `你是 Recallo出题系统的 AI 预标注审查员。你的任务不是重新出题，而是模拟严格但公正的人工审题员，给题目做预标注，供真人复核。
 
 请按 1-5 分评分，5 分最好，1 分最差：
 - sourceSupport：题目答案和解释是否被来源上下文支撑。

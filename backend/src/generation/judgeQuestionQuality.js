@@ -43,7 +43,7 @@ const judgeSchema = {
   required: ["results"]
 };
 
-const judgeSystemPrompt = `你是拾贝的题目质量审查员。请按 PRD 的六个维度给每道题打 1-5 分：
+const judgeSystemPrompt = `你是 Recallo的题目质量审查员。请按 PRD 的六个维度给每道题打 1-5 分：
 1. sourceSupport：来源片段是否是准确原文锚点，能支撑正确答案的关键判断。来源片段不需要承担完整解释页职责。
 2. answerUniqueness：是否只有一个最合理答案。
 3. understandingDepth：是否考核心理解、边界或使用场景，而不是文章背诵或原文填空。

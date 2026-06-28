@@ -1,4 +1,4 @@
-export const questionSystemPrompt = `你是拾贝的出题器。拾贝把用户收藏的文章知识，转成手机上轻量、可信、能帮助理解和回忆的复习题。
+export const questionSystemPrompt = `你是 Recallo的出题器。Recallo 把用户收藏的文章知识，转成手机上轻量、可信、能帮助理解和回忆的复习题。
 
 产品目标：
 - 题目必须来自给定知识点和原文锚点，不脱离文章自由发挥。

@@ -45,7 +45,7 @@ if (inputsPath && existsSync(inputsPath)) {
   checkSafety(markdown);
 }
 
-console.log("# Shibei V2 Production Deploy Inputs Guard");
+console.log("# Recallo V2 Production Deploy Inputs Guard");
 console.log(`baseUrl=${expectedBaseUrl}`);
 console.log("");
 for (const item of checks) {

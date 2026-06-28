@@ -725,7 +725,7 @@ final class AppStore: ObservableObject {
         let targetMode = submissionModeForCreate()
         let shouldReplaceMockState = dataMode == .mock && targetMode == .cloudAPI
         #if DEBUG
-        print("[ShiBei] AppStore.createChapter start target=\(targetMode.rawValue), sourceType=\(parsedInput.sourceType.rawValue), canSubmit=\(parsedInput.canSubmit), device=\(anonymousDeviceId.suffix(6))")
+        print("[Recallo] AppStore.createChapter start target=\(targetMode.rawValue), sourceType=\(parsedInput.sourceType.rawValue), canSubmit=\(parsedInput.canSubmit), device=\(anonymousDeviceId.suffix(6))")
         #endif
         isWritingChapter = true
         defer { isWritingChapter = false }
@@ -740,7 +740,7 @@ final class AppStore: ObservableObject {
                 guard let client = apiClient(for: targetMode) else {
                     dataSourceMessage = missingAPIMessage(for: targetMode)
                     #if DEBUG
-                    print("[ShiBei] AppStore.createChapter missing valid API client for target=\(targetMode.rawValue), cloudURL=\(cloudAPIBaseURLString)")
+                    print("[Recallo] AppStore.createChapter missing valid API client for target=\(targetMode.rawValue), cloudURL=\(cloudAPIBaseURLString)")
                     #endif
                     return false
                 }
@@ -755,7 +755,7 @@ final class AppStore: ObservableObject {
                 }
                 dataSourceMessage = localizedFormat("debug.message.accepted_generating", targetMode.apiLabel(language: appLanguage))
                 #if DEBUG
-                print("[ShiBei] AppStore.createChapter accepted chapter=\(created.chapter.id), status=\(created.chapter.status.rawValue)")
+                print("[Recallo] AppStore.createChapter accepted chapter=\(created.chapter.id), status=\(created.chapter.status.rawValue)")
                 #endif
             }
             if shouldReplaceMockState {
@@ -770,7 +770,7 @@ final class AppStore: ObservableObject {
         } catch {
             dataSourceMessage = localizedFormat("debug.message.submit_failed", targetMode.apiLabel(language: appLanguage), userFacingErrorMessage(error))
             #if DEBUG
-            print("[ShiBei] AppStore.createChapter failed target=\(targetMode.rawValue), error=\(error.localizedDescription)")
+            print("[Recallo] AppStore.createChapter failed target=\(targetMode.rawValue), error=\(error.localizedDescription)")
             #endif
             return false
         }

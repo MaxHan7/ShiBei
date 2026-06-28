@@ -93,7 +93,7 @@ function restartWorkerOrShutdown(code, signal) {
 function shutdown(reason, exitCode = 0) {
   if (shuttingDown) return;
   shuttingDown = true;
-  console.log(`Shutting down Shibei backend (${reason}).`);
+  console.log(`Shutting down Recallo backend (${reason}).`);
 
   for (const child of processes.values()) {
     if (!child.killed) child.kill("SIGTERM");
@@ -114,7 +114,7 @@ function readPositiveInt(value, fallback) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => {
-    console.error("Shibei backend startup failed", error);
+    console.error("Recallo backend startup failed", error);
     process.exit(1);
   });
 }

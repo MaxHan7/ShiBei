@@ -1,6 +1,6 @@
-# 拾贝项目交接入口
+# Recallo 项目交接入口
 
-拾贝是一款面向碎片知识的 AI 复习 iOS App。用户把日常看到的文字、文章链接或未来的视频链接添加进来，系统自动提取知识点、生成测试题，用户像背单词一样随时刷题复习。
+Recallo 是一款面向碎片知识的 AI 复习 iOS App。用户把日常看到的文字、文章链接或未来的视频链接添加进来，系统自动提取知识点、生成测试题，用户像背单词一样随时刷题复习。
 
 ## 当前状态
 
@@ -33,7 +33,7 @@
 
 ```text
 backend/           Node 后端、本地 API、核心出题系统
-拾贝/              正式 iOS App 工程；真机装包和 TestFlight 只能使用这里的 Xcode project
+Recallo iOS 工程/              正式 iOS App 工程；真机装包和 TestFlight 只能使用这里的 Xcode project
 demo/              HTML 真实体验 Demo
 docs/              迁移文档、API 契约、Xcode 首轮计划、fixture
 quality-test-set/  真实样本、人工样本、质量测试结果
@@ -83,7 +83,7 @@ node --check demo/app.js
 ./tools/install-official-ios.sh
 ```
 
-这个脚本只会构建并安装 `拾贝/拾贝.xcodeproj`，并在安装前校验 bundle id 必须是 `com.maxhan.shibei`、显示名必须是 `拾贝`。不要再用 `experiments/shibei-v2/ios/拾贝.xcodeproj` 给正式手机装包。
+这个脚本只会构建并安装 `Recallo iOS 工程/Recallo.xcodeproj`，并在安装前校验 bundle id 必须是 `com.maxhan.shibei`、显示名必须是 `Recallo`。不要再用 `experiments/shibei-v2/ios/Recallo.xcodeproj` 给正式手机装包。
 
 质量测试：
 

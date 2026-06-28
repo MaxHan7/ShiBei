@@ -14,7 +14,7 @@ struct APIClient {
     #if DEBUG
     private static var launchArgumentBaseURL: URL? {
         let arguments = ProcessInfo.processInfo.arguments
-        for flag in ["-ShibeiAPIBaseURL", "-ShibeiV2APIBaseURL"] {
+        for flag in ["-RecalloAPIBaseURL", "-RecalloV2APIBaseURL", "-ShibeiAPIBaseURL", "-ShibeiV2APIBaseURL"] {
             if let index = arguments.firstIndex(of: flag) {
                 let valueIndex = arguments.index(after: index)
                 if valueIndex < arguments.endIndex, let url = URL(string: arguments[valueIndex]) {
@@ -22,7 +22,10 @@ struct APIClient {
                 }
             }
         }
-        if let value = ProcessInfo.processInfo.environment["SHIBEI_API_BASE_URL"] ?? ProcessInfo.processInfo.environment["SHIBEI_V2_API_BASE_URL"] {
+        if let value = ProcessInfo.processInfo.environment["RECALLO_API_BASE_URL"]
+            ?? ProcessInfo.processInfo.environment["RECALLO_V2_API_BASE_URL"]
+            ?? ProcessInfo.processInfo.environment["SHIBEI_API_BASE_URL"]
+            ?? ProcessInfo.processInfo.environment["SHIBEI_V2_API_BASE_URL"] {
             return URL(string: value)
         }
         return nil
@@ -227,7 +230,7 @@ struct APIClient {
         request.setValue("application/json", forHTTPHeaderField: "accept")
         request.setValue(deviceId, forHTTPHeaderField: "X-Device-Id")
         #if DEBUG
-        print("[ShiBei] API GET \(url.absoluteString) device=\(deviceId.suffix(6))")
+        print("[Recallo] API GET \(url.absoluteString) device=\(deviceId.suffix(6))")
         #endif
 
         let (data, response) = try await session.data(for: request)
@@ -235,7 +238,7 @@ struct APIClient {
             throw APIClientError.invalidResponse
         }
         #if DEBUG
-        print("[ShiBei] API GET status=\(httpResponse.statusCode) path=\(path)")
+        print("[Recallo] API GET status=\(httpResponse.statusCode) path=\(path)")
         #endif
         guard (200..<300).contains(httpResponse.statusCode) else {
             throw APIClientError.httpStatus(httpResponse.statusCode)
@@ -259,7 +262,7 @@ struct APIClient {
         request.setValue("application/json", forHTTPHeaderField: "accept")
         request.setValue(deviceId, forHTTPHeaderField: "X-Device-Id")
         #if DEBUG
-        print("[ShiBei] API \(method) \(url.absoluteString) device=\(deviceId.suffix(6))")
+        print("[Recallo] API \(method) \(url.absoluteString) device=\(deviceId.suffix(6))")
         #endif
         if method != "DELETE" {
             request.setValue("application/json", forHTTPHeaderField: "content-type")
@@ -271,7 +274,7 @@ struct APIClient {
             throw APIClientError.invalidResponse
         }
         #if DEBUG
-        print("[ShiBei] API \(method) status=\(httpResponse.statusCode) path=\(path)")
+        print("[Recallo] API \(method) status=\(httpResponse.statusCode) path=\(path)")
         #endif
         if (200..<300).contains(httpResponse.statusCode) || (acceptsFailureBody && httpResponse.statusCode == 422) {
             return try decode(Response.self, from: data, path: path)
@@ -288,12 +291,12 @@ struct APIClient {
         } catch let error as DecodingError {
             let message = Self.describeDecodingError(error)
             #if DEBUG
-            print("[ShiBei] API decode failed path=\(path): \(message)")
+            print("[Recallo] API decode failed path=\(path): \(message)")
             #endif
             throw APIClientError.decoding(message)
         } catch {
             #if DEBUG
-            print("[ShiBei] API decode failed path=\(path): \(error.localizedDescription)")
+            print("[Recallo] API decode failed path=\(path): \(error.localizedDescription)")
             #endif
             throw error
         }

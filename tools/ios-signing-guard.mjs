@@ -10,7 +10,7 @@ const appPath = args.app ? resolve(args.app) : findLatestReleaseApp();
 const expectedBundleId = args["bundle-id"] || "com.maxhan.shibei";
 
 if (!appPath || !existsSync(appPath)) {
-  console.error("No Release iPhoneOS .app found. Pass --app /path/to/拾贝.app after archive/export.");
+  console.error("No Release iPhoneOS .app found. Pass --app /path/to/Recallo.app after archive/export.");
   process.exit(1);
 }
 
@@ -59,7 +59,7 @@ checks.push(check(
   `embedded profile application-identifier must end with .${expectedBundleId}`
 ));
 
-console.log("# Shibei iOS Signing Guard");
+console.log("# Recallo iOS Signing Guard");
 console.log(`app=${appPath}`);
 console.log("");
 for (const item of checks) {
@@ -113,7 +113,7 @@ function collectApps(directory, candidates) {
   }
   for (const entry of entries) {
     const path = join(directory, entry.name);
-    if (entry.isDirectory() && entry.name === "拾贝.app" && path.includes("Release-iphoneos")) {
+    if (entry.isDirectory() && entry.name === "Recallo.app" && path.includes("Release-iphoneos")) {
       candidates.push({ path, mtimeMs: statSync(path).mtimeMs });
       continue;
     }
@@ -129,7 +129,7 @@ function shouldDescend(path, name) {
     || path.includes("Build")
     || path.includes("Products")
     || path.includes("ArchiveIntermediates")
-    || name.startsWith("拾贝-")
+    || name.startsWith("Recallo-")
     || name === "Intermediates.noindex";
 }
 

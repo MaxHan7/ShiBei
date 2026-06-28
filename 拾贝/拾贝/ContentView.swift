@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  拾贝
+//  Recallo
 //
 //  Created by 韩明瑜 on 2026/5/16.
 //
@@ -30,7 +30,8 @@ struct ContentView: View {
         #if DEBUG
         let arguments = ProcessInfo.processInfo.arguments
         let environment = ProcessInfo.processInfo.environment
-        return !arguments.contains("-ShibeiUseLegacyRoot")
+        return !arguments.contains("-RecalloUseLegacyRoot")
+            && !arguments.contains("-ShibeiUseLegacyRoot")
             && environment["SHIBEI_USE_LEGACY_ROOT"] != "1"
         #else
         return true

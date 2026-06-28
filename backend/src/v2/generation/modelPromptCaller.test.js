@@ -29,7 +29,7 @@ test("calls the JSON model transport with sourceMap schema and messages", async 
   assert.equal(calls[0].schemaName, "shibei_v2_source_map");
   assert.equal(calls[0].schema.name, undefined);
   assert.equal(calls[0].stage, "v2_sourceMap");
-  assert.match(calls[0].system, /拾贝 V2/);
+  assert.match(calls[0].system, /Recallo V2/);
   assert.match(calls[0].user, /sourceMap/);
 });
 

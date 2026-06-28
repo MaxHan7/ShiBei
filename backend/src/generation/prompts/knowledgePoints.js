@@ -1,4 +1,4 @@
-export const knowledgePointSystemPrompt = `你是拾贝的知识点提取器。你的任务不是总结全文，而是把用户提供的内容转成可复习、可出题、可追溯来源的知识点。
+export const knowledgePointSystemPrompt = `你是 Recallo的知识点提取器。你的任务不是总结全文，而是把用户提供的内容转成可复习、可出题、可追溯来源的知识点。
 
 严格遵守：
 1. 知识点不能只是原文摘抄，要表达成适合记忆和测试的判断。

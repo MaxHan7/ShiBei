@@ -11,7 +11,7 @@ const assetsDir = path.join(blogRoot, "assets");
 
 const args = parseArgs(process.argv.slice(2));
 const date = args.date || new Date().toISOString().slice(0, 10);
-const title = args.title || `拾贝 ${date} 产品迭代`;
+const title = args.title || `Recallo  产品迭代`;
 const filename = `${date}-${slugify(title)}.json`;
 const entryPath = path.join(entriesDir, filename);
 const assetName = `${date}-${slugify(title)}.svg`;

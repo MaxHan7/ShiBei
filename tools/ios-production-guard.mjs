@@ -29,7 +29,7 @@ const checks = [
   ),
   check(
     "debug_api_override_is_debug_only",
-    /#if DEBUG[\s\S]*-ShibeiV2APIBaseURL[\s\S]*SHIBEI_V2_API_BASE_URL[\s\S]*#endif/s.test(source.apiClient),
+    /#if DEBUG[\s\S]*-RecalloV2APIBaseURL[\s\S]*RECALLO_V2_API_BASE_URL[\s\S]*#endif/s.test(source.apiClient),
     "Launch argument/env API override must stay DEBUG-only."
   ),
   check(
@@ -78,7 +78,7 @@ if (requireV2Release) {
   ));
 }
 
-console.log("# Shibei iOS Production Guard");
+console.log("# Recallo iOS Production Guard");
 console.log(`requireV2Release=${requireV2Release ? "true" : "false"}`);
 console.log("");
 for (const item of checks) {

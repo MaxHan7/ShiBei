@@ -14,7 +14,7 @@ const ARTICLE = {
 test("sourceMap prompt asks for stable source blocks and no question generation", () => {
   const messages = buildV2PromptMessages("sourceMap", { article: ARTICLE });
 
-  assert.match(messages.system, /拾贝 V2/);
+  assert.match(messages.system, /Recallo V2/);
   assert.match(messages.user, /sourceMap/);
   assert.match(messages.user, /稳定的 source block/);
   assert.match(messages.user, /不要生成知识点或题目/);

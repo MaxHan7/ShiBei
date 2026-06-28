@@ -23,7 +23,7 @@ enum V2DemoContentProvider {
             title: "DMC 模型如何影响游戏化学习体验",
             source: "推荐阅读",
             sourceUrl: "https://example.com/dmc-learning",
-            sourceAuthor: "拾贝精选",
+            sourceAuthor: "Recallo 精选",
             coverImageUrl: nil,
             tags: ["AI", "学习"],
             description: "从 DMC 模型理解游戏化学习体验。",

@@ -607,13 +607,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connected to ShiBei Cloud. Chapters, review state, and notifications are saved on the server."
+            "value": "Connected to Recallo Cloud. Chapters, review state, and notifications are saved on the server."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "连接拾贝云端，章节、复习和通知状态会保存到服务器"
+            "value": "连接 Recallo 云端，章节、复习和通知状态会保存到服务器"
           }
         }
       }
@@ -889,13 +889,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unable to connect to ShiBei Cloud. Try again later."
+            "value": "Unable to connect to Recallo Cloud. Try again later."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "暂时无法连接拾贝云端，请稍后再试。"
+            "value": "暂时无法连接 Recallo 云端，请稍后再试。"
           }
         }
       }
@@ -923,13 +923,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connecting to ShiBei Cloud"
+            "value": "Connecting to Recallo Cloud"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在连接拾贝云端"
+            "value": "正在连接 Recallo 云端"
           }
         }
       }
@@ -3011,13 +3011,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "ShiBei can notify you when chapter generation succeeds or fails, so you can return to the exact chapter even after leaving the app."
+            "value": "Recallo can notify you when chapter generation succeeds or fails, so you can return to the exact chapter even after leaving the app."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "拾贝会在章节生成完成或失败时提醒你。开启后，即使暂时离开 App，也能从系统通知回到对应章节。"
+            "value": "Recallo 会在章节生成完成或失败时提醒你。开启后，即使暂时离开 App，也能从系统通知回到对应章节。"
           }
         }
       }
@@ -3317,13 +3317,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "About ShiBei"
+            "value": "About Recallo"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "关于拾贝"
+            "value": "关于 Recallo"
           }
         }
       }
@@ -3351,13 +3351,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "ShiBei saves your chapters, notifications, and review progress in the cloud without requiring an account."
+            "value": "Recallo saves your chapters, notifications, and review progress in the cloud without requiring an account."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "拾贝会把你的章节、通知和复习进度保存到云端，不需要注册或登录账号。"
+            "value": "Recallo 会把你的章节、通知和复习进度保存到云端，不需要注册或登录账号。"
           }
         }
       }
@@ -3504,13 +3504,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "ShiBei turns articles, links, and scattered knowledge into review questions."
+            "value": "Recallo turns articles, links, and scattered knowledge into review questions."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "拾贝是一款把文章、链接和碎片知识转化为复习题的 iOS App。"
+            "value": "Recallo 是一款把文章、链接和碎片知识转化为复习题的 iOS App。"
           }
         }
       }
@@ -3572,13 +3572,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "ShiBei sends system notifications when content generation succeeds or fails, so you can return to the chapter."
+            "value": "Recallo sends system notifications when content generation succeeds or fails, so you can return to the chapter."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "拾贝会在内容生成完成或失败时发送系统通知，帮助你回到对应章节继续复习。"
+            "value": "Recallo 会在内容生成完成或失败时发送系统通知，帮助你回到对应章节继续复习。"
           }
         }
       }
@@ -3606,13 +3606,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Text, article links, and generated results you submit are sent to ShiBei Cloud to extract points, generate questions, and save review progress."
+            "value": "Text, article links, and generated results you submit are sent to Recallo Cloud to extract points, generate questions, and save review progress."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "你提交的文字、文章链接和生成结果会发送到拾贝云端，用于提取知识点、生成题目和保存复习进度。"
+            "value": "你提交的文字、文章链接和生成结果会发送到Recallo 云端，用于提取知识点、生成题目和保存复习进度。"
           }
         }
       }
@@ -3623,13 +3623,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "During generation, content may be sent to third-party AI model services. ShiBei does not publicly show your content to other users."
+            "value": "During generation, content may be sent to third-party AI model services. Recallo does not publicly show your content to other users."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "生成过程中，内容可能会被发送给第三方 AI 模型服务处理。拾贝不会把你的内容公开展示给其他用户。"
+            "value": "生成过程中，内容可能会被发送给第三方 AI 模型服务处理。Recallo 不会把你的内容公开展示给其他用户。"
           }
         }
       }

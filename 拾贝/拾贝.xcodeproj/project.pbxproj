@@ -23,7 +23,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		FA48BAF22FB8628200A66913 /* 拾贝.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "拾贝.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA48BAF22FB8628200A66913 /* Recallo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Recallo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA70C0012FC0000000000001 /* 拾贝Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "拾贝Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA70C00D2FC000000000000D /* MockReviewServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockReviewServiceTests.swift; sourceTree = "<group>"; };
 		FA70C00F2FC000000000000F /* APIClientDecodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClientDecodingTests.swift; sourceTree = "<group>"; };
@@ -68,7 +68,7 @@
 		FA48BAF32FB8628200A66913 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				FA48BAF22FB8628200A66913 /* 拾贝.app */,
+				FA48BAF22FB8628200A66913 /* Recallo.app */,
 				FA70C0012FC0000000000001 /* 拾贝Tests.xctest */,
 			);
 			name = Products;
@@ -106,7 +106,7 @@
 			packageProductDependencies = (
 			);
 			productName = "拾贝";
-			productReference = FA48BAF22FB8628200A66913 /* 拾贝.app */;
+			productReference = FA48BAF22FB8628200A66913 /* Recallo.app */;
 			productType = "com.apple.product-type.application";
 		};
 		FA70C0052FC0000000000005 /* 拾贝Tests */ = {
@@ -348,7 +348,7 @@
 				DEVELOPMENT_TEAM = 44589Y6FA6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "拾贝";
+				INFOPLIST_KEY_CFBundleDisplayName = Recallo;
 				INFOPLIST_KEY_ShiBeiAPNSEnvironment = "$(APS_ENVIRONMENT)";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -360,7 +360,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.maxhan.shibei;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Recallo;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -379,7 +379,7 @@
 				DEVELOPMENT_TEAM = 44589Y6FA6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "拾贝";
+				INFOPLIST_KEY_CFBundleDisplayName = Recallo;
 				INFOPLIST_KEY_ShiBeiAPNSEnvironment = "$(APS_ENVIRONMENT)";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -391,7 +391,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.maxhan.shibei;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Recallo;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -419,7 +419,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/拾贝.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/拾贝";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Recallo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Recallo";
 			};
 			name = Debug;
 		};
@@ -444,7 +444,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/拾贝.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/拾贝";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Recallo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Recallo";
 			};
 			name = Release;
 		};

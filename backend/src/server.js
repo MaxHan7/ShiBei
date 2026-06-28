@@ -1982,7 +1982,7 @@ const server = createServer(async (req, res) => {
     const queue = hasDatabase ? await getGenerationQueueSummary() : null;
     sendJson(res, 200, {
       ok: true,
-      service: "shibei-api",
+      service: "recallo-api",
       startedAt,
       storage: hasDatabase ? "postgres" : "memory",
       database,
@@ -2425,7 +2425,7 @@ function startServer() {
   return initialization
     .then((result) => {
       server.listen(port, host, () => {
-        console.log(`拾贝 Demo 已启动：http://${host}:${port} (${result.storage})`);
+        console.log(`Recallo Demo 已启动：http://${host}:${port} (${result.storage})`);
       });
     })
     .catch((error) => {

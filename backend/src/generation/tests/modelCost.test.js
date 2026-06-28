@@ -157,5 +157,5 @@ test("does not estimate cache for short or unrelated prefixes", () => {
 
 test("estimates mixed Chinese and English text tokens deterministically", () => {
   assert.equal(estimateTokenCount(""), 0);
-  assert.equal(estimateTokenCount("拾贝 AI review"), 5);
+  assert.equal(estimateTokenCount("Recallo AI review"), 5);
 });

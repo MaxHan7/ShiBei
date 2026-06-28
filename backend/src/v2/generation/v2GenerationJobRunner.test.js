@@ -122,7 +122,7 @@ test("extracts wechat article links before running V2 generation", async () => {
         sourceType: "article_link",
         sourceTitle: "游戏化体验",
         sourceUrl: input.sourceUrl,
-        sourceAccount: "拾贝测试号",
+        sourceAccount: "Recallo 测试号",
         rawText: "游戏化体验不是简单加积分，而是通过规则、反馈和动机设计提升用户体验。".repeat(20)
       };
     },
@@ -154,10 +154,10 @@ test("extracts wechat article links before running V2 generation", async () => {
   assert.equal(modelInput.sourceType, "text");
   assert.equal(modelInput.originalSourceType, "wechat_article");
   assert.equal(modelInput.source.type, "wechat_article");
-  assert.equal(modelInput.source.accountOrDomain, "拾贝测试号");
+  assert.equal(modelInput.source.accountOrDomain, "Recallo 测试号");
   assert.match(modelInput.rawText, /游戏化体验/);
   assert.equal(chapters.get("chapter-1").source.type, "wechat_article");
-  assert.equal(chapters.get("chapter-1").source.author, "拾贝测试号");
+  assert.equal(chapters.get("chapter-1").source.author, "Recallo 测试号");
 });
 
 test("persists extracted article author before model output can overwrite source", async () => {
