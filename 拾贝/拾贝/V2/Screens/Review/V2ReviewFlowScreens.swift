@@ -420,7 +420,7 @@ struct V2MatchingQuestionView: View {
     }
 
     private var matchingMascotImage: some View {
-        Image("V2MascotStatic")
+        Image("V2MatchingPuzzleMascot")
             .resizable()
             .renderingMode(.original)
             .scaledToFit()
@@ -537,10 +537,12 @@ private enum V2MatchingPageMetrics {
     static let columnSpacing: CGFloat = 41
     static let leftDecoY: CGFloat = 612
     static let rightDecoY: CGFloat = 648
-    static let mascotTop: CGFloat = 560
-    static let mascotWidth: CGFloat = 86
-    static let mascotHeight: CGFloat = 131
-    static let mascotCardOverlap: CGFloat = 64
+    private static let mascotBottom: CGFloat = 691
+    private static let mascotRightEdge: CGFloat = V2Layout.contentMaxWidth + 22
+    static let mascotWidth: CGFloat = 193
+    static let mascotHeight: CGFloat = 150
+    static let mascotTop: CGFloat = mascotBottom - mascotHeight
+    static let mascotCardOverlap: CGFloat = V2Layout.contentMaxWidth + mascotWidth - mascotRightEdge
     static let contentHeight: CGFloat = 760
 }
 
