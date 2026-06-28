@@ -1152,17 +1152,12 @@ private enum V2ChapterDetailLayoutMetrics {
     static let heroCardFrameHeight: CGFloat = 260
     static let heroTitleX: CGFloat = 27
     static let heroTitleY: CGFloat = 23
-    static let heroTitleWidth: CGFloat = 184
-    static let heroTitleHeight: CGFloat = 70
-    static let heroAuthorY: CGFloat = 102
-    static let heroAuthorWidth: CGFloat = heroPrimaryActionWidth
     static let heroMetadataX: CGFloat = 25
-    static let heroMetadataY: CGFloat = 129
+    static let heroMetadataY: CGFloat = 123
     static let heroMetadataSpacing: CGFloat = V2Spacing.md
     static let heroSourceChipWidth: CGFloat = 132
-    static let heroSourceActionWidth: CGFloat = heroPrimaryActionWidth
     static let heroPrimaryActionX: CGFloat = heroMetadataX
-    static let heroPrimaryActionY: CGFloat = 194
+    static let heroPrimaryActionY: CGFloat = 184
     static let heroPrimaryActionWidth: CGFloat = V2Layout.contentMaxWidth - 50
     static let heroPrimaryActionHeight: CGFloat = 42
     static let heroMetadataRowWidth: CGFloat = heroPrimaryActionWidth
@@ -1222,11 +1217,6 @@ private struct V2ChapterDetailHeroCard: View {
     let onSource: () -> Void
     let onStartReview: () -> Void
 
-    private var displayAuthor: String {
-        let trimmedAuthor = author.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmedAuthor.isEmpty ? "未知来源" : trimmedAuthor
-    }
-
     var body: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
@@ -1238,38 +1228,29 @@ private struct V2ChapterDetailHeroCard: View {
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(V2Color.topTitle)
                 .lineSpacing(6)
-                .lineLimit(3)
+                .lineLimit(4)
                 .truncationMode(.tail)
-                .frame(
-                    width: V2ChapterDetailLayoutMetrics.heroTitleWidth,
-                    height: V2ChapterDetailLayoutMetrics.heroTitleHeight,
-                    alignment: .topLeading
-                )
+                .frame(width: 180, height: 82, alignment: .topLeading)
                 .offset(
                     x: V2ChapterDetailLayoutMetrics.heroTitleX,
                     y: V2ChapterDetailLayoutMetrics.heroTitleY
                 )
 
-            Text("作者 \(displayAuthor)")
-                .font(V2ChapterDetailTextMetrics.metadataFont)
-                .foregroundStyle(Color(hex: 0x767676))
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .frame(
-                    width: V2ChapterDetailLayoutMetrics.heroAuthorWidth,
-                    alignment: .leading
-                )
-                .offset(
-                    x: V2ChapterDetailLayoutMetrics.heroMetadataX,
-                    y: V2ChapterDetailLayoutMetrics.heroAuthorY
+            HStack(spacing: V2ChapterDetailLayoutMetrics.heroMetadataSpacing) {
+                V2ChapterDetailHeroInfoChip(
+                    title: author,
+                    iconName: "V2ChapterDetailSummaryActionIcon",
+                    width: V2ChapterDetailLayoutMetrics.heroAuthorChipWidth
                 )
 
-            V2ChapterDetailHeroActionButton(
-                title: "查看原文",
-                iconName: "V2ChapterDetailLinkActionIcon",
-                width: V2ChapterDetailLayoutMetrics.heroSourceActionWidth,
-                action: onSource
-            )
+                V2ChapterDetailHeroActionButton(
+                    title: "查看原文",
+                    iconName: "V2ChapterDetailLinkActionIcon",
+                    width: V2ChapterDetailLayoutMetrics.heroSourceChipWidth,
+                    action: onSource
+                )
+            }
+            .frame(width: V2ChapterDetailLayoutMetrics.heroMetadataRowWidth, alignment: .leading)
             .offset(
                 x: V2ChapterDetailLayoutMetrics.heroMetadataX,
                 y: V2ChapterDetailLayoutMetrics.heroMetadataY
