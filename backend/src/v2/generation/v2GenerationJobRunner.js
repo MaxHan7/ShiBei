@@ -286,7 +286,12 @@ function buildFailedV2Chapter({ job, existing, result, input }) {
       v2Progress: progress,
       failedStage: result.failedStage || "",
       failureReason: result.failureReason || "",
-      failureCode: result.generationProgress?.failureCode || ""
+      failureCode: result.generationProgress?.failureCode || "",
+      ...(Array.isArray(result.errors) ? { errors: result.errors.slice(0, 12) } : {}),
+      ...(Array.isArray(result.issues) ? { issues: result.issues.slice(0, 12) } : {}),
+      ...(Array.isArray(result.diagnostics) ? { diagnostics: result.diagnostics.slice(0, 12) } : {}),
+      ...(result.runtimeErrorType ? { runtimeErrorType: result.runtimeErrorType } : {}),
+      ...(result.modelStage ? { modelStage: result.modelStage } : {})
     },
     source: existing?.source || {
       type: input.sourceType || "article",
