@@ -514,21 +514,40 @@ struct V2DiscoverView: View {
             VStack(alignment: .leading, spacing: 20) {
                 V2DiscoverHeroCard()
 
-                HStack(spacing: 10) {
-                    ForEach(filters) { filter in
-                        Button {
-                            selectedFilterID = filter.id
-                        } label: {
-                            V2DiscoverChip(
-                                title: filter.title,
-                                isSelected: selectedFilterID == filter.id
-                            )
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: V2DiscoverFilterMetrics.chipSpacing) {
+                        ForEach(filters) { filter in
+                            Button {
+                                selectedFilterID = filter.id
+                            } label: {
+                                V2DiscoverChip(
+                                    title: filter.title,
+                                    isSelected: selectedFilterID == filter.id
+                                )
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("筛选：\(filter.title)")
+                            .accessibilityAddTraits(selectedFilterID == filter.id ? .isSelected : [])
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("筛选：\(filter.title)")
-                        .accessibilityAddTraits(selectedFilterID == filter.id ? .isSelected : [])
+                    }
+                    .padding(.vertical, V2DiscoverFilterMetrics.verticalPadding)
+                    .padding(.horizontal, V2DiscoverFilterMetrics.shadowBleed)
+                }
+                .frame(height: V2DiscoverFilterMetrics.height)
+                .mask(alignment: .trailing) {
+                    HStack(spacing: 0) {
+                        Rectangle()
+                            .fill(.black)
+                        LinearGradient(
+                            colors: [.black, .clear],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                        .frame(width: V2DiscoverFilterMetrics.trailingFadeWidth)
                     }
                 }
+                .padding(.horizontal, -V2DiscoverFilterMetrics.shadowBleed)
+                .accessibilityElement(children: .contain)
 
                 ForEach(filteredArticles) { article in
                     V2RecommendedArticleCard(
@@ -542,6 +561,14 @@ struct V2DiscoverView: View {
             }
         }
     }
+}
+
+private enum V2DiscoverFilterMetrics {
+    static let height: CGFloat = 39
+    static let chipSpacing: CGFloat = 10
+    static let verticalPadding: CGFloat = 4
+    static let shadowBleed: CGFloat = 4
+    static let trailingFadeWidth: CGFloat = 28
 }
 
 struct V2NotesView: View {

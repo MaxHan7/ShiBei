@@ -1,10 +1,22 @@
 {
   "schemaVersion": "recommended_articles_seed_1",
   "filters": [
-    { "id": "AI", "title": "AI" },
-    { "id": "产品", "title": "产品" },
-    { "id": "商业", "title": "商业" },
-    { "id": "学习", "title": "学习" }
+    {
+      "id": "AI",
+      "title": "AI"
+    },
+    {
+      "id": "产品",
+      "title": "产品"
+    },
+    {
+      "id": "商业",
+      "title": "商业"
+    },
+    {
+      "id": "学习",
+      "title": "学习"
+    }
   ],
   "articles": [
     {
@@ -23,7 +35,7 @@
     },
     {
       "id": "google-llm-introduction",
-      "title": "Introduction to Large Language Models",
+      "title": "大语言模型入门",
       "source": "Google for Developers",
       "sourceUrl": "https://developers.google.com/machine-learning/crash-course/llm",
       "sourceAuthor": "Google Machine Learning Crash Course",
@@ -31,26 +43,12 @@
       "tags": [
         "AI"
       ],
-      "description": "用课程化方式解释大语言模型、token、上下文和注意力等基础概念。",
+      "description": "用课程化方式理解语言模型、Token、上下文与注意力等 AI 基础概念。",
       "preparedChapterPath": "recommended/google-llm-introduction-chapter.json"
     },
     {
-      "id": "ibm-large-language-models",
-      "title": "What Are Large Language Models (LLMs)?",
-      "source": "IBM Think",
-      "sourceUrl": "https://www.ibm.com/think/topics/large-language-models",
-      "sourceAuthor": "IBM",
-      "coverImagePath": "recommended/covers/ibm-large-language-models-cover.svg",
-      "tags": [
-        "AI",
-        "产品"
-      ],
-      "description": "从定义、工作方式、优势限制到应用场景解释 LLM，适合作为 AI 通识文章。",
-      "preparedChapterPath": "recommended/ibm-large-language-models-chapter.json"
-    },
-    {
       "id": "nng-usability-heuristics",
-      "title": "10可用性启发式：前4条核心原则",
+      "title": "可用性启发式：4 个核心原则",
       "source": "Nielsen Norman Group",
       "sourceUrl": "https://www.nngroup.com/articles/ten-usability-heuristics/",
       "sourceAuthor": "Jakob Nielsen",
@@ -58,12 +56,12 @@
       "tags": [
         "产品"
       ],
-      "description": "经典可用性十原则，适合拆成界面判断、情境应用和误区辨析题。",
+      "description": "从系统状态、现实匹配、用户控制和一致性理解经典界面设计原则。",
       "preparedChapterPath": "recommended/nng-usability-heuristics-chapter.json"
     },
     {
       "id": "producttalk-continuous-discovery",
-      "title": "Everyone Can Do Continuous Discovery—Even You! Here’s How",
+      "title": "持续发现入门：每个人都能做到",
       "source": "Product Talk",
       "sourceUrl": "https://www.producttalk.org/getting-started-with-discovery/",
       "sourceAuthor": "Teresa Torres",
@@ -72,12 +70,12 @@
         "产品",
         "商业"
       ],
-      "description": "用实践导向解释持续发现，适合产品经理新手理解用户访谈和验证节奏。",
+      "description": "用产品实践视角理解持续发现、机会解决方案树和小型用户研究。",
       "preparedChapterPath": "recommended/producttalk-continuous-discovery-chapter.json"
     },
     {
       "id": "imf-inflation-prices-on-the-rise",
-      "title": "Inflation: Prices on the Rise",
+      "title": "通货膨胀：价格为什么上涨",
       "source": "IMF Finance & Development",
       "sourceUrl": "https://www.imf.org/-/media/files/publications/fandd/back-to-basics/oner-inflation.pdf",
       "sourceAuthor": "Ceyda Oner",
@@ -85,38 +83,12 @@
       "tags": [
         "商业"
       ],
-      "description": "用通俗方式解释通胀、价格水平和政策影响，适合经济金融入门。",
+      "description": "用通俗经济学语言理解通胀、生活成本、价格指数和政策影响。",
       "preparedChapterPath": "recommended/imf-inflation-prices-on-the-rise-chapter.json"
     },
     {
-      "id": "learning-scientists-six-strategies",
-      "title": "Six Strategies for Effective Learning",
-      "source": "The Learning Scientists",
-      "sourceUrl": "https://www.learningscientists.org/blog/2016/8/18-1",
-      "sourceAuthor": "Megan Sumeracki",
-      "coverImagePath": "recommended/covers/learning-scientists-six-strategies-cover.svg",
-      "tags": [
-        "学习"
-      ],
-      "description": "解释提取练习、间隔、交错、精细化等学习策略，和拾贝复习体验高度契合。",
-      "preparedChapterPath": "recommended/learning-scientists-six-strategies-chapter.json"
-    },
-    {
-      "id": "retrieval-practice-powerful-strategy",
-      "title": "Retrieval Practice: A Powerful Strategy for Learning",
-      "source": "RetrievalPractice.org",
-      "sourceUrl": "https://www.retrievalpractice.org/retrievalpractice",
-      "sourceAuthor": "Pooja K. Agarwal",
-      "coverImagePath": "recommended/covers/retrieval-practice-powerful-strategy-cover.svg",
-      "tags": [
-        "学习"
-      ],
-      "description": "直接解释主动回忆为什么有效，适合作为产品核心体验的理论入口。",
-      "preparedChapterPath": "recommended/retrieval-practice-powerful-strategy-chapter.json"
-    },
-    {
       "id": "christensen-disruptive-innovation",
-      "title": "Disruptive Innovation Theory",
+      "title": "颠覆式创新理论",
       "source": "Christensen Institute",
       "sourceUrl": "https://www.christenseninstitute.org/theory/disruptive-innovation/",
       "sourceAuthor": "Christensen Institute",
@@ -124,7 +96,7 @@
       "tags": [
         "商业"
       ],
-      "description": "开放解释颠覆式创新理论，适合做概念辨析和商业案例理解题。",
+      "description": "理解颠覆式创新如何从低端市场切入，并逐步改变竞争格局。",
       "preparedChapterPath": "recommended/christensen-disruptive-innovation-chapter.json"
     }
   ]

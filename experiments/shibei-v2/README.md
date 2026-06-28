@@ -1,5 +1,10 @@
 # Shibei V2 Baseline
 
+> **Archive warning:** this directory is a historical isolated experiment. Do
+> not use `experiments/shibei-v2/ios/拾贝.xcodeproj` to install over the real
+> iPhone app. The production app now lives in `../../拾贝/拾贝.xcodeproj`, and
+> the safe install entrypoint is `../../tools/install-official-ios.sh`.
+
 This directory is an isolated V2 experiment copied from commit `ace671c`.
 It is intentionally separate from the production iOS app and backend at the
 repository root.

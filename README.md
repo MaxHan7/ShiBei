@@ -33,12 +33,14 @@
 
 ```text
 backend/           Node 后端、本地 API、核心出题系统
+拾贝/              正式 iOS App 工程；真机装包和 TestFlight 只能使用这里的 Xcode project
 demo/              HTML 真实体验 Demo
 docs/              迁移文档、API 契约、Xcode 首轮计划、fixture
 quality-test-set/  真实样本、人工样本、质量测试结果
 tasks/             PRD
 tools/             可选辅助工具
 articles/          临时抓取文章存放区
+experiments/       历史实验区；不要用这里的 iOS 工程覆盖正式 App
 ```
 
 ## 本地运行
@@ -74,6 +76,14 @@ npm.cmd run check
 cd ..
 node --check demo/app.js
 ```
+
+正式真机装包：
+
+```bash
+./tools/install-official-ios.sh
+```
+
+这个脚本只会构建并安装 `拾贝/拾贝.xcodeproj`，并在安装前校验 bundle id 必须是 `com.maxhan.shibei`、显示名必须是 `拾贝`。不要再用 `experiments/shibei-v2/ios/拾贝.xcodeproj` 给正式手机装包。
 
 质量测试：
 
