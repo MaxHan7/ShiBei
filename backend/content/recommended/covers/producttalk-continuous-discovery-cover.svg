@@ -1,0 +1,10 @@
+<svg width="329" height="144" viewBox="0 0 329 144" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="329" height="144" rx="18" fill="#FDF9EE"/>
+<circle cx="267" cy="36" r="54" fill="#DDE1AC" fill-opacity="0.38"/>
+<circle cx="58" cy="112" r="42" fill="#DDE1AC" fill-opacity="0.32"/>
+<path d="M70 53C94 36 122 36 146 53C170 70 198 70 222 53" stroke="#969855" stroke-width="5" stroke-linecap="round" opacity="0.45"/>
+<rect x="44" y="70" width="78" height="48" rx="10" fill="#FDF9EE" fill-opacity="0.9"/>
+<rect x="136" y="58" width="94" height="60" rx="12" fill="#FDF9EE" fill-opacity="0.78"/>
+<circle cx="261" cy="92" r="22" fill="#FDF9EE" fill-opacity="0.86"/>
+<text x="28" y="37" fill="#969855" font-family="Arial, sans-serif" font-size="18" font-weight="700">产品</text>
+</svg>

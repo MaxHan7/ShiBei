@@ -1,33 +1,24 @@
 {
-  "schemaVersion": "recommended_articles_seed_1",
+  "schemaVersion": "recommended_article_candidates_1",
+  "updatedAt": "2026-06-28",
+  "selectionPolicy": {
+    "targetLength": "3000-8000 Chinese characters or comparable English length after cleanup",
+    "audience": "Broad beta users who want valuable but approachable learning material",
+    "approvalFlow": "Candidates must pass source access, extraction, chapter-generation, and human quality review before moving into recommended-articles.json"
+  },
   "articles": [
-    {
-      "id": "game-experience-design",
-      "title": "基于游戏化方法的持续性用户体验设计",
-      "source": "微信公众号",
-      "sourceUrl": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
-      "sourceAuthor": "吴 琼、王婧等",
-      "coverImagePath": "recommended/covers/game-experience-cover.svg",
-      "tags": [
-        "产品",
-        "学习"
-      ],
-      "description": "从心流、阶段反馈和身份建构理解长期体验设计。",
-      "preparedChapterPath": "recommended/game-experience-chapter.json"
-    },
     {
       "id": "google-llm-introduction",
       "title": "Introduction to Large Language Models",
       "source": "Google for Developers",
       "sourceUrl": "https://developers.google.com/machine-learning/crash-course/llm",
       "sourceAuthor": "Google Machine Learning Crash Course",
-      "coverImagePath": "recommended/covers/google-llm-introduction-cover.svg",
-      "tags": [
-        "AI",
-        "学习"
-      ],
+      "language": "en",
+      "tags": ["AI", "学习"],
       "description": "用课程化方式解释大语言模型、token、上下文和注意力等基础概念。",
-      "preparedChapterPath": "recommended/google-llm-introduction-chapter.json"
+      "coverBrief": "浅蓝背景，抽象模型节点与文本 token 卡片。",
+      "curationStatus": "selected_candidate",
+      "contentAccess": "public_html"
     },
     {
       "id": "ibm-large-language-models",
@@ -35,27 +26,25 @@
       "source": "IBM Think",
       "sourceUrl": "https://www.ibm.com/think/topics/large-language-models",
       "sourceAuthor": "IBM",
-      "coverImagePath": "recommended/covers/ibm-large-language-models-cover.svg",
-      "tags": [
-        "AI",
-        "产品"
-      ],
+      "language": "en",
+      "tags": ["AI", "产品"],
       "description": "从定义、工作方式、优势限制到应用场景解释 LLM，适合作为 AI 通识文章。",
-      "preparedChapterPath": "recommended/ibm-large-language-models-chapter.json"
+      "coverBrief": "浅蓝背景，书页、模型网络和对话气泡。",
+      "curationStatus": "selected_candidate",
+      "contentAccess": "public_html"
     },
     {
       "id": "nng-usability-heuristics",
-      "title": "10可用性启发式：前4条核心原则",
+      "title": "10 Usability Heuristics for User Interface Design",
       "source": "Nielsen Norman Group",
       "sourceUrl": "https://www.nngroup.com/articles/ten-usability-heuristics/",
       "sourceAuthor": "Jakob Nielsen",
-      "coverImagePath": "recommended/covers/nng-usability-heuristics-cover.svg",
-      "tags": [
-        "产品",
-        "设计"
-      ],
+      "language": "en",
+      "tags": ["产品", "设计"],
       "description": "经典可用性十原则，适合拆成界面判断、情境应用和误区辨析题。",
-      "preparedChapterPath": "recommended/nng-usability-heuristics-chapter.json"
+      "coverBrief": "浅绿背景，界面卡片、检查标记和路径线。",
+      "curationStatus": "selected_candidate",
+      "contentAccess": "public_html"
     },
     {
       "id": "producttalk-continuous-discovery",
@@ -63,13 +52,12 @@
       "source": "Product Talk",
       "sourceUrl": "https://www.producttalk.org/getting-started-with-discovery/",
       "sourceAuthor": "Teresa Torres",
-      "coverImagePath": "recommended/covers/producttalk-continuous-discovery-cover.svg",
-      "tags": [
-        "产品",
-        "商业"
-      ],
+      "language": "en",
+      "tags": ["产品", "商业"],
       "description": "用实践导向解释持续发现，适合产品经理新手理解用户访谈和验证节奏。",
-      "preparedChapterPath": "recommended/producttalk-continuous-discovery-chapter.json"
+      "coverBrief": "奶白背景，访谈便签、问题树和小路线图。",
+      "curationStatus": "selected_candidate",
+      "contentAccess": "public_html"
     },
     {
       "id": "imf-inflation-prices-on-the-rise",
@@ -77,13 +65,12 @@
       "source": "IMF Finance & Development",
       "sourceUrl": "https://www.imf.org/-/media/files/publications/fandd/back-to-basics/oner-inflation.pdf",
       "sourceAuthor": "Ceyda Oner",
-      "coverImagePath": "recommended/covers/imf-inflation-prices-on-the-rise-cover.svg",
-      "tags": [
-        "经济",
-        "金融"
-      ],
+      "language": "en",
+      "tags": ["经济", "金融"],
       "description": "用通俗方式解释通胀、价格水平和政策影响，适合经济金融入门。",
-      "preparedChapterPath": "recommended/imf-inflation-prices-on-the-rise-chapter.json"
+      "coverBrief": "米黄背景，价格标签、上升曲线和消费篮。",
+      "curationStatus": "selected_candidate",
+      "contentAccess": "public_pdf"
     },
     {
       "id": "learning-scientists-six-strategies",
@@ -91,13 +78,12 @@
       "source": "The Learning Scientists",
       "sourceUrl": "https://www.learningscientists.org/blog/2016/8/18-1",
       "sourceAuthor": "Megan Sumeracki",
-      "coverImagePath": "recommended/covers/learning-scientists-six-strategies-cover.svg",
-      "tags": [
-        "学习",
-        "认知"
-      ],
+      "language": "en",
+      "tags": ["学习", "认知"],
       "description": "解释提取练习、间隔、交错、精细化等学习策略，和拾贝复习体验高度契合。",
-      "preparedChapterPath": "recommended/learning-scientists-six-strategies-chapter.json"
+      "coverBrief": "奶白背景，学习卡片、记忆节点和复习日历。",
+      "curationStatus": "selected_candidate",
+      "contentAccess": "public_html"
     },
     {
       "id": "retrieval-practice-powerful-strategy",
@@ -105,13 +91,12 @@
       "source": "RetrievalPractice.org",
       "sourceUrl": "https://www.retrievalpractice.org/retrievalpractice",
       "sourceAuthor": "Pooja K. Agarwal",
-      "coverImagePath": "recommended/covers/retrieval-practice-powerful-strategy-cover.svg",
-      "tags": [
-        "学习",
-        "认知"
-      ],
+      "language": "en",
+      "tags": ["学习", "认知"],
       "description": "直接解释主动回忆为什么有效，适合作为产品核心体验的理论入口。",
-      "preparedChapterPath": "recommended/retrieval-practice-powerful-strategy-chapter.json"
+      "coverBrief": "浅绿背景，问题卡、回忆箭头和脑内书签。",
+      "curationStatus": "selected_candidate",
+      "contentAccess": "public_html"
     },
     {
       "id": "christensen-disruptive-innovation",
@@ -119,13 +104,12 @@
       "source": "Christensen Institute",
       "sourceUrl": "https://www.christenseninstitute.org/theory/disruptive-innovation/",
       "sourceAuthor": "Christensen Institute",
-      "coverImagePath": "recommended/covers/christensen-disruptive-innovation-cover.svg",
-      "tags": [
-        "商业",
-        "创新"
-      ],
+      "language": "en",
+      "tags": ["商业", "创新"],
       "description": "开放解释颠覆式创新理论，适合做概念辨析和商业案例理解题。",
-      "preparedChapterPath": "recommended/christensen-disruptive-innovation-chapter.json"
+      "coverBrief": "浅橄榄背景，市场阶梯、替代路径和小公司箭头。",
+      "curationStatus": "selected_candidate",
+      "contentAccess": "public_html"
     }
   ]
 }

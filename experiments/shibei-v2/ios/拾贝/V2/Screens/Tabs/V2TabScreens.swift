@@ -446,33 +446,63 @@ private enum V2UploadInputCardMetrics {
 
 struct V2DiscoverView: View {
     @Binding var selectedTab: V2HomeTab
-    let openArticle: () -> Void
+    let filters: [V2RecommendedArticleFilter]
+    let articles: [V2RecommendedArticle]
+    let isLoading: Bool
+    let errorText: String
+    let openArticle: (V2RecommendedArticle) -> Void
+    @State private var selectedFilterID = "all"
+
+    private var visibleArticles: [V2RecommendedArticle] {
+        guard selectedFilterID != "all" else {
+            return articles
+        }
+        return articles.filter { $0.tags.contains(selectedFilterID) }
+    }
 
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "发现") {
             VStack(alignment: .leading, spacing: 20) {
                 V2DiscoverHeroCard()
 
-                HStack(spacing: 10) {
-                    V2DiscoverChip(title: "全部", isSelected: true)
-                    V2DiscoverChip(title: "AI", isSelected: false)
-                    V2DiscoverChip(title: "产品", isSelected: false)
-                    V2DiscoverChip(title: "金融", isSelected: false)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(filters.isEmpty ? [V2RecommendedArticleFilter(id: "all", title: "全部")] : filters) { filter in
+                            Button {
+                                selectedFilterID = filter.id
+                            } label: {
+                                V2DiscoverChip(title: filter.title, isSelected: selectedFilterID == filter.id)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
                 }
 
-                V2RecommendedArticleCard(
-                    title: "Anthropic 设计总监：为何您的整个团队都应该使用 AI Agents 协同工作",
-                    source: "微信公众号",
-                    tags: ["AI", "产品"],
-                    action: openArticle
-                )
-
-                V2RecommendedArticleCard(
-                    title: "DMC 模型如何影响游戏化学习体验",
-                    source: "推荐阅读",
-                    tags: ["AI", "学习"],
-                    action: openArticle
-                )
+                if isLoading && articles.isEmpty {
+                    V2InfoCard {
+                        Text("正在加载好文推荐")
+                            .font(V2Typography.body)
+                            .foregroundStyle(V2Color.textSecondary)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    }
+                } else if !errorText.isEmpty && articles.isEmpty {
+                    V2InfoCard {
+                        Text(errorText)
+                            .font(V2Typography.body)
+                            .foregroundStyle(V2Color.textSecondary)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    }
+                } else {
+                    ForEach(visibleArticles) { article in
+                        V2RecommendedArticleCard(
+                            title: article.title,
+                            source: article.source,
+                            tags: article.tags,
+                            coverImageURL: article.coverImageUrl,
+                            action: { openArticle(article) }
+                        )
+                    }
+                }
             }
         }
     }

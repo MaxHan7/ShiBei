@@ -7,13 +7,40 @@ enum V2AppRoute: Equatable {
     case generatingChapterDetail
     case chapterDetail
     case sourceArticle
-    case recommendedArticle
+    case recommendedArticle(articleID: String)
     case chapterOverview
     case unitOverview(unitID: String)
     case question(unitID: String, questionID: String)
     case savedQuestion(index: Int)
     case unitSummary(unitID: String)
     case chapterSummary
+}
+
+struct V2RecommendedArticleCatalogResponse: Decodable {
+    let filters: [V2RecommendedArticleFilter]
+    let articles: [V2RecommendedArticle]
+}
+
+struct V2RecommendedArticleDetailResponse: Decodable {
+    let article: V2RecommendedArticle
+    let chapter: V2BackendChapter
+}
+
+struct V2RecommendedArticleFilter: Decodable, Identifiable, Equatable {
+    let id: String
+    let title: String
+}
+
+struct V2RecommendedArticle: Decodable, Identifiable, Equatable {
+    let id: String
+    let title: String
+    let source: String
+    let sourceUrl: String
+    let sourceAuthor: String?
+    let coverImageUrl: String?
+    let tags: [String]
+    let description: String?
+    let hasPreparedChapter: Bool
 }
 
 enum V2QuestionKind {

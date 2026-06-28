@@ -1,0 +1,419 @@
+{
+  "schemaVersion": "v2_review_path_1",
+  "id": "retrieval-practice-powerful-strategy",
+  "status": "completed",
+  "displayStatusText": "已生成",
+  "title": "检索练习：核心概念与机制",
+  "source": {
+    "type": "article",
+    "title": "Retrieval Practice: A Powerful Strategy for Learning",
+    "author": "Pooja K. Agarwal",
+    "account": "RetrievalPractice.org",
+    "accountOrDomain": "RetrievalPractice.org",
+    "url": "https://www.retrievalpractice.org/retrievalpractice",
+    "blocks": [
+      {
+        "id": "p-046",
+        "type": "paragraph",
+        "text": "Retrieval practice boosts learning by pulling information out of students’ heads (e.g., quizzes, clickers and flashcards), rather than cramming information into students heads (e.g., lectures)."
+      },
+      {
+        "id": "p-070",
+        "type": "paragraph",
+        "text": "Retrieval practice is a powerful research-based strategy that boosts learning by pulling information out of students’ heads , rather than cramming information into students heads. It's a no-stakes learning opportunity that is flexible and quick, with a huge impact on long-term student achievement."
+      }
+    ],
+    "rawInput": "https://www.retrievalpractice.org/retrievalpractice"
+  },
+  "summaryCard": {
+    "text": "检索练习是一种强大的学习策略：通过主动提取信息而非被动输入来强化长期记忆，灵活高效且低风险。"
+  },
+  "units": [
+    {
+      "id": "retrieval-practice-concept",
+      "order": 1,
+      "title": "检索练习：核心概念与机制",
+      "nodeLabel": "核心概念与机制",
+      "shortSummary": "通过提取信息来学习，而非被动接收。",
+      "detailSummary": "检索练习是一种基于研究的强大策略，通过从记忆中主动提取信息（如测验、点击器、抽认卡）来促进学习，相比于被动灌输（如讲座），能显著提升长期学业成就。它是一种无风险、灵活、快速的学习机会。",
+      "why": "理解检索练习的本质，是应用其他具体策略的基础，帮助学习者从被动接收转向主动提取。",
+      "sourceAnchor": {
+        "id": "anchor-retrieval-practice-concept",
+        "blockIds": [
+          "p-046",
+          "p-070"
+        ]
+      },
+      "overview": {
+        "text": "检索练习是通过主动提取信息来强化记忆的学习策略，而非被动接收。理解这一核心机制，将帮助你从“听讲”转向“回忆”，让学习更高效、更持久。"
+      },
+      "questions": [
+        {
+          "id": "q-retrieval-practice-concept-001",
+          "type": "multiple_choice",
+          "stem": "关于检索练习，下列哪一项最准确地描述了它的核心机制？",
+          "options": [
+            {
+              "id": "A",
+              "text": "通过主动提取信息来促进学习"
+            },
+            {
+              "id": "B",
+              "text": "通过被动接收信息来巩固记忆"
+            },
+            {
+              "id": "C",
+              "text": "通过反复阅读来加深理解"
+            },
+            {
+              "id": "D",
+              "text": "通过测验来评估学习掌握程度"
+            }
+          ],
+          "correctOptionId": "A",
+          "explanation": "检索练习是一种主动提取信息的学习方法，而非被动接收或仅仅用于评估；它通过从记忆中主动调用知识来强化长期记忆。",
+          "sourceAnchorId": "anchor-retrieval-practice-concept"
+        },
+        {
+          "id": "q-retrieval-practice-concept-002",
+          "type": "matching",
+          "stem": "将左侧的学习方式与右侧的典型描述相匹配。",
+          "leftItems": [
+            {
+              "id": "left-1",
+              "text": "检索练习 (Retrieval Practice)"
+            },
+            {
+              "id": "left-2",
+              "text": "被动灌输 (Passive Review)"
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "right-1",
+              "text": "通过主动提取信息来学习（如测验、抽认卡）"
+            },
+            {
+              "id": "right-2",
+              "text": "通过被动接收信息来学习（如讲座）"
+            }
+          ],
+          "pairs": [
+            {
+              "leftId": "left-1",
+              "rightId": "right-1"
+            },
+            {
+              "leftId": "left-2",
+              "rightId": "right-2"
+            }
+          ],
+          "explanation": "检索练习强调主动提取信息，而被动灌输强调接收信息。区分两者是理解有效学习策略的关键。",
+          "sourceAnchorId": "anchor-retrieval-practice-concept"
+        },
+        {
+          "id": "q-retrieval-practice-concept-003",
+          "type": "multiple_choice",
+          "stem": "下列哪一项最准确地描述了检索练习的特点？",
+          "options": [
+            {
+              "id": "A",
+              "text": "无风险的学习机会，能提升长期成就"
+            },
+            {
+              "id": "B",
+              "text": "高风险的学习方式，会带来很大压力"
+            },
+            {
+              "id": "C",
+              "text": "仅适用于考试前的临时复习"
+            },
+            {
+              "id": "D",
+              "text": "主要依赖教师的讲授和灌输"
+            }
+          ],
+          "correctOptionId": "A",
+          "explanation": "检索练习是一种无风险、灵活、快速的学习方法，能够显著提升长期学业成就，并不会增加学习压力，也不是仅用于考试或被动灌输。",
+          "sourceAnchorId": "anchor-retrieval-practice-concept"
+        }
+      ],
+      "summary": {
+        "title": "单元完成",
+        "text": "检索练习并非测试，而是一种无风险的学习方法。通过主动提取，你能更牢固地掌握知识，提升长期记忆。"
+      }
+    }
+  ],
+  "chapterSummary": {
+    "title": "章节完成",
+    "statsText": "共 1 个核心知识点，3 道题目",
+    "encouragementText": "检索练习是高效学习的起点——下次复习时，试着合上书本，从大脑中主动“提取”知识，让记忆更加牢固！"
+  },
+  "generationMeta": {
+    "currentStage": "completed",
+    "sourceContextStats": {
+      "fullBlockCount": 89,
+      "unitKnowledgeMap": {
+        "mode": "plan_union_window",
+        "selectedBlockCount": 6,
+        "selectedBlockIds": [
+          "p-045",
+          "p-046",
+          "p-047",
+          "p-069",
+          "p-070",
+          "p-071"
+        ],
+        "fallbackUsed": false
+      },
+      "unitWindows": [
+        {
+          "unitId": "retrieval-practice-concept",
+          "anchorId": "anchor-retrieval-practice-concept",
+          "anchorBlockIds": [
+            "p-046",
+            "p-070"
+          ],
+          "selectedBlockCount": 6,
+          "selectedBlockIds": [
+            "p-045",
+            "p-046",
+            "p-047",
+            "p-069",
+            "p-070",
+            "p-071"
+          ],
+          "fallbackUsed": false
+        }
+      ]
+    },
+    "stageRuntime": {
+      "schemaVersion": "v2_stage_runtime_1",
+      "callCount": 6,
+      "attemptCount": 6,
+      "failedAttemptCount": 0,
+      "retryAttemptCount": 0,
+      "stages": [
+        {
+          "stage": "v2_reviewPathPlan",
+          "callCount": 1,
+          "successCallCount": 1,
+          "failedCallCount": 0,
+          "attemptCount": 1,
+          "retryAttemptCount": 0,
+          "transientFailureCount": 0,
+          "totalDurationMs": 15379,
+          "errorTypes": {},
+          "lastErrorType": "",
+          "lastErrorMessage": ""
+        },
+        {
+          "stage": "v2_unitKnowledgeMap",
+          "callCount": 1,
+          "successCallCount": 1,
+          "failedCallCount": 0,
+          "attemptCount": 1,
+          "retryAttemptCount": 0,
+          "transientFailureCount": 0,
+          "totalDurationMs": 5198,
+          "errorTypes": {},
+          "lastErrorType": "",
+          "lastErrorMessage": ""
+        },
+        {
+          "stage": "v2_taskBriefPlan",
+          "callCount": 1,
+          "successCallCount": 1,
+          "failedCallCount": 0,
+          "attemptCount": 1,
+          "retryAttemptCount": 0,
+          "transientFailureCount": 0,
+          "totalDurationMs": 12990,
+          "errorTypes": {},
+          "lastErrorType": "",
+          "lastErrorMessage": ""
+        },
+        {
+          "stage": "v2_multipleChoiceDraftUnitBatch",
+          "callCount": 1,
+          "successCallCount": 1,
+          "failedCallCount": 0,
+          "attemptCount": 1,
+          "retryAttemptCount": 0,
+          "transientFailureCount": 0,
+          "totalDurationMs": 7708,
+          "errorTypes": {},
+          "lastErrorType": "",
+          "lastErrorMessage": ""
+        },
+        {
+          "stage": "v2_matchingDraft",
+          "callCount": 1,
+          "successCallCount": 1,
+          "failedCallCount": 0,
+          "attemptCount": 1,
+          "retryAttemptCount": 0,
+          "transientFailureCount": 0,
+          "totalDurationMs": 6476,
+          "errorTypes": {},
+          "lastErrorType": "",
+          "lastErrorMessage": ""
+        },
+        {
+          "stage": "v2_unitCopyBatch",
+          "callCount": 1,
+          "successCallCount": 1,
+          "failedCallCount": 0,
+          "attemptCount": 1,
+          "retryAttemptCount": 0,
+          "transientFailureCount": 0,
+          "totalDurationMs": 3171,
+          "errorTypes": {},
+          "lastErrorType": "",
+          "lastErrorMessage": ""
+        }
+      ],
+      "attempts": [
+        {
+          "callId": "reviewPathPlan-1",
+          "stage": "v2_reviewPathPlan",
+          "modelStage": "reviewPathPlan",
+          "attempt": 1,
+          "maxAttempts": 3,
+          "status": "success",
+          "durationMs": 15379,
+          "retryable": false,
+          "errorType": "",
+          "errorMessage": ""
+        },
+        {
+          "callId": "unitKnowledgeMap-2",
+          "stage": "v2_unitKnowledgeMap",
+          "modelStage": "unitKnowledgeMap",
+          "attempt": 1,
+          "maxAttempts": 3,
+          "status": "success",
+          "durationMs": 5198,
+          "retryable": false,
+          "errorType": "",
+          "errorMessage": ""
+        },
+        {
+          "callId": "taskBriefPlan-3",
+          "stage": "v2_taskBriefPlan",
+          "modelStage": "taskBriefPlan",
+          "attempt": 1,
+          "maxAttempts": 3,
+          "status": "success",
+          "durationMs": 12990,
+          "retryable": false,
+          "errorType": "",
+          "errorMessage": ""
+        },
+        {
+          "callId": "multipleChoiceDraftUnitBatch-4",
+          "stage": "v2_multipleChoiceDraftUnitBatch",
+          "modelStage": "multipleChoiceDraftUnitBatch",
+          "attempt": 1,
+          "maxAttempts": 3,
+          "status": "success",
+          "durationMs": 7708,
+          "retryable": false,
+          "errorType": "",
+          "errorMessage": ""
+        },
+        {
+          "callId": "matchingDraft-5",
+          "stage": "v2_matchingDraft",
+          "modelStage": "matchingDraft",
+          "attempt": 1,
+          "maxAttempts": 3,
+          "status": "success",
+          "durationMs": 6476,
+          "retryable": false,
+          "errorType": "",
+          "errorMessage": ""
+        },
+        {
+          "callId": "unitCopyBatch-6",
+          "stage": "v2_unitCopyBatch",
+          "modelStage": "unitCopyBatch",
+          "attempt": 1,
+          "maxAttempts": 3,
+          "status": "success",
+          "durationMs": 3171,
+          "retryable": false,
+          "errorType": "",
+          "errorMessage": ""
+        }
+      ]
+    },
+    "stages": [
+      {
+        "status": "sourceMap",
+        "displayStatusText": "正在提取正文",
+        "at": "2026-06-28T01:13:10.625Z"
+      },
+      {
+        "status": "reviewPathPlan",
+        "displayStatusText": "正在生成知识点",
+        "at": "2026-06-28T01:13:10.625Z"
+      },
+      {
+        "status": "unitKnowledgeMap",
+        "displayStatusText": "正在拆解知识点",
+        "at": "2026-06-28T01:13:10.625Z"
+      },
+      {
+        "status": "taskBriefPlan",
+        "displayStatusText": "正在规划练习",
+        "at": "2026-06-28T01:13:10.625Z"
+      },
+      {
+        "status": "multipleChoiceDraftUnitBatch",
+        "displayStatusText": "正在生成选择题",
+        "at": "2026-06-28T01:13:10.625Z"
+      },
+      {
+        "status": "matchingDraft",
+        "displayStatusText": "正在生成连线题",
+        "at": "2026-06-28T01:13:10.625Z"
+      },
+      {
+        "status": "unitCopyBatch",
+        "displayStatusText": "正在生成单元文案",
+        "at": "2026-06-28T01:13:10.625Z"
+      }
+    ],
+    "qualityGate": {
+      "mode": "deterministic_only",
+      "blocking": false,
+      "qualityJudgeEnabled": false,
+      "deterministicVerdict": "pass",
+      "deterministicIssueCount": 0,
+      "judgeVerdict": "skipped",
+      "judgeIssueCount": 0
+    },
+    "v2Progress": {
+      "jobId": "",
+      "chapterId": "retrieval-practice-powerful-strategy",
+      "status": "completed",
+      "stage": "completed",
+      "stageGroup": "completed",
+      "displayText": "生成完成",
+      "progress": 1,
+      "userVisible": true,
+      "retryCount": 0,
+      "canRetry": false,
+      "updatedAt": "2026-06-28T01:13:10.625Z"
+    },
+    "seededRecommendedArticle": true,
+    "recommendedArticleId": "retrieval-practice-powerful-strategy",
+    "recommendedArticleSource": "RetrievalPractice.org",
+    "preparedAt": "2026-06-28T01:14:01.603Z"
+  },
+  "reviewSession": null,
+  "v2ReviewSession": null,
+  "generationProgress": null,
+  "updatedAt": "2026-06-28T01:14:01.603Z"
+}

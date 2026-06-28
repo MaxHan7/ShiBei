@@ -20,6 +20,13 @@ struct V2RootView: View {
     @State private var generationErrorText = ""
     @State private var isSubmittingGeneration = false
     @State private var hasLoadedInitialBackendChapter = false
+    @State private var recommendedFilters: [V2RecommendedArticleFilter] = []
+    @State private var recommendedArticles: [V2RecommendedArticle] = []
+    @State private var selectedRecommendedArticle: V2RecommendedArticle?
+    @State private var selectedRecommendedChapter: V2ReviewChapterData?
+    @State private var isLoadingRecommendedArticles = false
+    @State private var isLoadingRecommendedDetail = false
+    @State private var recommendedErrorText = ""
 
     private let apiClient = APIClient()
 
@@ -93,8 +100,16 @@ struct V2RootView: View {
                 onGenerate: startV2Generation
             )
         case .discover:
-            V2DiscoverView(selectedTab: $selectedTab) {
-                pushRoute(.recommendedArticle)
+            V2DiscoverView(
+                selectedTab: $selectedTab,
+                filters: recommendedFilters,
+                articles: recommendedArticles,
+                isLoading: isLoadingRecommendedArticles,
+                errorText: recommendedErrorText,
+                openArticle: openRecommendedArticle
+            )
+            .task {
+                await loadRecommendedArticlesIfNeeded()
             }
         case .notes:
             V2NotesView(
@@ -152,11 +167,18 @@ struct V2RootView: View {
             } else {
                 V2MissingRouteView(onBack: goBack)
             }
-        case .recommendedArticle:
+        case .recommendedArticle(let articleID):
             V2RecommendedArticleDetailView(
+                article: selectedRecommendedArticle,
+                chapter: selectedRecommendedChapter,
+                isLoading: isLoadingRecommendedDetail,
+                errorText: recommendedErrorText,
                 onBack: goBack,
-                onGenerate: showGeneratedChapterDetail
+                onGenerate: { importRecommendedArticle(articleID: articleID) }
             )
+            .task(id: articleID) {
+                await loadRecommendedArticleDetail(articleID: articleID)
+            }
         case .chapterOverview:
             if let chapter = activeChapter {
                 V2ChapterOverviewView(
@@ -639,6 +661,72 @@ struct V2RootView: View {
             }
         } catch {
             generationErrorText = error.localizedDescription
+        }
+    }
+
+    @MainActor
+    private func loadRecommendedArticlesIfNeeded() async {
+        guard recommendedArticles.isEmpty, !isLoadingRecommendedArticles else {
+            return
+        }
+
+        isLoadingRecommendedArticles = true
+        recommendedErrorText = ""
+        do {
+            let catalog = try await apiClient.fetchRecommendedArticles()
+            recommendedFilters = catalog.filters
+            recommendedArticles = catalog.articles
+        } catch {
+            recommendedErrorText = "好文推荐暂时加载失败，请稍后再试。"
+        }
+        isLoadingRecommendedArticles = false
+    }
+
+    private func openRecommendedArticle(_ article: V2RecommendedArticle) {
+        selectedRecommendedArticle = article
+        selectedRecommendedChapter = nil
+        recommendedErrorText = ""
+        pushRoute(.recommendedArticle(articleID: article.id))
+    }
+
+    @MainActor
+    private func loadRecommendedArticleDetail(articleID: String) async {
+        if selectedRecommendedArticle?.id == articleID, selectedRecommendedChapter != nil {
+            return
+        }
+
+        isLoadingRecommendedDetail = true
+        recommendedErrorText = ""
+        do {
+            let detail = try await apiClient.fetchRecommendedArticleDetail(id: articleID)
+            selectedRecommendedArticle = detail.article
+            selectedRecommendedChapter = detail.chapter.toReviewChapterData()
+        } catch {
+            recommendedErrorText = "这篇好文暂时加载失败，请稍后再试。"
+        }
+        isLoadingRecommendedDetail = false
+    }
+
+    private func importRecommendedArticle(articleID: String) {
+        isLoadingRecommendedDetail = true
+        recommendedErrorText = ""
+        Task {
+            do {
+                let detail = try await apiClient.importRecommendedArticle(id: articleID)
+                await MainActor.run {
+                    selectedRecommendedArticle = detail.article
+                    applyBackendChapter(detail.chapter)
+                    selectedTab = .materials
+                    routeStack.removeAll()
+                    route = .chapterDetail
+                    isLoadingRecommendedDetail = false
+                }
+            } catch {
+                await MainActor.run {
+                    recommendedErrorText = "导入推荐文章失败，请稍后再试。"
+                    isLoadingRecommendedDetail = false
+                }
+            }
         }
     }
 
