@@ -1195,6 +1195,7 @@ struct V2RootView: View {
                     if chapter.progress?.isFinished == true || isTerminalGenerationStatus(chapter.status) {
                         await MainActor.run {
                             generationPollingTask = nil
+                            routeCompletedGenerationIfNeeded(chapter)
                         }
                         await refreshBackendNotifications()
                         return
@@ -1301,6 +1302,15 @@ struct V2RootView: View {
 
     private func isFailedGenerationStatus(_ status: String) -> Bool {
         status == "failed_generation" || status == "failed_input" || status == "failed_questions" || status == "failed"
+    }
+
+    private func routeCompletedGenerationIfNeeded(_ chapter: V2BackendChapter) {
+        guard routeStore.current == .generatingChapterDetail,
+              !isFailedGenerationStatus(chapter.status),
+              chapter.toReviewChapterData() != nil else {
+            return
+        }
+        replaceRoute(.chapterDetail)
     }
 
     @MainActor
