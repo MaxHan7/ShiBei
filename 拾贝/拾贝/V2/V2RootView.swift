@@ -449,6 +449,10 @@ struct V2RootView: View {
         } else if node.id == v2ReviewSession?.currentCard.unitId,
                   let currentRoute = route(for: v2ReviewSession?.currentCard) {
             resetToRoute(currentRoute, tab: .learning)
+        } else if usesBackendReviewChapter {
+            Task {
+                await replayBackendReviewFromUnit(unitID: node.id)
+            }
         } else {
             resetToRoute(.unitOverview(unitID: node.id), tab: .learning)
         }
@@ -652,7 +656,10 @@ struct V2RootView: View {
     }
 
     private func questionStateKey(unitID: String, questionID: String) -> String {
-        "review::\(unitID)::\(questionID)"
+        if let practice = v2ReviewSession?.practice {
+            return "review-practice::\(v2ReviewSession?.id ?? "session")::\(practice.id)::\(unitID)::\(questionID)"
+        }
+        return "review::\(v2ReviewSession?.id ?? "local")::\(unitID)::\(questionID)"
     }
 
     private func savedQuestionStateKey(index: Int) -> String {
@@ -1536,10 +1543,30 @@ struct V2RootView: View {
             applyV2ReviewSessionResponse(response)
             selectedTab = .learning
             routeStore.clearStack()
-            replaceRoute(route(for: response.reviewSession?.currentCard) ?? .unitOverview(unitID: activeFirstUnitID))
+            replaceRoute(route(for: response.reviewSession?.displayCard) ?? .unitOverview(unitID: activeFirstUnitID))
         } catch {
             generationState.errorText = error.localizedDescription
             openFirstUnit()
+        }
+    }
+
+    @MainActor
+    private func replayBackendReviewFromUnit(unitID: String) async {
+        guard let chapterID = backendChapter?.id else {
+            resetToRoute(.unitOverview(unitID: unitID), tab: .learning)
+            return
+        }
+
+        do {
+            let response = try await apiClient.replayV2ReviewSessionFromUnit(chapterId: chapterID, unitId: unitID)
+            activeLearningChapterID = chapterID
+            applyV2ReviewSessionResponse(response)
+            selectedTab = .learning
+            routeStore.clearStack()
+            replaceRoute(route(for: response.reviewSession?.displayCard) ?? .unitOverview(unitID: unitID))
+        } catch {
+            generationState.errorText = error.localizedDescription
+            resetToRoute(.unitOverview(unitID: unitID), tab: .learning)
         }
     }
 
@@ -1562,7 +1589,7 @@ struct V2RootView: View {
                 return
             }
 
-            routeToReviewCard(route(for: response.reviewSession?.currentCard) ?? fallback)
+            routeToReviewCard(route(for: response.reviewSession?.displayCard) ?? fallback)
         } catch {
             generationState.errorText = error.localizedDescription
             routeToReviewCard(fallback)
@@ -1632,7 +1659,7 @@ struct V2RootView: View {
                 let advanceResponse = try await apiClient.advanceV2ReviewSession(sessionId: updatedSession.id)
                 applyV2ReviewSessionResponse(advanceResponse)
                 questionInteractionStates.removeValue(forKey: questionStateKey(unitID: unitID, questionID: questionID))
-                routeToReviewCard(route(for: advanceResponse.reviewSession?.currentCard) ?? localRouteAfterQuestion(unitID: unitID, questionID: questionID))
+                routeToReviewCard(route(for: advanceResponse.reviewSession?.displayCard) ?? localRouteAfterQuestion(unitID: unitID, questionID: questionID))
                 return
             }
         } catch {
@@ -1687,8 +1714,12 @@ struct V2RootView: View {
                 chapterId: session.chapterId,
                 status: session.status,
                 currentCard: currentCard,
+                activeCard: session.activeCard,
                 questionStates: session.questionStates,
+                activeQuestionStates: session.activeQuestionStates,
                 completedStepIds: session.completedStepIds,
+                mode: session.mode,
+                practice: session.practice,
                 sourceRoute: session.sourceRoute,
                 createdAt: session.createdAt,
                 updatedAt: session.updatedAt,
@@ -1790,7 +1821,7 @@ struct V2RootView: View {
     }
 
     private func hydrateLocalQuestionStates(from session: V2BackendReviewSession) {
-        for (questionID, backendState) in session.questionStates {
+        for (questionID, backendState) in session.displayQuestionStates {
             guard let unitID = unitID(containingQuestionID: questionID),
                   let question = activeQuestion(unitID: unitID, questionID: questionID) else {
                 continue

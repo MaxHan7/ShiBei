@@ -34,6 +34,11 @@ const requiredRoutes = [
     detail: "GET/POST /api/v2/chapters/:id/review-session"
   },
   {
+    name: "v2_review_replay_from_unit",
+    pattern: /v2ReviewReplayMatch[\s\S]*\/api\\\/v2\\\/chapters\\\/\(\[\^\/\]\+\)\\\/review-session\\\/replay-from-unit[\s\S]*req\.method === "POST"/,
+    detail: "POST /api/v2/chapters/:id/review-session/replay-from-unit"
+  },
+  {
     name: "v2_review_session_actions",
     pattern: /v2ReviewSessionActionMatch[\s\S]*advance\|answer\|feedback-visibility\|source-open\|source-return[\s\S]*req\.method === "POST"/,
     detail: "POST /api/v2/review-sessions/:id/(advance|answer|feedback-visibility|source-open|source-return)"

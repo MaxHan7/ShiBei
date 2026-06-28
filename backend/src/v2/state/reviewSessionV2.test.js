@@ -14,6 +14,7 @@ import {
   openSourceFromReviewV2,
   returnFromSourceToReviewV2,
   setQuestionFeedbackVisibleV2,
+  startReplayFromUnitV2,
   V2_REVIEW_SESSION_SCHEMA_VERSION
 } from "./reviewSessionV2.js";
 
@@ -358,4 +359,100 @@ test("favorite question route opens as unanswered and does not mutate review ses
   assert.equal(favoriteState.questionState.feedbackVisible, false);
   assert.equal(nextRoute.favoriteId, "favorite-002");
   assert.equal(nextRoute.nextFavoriteId, null);
+});
+
+test("replaying an earlier unit keeps main progress while exposing unanswered practice cards", async () => {
+  const [reviewPath] = await loadGoldenReviewPaths();
+  const firstUnit = reviewPath.units[0];
+  const secondUnit = reviewPath.units[1];
+  const firstQuestion = firstUnit.questions[0];
+  let session = createReviewSessionV2(reviewPath, { now: NOW });
+
+  session = {
+    ...session,
+    currentCard: {
+      type: "question",
+      chapterId: reviewPath.id,
+      unitId: secondUnit.id,
+      questionId: secondUnit.questions[0].id
+    },
+    questionStates: {
+      [firstQuestion.id]: {
+        status: "answered",
+        result: "correct",
+        selectedOptionId: firstQuestion.correctOptionId,
+        matchedPairs: [],
+        lockedPairIds: [],
+        feedbackVisible: true,
+        answeredAt: NOW
+      }
+    },
+    completedStepIds: [
+      "chapter_overview",
+      `${firstUnit.id}:overview`,
+      `${firstUnit.id}:${firstQuestion.id}`,
+      `${firstUnit.id}:summary`
+    ]
+  };
+
+  session = startReplayFromUnitV2(reviewPath, session, { unitId: firstUnit.id }, { now: NOW });
+
+  assert.equal(session.mode, "replay_from_unit");
+  assert.equal(session.currentCard.unitId, secondUnit.id);
+  assert.equal(session.activeCard.type, "unit_overview");
+  assert.equal(session.activeCard.unitId, firstUnit.id);
+  assert.deepEqual(session.activeQuestionStates, {});
+  assert.equal(session.questionStates[firstQuestion.id].status, "answered");
+});
+
+test("replay from an earlier unit promotes back to main once it catches up", async () => {
+  const [reviewPath] = await loadGoldenReviewPaths();
+  const firstUnit = reviewPath.units[0];
+  const secondUnit = reviewPath.units[1];
+  const mainQuestion = secondUnit.questions[0];
+  let session = createReviewSessionV2(reviewPath, { now: NOW });
+
+  session = {
+    ...session,
+    currentCard: {
+      type: "question",
+      chapterId: reviewPath.id,
+      unitId: secondUnit.id,
+      questionId: mainQuestion.id
+    },
+    completedStepIds: [
+      "chapter_overview",
+      `${firstUnit.id}:overview`,
+      ...firstUnit.questions.map((question) => `${firstUnit.id}:${question.id}`),
+      `${firstUnit.id}:summary`,
+      `${secondUnit.id}:overview`
+    ]
+  };
+
+  session = startReplayFromUnitV2(reviewPath, session, { unitId: firstUnit.id }, { now: NOW });
+
+  for (let guard = 0; guard < 50 && session.mode === "replay_from_unit"; guard += 1) {
+    if (session.activeCard.type === "question") {
+      const unit = reviewPath.units.find((candidate) => candidate.id === session.activeCard.unitId);
+      const question = unit.questions.find((candidate) => candidate.id === session.activeCard.questionId);
+      session = answerQuestionV2(
+        reviewPath,
+        session,
+        {
+          unitId: unit.id,
+          questionId: question.id,
+          result: "correct",
+          selectedOptionId: question.correctOptionId ?? null
+        },
+        { now: NOW }
+      );
+    }
+    session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+  }
+
+  assert.equal(session.mode, "main");
+  assert.equal(session.practice, null);
+  assert.equal(session.currentCard.unitId, secondUnit.id);
+  assert.equal(session.currentCard.questionId, mainQuestion.id);
+  assert.ok(session.completedStepIds.includes(`${firstUnit.id}:summary`));
 });

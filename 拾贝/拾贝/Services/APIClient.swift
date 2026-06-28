@@ -133,6 +133,11 @@ struct APIClient {
         try await send("/api/v2/chapters/\(encodedPathComponent(chapterId))/review-session", method: "POST", body: EmptyRequest(), acceptsFailureBody: false)
     }
 
+    func replayV2ReviewSessionFromUnit(chapterId: String, unitId: String) async throws -> V2ReviewSessionResponse {
+        let request = V2ReplayFromUnitRequest(unitId: unitId)
+        return try await send("/api/v2/chapters/\(encodedPathComponent(chapterId))/review-session/replay-from-unit", method: "POST", body: request, acceptsFailureBody: false)
+    }
+
     func fetchV2ReviewSession(chapterId: String) async throws -> V2ReviewSessionResponse {
         try await get("/api/v2/chapters/\(encodedPathComponent(chapterId))/review-session")
     }

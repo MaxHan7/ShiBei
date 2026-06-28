@@ -44,7 +44,7 @@ export function normalizeReviewSessionV2(
     return createReviewSessionV2(reviewPath, { now });
   }
 
-  return {
+  const normalized = {
     schemaVersion: V2_REVIEW_SESSION_SCHEMA_VERSION,
     id: session.id || `v2-session-${Date.now()}`,
     chapterId: reviewPath.id,
@@ -56,8 +56,11 @@ export function normalizeReviewSessionV2(
     sourceRoute: session.sourceRoute ?? null,
     createdAt: session.createdAt || now,
     updatedAt: session.updatedAt || now,
-    completedAt: session.completedAt ?? null
+    completedAt: session.completedAt ?? null,
+    practice: normalizePracticeSession(reviewPath, session.practice, { now })
   };
+
+  return decorateActiveReviewSession(normalized);
 }
 
 export function advanceReviewCardV2(
@@ -67,50 +70,51 @@ export function advanceReviewCardV2(
 ) {
   const currentSession = normalizeReviewSessionV2(reviewPath, session, { now });
   const nextSession = cloneSession(currentSession);
-  const currentCard = nextSession.currentCard;
+  const activeCore = activeReviewCore(nextSession);
+  const currentCard = activeCore.currentCard;
 
-  markCurrentCardCompleted(nextSession, currentCard);
+  markCurrentCardCompleted(activeCore, currentCard);
 
   if (currentCard.type === "chapter_overview") {
-    nextSession.currentCard = unitOverviewCard(reviewPath, reviewPath.units[0]);
-    return touchSession(nextSession, now);
+    activeCore.currentCard = unitOverviewCard(reviewPath, reviewPath.units[0]);
+    return finalizeActiveMutation(reviewPath, nextSession, now);
   }
 
   if (currentCard.type === "unit_overview") {
     const unit = findUnit(reviewPath, currentCard.unitId);
-    nextSession.currentCard = questionCard(reviewPath, unit, unit.questions[0]);
-    return touchSession(nextSession, now);
+    activeCore.currentCard = questionCard(reviewPath, unit, unit.questions[0]);
+    return finalizeActiveMutation(reviewPath, nextSession, now);
   }
 
   if (currentCard.type === "question") {
-    const questionState = nextSession.questionStates[currentCard.questionId];
+    const questionState = activeCore.questionStates[currentCard.questionId];
     if (questionState?.status === "answered") {
-      nextSession.currentCard = questionFeedbackCard(currentCard);
+      activeCore.currentCard = questionFeedbackCard(currentCard);
     }
-    return touchSession(nextSession, now);
+    return finalizeActiveMutation(reviewPath, nextSession, now);
   }
 
   if (currentCard.type === "question_feedback") {
-    nextSession.currentCard = nextCardAfterQuestionFeedback(reviewPath, nextSession, currentCard);
-    return touchSession(nextSession, now);
+    activeCore.currentCard = nextCardAfterQuestionFeedback(reviewPath, activeCore, currentCard);
+    return finalizeActiveMutation(reviewPath, nextSession, now);
   }
 
   if (currentCard.type === "unit_summary") {
     const unitIndex = reviewPath.units.findIndex((unit) => unit.id === currentCard.unitId);
     const nextUnit = reviewPath.units[unitIndex + 1];
-    nextSession.currentCard = nextUnit
+    activeCore.currentCard = nextUnit
       ? unitOverviewCard(reviewPath, nextUnit)
-      : firstNeedsReviewQuestionCard(reviewPath, nextSession) ?? chapterSummaryCard(reviewPath);
-    return touchSession(nextSession, now);
+      : firstNeedsReviewQuestionCard(reviewPath, activeCore) ?? chapterSummaryCard(reviewPath);
+    return finalizeActiveMutation(reviewPath, nextSession, now);
   }
 
   if (currentCard.type === "chapter_summary") {
-    nextSession.status = "completed";
-    nextSession.completedAt = now;
-    return touchSession(nextSession, now);
+    activeCore.status = "completed";
+    activeCore.completedAt = now;
+    return finalizeActiveMutation(reviewPath, nextSession, now);
   }
 
-  return touchSession(nextSession, now);
+  return finalizeActiveMutation(reviewPath, nextSession, now);
 }
 
 export function answerQuestionV2(
@@ -131,8 +135,9 @@ export function answerQuestionV2(
   const question = findQuestion(unit, questionId);
   const normalizedResult = result === "correct" ? "correct" : "incorrect";
   const nextSession = cloneSession(currentSession);
+  const activeCore = activeReviewCore(nextSession);
 
-  nextSession.questionStates[question.id] = {
+  activeCore.questionStates[question.id] = {
     status: "answered",
     result: normalizedResult,
     selectedOptionId: selectedOptionId ?? null,
@@ -143,16 +148,16 @@ export function answerQuestionV2(
   };
 
   if (normalizedResult === "correct") {
-    addCompletedStep(nextSession, questionStepId(unit.id, question.id));
-    removeNeedsReviewQuestion(nextSession, question.id);
+    addCompletedStep(activeCore, questionStepId(unit.id, question.id));
+    removeNeedsReviewQuestion(activeCore, question.id);
   } else {
-    removeCompletedStep(nextSession, questionStepId(unit.id, question.id));
-    scheduleNeedsReviewQuestion(nextSession, question.id);
+    removeCompletedStep(activeCore, questionStepId(unit.id, question.id));
+    scheduleNeedsReviewQuestion(activeCore, question.id);
   }
 
-  nextSession.currentCard = questionFeedbackCard(questionCard(reviewPath, unit, question));
+  activeCore.currentCard = questionFeedbackCard(questionCard(reviewPath, unit, question));
 
-  return touchSession(nextSession, now);
+  return finalizeActiveMutation(reviewPath, nextSession, now);
 }
 
 export function setQuestionFeedbackVisibleV2(
@@ -163,29 +168,30 @@ export function setQuestionFeedbackVisibleV2(
 ) {
   const currentSession = normalizeReviewSessionV2(reviewPath, session, { now });
   const nextSession = cloneSession(currentSession);
-  const state = nextSession.questionStates[questionId];
+  const activeCore = activeReviewCore(nextSession);
+  const state = activeCore.questionStates[questionId];
 
   if (!state || state.status !== "answered") {
-    return touchSession(nextSession, now);
+    return finalizeActiveMutation(reviewPath, nextSession, now);
   }
 
   state.feedbackVisible = Boolean(visible);
 
-  if (nextSession.currentCard.type === "question_feedback" && !state.feedbackVisible) {
-    nextSession.currentCard = {
-      ...nextSession.currentCard,
+  if (activeCore.currentCard.type === "question_feedback" && !state.feedbackVisible) {
+    activeCore.currentCard = {
+      ...activeCore.currentCard,
       type: "question"
     };
   }
 
-  if (nextSession.currentCard.type === "question" && state.feedbackVisible) {
-    nextSession.currentCard = {
-      ...nextSession.currentCard,
+  if (activeCore.currentCard.type === "question" && state.feedbackVisible) {
+    activeCore.currentCard = {
+      ...activeCore.currentCard,
       type: "question_feedback"
     };
   }
 
-  return touchSession(nextSession, now);
+  return finalizeActiveMutation(reviewPath, nextSession, now);
 }
 
 export function openSourceFromReviewV2(
@@ -196,16 +202,17 @@ export function openSourceFromReviewV2(
 ) {
   const currentSession = normalizeReviewSessionV2(reviewPath, session, { now });
   const nextSession = cloneSession(currentSession);
-  const anchor = resolveSourceAnchorForCard(reviewPath, nextSession.currentCard, sourceAnchorId);
+  const activeCore = activeReviewCore(nextSession);
+  const anchor = resolveSourceAnchorForCard(reviewPath, activeCore.currentCard, sourceAnchorId);
 
   nextSession.sourceRoute = {
     entry,
     sourceAnchorId: anchor.id,
-    returnCard: structuredClone(nextSession.currentCard),
+    returnCard: structuredClone(activeCore.currentCard),
     openedAt: now
   };
 
-  return touchSession(nextSession, now);
+  return finalizeActiveMutation(reviewPath, nextSession, now);
 }
 
 export function returnFromSourceToReviewV2(
@@ -217,12 +224,47 @@ export function returnFromSourceToReviewV2(
   const nextSession = cloneSession(currentSession);
 
   if (nextSession.sourceRoute?.returnCard) {
-    nextSession.currentCard = normalizeCurrentCard(reviewPath, nextSession.sourceRoute.returnCard);
+    activeReviewCore(nextSession).currentCard = normalizeCurrentCard(reviewPath, nextSession.sourceRoute.returnCard);
   }
 
   nextSession.sourceRoute = null;
 
-  return touchSession(nextSession, now);
+  return finalizeActiveMutation(reviewPath, nextSession, now);
+}
+
+export function startReplayFromUnitV2(
+  reviewPath,
+  session,
+  { unitId },
+  { now = new Date().toISOString() } = {}
+) {
+  const currentSession = normalizeReviewSessionV2(reviewPath, session, { now });
+  const unit = findUnit(reviewPath, unitId);
+  const replayCard = unitOverviewCard(reviewPath, unit);
+
+  if (
+    currentSession.status !== "completed" &&
+    cardProgressRank(reviewPath, replayCard) >= cardProgressRank(reviewPath, currentSession.currentCard)
+  ) {
+    return decorateActiveReviewSession(touchSession({ ...currentSession, practice: null }, now));
+  }
+
+  return decorateActiveReviewSession(touchSession({
+    ...currentSession,
+    practice: {
+      id: `practice-${Date.now()}`,
+      mode: "replay_from_unit",
+      startUnitId: unit.id,
+      status: "active",
+      currentCard: replayCard,
+      questionStates: {},
+      completedStepIds: [],
+      needsReviewQuestionIds: [],
+      createdAt: now,
+      updatedAt: now,
+      completedAt: null
+    }
+  }, now));
 }
 
 export function createFavoriteRouteV2(
@@ -390,6 +432,103 @@ function normalizeNeedsReviewQuestionIds(reviewPath, questionIds) {
   ];
 }
 
+function normalizePracticeSession(reviewPath, practice, { now }) {
+  if (!practice || typeof practice !== "object" || practice.mode !== "replay_from_unit") {
+    return null;
+  }
+
+  if (!practice.startUnitId || !reviewPath.units.some((unit) => unit.id === practice.startUnitId)) {
+    return null;
+  }
+
+  return {
+    id: practice.id || `practice-${Date.now()}`,
+    mode: "replay_from_unit",
+    startUnitId: practice.startUnitId,
+    status: practice.status === "completed" ? "completed" : "active",
+    currentCard: normalizeCurrentCard(reviewPath, practice.currentCard),
+    questionStates: normalizeQuestionStates(practice.questionStates),
+    completedStepIds: normalizeCompletedStepIds(practice.completedStepIds),
+    needsReviewQuestionIds: normalizeNeedsReviewQuestionIds(reviewPath, practice.needsReviewQuestionIds),
+    createdAt: practice.createdAt || now,
+    updatedAt: practice.updatedAt || now,
+    completedAt: practice.completedAt ?? null
+  };
+}
+
+function decorateActiveReviewSession(session) {
+  return {
+    ...session,
+    mode: session.practice ? "replay_from_unit" : "main",
+    activeCard: session.practice?.currentCard ?? session.currentCard,
+    activeQuestionStates: session.practice?.questionStates ?? session.questionStates
+  };
+}
+
+function activeReviewCore(session) {
+  return session.practice ?? session;
+}
+
+function finalizeActiveMutation(reviewPath, session, now) {
+  if (session.practice) {
+    session.practice.updatedAt = now;
+    maybePromoteOrClosePractice(reviewPath, session, now);
+  }
+
+  return decorateActiveReviewSession(touchSession(session, now));
+}
+
+function maybePromoteOrClosePractice(reviewPath, session, now) {
+  const practice = session.practice;
+  if (!practice) return;
+
+  if (session.status === "completed") {
+    if (practice.status === "completed" || practice.currentCard.type === "chapter_summary") {
+      session.practice = null;
+    }
+    return;
+  }
+
+  if (cardProgressRank(reviewPath, practice.currentCard) < cardProgressRank(reviewPath, session.currentCard)) {
+    return;
+  }
+
+  session.currentCard = practice.currentCard;
+  session.questionStates = {
+    ...session.questionStates,
+    ...practice.questionStates
+  };
+  session.completedStepIds = unionStrings(session.completedStepIds, practice.completedStepIds);
+  session.needsReviewQuestionIds = unionStrings(
+    session.needsReviewQuestionIds,
+    practice.needsReviewQuestionIds
+  );
+  session.practice = null;
+  session.updatedAt = now;
+}
+
+function cardProgressRank(reviewPath, card) {
+  if (!card || card.type === "chapter_overview") return 0;
+  if (card.type === "chapter_summary") return Number.MAX_SAFE_INTEGER;
+
+  const unitIndex = reviewPath.units.findIndex((unit) => unit.id === card.unitId);
+  if (unitIndex < 0) return 0;
+
+  let rank = 1;
+  for (let index = 0; index < unitIndex; index += 1) {
+    rank += 2 + reviewPath.units[index].questions.length;
+  }
+
+  if (card.type === "unit_overview") return rank;
+  const unit = reviewPath.units[unitIndex];
+  const questionIndex = unit.questions.findIndex((question) => question.id === card.questionId);
+  if (card.type === "question" || card.type === "question_feedback") {
+    return rank + 1 + Math.max(questionIndex, 0);
+  }
+  if (card.type === "unit_summary") return rank + 1 + unit.questions.length;
+  return rank;
+}
+
 function chapterOverviewCard(reviewPath) {
   return {
     type: "chapter_overview",
@@ -495,6 +634,14 @@ function removeNeedsReviewQuestion(session, questionId) {
   session.needsReviewQuestionIds = session.needsReviewQuestionIds.filter(
     (candidate) => candidate !== questionId
   );
+}
+
+function unionStrings(left = [], right = []) {
+  return [
+    ...new Set(
+      [...left, ...right].filter((value) => typeof value === "string" && value.length > 0)
+    )
+  ];
 }
 
 function firstNeedsReviewQuestionCard(reviewPath, session) {

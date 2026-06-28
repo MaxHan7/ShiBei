@@ -220,9 +220,34 @@ struct V2BackendReviewSession: Codable, Equatable {
     let chapterId: String
     let status: String
     let currentCard: V2BackendReviewCard
+    let activeCard: V2BackendReviewCard?
+    let questionStates: [String: V2BackendQuestionState]
+    let activeQuestionStates: [String: V2BackendQuestionState]?
+    let completedStepIds: [String]
+    let mode: String?
+    let practice: V2BackendPracticeSession?
+    let sourceRoute: V2BackendSourceRoute?
+    let createdAt: String
+    let updatedAt: String
+    let completedAt: String?
+
+    var displayCard: V2BackendReviewCard {
+        activeCard ?? currentCard
+    }
+
+    var displayQuestionStates: [String: V2BackendQuestionState] {
+        activeQuestionStates ?? questionStates
+    }
+}
+
+struct V2BackendPracticeSession: Codable, Equatable {
+    let id: String
+    let mode: String
+    let startUnitId: String
+    let status: String
+    let currentCard: V2BackendReviewCard
     let questionStates: [String: V2BackendQuestionState]
     let completedStepIds: [String]
-    let sourceRoute: V2BackendSourceRoute?
     let createdAt: String
     let updatedAt: String
     let completedAt: String?
@@ -264,6 +289,10 @@ struct V2AnswerQuestionRequest: Encodable {
     let selectedOptionId: String?
     let matchedPairs: [V2BackendMatchedPair]
     let lockedPairIds: [String]
+}
+
+struct V2ReplayFromUnitRequest: Encodable {
+    let unitId: String
 }
 
 struct V2FeedbackVisibilityRequest: Encodable {
