@@ -29,7 +29,7 @@ export function normalizeRecommendedArticleCatalog(catalog, { catalogPath = DEFA
 
   return {
     schemaVersion: String(catalog.schemaVersion || "recommended_articles_seed_1"),
-    filters: buildRecommendedArticleFilters(articles),
+    filters: buildRecommendedArticleFilters(articles, catalog.filters),
     articles
   };
 }
@@ -231,7 +231,28 @@ function normalizeRecommendedArticle(article, { index, seenIds, catalogPath }) {
   };
 }
 
-function buildRecommendedArticleFilters(articles) {
+function buildRecommendedArticleFilters(articles, configuredFilters) {
+  if (Array.isArray(configuredFilters) && configuredFilters.length > 0) {
+    const seen = new Set();
+    const filters = configuredFilters.map((filter, index) => {
+      const id = stringValue(filter?.id);
+      const title = stringValue(filter?.title) || id;
+      if (!id) throw new Error(`Recommended article filter at index ${index} must have id`);
+      if (seen.has(id)) throw new Error(`Recommended article filter duplicated: ${id}`);
+      seen.add(id);
+      return { id, title };
+    });
+
+    const articleTags = new Set(articles.flatMap((article) => article.tags));
+    for (const filter of filters) {
+      if (!articleTags.has(filter.id)) {
+        throw new Error(`Recommended article filter has no matching article tag: ${filter.id}`);
+      }
+    }
+
+    return [{ id: "all", title: "全部" }, ...filters];
+  }
+
   const tags = [];
   const seen = new Set();
 

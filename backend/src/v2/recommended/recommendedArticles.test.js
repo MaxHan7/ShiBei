@@ -16,7 +16,7 @@ import {
 
 const NOW = "2026-06-27T00:00:00.000Z";
 
-test("loads recommended articles and derives filters from tags", async () => {
+test("loads recommended articles with configured top-level filters", async () => {
   const { catalogPath } = await writeTempCatalog();
   const catalog = await loadRecommendedArticleCatalog({ catalogPath });
   const clientCatalog = serializeRecommendedArticleCatalogForClient(catalog, {
@@ -34,6 +34,17 @@ test("loads recommended articles and derives filters from tags", async () => {
   assert.equal(
     clientCatalog.articles[0].coverImageUrl,
     "https://example.test/api/v2/recommended-articles/article-001/cover"
+  );
+});
+
+test("rejects configured filters that do not match any article tag", () => {
+  assert.throws(
+    () =>
+      normalizeRecommendedArticleCatalog({
+        filters: [{ id: "不存在", title: "不存在" }],
+        articles: [buildCatalogArticle()]
+      }),
+    /no matching article tag/
   );
 });
 
@@ -129,6 +140,10 @@ async function writeTempCatalog() {
     catalogPath,
     JSON.stringify({
       schemaVersion: "recommended_articles_seed_1",
+      filters: [
+        { id: "产品", title: "产品" },
+        { id: "学习", title: "学习" }
+      ],
       articles: [
         buildCatalogArticle({
           coverImagePath: "cover.svg",

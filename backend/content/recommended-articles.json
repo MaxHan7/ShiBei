@@ -1,5 +1,11 @@
 {
   "schemaVersion": "recommended_articles_seed_1",
+  "filters": [
+    { "id": "AI", "title": "AI" },
+    { "id": "产品", "title": "产品" },
+    { "id": "商业", "title": "商业" },
+    { "id": "学习", "title": "学习" }
+  ],
   "articles": [
     {
       "id": "game-experience-design",
@@ -23,8 +29,7 @@
       "sourceAuthor": "Google Machine Learning Crash Course",
       "coverImagePath": "recommended/covers/google-llm-introduction-cover.svg",
       "tags": [
-        "AI",
-        "学习"
+        "AI"
       ],
       "description": "用课程化方式解释大语言模型、token、上下文和注意力等基础概念。",
       "preparedChapterPath": "recommended/google-llm-introduction-chapter.json"
@@ -51,8 +56,7 @@
       "sourceAuthor": "Jakob Nielsen",
       "coverImagePath": "recommended/covers/nng-usability-heuristics-cover.svg",
       "tags": [
-        "产品",
-        "设计"
+        "产品"
       ],
       "description": "经典可用性十原则，适合拆成界面判断、情境应用和误区辨析题。",
       "preparedChapterPath": "recommended/nng-usability-heuristics-chapter.json"
@@ -79,8 +83,7 @@
       "sourceAuthor": "Ceyda Oner",
       "coverImagePath": "recommended/covers/imf-inflation-prices-on-the-rise-cover.svg",
       "tags": [
-        "经济",
-        "金融"
+        "商业"
       ],
       "description": "用通俗方式解释通胀、价格水平和政策影响，适合经济金融入门。",
       "preparedChapterPath": "recommended/imf-inflation-prices-on-the-rise-chapter.json"
@@ -93,8 +96,7 @@
       "sourceAuthor": "Megan Sumeracki",
       "coverImagePath": "recommended/covers/learning-scientists-six-strategies-cover.svg",
       "tags": [
-        "学习",
-        "认知"
+        "学习"
       ],
       "description": "解释提取练习、间隔、交错、精细化等学习策略，和拾贝复习体验高度契合。",
       "preparedChapterPath": "recommended/learning-scientists-six-strategies-chapter.json"
@@ -107,8 +109,7 @@
       "sourceAuthor": "Pooja K. Agarwal",
       "coverImagePath": "recommended/covers/retrieval-practice-powerful-strategy-cover.svg",
       "tags": [
-        "学习",
-        "认知"
+        "学习"
       ],
       "description": "直接解释主动回忆为什么有效，适合作为产品核心体验的理论入口。",
       "preparedChapterPath": "recommended/retrieval-practice-powerful-strategy-chapter.json"
@@ -121,8 +122,7 @@
       "sourceAuthor": "Christensen Institute",
       "coverImagePath": "recommended/covers/christensen-disruptive-innovation-cover.svg",
       "tags": [
-        "商业",
-        "创新"
+        "商业"
       ],
       "description": "开放解释颠覆式创新理论，适合做概念辨析和商业案例理解题。",
       "preparedChapterPath": "recommended/christensen-disruptive-innovation-chapter.json"
