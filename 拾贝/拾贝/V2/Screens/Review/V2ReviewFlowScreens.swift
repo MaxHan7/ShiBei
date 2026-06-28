@@ -1165,7 +1165,7 @@ private enum V2ChapterDetailLayoutMetrics {
     static let heroMascotWidth: CGFloat = 114
     static let heroMascotHeight: CGFloat = 128
     static let heroMascotX: CGFloat = 216
-    static let heroMascotY: CGFloat = -24
+    static let heroMascotY: CGFloat = -18
 
     static let cardContentLeading: CGFloat = V2Spacing.lg
     static let sectionHeaderTopPadding: CGFloat = V2Spacing.md
