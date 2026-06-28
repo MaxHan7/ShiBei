@@ -27,6 +27,8 @@ struct V2RootView: View {
     @State private var loadingRecommendedArticleIDs: Set<String> = []
     @State private var importingRecommendedArticleIDs: Set<String> = []
     @State private var generationPollingTask: Task<Void, Never>?
+    @State private var recommendedArticleSimulationTask: Task<Void, Never>?
+    @State private var recommendedArticleGenerationSimulation: V2RecommendedArticleGenerationSimulation?
     @State private var hasLoadedInitialBackendChapter = false
     @State private var showsStartupSplash = true
     @State private var generationState = V2GenerationState()
@@ -216,9 +218,9 @@ struct V2RootView: View {
                 .id("generating-detail-failed")
             } else {
                 V2GeneratingChapterDetailView(
-                    progress: backendChapter?.progress?.progress ?? 0,
+                    progress: activeGenerationProgress,
                     statusText: generationDisplayText,
-                    isCompleted: backendChapter?.toReviewChapterData() != nil,
+                    isCompleted: canOpenGeneratedChapterFromGenerationDetail,
                     onBack: goBack,
                     onSource: openSource,
                     onOpenChapter: { replaceRoute(.chapterDetail) },
@@ -575,9 +577,7 @@ struct V2RootView: View {
                     recommendedArticleChapters[articleID] = response.chapter
                     applyBackendChapter(response.chapter)
                     activeLearningChapterID = response.chapter.id
-                    selectedTab = .materials
-                    generationState.resetAfterDelete()
-                    routeStore.reset(to: .chapterDetail)
+                    startRecommendedArticleGenerationSimulation(chapterID: response.chapter.id)
                 }
             } catch {
                 await MainActor.run {
@@ -993,10 +993,24 @@ struct V2RootView: View {
     }
 
     private var generationDisplayText: String {
+        if let simulation = recommendedArticleGenerationSimulation {
+            return simulation.statusText
+        }
         if !generationState.errorText.isEmpty {
             return generationState.errorText
         }
         return backendChapter?.progress?.displayTextOrFallback ?? "正在提交生成任务..."
+    }
+
+    private var activeGenerationProgress: Double {
+        if let simulation = recommendedArticleGenerationSimulation {
+            return simulation.progress
+        }
+        return backendChapter?.progress?.progress ?? 0
+    }
+
+    private var canOpenGeneratedChapterFromGenerationDetail: Bool {
+        recommendedArticleGenerationSimulation == nil && backendChapter?.toReviewChapterData() != nil
     }
 
     private var isActiveGenerationFailed: Bool {
@@ -1297,7 +1311,9 @@ struct V2RootView: View {
         }
 
         generationPollingTask?.cancel()
+        recommendedArticleSimulationTask?.cancel()
         generationPollingTask = nil
+        recommendedArticleSimulationTask = nil
 
         do {
             _ = try await apiClient.deleteChapter(id: chapterID)
@@ -1310,6 +1326,7 @@ struct V2RootView: View {
             backendChapter = backendChapters.first
             backendReviewChapter = backendChapter?.toReviewChapterData()
             v2ReviewSession = backendChapter?.v2ReviewSession
+            recommendedArticleGenerationSimulation = nil
             generationState.resetAfterDelete()
             resetToHome(tab: .materials)
         } catch {
@@ -1326,6 +1343,56 @@ struct V2RootView: View {
             generationState.showsChapterCard = false
             withAnimation(.easeOut(duration: 0.18)) {
                 generationState.showsStartedDialog = true
+            }
+        }
+    }
+
+    private func startRecommendedArticleGenerationSimulation(chapterID: String) {
+        recommendedArticleSimulationTask?.cancel()
+        selectedTab = .materials
+        generationState.resetAfterDelete()
+        generationState.showsChapterCard = true
+        recommendedArticleGenerationSimulation = V2RecommendedArticleGenerationSimulation(
+            chapterID: chapterID,
+            progress: V2RecommendedArticleSimulationTimeline.steps.first?.progress ?? 0,
+            statusText: V2RecommendedArticleSimulationTimeline.steps.first?.statusText ?? "准备生成"
+        )
+        routeStore.reset(to: .generatingChapterDetail)
+
+        if !hasSeenGenerationStartedEducation {
+            withAnimation(.easeOut(duration: 0.18)) {
+                generationState.showsStartedDialog = true
+            }
+        }
+
+        recommendedArticleSimulationTask = Task {
+            for step in V2RecommendedArticleSimulationTimeline.steps {
+                if Task.isCancelled {
+                    return
+                }
+                await MainActor.run {
+                    guard recommendedArticleGenerationSimulation?.chapterID == chapterID else {
+                        return
+                    }
+                    withAnimation(.easeInOut(duration: 0.22)) {
+                        recommendedArticleGenerationSimulation?.progress = step.progress
+                        recommendedArticleGenerationSimulation?.statusText = step.statusText
+                    }
+                }
+                try? await Task.sleep(nanoseconds: step.durationNanoseconds)
+            }
+
+            await MainActor.run {
+                guard recommendedArticleGenerationSimulation?.chapterID == chapterID else {
+                    return
+                }
+                recommendedArticleGenerationSimulation = nil
+                recommendedArticleSimulationTask = nil
+                generationState.showsChapterCard = false
+                generationState.clearError()
+                if routeStore.current == .generatingChapterDetail {
+                    replaceRoute(.chapterDetail)
+                }
             }
         }
     }
@@ -1999,6 +2066,23 @@ struct V2RootView: View {
             generationState.errorText = error.localizedDescription
         }
     }
+}
+
+private enum V2RecommendedArticleSimulationTimeline {
+    struct Step {
+        let progress: Double
+        let statusText: String
+        let durationNanoseconds: UInt64
+    }
+
+    static let steps: [Step] = [
+        Step(progress: 0.08, statusText: "正在提取原文", durationNanoseconds: 1_200_000_000),
+        Step(progress: 0.28, statusText: "正在分析文章", durationNanoseconds: 1_300_000_000),
+        Step(progress: 0.48, statusText: "正在整理知识点", durationNanoseconds: 1_300_000_000),
+        Step(progress: 0.68, statusText: "正在设计练习", durationNanoseconds: 1_300_000_000),
+        Step(progress: 0.86, statusText: "正在生成题目", durationNanoseconds: 1_200_000_000),
+        Step(progress: 1.0, statusText: "正在整理结果", durationNanoseconds: 900_000_000)
+    ]
 }
 
 private struct V2MissingRouteView: View {
