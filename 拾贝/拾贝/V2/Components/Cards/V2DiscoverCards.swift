@@ -43,37 +43,15 @@ struct V2DiscoverFilterBar: View {
                     .accessibilityAddTraits(selectedFilterID == filter.id ? .isSelected : [])
                 }
             }
-            .padding(.horizontal, V2DiscoverFilterBarMetrics.edgeFadeWidth)
             .padding(.trailing, V2DiscoverFilterBarMetrics.trailingScrollComfort)
         }
         .frame(height: V2DiscoverFilterBarMetrics.height)
-        .padding(.horizontal, -V2DiscoverFilterBarMetrics.edgeFadeWidth)
-        .mask {
-            HStack(spacing: 0) {
-                LinearGradient(
-                    colors: [.clear, .black],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .frame(width: V2DiscoverFilterBarMetrics.edgeFadeWidth)
-
-                Rectangle().fill(.black)
-
-                LinearGradient(
-                    colors: [.black, .clear],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .frame(width: V2DiscoverFilterBarMetrics.edgeFadeWidth)
-            }
-        }
     }
 }
 
 private enum V2DiscoverFilterBarMetrics {
     static let height: CGFloat = 34
     static let chipSpacing: CGFloat = V2Spacing.sm + V2Spacing.xs / 2
-    static let edgeFadeWidth: CGFloat = V2Spacing.md
     static let trailingScrollComfort: CGFloat = V2Spacing.md
 }
 
