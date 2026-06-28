@@ -11,8 +11,8 @@
   - 候选池可抽取性审查报告。
 - `backend/content/recommended/<article-id>-chapter.json`
   - 已生成并验收过的章节 artifact。
-- `backend/content/recommended/covers/<article-id>-cover.svg`
-  - 推荐卡片封面。
+- `backend/content/recommended/covers/<article-id>-cover.png`
+  - 推荐卡片封面。正式 catalog 优先指向 PNG，避免 iOS 远程 SVG 兼容问题；SVG 可作为可编辑源稿保留。
 - `backend/content/recommended-articles.json`
   - 正式上架池。只有进入这里的文章才会出现在发现页。
 
@@ -105,7 +105,7 @@
 
 适用场景：推荐卡片右侧图片需要替换，但文章和题目不变。
 
-1. 把新封面放到 `backend/content/recommended/covers/<article-id>-cover.svg`。
+1. 把新封面放到 `backend/content/recommended/covers/<article-id>-cover.png`。
 2. 确认 `backend/content/recommended-articles.json` 的 `coverImagePath` 指向正确文件。
 3. 用 `GET /api/v2/recommended-articles/<id>/cover` 检查是否返回 `200`。
 4. 在发现页检查裁切、层级和文字遮挡。
