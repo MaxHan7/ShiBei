@@ -1,0 +1,217 @@
+name: V2 Production Generation Diagnostics
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type diagnose-v2-generation to confirm this diagnostic run
+        required: true
+      railway_project_id:
+        description: Railway project id
+        required: true
+        default: 942a03f5-84db-414b-86da-a2c9c2c49f48
+      postgres_service_id:
+        description: Railway Postgres service id
+        required: true
+        default: 76138dfd-940a-4036-b390-b0bd5f8a3e51
+      railway_environment:
+        description: Railway environment name
+        required: true
+        default: production
+      lookback_hours:
+        description: Recent generation lookback window in hours
+        required: true
+        default: "24"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v2-production-generation-diagnostics
+  cancel-in-progress: false
+
+jobs:
+  diagnose:
+    name: Diagnose recent production generation state
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+      RAILWAY_PROJECT_ID: ${{ inputs.railway_project_id }}
+      POSTGRES_SERVICE_ID: ${{ inputs.postgres_service_id }}
+      RAILWAY_ENVIRONMENT: ${{ inputs.railway_environment }}
+      LOOKBACK_HOURS: ${{ inputs.lookback_hours }}
+
+    steps:
+      - name: Refuse missing confirmation
+        if: ${{ inputs.confirmation != 'diagnose-v2-generation' }}
+        run: |
+          echo "confirmation must be exactly diagnose-v2-generation"
+          exit 1
+
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Refuse missing Railway API token
+        run: |
+          if [ -z "$RAILWAY_API_TOKEN" ]; then
+            echo "Repository secret RAILWAY_API_TOKEN is required."
+            exit 1
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+
+      - name: Install Railway CLI
+        run: npm install --global @railway/cli
+
+      - name: Resolve database URL from Railway variables
+        run: |
+          set -euo pipefail
+          variables_json="$(railway variable list --project "$RAILWAY_PROJECT_ID" --service "$POSTGRES_SERVICE_ID" --environment "$RAILWAY_ENVIRONMENT" --json)"
+          database_url="$(printf '%s' "$variables_json" | node tools/extract-railway-database-url.mjs)"
+          echo "::add-mask::$database_url"
+          {
+            echo "DATABASE_URL<<EOF"
+            echo "$database_url"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+
+      - name: Write sanitized generation diagnostics
+        run: |
+          set -euo pipefail
+          mkdir -p production-diagnostics
+          stamp="$(date -u +'%Y%m%d-%H%M%S')"
+          sql_file="production-diagnostics/${stamp}-recent-generation-diagnostics.sql"
+          json_file="production-diagnostics/${stamp}-recent-generation-diagnostics.json"
+          md_file="production-diagnostics/${stamp}-recent-generation-diagnostics.md"
+
+          cat > "$sql_file" <<'SQL'
+          \pset tuples_only on
+          \pset format unaligned
+          WITH params AS (
+            SELECT GREATEST(1, LEAST(168, COALESCE(NULLIF(:'lookback_hours', '')::int, 24))) AS lookback_hours
+          ),
+          recent_jobs AS (
+            SELECT
+              id,
+              CASE WHEN length(device_id) > 12 THEN left(device_id, 12) || '...' ELSE device_id END AS device_id_preview,
+              chapter_id,
+              job_type,
+              status,
+              current_stage,
+              queue_status,
+              attempt_count,
+              max_attempts,
+              left(error_message, 360) AS error_message_preview,
+              left(last_error, 360) AS last_error_preview,
+              left(idempotency_key, 80) AS idempotency_key_preview,
+              started_at,
+              finished_at,
+              updated_at
+            FROM generation_jobs, params
+            WHERE updated_at >= NOW() - make_interval(hours => params.lookback_hours)
+            ORDER BY updated_at DESC
+            LIMIT 50
+          ),
+          recent_chapters AS (
+            SELECT
+              c.id,
+              CASE WHEN length(c.device_id) > 12 THEN left(c.device_id, 12) || '...' ELSE c.device_id END AS device_id_preview,
+              c.status,
+              left(c.title, 120) AS title,
+              c.deleted_at IS NOT NULL AS deleted,
+              c.deleted_reason,
+              c.created_at,
+              c.updated_at,
+              c.chapter_json #>> '{generationMeta,failureCode}' AS failure_code,
+              c.chapter_json #>> '{generationMeta,failedStage}' AS failed_stage,
+              left(COALESCE(c.chapter_json #>> '{generationMeta,failureReason}', c.chapter_json #>> '{failureReason}', ''), 360) AS failure_reason_preview,
+              c.chapter_json #> '{generationMeta,errors}' AS contract_errors,
+              c.chapter_json #> '{generationProgress}' AS generation_progress,
+              jsonb_array_length(COALESCE(c.chapter_json #> '{source,blocks}', '[]'::jsonb)) AS source_block_count,
+              jsonb_array_length(COALESCE(c.chapter_json #> '{units}', '[]'::jsonb)) AS unit_count
+            FROM chapters c, params
+            WHERE c.updated_at >= NOW() - make_interval(hours => params.lookback_hours)
+            ORDER BY c.updated_at DESC
+            LIMIT 50
+          ),
+          recent_notifications AS (
+            SELECT
+              n.id,
+              CASE WHEN length(n.device_id) > 12 THEN left(n.device_id, 12) || '...' ELSE n.device_id END AS device_id_preview,
+              n.chapter_id,
+              n.notification_json ->> 'type' AS type,
+              n.notification_json ->> 'title' AS title,
+              left(n.notification_json ->> 'body', 220) AS body_preview,
+              n.notification_json ->> 'read' AS read,
+              n.notification_json ->> 'dismissed' AS dismissed,
+              n.deleted_at IS NOT NULL AS deleted,
+              n.created_at,
+              n.updated_at
+            FROM notifications n, params
+            WHERE n.updated_at >= NOW() - make_interval(hours => params.lookback_hours)
+            ORDER BY n.updated_at DESC
+            LIMIT 80
+          ),
+          stale_collision_candidates AS (
+            SELECT
+              chapter_id,
+              COUNT(*) AS job_count,
+              COUNT(*) FILTER (WHERE status = 'completed') AS completed_job_count,
+              COUNT(*) FILTER (WHERE status LIKE 'failed%') AS failed_job_count,
+              MIN(updated_at) AS first_job_update,
+              MAX(updated_at) AS last_job_update,
+              array_agg(id ORDER BY updated_at DESC) AS job_ids
+            FROM generation_jobs, params
+            WHERE updated_at >= NOW() - make_interval(hours => params.lookback_hours)
+            GROUP BY chapter_id
+            HAVING COUNT(*) > 1
+            ORDER BY MAX(updated_at) DESC
+            LIMIT 30
+          )
+          SELECT jsonb_pretty(jsonb_build_object(
+            'generatedAt', NOW(),
+            'lookbackHours', (SELECT lookback_hours FROM params),
+            'recentJobs', COALESCE((SELECT jsonb_agg(to_jsonb(recent_jobs)) FROM recent_jobs), '[]'::jsonb),
+            'recentChapters', COALESCE((SELECT jsonb_agg(to_jsonb(recent_chapters)) FROM recent_chapters), '[]'::jsonb),
+            'recentNotifications', COALESCE((SELECT jsonb_agg(to_jsonb(recent_notifications)) FROM recent_notifications), '[]'::jsonb),
+            'staleCollisionCandidates', COALESCE((SELECT jsonb_agg(to_jsonb(stale_collision_candidates)) FROM stale_collision_candidates), '[]'::jsonb)
+          ));
+          SQL
+
+          docker run --rm \
+            -e DATABASE_URL \
+            -e PGPASSWORD="" \
+            -v "$PWD/production-diagnostics:/diagnostics" \
+            postgres:18 \
+            psql "$DATABASE_URL" \
+              --set=ON_ERROR_STOP=1 \
+              --set=lookback_hours="$LOOKBACK_HOURS" \
+              --file="/diagnostics/$(basename "$sql_file")" \
+              --output="/diagnostics/$(basename "$json_file")"
+
+          cat > "$md_file" <<EOF
+          # V2 Production Generation Diagnostics
+
+          - Created at: \`${stamp}Z\`
+          - Workflow run: \`${{ github.run_id }}\`
+          - Railway project id: \`${RAILWAY_PROJECT_ID}\`
+          - Railway environment: \`${RAILWAY_ENVIRONMENT}\`
+          - Lookback hours: \`${LOOKBACK_HOURS}\`
+          - Diagnostic JSON: \`$(basename "$json_file")\`
+
+          This diagnostic intentionally redacts full device ids and truncates free-text fields.
+          EOF
+
+          echo "Diagnostic written to $json_file"
+
+      - name: Upload generation diagnostics
+        uses: actions/upload-artifact@v6
+        with:
+          name: v2-production-generation-diagnostics
+          path: production-diagnostics/
+          if-no-files-found: error
+          retention-days: 3
