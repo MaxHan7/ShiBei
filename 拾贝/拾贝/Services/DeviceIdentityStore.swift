@@ -6,26 +6,53 @@ struct DeviceIdentityStore {
 
     private let service: String
     private let account: String
+    private let defaultsKey: String
 
-    init(service: String = "com.shibei.app.device-identity", account: String = "anonymous-device-id") {
+    init(
+        service: String = "com.shibei.app.device-identity",
+        account: String = "anonymous-device-id",
+        defaultsKey: String = "anonymousDeviceIdBackup"
+    ) {
         self.service = service
         self.account = account
+        self.defaultsKey = defaultsKey
     }
 
     func currentDeviceId() -> String {
         if let existing = readDeviceId(), !existing.isEmpty {
+            saveDeviceIdBackup(existing)
             return existing
+        }
+        if let backup = readDeviceIdBackup(), !backup.isEmpty {
+            saveDeviceId(backup)
+            saveDeviceIdBackup(backup)
+            return backup
         }
         let created = UUID().uuidString.lowercased()
         saveDeviceId(created)
+        saveDeviceIdBackup(created)
         return created
     }
 
     func resetDeviceId() -> String {
         deleteDeviceId()
+        deleteDeviceIdBackup()
         let created = UUID().uuidString.lowercased()
         saveDeviceId(created)
+        saveDeviceIdBackup(created)
         return created
+    }
+
+    private func readDeviceIdBackup() -> String? {
+        UserDefaults.standard.string(forKey: defaultsKey)
+    }
+
+    private func saveDeviceIdBackup(_ value: String) {
+        UserDefaults.standard.set(value, forKey: defaultsKey)
+    }
+
+    private func deleteDeviceIdBackup() {
+        UserDefaults.standard.removeObject(forKey: defaultsKey)
     }
 
     private func readDeviceId() -> String? {
