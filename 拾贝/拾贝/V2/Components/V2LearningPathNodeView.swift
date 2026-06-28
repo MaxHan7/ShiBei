@@ -13,7 +13,10 @@ struct V2LearningPathNodeView: View {
                         total: node.totalQuestionCount,
                         style: progressStyle
                     )
-                    .frame(width: 112, height: 140)
+                    .frame(
+                        width: V2SegmentedNodeProgressMetrics.canvasWidth,
+                        height: V2SegmentedNodeProgressMetrics.canvasHeight
+                    )
                 }
 
                 nodeBody
@@ -242,6 +245,8 @@ private enum V2SegmentedNodeProgressMetrics {
     static let lineWidth: CGFloat = 8
     static let ellipseWidth: CGFloat = 108
     static let ellipseHeight: CGFloat = 126
+    static let canvasWidth: CGFloat = ellipseWidth + lineWidth + 2
+    static let canvasHeight: CGFloat = ellipseHeight + lineWidth + 6
     static let sampleCount: Int = 360
     static let gapLength: CGFloat = 13
     static let currentCompletedColor = Color(hex: 0x9EA860)

@@ -3,9 +3,11 @@
 <circle cx="22" cy="20.5" r="20.5" fill="#FDF9EE"/>
 </g>
 <g clip-path="url(#clip0_source)">
-<path d="M19.8613 21.7012L22.8332 18.4344" stroke="#44423D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M18.6004 19.8057L17.4859 21.0307C16.6653 21.9328 16.7313 23.3293 17.6334 24.15C18.5355 24.9706 19.932 24.9046 20.7527 24.0025L21.8671 22.7775" stroke="#44423D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M20.8301 17.3574L21.9445 16.1324C22.7652 15.2303 24.1617 15.1643 25.0638 15.9849C25.9659 16.8056 26.0319 18.2021 25.2113 19.1042L24.0968 20.3293" stroke="#44423D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(10.5 7.5)">
+<path d="M8.7959 15.4551L13.4417 10.3483" stroke="#44423D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.82384 12.4915L5.08168 14.4066C3.79878 15.8168 3.90199 18 5.3122 19.2828C6.72241 20.5657 8.9056 20.4625 10.1885 19.0523L11.9307 17.1373" stroke="#44423D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.3096 8.66504L12.0517 6.74998C13.3346 5.33977 15.5178 5.23656 16.928 6.51946C18.3382 7.80235 18.4415 9.98555 17.1586 11.3958L15.4164 13.3108" stroke="#44423D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
 </g>
 <defs>
 <filter id="filter0_d_source" x="0" y="0" width="44" height="44.5" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
