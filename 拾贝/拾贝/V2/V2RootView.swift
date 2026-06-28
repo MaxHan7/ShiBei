@@ -1498,11 +1498,22 @@ struct V2RootView: View {
     }
 
     private func openNotification(_ notification: NotificationItem, route targetRoute: V2AppRoute) {
+        let chapterID = notification.chapterId
+        let cachedChapter = backendChapters.first(where: { $0.id == chapterID })
+        if let cachedChapter {
+            applyBackendChapter(cachedChapter)
+            pushRoute(targetRoute)
+        }
+
         Task {
-            await dismissOpenedNotification(notification)
-            await openNotificationChapter(chapterID: notification.chapterId)
-            await MainActor.run {
-                pushRoute(targetRoute)
+            async let dismissed: Void = dismissOpenedNotification(notification)
+            await openNotificationChapter(chapterID: chapterID, forceRefresh: cachedChapter != nil)
+            await dismissed
+
+            if cachedChapter == nil {
+                await MainActor.run {
+                    pushRoute(targetRoute)
+                }
             }
         }
     }
@@ -1526,8 +1537,8 @@ struct V2RootView: View {
         }
     }
 
-    private func openNotificationChapter(chapterID: String) async {
-        guard !chapterID.isEmpty, backendChapter?.id != chapterID else { return }
+    private func openNotificationChapter(chapterID: String, forceRefresh: Bool = false) async {
+        guard !chapterID.isEmpty, forceRefresh || backendChapter?.id != chapterID else { return }
 
         do {
             let chapter = try await apiClient.fetchV2Chapter(id: chapterID)
