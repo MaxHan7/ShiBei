@@ -353,6 +353,66 @@ test("does not recreate a V2 chapter deleted while the worker is running", async
   );
 });
 
+test("ignores stale V2 failures after the chapter already completed", async () => {
+  const calls = [];
+  const chapters = new Map([
+    ["chapter-1", {
+      id: "chapter-1",
+      title: "Hook",
+      status: "submitted",
+      generationMeta: {},
+      createdAt: "2026-06-24T00:00:00.000Z"
+    }]
+  ]);
+  const completedChapter = {
+    id: "chapter-1",
+    title: "Hook",
+    status: "completed",
+    generationMeta: {},
+    createdAt: "2026-06-24T00:00:00.000Z",
+    updatedAt: "2026-06-24T12:02:00.000Z"
+  };
+  const deps = mockDeps({
+    calls,
+    chapters,
+    runV2GenerationJob: async () => {
+      chapters.set("chapter-1", completedChapter);
+      return {
+        status: "failed_generation",
+        displayStatusText: "模型输出格式不稳定",
+        failedStage: "structured_output",
+        failureReason: "模型返回内容不是可解析 JSON，请重试。",
+        retryable: false,
+        canRetry: false,
+        retryDelayMs: 0,
+        generationProgress: {
+          jobId: "job-1",
+          chapterId: "chapter-1",
+          status: "failed",
+          stage: "failed",
+          failureCode: "structured_output_failed",
+          failureMessage: "模型返回内容不是可解析 JSON，请重试。"
+        }
+      };
+    }
+  });
+
+  const result = await runV2GenerationQueuedJob(baseJob(), deps);
+
+  assert.equal(result.status, "completed");
+  assert.equal(result.staleFailureIgnored, true);
+  assert.equal(chapters.get("chapter-1").status, "completed");
+  assert.equal(calls.some((call) => call.name === "createNotification"), false);
+  assert.equal(calls.some((call) => call.name === "failGenerationJob"), false);
+  assert.deepEqual(
+    calls.find((call) => call.name === "completeGenerationJob")?.fields,
+    {
+      status: "completed",
+      currentStage: "completed"
+    }
+  );
+});
+
 test("requeues retryable V2 failures with calculated delay", async () => {
   const calls = [];
   const chapters = new Map([

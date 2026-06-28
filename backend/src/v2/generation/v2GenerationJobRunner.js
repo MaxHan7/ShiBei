@@ -103,6 +103,25 @@ export async function runV2GenerationQueuedJob(job, deps = {}) {
   }
 
   const retry = shouldRetryQueuedV2Job(job, result);
+  const currentBeforeFailure = await services.getChapter(job.deviceId, job.chapterId);
+  if (currentBeforeFailure?.status === "completed") {
+    console.warn("Ignored stale V2 generation failure after chapter completion", {
+      jobId: job.id,
+      chapterId: job.chapterId,
+      failedStage: result.failedStage || result.status,
+      failureReason: result.failureReason || ""
+    });
+    await services.completeGenerationJob(job.deviceId, job.id, {
+      status: "completed",
+      currentStage: "completed"
+    });
+    return {
+      status: "completed",
+      displayStatusText: "已生成",
+      staleFailureIgnored: true,
+      chapter: currentBeforeFailure
+    };
+  }
   if (retry) {
     await persistV2GenerationProgress(
       job,
