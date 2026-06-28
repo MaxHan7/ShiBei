@@ -38,8 +38,8 @@ async function main() {
     cleanedText: source.rawText
   }, {
     generationMetaMode: "production",
-    createPromptCaller: ({ runtimeRecorder } = {}) =>
-      createV2ModelPromptCaller({
+    createPromptCaller: ({ runtimeRecorder } = {}) => {
+      const basePromptCaller = createV2ModelPromptCaller({
         runtimeRecorder,
         modelUsageRecorder: {
           record(record) {
@@ -47,7 +47,15 @@ async function main() {
             return record;
           }
         }
-      })
+      });
+      return async function promptCallerWithProgress(stage, payload) {
+        const startedAt = Date.now();
+        console.error(`[recommended:build] stage_start candidate=${candidate.id} stage=${stage}`);
+        const output = await basePromptCaller(stage, payload);
+        console.error(`[recommended:build] stage_done candidate=${candidate.id} stage=${stage} duration=${Date.now() - startedAt}ms`);
+        return output;
+      };
+    }
   });
 
   if (result.status !== "completed" || !result.chapter) {
@@ -56,6 +64,8 @@ async function main() {
       status: result.status,
       failedStage: result.failedStage,
       failureReason: result.failureReason,
+      errors: result.errors || [],
+      issues: result.issues || [],
       diagnostics: result.diagnostics || []
     }, null, 2));
     process.exitCode = 1;
@@ -102,22 +112,24 @@ async function resolveSource(candidate, args) {
 
 function prepareChapterForSeed(chapter, candidate, source) {
   const now = new Date().toISOString();
+  const seedSource = sanitizeSeedSource({
+    ...(chapter.source || {}),
+    type: "article",
+    title: source.sourceTitle || candidate.title,
+    author: candidate.sourceAuthor || source.sourceAccount || candidate.source,
+    account: candidate.source || source.sourceAccount || "",
+    accountOrDomain: candidate.source || source.sourceAccount || "",
+    url: candidate.sourceUrl,
+    rawInput: candidate.sourceUrl
+  }, chapter);
+
   return {
     ...chapter,
     id: candidate.id,
     title: chapter.title || candidate.title,
     status: "completed",
     displayStatusText: "已生成",
-    source: {
-      ...(chapter.source || {}),
-      type: "article",
-      title: source.sourceTitle || candidate.title,
-      author: candidate.sourceAuthor || source.sourceAccount || candidate.source,
-      account: candidate.source || source.sourceAccount || "",
-      accountOrDomain: candidate.source || source.sourceAccount || "",
-      url: candidate.sourceUrl,
-      rawInput: candidate.sourceUrl
-    },
+    source: seedSource,
     reviewSession: null,
     v2ReviewSession: null,
     generationProgress: null,
@@ -130,6 +142,37 @@ function prepareChapterForSeed(chapter, candidate, source) {
     },
     updatedAt: now
   };
+}
+
+function sanitizeSeedSource(source, chapter) {
+  const sanitized = { ...source };
+  delete sanitized.rawText;
+  delete sanitized.cleanedText;
+  delete sanitized.extractedText;
+
+  if (Array.isArray(sanitized.blocks)) {
+    const referencedBlockIds = collectReferencedSourceBlockIds(chapter);
+    if (referencedBlockIds.size > 0) {
+      sanitized.blocks = sanitized.blocks.filter((block) => referencedBlockIds.has(block.id));
+    }
+  }
+
+  return sanitized;
+}
+
+function collectReferencedSourceBlockIds(chapter) {
+  const blockIds = new Set();
+  for (const unit of chapter.units || []) {
+    for (const blockId of unit.sourceAnchor?.blockIds || []) {
+      blockIds.add(blockId);
+    }
+    for (const anchor of unit.sourceAnchors || []) {
+      for (const blockId of anchor.blockIds || []) {
+        blockIds.add(blockId);
+      }
+    }
+  }
+  return blockIds;
 }
 
 function summarizeModelUsage(records) {

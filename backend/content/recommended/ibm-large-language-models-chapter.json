@@ -1,0 +1,434 @@
+{
+  "schemaVersion": "v2_review_path_1",
+  "id": "ibm-large-language-models",
+  "status": "completed",
+  "displayStatusText": "已生成",
+  "title": "什么是大型语言模型",
+  "source": {
+    "type": "article",
+    "title": "What Are Large Language Models (LLMs)?",
+    "author": "IBM",
+    "account": "IBM Think",
+    "accountOrDomain": "IBM Think",
+    "url": "https://www.ibm.com/think/topics/large-language-models",
+    "blocks": [
+      {
+        "id": "p-257",
+        "type": "paragraph",
+        "text": "What are LLMs?"
+      },
+      {
+        "id": "p-258",
+        "type": "paragraph",
+        "text": "Large language models (LLMs) are a category of deep learning models trained on immense amounts of data, making them capable of understanding and generating natural language and other types of content to perform a wide range of tasks. LLMs are built on a type of neural network architecture called a transformer which excels at handling sequences of words and capturing patterns in text."
+      },
+      {
+        "id": "p-259",
+        "type": "paragraph",
+        "text": "LLMs work as giant statistical prediction machines that repeatedly predict the next word in a sequence. They learn patterns in their text and generate language that follows those patterns."
+      }
+    ],
+    "rawInput": "https://www.ibm.com/think/topics/large-language-models"
+  },
+  "summaryCard": {
+    "text": "大型语言模型（LLM）是一种深度学习模型，基于Transformer架构，通过海量数据训练，能够理解和生成自然语言。"
+  },
+  "units": [
+    {
+      "id": "unit-1",
+      "order": 1,
+      "title": "大型语言模型概述",
+      "nodeLabel": "LLM概述",
+      "shortSummary": "LLM是基于Transformer的深度学习模型，通过海量数据训练，可理解和生成自然语言。",
+      "detailSummary": "大型语言模型（LLM）是一种深度学习模型，基于Transformer神经网络架构，在海量数据上训练，能够理解和生成自然语言及其他内容。它们作为统计预测机器，通过重复预测序列中的下一个词来工作，学习文本模式并生成符合这些模式的语言。",
+      "why": "LLM是现代AI的核心技术，理解其定义和基本工作原理是学习后续应用的前提。",
+      "sourceAnchor": {
+        "id": "anchor-unit-1",
+        "blockIds": [
+          "p-257",
+          "p-258",
+          "p-259"
+        ]
+      },
+      "overview": {
+        "text": "大型语言模型（LLM）是当前 AI 的核心技术之一。本单元将带你了解 LLM 的定义、基于 Transformer 的神经网络架构，以及它们如何通过统计预测来理解和生成自然语言。掌握这些基础，你将更好地理解后续的实际应用。"
+      },
+      "questions": [
+        {
+          "id": "q-unit-1-001",
+          "type": "multiple_choice",
+          "stem": "关于大型语言模型（LLM），以下哪项描述正确？",
+          "options": [
+            {
+              "id": "A",
+              "text": "LLM是一种基于Transformer架构的深度学习模型，用于理解和生成自然语言。"
+            },
+            {
+              "id": "B",
+              "text": "LLM是一种传统统计模型，通过词频统计来预测文本。"
+            },
+            {
+              "id": "C",
+              "text": "LLM是一种基于规则的专家系统，通过人工编写的规则生成语言。"
+            },
+            {
+              "id": "D",
+              "text": "LLM是一种简单的神经网络，只能处理少量数据。"
+            }
+          ],
+          "correctOptionId": "A",
+          "explanation": "LLM的核心是深度学习中的Transformer架构，而非传统统计或规则方法；它通过海量数据训练掌握语言模式，而非简单词频或人工规则。",
+          "sourceAnchorId": "anchor-unit-1"
+        },
+        {
+          "id": "q-unit-1-002",
+          "type": "multiple_choice",
+          "stem": "大型语言模型是如何生成文本的？",
+          "options": [
+            {
+              "id": "A",
+              "text": "LLM每次预测下一个最可能的词，通过反复预测生成完整文本。"
+            },
+            {
+              "id": "B",
+              "text": "LLM根据预设的语法规则和词汇表组合句子。"
+            },
+            {
+              "id": "C",
+              "text": "LLM随机选择词语，不依赖任何模式。"
+            },
+            {
+              "id": "D",
+              "text": "LLM只复制训练数据中的句子，没有生成能力。"
+            }
+          ],
+          "correctOptionId": "A",
+          "explanation": "LLM作为统计预测机器，通过不断预测下一个词来生成文本，而非依据规则或随机组合；它从数据中学习模式，而非简单复制。",
+          "sourceAnchorId": "anchor-unit-1"
+        },
+        {
+          "id": "q-unit-1-003",
+          "type": "matching",
+          "stem": "请将左侧的概念与右侧对应的职责进行匹配。",
+          "leftItems": [
+            {
+              "id": "l1",
+              "text": "大型语言模型 (LLMs)"
+            },
+            {
+              "id": "l2",
+              "text": "Transformer 架构"
+            },
+            {
+              "id": "l3",
+              "text": "统计预测机器"
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "r1",
+              "text": "理解和生成自然语言和其他内容"
+            },
+            {
+              "id": "r2",
+              "text": "擅长处理词序列并捕捉文本模式"
+            },
+            {
+              "id": "r3",
+              "text": "反复预测序列中的下一个词"
+            }
+          ],
+          "pairs": [
+            {
+              "leftId": "l1",
+              "rightId": "r1"
+            },
+            {
+              "leftId": "l2",
+              "rightId": "r2"
+            },
+            {
+              "leftId": "l3",
+              "rightId": "r3"
+            }
+          ],
+          "explanation": "LLM能理解和生成语言；Transformer负责序列处理和模式捕捉；作为统计预测机，它预测下一个词。",
+          "sourceAnchorId": "anchor-unit-1"
+        }
+      ],
+      "summary": {
+        "title": "单元完成",
+        "text": "恭喜完成本单元！你已理解 LLM 是基于 Transformer 的深度学习模型，通过海量数据训练来预测下一个词，从而生成符合语境的文本。"
+      }
+    }
+  ],
+  "chapterSummary": {
+    "title": "章节完成",
+    "statsText": "共 1 个核心知识点，3 道题目",
+    "encouragementText": "你已经掌握了LLM的核心定义和工作原理，这是探索更高级AI应用的基础，继续保持！"
+  },
+  "generationMeta": {
+    "currentStage": "completed",
+    "sourceContextStats": {
+      "fullBlockCount": 259,
+      "unitKnowledgeMap": {
+        "mode": "plan_union_window",
+        "selectedBlockCount": 4,
+        "selectedBlockIds": [
+          "p-256",
+          "p-257",
+          "p-258",
+          "p-259"
+        ],
+        "fallbackUsed": false
+      },
+      "unitWindows": [
+        {
+          "unitId": "unit-1",
+          "anchorId": "anchor-unit-1",
+          "anchorBlockIds": [
+            "p-257",
+            "p-258",
+            "p-259"
+          ],
+          "selectedBlockCount": 4,
+          "selectedBlockIds": [
+            "p-256",
+            "p-257",
+            "p-258",
+            "p-259"
+          ],
+          "fallbackUsed": false
+        }
+      ]
+    },
+    "stageRuntime": {
+      "schemaVersion": "v2_stage_runtime_1",
+      "callCount": 6,
+      "attemptCount": 6,
+      "failedAttemptCount": 0,
+      "retryAttemptCount": 0,
+      "stages": [
+        {
+          "stage": "v2_reviewPathPlan",
+          "callCount": 1,
+          "successCallCount": 1,
+          "failedCallCount": 0,
+          "attemptCount": 1,
+          "retryAttemptCount": 0,
+          "transientFailureCount": 0,
+          "totalDurationMs": 5402,
+          "errorTypes": {},
+          "lastErrorType": "",
+          "lastErrorMessage": ""
+        },
+        {
+          "stage": "v2_unitKnowledgeMap",
+          "callCount": 1,
+          "successCallCount": 1,
+          "failedCallCount": 0,
+          "attemptCount": 1,
+          "retryAttemptCount": 0,
+          "transientFailureCount": 0,
+          "totalDurationMs": 5014,
+          "errorTypes": {},
+          "lastErrorType": "",
+          "lastErrorMessage": ""
+        },
+        {
+          "stage": "v2_taskBriefPlan",
+          "callCount": 1,
+          "successCallCount": 1,
+          "failedCallCount": 0,
+          "attemptCount": 1,
+          "retryAttemptCount": 0,
+          "transientFailureCount": 0,
+          "totalDurationMs": 4379,
+          "errorTypes": {},
+          "lastErrorType": "",
+          "lastErrorMessage": ""
+        },
+        {
+          "stage": "v2_multipleChoiceDraftUnitBatch",
+          "callCount": 1,
+          "successCallCount": 1,
+          "failedCallCount": 0,
+          "attemptCount": 1,
+          "retryAttemptCount": 0,
+          "transientFailureCount": 0,
+          "totalDurationMs": 10567,
+          "errorTypes": {},
+          "lastErrorType": "",
+          "lastErrorMessage": ""
+        },
+        {
+          "stage": "v2_matchingDraft",
+          "callCount": 1,
+          "successCallCount": 1,
+          "failedCallCount": 0,
+          "attemptCount": 1,
+          "retryAttemptCount": 0,
+          "transientFailureCount": 0,
+          "totalDurationMs": 7047,
+          "errorTypes": {},
+          "lastErrorType": "",
+          "lastErrorMessage": ""
+        },
+        {
+          "stage": "v2_unitCopyBatch",
+          "callCount": 1,
+          "successCallCount": 1,
+          "failedCallCount": 0,
+          "attemptCount": 1,
+          "retryAttemptCount": 0,
+          "transientFailureCount": 0,
+          "totalDurationMs": 2742,
+          "errorTypes": {},
+          "lastErrorType": "",
+          "lastErrorMessage": ""
+        }
+      ],
+      "attempts": [
+        {
+          "callId": "reviewPathPlan-1",
+          "stage": "v2_reviewPathPlan",
+          "modelStage": "reviewPathPlan",
+          "attempt": 1,
+          "maxAttempts": 3,
+          "status": "success",
+          "durationMs": 5402,
+          "retryable": false,
+          "errorType": "",
+          "errorMessage": ""
+        },
+        {
+          "callId": "unitKnowledgeMap-2",
+          "stage": "v2_unitKnowledgeMap",
+          "modelStage": "unitKnowledgeMap",
+          "attempt": 1,
+          "maxAttempts": 3,
+          "status": "success",
+          "durationMs": 5014,
+          "retryable": false,
+          "errorType": "",
+          "errorMessage": ""
+        },
+        {
+          "callId": "taskBriefPlan-3",
+          "stage": "v2_taskBriefPlan",
+          "modelStage": "taskBriefPlan",
+          "attempt": 1,
+          "maxAttempts": 3,
+          "status": "success",
+          "durationMs": 4379,
+          "retryable": false,
+          "errorType": "",
+          "errorMessage": ""
+        },
+        {
+          "callId": "multipleChoiceDraftUnitBatch-4",
+          "stage": "v2_multipleChoiceDraftUnitBatch",
+          "modelStage": "multipleChoiceDraftUnitBatch",
+          "attempt": 1,
+          "maxAttempts": 3,
+          "status": "success",
+          "durationMs": 10567,
+          "retryable": false,
+          "errorType": "",
+          "errorMessage": ""
+        },
+        {
+          "callId": "matchingDraft-5",
+          "stage": "v2_matchingDraft",
+          "modelStage": "matchingDraft",
+          "attempt": 1,
+          "maxAttempts": 3,
+          "status": "success",
+          "durationMs": 7047,
+          "retryable": false,
+          "errorType": "",
+          "errorMessage": ""
+        },
+        {
+          "callId": "unitCopyBatch-6",
+          "stage": "v2_unitCopyBatch",
+          "modelStage": "unitCopyBatch",
+          "attempt": 1,
+          "maxAttempts": 3,
+          "status": "success",
+          "durationMs": 2742,
+          "retryable": false,
+          "errorType": "",
+          "errorMessage": ""
+        }
+      ]
+    },
+    "stages": [
+      {
+        "status": "sourceMap",
+        "displayStatusText": "正在提取正文",
+        "at": "2026-06-28T01:01:55.477Z"
+      },
+      {
+        "status": "reviewPathPlan",
+        "displayStatusText": "正在生成知识点",
+        "at": "2026-06-28T01:01:55.477Z"
+      },
+      {
+        "status": "unitKnowledgeMap",
+        "displayStatusText": "正在拆解知识点",
+        "at": "2026-06-28T01:01:55.477Z"
+      },
+      {
+        "status": "taskBriefPlan",
+        "displayStatusText": "正在规划练习",
+        "at": "2026-06-28T01:01:55.477Z"
+      },
+      {
+        "status": "multipleChoiceDraftUnitBatch",
+        "displayStatusText": "正在生成选择题",
+        "at": "2026-06-28T01:01:55.477Z"
+      },
+      {
+        "status": "matchingDraft",
+        "displayStatusText": "正在生成连线题",
+        "at": "2026-06-28T01:01:55.477Z"
+      },
+      {
+        "status": "unitCopyBatch",
+        "displayStatusText": "正在生成单元文案",
+        "at": "2026-06-28T01:01:55.477Z"
+      }
+    ],
+    "qualityGate": {
+      "mode": "deterministic_only",
+      "blocking": false,
+      "qualityJudgeEnabled": false,
+      "deterministicVerdict": "pass",
+      "deterministicIssueCount": 0,
+      "judgeVerdict": "skipped",
+      "judgeIssueCount": 0
+    },
+    "v2Progress": {
+      "jobId": "",
+      "chapterId": "ibm-large-language-models",
+      "status": "completed",
+      "stage": "completed",
+      "stageGroup": "completed",
+      "displayText": "生成完成",
+      "progress": 1,
+      "userVisible": true,
+      "retryCount": 0,
+      "canRetry": false,
+      "updatedAt": "2026-06-28T01:01:55.477Z"
+    },
+    "seededRecommendedArticle": true,
+    "recommendedArticleId": "ibm-large-language-models",
+    "recommendedArticleSource": "IBM Think",
+    "preparedAt": "2026-06-28T01:02:30.661Z"
+  },
+  "reviewSession": null,
+  "v2ReviewSession": null,
+  "generationProgress": null,
+  "updatedAt": "2026-06-28T01:02:30.661Z"
+}
