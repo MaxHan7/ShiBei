@@ -6,21 +6,37 @@ struct V2QuestionOptionCard: View {
     let state: V2QuestionOptionState
     let action: () -> Void
 
+    private enum Metrics {
+        static let width: CGFloat = 270
+        static let minHeight: CGFloat = 71
+        static let horizontalPadding: CGFloat = 16
+        static let verticalPadding: CGFloat = 14
+        static let badgeSize: CGFloat = 34
+        static let contentSpacing: CGFloat = 13
+        static let textLineSpacing: CGFloat = 3
+        static let maxTextLines = 3
+    }
+
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 13) {
+            HStack(alignment: .center, spacing: Metrics.contentSpacing) {
                 choiceLetter
-                    .frame(width: 34, height: 34)
+                    .frame(width: Metrics.badgeSize, height: Metrics.badgeSize)
 
                 Text(title)
                     .font(.system(size: 14, weight: .regular, design: .default))
                     .foregroundStyle(Color(hex: 0x1F1B12))
-                    .lineSpacing(10)
+                    .lineSpacing(Metrics.textLineSpacing)
+                    .lineLimit(Metrics.maxTextLines)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .layoutPriority(1)
             }
-            .padding(.horizontal, 16)
-            .frame(width: 270, height: 71, alignment: .leading)
+            .padding(.horizontal, Metrics.horizontalPadding)
+            .padding(.vertical, Metrics.verticalPadding)
+            .frame(width: Metrics.width, alignment: .leading)
+            .frame(minHeight: Metrics.minHeight, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 15, style: .continuous)
                     .fill(fill)
@@ -118,50 +134,68 @@ struct V2MultipleChoiceQuestionCard: View {
     let onSelect: (Int) -> Void
     let onSource: () -> Void
 
+    private enum Metrics {
+        static let width: CGFloat = 321
+        static let topPadding: CGFloat = 25
+        static let horizontalPadding: CGFloat = 27
+        static let bottomPadding: CGFloat = 27
+        static let promptBottomGap: CGFloat = 23
+        static let optionSpacing: CGFloat = 12
+        static let optionsToSourceGap: CGFloat = 24
+        static let sourceHeight: CGFloat = 26
+        static let sourceWidth: CGFloat = 100
+        static let promptLineSpacing: CGFloat = 6
+        static let promptMaxLines = 5
+    }
+
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 15, style: .continuous)
-                .fill(Color(hex: 0xFFFCF4))
-                .v2Shadow()
+        VStack(alignment: .leading, spacing: 0) {
+            Text(question.prompt)
+                .font(.system(size: 18, weight: .semibold, design: .default))
+                .foregroundStyle(Color(hex: 0x1F1B12))
+                .lineSpacing(Metrics.promptLineSpacing)
+                .lineLimit(Metrics.promptMaxLines)
+                .tracking(-0.24)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.bottom, Metrics.promptBottomGap)
 
-            VStack(alignment: .leading, spacing: 0) {
-                Text(question.prompt)
-                    .font(.system(size: 18, weight: .semibold, design: .default))
-                    .foregroundStyle(Color(hex: 0x1F1B12))
-                    .lineSpacing(8)
-                    .tracking(-0.24)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.bottom, 23)
-
-                VStack(spacing: 12) {
-                    ForEach(question.options.indices, id: \.self) { index in
-                        V2QuestionOptionCard(
-                            letter: optionLetter(for: index),
-                            title: question.options[index],
-                            state: optionState(for: index)
-                        ) {
-                            guard selectedIndex == nil else { return }
-                            onSelect(index)
-                        }
+            VStack(spacing: Metrics.optionSpacing) {
+                ForEach(question.options.indices, id: \.self) { index in
+                    V2QuestionOptionCard(
+                        letter: optionLetter(for: index),
+                        title: question.options[index],
+                        state: optionState(for: index)
+                    ) {
+                        guard selectedIndex == nil else { return }
+                        onSelect(index)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
             }
-            .padding(.top, 25)
-            .padding(.horizontal, 27)
+            .frame(maxWidth: .infinity, alignment: .center)
 
             Button(action: onSource) {
                 Text("查看原文")
                     .font(.system(size: 14, weight: .regular, design: .default))
                     .tracking(-0.24)
                     .foregroundStyle(Color(hex: 0x737946).opacity(0.55))
-                    .frame(height: 26)
+                    .frame(height: Metrics.sourceHeight)
             }
             .buttonStyle(.plain)
-            .frame(width: 100)
-            .position(x: 160.5, y: 466)
+            .frame(width: Metrics.sourceWidth)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.top, Metrics.optionsToSourceGap)
         }
-        .frame(width: 321, height: 518)
+        .padding(.top, Metrics.topPadding)
+        .padding(.horizontal, Metrics.horizontalPadding)
+        .padding(.bottom, Metrics.bottomPadding)
+        .frame(width: Metrics.width, alignment: .topLeading)
+        .background(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(Color(hex: 0xFFFCF4))
+                .v2Shadow()
+        )
     }
 
     private func optionState(for index: Int) -> V2QuestionOptionState {
@@ -188,6 +222,16 @@ struct V2MatchingOptionCard: View {
     let state: V2MatchingOptionState
     let action: () -> Void
 
+    private enum Metrics {
+        static let width: CGFloat = 140
+        static let minHeight: CGFloat = 90
+        static let horizontalPadding: CGFloat = 14
+        static let verticalPadding: CGFloat = 12
+        static let textWidth: CGFloat = 112
+        static let textLineSpacing: CGFloat = 3
+        static let maxTextLines = 3
+    }
+
     var body: some View {
         Button(action: action) {
             ZStack {
@@ -202,12 +246,15 @@ struct V2MatchingOptionCard: View {
                     .font(V2Typography.bodySmall)
                     .foregroundStyle(textColor)
                     .multilineTextAlignment(.center)
-                    .lineSpacing(3)
-                    .lineLimit(3)
+                    .lineSpacing(Metrics.textLineSpacing)
+                    .lineLimit(Metrics.maxTextLines)
                     .fixedSize(horizontal: false, vertical: true)
-                    .frame(width: 112, alignment: .center)
+                    .frame(width: Metrics.textWidth, alignment: .center)
             }
-            .frame(width: 140, height: 90)
+            .padding(.horizontal, Metrics.horizontalPadding)
+            .padding(.vertical, Metrics.verticalPadding)
+            .frame(width: Metrics.width)
+            .frame(minHeight: Metrics.minHeight)
         }
         .buttonStyle(.plain)
         .disabled(state == .locked)

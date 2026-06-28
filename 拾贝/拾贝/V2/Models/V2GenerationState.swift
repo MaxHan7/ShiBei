@@ -36,7 +36,8 @@ struct V2GenerationState {
 }
 
 struct V2RecommendedArticleGenerationSimulation: Equatable {
-    let chapterID: String
+    let id: String
+    var chapterID: String?
     var progress: Double
     var statusText: String
 }

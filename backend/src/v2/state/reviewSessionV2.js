@@ -136,6 +136,7 @@ export function answerQuestionV2(
   const normalizedResult = result === "correct" ? "correct" : "incorrect";
   const nextSession = cloneSession(currentSession);
   const activeCore = activeReviewCore(nextSession);
+  const answeredCard = questionCard(reviewPath, unit, question);
 
   activeCore.questionStates[question.id] = {
     status: "answered",
@@ -155,7 +156,9 @@ export function answerQuestionV2(
     scheduleNeedsReviewQuestion(activeCore, question.id);
   }
 
-  activeCore.currentCard = questionFeedbackCard(questionCard(reviewPath, unit, question));
+  if (isSameQuestionCard(activeCore.currentCard, answeredCard)) {
+    activeCore.currentCard = questionFeedbackCard(answeredCard);
+  }
 
   return finalizeActiveMutation(reviewPath, nextSession, now);
 }
@@ -601,7 +604,9 @@ function markCurrentCardCompleted(session, card) {
   }
 
   if (card.type === "question_feedback") {
-    addCompletedStep(session, questionStepId(card.unitId, card.questionId));
+    if (session.questionStates[card.questionId]?.result === "correct") {
+      addCompletedStep(session, questionStepId(card.unitId, card.questionId));
+    }
     return;
   }
 
@@ -658,6 +663,15 @@ function firstNeedsReviewQuestionCard(reviewPath, session) {
   }
 
   return null;
+}
+
+function isSameQuestionCard(card, questionCard) {
+  return Boolean(
+    card &&
+    (card.type === "question" || card.type === "question_feedback") &&
+    card.unitId === questionCard.unitId &&
+    card.questionId === questionCard.questionId
+  );
 }
 
 function allUnitSummariesCompleted(reviewPath, session) {

@@ -448,16 +448,28 @@ struct V2RootView: View {
         selectedTab = .learning
         if node.kind == .start {
             resetToRoute(.chapterOverview, tab: .learning)
-        } else if node.id == v2ReviewSession?.currentCard.unitId,
-                  let currentRoute = route(for: v2ReviewSession?.currentCard) {
-            resetToRoute(currentRoute, tab: .learning)
         } else if usesBackendReviewChapter {
             Task {
-                await replayBackendReviewFromUnit(unitID: node.id)
+                await openBackendLearningPathNode(node)
             }
         } else {
             resetToRoute(.unitOverview(unitID: node.id), tab: .learning)
         }
+    }
+
+    @MainActor
+    private func openBackendLearningPathNode(_ node: V2LearningPathNodeData) async {
+        if node.state == .current || node.id == v2ReviewSession?.displayCard.unitId {
+            await startOrResumeBackendReviewFromLearningPath(fallbackUnitID: node.id)
+            return
+        }
+
+        if node.state == .completed {
+            await replayBackendReviewFromUnit(unitID: node.id)
+            return
+        }
+
+        resetToRoute(.unitOverview(unitID: node.id), tab: .learning)
     }
 
     private func openActiveLearningChapterDetail() {
@@ -560,7 +572,7 @@ struct V2RootView: View {
 
     private func importRecommendedArticle(id articleID: String) {
         guard !usesFixtures else {
-            showGeneratedChapterDetail()
+            startRecommendedArticleGenerationSimulation(simulationID: "fixture-\(articleID)")
             return
         }
         guard !importingRecommendedArticleIDs.contains(articleID) else {
@@ -568,6 +580,8 @@ struct V2RootView: View {
         }
 
         importingRecommendedArticleIDs.insert(articleID)
+        let simulationID = "recommended-\(articleID)-\(Date().timeIntervalSince1970)"
+        startRecommendedArticleGenerationSimulation(simulationID: simulationID)
         Task {
             do {
                 let response = try await apiClient.importRecommendedArticle(id: articleID)
@@ -576,12 +590,16 @@ struct V2RootView: View {
                     mergeRecommendedArticle(response.article)
                     recommendedArticleChapters[articleID] = response.chapter
                     applyBackendChapter(response.chapter)
-                    activeLearningChapterID = response.chapter.id
-                    startRecommendedArticleGenerationSimulation(chapterID: response.chapter.id)
+                    bindRecommendedArticleGenerationSimulation(simulationID: simulationID, chapterID: response.chapter.id)
                 }
             } catch {
                 await MainActor.run {
                     importingRecommendedArticleIDs.remove(articleID)
+                    if recommendedArticleGenerationSimulation?.id == simulationID {
+                        recommendedArticleGenerationSimulation = nil
+                        recommendedArticleSimulationTask?.cancel()
+                        recommendedArticleSimulationTask = nil
+                    }
                     generationState.errorText = error.localizedDescription
                 }
             }
@@ -877,7 +895,8 @@ struct V2RootView: View {
             return chapter
         }
 
-        return backendChapters.first(where: isHomeLearningCandidate)
+        return backendChapters.first(where: isInProgressLearningCandidate)
+            ?? backendChapters.first(where: isHomeLearningCandidate)
     }
 
     private func isHomeLearningCandidate(_ chapter: V2BackendChapter) -> Bool {
@@ -886,6 +905,10 @@ struct V2RootView: View {
             return false
         }
         return chapter.v2ReviewSession?.completedAt == nil
+    }
+
+    private func isInProgressLearningCandidate(_ chapter: V2BackendChapter) -> Bool {
+        isHomeLearningCandidate(chapter) && chapter.v2ReviewSession != nil
     }
 
     private var activeLearningReviewChapter: V2ReviewChapterData? {
@@ -1252,7 +1275,8 @@ struct V2RootView: View {
             guard let latestChapter = chapters.first else {
                 return
             }
-            applyBackendChapter(latestChapter)
+            let initialChapter = activeLearningBackendChapter ?? latestChapter
+            applyBackendChapter(initialChapter)
             if !isTerminalGenerationStatus(latestChapter.status) {
                 startGenerationPolling(chapterID: latestChapter.id)
             }
@@ -1278,7 +1302,7 @@ struct V2RootView: View {
             hydrateLocalQuestionStates(from: session)
         }
         if chapter.progress?.status == "completed" || chapter.status == "completed" {
-            generationState.showsChapterCard = false
+            generationState.showsChapterCard = recommendedArticleGenerationSimulation != nil
             generationState.finishSubmitting()
             generationState.clearError()
         } else if isFailedGenerationStatus(chapter.status) || chapter.progress?.status == "failed" {
@@ -1357,12 +1381,37 @@ struct V2RootView: View {
         }
     }
 
-    private func startRecommendedArticleGenerationSimulation(chapterID: String) {
+    private func bindRecommendedArticleGenerationSimulation(simulationID: String, chapterID: String) {
+        guard recommendedArticleGenerationSimulation?.id == simulationID else {
+            return
+        }
+        recommendedArticleGenerationSimulation?.chapterID = chapterID
+        if recommendedArticleSimulationTask == nil,
+           (recommendedArticleGenerationSimulation?.progress ?? 0) >= 0.98 {
+            finishRecommendedArticleGenerationSimulation(simulationID: simulationID)
+        }
+    }
+
+    private func finishRecommendedArticleGenerationSimulation(simulationID: String) {
+        guard recommendedArticleGenerationSimulation?.id == simulationID else {
+            return
+        }
+        recommendedArticleGenerationSimulation = nil
+        recommendedArticleSimulationTask = nil
+        generationState.showsChapterCard = false
+        generationState.clearError()
+        if routeStore.current == .generatingChapterDetail {
+            replaceRoute(.chapterDetail)
+        }
+    }
+
+    private func startRecommendedArticleGenerationSimulation(simulationID: String, chapterID: String? = nil) {
         recommendedArticleSimulationTask?.cancel()
         selectedTab = .materials
         generationState.resetAfterDelete()
         generationState.showsChapterCard = true
         recommendedArticleGenerationSimulation = V2RecommendedArticleGenerationSimulation(
+            id: simulationID,
             chapterID: chapterID,
             progress: V2RecommendedArticleSimulationTimeline.steps.first?.progress ?? 0,
             statusText: V2RecommendedArticleSimulationTimeline.steps.first?.statusText ?? "准备生成"
@@ -1381,7 +1430,7 @@ struct V2RootView: View {
                     return
                 }
                 await MainActor.run {
-                    guard recommendedArticleGenerationSimulation?.chapterID == chapterID else {
+                    guard recommendedArticleGenerationSimulation?.id == simulationID else {
                         return
                     }
                     withAnimation(.easeInOut(duration: 0.22)) {
@@ -1393,15 +1442,15 @@ struct V2RootView: View {
             }
 
             await MainActor.run {
-                guard recommendedArticleGenerationSimulation?.chapterID == chapterID else {
+                guard recommendedArticleGenerationSimulation?.id == simulationID else {
                     return
                 }
-                recommendedArticleGenerationSimulation = nil
-                recommendedArticleSimulationTask = nil
-                generationState.showsChapterCard = false
-                generationState.clearError()
-                if routeStore.current == .generatingChapterDetail {
-                    replaceRoute(.chapterDetail)
+                if recommendedArticleGenerationSimulation?.chapterID == nil && !usesFixtures {
+                    recommendedArticleSimulationTask = nil
+                    recommendedArticleGenerationSimulation?.progress = 0.98
+                    recommendedArticleGenerationSimulation?.statusText = "正在整理结果"
+                } else {
+                    finishRecommendedArticleGenerationSimulation(simulationID: simulationID)
                 }
             }
         }
@@ -1639,6 +1688,26 @@ struct V2RootView: View {
     }
 
     @MainActor
+    private func startOrResumeBackendReviewFromLearningPath(fallbackUnitID: String) async {
+        guard let chapterID = backendChapter?.id else {
+            resetToRoute(.unitOverview(unitID: fallbackUnitID), tab: .learning)
+            return
+        }
+
+        do {
+            let response = try await apiClient.startOrResumeV2ReviewSession(chapterId: chapterID)
+            activeLearningChapterID = chapterID
+            applyV2ReviewSessionResponse(response)
+            selectedTab = .learning
+            routeStore.clearStack()
+            replaceRoute(route(for: response.reviewSession?.displayCard) ?? .unitOverview(unitID: fallbackUnitID))
+        } catch {
+            generationState.errorText = error.localizedDescription
+            resetToRoute(.unitOverview(unitID: fallbackUnitID), tab: .learning)
+        }
+    }
+
+    @MainActor
     private func replayBackendReviewFromUnit(unitID: String) async {
         guard let chapterID = backendChapter?.id else {
             resetToRoute(.unitOverview(unitID: unitID), tab: .learning)
@@ -1842,14 +1911,25 @@ struct V2RootView: View {
         case "chapter_overview":
             return .chapterOverview
         case "unit_overview":
-            return card.unitId.map { .unitOverview(unitID: $0) }
+            guard let unitID = card.unitId,
+                  activeUnit(id: unitID) != nil else {
+                return nil
+            }
+            return .unitOverview(unitID: unitID)
         case "question", "question_feedback":
             guard let unitID = card.unitId, let questionID = card.questionId else {
                 return nil
             }
+            guard activeQuestion(unitID: unitID, questionID: questionID) != nil else {
+                return nil
+            }
             return .question(unitID: unitID, questionID: questionID)
         case "unit_summary":
-            return card.unitId.map { .unitSummary(unitID: $0) }
+            guard let unitID = card.unitId,
+                  activeUnit(id: unitID) != nil else {
+                return nil
+            }
+            return .unitSummary(unitID: unitID)
         case "chapter_summary":
             return .chapterSummary
         default:

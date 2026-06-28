@@ -153,11 +153,13 @@ struct V2HomeData {
             return chapter.units.last?.id ?? "start"
         }
 
-        if reviewSession.currentCard.type == "chapter_overview" {
+        let displayCard = reviewSession.displayCard
+
+        if displayCard.type == "chapter_overview" {
             return "start"
         }
 
-        if let unitID = reviewSession.currentCard.unitId,
+        if let unitID = displayCard.unitId,
            chapter.units.contains(where: { $0.id == unitID }) {
             return unitID
         }

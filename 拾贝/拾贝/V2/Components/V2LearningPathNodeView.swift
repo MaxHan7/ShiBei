@@ -7,7 +7,7 @@ struct V2LearningPathNodeView: View {
     var body: some View {
         Button(action: action) {
             ZStack {
-                if node.state == .current {
+                if node.kind == .unit && node.state == .current {
                     V2SegmentedNodeProgress(
                         completed: node.completedQuestionCount,
                         total: node.totalQuestionCount
