@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "../../../..");
-const backendRoot = path.join(repoRoot, "experiments/shibei-v2/backend/src/v2/generation");
+const backendRoot = path.join(repoRoot, "backend/src/v2/generation");
 const outputDir = path.join(repoRoot, "experiments/shibei-v2/docs/prompt-system");
 const outputPath = path.join(outputDir, "v2-prompt-system-structure.html");
 
@@ -156,7 +156,7 @@ function renderHtml() {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>拾贝 V2 Prompt 初级系统结构图</title>
+  <title>Recallo V2 Prompt 系统结构图</title>
   <style>
     :root {
       --bg: #f2f5cf;
@@ -279,7 +279,7 @@ function renderHtml() {
 </head>
 <body>
 <main>
-  <h1>拾贝 V2 Prompt 初级系统结构图</h1>
+  <h1>Recallo V2 Prompt 系统结构图</h1>
   <div class="meta">Generated at ${escapeHtml(new Date().toISOString())} from current source files. This page is an inspection artifact, not a prompt runtime.</div>
   <div class="toc">
     <a href="#flow">主链路结构</a>
@@ -480,7 +480,7 @@ function findMatchingBrace(source, braceStart) {
   return -1;
 }
 
-function extractPromptStringLines(functionSource) {
+function extractPromptStringLines(functionSource, { expandHelpers = true } = {}) {
   const lines = [];
   const stringRegex = /"((?:[^"\\\\]|\\\\.)*)"/g;
   let match;
@@ -494,6 +494,18 @@ function extractPromptStringLines(functionSource) {
     if (value.startsWith("阶段：") || value.startsWith("任务：") || value.startsWith("短角色：") || value.startsWith("-") || value.endsWith("：") || /^[0-9]+\\./.test(value)) {
       lines.push(value);
     }
+  }
+  if (expandHelpers && functionSource.includes("multipleChoiceVisibleTextLimits()")) {
+    lines.push(...extractPromptStringLines(
+      extractFunction(promptSource, "multipleChoiceVisibleTextLimits"),
+      { expandHelpers: false }
+    ));
+  }
+  if (expandHelpers && functionSource.includes("matchingVisibleTextLimits()")) {
+    lines.push(...extractPromptStringLines(
+      extractFunction(promptSource, "matchingVisibleTextLimits"),
+      { expandHelpers: false }
+    ));
   }
   return lines;
 }

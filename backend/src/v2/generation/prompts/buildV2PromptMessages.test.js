@@ -236,6 +236,10 @@ test("questionDraftBatch prompt generates all planned questions without ECD JSON
   assert.match(messages.user, /整章所有 unit 的选择题和连线题/);
   assert.match(messages.user, /不要输出 ECD 字段、推理链、候选矩阵或批注/);
   assert.match(messages.user, /不要新增 questionPlan；不要漏掉任何 questionPlan/);
+  assert.match(messages.user, /stem 尽量不超过 60 个中文字/);
+  assert.match(messages.user, /options\[\]\.text 尽量不超过 28 个中文字/);
+  assert.match(messages.user, /leftItems\[\]\.text \/ rightItems\[\]\.text 尽量不超过 16 个中文字/);
+  assert.match(messages.user, /不是 schema 硬失败条件/);
   assert.match(messages.user, /unitDraftInputs/);
   assert.match(messages.user, /sourceContext/);
 });
@@ -266,6 +270,9 @@ test("multipleChoiceDraftBatch prompt only generates planned multiple choice que
   assert.match(messages.user, /不要新增 questionPlan；不要漏掉任何 multiple_choice questionPlan/);
   assert.match(messages.user, /至少一个干扰项必须承载真实常见误区或混淆点/);
   assert.match(messages.user, /边界辨析/);
+  assert.match(messages.user, /stem 尽量不超过 60 个中文字/);
+  assert.match(messages.user, /options\[\]\.text 尽量不超过 28 个中文字/);
+  assert.match(messages.user, /不是 schema 硬失败条件/);
   assert.match(messages.user, /unitDraftInputs/);
 });
 
@@ -306,6 +313,10 @@ test("multipleChoiceDraftUnitBatch prompt turns current unit briefs into evidenc
   assert.match(messages.user, /不能为了变短牺牲关键区分点/);
   assert.match(messages.user, /把 correctUnderstanding 和 misconception 融合成一句短解释/);
   assert.match(messages.user, /不写逐项解析/);
+  assert.match(messages.user, /stem 尽量不超过 60 个中文字/);
+  assert.match(messages.user, /options\[\]\.text 尽量不超过 28 个中文字/);
+  assert.match(messages.user, /explanation 尽量不超过 60 个中文字/);
+  assert.match(messages.user, /不是 schema 硬失败条件/);
   assert.doesNotMatch(messages.user, /移动端复习题设计者|世界顶级|请按 ECD 思考/);
 });
 
@@ -346,6 +357,9 @@ test("matchingDraftBatch prompt only generates planned matching questions", () =
   assert.match(messages.user, /不能为了变短丢掉区分点/);
   assert.match(messages.user, /说明这组对应关系的核心理解/);
   assert.match(messages.user, /不逐项解析每一对/);
+  assert.match(messages.user, /stem 尽量不超过 44 个中文字/);
+  assert.match(messages.user, /leftItems\[\]\.text \/ rightItems\[\]\.text 尽量不超过 16 个中文字/);
+  assert.match(messages.user, /不是 schema 硬失败条件/);
   assert.match(messages.user, /unitDraftInputs/);
   assert.doesNotMatch(messages.user, /ECD 是你的隐性思考方法|matching 只考关系：|层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度|适合移动端连线卡片/);
 });
@@ -459,6 +473,7 @@ test("multipleChoiceDraft prompt requires misconception-first distractors", () =
   assert.match(messages.user, /不能写“根据本文\/根据文章\/根据原文/);
   assert.match(messages.user, /正确选项不能明显更长/);
   assert.match(messages.user, /不要写“正确选项A\/B\/C\/D”/);
+  assert.match(messages.user, /options\[\]\.text 尽量不超过 28 个中文字/);
 });
 
 test("matchingDraft prompt only allows relation-value matching", () => {
@@ -475,6 +490,7 @@ test("matchingDraft prompt only allows relation-value matching", () => {
   assert.match(messages.user, /matchingDraft/);
   assert.match(messages.user, /职责、边界、使用时机、场景作用、验证维度或流程信号/);
   assert.match(messages.user, /优先生成层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度/);
+  assert.match(messages.user, /leftItems\[\]\.text \/ rightItems\[\]\.text 尽量不超过 16 个中文字/);
 });
 
 test("unitSummaryDraft prompt separates overview from first answer", () => {
@@ -503,6 +519,7 @@ test("qualityJudge prompt checks source support and UI fitness", () => {
   assert.match(messages.user, /source anchor/);
   assert.match(messages.user, /选择题是否只有一个正确答案/);
   assert.match(messages.user, /连线题是否一一对应/);
+  assert.match(messages.user, /移动端显示上限用于判断阅读负担，不是结构失败条件/);
   assert.match(messages.user, /发现上述任一严重问题时 verdict 必须是 revise 或 discard/);
 });
 

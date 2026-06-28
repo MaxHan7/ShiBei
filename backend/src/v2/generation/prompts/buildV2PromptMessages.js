@@ -18,6 +18,26 @@ export function buildV2PromptMessages(stage, payload) {
   throw new Error(`Unsupported V2 prompt stage: ${stage}`);
 }
 
+function multipleChoiceVisibleTextLimits() {
+  return [
+    "移动端显示上限：",
+    "- 这些上限是生成时的显示约束，不是 schema 硬失败条件；如果确实需要保留关键区分点，可以略微超出，但不要写成长段阅读材料。",
+    "- stem 尽量不超过 60 个中文字；场景题只保留一个关键冲突或判断点。",
+    "- options[].text 尽量不超过 28 个中文字；每个选项最多承担一个判断点，不写成解释句。",
+    "- explanation 尽量不超过 60 个中文字；只写一句纠偏反馈。"
+  ];
+}
+
+function matchingVisibleTextLimits() {
+  return [
+    "移动端显示上限：",
+    "- 这些上限是生成时的显示约束，不是 schema 硬失败条件；如果确实需要保留关键区分点，可以略微超出，但不要写成长段阅读材料。",
+    "- stem 尽量不超过 44 个中文字；只说明要匹配的关系。",
+    "- leftItems[].text / rightItems[].text 尽量不超过 16 个中文字；优先使用短名词短语或短判断短语。",
+    "- explanation 尽量不超过 60 个中文字；只写一句关系纠偏反馈。"
+  ];
+}
+
 function buildQuestionDraftBatchMessages({ article, source, units }) {
   return {
     system: baseSystem(),
@@ -37,11 +57,13 @@ function buildQuestionDraftBatchMessages({ article, source, units }) {
       "- 4 个选项只能有一个正确答案；正确选项不能明显更长。",
       "- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。",
       "- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。",
+      ...multipleChoiceVisibleTextLimits(),
       "连线题规则：",
       "- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。",
       "- matching 只考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。",
       "- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。",
       "- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。",
+      ...matchingVisibleTextLimits(),
       "source 使用规则：",
       "- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。",
       "- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。",
@@ -75,6 +97,7 @@ function buildMultipleChoiceDraftBatchMessages({ article, source, units }) {
       "- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。",
       "- 选项尽量短，考理解、边界、误区或场景迁移，不做阅读理解复述。",
       "- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。",
+      ...multipleChoiceVisibleTextLimits(),
       "source 使用规则：",
       "- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。",
       "- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。",
@@ -120,6 +143,7 @@ function buildMultipleChoiceDraftUnitBatchMessages({
       "- correctUnderstanding 写正确理解，misconception 写本题主要误区。",
       "- explanation 是用户答后看到的一句纠偏反馈：把 correctUnderstanding 和 misconception 融合成一句短解释，帮助用户形成正确理解并避开容易混淆的点。",
       "- explanation 不写逐项解析，不写“正确选项A/B/C/D”。",
+      ...multipleChoiceVisibleTextLimits(),
       "source 使用规则：",
       "- 只能引用当前 sourceContext.blocks，不要使用整章全文或其他 unit 的 source blocks。",
       "- sourceAnchorId 必须等于 questionBrief.sourceAnchorId。",
@@ -158,6 +182,7 @@ function buildMatchingDraftBatchMessages({ article, source, units }) {
       "- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。",
       "- 左右项应适合小屏卡片阅读：短、清楚、可比较，但不能为了变短丢掉区分点。",
       "- explanation 是答后的一句纠偏反馈：说明这组对应关系的核心理解，并指出容易混淆的关系边界；不逐项解析每一对。",
+      ...matchingVisibleTextLimits(),
       "source 使用规则：",
       "- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。",
       "- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。",
@@ -464,6 +489,7 @@ function buildMultipleChoiceDraftMessages({ article, source, blocks, sourceConte
       "- 正确选项不能明显更长、更像标准答案。",
       "- explanation 要短、明确，适合底部反馈浮窗；不要写“正确选项A/B/C/D”。",
       "- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。",
+      ...multipleChoiceVisibleTextLimits(),
       "",
       `当前 unit:\n${JSON.stringify(unit, null, 2)}`,
       "",
@@ -500,6 +526,7 @@ function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote
       "- 如果 selected task 是 matching，应尽量实现它的关系目的，并从当前 unit 的同级证据中补足 4 组。",
       "- explanation 要短、明确，适合底部反馈浮窗。",
       "- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。",
+      ...matchingVisibleTextLimits(),
       "",
       `当前 unit:\n${JSON.stringify(unit, null, 2)}`,
       "",
@@ -554,6 +581,7 @@ function buildQualityJudgeMessages({ article, reviewPath }) {
       "- explanation 是否短、清晰、能解释题目核心，且不包含“正确选项A/B/C/D”。",
       "- 题干是否自足，是否避免“根据本文/根据文章/这里的/上述”等原文回忆词。",
       "- UI 是否能承载：选择题 4 项，连线题左右 2-4 项且数量一致。",
+      "- 移动端显示上限用于判断阅读负担，不是结构失败条件；只有题干、选项或解释明显变成长段阅读材料时，才建议 revise。",
       "判定规则：",
       "- 发现上述任一严重问题时 verdict 必须是 revise 或 discard，不能 pass。",
       "",

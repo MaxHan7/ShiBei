@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>拾贝 V2 Prompt 初级系统结构图</title>
+  <title>Recallo V2 Prompt 系统结构图</title>
   <style>
     :root {
       --bg: #f2f5cf;
@@ -126,8 +126,8 @@
 </head>
 <body>
 <main>
-  <h1>拾贝 V2 Prompt 初级系统结构图</h1>
-  <div class="meta">Generated at 2026-06-24T17:02:47.102Z from current source files. This page is an inspection artifact, not a prompt runtime.</div>
+  <h1>Recallo V2 Prompt 系统结构图</h1>
+  <div class="meta">Generated at 2026-06-28T23:19:24.003Z from current source files. This page is an inspection artifact, not a prompt runtime.</div>
   <div class="toc">
     <a href="#flow">主链路结构</a>
     <a href="#active-stages">当前主链路 prompt</a>
@@ -572,6 +572,52 @@ export function validateReviewPathPlanOutput(output, { sourceBlockIds = new Set(
   });
 
   return createValidationResult(errors);
+}
+
+export function normalizeReviewPathPlanOutput(output) {
+  if (!isPlainObject(output)) return output;
+
+  return {
+    ...output,
+    title: truncateText(output.title, REVIEW_PATH_TEXT_LIMITS.title),
+    summaryCard: isPlainObject(output.summaryCard)
+      ? {
+          ...output.summaryCard,
+          text: truncateText(output.summaryCard.text, REVIEW_PATH_TEXT_LIMITS.summaryCardText)
+        }
+      : output.summaryCard,
+    units: Array.isArray(output.units)
+      ? output.units.map((unit) =&gt; normalizeReviewPathPlanUnit(unit))
+      : output.units,
+    chapterSummary: isPlainObject(output.chapterSummary)
+      ? {
+          ...output.chapterSummary,
+          encouragementText: truncateText(
+            output.chapterSummary.encouragementText,
+            REVIEW_PATH_TEXT_LIMITS.encouragementText
+          )
+        }
+      : output.chapterSummary
+  };
+}
+
+function normalizeReviewPathPlanUnit(unit) {
+  if (!isPlainObject(unit)) return unit;
+  return {
+    ...unit,
+    title: truncateText(unit.title, REVIEW_PATH_TEXT_LIMITS.unitTitle),
+    nodeLabel: truncateText(unit.nodeLabel, REVIEW_PATH_TEXT_LIMITS.nodeLabel),
+    shortSummary: truncateText(unit.shortSummary, REVIEW_PATH_TEXT_LIMITS.shortSummary),
+    detailSummary: truncateText(unit.detailSummary, REVIEW_PATH_TEXT_LIMITS.detailSummary),
+    why: truncateText(unit.why, REVIEW_PATH_TEXT_LIMITS.why)
+  };
+}
+
+function truncateText(value, maxLength) {
+  if (!isNonEmptyString(value)) return value;
+  const chars = Array.from(value.trim());
+  if (chars.length &lt;= maxLength) return value.trim();
+  return chars.slice(0, maxLength).join(&quot;&quot;).trim();
 }
 
 function validatePlannedSourceAnchor(sourceAnchor, { path, sourceBlockIds, errors }) {
@@ -1382,7 +1428,7 @@ function compactSourceContext(sourceContext) {
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：multipleChoiceDraftUnitBatch。</li><li>短角色：你在这一阶段扮演选择题任务生成器；目标是把 questionBrief 中的掌握证据和常见误区转成一题可作答的选择题。</li><li>任务：只为当前 unit 生成选择题小批次；不要生成其他 unit 的题。</li><li>输入边界：</li><li>- 当前调用只包含一个 unit、这个 unit 的 multiple_choice questionBriefs、以及这个 unit 的 sourceContext。</li><li>- 不要重做知识点规划；每个 questionBrief 生成一题。</li><li>- 输出 unitId 必须等于当前 unit.id。</li><li>- questions 数量必须等于 questionBriefs 数量，题目 id 必须等于 questionBrief.questionPlanId。</li><li>ECD 设计约束：</li><li>- 写题前先确认：这题要观察的 evidence 是定义理解、边界判断、误区识别、结构理解，还是场景迁移。</li><li>- 每题必须围绕 questionBrief.practiceGoal.target 的可观察掌握证据来写。</li><li>- 每题必须使用 questionBrief.practiceGoal.commonMisconception 设计至少一个真实干扰项。</li><li>- 干扰项应表面合理，但混淆边界、因果、适用条件、结构关系或场景迁移。</li><li>- 干扰项还要参考 evidence.microSummaries 和 evidence.evidenceAngles，体现边界、误区、结构或迁移混淆。</li><li>- 不要输出完整 ECD JSON，不要输出推理链、候选矩阵或批注。</li><li>选择题规则：</li><li>- 题干要自足，像一个理解判断任务，不写“根据本文/根据文章/文中提到/上述/以下哪”。</li><li>- 4 个选项只能有一个正确答案；正确选项不能明显更长。</li><li>- 选项应适合小屏阅读：优先短句，但不能为了变短牺牲关键区分点。</li><li>- correctUnderstanding 写正确理解，misconception 写本题主要误区。</li><li>- explanation 是用户答后看到的一句纠偏反馈：把 correctUnderstanding 和 misconception 融合成一句短解释，帮助用户形成正确理解并避开容易混淆的点。</li><li>- explanation 不写逐项解析，不写“正确选项A/B/C/D”。</li><li>source 使用规则：</li><li>- 只能引用当前 sourceContext.blocks，不要使用整章全文或其他 unit 的 source blocks。</li><li>- sourceAnchorId 必须等于 questionBrief.sourceAnchorId。</li></ol>
+          <ol><li>阶段：multipleChoiceDraftUnitBatch。</li><li>短角色：你在这一阶段扮演选择题任务生成器；目标是把 questionBrief 中的掌握证据和常见误区转成一题可作答的选择题。</li><li>任务：只为当前 unit 生成选择题小批次；不要生成其他 unit 的题。</li><li>输入边界：</li><li>- 当前调用只包含一个 unit、这个 unit 的 multiple_choice questionBriefs、以及这个 unit 的 sourceContext。</li><li>- 不要重做知识点规划；每个 questionBrief 生成一题。</li><li>- 输出 unitId 必须等于当前 unit.id。</li><li>- questions 数量必须等于 questionBriefs 数量，题目 id 必须等于 questionBrief.questionPlanId。</li><li>ECD 设计约束：</li><li>- 写题前先确认：这题要观察的 evidence 是定义理解、边界判断、误区识别、结构理解，还是场景迁移。</li><li>- 每题必须围绕 questionBrief.practiceGoal.target 的可观察掌握证据来写。</li><li>- 每题必须使用 questionBrief.practiceGoal.commonMisconception 设计至少一个真实干扰项。</li><li>- 干扰项应表面合理，但混淆边界、因果、适用条件、结构关系或场景迁移。</li><li>- 干扰项还要参考 evidence.microSummaries 和 evidence.evidenceAngles，体现边界、误区、结构或迁移混淆。</li><li>- 不要输出完整 ECD JSON，不要输出推理链、候选矩阵或批注。</li><li>选择题规则：</li><li>- 题干要自足，像一个理解判断任务，不写“根据本文/根据文章/文中提到/上述/以下哪”。</li><li>- 4 个选项只能有一个正确答案；正确选项不能明显更长。</li><li>- 选项应适合小屏阅读：优先短句，但不能为了变短牺牲关键区分点。</li><li>- correctUnderstanding 写正确理解，misconception 写本题主要误区。</li><li>- explanation 是用户答后看到的一句纠偏反馈：把 correctUnderstanding 和 misconception 融合成一句短解释，帮助用户形成正确理解并避开容易混淆的点。</li><li>- explanation 不写逐项解析，不写“正确选项A/B/C/D”。</li><li>source 使用规则：</li><li>- 只能引用当前 sourceContext.blocks，不要使用整章全文或其他 unit 的 source blocks。</li><li>- sourceAnchorId 必须等于 questionBrief.sourceAnchorId。</li><li>移动端显示上限：</li><li>- 这些上限是生成时的显示约束，不是 schema 硬失败条件；如果确实需要保留关键区分点，可以略微超出，但不要写成长段阅读材料。</li><li>- stem 尽量不超过 60 个中文字；场景题只保留一个关键冲突或判断点。</li><li>- options[].text 尽量不超过 28 个中文字；每个选项最多承担一个判断点，不写成解释句。</li><li>- explanation 尽量不超过 60 个中文字；只写一句纠偏反馈。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildMultipleChoiceDraftUnitBatchMessages({
   article,
@@ -1416,6 +1462,7 @@ function compactSourceContext(sourceContext) {
       &quot;- correctUnderstanding 写正确理解，misconception 写本题主要误区。&quot;,
       &quot;- explanation 是用户答后看到的一句纠偏反馈：把 correctUnderstanding 和 misconception 融合成一句短解释，帮助用户形成正确理解并避开容易混淆的点。&quot;,
       &quot;- explanation 不写逐项解析，不写“正确选项A/B/C/D”。&quot;,
+      ...multipleChoiceVisibleTextLimits(),
       &quot;source 使用规则：&quot;,
       &quot;- 只能引用当前 sourceContext.blocks，不要使用整章全文或其他 unit 的 source blocks。&quot;,
       &quot;- sourceAnchorId 必须等于 questionBrief.sourceAnchorId。&quot;,
@@ -1497,7 +1544,7 @@ export function validateMultipleChoiceDraftUnitBatchOutput(
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：matchingDraftBatch。</li><li>短角色：你在这一阶段扮演连线关系题生成器；目标是把已有 matching questionPlan 转成一题能观察关系理解的连线题。</li><li>任务：按 taskBriefPlan 只生成整章各 unit 的连线匹配题。</li><li>关系任务设计：</li><li>- 写题前先确认：这组匹配关系能证明用户理解了什么结构、边界、流程、角色、条件、因果或适用关系。</li><li>- 每道题必须围绕对应 questionPlan.relationType、questionPlan.purpose 和 practiceGoal.target 来写。</li><li>- matching 只适合稳定对应关系，例如结构、流程、角色、条件、场景、因果、特征、判断依据或适用边界。</li><li>- 左右项不是名词释义卡片；用户正确匹配后，应能证明他理解元素之间为什么这样对应。</li><li>- 不要输出 ECD 字段、推理链、候选矩阵或批注。</li><li>- 不要新增 questionPlan；不要漏掉任何 matching questionPlan。</li><li>- 每个输出 unitId 必须原样对应输入。</li><li>- questions 数量必须等于该 unit 的 matching questionPlans 数量。</li><li>连线题规则：</li><li>- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。</li><li>- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。</li><li>- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。</li><li>- 左右项应适合小屏卡片阅读：短、清楚、可比较，但不能为了变短丢掉区分点。</li><li>- explanation 是答后的一句纠偏反馈：说明这组对应关系的核心理解，并指出容易混淆的关系边界；不逐项解析每一对。</li><li>source 使用规则：</li><li>- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。</li><li>- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。</li></ol>
+          <ol><li>阶段：matchingDraftBatch。</li><li>短角色：你在这一阶段扮演连线关系题生成器；目标是把已有 matching questionPlan 转成一题能观察关系理解的连线题。</li><li>任务：按 taskBriefPlan 只生成整章各 unit 的连线匹配题。</li><li>关系任务设计：</li><li>- 写题前先确认：这组匹配关系能证明用户理解了什么结构、边界、流程、角色、条件、因果或适用关系。</li><li>- 每道题必须围绕对应 questionPlan.relationType、questionPlan.purpose 和 practiceGoal.target 来写。</li><li>- matching 只适合稳定对应关系，例如结构、流程、角色、条件、场景、因果、特征、判断依据或适用边界。</li><li>- 左右项不是名词释义卡片；用户正确匹配后，应能证明他理解元素之间为什么这样对应。</li><li>- 不要输出 ECD 字段、推理链、候选矩阵或批注。</li><li>- 不要新增 questionPlan；不要漏掉任何 matching questionPlan。</li><li>- 每个输出 unitId 必须原样对应输入。</li><li>- questions 数量必须等于该 unit 的 matching questionPlans 数量。</li><li>连线题规则：</li><li>- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。</li><li>- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。</li><li>- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。</li><li>- 左右项应适合小屏卡片阅读：短、清楚、可比较，但不能为了变短丢掉区分点。</li><li>- explanation 是答后的一句纠偏反馈：说明这组对应关系的核心理解，并指出容易混淆的关系边界；不逐项解析每一对。</li><li>source 使用规则：</li><li>- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。</li><li>- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。</li><li>移动端显示上限：</li><li>- 这些上限是生成时的显示约束，不是 schema 硬失败条件；如果确实需要保留关键区分点，可以略微超出，但不要写成长段阅读材料。</li><li>- stem 尽量不超过 44 个中文字；只说明要匹配的关系。</li><li>- leftItems[].text / rightItems[].text 尽量不超过 16 个中文字；优先使用短名词短语或短判断短语。</li><li>- explanation 尽量不超过 60 个中文字；只写一句关系纠偏反馈。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildMatchingDraftBatchMessages({ article, source, units }) {
   return {
@@ -1521,6 +1568,7 @@ export function validateMultipleChoiceDraftUnitBatchOutput(
       &quot;- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。&quot;,
       &quot;- 左右项应适合小屏卡片阅读：短、清楚、可比较，但不能为了变短丢掉区分点。&quot;,
       &quot;- explanation 是答后的一句纠偏反馈：说明这组对应关系的核心理解，并指出容易混淆的关系边界；不逐项解析每一对。&quot;,
+      ...matchingVisibleTextLimits(),
       &quot;source 使用规则：&quot;,
       &quot;- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。&quot;,
       &quot;- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。&quot;,
@@ -1832,7 +1880,7 @@ export function getUnitCopyForUnit(unitCopyBatch, unitId) {
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：qualityJudge。</li><li>任务：检查候选 review path 是否适合进入前端。</li><li>检查重点：</li><li>- source anchor 是否真实支撑每个知识点和题目。</li><li>- 选择题是否只有一个正确答案。</li><li>- 干扰项是否承载真实误区，正确选项是否过于像标准答案。</li><li>- 连线题是否一一对应，且匹配的是职责、边界、时机、作用或验证维度，不是机械名词解释。</li><li>- explanation 是否短、清晰、能解释题目核心，且不包含“正确选项A/B/C/D”。</li><li>- 题干是否自足，是否避免“根据本文/根据文章/这里的/上述”等原文回忆词。</li><li>- UI 是否能承载：选择题 4 项，连线题左右 2-4 项且数量一致。</li><li>判定规则：</li><li>- 发现上述任一严重问题时 verdict 必须是 revise 或 discard，不能 pass。</li></ol>
+          <ol><li>阶段：qualityJudge。</li><li>任务：检查候选 review path 是否适合进入前端。</li><li>检查重点：</li><li>- source anchor 是否真实支撑每个知识点和题目。</li><li>- 选择题是否只有一个正确答案。</li><li>- 干扰项是否承载真实误区，正确选项是否过于像标准答案。</li><li>- 连线题是否一一对应，且匹配的是职责、边界、时机、作用或验证维度，不是机械名词解释。</li><li>- explanation 是否短、清晰、能解释题目核心，且不包含“正确选项A/B/C/D”。</li><li>- 题干是否自足，是否避免“根据本文/根据文章/这里的/上述”等原文回忆词。</li><li>- UI 是否能承载：选择题 4 项，连线题左右 2-4 项且数量一致。</li><li>- 移动端显示上限用于判断阅读负担，不是结构失败条件；只有题干、选项或解释明显变成长段阅读材料时，才建议 revise。</li><li>判定规则：</li><li>- 发现上述任一严重问题时 verdict 必须是 revise 或 discard，不能 pass。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildQualityJudgeMessages({ article, reviewPath }) {
   return {
@@ -1848,6 +1896,7 @@ export function getUnitCopyForUnit(unitCopyBatch, unitId) {
       &quot;- explanation 是否短、清晰、能解释题目核心，且不包含“正确选项A/B/C/D”。&quot;,
       &quot;- 题干是否自足，是否避免“根据本文/根据文章/这里的/上述”等原文回忆词。&quot;,
       &quot;- UI 是否能承载：选择题 4 项，连线题左右 2-4 项且数量一致。&quot;,
+      &quot;- 移动端显示上限用于判断阅读负担，不是结构失败条件；只有题干、选项或解释明显变成长段阅读材料时，才建议 revise。&quot;,
       &quot;判定规则：&quot;,
       &quot;- 发现上述任一严重问题时 verdict 必须是 revise 或 discard，不能 pass。&quot;,
       &quot;&quot;,
@@ -3204,6 +3253,23 @@ export function normalizeQuestionPlanPurpose(value) {
   return &quot;light_understanding&quot;;
 }
 
+export function normalizeMatchingRelationType({ relationType, purpose } = {}) {
+  if (MATCHING_RELATION_TYPES.includes(relationType)) return relationType;
+  const normalizedPurpose = normalizeQuestionPlanPurpose(purpose);
+  const inferred = {
+    layer_role_matching: &quot;responsibility&quot;,
+    role_responsibility_matching: &quot;responsibility&quot;,
+    step_purpose_matching: &quot;process_signal&quot;,
+    signal_action_matching: &quot;process_signal&quot;,
+    type_feature_matching: &quot;verification_dimension&quot;,
+    relationship_matching: &quot;scenario_effect&quot;,
+    boundary_clarification: &quot;boundary&quot;,
+    boundary_check: &quot;boundary&quot;,
+    scenario_application: &quot;scenario_effect&quot;
+  }[normalizedPurpose];
+  return MATCHING_RELATION_TYPES.includes(inferred) ? inferred : &quot;scenario_effect&quot;;
+}
+
 export function normalizeUnitPracticePlanOutput(output) {
   if (!isPlainObject(output)) return output;
   return {
@@ -3220,6 +3286,9 @@ function normalizeQuestionPlan(plan) {
   return {
     ...plan,
     purpose: normalizedPurpose,
+    ...(plan.type === &quot;matching&quot; &amp;&amp; !MATCHING_RELATION_TYPES.includes(plan.relationType)
+      ? { relationType: normalizeMatchingRelationType({ relationType: plan.relationType, purpose: normalizedPurpose }) }
+      : {}),
     ...(normalizedPurpose !== plan.purpose &amp;&amp; plan.originalPurpose === undefined
       ? { originalPurpose: plan.purpose }
       : {})
@@ -3353,7 +3422,7 @@ function validateOptionalStringArray(items, path, errors) {
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：questionDraftBatch。</li><li>任务：按 taskBriefPlan 生成整章所有 unit 的选择题和连线题。</li><li>核心设计方式：</li><li>- ECD 是你的隐性思考方法：每道题都要服务于对应 practiceGoal 的可观察掌握证据。</li><li>- 不要输出 ECD 字段、推理链、候选矩阵或批注。</li><li>- 不要新增 questionPlan；不要漏掉任何 questionPlan。</li><li>- 每个 unit 输出一个 units[] 对象，unitId 必须原样对应输入。</li><li>- questions 数量必须等于该 unit 的 practicePlan.questionPlans 数量。</li><li>选择题规则：</li><li>- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。</li><li>- 生成每道题时按这个内部顺序执行：先确认 questionPlan 的考察目标，再确认正确理解，再确认 commonMisconception 或容易混淆点，最后生成 1 个正确选项与 3 个干扰项。</li><li>- 至少一个干扰项必须承载真实常见误区或混淆点，不能只是明显错误、无关事实或为了凑数。</li><li>- 4 个选项只能有一个正确答案；正确选项不能明显更长。</li><li>- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。</li><li>- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。</li><li>连线题规则：</li><li>- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。</li><li>- matching 只考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。</li><li>- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。</li><li>- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。</li><li>source 使用规则：</li><li>- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。</li><li>- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。</li></ol>
+          <ol><li>阶段：questionDraftBatch。</li><li>任务：按 taskBriefPlan 生成整章所有 unit 的选择题和连线题。</li><li>核心设计方式：</li><li>- ECD 是你的隐性思考方法：每道题都要服务于对应 practiceGoal 的可观察掌握证据。</li><li>- 不要输出 ECD 字段、推理链、候选矩阵或批注。</li><li>- 不要新增 questionPlan；不要漏掉任何 questionPlan。</li><li>- 每个 unit 输出一个 units[] 对象，unitId 必须原样对应输入。</li><li>- questions 数量必须等于该 unit 的 practicePlan.questionPlans 数量。</li><li>选择题规则：</li><li>- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。</li><li>- 生成每道题时按这个内部顺序执行：先确认 questionPlan 的考察目标，再确认正确理解，再确认 commonMisconception 或容易混淆点，最后生成 1 个正确选项与 3 个干扰项。</li><li>- 至少一个干扰项必须承载真实常见误区或混淆点，不能只是明显错误、无关事实或为了凑数。</li><li>- 4 个选项只能有一个正确答案；正确选项不能明显更长。</li><li>- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。</li><li>- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。</li><li>连线题规则：</li><li>- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。</li><li>- matching 只考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。</li><li>- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。</li><li>- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。</li><li>source 使用规则：</li><li>- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。</li><li>- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。</li><li>移动端显示上限：</li><li>- 这些上限是生成时的显示约束，不是 schema 硬失败条件；如果确实需要保留关键区分点，可以略微超出，但不要写成长段阅读材料。</li><li>- stem 尽量不超过 60 个中文字；场景题只保留一个关键冲突或判断点。</li><li>- options[].text 尽量不超过 28 个中文字；每个选项最多承担一个判断点，不写成解释句。</li><li>- explanation 尽量不超过 60 个中文字；只写一句纠偏反馈。</li><li>移动端显示上限：</li><li>- 这些上限是生成时的显示约束，不是 schema 硬失败条件；如果确实需要保留关键区分点，可以略微超出，但不要写成长段阅读材料。</li><li>- stem 尽量不超过 44 个中文字；只说明要匹配的关系。</li><li>- leftItems[].text / rightItems[].text 尽量不超过 16 个中文字；优先使用短名词短语或短判断短语。</li><li>- explanation 尽量不超过 60 个中文字；只写一句关系纠偏反馈。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildQuestionDraftBatchMessages({ article, source, units }) {
   return {
@@ -3374,11 +3443,13 @@ function validateOptionalStringArray(items, path, errors) {
       &quot;- 4 个选项只能有一个正确答案；正确选项不能明显更长。&quot;,
       &quot;- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。&quot;,
       &quot;- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。&quot;,
+      ...multipleChoiceVisibleTextLimits(),
       &quot;连线题规则：&quot;,
       &quot;- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。&quot;,
       &quot;- matching 只考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。&quot;,
       &quot;- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。&quot;,
       &quot;- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。&quot;,
+      ...matchingVisibleTextLimits(),
       &quot;source 使用规则：&quot;,
       &quot;- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。&quot;,
       &quot;- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。&quot;,
@@ -3558,7 +3629,7 @@ export function getQuestionDraftForUnit(questionDraftBatch, unitId) {
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：multipleChoiceDraftBatch。</li><li>任务：按 taskBriefPlan 只生成整章各 unit 的选择题。</li><li>核心设计方式：</li><li>- ECD 是你的隐性思考方法：题目要让用户表现出对应 practiceGoal 的可观察掌握证据。</li><li>- 不要输出 ECD 字段、推理链、候选矩阵或批注。</li><li>- 不要新增 questionPlan；不要漏掉任何 multiple_choice questionPlan。</li><li>- 每个输出 unitId 必须原样对应输入。</li><li>- questions 数量必须等于该 unit 的 multiple_choice questionPlans 数量。</li><li>选择题规则：</li><li>- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。</li><li>- 生成每道题时按这个内部顺序执行：先确认 questionPlan 的考察目标，再确认正确理解，再确认 commonMisconception 或容易混淆点，最后生成 1 个正确选项与 3 个干扰项。</li><li>- 至少一个干扰项必须承载真实常见误区或混淆点，不能只是明显错误、无关事实或为了凑数。</li><li>- 4 个选项只能有一个正确答案；正确选项不能明显更长。</li><li>- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。</li><li>- 选项尽量短，考理解、边界、误区或场景迁移，不做阅读理解复述。</li><li>- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。</li><li>source 使用规则：</li><li>- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。</li><li>- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。</li></ol>
+          <ol><li>阶段：multipleChoiceDraftBatch。</li><li>任务：按 taskBriefPlan 只生成整章各 unit 的选择题。</li><li>核心设计方式：</li><li>- ECD 是你的隐性思考方法：题目要让用户表现出对应 practiceGoal 的可观察掌握证据。</li><li>- 不要输出 ECD 字段、推理链、候选矩阵或批注。</li><li>- 不要新增 questionPlan；不要漏掉任何 multiple_choice questionPlan。</li><li>- 每个输出 unitId 必须原样对应输入。</li><li>- questions 数量必须等于该 unit 的 multiple_choice questionPlans 数量。</li><li>选择题规则：</li><li>- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。</li><li>- 生成每道题时按这个内部顺序执行：先确认 questionPlan 的考察目标，再确认正确理解，再确认 commonMisconception 或容易混淆点，最后生成 1 个正确选项与 3 个干扰项。</li><li>- 至少一个干扰项必须承载真实常见误区或混淆点，不能只是明显错误、无关事实或为了凑数。</li><li>- 4 个选项只能有一个正确答案；正确选项不能明显更长。</li><li>- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。</li><li>- 选项尽量短，考理解、边界、误区或场景迁移，不做阅读理解复述。</li><li>- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。</li><li>source 使用规则：</li><li>- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。</li><li>- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。</li><li>移动端显示上限：</li><li>- 这些上限是生成时的显示约束，不是 schema 硬失败条件；如果确实需要保留关键区分点，可以略微超出，但不要写成长段阅读材料。</li><li>- stem 尽量不超过 60 个中文字；场景题只保留一个关键冲突或判断点。</li><li>- options[].text 尽量不超过 28 个中文字；每个选项最多承担一个判断点，不写成解释句。</li><li>- explanation 尽量不超过 60 个中文字；只写一句纠偏反馈。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildMultipleChoiceDraftBatchMessages({ article, source, units }) {
   return {
@@ -3580,6 +3651,7 @@ export function getQuestionDraftForUnit(questionDraftBatch, unitId) {
       &quot;- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。&quot;,
       &quot;- 选项尽量短，考理解、边界、误区或场景迁移，不做阅读理解复述。&quot;,
       &quot;- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。&quot;,
+      ...multipleChoiceVisibleTextLimits(),
       &quot;source 使用规则：&quot;,
       &quot;- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。&quot;,
       &quot;- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。&quot;,
@@ -3742,7 +3814,7 @@ function expectedUnitIdsWithQuestionType(practicePlansByUnit, type) {
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：multipleChoiceDraft。</li><li>任务：按 practice plan 生成当前知识点的选择题。</li><li>设计方式：</li><li>- practicePlan 已经体现学习对象、掌握证据和题型选择；本阶段不要重新改变题型或新增题。</li><li>- 每道题必须服务于对应 questionPlan 和 practiceGoal。</li><li>生成顺序必须遵守：</li><li>用户可见规则：</li><li>- question.type 只能是 multiple_choice。</li><li>- 题干要自足，不能写“根据本文/根据文章/根据原文/文中提到/这篇文章里/这里的/上述”。</li><li>- 优先正向提问，不写没必要的“哪一项不是/最不应该”。</li><li>- 选择题必须 4 个选项，只有一个正确答案。</li><li>- 至少一个干扰项承载真实常见误区或混淆点，不能明显凑数。</li><li>- 正确选项不能明显更长、更像标准答案。</li><li>- explanation 要短、明确，适合底部反馈浮窗；不要写“正确选项A/B/C/D”。</li><li>- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。</li></ol>
+          <ol><li>阶段：multipleChoiceDraft。</li><li>任务：按 practice plan 生成当前知识点的选择题。</li><li>设计方式：</li><li>- practicePlan 已经体现学习对象、掌握证据和题型选择；本阶段不要重新改变题型或新增题。</li><li>- 每道题必须服务于对应 questionPlan 和 practiceGoal。</li><li>生成顺序必须遵守：</li><li>用户可见规则：</li><li>- question.type 只能是 multiple_choice。</li><li>- 题干要自足，不能写“根据本文/根据文章/根据原文/文中提到/这篇文章里/这里的/上述”。</li><li>- 优先正向提问，不写没必要的“哪一项不是/最不应该”。</li><li>- 选择题必须 4 个选项，只有一个正确答案。</li><li>- 至少一个干扰项承载真实常见误区或混淆点，不能明显凑数。</li><li>- 正确选项不能明显更长、更像标准答案。</li><li>- explanation 要短、明确，适合底部反馈浮窗；不要写“正确选项A/B/C/D”。</li><li>- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。</li><li>移动端显示上限：</li><li>- 这些上限是生成时的显示约束，不是 schema 硬失败条件；如果确实需要保留关键区分点，可以略微超出，但不要写成长段阅读材料。</li><li>- stem 尽量不超过 60 个中文字；场景题只保留一个关键冲突或判断点。</li><li>- options[].text 尽量不超过 28 个中文字；每个选项最多承担一个判断点，不写成解释句。</li><li>- explanation 尽量不超过 60 个中文字；只写一句纠偏反馈。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildMultipleChoiceDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, ecdContext }) {
   const ecdContextSection = ecdContext
@@ -3771,6 +3843,7 @@ function expectedUnitIdsWithQuestionType(practicePlansByUnit, type) {
       &quot;- 正确选项不能明显更长、更像标准答案。&quot;,
       &quot;- explanation 要短、明确，适合底部反馈浮窗；不要写“正确选项A/B/C/D”。&quot;,
       &quot;- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。&quot;,
+      ...multipleChoiceVisibleTextLimits(),
       &quot;&quot;,
       `当前 unit:\n${JSON.stringify(unit, null, 2)}`,
       &quot;&quot;,
@@ -3974,7 +4047,7 @@ function validateOptions(question, path, errors) {
       <div>
         <div class="prompt-lines">
           <strong>Prompt 文案逐句预览</strong>
-          <ol><li>阶段：matchingDraft。</li><li>任务：只生成 practice plan 中要求的高价值连线题。</li><li>设计方式：</li><li>- 只实现 practicePlan 中已经选择 matching 的题。</li><li>- stem、左右项和 explanation 必须贴合当前 unit 的关系目的和掌握证据。</li><li>- matching 应实现当前 unit 自身的关系目的；不同 unit 可以使用自己的步骤、边界、信号或角色关系。</li><li>连线题规则：</li><li>- question.type 只能是 matching。</li><li>- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。</li><li>- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。</li><li>- stem 必须说明匹配的关系：职责、边界、使用时机、场景作用、验证维度或流程信号。</li><li>- 右侧必须是具体作用、处理方式、职责边界、判断结果、典型场景或验证维度。</li><li>- 优先生成层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度这类有关系价值的 matching。</li><li>- 如果 selected task 是 matching，应尽量实现它的关系目的，并从当前 unit 的同级证据中补足 4 组。</li><li>- explanation 要短、明确，适合底部反馈浮窗。</li><li>- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。</li></ol>
+          <ol><li>阶段：matchingDraft。</li><li>任务：只生成 practice plan 中要求的高价值连线题。</li><li>设计方式：</li><li>- 只实现 practicePlan 中已经选择 matching 的题。</li><li>- stem、左右项和 explanation 必须贴合当前 unit 的关系目的和掌握证据。</li><li>- matching 应实现当前 unit 自身的关系目的；不同 unit 可以使用自己的步骤、边界、信号或角色关系。</li><li>连线题规则：</li><li>- question.type 只能是 matching。</li><li>- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。</li><li>- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。</li><li>- stem 必须说明匹配的关系：职责、边界、使用时机、场景作用、验证维度或流程信号。</li><li>- 右侧必须是具体作用、处理方式、职责边界、判断结果、典型场景或验证维度。</li><li>- 优先生成层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度这类有关系价值的 matching。</li><li>- 如果 selected task 是 matching，应尽量实现它的关系目的，并从当前 unit 的同级证据中补足 4 组。</li><li>- explanation 要短、明确，适合底部反馈浮窗。</li><li>- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。</li><li>移动端显示上限：</li><li>- 这些上限是生成时的显示约束，不是 schema 硬失败条件；如果确实需要保留关键区分点，可以略微超出，但不要写成长段阅读材料。</li><li>- stem 尽量不超过 44 个中文字；只说明要匹配的关系。</li><li>- leftItems[].text / rightItems[].text 尽量不超过 16 个中文字；优先使用短名词短语或短判断短语。</li><li>- explanation 尽量不超过 60 个中文字；只写一句关系纠偏反馈。</li></ol>
         </div>
         <details open><summary>Prompt builder 源码</summary><pre>function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, ecdContext }) {
   const ecdContextSection = ecdContext
@@ -4001,6 +4074,7 @@ function validateOptions(question, path, errors) {
       &quot;- 如果 selected task 是 matching，应尽量实现它的关系目的，并从当前 unit 的同级证据中补足 4 组。&quot;,
       &quot;- explanation 要短、明确，适合底部反馈浮窗。&quot;,
       &quot;- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。&quot;,
+      ...matchingVisibleTextLimits(),
       &quot;&quot;,
       `当前 unit:\n${JSON.stringify(unit, null, 2)}`,
       &quot;&quot;,
@@ -4468,6 +4542,7 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
     qualityJudgeEnabled = readOptionalBoolean(process.env.V2_ENABLE_QUALITY_JUDGE) ?? false,
     generationMetaMode = process.env.V2_GENERATION_META_MODE || &quot;debug&quot;,
     sourceMapMode = process.env.V2_SOURCE_MAP_MODE || &quot;deterministic&quot;,
+    onProgress = null,
     now = new Date().toISOString()
   } = {}
 ) {
@@ -4482,6 +4557,15 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
   }
 
   try {
+  const emitStageProgress = (stage, extra = {}) =&gt; emitV2GenerationProgress(onProgress, {
+    chapterId: article.id,
+    status: V2_GENERATION_STATUS.RUNNING,
+    stage: mapV2ModelStageToProgressStage(stage),
+    updatedAt: new Date().toISOString(),
+    ...extra
+  });
+
+  await emitStageProgress(&quot;sourceMap&quot;);
   const sourceMap = sourceMapMode === &quot;deterministic&quot;
     ? buildDeterministicSourceMap(article)
     : await callAndValidate(
@@ -4491,17 +4575,20 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
         validateSourceMapOutput
       );
   const sourceBlockIds = new Set(sourceMap.blocks.map((block) =&gt; block.id));
+  await emitStageProgress(&quot;reviewPathPlan&quot;);
   const rawPlan = await callAndValidate(
     activePromptCaller,
     &quot;reviewPathPlan&quot;,
     { article, source: sourceMap.source, blocks: sourceMap.blocks },
-    (output) =&gt; validateReviewPathPlanOutput(output, { sourceBlockIds })
+    (output) =&gt; validateReviewPathPlanOutput(output, { sourceBlockIds }),
+    { normalize: normalizeReviewPathPlanOutput }
   );
   const plan = limitPlannedUnits(rawPlan, maxUnitCount);
   const planSourceContext = buildPlanSourceContext(sourceMap, plan);
   const unitIds = new Set(plan.units.map((unit) =&gt; unit.id));
   const sourceAnchorIds = new Set(plan.units.map((unit) =&gt; unit.sourceAnchor?.id).filter(Boolean));
   const unitSourceContexts = buildUnitSourceContexts({ sourceMap, plan });
+  await emitStageProgress(&quot;unitKnowledgeMap&quot;);
   const unitKnowledgeMap = mergeUnitKnowledgeMapOutputs(
     await mapWithConcurrency(plan.units, unitConcurrency, async (plannedUnit) =&gt; {
       const sourceContext = unitSourceContexts.get(plannedUnit.id);
@@ -4524,6 +4611,7 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
       );
     })
   );
+  await emitStageProgress(&quot;taskBriefPlan&quot;);
   const taskBriefPlan = mergeTaskBriefPlanOutputs(
     await mapWithConcurrency(plan.units, unitConcurrency, async (plannedUnit) =&gt; {
       const sourceContext = unitSourceContexts.get(plannedUnit.id);
@@ -4571,6 +4659,7 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
   const practicePlansByUnit = new Map(unitDraftInputs.map((input) =&gt; [input.unit.id, input.practicePlan]));
   const multipleChoiceDraftInputs = buildTypedDraftInputs(unitDraftInputs, &quot;multiple_choice&quot;);
   const matchingDraftInputs = buildTypedDraftInputs(unitDraftInputs, &quot;matching&quot;);
+  await emitStageProgress(&quot;multipleChoiceDraftUnitBatch&quot;);
   const multipleChoiceDraftBatch = {
     units: await mapWithConcurrency(
       multipleChoiceDraftInputs,
@@ -4578,6 +4667,10 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
       async (input) =&gt; {
         const questionBriefs = (input.questionBriefs || []).filter((brief) =&gt; brief.type === &quot;multiple_choice&quot;);
         const questionPlanIds = new Set(questionBriefs.map((brief) =&gt; brief.questionPlanId));
+        await emitStageProgress(&quot;multipleChoiceDraftUnitBatch&quot;, {
+          unitIndex: input.unit.order,
+          unitTitle: input.unit.title
+        });
         return callAndValidate(
           activePromptCaller,
           &quot;multipleChoiceDraftUnitBatch&quot;,
@@ -4606,11 +4699,17 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
       }
     )
   };
+  await emitStageProgress(&quot;matchingDraft&quot;);
   const matchingDraftBatch = {
     units: await mapWithConcurrency(
       matchingDraftInputs,
       unitConcurrency,
-      async (input) =&gt;
+      async (input) =&gt; {
+        await emitStageProgress(&quot;matchingDraft&quot;, {
+          unitIndex: input.unit.order,
+          unitTitle: input.unit.title
+        });
+        return (
         callAndValidate(
           activePromptCaller,
           &quot;matchingDraft&quot;,
@@ -4637,12 +4736,19 @@ export function validateUnitSummaryDraftOutput(output, { unitId } = {}) {
               )
           }
         )
+        );
+      }
     )
   };
   const questionDraftsByUnit = mergeTypedQuestionDrafts({
     unitDraftInputs,
     multipleChoiceDraftBatch,
     matchingDraftBatch
+  });
+  await emitStageProgress(&quot;unitCopyBatch&quot;);
+  await emitStageProgress(&quot;unitCopyBatch&quot;, {
+    unitIndex: 0,
+    unitTitle: plan.units[0]?.title || &quot;&quot;
   });
   const unitCopyBatch = await callAndValidate(
     activePromptCaller,
@@ -4841,7 +4947,7 @@ function compactSourceContext(sourceContext) {
       <summary>baseSystem 与 render helpers</summary>
       <pre>function baseSystem() {
   return [
-    &quot;你是拾贝 V2 的学习路径生成器。&quot;,
+    &quot;你是 Recallo V2 的学习路径生成器。&quot;,
     &quot;你必须优先遵守产品字段契约：字段要稳定、可验证、可被 SwiftUI 直接消费。&quot;,
     &quot;不要输出 Markdown，不要输出解释文字，只输出符合调用方 JSON schema 的对象。&quot;
   ].join(&quot;\n&quot;);
