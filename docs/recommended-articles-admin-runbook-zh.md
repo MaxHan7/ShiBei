@@ -84,6 +84,81 @@
    - `GET /api/v2/recommended-articles/<id>` 能看到 prepared chapter。
    - `POST /api/v2/recommended-articles/<id>/import` 能导入用户章节列表。
 
+## 常见维护操作
+
+### 只改展示信息
+
+适用场景：修改标题、作者、来源名称、简介、标签、排序、封面路径。
+
+1. 修改 `backend/content/recommended-articles.json`。
+2. 如果只是文字或标签变化，不需要重新生成 `preparedChapterPath` 指向的章节。
+3. 跑推荐文章测试：
+
+   ```bash
+   cd /Users/hanmingyu/Downloads/拾贝-v2-baseline
+   node --test backend/src/v2/recommended/recommendedArticles.test.js
+   ```
+
+4. 如果影响发现页展示，再用手机或 Simulator 看一遍卡片是否溢出。
+
+### 更换封面
+
+适用场景：推荐卡片右侧图片需要替换，但文章和题目不变。
+
+1. 把新封面放到 `backend/content/recommended/covers/<article-id>-cover.svg`。
+2. 确认 `backend/content/recommended-articles.json` 的 `coverImagePath` 指向正确文件。
+3. 用 `GET /api/v2/recommended-articles/<id>/cover` 检查是否返回 `200`。
+4. 在发现页检查裁切、层级和文字遮挡。
+
+### 下架一篇好文
+
+适用场景：暂时不想让用户看到某篇文章。
+
+1. 从 `backend/content/recommended-articles.json` 删除对应条目。
+2. 默认保留 `backend/content/recommended/<article-id>-chapter.json` 和封面文件，作为可回滚归档。
+3. 如果确认永久删除，再单独删除 chapter 和 cover。
+4. 跑推荐文章测试，确认没有断开的 `preparedChapterPath` 或重复 id。
+
+### 重新生成题目
+
+适用场景：题目质量不满意、文章节选范围变化、希望调整 unit 数量或难度。
+
+1. 不直接手改正式 catalog；先回到候选源或准备好的干净文本。
+2. 使用 `backend/scripts/build-recommended-article.mjs` 重新生成。
+3. 生成后先人工验收，再覆盖 `backend/content/recommended/<article-id>-chapter.json`。
+4. 保持 `recommendedArticleId`、`sourceUrl`、`sourceAuthor` 可追溯。
+5. 重新跑导入 smoke，确认用户导入的是新章节。
+
+### 新增一篇正式好文
+
+适用场景：已经确认文章可以进入发现页，并且要让用户几秒内开始学习。
+
+1. 先进入候选池：`backend/content/recommended-candidates.json`。
+2. 跑候选审查：`node backend/scripts/audit-recommended-candidates.mjs`。
+3. 抽取、清洗或节选正文；长文不要直接整篇塞给模型。
+4. 用 DeepSeek 生成 prepared chapter。
+5. 人工验收题目质量。
+6. 准备封面。
+7. 加入 `backend/content/recommended-articles.json`。
+8. 跑测试和导入 smoke。
+
+### 上线前最小验收清单
+
+每次维护推荐好文后，至少确认：
+
+- `backend/content/recommended-articles.json` 没有重复 `id`。
+- 每个正式条目的 `coverImagePath` 文件存在。
+- 每个正式条目的 `preparedChapterPath` 文件存在。
+- 新增 chapter 不包含 `rawText`、`cleanedText`、`extractedText` 或 API key。
+- `node --test backend/src/v2/recommended/recommendedArticles.test.js` 通过。
+- `cd backend && npm run check` 通过。
+- 至少 smoke 一篇新增/修改文章：
+  - 发现页能看到卡片。
+  - 详情页能打开。
+  - 封面能显示。
+  - 点击开始学习能导入 completed chapter。
+  - 进入复习流程没有空数据或崩溃。
+
 ## 当前 8 篇候选的处理顺序
 
 优先直接生成：
