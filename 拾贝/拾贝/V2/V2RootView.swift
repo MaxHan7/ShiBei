@@ -29,6 +29,7 @@ struct V2RootView: View {
     @State private var generationPollingTask: Task<Void, Never>?
     @State private var recommendedArticleSimulationTask: Task<Void, Never>?
     @State private var recommendedArticleGenerationSimulation: V2RecommendedArticleGenerationSimulation?
+    @State private var recommendedArticleGenerationPendingChapters: [String: V2BackendChapter] = [:]
     @State private var hasLoadedInitialBackendChapter = false
     @State private var showsStartupSplash = true
     @State private var generationState = V2GenerationState()
@@ -589,12 +590,14 @@ struct V2RootView: View {
                     importingRecommendedArticleIDs.remove(articleID)
                     mergeRecommendedArticle(response.article)
                     recommendedArticleChapters[articleID] = response.chapter
-                    applyBackendChapter(response.chapter)
+                    upsertBackendChapter(response.chapter)
+                    recommendedArticleGenerationPendingChapters[simulationID] = response.chapter
                     bindRecommendedArticleGenerationSimulation(simulationID: simulationID, chapterID: response.chapter.id)
                 }
             } catch {
                 await MainActor.run {
                     importingRecommendedArticleIDs.remove(articleID)
+                    recommendedArticleGenerationPendingChapters.removeValue(forKey: simulationID)
                     if recommendedArticleGenerationSimulation?.id == simulationID {
                         recommendedArticleGenerationSimulation = nil
                         recommendedArticleSimulationTask?.cancel()
@@ -1037,6 +1040,9 @@ struct V2RootView: View {
     }
 
     private var isActiveGenerationFailed: Bool {
+        if recommendedArticleGenerationSimulation != nil {
+            return false
+        }
         guard let chapter = backendChapter else {
             return false
         }
@@ -1361,6 +1367,7 @@ struct V2RootView: View {
             backendReviewChapter = backendChapter?.toReviewChapterData()
             v2ReviewSession = backendChapter?.v2ReviewSession
             recommendedArticleGenerationSimulation = nil
+            recommendedArticleGenerationPendingChapters.removeAll()
             generationState.resetAfterDelete()
             resetToHome(tab: .materials)
         } catch {
@@ -1398,6 +1405,9 @@ struct V2RootView: View {
         }
         recommendedArticleGenerationSimulation = nil
         recommendedArticleSimulationTask = nil
+        if let chapter = recommendedArticleGenerationPendingChapters.removeValue(forKey: simulationID) {
+            applyBackendChapter(chapter)
+        }
         generationState.showsChapterCard = false
         generationState.clearError()
         if routeStore.current == .generatingChapterDetail {
@@ -1406,7 +1416,10 @@ struct V2RootView: View {
     }
 
     private func startRecommendedArticleGenerationSimulation(simulationID: String, chapterID: String? = nil) {
+        generationPollingTask?.cancel()
+        generationPollingTask = nil
         recommendedArticleSimulationTask?.cancel()
+        recommendedArticleGenerationPendingChapters.removeAll()
         selectedTab = .materials
         generationState.resetAfterDelete()
         generationState.showsChapterCard = true

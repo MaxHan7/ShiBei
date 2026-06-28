@@ -1736,38 +1736,53 @@ private struct V2RecommendedArticleAddPopover: View {
     let onGenerate: () -> Void
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 15, style: .continuous)
-                .fill(V2Color.surfaceCream)
-                .frame(width: 274, height: 100)
-                .v2Shadow()
-                .offset(x: 4, y: 0)
-
+        VStack(alignment: .leading, spacing: V2RecommendedArticleAddPopoverMetrics.contentSpacing) {
             Text("将这篇好文生成复习路径？")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(V2Color.topTitle)
-                .lineLimit(1)
-                .minimumScaleFactor(0.85)
-                .frame(width: 196, height: 18, alignment: .center)
-                .offset(x: 43, y: 23)
+                .font(V2Typography.bodyEmphasis)
+                .foregroundStyle(V2Color.textPrimary)
+                .frame(maxWidth: .infinity, alignment: .center)
 
             Button(action: onGenerate) {
                 Text(isImporting ? "正在准备" : "开始生成")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(V2Typography.bodyEmphasis)
                     .foregroundStyle(.white)
-                    .frame(width: 215, height: 28)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: V2RecommendedArticleAddPopoverMetrics.buttonHeight)
                     .background(
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        RoundedRectangle(
+                            cornerRadius: V2RecommendedArticleAddPopoverMetrics.buttonRadius,
+                            style: .continuous
+                        )
                             .fill(V2Color.primaryAction)
                             .v2Shadow()
                     )
             }
             .disabled(isImporting)
+            .opacity(isImporting ? 0.72 : 1)
             .buttonStyle(.plain)
-            .offset(x: 33, y: 54)
         }
-        .frame(width: 282, height: 108, alignment: .topLeading)
+        .padding(.horizontal, V2RecommendedArticleAddPopoverMetrics.horizontalPadding)
+        .padding(.vertical, V2RecommendedArticleAddPopoverMetrics.verticalPadding)
+        .frame(width: V2RecommendedArticleAddPopoverMetrics.width)
+        .background(
+            RoundedRectangle(
+                cornerRadius: V2RecommendedArticleAddPopoverMetrics.cardRadius,
+                style: .continuous
+            )
+            .fill(V2Color.surfaceCream)
+            .v2Shadow()
+        )
         .accessibilityElement(children: .combine)
         .accessibilityLabel("将这篇好文生成复习路径")
     }
+}
+
+private enum V2RecommendedArticleAddPopoverMetrics {
+    static let width: CGFloat = 282
+    static let horizontalPadding: CGFloat = 24
+    static let verticalPadding: CGFloat = 22
+    static let contentSpacing: CGFloat = 18
+    static let buttonHeight: CGFloat = 42
+    static let cardRadius: CGFloat = 16
+    static let buttonRadius: CGFloat = 10
 }
