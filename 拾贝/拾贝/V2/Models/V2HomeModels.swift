@@ -49,6 +49,7 @@ enum V2LearningPathNodeState {
     case start
     case completed
     case current
+    case inProgress
     case locked
 }
 
@@ -91,6 +92,11 @@ struct V2HomeData {
         let currentNodeID = V2HomeData.currentNodeID(for: chapter, reviewSession: reviewSession)
         let completedUnitIDs = V2HomeData.completedUnitIDs(for: chapter, reviewSession: reviewSession)
         let completedQuestionCounts = V2HomeData.completedQuestionCounts(for: chapter, reviewSession: reviewSession)
+        let startedUnitIDs = V2HomeData.startedUnitIDs(
+            for: chapter,
+            reviewSession: reviewSession,
+            completedQuestionCounts: completedQuestionCounts
+        )
         let startNode = V2LearningPathNodeData(
             id: "start",
             title: "开始",
@@ -111,7 +117,8 @@ struct V2HomeData {
                 state: V2HomeData.nodeState(
                     unitID: unit.id,
                     currentNodeID: currentNodeID,
-                    completedUnitIDs: completedUnitIDs
+                    completedUnitIDs: completedUnitIDs,
+                    startedUnitIDs: startedUnitIDs
                 ),
                 completedQuestionCount: completedQuestionCounts[unit.id, default: 0],
                 totalQuestionCount: unit.questions.count,
@@ -220,10 +227,36 @@ struct V2HomeData {
         return counts
     }
 
+    private static func startedUnitIDs(
+        for chapter: V2ReviewChapterData,
+        reviewSession: V2BackendReviewSession?,
+        completedQuestionCounts: [String: Int]
+    ) -> Set<String> {
+        guard let reviewSession else {
+            return []
+        }
+
+        let unitIDs = Set(chapter.units.map(\.id))
+        let overviewStartedUnitIDs = reviewSession.completedStepIds.compactMap { stepID -> String? in
+            guard stepID.hasSuffix(":overview"),
+                  let separatorIndex = stepID.firstIndex(of: ":") else {
+                return nil
+            }
+            let unitID = String(stepID[..<separatorIndex])
+            return unitIDs.contains(unitID) ? unitID : nil
+        }
+        let questionStartedUnitIDs = completedQuestionCounts
+            .filter { $0.value > 0 }
+            .map { $0.key }
+
+        return Set(overviewStartedUnitIDs + questionStartedUnitIDs)
+    }
+
     private static func nodeState(
         unitID: String,
         currentNodeID: String,
-        completedUnitIDs: Set<String>
+        completedUnitIDs: Set<String>,
+        startedUnitIDs: Set<String>
     ) -> V2LearningPathNodeState {
         if completedUnitIDs.contains(unitID) {
             return .completed
@@ -231,6 +264,10 @@ struct V2HomeData {
 
         if unitID == currentNodeID {
             return .current
+        }
+
+        if startedUnitIDs.contains(unitID) {
+            return .inProgress
         }
 
         return .locked

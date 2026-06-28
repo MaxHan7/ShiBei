@@ -11,6 +11,7 @@ import {
   createReviewSessionV2,
   deriveCompletedUnitIdsFromSessionV2,
   deriveCurrentUnitIdFromSessionV2,
+  focusReviewUnitV2,
   openSourceFromReviewV2,
   returnFromSourceToReviewV2,
   setQuestionFeedbackVisibleV2,
@@ -163,6 +164,151 @@ test("replays incorrectly answered V2 questions after all new cards before chapt
 
   session = advanceReviewCardV2(reviewPath, session, { now: NOW });
   assert.equal(session.currentCard.type, "chapter_summary");
+});
+
+test("focuses a later V2 unit at its first incomplete card without losing earlier progress", async () => {
+  const [reviewPath] = await loadGoldenReviewPaths();
+  const laterUnit = reviewPath.units[1];
+  const firstQuestion = laterUnit.questions[0];
+  const secondQuestion = laterUnit.questions[1];
+  let session = createReviewSessionV2(reviewPath, { now: NOW });
+
+  session = focusReviewUnitV2(
+    reviewPath,
+    session,
+    { unitId: laterUnit.id },
+    { now: NOW }
+  );
+  assert.deepEqual(session.currentCard, {
+    type: "unit_overview",
+    chapterId: reviewPath.id,
+    unitId: laterUnit.id
+  });
+
+  session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+  assert.deepEqual(session.currentCard, {
+    type: "question",
+    chapterId: reviewPath.id,
+    unitId: laterUnit.id,
+    questionId: firstQuestion.id
+  });
+
+  session = answerQuestionV2(
+    reviewPath,
+    session,
+    {
+      unitId: laterUnit.id,
+      questionId: firstQuestion.id,
+      result: "correct",
+      selectedOptionId: firstQuestion.correctOptionId ?? null
+    },
+    { now: NOW }
+  );
+
+  session = focusReviewUnitV2(
+    reviewPath,
+    session,
+    { unitId: laterUnit.id },
+    { now: NOW }
+  );
+
+  assert.deepEqual(session.currentCard, {
+    type: "question",
+    chapterId: reviewPath.id,
+    unitId: laterUnit.id,
+    questionId: secondQuestion.id
+  });
+  assert.ok(session.completedStepIds.includes(`${laterUnit.id}:overview`));
+  assert.ok(session.completedStepIds.includes(`${laterUnit.id}:${firstQuestion.id}`));
+});
+
+test("sequential V2 flow skips questions already completed through free unit focus", async () => {
+  const [reviewPath] = await loadGoldenReviewPaths();
+  const firstUnit = reviewPath.units[0];
+  const laterUnit = reviewPath.units[1];
+  const firstLaterQuestion = laterUnit.questions[0];
+  const secondLaterQuestion = laterUnit.questions[1];
+  let session = createReviewSessionV2(reviewPath, { now: NOW });
+
+  session = focusReviewUnitV2(
+    reviewPath,
+    session,
+    { unitId: laterUnit.id },
+    { now: NOW }
+  );
+  session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+  session = answerQuestionV2(
+    reviewPath,
+    session,
+    {
+      unitId: laterUnit.id,
+      questionId: firstLaterQuestion.id,
+      result: "correct",
+      selectedOptionId: firstLaterQuestion.correctOptionId ?? null
+    },
+    { now: NOW }
+  );
+
+  session = {
+    ...session,
+    currentCard: {
+      type: "unit_summary",
+      chapterId: reviewPath.id,
+      unitId: firstUnit.id
+    }
+  };
+
+  session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+
+  assert.deepEqual(session.currentCard, {
+    type: "question",
+    chapterId: reviewPath.id,
+    unitId: laterUnit.id,
+    questionId: secondLaterQuestion.id
+  });
+});
+
+test("focused V2 unit keeps incorrectly answered questions incomplete until answered correctly", async () => {
+  const [reviewPath] = await loadGoldenReviewPaths();
+  const laterUnit = reviewPath.units[1];
+  const firstQuestion = laterUnit.questions[0];
+  let session = createReviewSessionV2(reviewPath, { now: NOW });
+
+  session = focusReviewUnitV2(
+    reviewPath,
+    session,
+    { unitId: laterUnit.id },
+    { now: NOW }
+  );
+  session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+  session = answerQuestionV2(
+    reviewPath,
+    session,
+    {
+      unitId: laterUnit.id,
+      questionId: firstQuestion.id,
+      result: "incorrect",
+      selectedOptionId: "wrong-option"
+    },
+    { now: NOW }
+  );
+
+  assert.ok(!session.completedStepIds.includes(`${laterUnit.id}:${firstQuestion.id}`));
+  assert.deepEqual(session.needsReviewQuestionIds, [firstQuestion.id]);
+
+  session = focusReviewUnitV2(
+    reviewPath,
+    session,
+    { unitId: laterUnit.id },
+    { now: NOW }
+  );
+
+  assert.deepEqual(session.currentCard, {
+    type: "question",
+    chapterId: reviewPath.id,
+    unitId: laterUnit.id,
+    questionId: firstQuestion.id
+  });
 });
 
 test("keeps a reinforcement question queued when it is answered incorrectly again", async () => {

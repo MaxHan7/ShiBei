@@ -78,7 +78,9 @@ export function advanceReviewCardV2(
 
   if (currentCard.type === "unit_overview") {
     const unit = findUnit(reviewPath, currentCard.unitId);
-    nextSession.currentCard = questionCard(reviewPath, unit, unit.questions[0]);
+    nextSession.currentCard = firstIncompleteCardInUnit(reviewPath, nextSession, unit, {
+      includeOverview: false
+    });
     return touchSession(nextSession, now);
   }
 
@@ -99,7 +101,7 @@ export function advanceReviewCardV2(
     const unitIndex = reviewPath.units.findIndex((unit) => unit.id === currentCard.unitId);
     const nextUnit = reviewPath.units[unitIndex + 1];
     nextSession.currentCard = nextUnit
-      ? unitOverviewCard(reviewPath, nextUnit)
+      ? firstIncompleteCardInUnit(reviewPath, nextSession, nextUnit)
       : firstNeedsReviewQuestionCard(reviewPath, nextSession) ?? chapterSummaryCard(reviewPath);
     return touchSession(nextSession, now);
   }
@@ -110,6 +112,20 @@ export function advanceReviewCardV2(
     return touchSession(nextSession, now);
   }
 
+  return touchSession(nextSession, now);
+}
+
+export function focusReviewUnitV2(
+  reviewPath,
+  session,
+  { unitId },
+  { now = new Date().toISOString() } = {}
+) {
+  const currentSession = normalizeReviewSessionV2(reviewPath, session, { now });
+  const nextSession = cloneSession(currentSession);
+  const unit = findUnit(reviewPath, unitId);
+
+  nextSession.currentCard = firstIncompleteCardInUnit(reviewPath, nextSession, unit);
   return touchSession(nextSession, now);
 }
 
@@ -443,7 +459,9 @@ function nextCardAfterQuestionFeedback(reviewPath, session, card) {
 
   const unit = findUnit(reviewPath, card.unitId);
   const questionIndex = unit.questions.findIndex((question) => question.id === card.questionId);
-  const nextQuestion = unit.questions[questionIndex + 1];
+  const nextQuestion = unit.questions
+    .slice(questionIndex + 1)
+    .find((question) => !isQuestionCompleted(session, unit.id, question.id));
 
   return nextQuestion
     ? questionCard(reviewPath, unit, nextQuestion)
@@ -517,6 +535,31 @@ function allUnitSummariesCompleted(reviewPath, session) {
   return reviewPath.units.every((unit) =>
     session.completedStepIds.includes(unitSummaryStepId(unit.id))
   );
+}
+
+function firstIncompleteCardInUnit(
+  reviewPath,
+  session,
+  unit,
+  { includeOverview = true } = {}
+) {
+  if (includeOverview && !session.completedStepIds.includes(unitOverviewStepId(unit.id))) {
+    return unitOverviewCard(reviewPath, unit);
+  }
+
+  const firstIncompleteQuestion = unit.questions.find(
+    (question) => !isQuestionCompleted(session, unit.id, question.id)
+  );
+
+  if (firstIncompleteQuestion) {
+    return questionCard(reviewPath, unit, firstIncompleteQuestion);
+  }
+
+  return unitSummaryCard(reviewPath, unit);
+}
+
+function isQuestionCompleted(session, unitId, questionId) {
+  return session.completedStepIds.includes(questionStepId(unitId, questionId));
 }
 
 function resolveSourceAnchorForCard(reviewPath, card, sourceAnchorId) {

@@ -266,6 +266,10 @@ struct V2AnswerQuestionRequest: Encodable {
     let lockedPairIds: [String]
 }
 
+struct V2FocusUnitRequest: Encodable {
+    let unitId: String
+}
+
 struct V2FeedbackVisibilityRequest: Encodable {
     let questionId: String
     let visible: Bool

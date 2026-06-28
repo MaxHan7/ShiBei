@@ -7,10 +7,11 @@ struct V2LearningPathNodeView: View {
     var body: some View {
         Button(action: action) {
             ZStack {
-                if node.state == .current {
+                if let progressStyle {
                     V2SegmentedNodeProgress(
                         completed: node.completedQuestionCount,
-                        total: node.totalQuestionCount
+                        total: node.totalQuestionCount,
+                        style: progressStyle
                     )
                     .frame(width: 112, height: 140)
                 }
@@ -100,8 +101,19 @@ struct V2LearningPathNodeView: View {
             .reviewed
         case .completed, .current:
             .reviewed
-        case .locked:
+        case .inProgress, .locked:
             .notReviewed
+        }
+    }
+
+    private var progressStyle: V2SegmentedNodeProgressStyle? {
+        switch node.state {
+        case .current:
+            .current
+        case .inProgress:
+            .partial
+        case .start, .completed, .locked:
+            nil
         }
     }
 }
@@ -178,6 +190,7 @@ private struct V2LearningPathStartFlagShape: Shape {
 private struct V2SegmentedNodeProgress: View {
     let completed: Int
     let total: Int
+    let style: V2SegmentedNodeProgressStyle
 
     private var segmentCount: Int {
         max(total, 1)
@@ -192,8 +205,8 @@ private struct V2SegmentedNodeProgress: View {
 
             for segment in segments {
                 let color = segment.index < completed
-                    ? V2SegmentedNodeProgressMetrics.completedColor
-                    : V2SegmentedNodeProgressMetrics.pendingColor
+                    ? style.completedColor
+                    : style.pendingColor
 
                 context.stroke(
                     segment.path,
@@ -210,14 +223,31 @@ private struct V2SegmentedNodeProgress: View {
     }
 }
 
+private struct V2SegmentedNodeProgressStyle {
+    let completedColor: Color
+    let pendingColor: Color
+
+    static let current = V2SegmentedNodeProgressStyle(
+        completedColor: V2SegmentedNodeProgressMetrics.currentCompletedColor,
+        pendingColor: V2SegmentedNodeProgressMetrics.currentPendingColor
+    )
+
+    static let partial = V2SegmentedNodeProgressStyle(
+        completedColor: V2SegmentedNodeProgressMetrics.partialCompletedColor,
+        pendingColor: V2SegmentedNodeProgressMetrics.partialPendingColor
+    )
+}
+
 private enum V2SegmentedNodeProgressMetrics {
     static let lineWidth: CGFloat = 8
     static let ellipseWidth: CGFloat = 108
     static let ellipseHeight: CGFloat = 126
     static let sampleCount: Int = 360
     static let gapLength: CGFloat = 13
-    static let completedColor = Color(hex: 0x9EA860)
-    static let pendingColor = Color(hex: 0xDCE1B1).opacity(0.72)
+    static let currentCompletedColor = Color(hex: 0x9EA860)
+    static let currentPendingColor = Color(hex: 0xDCE1B1).opacity(0.72)
+    static let partialCompletedColor = Color(hex: 0x8F8F8F).opacity(0.72)
+    static let partialPendingColor = Color(hex: 0xD8D8D8).opacity(0.64)
 
     // Starts the progress rhythm on the lower-left side, matching the
     // hand-drawn node reference more closely than a top-centered circular ring.

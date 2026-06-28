@@ -141,6 +141,11 @@ struct APIClient {
         try await send("/api/v2/review-sessions/\(encodedPathComponent(sessionId))/advance", method: "POST", body: EmptyRequest(), acceptsFailureBody: false)
     }
 
+    func focusV2ReviewUnit(sessionId: String, unitId: String) async throws -> V2ReviewSessionResponse {
+        let request = V2FocusUnitRequest(unitId: unitId)
+        return try await send("/api/v2/review-sessions/\(encodedPathComponent(sessionId))/focus-unit", method: "POST", body: request, acceptsFailureBody: false)
+    }
+
     func answerV2Question(
         sessionId: String,
         unitId: String,

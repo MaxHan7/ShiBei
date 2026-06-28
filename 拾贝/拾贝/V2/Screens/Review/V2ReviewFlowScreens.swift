@@ -1057,6 +1057,7 @@ struct V2ChapterDetailView: View {
     let primaryActionTitle: String
     let onBack: () -> Void
     let onContinue: () -> Void
+    let onStartUnitReview: (String) -> Void
     let onSource: () -> Void
     let onDelete: () -> Void
 
@@ -1076,6 +1077,8 @@ struct V2ChapterDetailView: View {
             case .current:
                 let currentUnitCap = max(unit.questions.count - 1, 0)
                 return total + min(node.completedQuestionCount, currentUnitCap)
+            case .inProgress:
+                return total + min(node.completedQuestionCount, unit.questions.count)
             case .start, .locked:
                 return total
             }
@@ -1108,7 +1111,7 @@ struct V2ChapterDetailView: View {
                             count: chapter.units.count,
                             units: chapter.units,
                             actionTitle: primaryActionTitle,
-                            onStartReview: onContinue
+                            onStartReview: onStartUnitReview
                         )
                     }
                     .frame(maxWidth: V2Layout.contentMaxWidth)
@@ -1129,6 +1132,8 @@ struct V2ChapterDetailView: View {
         case .completed:
             return .completed
         case .current:
+            return .reviewing
+        case .inProgress:
             return .reviewing
         case .start, .locked:
             return .notStarted
@@ -1418,7 +1423,7 @@ private struct V2ChapterDetailKnowledgeCard: View {
     let count: Int
     let units: [V2ReviewUnitData]
     let actionTitle: String
-    let onStartReview: () -> Void
+    let onStartReview: (String) -> Void
     @State private var expandedUnitID: String?
     private let contentLeading: CGFloat = V2ChapterDetailLayoutMetrics.cardContentLeading
 
@@ -1462,7 +1467,7 @@ private struct V2ChapterDetailKnowledgeCard: View {
                             V2ChapterDetailKnowledgeExpansionPanel(
                                 overview: unit.overview,
                                 actionTitle: actionTitle,
-                                action: onStartReview
+                                action: { onStartReview(unit.id) }
                             )
                             .transition(.asymmetric(insertion: .opacity, removal: .identity))
                         }
