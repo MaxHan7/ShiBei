@@ -514,21 +514,13 @@ struct V2DiscoverView: View {
             VStack(alignment: .leading, spacing: 20) {
                 V2DiscoverHeroCard()
 
-                HStack(spacing: 10) {
-                    ForEach(filters) { filter in
-                        Button {
-                            selectedFilterID = filter.id
-                        } label: {
-                            V2DiscoverChip(
-                                title: filter.title,
-                                isSelected: selectedFilterID == filter.id
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("筛选：\(filter.title)")
-                        .accessibilityAddTraits(selectedFilterID == filter.id ? .isSelected : [])
+                V2DiscoverFilterBar(
+                    filters: filters,
+                    selectedFilterID: selectedFilterID,
+                    onSelect: { filter in
+                        selectedFilterID = filter.id
                     }
-                }
+                )
 
                 ForEach(filteredArticles) { article in
                     V2RecommendedArticleCard(
