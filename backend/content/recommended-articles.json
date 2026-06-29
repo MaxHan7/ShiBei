@@ -26,7 +26,7 @@
         "AI",
         "学习"
       ],
-      "description": "用课程化方式解释大语言模型、token、上下文和注意力等基础概念。",
+      "description": "用课程化方式解释大语言模型、词元、上下文和注意力等基础概念。",
       "preparedChapterPath": "recommended/google-llm-introduction-chapter.json"
     },
     {
