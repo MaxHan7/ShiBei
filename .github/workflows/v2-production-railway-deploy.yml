@@ -267,6 +267,7 @@ jobs:
   gate:
     name: Post-deploy production gate
     needs: deploy
+    if: ${{ always() && needs.deploy.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
