@@ -67,7 +67,7 @@
 
 ## Checkpoint 1: Define Node Affordances
 
-- [ ] Add a node affordance model in `V2HomeModels.swift`.
+- [x] Add a node affordance model in `V2HomeModels.swift`.
 
 ```swift
 enum V2LearningPathNodeAction {
@@ -77,29 +77,29 @@ enum V2LearningPathNodeAction {
 }
 ```
 
-- [ ] Add `let action: V2LearningPathNodeAction` to `V2LearningPathNodeData`.
+- [x] Add `let action: V2LearningPathNodeAction` to `V2LearningPathNodeData`.
 
-- [ ] Derive action rules:
+- [x] Derive action rules:
   - `start`: `.mainline`
   - completed chapter unit: `.practice`
   - unfinished chapter current unit: `.mainline`
   - unfinished chapter completed or started earlier unit: `.practice`
   - unfinished chapter locked future unit: `.previewOnly`
 
-- [ ] Remove legacy partial-progress visuals from the node component:
+- [x] Remove legacy partial-progress visuals from the node component:
   - `.current` keeps the green segmented progress ring.
   - `.inProgress` has no segmented ring.
   - Delete unused gray `partial` progress style constants so they cannot reappear by accident.
 
-- [ ] Update fixture constructors so all sample nodes compile.
+- [x] Update fixture constructors so all sample nodes compile.
 
-- [ ] Build:
+- [x] Build:
 
 ```bash
 xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic/platform=iOS Simulator' build
 ```
 
-- [ ] Commit:
+- [x] Commit:
 
 ```bash
 git add 拾贝/拾贝/V2/Models/V2HomeModels.swift 拾贝/拾贝/V2/Fixtures/V2HomeFixture.swift
@@ -108,23 +108,23 @@ git commit -m "feat: model learning path node actions"
 
 ## Checkpoint 2: Fix Homepage Popover Behavior
 
-- [ ] Update `V2NodePopover` to accept `showsActionButton: Bool`.
+- [x] Update `V2NodePopover` to accept `showsActionButton: Bool`.
 
-- [ ] Show only `node.subtitle` for `.previewOnly`.
+- [x] Show only `node.subtitle` for `.previewOnly`.
 
-- [ ] Keep the existing green 42pt action button for `.mainline` and `.practice`.
+- [x] Keep the existing green 42pt action button for `.mainline` and `.practice`.
 
-- [ ] In `V2HomeView`, pass `selectedNode.action != .previewOnly`.
+- [x] In `V2HomeView`, pass `selectedNode.action != .previewOnly`.
 
-- [ ] In `V2RootView.openNode(_:)`, ignore `.previewOnly` action if triggered defensively.
+- [x] In `V2RootView.openNode(_:)`, ignore `.previewOnly` action if triggered defensively.
 
-- [ ] Build and manually verify:
+- [x] Build and manually verify:
   - Future locked node shows only summary.
   - Current node shows continue.
   - Completed previous node shows review/continue.
   - No non-current node shows the old gray segmented progress ring.
 
-- [ ] Commit:
+- [x] Commit:
 
 ```bash
 git add 拾贝/拾贝/V2/Components/V2NodePopover.swift 拾贝/拾贝/V2/Screens/Home/V2HomeView.swift 拾贝/拾贝/V2/V2RootView.swift
@@ -133,7 +133,7 @@ git commit -m "fix: hide review action for locked future nodes"
 
 ## Checkpoint 3: Split Mainline And Practice Routing On iOS
 
-- [ ] Add a local enum in `V2RootView.swift`.
+- [x] Add a local enum in `V2RootView.swift`.
 
 ```swift
 private enum V2ReviewEntryMode {
@@ -148,28 +148,37 @@ private enum V2PracticeOrigin {
 }
 ```
 
-- [ ] Change `openNode(_:)`:
+- [x] Change `openNode(_:)`:
   - `.mainline` calls existing `startOrResumeV2ReviewSession` or mainline advance route.
   - `.practice` calls a new `startPracticeFromUnit(unitID:origin:)`.
   - `.previewOnly` only opens/closes popover and never navigates.
 
-- [ ] Change `startReviewFromChapterDetailUnit(unitID:)` to always call practice mode for unfinished chapters.
+- [x] Change `startReviewFromChapterDetailUnit(unitID:)` to always call practice mode for unfinished chapters.
 
-- [ ] For completed chapters, route all unit entries as practice/free-review and keep every node unlocked.
+- [x] For completed chapters, route all unit entries as practice/free-review and keep every node unlocked.
 
-- [ ] Make practice routes use separate `questionInteractionStates` keys so answer UI does not overwrite mainline answer UI.
+- [x] Make practice routes use separate `questionInteractionStates` keys so answer UI does not overwrite mainline answer UI.
 
-- [ ] Build and manually verify:
+- [x] Build and manually verify:
   - Mainline unit 3 remains current after practicing unit 1 or unit 5.
   - Returning home focuses unit 3.
   - Completed chapter can enter any node.
 
-- [ ] Commit:
+- [x] Commit:
 
 ```bash
 git add 拾贝/拾贝/V2/V2RootView.swift
 git commit -m "feat: separate practice routes from mainline review"
 ```
+
+## Current Execution Notes
+
+- Frontend Checkpoints 1-3 were implemented in commits `061c31b` and `a33cb29`.
+- The old gray partial node progress ring has been removed.
+- Homepage future locked nodes now show summary-only popovers.
+- Homepage previous/completed units and chapter-detail unit entry now use local temporary practice so they do not call the mainline `focus-unit` endpoint.
+- Temporary practice answer UI uses local `review-practice::local` state keys and does not call mainline answer persistence.
+- Backend durable practice persistence is still pending in Checkpoints 4-5.
 
 ## Checkpoint 4: Backend Practice Session Contract
 
