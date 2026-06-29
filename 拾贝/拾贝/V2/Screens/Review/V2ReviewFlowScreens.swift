@@ -436,7 +436,10 @@ struct V2MatchingQuestionView: View {
                 ForEach(question.matchingPairs) { pair in
                     V2MatchingOptionCard(
                         title: pair.left,
-                        state: state(for: pair.id, side: .left)
+                        state: state(for: pair.id, side: .left),
+                        width: V2MatchingPageMetrics.optionCardWidth,
+                        height: V2MatchingPageMetrics.optionCardHeight,
+                        horizontalPadding: V2MatchingPageMetrics.optionCardHorizontalPadding
                     ) {
                         handleTap(pairID: pair.id, side: .left)
                     }
@@ -447,7 +450,10 @@ struct V2MatchingQuestionView: View {
                 ForEach(question.matchingPairs.reversed()) { pair in
                     V2MatchingOptionCard(
                         title: pair.right,
-                        state: state(for: pair.id, side: .right)
+                        state: state(for: pair.id, side: .right),
+                        width: V2MatchingPageMetrics.optionCardWidth,
+                        height: V2MatchingPageMetrics.optionCardHeight,
+                        horizontalPadding: V2MatchingPageMetrics.optionCardHorizontalPadding
                     ) {
                         handleTap(pairID: pair.id, side: .right)
                     }
@@ -533,8 +539,11 @@ private enum V2MatchingPageMetrics {
     static let progressY: CGFloat = 15
     static let promptY: CGFloat = 65
     static let gridY: CGFloat = 155
-    static let rowSpacing: CGFloat = 14
-    static let columnSpacing: CGFloat = 41
+    static let rowSpacing: CGFloat = 16
+    static let columnSpacing: CGFloat = 17
+    static let optionCardWidth: CGFloat = (V2Layout.contentMaxWidth - columnSpacing) / 2
+    static let optionCardHeight: CGFloat = 96
+    static let optionCardHorizontalPadding: CGFloat = 14
     static let leftDecoY: CGFloat = 612
     static let rightDecoY: CGFloat = 648
     private static let mascotBottom: CGFloat = 691

@@ -186,6 +186,9 @@ struct V2MultipleChoiceQuestionCard: View {
 struct V2MatchingOptionCard: View {
     let title: String
     let state: V2MatchingOptionState
+    var width: CGFloat = V2MatchingOptionCardMetrics.width
+    var height: CGFloat = V2MatchingOptionCardMetrics.height
+    var horizontalPadding: CGFloat = V2MatchingOptionCardMetrics.horizontalPadding
     let action: () -> Void
 
     var body: some View {
@@ -203,11 +206,12 @@ struct V2MatchingOptionCard: View {
                     .foregroundStyle(textColor)
                     .multilineTextAlignment(.center)
                     .lineSpacing(3)
-                    .lineLimit(3)
+                    .lineLimit(4)
                     .fixedSize(horizontal: false, vertical: true)
-                    .frame(width: 112, alignment: .center)
+                    .padding(.horizontal, horizontalPadding)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
-            .frame(width: 140, height: 90)
+            .frame(width: width, height: height)
         }
         .buttonStyle(.plain)
         .disabled(state == .locked)
@@ -254,6 +258,12 @@ struct V2MatchingOptionCard: View {
             return V2Color.textPrimary
         }
     }
+}
+
+private enum V2MatchingOptionCardMetrics {
+    static let width: CGFloat = 152
+    static let height: CGFloat = 96
+    static let horizontalPadding: CGFloat = 14
 }
 
 struct V2AnswerFeedbackPanel: View {
