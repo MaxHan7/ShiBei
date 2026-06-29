@@ -102,6 +102,15 @@
 - rate limit 的粒度：deviceId、IP、接口、生成任务类型。
 - 哪些风险留到账号系统后解决。
 
+阶段 4 最小实现记录：
+
+- 请求体读取统一走带上限的 JSON reader，默认普通 API 1MB，生成 API 2MB，可通过 `SHIBEI_MAX_JSON_BODY_BYTES` 与 `SHIBEI_MAX_GENERATION_BODY_BYTES` 覆盖。
+- 增加单实例内存 rate limit，当前粒度为 `routeGroup + deviceId + clientIp`。默认生成接口为 10 分钟 12 次，推荐文章导入为 10 分钟 30 次，普通 mutation 为每分钟 120 次，普通 API 为每分钟 300 次；可通过对应环境变量调整。
+- 高风险 API 要求 deviceId 使用安全字符集和 128 字符以内长度；健康检查、静态资源、推荐文章公开读取不强制 deviceId。
+- CORS 在非生产环境继续按请求 Origin 返回，生产环境改为读取 `SHIBEI_ALLOWED_ORIGINS` / `SHIBEI_ALLOWED_ORIGIN` / `SHIBEI_PUBLIC_BASE_URL`。
+- 当前 rate limit 适用于 Railway 单副本；如果后续扩展到多副本，需要迁移为 Postgres 或 Redis 级别的分布式限流。
+- 仍需在真实 production 环境验证：iOS 真机请求、推荐文章封面、GitHub/Railway smoke、HTML demo 是否都处于预期 CORS 策略下。
+
 ## 阶段 5：观测与压测
 
 | 项目 | 内容 |

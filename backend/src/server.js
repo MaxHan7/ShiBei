@@ -76,6 +76,14 @@ import {
   setQuestionFeedbackVisibleV2,
   startReplayFromUnitV2
 } from "./v2/state/reviewSessionV2.js";
+import {
+  corsHeadersForRequest,
+  corsPreflightHeaders,
+  evaluateRequestGuards,
+  readJsonBodyWithLimit,
+  RequestGuardError,
+  resolveDeviceId
+} from "./security/requestGuards.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const projectRoot = resolve(__dirname, "..", "..");
@@ -111,7 +119,7 @@ const contentTypes = {
 function sendJson(res, statusCode, body) {
   res.writeHead(statusCode, {
     "content-type": "application/json; charset=utf-8",
-    "access-control-allow-origin": "*",
+    ...responseCorsHeaders(res),
     "access-control-allow-methods": "GET,POST,DELETE,OPTIONS",
     "access-control-allow-headers": "content-type,x-device-id"
   });
@@ -121,9 +129,13 @@ function sendJson(res, statusCode, body) {
 function sendText(res, statusCode, body, contentType = "text/plain; charset=utf-8") {
   res.writeHead(statusCode, {
     "content-type": contentType,
-    "access-control-allow-origin": "*"
+    ...responseCorsHeaders(res)
   });
   res.end(body);
+}
+
+function responseCorsHeaders(res) {
+  return res.shibeiCorsHeaders || { "access-control-allow-origin": "*" };
 }
 
 function requestBaseUrl(req) {
@@ -137,11 +149,7 @@ function requestBaseUrl(req) {
 }
 
 async function readBody(req) {
-  const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
-  const raw = Buffer.concat(chunks).toString("utf8");
-  if (!raw) return {};
-  return JSON.parse(raw);
+  return readJsonBodyWithLimit(req);
 }
 
 async function handleGenerate(req, res) {
@@ -1965,13 +1973,23 @@ async function serveStatic(req, res) {
 }
 
 const server = createServer(async (req, res) => {
-  const deviceId = getDeviceId(req);
+  res.shibeiCorsHeaders = corsHeadersForRequest(req);
+  const deviceIdResult = resolveDeviceId(req, DEFAULT_DEVICE_ID);
+  const deviceId = deviceIdResult.deviceId;
+
+  try {
+    const guardError = evaluateRequestGuards(req, { deviceIdResult });
+    if (guardError) {
+      sendJson(res, guardError.statusCode || 400, {
+        errorCode: guardError.errorCode || "request_rejected",
+        message: guardError.message || "请求暂时不可用。"
+      });
+      return;
+    }
 
   if (req.method === "OPTIONS") {
     res.writeHead(204, {
-      "access-control-allow-origin": "*",
-      "access-control-allow-methods": "GET,POST,DELETE,OPTIONS",
-      "access-control-allow-headers": "content-type,x-device-id"
+      ...corsPreflightHeaders(req)
     });
     res.end();
     return;
@@ -2067,7 +2085,7 @@ const server = createServer(async (req, res) => {
       const data = await readFile(coverPath);
       res.writeHead(200, {
         "content-type": contentTypes[extname(coverPath)] || "application/octet-stream",
-        "access-control-allow-origin": "*",
+        ...responseCorsHeaders(res),
         "cache-control": "public, max-age=3600"
       });
       res.end(data);
@@ -2418,7 +2436,26 @@ const server = createServer(async (req, res) => {
   }
 
   sendJson(res, 405, { errorCode: "method_not_allowed", message: "不支持的请求方法。" });
+  } catch (error) {
+    handleRequestError(res, error);
+  }
 });
+
+function handleRequestError(res, error) {
+  if (res.writableEnded) return;
+  if (error instanceof RequestGuardError) {
+    sendJson(res, error.statusCode, {
+      errorCode: error.errorCode,
+      message: error.message
+    });
+    return;
+  }
+  console.error("Unhandled request error", error);
+  sendJson(res, 500, {
+    errorCode: "internal_server_error",
+    message: "服务暂时不可用，请稍后再试。"
+  });
+}
 
 function startServer() {
   const initialization = databaseInitializedByParent
