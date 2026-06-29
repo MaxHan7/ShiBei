@@ -178,23 +178,25 @@ git commit -m "feat: separate practice routes from mainline review"
 - Homepage future locked nodes now show summary-only popovers.
 - Homepage previous/completed units and chapter-detail unit entry now use local temporary practice so they do not call the mainline `focus-unit` endpoint.
 - Temporary practice answer UI uses local `review-practice::local` state keys and does not call mainline answer persistence.
-- Backend durable practice persistence is still pending in Checkpoints 4-5.
+- Backend durable practice persistence was implemented in commit `43dff4e`.
+- iOS practice API wiring was implemented in commit `321e929`.
+- The unrelated `experiments/shibei-v2/ios/拾贝/Localizable.xcstrings` worktree diff was restored because it was Xcode-generated churn outside this task.
 
 ## Checkpoint 4: Backend Practice Session Contract
 
-- [ ] Add backend tests first in `reviewSessionV2.test.js`:
+- [x] Add backend tests first in `reviewSessionV2.test.js`:
   - Starting practice from unit 5 leaves `session.currentCard` unchanged.
   - Practice answer writes only `practice.questionStates`.
   - Practice advance writes only `practice.completedStepIds`.
   - Mainline advance after practice resumes the original `currentCard`.
 
-- [ ] Implement helpers in `reviewSessionV2.js`:
+- [x] Implement helpers in `reviewSessionV2.js`:
   - `startPracticeFromUnitV2(reviewPath, session, { unitId })`
   - `advancePracticeCardV2(reviewPath, session)`
   - `answerPracticeQuestionV2(reviewPath, session, body)`
-  - `clearPracticeV2(reviewPath, session)` if needed when leaving practice.
+  - `finishPracticeV2(reviewPath, session)`
 
-- [ ] Add server routes:
+- [x] Add server routes:
 
 ```text
 POST /api/v2/review-sessions/:id/practice/start
@@ -203,47 +205,47 @@ POST /api/v2/review-sessions/:id/practice/answer
 POST /api/v2/review-sessions/:id/practice/finish
 ```
 
-- [ ] Preserve existing endpoints for mainline only.
+- [x] Preserve existing endpoints for mainline only.
 
-- [ ] Run backend tests:
+- [x] Run backend tests:
 
 ```bash
 cd experiments/shibei-v2/backend
 npm test -- src/v2/state/reviewSessionV2.test.js
 ```
 
-- [ ] Commit:
+- [x] Commit:
 
 ```bash
 git add experiments/shibei-v2/backend/src/v2/state/reviewSessionV2.js experiments/shibei-v2/backend/src/v2/state/reviewSessionV2.test.js experiments/shibei-v2/backend/src/server.js
-git commit -m "feat: add isolated v2 practice session state"
+git commit -m "feat: isolate v2 practice session state"
 ```
 
 ## Checkpoint 5: Wire iOS To Backend Practice APIs
 
-- [ ] Add methods in `APIClient.swift`:
+- [x] Add methods in `APIClient.swift`:
   - `startV2PracticeSession(sessionId:unitId:)`
   - `advanceV2PracticeSession(sessionId:)`
   - `answerV2PracticeQuestion(...)`
   - `finishV2PracticeSession(sessionId:)`
 
-- [ ] In `V2RootView`, practice mode uses practice APIs, mainline mode uses existing APIs.
+- [x] In `V2RootView`, practice mode uses practice APIs, mainline mode uses existing APIs.
 
-- [ ] Ensure `V2HomeData.init(chapter:reviewSession:)` derives `currentNodeID` from `reviewSession.currentCard`, not `reviewSession.displayCard`.
+- [x] Ensure `V2HomeData.init(chapter:reviewSession:)` derives `currentNodeID` from `reviewSession.currentCard`, not `reviewSession.displayCard`.
 
-- [ ] Ensure top progress bars inside practice screens use practice completed counts, while homepage node rings use mainline counts.
+- [x] Ensure top progress bars inside practice screens use practice completed counts, while homepage node rings use mainline counts.
 
-- [ ] Build:
+- [x] Build:
 
 ```bash
 xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic/platform=iOS Simulator' build
 ```
 
-- [ ] Commit:
+- [x] Commit:
 
 ```bash
 git add 拾贝/拾贝/Services/APIClient.swift 拾贝/拾贝/V2/Models/V2BackendModels.swift 拾贝/拾贝/V2/V2RootView.swift 拾贝/拾贝/V2/Models/V2HomeModels.swift
-git commit -m "feat: wire isolated practice progress on iOS"
+git commit -m "feat: wire v2 practice session APIs"
 ```
 
 ## Checkpoint 6: Acceptance Test On Device
@@ -286,4 +288,4 @@ The implementation can be done in two levels:
 1. **Fast local-only practice mode:** iOS does not call backend for temporary unit practice. It is safer and quicker, but temporary progress is lost if the app is killed.
 2. **Production practice mode:** Backend persists a separate `practice` object. This is more work, but it matches the existing model fields and is safer for real users.
 
-Recommended path: implement Checkpoints 1-3 first to fix the visible logic quickly, then implement Checkpoints 4-5 before TestFlight if we want practice mode to survive app restarts.
+Chosen path: production practice mode. Checkpoints 1-5 are complete; Checkpoint 6 remains the device-level acceptance pass.
