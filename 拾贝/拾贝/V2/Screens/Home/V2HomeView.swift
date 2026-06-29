@@ -158,7 +158,8 @@ struct V2HomeView: View {
                    let popover = pathArea.popoverPlacement(for: selectedNode) {
                     V2NodePopover(
                         node: selectedNode,
-                        pointerX: popover.pointerX
+                        pointerX: popover.pointerX,
+                        showsActionButton: selectedNode.action != .previewOnly
                     ) {
                         onOpenNode(selectedNode)
                     }

@@ -1,6 +1,15 @@
 import SwiftUI
 import UserNotifications
 
+private enum V2ReviewEntryMode: Equatable {
+    case mainline
+    case temporaryPractice
+
+    var isTemporaryPractice: Bool {
+        self == .temporaryPractice
+    }
+}
+
 struct V2RootView: View {
     @AppStorage("v2.hasSeenGenerationStartedEducation")
     private var hasSeenGenerationStartedEducation = false
@@ -14,6 +23,7 @@ struct V2RootView: View {
     @State private var selectedTab: V2HomeTab = .learning
     @State private var routeStore = V2RouteStore()
     @State private var showsDeleteChapterConfirmation = false
+    @State private var reviewEntryMode: V2ReviewEntryMode = .mainline
     @State private var questionInteractionStates: [String: V2QuestionInteractionState] = [:]
     @State private var backendChapters: [V2BackendChapter] = []
     @State private var backendChapter: V2BackendChapter?
@@ -446,23 +456,43 @@ struct V2RootView: View {
         guard selectActiveLearningChapter() else {
             return
         }
+
+        guard node.action != .previewOnly else {
+            return
+        }
+
         selectedTab = .learning
+
+        if node.action == .practice, node.kind == .unit {
+            startTemporaryPractice(unitID: node.id)
+            return
+        }
+
+        reviewEntryMode = .mainline
         if node.kind == .start {
             resetToRoute(.chapterOverview, tab: .learning)
         } else if usesBackendReviewChapter {
-            Task {
-                await focusBackendReviewUnitAndRoute(unitID: node.id)
+            if node.id == v2ReviewSession?.displayCard.unitId,
+               let currentRoute = route(for: v2ReviewSession?.displayCard) {
+                resetToRoute(currentRoute, tab: .learning)
+            } else {
+                Task {
+                    await startOrResumeBackendReviewFromChapterDetail()
+                }
             }
         } else if node.id == v2ReviewSession?.currentCard.unitId,
                   let currentRoute = route(for: v2ReviewSession?.currentCard) {
             resetToRoute(currentRoute, tab: .learning)
-        } else if usesBackendReviewChapter {
-            Task {
-                await replayBackendReviewFromUnit(unitID: node.id)
-            }
         } else {
             resetToRoute(.unitOverview(unitID: node.id), tab: .learning)
         }
+    }
+
+    private func startTemporaryPractice(unitID: String) {
+        reviewEntryMode = .temporaryPractice
+        selectedTab = .learning
+        routeStore.clearStack()
+        replaceRoute(.unitOverview(unitID: unitID))
     }
 
     private func openActiveLearningChapterDetail() {
@@ -614,6 +644,7 @@ struct V2RootView: View {
     }
 
     private func continueAfterChapterOverview() {
+        reviewEntryMode = .mainline
         guard usesBackendReviewChapter else {
             openFirstUnit()
             return
@@ -625,16 +656,7 @@ struct V2RootView: View {
     }
 
     private func startReviewFromChapterDetailUnit(unitID: String) {
-        guard usesBackendReviewChapter else {
-            selectedTab = .learning
-            routeStore.clearStack()
-            replaceRoute(.unitOverview(unitID: unitID))
-            return
-        }
-
-        Task {
-            await focusBackendReviewUnitAndRoute(unitID: unitID)
-        }
+        startTemporaryPractice(unitID: unitID)
     }
 
     @MainActor
@@ -661,7 +683,7 @@ struct V2RootView: View {
     }
 
     private func continueAfterUnitOverview(unitID: String) {
-        guard usesBackendReviewChapter else {
+        guard usesBackendReviewChapter, !reviewEntryMode.isTemporaryPractice else {
             openFirstQuestion(in: unitID)
             return
         }
@@ -676,7 +698,7 @@ struct V2RootView: View {
     }
 
     private func continueAfterQuestion(unitID: String, questionID: String) {
-        guard usesBackendReviewChapter else {
+        guard usesBackendReviewChapter, !reviewEntryMode.isTemporaryPractice else {
             advanceLocalAfterQuestion(unitID: unitID, questionID: questionID)
             return
         }
@@ -697,6 +719,9 @@ struct V2RootView: View {
     }
 
     private func questionStateKey(unitID: String, questionID: String) -> String {
+        if reviewEntryMode.isTemporaryPractice {
+            return "review-practice::local::\(unitID)::\(questionID)"
+        }
         if let practice = v2ReviewSession?.practice {
             return "review-practice::\(v2ReviewSession?.id ?? "session")::\(practice.id)::\(unitID)::\(questionID)"
         }
@@ -830,6 +855,12 @@ struct V2RootView: View {
     }
 
     private func continueAfterUnit(unitID: String) {
+        if reviewEntryMode.isTemporaryPractice {
+            reviewEntryMode = .mainline
+            resetToHome(tab: .learning)
+            return
+        }
+
         guard usesBackendReviewChapter else {
             advanceLocalAfterUnit(unitID: unitID)
             return
@@ -867,6 +898,7 @@ struct V2RootView: View {
     }
 
     private func continueFromChapterDetail() {
+        reviewEntryMode = .mainline
         if usesBackendReviewChapter {
             Task {
                 await startOrResumeBackendReviewFromChapterDetail()
@@ -918,12 +950,20 @@ struct V2RootView: View {
             return chapter
         }
 
-        return backendChapters.first(where: isHomeLearningCandidate)
+        return backendChapters.first(where: isMainlineInProgressCandidate)
+            ?? backendChapters.first(where: isHomeLearningCandidate)
     }
 
     private func isHomeLearningCandidate(_ chapter: V2BackendChapter) -> Bool {
         guard chapter.status == "completed",
               chapter.toReviewChapterData() != nil else {
+            return false
+        }
+        return true
+    }
+
+    private func isMainlineInProgressCandidate(_ chapter: V2BackendChapter) -> Bool {
+        guard isHomeLearningCandidate(chapter) else {
             return false
         }
         return chapter.v2ReviewSession?.completedAt == nil
@@ -1599,7 +1639,7 @@ struct V2RootView: View {
         }
 
         let sourceAnchorId = reviewQuestion(for: routeStore.current)?.sourceAnchorId ?? sourceQuestion?.sourceAnchorId
-        if usesBackendReviewChapter {
+        if usesBackendReviewChapter, !reviewEntryMode.isTemporaryPractice {
             Task {
                 await openBackendSourceRouteIfPossible(sourceAnchorId: sourceAnchorId)
             }
@@ -1626,6 +1666,7 @@ struct V2RootView: View {
         if let tab {
             selectedTab = tab
         }
+        reviewEntryMode = .mainline
         routeStore.resetToRoot()
     }
 
@@ -1635,7 +1676,9 @@ struct V2RootView: View {
             return
         }
 
-        if case .sourceArticle = route, usesBackendReviewChapter {
+        if case .sourceArticle = route,
+           usesBackendReviewChapter,
+           !reviewEntryMode.isTemporaryPractice {
             Task {
                 await returnFromBackendSourceRouteIfPossible()
             }
@@ -1728,6 +1771,7 @@ struct V2RootView: View {
     @MainActor
     private func persistBackendAnswerProgress(unitID: String, questionID: String) {
         guard usesBackendReviewChapter,
+              !reviewEntryMode.isTemporaryPractice,
               let payload = backendAnswerPayload(unitID: unitID, questionID: questionID) else {
             return
         }

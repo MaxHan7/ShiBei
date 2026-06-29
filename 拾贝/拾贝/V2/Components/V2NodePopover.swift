@@ -3,6 +3,7 @@ import SwiftUI
 struct V2NodePopover: View {
     let node: V2LearningPathNodeData
     let pointerX: CGFloat
+    let showsActionButton: Bool
     let action: () -> Void
 
     var body: some View {
@@ -13,18 +14,20 @@ struct V2NodePopover: View {
                     .foregroundStyle(V2Color.textPrimary)
                     .lineLimit(2)
 
-                Button(action: action) {
-                    Text(node.kind == .start ? "复习" : "继续复习")
-                        .font(V2Typography.bodyEmphasis)
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 42)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(V2Color.primaryAction)
-                        )
+                if showsActionButton {
+                    Button(action: action) {
+                        Text(node.kind == .start ? "复习" : "继续复习")
+                            .font(V2Typography.bodyEmphasis)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 42)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(V2Color.primaryAction)
+                            )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 22)
