@@ -3,15 +3,20 @@
   "id": "producttalk-continuous-discovery",
   "status": "completed",
   "displayStatusText": "已生成",
-  "title": "持续发现入门：每个人都能做到",
+  "title": "持续发现：产品团队如何开始用户研究",
   "source": {
     "type": "article",
-    "title": "Everyone Can Do Continuous Discovery—Even You! Here’s How",
+    "title": "持续发现：产品团队如何开始用户研究",
     "author": "Teresa Torres",
     "account": "Product Talk",
     "accountOrDomain": "Product Talk",
     "url": "https://www.producttalk.org/getting-started-with-discovery/",
     "blocks": [
+      {
+        "id": "cn-guide-001",
+        "type": "paragraph",
+        "text": "这篇文章强调，产品发现不是立项前的一次性调研，而是团队持续理解用户、验证机会和降低决策风险的工作方式。Teresa Torres 的核心观点是，团队应该建立每周接触用户的节奏，并把用户访谈、机会识别、方案假设和实验验证连接起来。阅读时可以关注三个动作：先持续收集真实用户输入，再把输入整理成机会空间，最后用小实验验证哪个方案更值得投入。它对产品新人尤其有价值，因为它把“做用户研究”从宏大的方法论变成了可以开始执行的习惯。学习者需要理解，持续发现不是为了不断产出更多想法，而是为了让团队在交付前更早发现错误假设。"
+      },
       {
         "id": "p-019",
         "type": "paragraph",

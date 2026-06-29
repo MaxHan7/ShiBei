@@ -34,3 +34,9 @@ struct V2GenerationState {
         pendingOriginalSourceURLString = ""
     }
 }
+
+struct V2RecommendedArticleGenerationSimulation: Equatable {
+    let chapterID: String
+    var progress: Double
+    var statusText: String
+}

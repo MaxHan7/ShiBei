@@ -155,6 +155,52 @@ export function validateReviewPathPlanOutput(output, { sourceBlockIds = new Set(
   return createValidationResult(errors);
 }
 
+export function normalizeReviewPathPlanOutput(output) {
+  if (!isPlainObject(output)) return output;
+
+  return {
+    ...output,
+    title: truncateText(output.title, REVIEW_PATH_TEXT_LIMITS.title),
+    summaryCard: isPlainObject(output.summaryCard)
+      ? {
+          ...output.summaryCard,
+          text: truncateText(output.summaryCard.text, REVIEW_PATH_TEXT_LIMITS.summaryCardText)
+        }
+      : output.summaryCard,
+    units: Array.isArray(output.units)
+      ? output.units.map((unit) => normalizeReviewPathPlanUnit(unit))
+      : output.units,
+    chapterSummary: isPlainObject(output.chapterSummary)
+      ? {
+          ...output.chapterSummary,
+          encouragementText: truncateText(
+            output.chapterSummary.encouragementText,
+            REVIEW_PATH_TEXT_LIMITS.encouragementText
+          )
+        }
+      : output.chapterSummary
+  };
+}
+
+function normalizeReviewPathPlanUnit(unit) {
+  if (!isPlainObject(unit)) return unit;
+  return {
+    ...unit,
+    title: truncateText(unit.title, REVIEW_PATH_TEXT_LIMITS.unitTitle),
+    nodeLabel: truncateText(unit.nodeLabel, REVIEW_PATH_TEXT_LIMITS.nodeLabel),
+    shortSummary: truncateText(unit.shortSummary, REVIEW_PATH_TEXT_LIMITS.shortSummary),
+    detailSummary: truncateText(unit.detailSummary, REVIEW_PATH_TEXT_LIMITS.detailSummary),
+    why: truncateText(unit.why, REVIEW_PATH_TEXT_LIMITS.why)
+  };
+}
+
+function truncateText(value, maxLength) {
+  if (!isNonEmptyString(value)) return value;
+  const chars = Array.from(value.trim());
+  if (chars.length <= maxLength) return value.trim();
+  return chars.slice(0, maxLength).join("").trim();
+}
+
 function validatePlannedSourceAnchor(sourceAnchor, { path, sourceBlockIds, errors }) {
   if (!isPlainObject(sourceAnchor)) {
     errors.push(`${path} must be an object`);

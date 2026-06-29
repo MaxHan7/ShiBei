@@ -3,15 +3,20 @@
   "id": "retrieval-practice-powerful-strategy",
   "status": "completed",
   "displayStatusText": "已生成",
-  "title": "检索练习：核心概念与机制",
+  "title": "提取练习：为什么主动回忆能促进学习",
   "source": {
     "type": "article",
-    "title": "Retrieval Practice: A Powerful Strategy for Learning",
+    "title": "提取练习：为什么主动回忆能促进学习",
     "author": "Pooja K. Agarwal",
     "account": "RetrievalPractice.org",
     "accountOrDomain": "RetrievalPractice.org",
     "url": "https://www.retrievalpractice.org/retrievalpractice",
     "blocks": [
+      {
+        "id": "cn-guide-001",
+        "type": "paragraph",
+        "text": "这篇文章介绍提取练习，也就是在不直接看答案的情况下主动把知识从记忆中调出来。它和重复阅读最大的区别是，提取练习会迫使大脑重建线索、发现遗忘点，并通过反馈修正错误理解。阅读时可以关注两个误区：第一，提取练习不是为了考试前测分，而是学习本身的一部分；第二，练习题不需要总是高压测试，低风险小测、闪卡、自问自答都可以产生效果。学习者应该理解，做错并不一定是失败，只要之后有反馈和再次尝试，错误反而能暴露薄弱点。这个理论直接支撑错题回补和必须答对一次的复习流程。在具体学习流程里，提取练习最好和反馈、间隔复习结合使用。先让学习者尝试回答，再给出解释和原文依据，然后把答错或不稳定的知识点放回后续练习中。这样做的目标不是增加挫败感，而是让学习者真正确认自己能在没有提示的情况下调出知识。对产品设计来说，这也意味着进度不能只记录“看过”，更要记录哪些题已经正确完成，哪些题还需要再次练习。因此，提取练习适合作为章节复习、错题回补和阶段总结的底层学习原则，帮助用户把短暂理解转化为可再次调用的掌握状态。这也是为什么低风险的小测、即时反馈和后续再次出现的练习题，比单纯阅读更能让学习者确认自己真正记住了内容。这能让复习进度更接近真实掌握。"
+      },
       {
         "id": "p-046",
         "type": "paragraph",

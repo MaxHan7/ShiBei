@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import pg from "pg";
 
 const { Pool } = pg;
@@ -45,11 +46,21 @@ export async function initDatabase() {
       title TEXT NOT NULL,
       chapter_json JSONB NOT NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      deleted_at TIMESTAMPTZ,
+      deleted_reason TEXT NOT NULL DEFAULT ''
     );
+
+    ALTER TABLE chapters
+      ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ,
+      ADD COLUMN IF NOT EXISTS deleted_reason TEXT NOT NULL DEFAULT '';
 
     CREATE INDEX IF NOT EXISTS chapters_device_created_idx
       ON chapters(device_id, created_at DESC);
+
+    CREATE INDEX IF NOT EXISTS chapters_device_active_created_idx
+      ON chapters(device_id, created_at DESC)
+      WHERE deleted_at IS NULL;
 
     CREATE TABLE IF NOT EXISTS notifications (
       id TEXT PRIMARY KEY,
@@ -57,11 +68,21 @@ export async function initDatabase() {
       chapter_id TEXT NOT NULL,
       notification_json JSONB NOT NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      deleted_at TIMESTAMPTZ,
+      deleted_reason TEXT NOT NULL DEFAULT ''
     );
+
+    ALTER TABLE notifications
+      ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ,
+      ADD COLUMN IF NOT EXISTS deleted_reason TEXT NOT NULL DEFAULT '';
 
     CREATE INDEX IF NOT EXISTS notifications_device_created_idx
       ON notifications(device_id, created_at DESC);
+
+    CREATE INDEX IF NOT EXISTS notifications_device_active_created_idx
+      ON notifications(device_id, created_at DESC)
+      WHERE deleted_at IS NULL;
 
     CREATE TABLE IF NOT EXISTS generation_jobs (
       id TEXT PRIMARY KEY,
@@ -72,7 +93,9 @@ export async function initDatabase() {
       error_message TEXT NOT NULL DEFAULT '',
       started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       finished_at TIMESTAMPTZ,
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      deleted_at TIMESTAMPTZ,
+      deleted_reason TEXT NOT NULL DEFAULT ''
     );
 
     CREATE INDEX IF NOT EXISTS generation_jobs_device_chapter_idx
@@ -88,7 +111,9 @@ export async function initDatabase() {
       ADD COLUMN IF NOT EXISTS locked_by TEXT NOT NULL DEFAULT '',
       ADD COLUMN IF NOT EXISTS locked_until TIMESTAMPTZ,
       ADD COLUMN IF NOT EXISTS last_error TEXT NOT NULL DEFAULT '',
-      ADD COLUMN IF NOT EXISTS idempotency_key TEXT NOT NULL DEFAULT '';
+      ADD COLUMN IF NOT EXISTS idempotency_key TEXT NOT NULL DEFAULT '',
+      ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ,
+      ADD COLUMN IF NOT EXISTS deleted_reason TEXT NOT NULL DEFAULT '';
 
     CREATE INDEX IF NOT EXISTS generation_jobs_queue_idx
       ON generation_jobs(queue_status, available_at, updated_at);
@@ -129,11 +154,38 @@ export async function initDatabase() {
       favorite_json JSONB NOT NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      deleted_at TIMESTAMPTZ,
+      deleted_reason TEXT NOT NULL DEFAULT '',
       UNIQUE (device_id, chapter_id, question_id)
     );
 
+    ALTER TABLE favorite_questions
+      ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ,
+      ADD COLUMN IF NOT EXISTS deleted_reason TEXT NOT NULL DEFAULT '';
+
     CREATE INDEX IF NOT EXISTS favorite_questions_device_created_idx
       ON favorite_questions(device_id, created_at DESC);
+
+    CREATE INDEX IF NOT EXISTS favorite_questions_device_active_created_idx
+      ON favorite_questions(device_id, created_at DESC)
+      WHERE deleted_at IS NULL;
+
+    CREATE TABLE IF NOT EXISTS audit_events (
+      id TEXT PRIMARY KEY,
+      device_id TEXT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+      action TEXT NOT NULL,
+      entity_type TEXT NOT NULL,
+      entity_id TEXT NOT NULL,
+      metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+      snapshot_json JSONB,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE INDEX IF NOT EXISTS audit_events_device_created_idx
+      ON audit_events(device_id, created_at DESC);
+
+    CREATE INDEX IF NOT EXISTS audit_events_entity_idx
+      ON audit_events(entity_type, entity_id, created_at DESC);
   `);
 
   await markInterruptedGenerationJobs();
@@ -152,7 +204,7 @@ export async function checkDatabase() {
 
 export async function chapterCount() {
   if (!pool) return 0;
-  const result = await pool.query("SELECT COUNT(*)::int AS count FROM chapters");
+  const result = await pool.query("SELECT COUNT(*)::int AS count FROM chapters WHERE deleted_at IS NULL");
   return result.rows[0]?.count || 0;
 }
 
@@ -173,6 +225,7 @@ export async function listChapters(deviceId) {
     `SELECT chapter_json
        FROM chapters
       WHERE device_id = $1
+        AND deleted_at IS NULL
       ORDER BY created_at DESC`,
     [deviceId]
   );
@@ -184,7 +237,9 @@ export async function getChapter(deviceId, chapterId) {
   const result = await pool.query(
     `SELECT chapter_json
        FROM chapters
-      WHERE device_id = $1 AND id = $2`,
+      WHERE device_id = $1
+        AND id = $2
+        AND deleted_at IS NULL`,
     [deviceId, chapterId]
   );
   return result.rows[0]?.chapter_json || null;
@@ -200,7 +255,9 @@ export async function upsertChapter(deviceId, chapter) {
        status = EXCLUDED.status,
        title = EXCLUDED.title,
        chapter_json = EXCLUDED.chapter_json,
-       updated_at = EXCLUDED.updated_at`,
+       updated_at = EXCLUDED.updated_at,
+       deleted_at = NULL,
+       deleted_reason = ''`,
     [
       chapter.id,
       deviceId,
@@ -216,26 +273,148 @@ export async function upsertChapter(deviceId, chapter) {
 
 export async function deleteChapter(deviceId, chapterId) {
   await ensureDevice(deviceId);
-  await pool.query("DELETE FROM favorite_questions WHERE device_id = $1 AND chapter_id = $2", [deviceId, chapterId]);
-  await pool.query("DELETE FROM notifications WHERE device_id = $1 AND chapter_id = $2", [deviceId, chapterId]);
-  await pool.query("DELETE FROM generation_jobs WHERE device_id = $1 AND chapter_id = $2", [deviceId, chapterId]);
-  const result = await pool.query("DELETE FROM chapters WHERE device_id = $1 AND id = $2", [deviceId, chapterId]);
-  return result.rowCount > 0;
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const chapter = await softDeleteRows(client, {
+      table: "chapters",
+      jsonColumn: "chapter_json",
+      deviceId,
+      whereSql: "id = $2",
+      params: [chapterId],
+      reason: "chapter_deleted_by_user"
+    });
+    if (chapter.rowCount === 0) {
+      await client.query("ROLLBACK");
+      return false;
+    }
+
+    const favorites = await softDeleteRows(client, {
+      table: "favorite_questions",
+      jsonColumn: "favorite_json",
+      deviceId,
+      whereSql: "chapter_id = $2",
+      params: [chapterId],
+      reason: "chapter_deleted_by_user"
+    });
+    const notifications = await softDeleteRows(client, {
+      table: "notifications",
+      jsonColumn: "notification_json",
+      deviceId,
+      whereSql: "chapter_id = $2",
+      params: [chapterId],
+      reason: "chapter_deleted_by_user"
+    });
+    const jobs = await softDeleteGenerationJobs(client, {
+      deviceId,
+      whereSql: "chapter_id = $2",
+      params: [chapterId],
+      reason: "chapter_deleted_by_user"
+    });
+    await insertAuditEvent(client, {
+      deviceId,
+      action: "chapter.soft_delete",
+      entityType: "chapter",
+      entityId: chapterId,
+      metadata: {
+        reason: "chapter_deleted_by_user",
+        cascade: {
+          favorites: favorites.rowCount,
+          notifications: notifications.rowCount,
+          generationJobs: jobs.rowCount
+        }
+      },
+      snapshot: {
+        chapter: chapter.rows[0]?.snapshot || null,
+        favorites: favorites.rows.map((row) => row.snapshot),
+        notifications: notifications.rows.map((row) => row.snapshot),
+        generationJobs: jobs.rows.map((row) => row.snapshot)
+      }
+    });
+    await client.query("COMMIT");
+    return true;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 export async function deleteDeviceData(deviceId) {
   await ensureDevice(deviceId);
-  await pool.query("DELETE FROM device_push_tokens WHERE device_id = $1", [deviceId]);
-  const favorites = await pool.query("DELETE FROM favorite_questions WHERE device_id = $1", [deviceId]);
-  const notifications = await pool.query("DELETE FROM notifications WHERE device_id = $1", [deviceId]);
-  const generationJobs = await pool.query("DELETE FROM generation_jobs WHERE device_id = $1", [deviceId]);
-  const chapters = await pool.query("DELETE FROM chapters WHERE device_id = $1", [deviceId]);
-  return {
-    chapters: chapters.rowCount || 0,
-    notifications: notifications.rowCount || 0,
-    generationJobs: generationJobs.rowCount || 0,
-    favorites: favorites.rowCount || 0
-  };
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const pushTokens = await client.query(
+      `DELETE FROM device_push_tokens
+        WHERE device_id = $1
+        RETURNING token, platform, environment, preferred_language, created_at, updated_at`,
+      [deviceId]
+    );
+    const favorites = await softDeleteRows(client, {
+      table: "favorite_questions",
+      jsonColumn: "favorite_json",
+      deviceId,
+      whereSql: "TRUE",
+      reason: "device_data_deleted_by_user"
+    });
+    const notifications = await softDeleteRows(client, {
+      table: "notifications",
+      jsonColumn: "notification_json",
+      deviceId,
+      whereSql: "TRUE",
+      reason: "device_data_deleted_by_user"
+    });
+    const generationJobs = await softDeleteGenerationJobs(client, {
+      deviceId,
+      whereSql: "TRUE",
+      reason: "device_data_deleted_by_user"
+    });
+    const chapters = await softDeleteRows(client, {
+      table: "chapters",
+      jsonColumn: "chapter_json",
+      deviceId,
+      whereSql: "TRUE",
+      reason: "device_data_deleted_by_user"
+    });
+    await insertAuditEvent(client, {
+      deviceId,
+      action: "device_data.soft_delete",
+      entityType: "device",
+      entityId: deviceId,
+      metadata: {
+        reason: "device_data_deleted_by_user",
+        counts: {
+          chapters: chapters.rowCount,
+          notifications: notifications.rowCount,
+          generationJobs: generationJobs.rowCount,
+          favorites: favorites.rowCount,
+          pushTokens: pushTokens.rowCount
+        }
+      },
+      snapshot: {
+        chapters: chapters.rows.map((row) => row.snapshot),
+        notifications: notifications.rows.map((row) => row.snapshot),
+        generationJobs: generationJobs.rows.map((row) => row.snapshot),
+        favorites: favorites.rows.map((row) => row.snapshot),
+        pushTokens: pushTokens.rows
+      }
+    });
+    await client.query("COMMIT");
+    return {
+      chapters: chapters.rowCount || 0,
+      notifications: notifications.rowCount || 0,
+      generationJobs: generationJobs.rowCount || 0,
+      favorites: favorites.rowCount || 0,
+      pushTokens: pushTokens.rowCount || 0
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 export async function listFavoriteQuestions(deviceId) {
@@ -244,6 +423,7 @@ export async function listFavoriteQuestions(deviceId) {
     `SELECT favorite_json
        FROM favorite_questions
       WHERE device_id = $1
+        AND deleted_at IS NULL
       ORDER BY created_at DESC`,
     [deviceId]
   );
@@ -255,7 +435,9 @@ export async function getFavoriteQuestion(deviceId, favoriteId) {
   const result = await pool.query(
     `SELECT favorite_json
        FROM favorite_questions
-      WHERE device_id = $1 AND id = $2`,
+      WHERE device_id = $1
+        AND id = $2
+        AND deleted_at IS NULL`,
     [deviceId, favoriteId]
   );
   return result.rows[0]?.favorite_json || null;
@@ -269,7 +451,9 @@ export async function upsertFavoriteQuestion(deviceId, favorite) {
      ON CONFLICT (device_id, chapter_id, question_id)
      DO UPDATE SET
        favorite_json = EXCLUDED.favorite_json,
-       updated_at = NOW()`,
+       updated_at = NOW(),
+       deleted_at = NULL,
+       deleted_reason = ''`,
     [
       favorite.id,
       deviceId,
@@ -284,11 +468,203 @@ export async function upsertFavoriteQuestion(deviceId, favorite) {
 
 export async function deleteFavoriteQuestion(deviceId, favoriteId) {
   await ensureDevice(deviceId);
-  const result = await pool.query(
-    "DELETE FROM favorite_questions WHERE device_id = $1 AND id = $2",
-    [deviceId, favoriteId]
-  );
+  const result = await softDeleteRows(pool, {
+    table: "favorite_questions",
+    jsonColumn: "favorite_json",
+    deviceId,
+    whereSql: "id = $2",
+    params: [favoriteId],
+    reason: "favorite_deleted_by_user"
+  });
+  if (result.rowCount > 0) {
+    await insertAuditEvent(pool, {
+      deviceId,
+      action: "favorite_question.soft_delete",
+      entityType: "favorite_question",
+      entityId: favoriteId,
+      metadata: { reason: "favorite_deleted_by_user" },
+      snapshot: result.rows[0]?.snapshot || null
+    });
+  }
   return result.rowCount > 0;
+}
+
+export async function listDeletedChapters(deviceId, options = {}) {
+  await ensureDevice(deviceId);
+  const limit = readPositiveInt(options.limit, 50);
+  const result = await pool.query(
+    `SELECT id, title, status, chapter_json, created_at, updated_at, deleted_at, deleted_reason
+       FROM chapters
+      WHERE device_id = $1
+        AND deleted_at IS NOT NULL
+      ORDER BY deleted_at DESC
+      LIMIT $2`,
+    [deviceId, limit]
+  );
+  return result.rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    status: row.status,
+    chapter: row.chapter_json,
+    createdAt: toIsoString(row.created_at),
+    updatedAt: toIsoString(row.updated_at),
+    deletedAt: toIsoString(row.deleted_at),
+    deletedReason: String(row.deleted_reason || "")
+  }));
+}
+
+export async function restoreChapter(deviceId, chapterId) {
+  await ensureDevice(deviceId);
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const chapter = await client.query(
+      `UPDATE chapters
+          SET deleted_at = NULL,
+              deleted_reason = '',
+              updated_at = NOW()
+        WHERE device_id = $1
+          AND id = $2
+          AND deleted_at IS NOT NULL
+        RETURNING chapter_json`,
+      [deviceId, chapterId]
+    );
+    if (chapter.rowCount === 0) {
+      await client.query("ROLLBACK");
+      return null;
+    }
+    const favorites = await client.query(
+      `UPDATE favorite_questions
+          SET deleted_at = NULL,
+              deleted_reason = '',
+              updated_at = NOW()
+        WHERE device_id = $1
+          AND chapter_id = $2
+          AND deleted_at IS NOT NULL
+          AND deleted_reason IN ('chapter_deleted_by_user', 'device_data_deleted_by_user')
+        RETURNING favorite_json`,
+      [deviceId, chapterId]
+    );
+    const notifications = await client.query(
+      `UPDATE notifications
+          SET deleted_at = NULL,
+              deleted_reason = '',
+              updated_at = NOW()
+        WHERE device_id = $1
+          AND chapter_id = $2
+          AND deleted_at IS NOT NULL
+          AND deleted_reason IN ('chapter_deleted_by_user', 'device_data_deleted_by_user')
+        RETURNING notification_json`,
+      [deviceId, chapterId]
+    );
+    await insertAuditEvent(client, {
+      deviceId,
+      action: "chapter.restore",
+      entityType: "chapter",
+      entityId: chapterId,
+      metadata: {
+        favorites: favorites.rowCount,
+        notifications: notifications.rowCount
+      },
+      snapshot: {
+        chapter: chapter.rows[0]?.chapter_json || null,
+        favorites: favorites.rows.map((row) => row.favorite_json),
+        notifications: notifications.rows.map((row) => row.notification_json)
+      }
+    });
+    await client.query("COMMIT");
+    return getChapter(deviceId, chapterId);
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+async function softDeleteRows(queryable, options = {}) {
+  const table = validateSoftDeleteTable(options.table);
+  const jsonColumn = validateSnapshotColumn(table, options.jsonColumn);
+  const deviceId = String(options.deviceId || "");
+  const reason = String(options.reason || "soft_deleted").slice(0, 200);
+  const whereSql = String(options.whereSql || "FALSE");
+  const params = Array.isArray(options.params) ? options.params : [];
+  return queryable.query(
+    `UPDATE ${table}
+        SET deleted_at = NOW(),
+            deleted_reason = $${params.length + 2},
+            updated_at = NOW()
+      WHERE device_id = $1
+        AND deleted_at IS NULL
+        AND (${whereSql})
+      RETURNING id, ${jsonColumn} AS snapshot`,
+    [deviceId, ...params, reason]
+  );
+}
+
+async function softDeleteGenerationJobs(queryable, options = {}) {
+  const deviceId = String(options.deviceId || "");
+  const reason = String(options.reason || "soft_deleted").slice(0, 200);
+  const whereSql = String(options.whereSql || "FALSE");
+  const params = Array.isArray(options.params) ? options.params : [];
+  return queryable.query(
+    `UPDATE generation_jobs
+        SET deleted_at = NOW(),
+            deleted_reason = $${params.length + 2},
+            queue_status = CASE
+              WHEN queue_status IN ('queued', 'running') THEN 'cancelled'
+              ELSE queue_status
+            END,
+            locked_by = '',
+            locked_until = NULL,
+            updated_at = NOW()
+      WHERE device_id = $1
+        AND deleted_at IS NULL
+        AND (${whereSql})
+      RETURNING id, to_jsonb(generation_jobs) AS snapshot`,
+    [deviceId, ...params, reason]
+  );
+}
+
+async function insertAuditEvent(queryable, event = {}) {
+  const deviceId = String(event.deviceId || "");
+  await queryable.query(
+    `INSERT INTO audit_events (
+       id,
+       device_id,
+       action,
+       entity_type,
+       entity_id,
+       metadata_json,
+       snapshot_json,
+       created_at
+     )
+     VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7::jsonb, NOW())`,
+    [
+      randomUUID(),
+      deviceId,
+      String(event.action || "unknown"),
+      String(event.entityType || "unknown"),
+      String(event.entityId || ""),
+      JSON.stringify(event.metadata && typeof event.metadata === "object" ? event.metadata : {}),
+      event.snapshot === undefined ? null : JSON.stringify(event.snapshot)
+    ]
+  );
+}
+
+function validateSoftDeleteTable(table) {
+  if (["chapters", "favorite_questions", "notifications"].includes(table)) return table;
+  throw new Error(`unsupported soft delete table: ${table}`);
+}
+
+function validateSnapshotColumn(table, column) {
+  const allowed = {
+    chapters: "chapter_json",
+    favorite_questions: "favorite_json",
+    notifications: "notification_json"
+  };
+  if (allowed[table] === column) return column;
+  throw new Error(`unsupported snapshot column: ${table}.${column}`);
 }
 
 export async function upsertPushToken(deviceId, pushToken) {
@@ -346,6 +722,7 @@ export async function listNotifications(deviceId) {
     `SELECT notification_json
        FROM notifications
       WHERE device_id = $1
+        AND deleted_at IS NULL
       ORDER BY created_at DESC`,
     [deviceId]
   );
@@ -357,7 +734,9 @@ export async function getNotification(deviceId, notificationId) {
   const result = await pool.query(
     `SELECT notification_json
        FROM notifications
-      WHERE device_id = $1 AND id = $2`,
+      WHERE device_id = $1
+        AND id = $2
+        AND deleted_at IS NULL`,
     [deviceId, notificationId]
   );
   return result.rows[0]?.notification_json || null;
@@ -371,7 +750,9 @@ export async function upsertNotification(deviceId, notification) {
      ON CONFLICT (id)
      DO UPDATE SET
        notification_json = EXCLUDED.notification_json,
-       updated_at = NOW()`,
+       updated_at = NOW(),
+       deleted_at = NULL,
+       deleted_reason = ''`,
     [
       notification.id,
       deviceId,
@@ -386,16 +767,44 @@ export async function upsertNotification(deviceId, notification) {
 export async function deleteNotificationsForChapter(deviceId, chapterId, type = "") {
   await ensureDevice(deviceId);
   if (type) {
-    await pool.query(
-      `DELETE FROM notifications
-        WHERE device_id = $1
-          AND chapter_id = $2
-          AND notification_json->>'type' = $3`,
-      [deviceId, chapterId, type]
-    );
+    const result = await softDeleteRows(pool, {
+      table: "notifications",
+      jsonColumn: "notification_json",
+      deviceId,
+      whereSql: "chapter_id = $2 AND notification_json->>'type' = $3",
+      params: [chapterId, type],
+      reason: "notification_dismissed_for_chapter"
+    });
+    if (result.rowCount > 0) {
+      await insertAuditEvent(pool, {
+        deviceId,
+        action: "notification.soft_delete_for_chapter",
+        entityType: "chapter",
+        entityId: chapterId,
+        metadata: { reason: "notification_dismissed_for_chapter", type, count: result.rowCount },
+        snapshot: { notifications: result.rows.map((row) => row.snapshot) }
+      });
+    }
     return;
   }
-  await pool.query("DELETE FROM notifications WHERE device_id = $1 AND chapter_id = $2", [deviceId, chapterId]);
+  const result = await softDeleteRows(pool, {
+    table: "notifications",
+    jsonColumn: "notification_json",
+    deviceId,
+    whereSql: "chapter_id = $2",
+    params: [chapterId],
+    reason: "notifications_deleted_for_chapter"
+  });
+  if (result.rowCount > 0) {
+    await insertAuditEvent(pool, {
+      deviceId,
+      action: "notification.soft_delete_for_chapter",
+      entityType: "chapter",
+      entityId: chapterId,
+      metadata: { reason: "notifications_deleted_for_chapter", count: result.rowCount },
+      snapshot: { notifications: result.rows.map((row) => row.snapshot) }
+    });
+  }
 }
 
 export async function startGenerationJob(deviceId, job) {
@@ -409,6 +818,8 @@ export async function startGenerationJob(deviceId, job) {
        current_stage = EXCLUDED.current_stage,
        error_message = '',
        finished_at = NULL,
+       deleted_at = NULL,
+       deleted_reason = '',
        updated_at = NOW()`,
     [job.id, deviceId, job.chapterId, job.status, job.currentStage]
   );
@@ -453,6 +864,8 @@ export async function enqueueGenerationJob(deviceId, job) {
        locked_until = NULL,
        last_error = '',
        finished_at = NULL,
+       deleted_at = NULL,
+       deleted_reason = '',
        updated_at = NOW()`,
     [
       record.id,
@@ -509,6 +922,7 @@ export async function getPendingGenerationJobByIdempotencyKey(deviceId, idempote
       WHERE device_id = $1
         AND idempotency_key = $2
         AND queue_status IN ('queued', 'running')
+        AND deleted_at IS NULL
       ORDER BY updated_at DESC
       LIMIT 1`,
     [deviceId, key]
@@ -521,7 +935,9 @@ export async function getGenerationJob(deviceId, jobId) {
   const result = await pool.query(
     `SELECT *
        FROM generation_jobs
-      WHERE device_id = $1 AND id = $2`,
+      WHERE device_id = $1
+        AND id = $2
+        AND deleted_at IS NULL`,
     [deviceId, jobId]
   );
   return result.rows[0] ? normalizeGenerationJobRow(result.rows[0]) : null;
@@ -541,6 +957,7 @@ export async function claimNextGenerationJob(workerId, options = {}) {
               queue_status = 'queued'
               OR (queue_status = 'running' AND locked_until IS NOT NULL AND locked_until < NOW())
             )
+            AND deleted_at IS NULL
             AND available_at <= NOW()
           ORDER BY available_at ASC, updated_at ASC
           LIMIT 1
@@ -579,7 +996,9 @@ export async function completeGenerationJob(deviceId, jobId, fields = {}) {
             last_error = '',
             finished_at = NOW(),
             updated_at = NOW()
-      WHERE device_id = $1 AND id = $2
+      WHERE device_id = $1
+        AND id = $2
+        AND deleted_at IS NULL
       RETURNING *`,
     [
       deviceId,
@@ -612,7 +1031,9 @@ export async function failGenerationJob(deviceId, jobId, fields = {}) {
             last_error = COALESCE($5, last_error),
             finished_at = CASE WHEN $6 = 'failed' THEN NOW() ELSE finished_at END,
             updated_at = NOW()
-      WHERE device_id = $1 AND id = $2
+      WHERE device_id = $1
+        AND id = $2
+        AND deleted_at IS NULL
       RETURNING *`,
     [
       deviceId,
@@ -628,13 +1049,14 @@ export async function failGenerationJob(deviceId, jobId, fields = {}) {
 }
 
 export async function getGenerationQueueSummary() {
-  if (!pool) return { queued: 0, running: 0, failed: 0, completed: 0 };
+  if (!pool) return { queued: 0, running: 0, failed: 0, completed: 0, cancelled: 0 };
   const result = await pool.query(
     `SELECT queue_status, COUNT(*)::int AS count
        FROM generation_jobs
+      WHERE deleted_at IS NULL
       GROUP BY queue_status`
   );
-  const summary = { queued: 0, running: 0, failed: 0, completed: 0 };
+  const summary = { queued: 0, running: 0, failed: 0, completed: 0, cancelled: 0 };
   for (const row of result.rows) {
     summary[row.queue_status] = row.count;
   }
@@ -650,7 +1072,9 @@ export async function updateGenerationJob(deviceId, jobId, fields) {
             error_message = COALESCE($5, error_message),
             finished_at = CASE WHEN $6::boolean THEN NOW() ELSE finished_at END,
             updated_at = NOW()
-      WHERE device_id = $1 AND id = $2`,
+      WHERE device_id = $1
+        AND id = $2
+        AND deleted_at IS NULL`,
     [
       deviceId,
       jobId,
@@ -665,9 +1089,10 @@ export async function updateGenerationJob(deviceId, jobId, fields) {
 async function markInterruptedGenerationJobs() {
   const result = await pool.query(
     `SELECT id, device_id, chapter_id
-       FROM generation_jobs
+      FROM generation_jobs
       WHERE status = ANY($1::text[])
-        AND queue_status = 'completed'`,
+        AND queue_status = 'completed'
+        AND deleted_at IS NULL`,
     [PROCESSING_STATUSES]
   );
 
@@ -760,7 +1185,7 @@ function normalizeGenerationJobType(type) {
 }
 
 function normalizeQueueStatus(status) {
-  return ["queued", "running", "completed", "failed"].includes(status) ? status : "completed";
+  return ["queued", "running", "completed", "failed", "cancelled"].includes(status) ? status : "completed";
 }
 
 function normalizePayloadJson(value) {

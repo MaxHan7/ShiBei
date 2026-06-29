@@ -24,7 +24,11 @@ final class AppStore: ObservableObject {
     @Published var favoriteReviewIndex = 0
     @Published var favoriteReviewActive = false
     @Published var sourceFocusText: String?
-    @Published var dataMode: AppDataMode = .mock
+    @Published var dataMode: AppDataMode = .mock {
+        didSet {
+            UserDefaults.standard.set(dataMode.rawValue, forKey: Self.dataModeKey)
+        }
+    }
     @Published var dataSourceMessage = ""
     @Published var cloudAPIBaseURLString: String
     @Published var anonymousDeviceId: String
@@ -43,6 +47,7 @@ final class AppStore: ObservableObject {
     private let localAPIChapterService: LocalAPIChapterService
     private let localAPIReviewService: LocalAPIReviewService
     private let localAPINotificationService: LocalAPINotificationService
+    private static let dataModeKey = "appDataMode"
     private let cloudAPIBaseURLKey = "cloudAPIBaseURLString"
     private let appLanguageKey = "appLanguage"
     private let favoriteQuestionsKey = "favoriteQuestions"
@@ -83,8 +88,13 @@ final class AppStore: ObservableObject {
         }
         #if DEBUG
         cloudAPIBaseURLString = UserDefaults.standard.string(forKey: cloudAPIBaseURLKey) ?? ""
-        dataMode = .mock
-        dataSourceMessage = localized("debug.message.mock_ready")
+        if let savedDataMode = UserDefaults.standard.string(forKey: Self.dataModeKey),
+           let mode = AppDataMode(rawValue: savedDataMode) {
+            dataMode = mode
+        } else {
+            dataMode = .mock
+        }
+        dataSourceMessage = dataMode == .mock ? localized("debug.message.mock_ready") : localized("debug.message.connecting_cloud")
         #else
         cloudAPIBaseURLString = APIClient.productionBaseURL.absoluteString
         dataMode = .cloudAPI

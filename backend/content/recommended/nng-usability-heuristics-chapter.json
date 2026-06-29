@@ -3,15 +3,20 @@
   "id": "nng-usability-heuristics",
   "status": "completed",
   "displayStatusText": "已生成",
-  "title": "10可用性启发式：前4条核心原则",
+  "title": "可用性启发式：4 个最常用判断原则",
   "source": {
     "type": "article",
-    "title": "10 Usability Heuristics for User Interface Design",
+    "title": "可用性启发式：4 个最常用判断原则",
     "author": "Jakob Nielsen",
     "account": "Nielsen Norman Group",
     "accountOrDomain": "Nielsen Norman Group",
     "url": "https://www.nngroup.com/articles/ten-usability-heuristics/",
     "blocks": [
+      {
+        "id": "cn-guide-001",
+        "type": "paragraph",
+        "text": "尼尔森的可用性启发式不是具体控件规范，而是一套帮助设计者判断界面问题的原则。本文节选的核心价值在于：用户需要知道系统正在发生什么，需要看到熟悉的语言和现实世界映射，需要能撤销或退出错误操作，也需要界面保持一致。阅读时不要把这些原则当成抽象口号，而要把它们放回具体情境中判断。例如，加载状态是否给了用户合理反馈，按钮命名是否符合用户心智，危险操作是否提供确认和恢复路径，不同页面的同类按钮是否位置一致。掌握这些原则后，学习者应该能解释一个界面为什么让人困惑，并能提出更具体的改进方向。"
+      },
       {
         "id": "p-005",
         "type": "paragraph",

@@ -1513,30 +1513,39 @@ private struct V2ChapterDetailKnowledgeExpansionPanel: View {
 }
 
 struct V2RecommendedArticleDetailView: View {
+    let article: V2RecommendedArticle?
+    let chapter: V2ReviewChapterData?
+    let isLoading: Bool
+    let errorText: String
     let onBack: () -> Void
     let onGenerate: () -> Void
     @State private var showsAddPopover = false
     @Environment(\.openURL) private var openURL
-
-    private var chapter: V2ReviewChapterData {
-        V2ReviewFixture.chapter
-    }
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             V2FlowScreen(title: "", onBack: onBack) {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 19) {
-                        V2SourceArticleHeaderCard(
-                            title: chapter.title,
-                            author: chapter.sourceAuthor,
-                            onSource: openSourceURL
-                        )
+                        if let chapter {
+                            V2SourceArticleHeaderCard(
+                                title: chapter.title,
+                                author: chapter.sourceAuthor.isEmpty ? (article?.sourceAuthor ?? article?.source ?? "") : chapter.sourceAuthor,
+                                onSource: openSourceURL
+                            )
 
-                        V2SourceArticleBodyCard(
-                            blocks: chapter.sourceBody,
-                            highlightedBlockID: nil
-                        )
+                            V2SourceArticleBodyCard(
+                                blocks: chapter.sourceBody,
+                                highlightedBlockID: nil
+                            )
+                        } else {
+                            V2InfoCard {
+                                Text(isLoading ? "正在加载好文内容" : (errorText.isEmpty ? "这篇好文暂时不可用" : errorText))
+                                    .font(V2Typography.body)
+                                    .foregroundStyle(V2Color.textSecondary)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                            }
+                        }
                     }
                     .v2PageContentWidth()
                     .padding(.top, 23)
@@ -1565,13 +1574,16 @@ struct V2RecommendedArticleDetailView: View {
                     showsAddPopover.toggle()
                 }
             }
+            .disabled(chapter == nil || isLoading)
+            .opacity(chapter == nil || isLoading ? 0.55 : 1)
             .padding(.trailing, V2Spacing.screenMargin + 4)
             .padding(.bottom, 30)
         }
     }
 
     private func openSourceURL() {
-        guard let url = URL(string: chapter.sourceURL) else {
+        guard let sourceURL = chapter?.sourceURL ?? article?.sourceUrl,
+              let url = URL(string: sourceURL) else {
             return
         }
         openURL(url)

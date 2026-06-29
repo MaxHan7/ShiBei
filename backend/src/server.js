@@ -73,7 +73,8 @@ import {
   normalizeReviewSessionV2,
   openSourceFromReviewV2,
   returnFromSourceToReviewV2,
-  setQuestionFeedbackVisibleV2
+  setQuestionFeedbackVisibleV2,
+  startReplayFromUnitV2
 } from "./v2/state/reviewSessionV2.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -2249,6 +2250,35 @@ const server = createServer(async (req, res) => {
       sendJson(res, 200, serializeV2ReviewSessionResponse(chapter, reviewSession));
     } catch (error) {
       sendJson(res, error.statusCode || 422, { errorCode: "v2_review_session_unavailable", message: error.message || "V2 复习会话不可用。" });
+    }
+    return;
+  }
+
+  const v2ReviewReplayMatch = req.url?.match(/^\/api\/v2\/chapters\/([^/]+)\/review-session\/replay-from-unit$/);
+  if (v2ReviewReplayMatch && req.method === "POST") {
+    const chapter = await getStoredChapter(deviceId, decodeURIComponent(v2ReviewReplayMatch[1]));
+    if (!chapter) {
+      sendJson(res, 404, { errorCode: "chapter_not_found", message: "章节不存在。" });
+      return;
+    }
+    if (!isV2ReviewableChapter(chapter)) {
+      sendJson(res, 422, { errorCode: "chapter_not_reviewable", message: "这个章节暂时不能开始 V2 复习。", chapter: serializeChapterForClient(chapter) });
+      return;
+    }
+    try {
+      const body = await readBody(req);
+      const currentSession = chapter.v2ReviewSession
+        ? normalizeReviewSessionV2(chapter, chapter.v2ReviewSession)
+        : createReviewSessionV2(chapter);
+      const reviewSession = startReplayFromUnitV2(chapter, currentSession, {
+        unitId: body?.unitId
+      });
+      chapter.v2ReviewSession = reviewSession;
+      chapter.updatedAt = new Date().toISOString();
+      await upsertStoredChapter(deviceId, chapter);
+      sendJson(res, 200, serializeV2ReviewSessionResponse(chapter, reviewSession));
+    } catch (error) {
+      sendJson(res, error.statusCode || 422, { errorCode: "v2_review_replay_unavailable", message: error.message || "无法从这个单元重新复习。" });
     }
     return;
   }

@@ -3,15 +3,20 @@
   "id": "imf-inflation-prices-on-the-rise",
   "status": "completed",
   "displayStatusText": "已生成",
-  "title": "通货膨胀：价格在上涨",
+  "title": "通货膨胀入门：价格为什么会上涨",
   "source": {
     "type": "article",
-    "title": "Inflation: Prices on the Rise",
+    "title": "通货膨胀入门：价格为什么会上涨",
     "author": "Ceyda Oner",
     "account": "IMF Finance & Development",
     "accountOrDomain": "IMF Finance & Development",
     "url": "https://www.imf.org/-/media/files/publications/fandd/back-to-basics/oner-inflation.pdf",
     "blocks": [
+      {
+        "id": "cn-guide-001",
+        "type": "paragraph",
+        "text": "这篇 IMF 入门文章解释通货膨胀如何衡量，以及为什么一组商品和服务的总体价格会在一段时间内上升。阅读时可以把通胀理解成购买力变化的问题：如果收入不变而价格水平上涨，同样的钱能买到的东西就减少。文章还帮助区分单个商品涨价和整体价格水平上涨，前者可能只是供需变化，后者才是宏观意义上的通胀。学习重点包括消费者价格指数、需求拉动、成本推动、货币政策和预期之间的关系。对普通用户来说，最重要的是理解通胀不是单纯的“东西变贵”，而是会影响工资、储蓄、利率、企业定价和政策选择的一套经济现象。"
+      },
       {
         "id": "p-004",
         "type": "paragraph",

@@ -3,15 +3,20 @@
   "id": "ibm-large-language-models",
   "status": "completed",
   "displayStatusText": "已生成",
-  "title": "什么是大型语言模型",
+  "title": "什么是大语言模型（LLM）",
   "source": {
     "type": "article",
-    "title": "What Are Large Language Models (LLMs)?",
+    "title": "什么是大语言模型（LLM）",
     "author": "IBM",
     "account": "IBM Think",
     "accountOrDomain": "IBM Think",
     "url": "https://www.ibm.com/think/topics/large-language-models",
     "blocks": [
+      {
+        "id": "cn-guide-001",
+        "type": "paragraph",
+        "text": "这篇文章从通识角度解释大语言模型是什么，以及它为什么能处理生成、总结、问答和分类等任务。可以把 LLM 理解为在大量文本和代码上训练出来的深度学习模型，它学习语言中的模式、概念关系和表达方式，再根据输入上下文生成最可能的后续内容。阅读时要区分三个问题：模型的能力从哪里来，模型可以用于哪些场景，以及模型有哪些限制。LLM 的优势在于能快速处理非结构化文本、辅助知识检索和内容生产，但它也可能产生幻觉、继承训练数据偏差，并且对敏感业务需要额外的验证流程。学习这篇文章时，最有价值的是形成一个平衡判断：LLM 不是普通搜索框，也不是自动正确的专家，而是一种需要结合场景、数据、提示和人工审核来使用的智能工具。进一步理解时，可以把训练、推理和应用分开看。训练阶段决定模型学到了哪些语言和知识模式；推理阶段是模型根据当前输入逐步生成回答；应用阶段则需要产品把模型能力包装进真实流程，比如客服、知识库、写作辅助、代码助手或数据分析。企业使用大语言模型时，通常还需要检索增强、权限控制、日志审计和人工复核，避免模型把不确定内容包装成确定结论。"
+      },
       {
         "id": "p-257",
         "type": "paragraph",

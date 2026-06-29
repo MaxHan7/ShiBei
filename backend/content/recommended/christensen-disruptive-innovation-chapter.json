@@ -3,15 +3,20 @@
   "id": "christensen-disruptive-innovation",
   "status": "completed",
   "displayStatusText": "已生成",
-  "title": "颠覆性创新理论",
+  "title": "颠覆式创新理论：从低端市场到主流市场",
   "source": {
     "type": "article",
-    "title": "Disruptive Innovation Theory",
+    "title": "颠覆式创新理论：从低端市场到主流市场",
     "author": "Christensen Institute",
     "account": "Christensen Institute",
     "accountOrDomain": "Christensen Institute",
     "url": "https://www.christenseninstitute.org/theory/disruptive-innovation/",
     "blocks": [
+      {
+        "id": "cn-guide-001",
+        "type": "paragraph",
+        "text": "颠覆式创新理论解释的是一种特定的竞争路径：新进入者往往不是一开始就在主流市场和领先企业正面对抗，而是从被忽视的低端市场或新市场切入，用更简单、更便宜或更方便的方案服务原本没有被充分满足的用户。随着产品性能提升，新进入者逐渐进入主流市场，最终改变行业格局。阅读时要避免把所有成功创业或激烈竞争都叫作颠覆。真正的颠覆式创新需要看进入路径、目标用户、性能演进和主流企业为何难以及时回应。学习这篇文章的关键，是能用理论判断一个案例到底是持续性创新、低端颠覆，还是新市场颠覆。"
+      },
       {
         "id": "p-001",
         "type": "paragraph",

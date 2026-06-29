@@ -20,6 +20,17 @@ struct V2RootView: View {
     @State private var generationErrorText = ""
     @State private var isSubmittingGeneration = false
     @State private var hasLoadedInitialBackendChapter = false
+    @State private var recommendedFilters: [V2RecommendedArticleFilter] = []
+    @State private var recommendedArticles: [V2RecommendedArticle] = []
+    @State private var selectedRecommendedArticle: V2RecommendedArticle?
+    @State private var selectedRecommendedChapter: V2ReviewChapterData?
+    @State private var isLoadingRecommendedArticles = false
+    @State private var isLoadingRecommendedDetail = false
+    @State private var recommendedErrorText = ""
+    @State private var isSimulatingRecommendedImport = false
+    @State private var recommendedImportProgress = 0.02
+    @State private var recommendedImportStatusText = "正在提取文章..."
+    @State private var recommendedImportSimulationTask: Task<Void, Never>?
 
     private let apiClient = APIClient()
 
@@ -93,8 +104,16 @@ struct V2RootView: View {
                 onGenerate: startV2Generation
             )
         case .discover:
-            V2DiscoverView(selectedTab: $selectedTab) {
-                pushRoute(.recommendedArticle)
+            V2DiscoverView(
+                selectedTab: $selectedTab,
+                filters: recommendedFilters,
+                articles: recommendedArticles,
+                isLoading: isLoadingRecommendedArticles,
+                errorText: recommendedErrorText,
+                openArticle: openRecommendedArticle
+            )
+            .task {
+                await loadRecommendedArticlesIfNeeded()
             }
         case .notes:
             V2NotesView(
@@ -128,9 +147,9 @@ struct V2RootView: View {
             )
         case .generatingChapterDetail:
             V2GeneratingChapterDetailView(
-                progress: backendChapter?.progress?.progress ?? 0,
-                statusText: generationDisplayText,
-                isCompleted: backendReviewChapter != nil,
+                progress: generatingDetailProgress,
+                statusText: generatingDetailDisplayText,
+                isCompleted: generatingDetailIsCompleted,
                 onBack: goBack,
                 onSource: openSource,
                 onOpenChapter: { replaceRoute(.chapterDetail) }
@@ -152,11 +171,18 @@ struct V2RootView: View {
             } else {
                 V2MissingRouteView(onBack: goBack)
             }
-        case .recommendedArticle:
+        case .recommendedArticle(let articleID):
             V2RecommendedArticleDetailView(
+                article: selectedRecommendedArticle,
+                chapter: selectedRecommendedChapter,
+                isLoading: isLoadingRecommendedDetail,
+                errorText: recommendedErrorText,
                 onBack: goBack,
-                onGenerate: showGeneratedChapterDetail
+                onGenerate: { importRecommendedArticle(articleID: articleID) }
             )
+            .task(id: articleID) {
+                await loadRecommendedArticleDetail(articleID: articleID)
+            }
         case .chapterOverview:
             if let chapter = activeChapter {
                 V2ChapterOverviewView(
@@ -466,6 +492,27 @@ struct V2RootView: View {
         return backendChapter?.progress?.displayTextOrFallback ?? "正在提交生成任务..."
     }
 
+    private var generatingDetailProgress: Double {
+        if isSimulatingRecommendedImport {
+            return recommendedImportProgress
+        }
+        return backendChapter?.progress?.progress ?? 0
+    }
+
+    private var generatingDetailDisplayText: String {
+        if isSimulatingRecommendedImport {
+            return recommendedImportStatusText
+        }
+        return generationDisplayText
+    }
+
+    private var generatingDetailIsCompleted: Bool {
+        if isSimulatingRecommendedImport {
+            return false
+        }
+        return backendReviewChapter != nil
+    }
+
     private var isGenerationBusy: Bool {
         if isSubmittingGeneration {
             return true
@@ -562,6 +609,8 @@ struct V2RootView: View {
         generationErrorText = ""
         isSubmittingGeneration = true
         generationPollingTask?.cancel()
+        recommendedImportSimulationTask?.cancel()
+        isSimulatingRecommendedImport = false
         let clientRequestId = "ios-v2-\(UUID().uuidString)"
 
         withAnimation(.easeOut(duration: 0.18)) {
@@ -639,6 +688,137 @@ struct V2RootView: View {
             }
         } catch {
             generationErrorText = error.localizedDescription
+        }
+    }
+
+    @MainActor
+    private func loadRecommendedArticlesIfNeeded() async {
+        guard recommendedArticles.isEmpty, !isLoadingRecommendedArticles else {
+            return
+        }
+
+        isLoadingRecommendedArticles = true
+        recommendedErrorText = ""
+        do {
+            let catalog = try await apiClient.fetchRecommendedArticles()
+            recommendedFilters = catalog.filters
+            recommendedArticles = catalog.articles
+        } catch {
+            recommendedErrorText = "好文推荐暂时加载失败，请稍后再试。"
+        }
+        isLoadingRecommendedArticles = false
+    }
+
+    private func openRecommendedArticle(_ article: V2RecommendedArticle) {
+        selectedRecommendedArticle = article
+        selectedRecommendedChapter = nil
+        recommendedErrorText = ""
+        pushRoute(.recommendedArticle(articleID: article.id))
+    }
+
+    @MainActor
+    private func loadRecommendedArticleDetail(articleID: String) async {
+        if selectedRecommendedArticle?.id == articleID, selectedRecommendedChapter != nil {
+            return
+        }
+
+        isLoadingRecommendedDetail = true
+        recommendedErrorText = ""
+        do {
+            let detail = try await apiClient.fetchRecommendedArticleDetail(id: articleID)
+            selectedRecommendedArticle = detail.article
+            selectedRecommendedChapter = detail.chapter.toReviewChapterData()
+        } catch {
+            recommendedErrorText = "这篇好文暂时加载失败，请稍后再试。"
+        }
+        isLoadingRecommendedDetail = false
+    }
+
+    private func importRecommendedArticle(articleID: String) {
+        recommendedImportSimulationTask?.cancel()
+        isLoadingRecommendedDetail = true
+        recommendedErrorText = ""
+        isSimulatingRecommendedImport = true
+        recommendedImportProgress = 0.03
+        recommendedImportStatusText = "正在提取文章..."
+        selectedTab = .materials
+        routeStack.removeAll()
+        route = .generatingChapterDetail
+
+        recommendedImportSimulationTask = Task {
+            do {
+                async let importedDetail = apiClient.importRecommendedArticle(id: articleID)
+                await runRecommendedImportProgressSimulation()
+                if Task.isCancelled {
+                    await MainActor.run {
+                        isLoadingRecommendedDetail = false
+                        recommendedImportSimulationTask = nil
+                    }
+                    return
+                }
+                let detail = try await importedDetail
+                if Task.isCancelled {
+                    await MainActor.run {
+                        isLoadingRecommendedDetail = false
+                        recommendedImportSimulationTask = nil
+                    }
+                    return
+                }
+                await MainActor.run {
+                    selectedRecommendedArticle = detail.article
+                    applyBackendChapter(detail.chapter)
+                    recommendedImportProgress = 1
+                    recommendedImportStatusText = "生成完成"
+                    isLoadingRecommendedDetail = false
+                }
+                try? await Task.sleep(nanoseconds: 650_000_000)
+                if Task.isCancelled {
+                    await MainActor.run {
+                        recommendedImportSimulationTask = nil
+                    }
+                    return
+                }
+                await MainActor.run {
+                    isSimulatingRecommendedImport = false
+                    routeStack.removeAll()
+                    route = .chapterDetail
+                    recommendedImportSimulationTask = nil
+                }
+            } catch {
+                await MainActor.run {
+                    recommendedErrorText = "导入推荐文章失败，请稍后再试。"
+                    generationErrorText = "导入推荐文章失败，请稍后再试。"
+                    isSimulatingRecommendedImport = false
+                    isLoadingRecommendedDetail = false
+                    recommendedImportSimulationTask = nil
+                }
+            }
+        }
+    }
+
+    private func runRecommendedImportProgressSimulation() async {
+        let steps: [(Double, String, UInt64)] = [
+            (0.16, "正在提取文章...", 900_000_000),
+            (0.34, "正在总结知识点...", 1_250_000_000),
+            (0.58, "正在生成练习题...", 1_450_000_000),
+            (0.78, "正在整理复习路径...", 1_350_000_000),
+            (0.94, "正在保存章节...", 1_100_000_000)
+        ]
+
+        for step in steps {
+            if Task.isCancelled {
+                return
+            }
+            try? await Task.sleep(nanoseconds: step.2)
+            if Task.isCancelled {
+                return
+            }
+            await MainActor.run {
+                withAnimation(.easeInOut(duration: 0.28)) {
+                    recommendedImportProgress = step.0
+                    recommendedImportStatusText = step.1
+                }
+            }
         }
     }
 
@@ -761,6 +941,13 @@ struct V2RootView: View {
         guard let route else {
             routeStack.removeAll()
             return
+        }
+
+        if case .generatingChapterDetail = route, isSimulatingRecommendedImport {
+            recommendedImportSimulationTask?.cancel()
+            recommendedImportSimulationTask = nil
+            isSimulatingRecommendedImport = false
+            isLoadingRecommendedDetail = false
         }
 
         if case .sourceArticle = route, usesBackendReviewChapter {

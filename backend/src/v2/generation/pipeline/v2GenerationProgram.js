@@ -9,7 +9,10 @@ import {
   V2_GENERATION_STATUS
 } from "../generationProgress.js";
 import { validateQualityJudgeOutput } from "../prompts/qualityJudge.js";
-import { validateReviewPathPlanOutput } from "../prompts/reviewPathPlan.js";
+import {
+  normalizeReviewPathPlanOutput,
+  validateReviewPathPlanOutput
+} from "../prompts/reviewPathPlan.js";
 import { validateSourceMapOutput } from "../prompts/sourceMap.js";
 import { validateMultipleChoiceDraftUnitBatchOutput } from "../prompts/multipleChoiceDraftUnitBatch.js";
 import {
@@ -111,7 +114,8 @@ export async function runV2GenerationProgram(
     activePromptCaller,
     "reviewPathPlan",
     { article, source: sourceMap.source, blocks: sourceMap.blocks },
-    (output) => validateReviewPathPlanOutput(output, { sourceBlockIds })
+    (output) => validateReviewPathPlanOutput(output, { sourceBlockIds }),
+    { normalize: normalizeReviewPathPlanOutput }
   );
   const plan = limitPlannedUnits(rawPlan, maxUnitCount);
   const planSourceContext = buildPlanSourceContext(sourceMap, plan);

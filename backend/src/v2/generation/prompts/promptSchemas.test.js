@@ -35,6 +35,7 @@ import {
   validateQuestionDraftBatchOutput
 } from "./questionDraftBatch.js";
 import {
+  normalizeReviewPathPlanOutput,
   REVIEW_PATH_PLAN_OUTPUT_SCHEMA,
   validateReviewPathPlanOutput
 } from "./reviewPathPlan.js";
@@ -322,6 +323,29 @@ test("rejects overlong review path mobile copy", () => {
   assert.match(result.errors.join("\n"), /nodeLabel must be at most 24 characters/);
   assert.match(result.errors.join("\n"), /detailSummary must be at most 180 characters/);
   assert.match(result.errors.join("\n"), /encouragementText must be at most 96 characters/);
+});
+
+test("normalizes overlong review path mobile copy before validation", () => {
+  const plan = reviewPathPlanFixture();
+  plan.summaryCard.text = "这是一段用于手机章节概要卡片的超长文案".repeat(8);
+  plan.units[0].nodeLabel = "这是一个明显超出主页节点弹窗承载范围的过长知识点标题";
+  plan.units[0].shortSummary = "这是一个过长短摘要".repeat(8);
+  plan.units[0].detailSummary = "过长详情".repeat(50);
+  plan.units[0].why = "过长价值说明".repeat(20);
+  plan.chapterSummary.encouragementText = "过长鼓励".repeat(40);
+
+  const normalized = normalizeReviewPathPlanOutput(plan);
+  const result = validateReviewPathPlanOutput(normalized, {
+    sourceBlockIds: new Set(["p-001", "p-002"])
+  });
+
+  assert.deepEqual(result, { ok: true, errors: [] });
+  assert.equal(Array.from(normalized.summaryCard.text).length, 96);
+  assert.equal(Array.from(normalized.units[0].nodeLabel).length, 24);
+  assert.equal(Array.from(normalized.units[0].shortSummary).length, 56);
+  assert.equal(Array.from(normalized.units[0].detailSummary).length, 180);
+  assert.equal(Array.from(normalized.units[0].why).length, 96);
+  assert.equal(Array.from(normalized.chapterSummary.encouragementText).length, 96);
 });
 
 test("rejects review path plans that point anchors at missing source blocks", () => {

@@ -1396,6 +1396,7 @@ struct V2RecommendedArticleCard: View {
     let title: String
     let source: String
     let tags: [String]
+    let coverImageURL: String?
     let action: () -> Void
 
     var body: some View {
@@ -1408,10 +1409,7 @@ struct V2RecommendedArticleCard: View {
                         .fill(V2Color.surfaceCream)
                         .v2Shadow()
 
-                    Image("V2DiscoverArticleThumbnail")
-                        .resizable()
-                        .renderingMode(.original)
-                        .scaledToFill()
+                    V2RecommendedArticleCover(urlString: coverImageURL)
                         .frame(width: 126, height: V2RecommendedArticleCardMetrics.cardHeight)
                         .frame(maxWidth: .infinity, alignment: .trailing)
                         .clipped()
@@ -1459,6 +1457,34 @@ struct V2RecommendedArticleCard: View {
             .frame(height: V2RecommendedArticleCardMetrics.cardHeight)
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct V2RecommendedArticleCover: View {
+    let urlString: String?
+
+    var body: some View {
+        if let urlString, let url = URL(string: urlString) {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                default:
+                    fallback
+                }
+            }
+        } else {
+            fallback
+        }
+    }
+
+    private var fallback: some View {
+        Image("V2DiscoverArticleThumbnail")
+            .resizable()
+            .renderingMode(.original)
+            .scaledToFill()
     }
 }
 

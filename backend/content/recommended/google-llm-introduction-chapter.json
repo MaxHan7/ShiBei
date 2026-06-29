@@ -3,15 +3,20 @@
   "id": "google-llm-introduction",
   "status": "completed",
   "displayStatusText": "已生成",
-  "title": "语言模型基础",
+  "title": "大语言模型入门：从 token 到上下文",
   "source": {
     "type": "article",
-    "title": "Introduction to Large Language Models",
+    "title": "大语言模型入门：从 token 到上下文",
     "author": "Google Machine Learning Crash Course",
-    "account": "Google for Developers",
-    "accountOrDomain": "Google for Developers",
+    "account": "Google 机器学习速成课",
+    "accountOrDomain": "Google 机器学习速成课",
     "url": "https://developers.google.com/machine-learning/crash-course/llm",
     "blocks": [
+      {
+        "id": "cn-guide-001",
+        "type": "paragraph",
+        "text": "这篇课程材料适合作为理解大语言模型的第一站。它把语言模型看成一种根据上下文预测下一个 token 的系统，并逐步解释 token、上下文窗口、注意力机制和 Transformer 为什么重要。阅读时可以抓住三个层次：第一，模型并不是直接理解整篇文字，而是把文字拆成 token 并学习 token 之间的概率关系；第二，上下文决定模型能参考哪些信息，窗口越大并不自动等于理解越深，还需要有效的注意力分配；第三，大语言模型的能力来自大规模训练、模型结构和后续对齐共同作用。对学习者来说，重点不是背术语，而是能解释为什么同一个问题在不同上下文下会得到不同回答，以及为什么提示词设计会影响输出质量。"
+      },
       {
         "id": "p-010",
         "type": "paragraph",

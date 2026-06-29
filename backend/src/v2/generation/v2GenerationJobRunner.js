@@ -103,6 +103,25 @@ export async function runV2GenerationQueuedJob(job, deps = {}) {
   }
 
   const retry = shouldRetryQueuedV2Job(job, result);
+  const currentBeforeFailure = await services.getChapter(job.deviceId, job.chapterId);
+  if (currentBeforeFailure?.status === "completed") {
+    console.warn("Ignored stale V2 generation failure after chapter completion", {
+      jobId: job.id,
+      chapterId: job.chapterId,
+      failedStage: result.failedStage || result.status,
+      failureReason: result.failureReason || ""
+    });
+    await services.completeGenerationJob(job.deviceId, job.id, {
+      status: "completed",
+      currentStage: "completed"
+    });
+    return {
+      status: "completed",
+      displayStatusText: "已生成",
+      staleFailureIgnored: true,
+      chapter: currentBeforeFailure
+    };
+  }
   if (retry) {
     await persistV2GenerationProgress(
       job,
@@ -267,7 +286,12 @@ function buildFailedV2Chapter({ job, existing, result, input }) {
       v2Progress: progress,
       failedStage: result.failedStage || "",
       failureReason: result.failureReason || "",
-      failureCode: result.generationProgress?.failureCode || ""
+      failureCode: result.generationProgress?.failureCode || "",
+      ...(Array.isArray(result.errors) ? { errors: result.errors.slice(0, 12) } : {}),
+      ...(Array.isArray(result.issues) ? { issues: result.issues.slice(0, 12) } : {}),
+      ...(Array.isArray(result.diagnostics) ? { diagnostics: result.diagnostics.slice(0, 12) } : {}),
+      ...(result.runtimeErrorType ? { runtimeErrorType: result.runtimeErrorType } : {}),
+      ...(result.modelStage ? { modelStage: result.modelStage } : {})
     },
     source: existing?.source || {
       type: input.sourceType || "article",

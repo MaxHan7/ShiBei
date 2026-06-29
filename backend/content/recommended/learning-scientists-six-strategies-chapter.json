@@ -3,15 +3,20 @@
   "id": "learning-scientists-six-strategies",
   "status": "completed",
   "displayStatusText": "已生成",
-  "title": "六种高效学习策略",
+  "title": "高效学习的六个策略",
   "source": {
     "type": "article",
-    "title": "Six Strategies for Effective Learning",
+    "title": "高效学习的六个策略",
     "author": "Megan Sumeracki",
     "account": "The Learning Scientists",
     "accountOrDomain": "The Learning Scientists",
     "url": "https://www.learningscientists.org/blog/2016/8/18-1",
     "blocks": [
+      {
+        "id": "cn-guide-001",
+        "type": "paragraph",
+        "text": "这篇文章把认知科学中比较可靠的学习方法整理成六个策略，包括间隔练习、提取练习、交错练习、精细化解释、具体例子和双重编码。它的价值在于提醒学习者：有效学习通常不是反复看材料，而是主动调动记忆、建立联系、分散练习并用不同方式表征知识。阅读时可以把六个策略看成互相配合的工具箱。例如，先用具体例子理解抽象概念，再用提取练习检查自己是否真的记住，之后通过间隔复习减少遗忘。对拾贝这样的复习产品来说，这篇文章也解释了为什么“做题、回忆、再反馈”会比单纯阅读更能促进掌握。"
+      },
       {
         "id": "p-006",
         "type": "paragraph",
