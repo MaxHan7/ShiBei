@@ -151,6 +151,39 @@ struct APIClient {
         return try await send("/api/v2/review-sessions/\(encodedPathComponent(sessionId))/focus-unit", method: "POST", body: request, acceptsFailureBody: false)
     }
 
+    func startV2PracticeSession(sessionId: String, unitId: String) async throws -> V2ReviewSessionResponse {
+        let request = V2PracticeStartRequest(unitId: unitId)
+        return try await send("/api/v2/review-sessions/\(encodedPathComponent(sessionId))/practice/start", method: "POST", body: request, acceptsFailureBody: false)
+    }
+
+    func advanceV2PracticeSession(sessionId: String) async throws -> V2ReviewSessionResponse {
+        try await send("/api/v2/review-sessions/\(encodedPathComponent(sessionId))/practice/advance", method: "POST", body: EmptyRequest(), acceptsFailureBody: false)
+    }
+
+    func answerV2PracticeQuestion(
+        sessionId: String,
+        unitId: String,
+        questionId: String,
+        result: String,
+        selectedOptionId: String?,
+        matchedPairs: [V2BackendMatchedPair] = [],
+        lockedPairIds: [String] = []
+    ) async throws -> V2ReviewSessionResponse {
+        let request = V2AnswerQuestionRequest(
+            unitId: unitId,
+            questionId: questionId,
+            result: result,
+            selectedOptionId: selectedOptionId,
+            matchedPairs: matchedPairs,
+            lockedPairIds: lockedPairIds
+        )
+        return try await send("/api/v2/review-sessions/\(encodedPathComponent(sessionId))/practice/answer", method: "POST", body: request, acceptsFailureBody: false)
+    }
+
+    func finishV2PracticeSession(sessionId: String) async throws -> V2ReviewSessionResponse {
+        try await send("/api/v2/review-sessions/\(encodedPathComponent(sessionId))/practice/finish", method: "POST", body: EmptyRequest(), acceptsFailureBody: false)
+    }
+
     func answerV2Question(
         sessionId: String,
         unitId: String,

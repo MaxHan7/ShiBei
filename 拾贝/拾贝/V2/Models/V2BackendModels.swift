@@ -295,6 +295,10 @@ struct V2FocusUnitRequest: Encodable {
     let unitId: String
 }
 
+struct V2PracticeStartRequest: Encodable {
+    let unitId: String
+}
+
 struct V2ReplayFromUnitRequest: Encodable {
     let unitId: String
 }

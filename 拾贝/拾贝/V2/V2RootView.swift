@@ -489,10 +489,19 @@ struct V2RootView: View {
     }
 
     private func startTemporaryPractice(unitID: String) {
+        guard usesBackendReviewChapter else {
+            reviewEntryMode = .temporaryPractice
+            selectedTab = .learning
+            routeStore.clearStack()
+            replaceRoute(.unitOverview(unitID: unitID))
+            return
+        }
+
         reviewEntryMode = .temporaryPractice
         selectedTab = .learning
-        routeStore.clearStack()
-        replaceRoute(.unitOverview(unitID: unitID))
+        Task {
+            await startBackendPracticeFromUnit(unitID: unitID)
+        }
     }
 
     private func openActiveLearningChapterDetail() {
@@ -660,6 +669,28 @@ struct V2RootView: View {
     }
 
     @MainActor
+    private func startBackendPracticeFromUnit(unitID: String) async {
+        do {
+            guard let session = try await ensureV2ReviewSession() else {
+                resetToRoute(.unitOverview(unitID: unitID), tab: .learning)
+                return
+            }
+
+            let response = try await apiClient.startV2PracticeSession(
+                sessionId: session.id,
+                unitId: unitID
+            )
+            applyV2ReviewSessionResponse(response)
+            selectedTab = .learning
+            routeStore.clearStack()
+            replaceRoute(route(for: response.reviewSession?.displayCard) ?? .unitOverview(unitID: unitID))
+        } catch {
+            generationState.errorText = error.localizedDescription
+            resetToRoute(.unitOverview(unitID: unitID), tab: .learning)
+        }
+    }
+
+    @MainActor
     private func focusBackendReviewUnitAndRoute(unitID: String) async {
         do {
             guard let session = try await ensureV2ReviewSession() else {
@@ -683,6 +714,16 @@ struct V2RootView: View {
     }
 
     private func continueAfterUnitOverview(unitID: String) {
+        if usesBackendReviewChapter, reviewEntryMode.isTemporaryPractice {
+            let fallback: V2AppRoute = firstQuestionID(in: unitID)
+                .map { .question(unitID: unitID, questionID: $0) }
+                ?? .unitSummary(unitID: unitID)
+            Task {
+                await advanceBackendPracticeAndRoute(fallback: fallback)
+            }
+            return
+        }
+
         guard usesBackendReviewChapter, !reviewEntryMode.isTemporaryPractice else {
             openFirstQuestion(in: unitID)
             return
@@ -698,6 +739,13 @@ struct V2RootView: View {
     }
 
     private func continueAfterQuestion(unitID: String, questionID: String) {
+        if usesBackendReviewChapter, reviewEntryMode.isTemporaryPractice {
+            Task {
+                await persistBackendPracticeAnswerAndContinue(unitID: unitID, questionID: questionID)
+            }
+            return
+        }
+
         guard usesBackendReviewChapter, !reviewEntryMode.isTemporaryPractice else {
             advanceLocalAfterQuestion(unitID: unitID, questionID: questionID)
             return
@@ -719,6 +767,9 @@ struct V2RootView: View {
     }
 
     private func questionStateKey(unitID: String, questionID: String) -> String {
+        if reviewEntryMode.isTemporaryPractice, let practice = v2ReviewSession?.practice {
+            return "review-practice::\(v2ReviewSession?.id ?? "session")::\(practice.id)::\(unitID)::\(questionID)"
+        }
         if reviewEntryMode.isTemporaryPractice {
             return "review-practice::local::\(unitID)::\(questionID)"
         }
@@ -856,6 +907,12 @@ struct V2RootView: View {
 
     private func continueAfterUnit(unitID: String) {
         if reviewEntryMode.isTemporaryPractice {
+            if usesBackendReviewChapter {
+                Task {
+                    await finishBackendPracticeAndReturnHome()
+                }
+                return
+            }
             reviewEntryMode = .mainline
             resetToHome(tab: .learning)
             return
@@ -1769,6 +1826,39 @@ struct V2RootView: View {
     }
 
     @MainActor
+    private func advanceBackendPracticeAndRoute(fallback: V2AppRoute) async {
+        do {
+            guard let session = try await ensureV2ReviewSession() else {
+                routeToReviewCard(fallback)
+                return
+            }
+
+            let response = try await apiClient.advanceV2PracticeSession(sessionId: session.id)
+            applyV2ReviewSessionResponse(response)
+            routeToReviewCard(route(for: response.reviewSession?.displayCard) ?? fallback)
+        } catch {
+            generationState.errorText = error.localizedDescription
+            routeToReviewCard(fallback)
+        }
+    }
+
+    @MainActor
+    private func finishBackendPracticeAndReturnHome() async {
+        do {
+            guard let session = try await ensureV2ReviewSession() else {
+                resetToHome(tab: .learning)
+                return
+            }
+            let response = try await apiClient.finishV2PracticeSession(sessionId: session.id)
+            applyV2ReviewSessionResponse(response)
+        } catch {
+            generationState.errorText = error.localizedDescription
+        }
+        reviewEntryMode = .mainline
+        resetToHome(tab: .learning)
+    }
+
+    @MainActor
     private func persistBackendAnswerProgress(unitID: String, questionID: String) {
         guard usesBackendReviewChapter,
               !reviewEntryMode.isTemporaryPractice,
@@ -1835,6 +1925,42 @@ struct V2RootView: View {
                 routeToReviewCard(route(for: advanceResponse.reviewSession?.displayCard) ?? localRouteAfterQuestion(unitID: unitID, questionID: questionID))
                 return
             }
+        } catch {
+            generationState.errorText = error.localizedDescription
+        }
+
+        advanceLocalAfterQuestion(unitID: unitID, questionID: questionID)
+    }
+
+    @MainActor
+    private func persistBackendPracticeAnswerAndContinue(unitID: String, questionID: String) async {
+        guard let payload = backendAnswerPayload(unitID: unitID, questionID: questionID) else {
+            advanceLocalAfterQuestion(unitID: unitID, questionID: questionID)
+            return
+        }
+
+        do {
+            guard let session = try await ensureV2ReviewSession() else {
+                advanceLocalAfterQuestion(unitID: unitID, questionID: questionID)
+                return
+            }
+
+            let answerResponse = try await apiClient.answerV2PracticeQuestion(
+                sessionId: session.id,
+                unitId: unitID,
+                questionId: questionID,
+                result: payload.result,
+                selectedOptionId: payload.selectedOptionId,
+                matchedPairs: payload.matchedPairs,
+                lockedPairIds: payload.lockedPairIds
+            )
+            applyV2ReviewSessionResponse(answerResponse)
+
+            let advanceResponse = try await apiClient.advanceV2PracticeSession(sessionId: session.id)
+            applyV2ReviewSessionResponse(advanceResponse)
+            questionInteractionStates.removeValue(forKey: questionStateKey(unitID: unitID, questionID: questionID))
+            routeToReviewCard(route(for: advanceResponse.reviewSession?.displayCard) ?? localRouteAfterQuestion(unitID: unitID, questionID: questionID))
+            return
         } catch {
             generationState.errorText = error.localizedDescription
         }
