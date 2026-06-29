@@ -8,7 +8,7 @@ struct V2NodePopover: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: contentSpacing) {
                 Text(node.subtitle)
                     .font(V2Typography.bodyEmphasis)
                     .foregroundStyle(V2Color.textPrimary)
@@ -29,9 +29,10 @@ struct V2NodePopover: View {
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 22)
-            .frame(width: 272)
+            .padding(.horizontal, V2NodePopoverMetrics.horizontalPadding)
+            .padding(.vertical, verticalPadding)
+            .frame(width: V2NodePopoverMetrics.width)
+            .frame(minHeight: cardMinHeight, alignment: .center)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(V2Color.surfaceCream)
@@ -45,12 +46,48 @@ struct V2NodePopover: View {
                     .v2Shadow(V2Shadow.subtleGreen)
             }
         }
-        .frame(width: 272)
+        .frame(
+            width: V2NodePopoverMetrics.width,
+            height: V2NodePopoverMetrics.actionCardHeight,
+            alignment: .bottom
+        )
+    }
+
+    private var contentSpacing: CGFloat {
+        showsActionButton ? V2NodePopoverMetrics.actionContentSpacing : 0
+    }
+
+    private var verticalPadding: CGFloat {
+        showsActionButton
+            ? V2NodePopoverMetrics.actionVerticalPadding
+            : V2NodePopoverMetrics.previewVerticalPadding
+    }
+
+    private var cardMinHeight: CGFloat {
+        showsActionButton
+            ? V2NodePopoverMetrics.actionCardHeight
+            : V2NodePopoverMetrics.previewCardHeight
     }
 
     private var clampedPointerX: CGFloat {
-        min(max(pointerX - 14, 18), 226)
+        min(
+            max(pointerX - V2NodePopoverMetrics.pointerHalfWidth, V2NodePopoverMetrics.pointerMinX),
+            V2NodePopoverMetrics.pointerMaxX
+        )
     }
+}
+
+private enum V2NodePopoverMetrics {
+    static let width: CGFloat = 272
+    static let actionCardHeight: CGFloat = 128
+    static let previewCardHeight: CGFloat = 104
+    static let horizontalPadding: CGFloat = 26
+    static let actionVerticalPadding: CGFloat = 22
+    static let previewVerticalPadding: CGFloat = 26
+    static let actionContentSpacing: CGFloat = 18
+    static let pointerHalfWidth: CGFloat = 14
+    static let pointerMinX: CGFloat = 18
+    static let pointerMaxX: CGFloat = 226
 }
 
 private struct V2Triangle: Shape {
