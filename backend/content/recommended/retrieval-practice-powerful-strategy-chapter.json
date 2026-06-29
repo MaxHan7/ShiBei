@@ -3,10 +3,10 @@
   "id": "retrieval-practice-powerful-strategy",
   "status": "completed",
   "displayStatusText": "已生成",
-  "title": "检索练习：核心概念与机制",
+  "title": "提取练习：为什么主动回忆能促进学习",
   "source": {
     "type": "article",
-    "title": "Retrieval Practice: A Powerful Strategy for Learning",
+    "title": "提取练习：为什么主动回忆能促进学习",
     "author": "Pooja K. Agarwal",
     "account": "RetrievalPractice.org",
     "accountOrDomain": "RetrievalPractice.org",
@@ -15,12 +15,77 @@
       {
         "id": "p-046",
         "type": "paragraph",
-        "text": "Retrieval practice boosts learning by pulling information out of students’ heads (e.g., quizzes, clickers and flashcards), rather than cramming information into students heads (e.g., lectures)."
+        "text": "提取练习通过让学生把信息从头脑中主动调出来促进学习，例如小测、课堂反馈器和闪卡。它不同于只把信息塞进头脑里的学习方式，例如单纯听讲或反复阅读。"
       },
       {
         "id": "p-070",
         "type": "paragraph",
-        "text": "Retrieval practice is a powerful research-based strategy that boosts learning by pulling information out of students’ heads , rather than cramming information into students heads. It's a no-stakes learning opportunity that is flexible and quick, with a huge impact on long-term student achievement."
+        "text": "提取练习是一种有研究支持的学习策略。它提供低风险的学习机会，让学习者在没有直接提示的情况下尝试回忆，并通过反馈发现遗漏和误解。"
+      },
+      {
+        "id": "p-071",
+        "type": "paragraph",
+        "text": "做错题并不一定意味着学习失败。只要之后有解释、原文依据和再次尝试，错误就能暴露薄弱点，帮助学习者更准确地修正理解。"
+      },
+      {
+        "id": "p-072",
+        "type": "paragraph",
+        "text": "提取练习最好和间隔复习结合使用。隔一段时间再次回忆，比刚看完材料马上复述更能检验知识是否真正进入长期记忆。"
+      },
+      {
+        "id": "p-073",
+        "type": "paragraph",
+        "text": "在产品体验中，提取练习意味着进度不能只记录“看过”，而应该记录哪些题已经正确完成，哪些知识点仍需要再次练习。低风险的小测、即时反馈和错题回补，可以让复习进度更接近真实掌握。"
+      },
+      {
+        "id": "p-074",
+        "type": "paragraph",
+        "text": "提取练习的关键动作是主动回忆。学习者需要先尝试从记忆中拿出答案，再对照反馈进行修正。这个过程会强化线索，也会暴露哪些知识只是看起来熟悉。"
+      },
+      {
+        "id": "p-075",
+        "type": "paragraph",
+        "text": "反复阅读容易带来熟悉感，让人误以为自己已经掌握；提取练习则要求学习者在没有材料提示时作答，因此更接近真实使用知识的状态。"
+      },
+      {
+        "id": "p-076",
+        "type": "paragraph",
+        "text": "有效的提取练习不需要高压考试。低风险小测、课后自问、闪卡、同伴互问都可以使用。重要的是让学习者先回忆，再获得明确反馈。"
+      },
+      {
+        "id": "p-077",
+        "type": "paragraph",
+        "text": "当学习者答错时，系统应该提供解释和再次练习机会，而不是只给出失败结果。这样错误会变成定位薄弱点的信号，帮助学习者把知识补牢。"
+      },
+      {
+        "id": "p-078",
+        "type": "paragraph",
+        "text": "如果把提取练习和间隔复习结合，学习者会在不同时间重新调出同一知识。每一次成功提取，都会让未来再次想起这部分内容更容易。"
+      },
+      {
+        "id": "p-079",
+        "type": "paragraph",
+        "text": "提取练习还可以帮助学习者校准自我判断。很多人在阅读时觉得内容很熟，但真正闭卷回答时才发现自己无法说清关键概念。主动回忆能把这种差距提前暴露出来。"
+      },
+      {
+        "id": "p-080",
+        "type": "paragraph",
+        "text": "反馈的作用是让学习者知道哪里正确、哪里需要修正。没有反馈的练习可能会巩固错误理解；有反馈的练习则能把错误转化成下一轮学习的线索。"
+      },
+      {
+        "id": "p-081",
+        "type": "paragraph",
+        "text": "在课程或产品中，提取练习可以被设计得很轻量。一个问题、一段解释、一次再次出现的机会，就能形成完整闭环。这样的设计比长时间被动阅读更容易促进稳定掌握。"
+      },
+      {
+        "id": "p-082",
+        "type": "paragraph",
+        "text": "提取练习的目标不是让用户一直做题，而是让用户在关键知识点上完成“能想起来、能判断、能应用”的转变。只有当知识可以被再次调用时，学习才真正发生。"
+      },
+      {
+        "id": "p-083",
+        "type": "paragraph",
+        "text": "这种方法也解释了为什么复习系统需要记录每道题的完成状态。已经正确完成的题可以减少重复，仍未掌握的题应该在后面再次出现，直到学习者能独立答对。"
       }
     ],
     "rawInput": "https://www.retrievalpractice.org/retrievalpractice"

@@ -65,7 +65,7 @@ struct V2ProfileHeaderCard: View {
 
             HStack(spacing: 13) {
                 V2ProfileStatCard(
-                    title: "已复习",
+                    title: "已掌握",
                     value: reviewedCount,
                     unit: "个知识点",
                     assetName: "V2ProfileStatReviewed"

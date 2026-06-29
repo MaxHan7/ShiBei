@@ -236,6 +236,7 @@ struct V2RootView: View {
                     primaryActionTitle: chapterDetailPrimaryActionTitle,
                     onBack: goBack,
                     onContinue: continueFromChapterDetail,
+                    onStartUnitReview: startReviewFromChapterDetailUnit,
                     onSource: openSource,
                     onDelete: { showsDeleteChapterConfirmation = true }
                 )
@@ -637,6 +638,42 @@ struct V2RootView: View {
 
         Task {
             await advanceBackendReviewAndRoute(fallback: .unitOverview(unitID: activeFirstUnitID))
+        }
+    }
+
+    private func startReviewFromChapterDetailUnit(unitID: String) {
+        guard usesBackendReviewChapter else {
+            selectedTab = .learning
+            routeStore.clearStack()
+            replaceRoute(.unitOverview(unitID: unitID))
+            return
+        }
+
+        Task {
+            await focusBackendReviewUnitAndRoute(unitID: unitID)
+        }
+    }
+
+    @MainActor
+    private func focusBackendReviewUnitAndRoute(unitID: String) async {
+        do {
+            guard let session = try await ensureV2ReviewSession() else {
+                resetToRoute(.unitOverview(unitID: unitID), tab: .learning)
+                return
+            }
+
+            let response = try await apiClient.focusV2ReviewUnit(
+                sessionId: session.id,
+                unitId: unitID
+            )
+            activeLearningChapterID = response.chapter.id
+            applyV2ReviewSessionResponse(response)
+            selectedTab = .learning
+            routeStore.clearStack()
+            replaceRoute(route(for: response.reviewSession?.currentCard) ?? .unitOverview(unitID: unitID))
+        } catch {
+            generationState.errorText = error.localizedDescription
+            resetToRoute(.unitOverview(unitID: unitID), tab: .learning)
         }
     }
 

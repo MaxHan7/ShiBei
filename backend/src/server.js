@@ -69,6 +69,7 @@ import {
   advanceReviewCardV2,
   answerQuestionV2,
   createReviewSessionV2,
+  focusReviewUnitV2,
   normalizeReviewSessionV2,
   openSourceFromReviewV2,
   returnFromSourceToReviewV2,
@@ -2282,7 +2283,7 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  const v2ReviewSessionActionMatch = req.url?.match(/^\/api\/v2\/review-sessions\/([^/]+)\/(advance|answer|feedback-visibility|source-open|source-return)$/);
+  const v2ReviewSessionActionMatch = req.url?.match(/^\/api\/v2\/review-sessions\/([^/]+)\/(advance|answer|focus-unit|feedback-visibility|source-open|source-return)$/);
   if (v2ReviewSessionActionMatch && req.method === "POST") {
     const sessionId = decodeURIComponent(v2ReviewSessionActionMatch[1]);
     const action = v2ReviewSessionActionMatch[2];
@@ -2300,6 +2301,8 @@ const server = createServer(async (req, res) => {
           return advanceReviewCardV2(chapter, session);
         case "answer":
           return answerQuestionV2(chapter, session, body);
+        case "focus-unit":
+          return focusReviewUnitV2(chapter, session, body);
         case "feedback-visibility":
           return setQuestionFeedbackVisibleV2(chapter, session, body);
         case "source-open":

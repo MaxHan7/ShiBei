@@ -40,8 +40,13 @@ const requiredRoutes = [
   },
   {
     name: "v2_review_session_actions",
-    pattern: /v2ReviewSessionActionMatch[\s\S]*advance\|answer\|feedback-visibility\|source-open\|source-return[\s\S]*req\.method === "POST"/,
-    detail: "POST /api/v2/review-sessions/:id/(advance|answer|feedback-visibility|source-open|source-return)"
+    pattern: /v2ReviewSessionActionMatch[\s\S]*advance\|answer\|focus-unit\|feedback-visibility\|source-open\|source-return[\s\S]*req\.method === "POST"/,
+    detail: "POST /api/v2/review-sessions/:id/(advance|answer|focus-unit|feedback-visibility|source-open|source-return)"
+  },
+  {
+    name: "v2_focus_unit_mutation",
+    pattern: /case "focus-unit":[\s\S]*focusReviewUnitV2/,
+    detail: "V2 focus-unit mutation"
   },
   {
     name: "v2_source_open_mutation",

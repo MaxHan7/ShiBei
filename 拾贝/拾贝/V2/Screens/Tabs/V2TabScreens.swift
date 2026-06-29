@@ -514,40 +514,13 @@ struct V2DiscoverView: View {
             VStack(alignment: .leading, spacing: 20) {
                 V2DiscoverHeroCard()
 
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: V2DiscoverFilterMetrics.chipSpacing) {
-                        ForEach(filters) { filter in
-                            Button {
-                                selectedFilterID = filter.id
-                            } label: {
-                                V2DiscoverChip(
-                                    title: filter.title,
-                                    isSelected: selectedFilterID == filter.id
-                                )
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("筛选：\(filter.title)")
-                            .accessibilityAddTraits(selectedFilterID == filter.id ? .isSelected : [])
-                        }
+                V2DiscoverFilterBar(
+                    filters: filters,
+                    selectedFilterID: selectedFilterID,
+                    onSelect: { filter in
+                        selectedFilterID = filter.id
                     }
-                    .padding(.vertical, V2DiscoverFilterMetrics.verticalPadding)
-                    .padding(.horizontal, V2DiscoverFilterMetrics.shadowBleed)
-                }
-                .frame(height: V2DiscoverFilterMetrics.height)
-                .mask(alignment: .trailing) {
-                    HStack(spacing: 0) {
-                        Rectangle()
-                            .fill(.black)
-                        LinearGradient(
-                            colors: [.black, .clear],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                        .frame(width: V2DiscoverFilterMetrics.trailingFadeWidth)
-                    }
-                }
-                .padding(.horizontal, -V2DiscoverFilterMetrics.shadowBleed)
-                .accessibilityElement(children: .contain)
+                )
 
                 ForEach(filteredArticles) { article in
                     V2RecommendedArticleCard(
@@ -561,14 +534,6 @@ struct V2DiscoverView: View {
             }
         }
     }
-}
-
-private enum V2DiscoverFilterMetrics {
-    static let height: CGFloat = 39
-    static let chipSpacing: CGFloat = 10
-    static let verticalPadding: CGFloat = 4
-    static let shadowBleed: CGFloat = 4
-    static let trailingFadeWidth: CGFloat = 28
 }
 
 struct V2NotesView: View {
@@ -981,35 +946,55 @@ private struct V2GenerationFailureDetailCard: View {
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
 
-            Image("V2NotificationFailureDetailIcon")
-                .resizable()
-                .renderingMode(.original)
-                .scaledToFit()
-                .frame(width: 34, height: 34)
-                .offset(x: 23, y: 23)
+            HStack(spacing: 0) {
+                HStack(spacing: V2GenerationStatusCardMetrics.headerTitleSpacing) {
+                    Image("V2NotificationFailureDetailIcon")
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFit()
+                        .frame(
+                            width: V2GenerationStatusCardMetrics.iconSize,
+                            height: V2GenerationStatusCardMetrics.iconSize
+                        )
 
-            Text("章节生成失败")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(failureTitle)
-                .frame(width: 118, alignment: .leading)
-                .frame(minHeight: 39, alignment: .leading)
-                .offset(x: 59, y: 18)
+                    Text("章节生成失败")
+                        .font(V2Typography.cardTitleStandard)
+                        .foregroundStyle(failureTitle)
+                        .lineLimit(1)
+                }
 
-            V2NotificationFailureSourceButton(
-                accent: failureAccent,
-                shadow: failureAccentShadow,
-                action: onSource
+                Spacer(minLength: V2GenerationStatusCardMetrics.headerMinimumGap)
+
+                V2NotificationFailureSourceButton(
+                    accent: failureAccent,
+                    shadow: failureAccentShadow,
+                    action: onSource
+                )
+            }
+            .frame(
+                width: V2GenerationStatusCardMetrics.contentWidth,
+                height: V2GenerationStatusCardMetrics.headerHeight,
+                alignment: .leading
             )
-            .offset(x: 186, y: 20)
+            .offset(
+                x: V2GenerationStatusCardMetrics.contentX,
+                y: V2GenerationStatusCardMetrics.headerY
+            )
 
             V2NotificationFailureReasonCard(reason: failureReason)
-                .offset(x: 23, y: 91)
+                .offset(
+                    x: V2GenerationStatusCardMetrics.contentX,
+                    y: V2GenerationStatusCardMetrics.failureReasonY
+                )
 
             Button(action: onDelete) {
                 Text("删除章节")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(V2Typography.primaryButton)
                     .foregroundStyle(.white)
-                    .frame(width: 280, height: 42)
+                    .frame(
+                        width: V2GenerationStatusCardMetrics.contentWidth,
+                        height: V2GenerationStatusCardMetrics.primaryButtonHeight
+                    )
                     .background(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
                             .fill(failureAccent)
@@ -1017,15 +1002,19 @@ private struct V2GenerationFailureDetailCard: View {
                     )
             }
             .buttonStyle(.plain)
-            .offset(x: 23, y: 222)
+            .offset(
+                x: V2GenerationStatusCardMetrics.contentX,
+                y: V2GenerationStatusCardMetrics.primaryButtonY
+            )
         }
-        .frame(width: V2Layout.contentMaxWidth, height: 302)
+        .frame(
+            width: V2GenerationStatusCardMetrics.cardWidth,
+            height: V2GenerationStatusCardMetrics.cardHeight
+        )
     }
 }
 
 private struct V2NotificationFailureSourceButton: View {
-    private static let width: CGFloat = 132
-
     let accent: Color
     let shadow: V2ShadowSpec
     let action: () -> Void
@@ -1055,14 +1044,18 @@ private struct V2NotificationFailureSourceButton: View {
             }
             .padding(.leading, 12)
             .padding(.trailing, 14)
-            .frame(width: Self.width, alignment: .leading)
-            .frame(minHeight: 44, alignment: .leading)
+            .frame(width: V2GenerationStatusCardMetrics.sourceChipWidth, alignment: .leading)
+            .frame(minHeight: V2GenerationStatusCardMetrics.sourceChipHeight, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(V2Color.surfaceCream)
                     .v2Shadow(shadow)
             )
-            .frame(width: Self.width, height: 44, alignment: .topLeading)
+            .frame(
+                width: V2GenerationStatusCardMetrics.sourceChipWidth,
+                height: V2GenerationStatusCardMetrics.sourceChipHeight,
+                alignment: .topLeading
+            )
         }
         .buttonStyle(.plain)
         .accessibilityLabel("查看原文")

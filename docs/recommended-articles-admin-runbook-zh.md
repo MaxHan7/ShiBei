@@ -11,8 +11,8 @@
   - 候选池可抽取性审查报告。
 - `backend/content/recommended/<article-id>-chapter.json`
   - 已生成并验收过的章节 artifact。
-- `backend/content/recommended/covers/<article-id>-cover.svg`
-  - 推荐卡片封面。
+- `backend/content/recommended/covers/<article-id>-cover.png`
+  - 推荐卡片封面。正式 catalog 优先指向 PNG，避免 iOS 远程 SVG 兼容问题；SVG 可作为可编辑源稿保留。
 - `backend/content/recommended-articles.json`
   - 正式上架池。只有进入这里的文章才会出现在发现页。
 
@@ -26,7 +26,7 @@
 2. 审查可抽取性
 
    ```bash
-   cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
+   cd /Users/hanmingyu/Downloads/拾贝-v2-baseline
    node backend/scripts/audit-recommended-candidates.mjs
    ```
 
@@ -75,7 +75,7 @@
 6. 验证与部署
 
    ```bash
-   cd /Users/hanmingyu/Downloads/拾贝-prod-hardening/backend
+   cd /Users/hanmingyu/Downloads/拾贝-v2-baseline/backend
    npm run check:v2
    ```
 
@@ -95,9 +95,8 @@
 3. 跑推荐文章测试：
 
    ```bash
-   cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
+   cd /Users/hanmingyu/Downloads/拾贝-v2-baseline
    node --test backend/src/v2/recommended/recommendedArticles.test.js
-   node backend/scripts/check-recommended-catalog.mjs
    ```
 
 4. 如果影响发现页展示，再用手机或 Simulator 看一遍卡片是否溢出。
@@ -106,7 +105,7 @@
 
 适用场景：推荐卡片右侧图片需要替换，但文章和题目不变。
 
-1. 把新封面放到 `backend/content/recommended/covers/<article-id>-cover.svg`。
+1. 把新封面放到 `backend/content/recommended/covers/<article-id>-cover.png`。
 2. 确认 `backend/content/recommended-articles.json` 的 `coverImagePath` 指向正确文件。
 3. 用 `GET /api/v2/recommended-articles/<id>/cover` 检查是否返回 `200`。
 4. 在发现页检查裁切、层级和文字遮挡。
@@ -140,12 +139,8 @@
 4. 用 DeepSeek 生成 prepared chapter。
 5. 人工验收题目质量。
 6. 准备封面。
-7. 准备中文展示内容：
-   - 中文标题、中文简介必须写入 `backend/content/recommended-articles.json`。
-   - App 内阅读页使用的 `preparedChapter.source.blocks` 必须是中文学习稿或中文授权原文。
-   - 不允许把英文网页原文短摘录直接作为正式上架内容。
-8. 加入 `backend/content/recommended-articles.json`。
-9. 跑测试和导入 smoke。
+7. 加入 `backend/content/recommended-articles.json`。
+8. 跑测试和导入 smoke。
 
 ### 上线前最小验收清单
 
@@ -154,11 +149,8 @@
 - `backend/content/recommended-articles.json` 没有重复 `id`。
 - 每个正式条目的 `coverImagePath` 文件存在。
 - 每个正式条目的 `preparedChapterPath` 文件存在。
-- 每个正式条目的标题为中文展示标题。
-- 每个正式条目的 App 内阅读内容不少于 1000 个字符，且应为中文学习稿或中文授权原文。
 - 新增 chapter 不包含 `rawText`、`cleanedText`、`extractedText` 或 API key。
 - `node --test backend/src/v2/recommended/recommendedArticles.test.js` 通过。
-- `node backend/scripts/check-recommended-catalog.mjs` 通过。
 - `cd backend && npm run check` 通过。
 - 至少 smoke 一篇新增/修改文章：
   - 发现页能看到卡片。

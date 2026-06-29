@@ -21,6 +21,40 @@ struct V2DiscoverChip: View {
     }
 }
 
+struct V2DiscoverFilterBar: View {
+    let filters: [V2RecommendedArticleFilter]
+    let selectedFilterID: String
+    let onSelect: (V2RecommendedArticleFilter) -> Void
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: V2DiscoverFilterBarMetrics.chipSpacing) {
+                ForEach(filters) { filter in
+                    Button {
+                        onSelect(filter)
+                    } label: {
+                        V2DiscoverChip(
+                            title: filter.title,
+                            isSelected: selectedFilterID == filter.id
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("筛选：\(filter.title)")
+                    .accessibilityAddTraits(selectedFilterID == filter.id ? .isSelected : [])
+                }
+            }
+            .padding(.trailing, V2DiscoverFilterBarMetrics.trailingScrollComfort)
+        }
+        .frame(height: V2DiscoverFilterBarMetrics.height)
+    }
+}
+
+private enum V2DiscoverFilterBarMetrics {
+    static let height: CGFloat = 34
+    static let chipSpacing: CGFloat = V2Spacing.sm + V2Spacing.xs / 2
+    static let trailingScrollComfort: CGFloat = V2Spacing.md
+}
+
 struct V2DiscoverHeroCard: View {
     var body: some View {
         ZStack(alignment: .topLeading) {

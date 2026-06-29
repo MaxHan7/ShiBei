@@ -1,5 +1,24 @@
 import SwiftUI
 
+enum V2GenerationStatusCardMetrics {
+    static let cardWidth: CGFloat = V2Layout.contentMaxWidth
+    static let cardHeight: CGFloat = 302
+    static let contentX: CGFloat = 23
+    static let contentWidth: CGFloat = 280
+    static let headerY: CGFloat = 20
+    static let headerHeight: CGFloat = 44
+    static let headerTitleSpacing: CGFloat = V2Spacing.md - V2Spacing.xs / 2
+    static let headerMinimumGap: CGFloat = V2Spacing.sm
+    static let iconSize: CGFloat = 34
+    static let sourceChipWidth: CGFloat = 116
+    static let sourceChipHeight: CGFloat = 44
+    static let progressY: CGFloat = 63
+    static let failureReasonY: CGFloat = 91
+    static let statusTextY: CGFloat = 144
+    static let primaryButtonY: CGFloat = 221
+    static let primaryButtonHeight: CGFloat = 42
+}
+
 struct V2GeneratingChapterDetailCard: View {
     let progress: CGFloat
     let statusText: String
@@ -18,63 +37,98 @@ struct V2GeneratingChapterDetailCard: View {
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
 
-            V2GeneratingClockBadge()
-            .frame(width: 34, height: 34)
-            .offset(x: 23, y: 21)
+            HStack(spacing: 0) {
+                HStack(spacing: V2GenerationStatusCardMetrics.headerTitleSpacing) {
+                    V2GeneratingClockBadge()
+                        .frame(
+                            width: V2GenerationStatusCardMetrics.iconSize,
+                            height: V2GenerationStatusCardMetrics.iconSize
+                        )
 
-            Text("章节正在生成")
-                .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(V2Color.topTitle)
-                .frame(width: 118, alignment: .leading)
-                .frame(minHeight: 39, alignment: .leading)
-                .offset(x: 59, y: 18)
+                    Text("章节正在生成")
+                        .font(V2Typography.cardTitleStandard)
+                        .foregroundStyle(V2Color.topTitle)
+                        .lineLimit(1)
+                }
 
-            V2GeneratingSourceLinkChip(accent: accentColor, action: onSource)
-                .offset(x: 186, y: 20)
+                Spacer(minLength: V2GenerationStatusCardMetrics.headerMinimumGap)
+
+                V2GeneratingSourceLinkChip(accent: accentColor, action: onSource)
+            }
+            .frame(
+                width: V2GenerationStatusCardMetrics.contentWidth,
+                height: V2GenerationStatusCardMetrics.headerHeight,
+                alignment: .leading
+            )
+            .offset(
+                x: V2GenerationStatusCardMetrics.contentX,
+                y: V2GenerationStatusCardMetrics.headerY
+            )
 
             V2GeneratingProgressBar(progress: progress)
-                .frame(width: 272, height: 43)
-                .offset(x: 23, y: 63)
+                .frame(width: V2GenerationStatusCardMetrics.contentWidth, height: 43)
+                .offset(
+                    x: V2GenerationStatusCardMetrics.contentX,
+                    y: V2GenerationStatusCardMetrics.progressY
+                )
 
             Text(statusText)
                 .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(Color(hex: 0x736D78))
                 .lineLimit(1)
-                .frame(width: 283, alignment: .leading)
+                .frame(width: V2GenerationStatusCardMetrics.contentWidth, alignment: .leading)
                 .frame(minHeight: 27, alignment: .leading)
-                .offset(x: 20, y: 144)
+                .offset(
+                    x: V2GenerationStatusCardMetrics.contentX,
+                    y: V2GenerationStatusCardMetrics.statusTextY
+                )
 
             if isCompleted {
                 Button(action: onOpenChapter) {
                     Text("查看章节")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(V2Typography.primaryButton)
                         .foregroundStyle(.white)
-                        .frame(width: 280, height: 42)
+                        .frame(
+                            width: V2GenerationStatusCardMetrics.contentWidth,
+                            height: V2GenerationStatusCardMetrics.primaryButtonHeight
+                        )
                         .background(
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
                                 .fill(V2Color.primaryAction)
                                 .shadow(color: V2Color.primaryAction.opacity(0.28), radius: 3, x: 0, y: 4)
-                        )
+                    )
                 }
                 .buttonStyle(.plain)
-                .offset(x: 23, y: 221)
+                .offset(
+                    x: V2GenerationStatusCardMetrics.contentX,
+                    y: V2GenerationStatusCardMetrics.primaryButtonY
+                )
             } else {
                 Button(action: onDelete) {
                     Text("取消生成")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(V2Typography.primaryButton)
                         .foregroundStyle(Color(hex: 0x6E7378))
-                        .frame(width: 280, height: 42)
+                        .frame(
+                            width: V2GenerationStatusCardMetrics.contentWidth,
+                            height: V2GenerationStatusCardMetrics.primaryButtonHeight
+                        )
                         .background(
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
                                 .fill(V2Color.surfaceCream)
                                 .shadow(color: accentColor.opacity(0.24), radius: 3, x: 0, y: 4)
-                        )
+                    )
                 }
                 .buttonStyle(.plain)
-                .offset(x: 23, y: 221)
+                .offset(
+                    x: V2GenerationStatusCardMetrics.contentX,
+                    y: V2GenerationStatusCardMetrics.primaryButtonY
+                )
             }
         }
-        .frame(width: V2Layout.contentMaxWidth, height: 302)
+        .frame(
+            width: V2GenerationStatusCardMetrics.cardWidth,
+            height: V2GenerationStatusCardMetrics.cardHeight
+        )
     }
 }
 
@@ -130,8 +184,6 @@ private struct V2GeneratingClockBadge: View {
 }
 
 private struct V2GeneratingSourceLinkChip: View {
-    private static let width: CGFloat = 132
-
     var accent: Color = Color(hex: 0xADD3FF)
     let action: () -> Void
 
@@ -160,8 +212,8 @@ private struct V2GeneratingSourceLinkChip: View {
             }
             .padding(.leading, 12)
             .padding(.trailing, 14)
-            .frame(width: Self.width, alignment: .leading)
-            .frame(minHeight: 44, alignment: .leading)
+            .frame(width: V2GenerationStatusCardMetrics.sourceChipWidth, alignment: .leading)
+            .frame(minHeight: V2GenerationStatusCardMetrics.sourceChipHeight, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(V2Color.surfaceCream)
@@ -169,7 +221,11 @@ private struct V2GeneratingSourceLinkChip: View {
             )
         }
         .buttonStyle(.plain)
-        .frame(width: Self.width, height: 44, alignment: .topLeading)
+        .frame(
+            width: V2GenerationStatusCardMetrics.sourceChipWidth,
+            height: V2GenerationStatusCardMetrics.sourceChipHeight,
+            alignment: .topLeading
+        )
         .accessibilityLabel("查看原文")
     }
 }

@@ -1,10 +1,16 @@
 <svg width="329" height="144" viewBox="0 0 329 144" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="329" height="144" rx="18" fill="#EEF1C0"/>
-<circle cx="267" cy="36" r="54" fill="#B8BF73" fill-opacity="0.38"/>
-<circle cx="58" cy="112" r="42" fill="#B8BF73" fill-opacity="0.32"/>
-<path d="M70 53C94 36 122 36 146 53C170 70 198 70 222 53" stroke="#777B3D" stroke-width="5" stroke-linecap="round" opacity="0.45"/>
-<rect x="44" y="70" width="78" height="48" rx="10" fill="#FDF9EE" fill-opacity="0.9"/>
-<rect x="136" y="58" width="94" height="60" rx="12" fill="#FDF9EE" fill-opacity="0.78"/>
-<circle cx="261" cy="92" r="22" fill="#FDF9EE" fill-opacity="0.86"/>
-<text x="28" y="37" fill="#777B3D" font-family="Arial, sans-serif" font-size="18" font-weight="700">商业</text>
+  <rect width="329" height="144" rx="18" fill="#EEF1C0"/>
+  <circle cx="286" cy="28" r="55" fill="#777B3D" fill-opacity="0.14"/>
+  <circle cx="55" cy="120" r="48" fill="#777B3D" fill-opacity="0.12"/>
+  <path d="M0 125C45 104 78 105 112 122C146 139 178 138 218 119C254 102 292 96 329 108V144H0V125Z" fill="#777B3D" fill-opacity="0.12"/>
+  <rect x="25" y="22" width="61" height="28" rx="14" fill="#FDF9EE" fill-opacity="0.72"/>
+  <text x="55.5" y="41" text-anchor="middle" fill="#777B3D" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif" font-size="15" font-weight="700">创新</text>
+
+      <path d="M66 105C111 91 136 75 157 57C174 42 191 36 214 37C237 38 259 46 292 35" stroke="#777B3D" stroke-width="6" stroke-linecap="round" opacity="0.52"/>
+      <path d="M88 112C121 112 147 104 168 93C193 80 210 70 250 69" stroke="#D19254" stroke-width="6" stroke-linecap="round" opacity="0.75"/>
+      <rect x="171" y="47" width="48" height="48" rx="12" fill="#FDF9EE" stroke="#777B3D" stroke-width="3"/>
+      <path d="M187 72L196 81L210 62" stroke="#777B3D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="250" cy="69" r="8" fill="#D19254"/>
+    <path d="M272 27L276 37L286 41L276 45L272 55L268 45L258 41L268 37L272 27Z" fill="#D4B052" opacity="0.9"/>
+    <path d="M53 92L56 100L64 103L56 106L53 114L50 106L42 103L50 100L53 92Z" fill="#D4B052" opacity="0.75"/>
 </svg>

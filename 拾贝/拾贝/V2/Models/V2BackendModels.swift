@@ -291,6 +291,10 @@ struct V2AnswerQuestionRequest: Encodable {
     let lockedPairIds: [String]
 }
 
+struct V2FocusUnitRequest: Encodable {
+    let unitId: String
+}
+
 struct V2ReplayFromUnitRequest: Encodable {
     let unitId: String
 }

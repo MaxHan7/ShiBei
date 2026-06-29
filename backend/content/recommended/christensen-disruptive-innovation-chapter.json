@@ -3,124 +3,119 @@
   "id": "christensen-disruptive-innovation",
   "status": "completed",
   "displayStatusText": "已生成",
-  "title": "颠覆性创新理论",
+  "title": "颠覆式创新理论：从低端市场到主流市场",
   "source": {
     "type": "article",
-    "title": "颠覆式创新理论",
+    "title": "颠覆式创新理论：从低端市场到主流市场",
     "author": "Christensen Institute",
     "account": "Christensen Institute",
     "accountOrDomain": "Christensen Institute",
     "url": "https://www.christenseninstitute.org/theory/disruptive-innovation/",
     "blocks": [
       {
-        "id": "zh-preface-heading",
-        "type": "heading",
-        "text": "中文学习稿说明"
-      },
-      {
-        "id": "zh-preface-body",
+        "id": "p-001",
         "type": "paragraph",
-        "text": "这是一份基于「颠覆式创新理论」整理的中文学习稿，保留原文的核心概念与学习顺序，并改写为更适合移动端复习的表达。"
+        "text": "颠覆式创新理论"
       },
       {
-        "id": "zh-u1-heading",
-        "type": "heading",
-        "text": "1. 颠覆性创新的定义与起源"
-      },
-      {
-        "id": "zh-u1-overview",
+        "id": "p-004",
         "type": "paragraph",
-        "text": "颠覆性创新理论由克莱顿·克里斯滕森在1990年代提出。这一单元将带你理解颠覆性创新的核心定义：并非一切突破性技术都是颠覆，而是一个从市场低端切入、最终取代现有竞争者的过程。掌握这个基础，你就能准确识别真正的颠覆性创新。"
+        "text": "颠覆式创新描述的是一种过程：某个产品或服务先在市场底部的简单应用中扎根，通常更便宜、更容易获得，然后逐步向上进入主流市场。"
       },
       {
-        "id": "zh-u1-detail",
+        "id": "p-005",
         "type": "paragraph",
-        "text": "颠覆性创新理论由Clayton Christensen在1990年代初提出。它描述了一个过程：产品或服务最初在简单应用、市场低端立足（通常因为更便宜、更易获取），然后不断向高端市场推进，最终取代现有竞争对手。"
+        "text": "这个概念由哈佛商学院教授克莱顿·克里斯坦森在 20 世纪 90 年代初提出，后来在商业世界中被广泛使用，也经常被误用。"
       },
       {
-        "id": "zh-u1-why",
+        "id": "p-006",
         "type": "paragraph",
-        "text": "为什么重要：理解这一核心定义是掌握整个理论的基石。"
+        "text": "并不是所有成功创业、低价竞争或技术突破都叫颠覆式创新。判断一个案例是否属于颠覆，需要看它最初服务的是低端用户、新市场用户，还是一开始就和主流企业正面对抗。"
       },
       {
-        "id": "zh-u1-distinguish",
+        "id": "p-007",
         "type": "paragraph",
-        "text": "容易混淆的地方：颠覆性创新是一个过程，产品先在低端市场立足，再向上移动取代竞争者；它不是任何突破性产品或一开始就瞄准高端市场的产品。 颠覆性创新理论由Clayton Christensen在1990年代初提出，它影响了Steve Jobs等人，但并非由他们提出。 颠覆性创新从低端市场切入，而持续性创新是在现有市场改进已有产品；两者有本质区别。 颠覆性创新最初靠更简单、更便宜、更易获取的产品在低端市场立足，而不是高端或大规模营销。 颠覆性创新是从低端市场起步，逐步向上移动的过程，而非直接进入高端或通过收购。 颠覆性创新常被误用于任何成功企业，但Christensen的定义特指从低端切入并向上移动的过程。"
+        "text": "持续性创新通常服务现有主流客户，让产品在既有评价标准上变得更好；颠覆式创新则常从被忽视的人群或低端场景切入，用不同的价值组合改变竞争基础。"
       },
       {
-        "id": "zh-u2-heading",
-        "type": "heading",
-        "text": "2. 颠覆性创新与持续性创新的区别"
-      },
-      {
-        "id": "zh-u2-overview",
+        "id": "p-008",
         "type": "paragraph",
-        "text": "很多人误以为颠覆性创新就是突破性技术，但两者有本质区别。本单元将帮你区分颠覆性创新与持续性创新：持续性创新提升现有产品性能，而颠覆性创新让产品更可及、更实惠，从而服务于新用户群体。"
+        "text": "Disruptive Innovations are NOT breakthrough technologies that make good products better; rather, they are innovations that make products and services more accessible and affordable, thereby making them available to a larger population."
       },
       {
-        "id": "zh-u2-detail",
+        "id": "p-012",
         "type": "paragraph",
-        "text": "持续性创新是对现有产品性能的提升，而颠覆性创新并非突破性技术，它使产品和服务更易获取和负担得起，从而服务于更大的群体。这是颠覆性理论的核心洞察。"
+        "text": "Netflix vs. Blockbuster"
       },
       {
-        "id": "zh-u2-why",
+        "id": "p-013",
         "type": "paragraph",
-        "text": "为什么重要：区分这两种创新类型是正确应用理论的前提。"
+        "text": "In 2000, when Netflix was still a small and fledgling company, it offered itself to Blockbuster, the world’s largest video, DVD, and game rental company for $50 million. Blockbuster passed. Netflix was barely a blip on the radar with mounting losses and a very uncertain future. Meanwhile, Blockbuster’s revenues topped more than $5 billion in 2000—$800 million collected in late fees alone. Understandably, Netflix was inconsequential. Today, Netflix is worth more than $197 billion, and Blockbuster filed for bankruptcy in 2010. What happened to the behemoth with more than 9,000 stores and 60,000 employees?"
       },
       {
-        "id": "zh-u2-distinguish",
+        "id": "p-014",
         "type": "paragraph",
-        "text": "容易混淆的地方：颠覆性创新并非突破性技术，而是通过提高可及性和 affordability 服务更大群体，而非单纯降价或牺牲质量。 颠覆性创新不是简单的低价，而是使产品更易获取且服务于新用户群体，如低廉易用的数码相机让普通人也能拍照。 颠覆性创新使产品更可及和实惠，而非突破性技术；持续性创新提升现有产品性能。"
+        "text": "Netflix’s disruption of Blockbuster is a classic illustration of how an under-resourced new entrant can take on and beat an industry leader. While Netflix lacked the ability for customers to immediately drive to a store to rent a movie on the same day, it allowed customers outside of core geographic regions to cheaply access a wide library of DVDs by mail. As Netflix’s offering gained traction with customers, Blockbuster’s business model proved a stumbling block to responding to its new competitor. This is another classic hallmark of disruption. Like many retailers who have tried to respond to disruptors, Blockbuster was never able to detach itself from a desire to leverage its existing (and expensive) physical locations. As a result of clinging to aspects of its existing business, Blockbuster couldn’t also operate its version of a DVD-by-mail service at the scale of Netflix."
       },
       {
-        "id": "zh-u3-heading",
-        "type": "heading",
-        "text": "3. Netflix颠覆Blockbuster案例"
-      },
-      {
-        "id": "zh-u3-overview",
+        "id": "p-015",
         "type": "paragraph",
-        "text": "Netflix从邮寄DVD起家，最终颠覆了Blockbuster，这是颠覆性创新的经典案例。本单元将分析Netflix如何以低成本模式切入低端市场，并逐步升级直至取代巨头，让你生动理解理论的实际运作。"
+        "text": "Netflix’s disruptive components:"
       },
       {
-        "id": "zh-u3-detail",
+        "id": "p-016",
         "type": "paragraph",
-        "text": "2000年Netflix还是一家小公司，而Blockbuster营收超过50亿美元。Netflix提供便宜、方便的电影租赁邮寄服务，避开了实体店成本。随着Netflix增长，Blockbuster因依赖实体店模式无法有效回应，最终破产。该案例展示了颠覆性创新的典型特征：新进入者以低成本模式占领低端市场，然后向上移动。"
+        "text": "Enabling technologies: Mail & Internet"
       },
       {
-        "id": "zh-u3-why",
+        "id": "p-017",
         "type": "paragraph",
-        "text": "为什么重要：此案例生动体现了颠覆性创新的各个要素，是经典的教学案例。"
+        "text": "Innovative business model: Mail order and distribution center only, no late fees, no physical locations"
       },
       {
-        "id": "zh-u3-distinguish",
+        "id": "p-018",
         "type": "paragraph",
-        "text": "容易混淆的地方：正确的理解是：Netflix利用邮寄模式消除了实体店成本，从而能够以低价服务被忽视的市场，而不仅仅是低价本身；不要以为价格低就是颠覆的唯一起因。 使能技术：邮件与互联网；创新商业模式：邮寄订购，无滞纳金，无实体店；连贯价值网络：利用邮政服务和互联网直销。 正确的理解是：Blockbuster的实体店模式使其无法灵活模仿Netflix，它并非没意识到威胁，而是被自己的商业模式锁住；不要只从价格或意识角度线性看颠覆。 正确的理解是：Netflix没有停留在低端，而是通过流媒体技术提升了服务，吸引主流用户；不要认为颠覆者永远不会向上移动。"
+        "text": "Coherent value network: Leverage postal service and direct-to-consumer sales on the internet"
       },
       {
-        "id": "zh-u4-heading",
-        "type": "heading",
-        "text": "4. 钢铁小钢厂颠覆综合钢厂案例"
-      },
-      {
-        "id": "zh-u4-overview",
+        "id": "p-019",
         "type": "paragraph",
-        "text": "小钢厂以电弧炉技术从生产低端钢筋起步，最终颠覆了大型综合钢厂。本单元将揭示这一过程中双方如何基于财务理性做出决策，却导致颠覆发生。这有助于你理解颠覆中因利益驱动而出现的“理性陷阱”。"
+        "text": "Steel mini-mills vs. integrated mills"
       },
       {
-        "id": "zh-u4-detail",
+        "id": "p-020",
         "type": "paragraph",
-        "text": "1960年代，小钢厂利用电弧炉熔化废钢，成本降低20%，起初只能生产低端钢筋。综合钢厂因利润率低而放弃该市场。小钢厂不断改进技术，逐渐生产更高等级的钢材，最终占领市场。该案例揭示了颠覆性创新中双方都基于财务理性决策，但最终导致颠覆。"
+        "text": "In the mid-1960s, steel mini-mills began the process of melting down scrap metal in electric arc furnaces and crafting it into new steel—a process that reduced costs by 20%. Initially, mini-mills could only produce the lowest quality steel like rebar, but they steadily improved and eventually tackled increasingly higher grades of steel like structural and sheet steel. By the early 2000s, companies employing mini-mills like Nucor had leveraged this innovation into a full scale disruption of the leading integrated steel makers like Bethlehem Steel and US Steel."
       },
       {
-        "id": "zh-u4-why",
+        "id": "p-021",
         "type": "paragraph",
-        "text": "为什么重要：此案例展示了颠覆过程中财务决策的理性陷阱，深化对理论的理解。"
+        "text": "In true disruptive fashion, no integrated steel company was able to successfully deploy mini-mill technology inside their business model—even with a 20% cost advantage over traditional steel processes. Why? It wasn’t because integrated steel executives had their heads in the sand. It happened because at each step of the disruption, the mini-mills weren’t considered a threat. Rebar had a gross margin of just 7% for the integrated mills. So, they were happy to cede this dog-eat-dog business to the mini-mills who initially earned 20%+ gross margins. And it always made more financial sense on the spreadsheets of integrated steel CFOs to spend a little money to re-orient their production capacity to higher margin products, rather than substantially investing in mini-mills of their own. Of course, this only made sense until the integrated mills ran out of customers."
       },
       {
-        "id": "zh-u4-distinguish",
+        "id": "p-022",
         "type": "paragraph",
-        "text": "容易混淆的地方：小钢厂的颠覆是一个渐进过程，从低端市场起步逐步升级，而非瞬间完成；正确理解这一路径有助于把握颠覆性创新的核心。 综合钢厂的决策是理性的：低端市场利润率仅7%，而高端市场利润更高，因此主动放弃；但这恰好为小钢厂提供了立足点，最终导致颠覆。 20%的成本优势让小钢厂在利润微薄的钢筋市场仍能盈利，从而获得资金持续升级技术，这是颠覆起步的关键。"
+        "text": "This illustrates the core principle behind why disruptions occur—both the incumbent companies and the new entrants perceived they were making sound financial decisions. Both were maximizing corporate profits. But without the additional lens of disruption, the integrated steel companies ultimately ceded too much ground and found themselves mired in long-term financial woes."
+      },
+      {
+        "id": "p-023",
+        "type": "paragraph",
+        "text": "Mini-Mill’s Disruptive Components"
+      },
+      {
+        "id": "p-024",
+        "type": "paragraph",
+        "text": "Enabling technologies: Electric arc furnace processing"
+      },
+      {
+        "id": "p-025",
+        "type": "paragraph",
+        "text": "Innovative business model: 20% cost advantage over integrated mills, no legacy plant or equipment requiring utilization"
+      },
+      {
+        "id": "p-026",
+        "type": "paragraph",
+        "text": "Coherent value network: Able to piggyback on existing steel value networks"
       }
     ],
     "rawInput": "https://www.christenseninstitute.org/theory/disruptive-innovation/"
@@ -140,10 +135,9 @@
       "sourceAnchor": {
         "id": "anchor-u-1",
         "blockIds": [
-          "zh-u1-overview",
-          "zh-u1-detail",
-          "zh-u1-why",
-          "zh-u1-distinguish"
+          "p-001",
+          "p-004",
+          "p-005"
         ]
       },
       "overview": {
@@ -323,10 +317,9 @@
       "sourceAnchor": {
         "id": "anchor-u-2",
         "blockIds": [
-          "zh-u2-overview",
-          "zh-u2-detail",
-          "zh-u2-why",
-          "zh-u2-distinguish"
+          "p-006",
+          "p-007",
+          "p-008"
         ]
       },
       "overview": {
@@ -439,10 +432,13 @@
       "sourceAnchor": {
         "id": "anchor-u-3",
         "blockIds": [
-          "zh-u3-overview",
-          "zh-u3-detail",
-          "zh-u3-why",
-          "zh-u3-distinguish"
+          "p-012",
+          "p-013",
+          "p-014",
+          "p-015",
+          "p-016",
+          "p-017",
+          "p-018"
         ]
       },
       "overview": {
@@ -593,10 +589,14 @@
       "sourceAnchor": {
         "id": "anchor-u-4",
         "blockIds": [
-          "zh-u4-overview",
-          "zh-u4-detail",
-          "zh-u4-why",
-          "zh-u4-distinguish"
+          "p-019",
+          "p-020",
+          "p-021",
+          "p-022",
+          "p-023",
+          "p-024",
+          "p-025",
+          "p-026"
         ]
       },
       "overview": {
@@ -1200,9 +1200,7 @@
     "seededRecommendedArticle": true,
     "recommendedArticleId": "christensen-disruptive-innovation",
     "recommendedArticleSource": "Christensen Institute",
-    "preparedAt": "2026-06-28T01:33:23.829Z",
-    "curatedChineseLearningSource": true,
-    "curatedChineseLearningSourceAt": "2026-06-28T13:56:37.148Z"
+    "preparedAt": "2026-06-28T01:33:23.829Z"
   },
   "reviewSession": null,
   "v2ReviewSession": null,

@@ -18,6 +18,9 @@
     "quality:analyze": "cd .. && node backend/src/generation/tests/analyzeQualityReview.js",
     "smoke:v2:queue": "node scripts/smoke-v2-queue.mjs",
     "preflight:phone": "node scripts/phone-preflight.mjs",
+    "recommended:audit": "node scripts/audit-recommended-candidates.mjs",
+    "recommended:build": "node scripts/build-recommended-article.mjs",
+    "recommended:extract-text": "node scripts/extract-recommended-candidate-text.mjs",
     "gate:production": "node scripts/production-readiness-gate.mjs",
     "gate:routes": "node scripts/route-contract-gate.mjs"
   },

@@ -420,7 +420,7 @@ struct V2MatchingQuestionView: View {
     }
 
     private var matchingMascotImage: some View {
-        Image("V2MascotStatic")
+        Image("V2MatchingPuzzleMascot")
             .resizable()
             .renderingMode(.original)
             .scaledToFit()
@@ -537,10 +537,12 @@ private enum V2MatchingPageMetrics {
     static let columnSpacing: CGFloat = 41
     static let leftDecoY: CGFloat = 612
     static let rightDecoY: CGFloat = 648
-    static let mascotTop: CGFloat = 560
-    static let mascotWidth: CGFloat = 86
-    static let mascotHeight: CGFloat = 131
-    static let mascotCardOverlap: CGFloat = 64
+    private static let mascotBottom: CGFloat = 691
+    private static let mascotRightEdge: CGFloat = V2Layout.contentMaxWidth + 22
+    static let mascotWidth: CGFloat = 193
+    static let mascotHeight: CGFloat = 150
+    static let mascotTop: CGFloat = mascotBottom - mascotHeight
+    static let mascotCardOverlap: CGFloat = V2Layout.contentMaxWidth + mascotWidth - mascotRightEdge
     static let contentHeight: CGFloat = 760
 }
 
@@ -887,14 +889,19 @@ struct V2SourceArticleView: View {
     }
 
     var body: some View {
-        V2FlowScreen(title: "", backgroundColor: V2Color.surfaceCream, onBack: onBack) {
+        V2FlowScreen(
+            title: "",
+            backgroundColor: V2Color.surfaceCream,
+            showSourceButton: hasSourceURL,
+            onBack: onBack,
+            onSource: openSourceURL
+        ) {
             ScrollViewReader { proxy in
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 26) {
                         V2SourceArticleHeader(
                             title: chapter.title,
-                            author: chapter.sourceAuthor,
-                            onSource: openSourceURL
+                            author: chapter.sourceAuthor
                         )
 
                         V2SourceArticleBody(
@@ -920,6 +927,10 @@ struct V2SourceArticleView: View {
         }
     }
 
+    private var hasSourceURL: Bool {
+        URL(string: chapter.sourceURL) != nil
+    }
+
     private func openSourceURL() {
         guard let url = URL(string: chapter.sourceURL) else {
             return
@@ -937,7 +948,6 @@ struct V2SourceArticleView: View {
 private struct V2SourceArticleHeader: View {
     let title: String
     let author: String
-    let onSource: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -948,21 +958,11 @@ private struct V2SourceArticleHeader: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
 
-            HStack(spacing: V2ChapterDetailLayoutMetrics.heroMetadataSpacing) {
-                V2ChapterDetailHeroActionButton(
-                    title: "原文链接",
-                    iconName: "V2ChapterDetailLinkActionIcon",
-                    width: V2ChapterDetailLayoutMetrics.heroSourceChipWidth,
-                    action: onSource
-                )
-
-                V2ChapterDetailHeroInfoChip(
-                    title: author,
-                    iconName: "V2ChapterDetailSummaryActionIcon",
-                    width: V2ChapterDetailLayoutMetrics.heroAuthorChipWidth
-                )
-            }
-            .frame(width: V2ChapterDetailLayoutMetrics.heroMetadataRowWidth, alignment: .leading)
+            V2ChapterDetailHeroInfoChip(
+                title: author,
+                iconName: "V2ChapterDetailSummaryActionIcon"
+            )
+            .fixedSize(horizontal: true, vertical: false)
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
     }
@@ -1057,6 +1057,7 @@ struct V2ChapterDetailView: View {
     let primaryActionTitle: String
     let onBack: () -> Void
     let onContinue: () -> Void
+    let onStartUnitReview: (String) -> Void
     let onSource: () -> Void
     let onDelete: () -> Void
 
@@ -1076,6 +1077,8 @@ struct V2ChapterDetailView: View {
             case .current:
                 let currentUnitCap = max(unit.questions.count - 1, 0)
                 return total + min(node.completedQuestionCount, currentUnitCap)
+            case .inProgress:
+                return total + min(node.completedQuestionCount, unit.questions.count)
             case .start, .locked:
                 return total
             }
@@ -1108,7 +1111,7 @@ struct V2ChapterDetailView: View {
                             count: chapter.units.count,
                             units: chapter.units,
                             actionTitle: primaryActionTitle,
-                            onStartReview: onContinue
+                            onStartReview: onStartUnitReview
                         )
                     }
                     .frame(maxWidth: V2Layout.contentMaxWidth)
@@ -1129,6 +1132,8 @@ struct V2ChapterDetailView: View {
         case .completed:
             return .completed
         case .current:
+            return .reviewing
+        case .inProgress:
             return .reviewing
         case .start, .locked:
             return .notStarted
@@ -1158,7 +1163,7 @@ private enum V2ChapterDetailLayoutMetrics {
     static let heroMascotWidth: CGFloat = 114
     static let heroMascotHeight: CGFloat = 128
     static let heroMascotX: CGFloat = 216
-    static let heroMascotY: CGFloat = -32
+    static let heroMascotY: CGFloat = -18
 
     static let cardContentLeading: CGFloat = V2Spacing.lg
     static let sectionHeaderTopPadding: CGFloat = V2Spacing.md
@@ -1230,17 +1235,17 @@ private struct V2ChapterDetailHeroCard: View {
                 )
 
             HStack(spacing: V2ChapterDetailLayoutMetrics.heroMetadataSpacing) {
+                V2ChapterDetailHeroInfoChip(
+                    title: author,
+                    iconName: "V2ChapterDetailSummaryActionIcon",
+                    width: V2ChapterDetailLayoutMetrics.heroAuthorChipWidth
+                )
+
                 V2ChapterDetailHeroActionButton(
                     title: "查看原文",
                     iconName: "V2ChapterDetailLinkActionIcon",
                     width: V2ChapterDetailLayoutMetrics.heroSourceChipWidth,
                     action: onSource
-                )
-
-                V2ChapterDetailHeroInfoChip(
-                    title: author,
-                    iconName: "V2ChapterDetailSummaryActionIcon",
-                    width: V2ChapterDetailLayoutMetrics.heroAuthorChipWidth
                 )
             }
             .frame(width: V2ChapterDetailLayoutMetrics.heroMetadataRowWidth, alignment: .leading)
@@ -1316,7 +1321,7 @@ private struct V2ChapterDetailHeroActionButton: View {
 private struct V2ChapterDetailHeroInfoChip: View {
     let title: String
     let iconName: String
-    let width: CGFloat
+    var width: CGFloat? = nil
 
     var body: some View {
         V2ChapterDetailHeroActionContent(
@@ -1331,7 +1336,7 @@ private struct V2ChapterDetailHeroInfoChip: View {
 private struct V2ChapterDetailHeroActionContent: View {
     let title: String
     let iconName: String
-    let width: CGFloat
+    let width: CGFloat?
 
     var body: some View {
         HStack(spacing: V2ChapterDetailHeroChipMetrics.contentSpacing) {
@@ -1350,7 +1355,7 @@ private struct V2ChapterDetailHeroActionContent: View {
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .layoutPriority(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: width == nil ? nil : .infinity, alignment: .leading)
         }
         .padding(.leading, V2ChapterDetailHeroChipMetrics.leadingPadding)
         .padding(.trailing, V2ChapterDetailHeroChipMetrics.trailingPadding)
@@ -1418,7 +1423,7 @@ private struct V2ChapterDetailKnowledgeCard: View {
     let count: Int
     let units: [V2ReviewUnitData]
     let actionTitle: String
-    let onStartReview: () -> Void
+    let onStartReview: (String) -> Void
     @State private var expandedUnitID: String?
     private let contentLeading: CGFloat = V2ChapterDetailLayoutMetrics.cardContentLeading
 
@@ -1462,7 +1467,7 @@ private struct V2ChapterDetailKnowledgeCard: View {
                             V2ChapterDetailKnowledgeExpansionPanel(
                                 overview: unit.overview,
                                 actionTitle: actionTitle,
-                                action: onStartReview
+                                action: { onStartReview(unit.id) }
                             )
                             .transition(.asymmetric(insertion: .opacity, removal: .identity))
                         }
@@ -1618,15 +1623,20 @@ struct V2RecommendedArticleDetailView: View {
             V2Color.surfaceCream
                 .ignoresSafeArea()
 
-            V2FlowScreen(title: "", backgroundColor: V2Color.surfaceCream, onBack: onBack) {
+            V2FlowScreen(
+                title: "",
+                backgroundColor: V2Color.surfaceCream,
+                showSourceButton: hasSourceURL,
+                onBack: onBack,
+                onSource: openSourceURL
+            ) {
                 Group {
                     if let chapter {
                         ScrollView(showsIndicators: false) {
                             VStack(spacing: 19) {
                                 V2SourceArticleHeader(
                                     title: chapter.sourceTitle.isEmpty ? article.title : chapter.sourceTitle,
-                                    author: chapter.sourceAuthor,
-                                    onSource: openSourceURL
+                                    author: chapter.sourceAuthor
                                 )
 
                                 V2SourceArticleBody(
@@ -1685,6 +1695,11 @@ struct V2RecommendedArticleDetailView: View {
             .padding(.trailing, V2Layout.floatingActionTrailingInset)
             .padding(.bottom, 30)
         }
+    }
+
+    private var hasSourceURL: Bool {
+        let rawURL = article.sourceUrl ?? chapter?.sourceURL ?? ""
+        return URL(string: rawURL) != nil
     }
 
     private func openSourceURL() {
