@@ -719,5 +719,45 @@ window.iterationEntries = [
     "result": "今天形成的不是又一轮 prompt 小修，而是一套更稳定的研发边界。后续可以继续用黄金样本、字段级标注和 DSPy 细化局部模块，但这些工作不再自动进入生产链路。这样一来，拾贝终于把“实验上发现问题”和“产品上吸收原则”分开：前者负责探索为什么题目不好，后者只吸收已经证明能提升复习体验的最小契约。当前限制是，这套隔离边界还主要建立在 Hook 单篇和 PRD 推演上，尚未用多篇异构文章验证跨题材稳定性。",
     "next": "从 Hook 黄金样本三轮人工标注里先抽取一批字段级正负样本，只做“干扰项生成/改写”这一类局部 DSPy 实验；同时再选 1-2 篇不同结构文章复核这套字段契约，确认哪些规则值得提案进入生产。",
     "commits": []
+  },
+  {
+    "date": "2026-06-29",
+    "title": "主线复习进度与临时练习状态分离",
+    "phase": "体验打磨",
+    "problem": "拾贝 v2 的复习路径同时承担两个任务：它既要告诉用户下一步应该继续学习哪里，也要允许用户从章节详情或已完成节点临时回看某个知识点。此前这些入口容易共用同一份 review session 焦点，用户练习旧单元或未来单元后，首页当前节点、题目回答状态和继续复习位置可能被临时行为覆盖。这个问题值得记录，因为拾贝的核心不是让用户任意刷题，而是把长内容组织成一条稳定可回到的知识路径；临时练习必须增强理解，而不能破坏主线迁移。",
+    "changes": [
+      "学习路径节点增加 action 语义，把 start、当前主线单元、已完成/旧单元和未解锁未来单元区分为 mainline、practice、previewOnly，使首页按钮显示不再从视觉 state 反推。",
+      "V2RootView 将首页当前节点继续复习保留在 mainline，把章节详情单元、旧单元回看和已完成章节自由复习路由到 practice，并用独立 questionInteractionStates key 避免临时答案覆盖主线答案 UI。",
+      "iOS APIClient 接入 /practice/start、/practice/answer、/practice/advance、/practice/finish 四个 v2 practice session 端点，使临时练习可持久化在 reviewSession.practice，而首页 currentNodeID 继续从 mainline currentCard 推导。",
+      "节点 popover 支持 summary-only 模式并固定卡片与箭头尺寸，未来锁定单元只能预览摘要、不显示继续复习按钮，随后又修正 preview popover 指针锚点，保证锁定状态的交互反馈和视觉位置一致。",
+      "匹配题选项卡宽度、列间距和行高重新约束，长文本可在两列卡片内完整换行，降低练习题型本身的版式噪音对知识匹配判断的干扰。",
+      "后端补充请求体大小限制、基础 rate limit、生产 CORS allowlist 和 deviceId 格式校验，并用 node:test 覆盖 body limit、限流分组、匿名设备校验和 CORS 策略，为 v2 练习 API 上线前补齐最低流量安全边界。"
+    ],
+    "screenshots": [
+      {
+        "src": "assets/2026-06-29-主线复习进度与临时练习状态分离.svg",
+        "caption": "2026-06-29 迭代摘要"
+      }
+    ],
+    "result": "今天的产出把复习系统从单一会话焦点推进到主线/练习双状态模型：主线 currentCard 负责首页进度和继续学习，practice 对象负责临时单元练习的当前卡片、题目状态和完成 step。代码层面的证据包括 iOS practice API wiring、独立状态键、previewOnly popover，以及后端请求护栏测试；计划文档记录 Checkpoint 1-5 已完成。限制是设备级验收场景 A-E 仍未打勾，尤其需要真机确认练习 unit 1 或 unit 5 后首页仍停在原主线 unit 3。",
+    "next": "补完 Checkpoint 6 的设备级验收：用一个未完成章节推进到 unit 3，分别从首页旧节点、章节详情未来节点和锁定未来节点进入/预览，记录首页 current ring、按钮可见性和 practice 完成后返回行为是否与双状态模型一致。",
+    "commits": [
+      "d33ab31",
+      "f668b7a",
+      "321e929",
+      "da6d552",
+      "a33cb29",
+      "061c31b",
+      "f40d08d",
+      "8836a7d",
+      "7fa0262",
+      "1ad6e1a",
+      "07f0963",
+      "1eda3b3",
+      "87c420a",
+      "5ca289a",
+      "819b087",
+      "222a338"
+    ]
   }
 ];
