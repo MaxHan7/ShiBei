@@ -4,16 +4,20 @@ import test from "node:test";
 import { loadGoldenReviewPaths } from "../golden/loadGoldenReviewPaths.js";
 import {
   advanceFavoriteRouteV2,
+  advancePracticeCardV2,
   advanceReviewCardV2,
+  answerPracticeQuestionV2,
   answerQuestionV2,
   createFavoriteQuestionStateV2,
   createFavoriteRouteV2,
   createReviewSessionV2,
   deriveCompletedUnitIdsFromSessionV2,
   deriveCurrentUnitIdFromSessionV2,
+  finishPracticeV2,
   openSourceFromReviewV2,
   returnFromSourceToReviewV2,
   setQuestionFeedbackVisibleV2,
+  startPracticeFromUnitV2,
   V2_REVIEW_SESSION_SCHEMA_VERSION
 } from "./reviewSessionV2.js";
 
@@ -240,4 +244,81 @@ test("favorite question route opens as unanswered and does not mutate review ses
   assert.equal(favoriteState.questionState.feedbackVisible, false);
   assert.equal(nextRoute.favoriteId, "favorite-002");
   assert.equal(nextRoute.nextFavoriteId, null);
+});
+
+test("practice from a later unit does not move the mainline current card", async () => {
+  const [reviewPath] = await loadGoldenReviewPaths();
+  const firstUnit = reviewPath.units[0];
+  const laterUnit = reviewPath.units[1] ?? reviewPath.units[0];
+  let session = createReviewSessionV2(reviewPath, {
+    sessionId: "session-practice",
+    now: NOW
+  });
+
+  session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+  const mainlineCard = structuredClone(session.currentCard);
+  session = startPracticeFromUnitV2(
+    reviewPath,
+    session,
+    { unitId: laterUnit.id },
+    { practiceId: "practice-later", now: NOW }
+  );
+
+  assert.deepEqual(session.currentCard, mainlineCard);
+  assert.equal(session.practice.id, "practice-later");
+  assert.deepEqual(session.practice.currentCard, {
+    type: "unit_overview",
+    chapterId: reviewPath.id,
+    unitId: laterUnit.id
+  });
+  assert.deepEqual(session.activeCard, session.practice.currentCard);
+  assert.deepEqual(session.completedStepIds, ["chapter_overview"]);
+  assert.deepEqual(session.practice.completedStepIds, []);
+  assert.equal(deriveCurrentUnitIdFromSessionV2(reviewPath, session), firstUnit.id);
+});
+
+test("practice answers and advances only mutate practice state", async () => {
+  const [reviewPath] = await loadGoldenReviewPaths();
+  const firstUnit = reviewPath.units[0];
+  const practiceUnit = reviewPath.units[1] ?? reviewPath.units[0];
+  const practiceQuestion = practiceUnit.questions[0];
+  let session = createReviewSessionV2(reviewPath, { now: NOW });
+  session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+  const mainlineCard = structuredClone(session.currentCard);
+  const mainlineSteps = [...session.completedStepIds];
+
+  session = startPracticeFromUnitV2(
+    reviewPath,
+    session,
+    { unitId: practiceUnit.id },
+    { practiceId: "practice-answer", now: NOW }
+  );
+  session = advancePracticeCardV2(reviewPath, session, { now: NOW });
+  assert.deepEqual(session.currentCard, mainlineCard);
+  assert.deepEqual(session.completedStepIds, mainlineSteps);
+  assert.equal(session.practice.currentCard.type, "question");
+  assert.equal(session.practice.currentCard.questionId, practiceQuestion.id);
+
+  session = answerPracticeQuestionV2(
+    reviewPath,
+    session,
+    {
+      unitId: practiceUnit.id,
+      questionId: practiceQuestion.id,
+      result: "correct",
+      selectedOptionId: practiceQuestion.correctOptionId
+    },
+    { now: NOW }
+  );
+
+  assert.deepEqual(session.currentCard, mainlineCard);
+  assert.deepEqual(session.questionStates, {});
+  assert.equal(session.practice.currentCard.type, "question_feedback");
+  assert.equal(session.practice.questionStates[practiceQuestion.id].status, "answered");
+  assert.ok(session.practice.completedStepIds.includes(`${practiceUnit.id}:${practiceQuestion.id}`));
+
+  session = finishPracticeV2(reviewPath, session, { now: NOW });
+  assert.equal(session.practice, null);
+  assert.equal(session.activeCard, null);
+  assert.deepEqual(session.currentCard, mainlineCard);
 });
