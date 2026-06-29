@@ -15,110 +15,93 @@
       {
         "id": "p-001",
         "type": "paragraph",
-        "text": "颠覆式创新理论"
+        "text": "颠覆式创新描述的是一种市场过程：新进入者先从低端市场或新市场切入，用更简单、更便宜或更易获得的方案服务被忽视的人群。"
+      },
+      {
+        "id": "p-002",
+        "type": "paragraph",
+        "text": "它并不等同于任何突破性技术。很多技术看起来先进，却只是帮助现有产品变得更好；颠覆式创新的关键在于改变谁能使用产品，以及产品如何进入市场。"
+      },
+      {
+        "id": "p-003",
+        "type": "paragraph",
+        "text": "持续性创新通常服务主流客户，让已有产品在性能、品质或功能上继续提升。它可能非常重要，但不一定会改变行业竞争结构。"
       },
       {
         "id": "p-004",
         "type": "paragraph",
-        "text": "颠覆式创新描述的是一种过程：某个产品或服务先在市场底部的简单应用中扎根，通常更便宜、更容易获得，然后逐步向上进入主流市场。"
+        "text": "颠覆式创新最初往往不被主流客户重视，因为它在传统性能指标上可能不够强。但它在价格、便利性或可及性上提供了新价值。"
       },
       {
         "id": "p-005",
         "type": "paragraph",
-        "text": "这个概念由哈佛商学院教授克莱顿·克里斯坦森在 20 世纪 90 年代初提出，后来在商业世界中被广泛使用，也经常被误用。"
+        "text": "随着新进入者不断改进，原本只适合边缘市场的方案会逐渐满足主流需求。一旦性能足够好，主流客户就可能转向新方案。"
       },
       {
         "id": "p-006",
         "type": "paragraph",
-        "text": "并不是所有成功创业、低价竞争或技术突破都叫颠覆式创新。判断一个案例是否属于颠覆，需要看它最初服务的是低端用户、新市场用户，还是一开始就和主流企业正面对抗。"
+        "text": "Netflix 与 Blockbuster 的案例常被用来解释颠覆过程。Netflix 早期用邮寄租赁避开实体店成本，为不想承担滞纳金和门店限制的用户提供更方便选择。"
       },
       {
         "id": "p-007",
         "type": "paragraph",
-        "text": "持续性创新通常服务现有主流客户，让产品在既有评价标准上变得更好；颠覆式创新则常从被忽视的人群或低端场景切入，用不同的价值组合改变竞争基础。"
+        "text": "Blockbuster 拥有实体门店、既有收入结构和成熟客户群，因此很难彻底转向与自身模式冲突的新方案。这种理性选择反而削弱了它应对颠覆的能力。"
       },
       {
         "id": "p-008",
         "type": "paragraph",
-        "text": "Disruptive Innovations are NOT breakthrough technologies that make good products better; rather, they are innovations that make products and services more accessible and affordable, thereby making them available to a larger population."
+        "text": "后来，Netflix 继续从邮寄租赁走向流媒体服务，便利性进一步提升。当用户行为和基础设施成熟后，它逐渐进入并改写主流影视消费市场。"
+      },
+      {
+        "id": "p-009",
+        "type": "paragraph",
+        "text": "钢铁小钢厂案例展示了另一种颠覆路径。小钢厂先生产低端钢材，依靠成本优势进入利润较低、被综合钢厂不太重视的市场。"
+      },
+      {
+        "id": "p-010",
+        "type": "paragraph",
+        "text": "当小钢厂技术和质量不断提升后，它们逐步进入更高端的钢材品类。综合钢厂虽然拥有更完整能力，却受到既有成本结构和客户结构限制。"
+      },
+      {
+        "id": "p-011",
+        "type": "paragraph",
+        "text": "在颠覆过程中，现有企业并非总是愚蠢。它们常常是按照当前最赚钱客户的需求做出理性决策，只是这些决策让它们忽视了低端或新市场的变化。"
       },
       {
         "id": "p-012",
         "type": "paragraph",
-        "text": "Netflix vs. Blockbuster"
+        "text": "判断一个创新是否具有颠覆性，需要看它服务的初始市场、商业模式、价值网络和向上移动路径，而不是只看技术是否新奇。"
       },
       {
         "id": "p-013",
         "type": "paragraph",
-        "text": "In 2000, when Netflix was still a small and fledgling company, it offered itself to Blockbuster, the world’s largest video, DVD, and game rental company for $50 million. Blockbuster passed. Netflix was barely a blip on the radar with mounting losses and a very uncertain future. Meanwhile, Blockbuster’s revenues topped more than $5 billion in 2000—$800 million collected in late fees alone. Understandably, Netflix was inconsequential. Today, Netflix is worth more than $197 billion, and Blockbuster filed for bankruptcy in 2010. What happened to the behemoth with more than 9,000 stores and 60,000 employees?"
+        "text": "颠覆式创新理论常被误用来形容任何成功创业公司，但它真正强调的是进入路径和市场结构，而不是单纯的增长速度。"
       },
       {
         "id": "p-014",
         "type": "paragraph",
-        "text": "Netflix’s disruption of Blockbuster is a classic illustration of how an under-resourced new entrant can take on and beat an industry leader. While Netflix lacked the ability for customers to immediately drive to a store to rent a movie on the same day, it allowed customers outside of core geographic regions to cheaply access a wide library of DVDs by mail. As Netflix’s offering gained traction with customers, Blockbuster’s business model proved a stumbling block to responding to its new competitor. This is another classic hallmark of disruption. Like many retailers who have tried to respond to disruptors, Blockbuster was never able to detach itself from a desire to leverage its existing (and expensive) physical locations. As a result of clinging to aspects of its existing business, Blockbuster couldn’t also operate its version of a DVD-by-mail service at the scale of Netflix."
+        "text": "如果一个新产品一开始就服务最有利润的高端客户，并沿着既有性能维度竞争，它更可能属于持续性创新，而不是颠覆式创新。"
       },
       {
         "id": "p-015",
         "type": "paragraph",
-        "text": "Netflix’s disruptive components:"
+        "text": "低端市场和新市场是理解颠覆的两个入口。前者服务被过度满足的用户，后者让原本无法使用某类产品的人第一次获得可行方案。"
       },
       {
         "id": "p-016",
         "type": "paragraph",
-        "text": "Enabling technologies: Mail & Internet"
+        "text": "成熟企业要识别颠覆风险，不能只盯着现有大客户需求，也要观察边缘用户、低利润场景和新商业模式是否正在积累能力。"
       },
       {
         "id": "p-017",
         "type": "paragraph",
-        "text": "Innovative business model: Mail order and distribution center only, no late fees, no physical locations"
-      },
-      {
-        "id": "p-018",
-        "type": "paragraph",
-        "text": "Coherent value network: Leverage postal service and direct-to-consumer sales on the internet"
-      },
-      {
-        "id": "p-019",
-        "type": "paragraph",
-        "text": "Steel mini-mills vs. integrated mills"
-      },
-      {
-        "id": "p-020",
-        "type": "paragraph",
-        "text": "In the mid-1960s, steel mini-mills began the process of melting down scrap metal in electric arc furnaces and crafting it into new steel—a process that reduced costs by 20%. Initially, mini-mills could only produce the lowest quality steel like rebar, but they steadily improved and eventually tackled increasingly higher grades of steel like structural and sheet steel. By the early 2000s, companies employing mini-mills like Nucor had leveraged this innovation into a full scale disruption of the leading integrated steel makers like Bethlehem Steel and US Steel."
-      },
-      {
-        "id": "p-021",
-        "type": "paragraph",
-        "text": "In true disruptive fashion, no integrated steel company was able to successfully deploy mini-mill technology inside their business model—even with a 20% cost advantage over traditional steel processes. Why? It wasn’t because integrated steel executives had their heads in the sand. It happened because at each step of the disruption, the mini-mills weren’t considered a threat. Rebar had a gross margin of just 7% for the integrated mills. So, they were happy to cede this dog-eat-dog business to the mini-mills who initially earned 20%+ gross margins. And it always made more financial sense on the spreadsheets of integrated steel CFOs to spend a little money to re-orient their production capacity to higher margin products, rather than substantially investing in mini-mills of their own. Of course, this only made sense until the integrated mills ran out of customers."
-      },
-      {
-        "id": "p-022",
-        "type": "paragraph",
-        "text": "This illustrates the core principle behind why disruptions occur—both the incumbent companies and the new entrants perceived they were making sound financial decisions. Both were maximizing corporate profits. But without the additional lens of disruption, the integrated steel companies ultimately ceded too much ground and found themselves mired in long-term financial woes."
-      },
-      {
-        "id": "p-023",
-        "type": "paragraph",
-        "text": "Mini-Mill’s Disruptive Components"
-      },
-      {
-        "id": "p-024",
-        "type": "paragraph",
-        "text": "Enabling technologies: Electric arc furnace processing"
-      },
-      {
-        "id": "p-025",
-        "type": "paragraph",
-        "text": "Innovative business model: 20% cost advantage over integrated mills, no legacy plant or equipment requiring utilization"
-      },
-      {
-        "id": "p-026",
-        "type": "paragraph",
-        "text": "Coherent value network: Able to piggyback on existing steel value networks"
+        "text": "学习这个理论的关键，是把案例拆成初始用户、商业模式、技术条件、价值网络和向上移动过程，而不是只记住公司名字。"
       }
     ],
-    "rawInput": "https://www.christenseninstitute.org/theory/disruptive-innovation/"
+    "rawInput": "https://www.christenseninstitute.org/theory/disruptive-innovation/",
+    "cleanedText": "颠覆式创新描述的是一种市场过程：新进入者先从低端市场或新市场切入，用更简单、更便宜或更易获得的方案服务被忽视的人群。\n\n它并不等同于任何突破性技术。很多技术看起来先进，却只是帮助现有产品变得更好；颠覆式创新的关键在于改变谁能使用产品，以及产品如何进入市场。\n\n持续性创新通常服务主流客户，让已有产品在性能、品质或功能上继续提升。它可能非常重要，但不一定会改变行业竞争结构。\n\n颠覆式创新最初往往不被主流客户重视，因为它在传统性能指标上可能不够强。但它在价格、便利性或可及性上提供了新价值。\n\n随着新进入者不断改进，原本只适合边缘市场的方案会逐渐满足主流需求。一旦性能足够好，主流客户就可能转向新方案。\n\nNetflix 与 Blockbuster 的案例常被用来解释颠覆过程。Netflix 早期用邮寄租赁避开实体店成本，为不想承担滞纳金和门店限制的用户提供更方便选择。\n\nBlockbuster 拥有实体门店、既有收入结构和成熟客户群，因此很难彻底转向与自身模式冲突的新方案。这种理性选择反而削弱了它应对颠覆的能力。\n\n后来，Netflix 继续从邮寄租赁走向流媒体服务，便利性进一步提升。当用户行为和基础设施成熟后，它逐渐进入并改写主流影视消费市场。\n\n钢铁小钢厂案例展示了另一种颠覆路径。小钢厂先生产低端钢材，依靠成本优势进入利润较低、被综合钢厂不太重视的市场。\n\n当小钢厂技术和质量不断提升后，它们逐步进入更高端的钢材品类。综合钢厂虽然拥有更完整能力，却受到既有成本结构和客户结构限制。\n\n在颠覆过程中，现有企业并非总是愚蠢。它们常常是按照当前最赚钱客户的需求做出理性决策，只是这些决策让它们忽视了低端或新市场的变化。\n\n判断一个创新是否具有颠覆性，需要看它服务的初始市场、商业模式、价值网络和向上移动路径，而不是只看技术是否新奇。\n\n颠覆式创新理论常被误用来形容任何成功创业公司，但它真正强调的是进入路径和市场结构，而不是单纯的增长速度。\n\n如果一个新产品一开始就服务最有利润的高端客户，并沿着既有性能维度竞争，它更可能属于持续性创新，而不是颠覆式创新。\n\n低端市场和新市场是理解颠覆的两个入口。前者服务被过度满足的用户，后者让原本无法使用某类产品的人第一次获得可行方案。\n\n成熟企业要识别颠覆风险，不能只盯着现有大客户需求，也要观察边缘用户、低利润场景和新商业模式是否正在积累能力。\n\n学习这个理论的关键，是把案例拆成初始用户、商业模式、技术条件、价值网络和向上移动过程，而不是只记住公司名字。",
+    "extractedText": "颠覆式创新描述的是一种市场过程：新进入者先从低端市场或新市场切入，用更简单、更便宜或更易获得的方案服务被忽视的人群。\n\n它并不等同于任何突破性技术。很多技术看起来先进，却只是帮助现有产品变得更好；颠覆式创新的关键在于改变谁能使用产品，以及产品如何进入市场。\n\n持续性创新通常服务主流客户，让已有产品在性能、品质或功能上继续提升。它可能非常重要，但不一定会改变行业竞争结构。\n\n颠覆式创新最初往往不被主流客户重视，因为它在传统性能指标上可能不够强。但它在价格、便利性或可及性上提供了新价值。\n\n随着新进入者不断改进，原本只适合边缘市场的方案会逐渐满足主流需求。一旦性能足够好，主流客户就可能转向新方案。\n\nNetflix 与 Blockbuster 的案例常被用来解释颠覆过程。Netflix 早期用邮寄租赁避开实体店成本，为不想承担滞纳金和门店限制的用户提供更方便选择。\n\nBlockbuster 拥有实体门店、既有收入结构和成熟客户群，因此很难彻底转向与自身模式冲突的新方案。这种理性选择反而削弱了它应对颠覆的能力。\n\n后来，Netflix 继续从邮寄租赁走向流媒体服务，便利性进一步提升。当用户行为和基础设施成熟后，它逐渐进入并改写主流影视消费市场。\n\n钢铁小钢厂案例展示了另一种颠覆路径。小钢厂先生产低端钢材，依靠成本优势进入利润较低、被综合钢厂不太重视的市场。\n\n当小钢厂技术和质量不断提升后，它们逐步进入更高端的钢材品类。综合钢厂虽然拥有更完整能力，却受到既有成本结构和客户结构限制。\n\n在颠覆过程中，现有企业并非总是愚蠢。它们常常是按照当前最赚钱客户的需求做出理性决策，只是这些决策让它们忽视了低端或新市场的变化。\n\n判断一个创新是否具有颠覆性，需要看它服务的初始市场、商业模式、价值网络和向上移动路径，而不是只看技术是否新奇。\n\n颠覆式创新理论常被误用来形容任何成功创业公司，但它真正强调的是进入路径和市场结构，而不是单纯的增长速度。\n\n如果一个新产品一开始就服务最有利润的高端客户，并沿着既有性能维度竞争，它更可能属于持续性创新，而不是颠覆式创新。\n\n低端市场和新市场是理解颠覆的两个入口。前者服务被过度满足的用户，后者让原本无法使用某类产品的人第一次获得可行方案。\n\n成熟企业要识别颠覆风险，不能只盯着现有大客户需求，也要观察边缘用户、低利润场景和新商业模式是否正在积累能力。\n\n学习这个理论的关键，是把案例拆成初始用户、商业模式、技术条件、价值网络和向上移动过程，而不是只记住公司名字。",
+    "rawText": "颠覆式创新描述的是一种市场过程：新进入者先从低端市场或新市场切入，用更简单、更便宜或更易获得的方案服务被忽视的人群。\n\n它并不等同于任何突破性技术。很多技术看起来先进，却只是帮助现有产品变得更好；颠覆式创新的关键在于改变谁能使用产品，以及产品如何进入市场。\n\n持续性创新通常服务主流客户，让已有产品在性能、品质或功能上继续提升。它可能非常重要，但不一定会改变行业竞争结构。\n\n颠覆式创新最初往往不被主流客户重视，因为它在传统性能指标上可能不够强。但它在价格、便利性或可及性上提供了新价值。\n\n随着新进入者不断改进，原本只适合边缘市场的方案会逐渐满足主流需求。一旦性能足够好，主流客户就可能转向新方案。\n\nNetflix 与 Blockbuster 的案例常被用来解释颠覆过程。Netflix 早期用邮寄租赁避开实体店成本，为不想承担滞纳金和门店限制的用户提供更方便选择。\n\nBlockbuster 拥有实体门店、既有收入结构和成熟客户群，因此很难彻底转向与自身模式冲突的新方案。这种理性选择反而削弱了它应对颠覆的能力。\n\n后来，Netflix 继续从邮寄租赁走向流媒体服务，便利性进一步提升。当用户行为和基础设施成熟后，它逐渐进入并改写主流影视消费市场。\n\n钢铁小钢厂案例展示了另一种颠覆路径。小钢厂先生产低端钢材，依靠成本优势进入利润较低、被综合钢厂不太重视的市场。\n\n当小钢厂技术和质量不断提升后，它们逐步进入更高端的钢材品类。综合钢厂虽然拥有更完整能力，却受到既有成本结构和客户结构限制。\n\n在颠覆过程中，现有企业并非总是愚蠢。它们常常是按照当前最赚钱客户的需求做出理性决策，只是这些决策让它们忽视了低端或新市场的变化。\n\n判断一个创新是否具有颠覆性，需要看它服务的初始市场、商业模式、价值网络和向上移动路径，而不是只看技术是否新奇。\n\n颠覆式创新理论常被误用来形容任何成功创业公司，但它真正强调的是进入路径和市场结构，而不是单纯的增长速度。\n\n如果一个新产品一开始就服务最有利润的高端客户，并沿着既有性能维度竞争，它更可能属于持续性创新，而不是颠覆式创新。\n\n低端市场和新市场是理解颠覆的两个入口。前者服务被过度满足的用户，后者让原本无法使用某类产品的人第一次获得可行方案。\n\n成熟企业要识别颠覆风险，不能只盯着现有大客户需求，也要观察边缘用户、低利润场景和新商业模式是否正在积累能力。\n\n学习这个理论的关键，是把案例拆成初始用户、商业模式、技术条件、价值网络和向上移动过程，而不是只记住公司名字。"
   },
   "summaryCard": {
     "text": "颠覆性创新理论解释了新进入者如何从低端市场切入并最终颠覆现有企业。本复习路径将带你了解其定义、关键区别和经典案例。"
@@ -136,8 +119,8 @@
         "id": "anchor-u-1",
         "blockIds": [
           "p-001",
-          "p-004",
-          "p-005"
+          "p-002",
+          "p-003"
         ]
       },
       "overview": {
@@ -317,9 +300,9 @@
       "sourceAnchor": {
         "id": "anchor-u-2",
         "blockIds": [
-          "p-006",
-          "p-007",
-          "p-008"
+          "p-004",
+          "p-005",
+          "p-006"
         ]
       },
       "overview": {
@@ -432,13 +415,9 @@
       "sourceAnchor": {
         "id": "anchor-u-3",
         "blockIds": [
-          "p-012",
-          "p-013",
-          "p-014",
-          "p-015",
-          "p-016",
-          "p-017",
-          "p-018"
+          "p-007",
+          "p-008",
+          "p-009"
         ]
       },
       "overview": {
@@ -589,14 +568,9 @@
       "sourceAnchor": {
         "id": "anchor-u-4",
         "blockIds": [
-          "p-019",
-          "p-020",
-          "p-021",
-          "p-022",
-          "p-023",
-          "p-024",
-          "p-025",
-          "p-026"
+          "p-010",
+          "p-011",
+          "p-012"
         ]
       },
       "overview": {

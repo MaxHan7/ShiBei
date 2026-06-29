@@ -17,7 +17,7 @@
     },
     {
       "id": "google-llm-introduction",
-      "title": "大语言模型入门：从 token 到上下文",
+      "title": "大语言模型入门：从词元到上下文",
       "source": "Google 机器学习速成课",
       "sourceUrl": "https://developers.google.com/machine-learning/crash-course/llm",
       "sourceAuthor": "Google Machine Learning Crash Course",
