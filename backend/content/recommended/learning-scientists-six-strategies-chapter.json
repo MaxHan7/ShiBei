@@ -13,39 +13,34 @@
     "url": "https://www.learningscientists.org/blog/2016/8/18-1",
     "blocks": [
       {
-        "id": "cn-guide-001",
-        "type": "paragraph",
-        "text": "这篇文章把认知科学中比较可靠的学习方法整理成六个策略，包括间隔练习、提取练习、交错练习、精细化解释、具体例子和双重编码。它的价值在于提醒学习者：有效学习通常不是反复看材料，而是主动调动记忆、建立联系、分散练习并用不同方式表征知识。阅读时可以把六个策略看成互相配合的工具箱。例如，先用具体例子理解抽象概念，再用提取练习检查自己是否真的记住，之后通过间隔复习减少遗忘。对拾贝这样的复习产品来说，这篇文章也解释了为什么“做题、回忆、再反馈”会比单纯阅读更能促进掌握。"
-      },
-      {
         "id": "p-006",
         "type": "paragraph",
-        "text": "Researchers have learned a great deal about how students learn on their own and in the classroom, and much of this research can be applied to educational settings. One of our primary goals is to make this research on learning more accessible and create free evidence-based resources for teachers and students. To meet that goal, over the past few months we have been working on creating resources in different formats based on 6 learning strategies whose effectiveness is backed by decades of cognitive research:"
+        "text": "研究者已经积累了大量关于学生如何自主学习和课堂学习的证据，这些发现可以转化为实际学习策略。把认知科学研究讲清楚，能帮助学习者避免只靠重复阅读和临时抱佛脚。"
       },
       {
         "id": "p-007",
         "type": "paragraph",
-        "text": "Spacing (1)"
+        "text": "间隔练习：把学习分散到多个时间点，而不是集中在一次长时间学习里。间隔能增加必要遗忘和再次提取的机会，从而帮助长期记忆。"
       },
       {
         "id": "p-008",
         "type": "paragraph",
-        "text": "Retrieval Practice (2)"
+        "text": "提取练习：在不看答案的情况下主动回忆知识。小测、闪卡、自问自答都属于提取练习，它们能让学习者发现自己真正记住了什么。"
       },
       {
         "id": "p-009",
         "type": "paragraph",
-        "text": "Elaboration (3)"
+        "text": "交错练习：把不同类型的问题或概念混合练习，而不是一次只练一种。交错能训练学习者识别问题类型和选择合适方法。"
       },
       {
         "id": "p-010",
         "type": "paragraph",
-        "text": "Interleaving (4)"
+        "text": "精细化解释：追问为什么、怎么发生、和已有知识有什么关系。通过解释，学习者可以把新信息接到已有知识网络中。"
       },
       {
         "id": "p-011",
         "type": "paragraph",
-        "text": "Concrete Examples (5)"
+        "text": "具体例子和双重编码也很重要。例子能把抽象概念落到场景中；图像和文字结合能为同一知识建立多种线索。"
       },
       {
         "id": "p-012",
