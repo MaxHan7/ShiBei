@@ -545,7 +545,8 @@ private enum V2MatchingPageMetrics {
     static let columnSpacing: CGFloat = 17
     static let optionCardWidth: CGFloat = (V2Layout.contentMaxWidth - columnSpacing) / 2
     static let optionCardHorizontalPadding: CGFloat = 14
-    static let optionCardBaseHeight: CGFloat = 96
+    static let optionCardOneLineHeight: CGFloat = 72
+    static let optionCardTwoLineHeight: CGFloat = 92
     static let optionCardThreeLineHeight: CGFloat = 116
     static let optionCharactersPerLine = 9
     static let leftDecoY: CGFloat = 612
@@ -563,7 +564,15 @@ private enum V2MatchingPageMetrics {
             .flatMap { [$0.left, $0.right] }
             .map(estimatedLineCount)
             .max() ?? 1
-        return maxEstimatedLines >= 3 ? optionCardThreeLineHeight : optionCardBaseHeight
+
+        switch maxEstimatedLines {
+        case ...1:
+            return optionCardOneLineHeight
+        case 2:
+            return optionCardTwoLineHeight
+        default:
+            return optionCardThreeLineHeight
+        }
     }
 
     private static func estimatedLineCount(for text: String) -> Int {

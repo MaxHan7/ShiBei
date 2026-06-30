@@ -252,8 +252,7 @@ struct V2MatchingOptionCard: View {
                     .frame(maxWidth: .infinity, alignment: .center)
             }
             .padding(.vertical, Metrics.verticalPadding)
-            .frame(width: width)
-            .frame(minHeight: height)
+            .frame(width: width, height: height)
         }
         .buttonStyle(.plain)
         .disabled(state == .locked)

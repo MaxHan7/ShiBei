@@ -13,17 +13,18 @@ const files = {
 const source = Object.fromEntries(
   Object.entries(files).map(([key, path]) => [key, readFileSync(path, "utf8")])
 );
+const matchingScreenSource = extractMatchingScreenSource(source.reviewFlowScreens);
 
 const checks = [
   check(
     "matching_card_uses_external_width",
-    /\.frame\(width: width\)/.test(source.questionComponents),
+    /\.frame\(width: width(?:,|\))/.test(source.questionComponents),
     "V2MatchingOptionCard must use its width parameter, not a private fixed width."
   ),
   check(
-    "matching_card_uses_external_min_height",
-    /\.frame\(minHeight: height\)/.test(source.questionComponents),
-    "V2MatchingOptionCard must use its height parameter as the minimum card height."
+    "matching_card_uses_external_exact_height",
+    /\.frame\(width: width,\s*height: height\)/.test(source.questionComponents),
+    "V2MatchingOptionCard must use its height parameter as the exact semantic height for the estimated line count."
   ),
   check(
     "matching_card_uses_external_horizontal_padding",
@@ -37,15 +38,24 @@ const checks = [
   ),
   check(
     "matching_screen_passes_card_metrics",
-    /width:\s*V2MatchingPageMetrics\.optionCardWidth/.test(source.reviewFlowScreens)
-      && /height:\s*cardHeight/.test(source.reviewFlowScreens)
-      && /horizontalPadding:\s*V2MatchingPageMetrics\.optionCardHorizontalPadding/.test(source.reviewFlowScreens),
+    /width:\s*V2MatchingPageMetrics\.optionCardWidth/.test(matchingScreenSource)
+      && /let cardHeight = V2MatchingPageMetrics\.optionCardHeight\(for:\s*question\.matchingPairs\)/.test(matchingScreenSource)
+      && /height:\s*cardHeight/.test(matchingScreenSource)
+      && /horizontalPadding:\s*V2MatchingPageMetrics\.optionCardHorizontalPadding/.test(matchingScreenSource),
     "V2MatchingQuestionView must pass screen metrics into V2MatchingOptionCard."
   ),
   check(
-    "matching_screen_has_dynamic_uniform_height",
-    /static func optionCardHeight\(for pairs: \[V2MatchingPairData\]\)/.test(source.reviewFlowScreens),
-    "Matching option cards should use one dynamic height per question to preserve the two-column grid."
+    "matching_screen_uses_uniform_dynamic_heights",
+    /static func optionCardHeight\(for pairs: \[V2MatchingPairData\]\) -> CGFloat/.test(matchingScreenSource)
+      && /optionCardOneLineHeight/.test(matchingScreenSource)
+      && /optionCardTwoLineHeight/.test(matchingScreenSource)
+      && /optionCardThreeLineHeight/.test(matchingScreenSource),
+    "Matching option cards should use one uniform compact height per question based on the longest option."
+  ),
+  check(
+    "matching_screen_has_no_per_option_height",
+    !/optionCardHeight\(for:\s*pair\.(left|right)\)|rowHeights|optionRowHeights/.test(matchingScreenSource),
+    "Matching screen must keep all option cards in one question at the same height."
   )
 ];
 
@@ -75,4 +85,11 @@ function extractMatchingCardSource(fileSource) {
 function extractMatchingCardPrivateMetrics(fileSource) {
   const matchingCard = extractMatchingCardSource(fileSource);
   return /private enum Metrics \{([\s\S]*?)\n    \}/.exec(matchingCard)?.[1] || "";
+}
+
+function extractMatchingScreenSource(fileSource) {
+  const start = fileSource.indexOf("struct V2MatchingQuestionView");
+  const end = fileSource.indexOf("private enum V2QuestionFeedbackMetrics");
+  if (start < 0 || end < 0 || end <= start) return fileSource;
+  return fileSource.slice(start, end);
 }
