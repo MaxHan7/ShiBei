@@ -431,14 +431,16 @@ struct V2MatchingQuestionView: View {
     }
 
     private var matchingGrid: some View {
-        HStack(alignment: .top, spacing: V2MatchingPageMetrics.columnSpacing) {
+        let cardHeight = V2MatchingPageMetrics.optionCardHeight(for: question.matchingPairs)
+
+        return HStack(alignment: .top, spacing: V2MatchingPageMetrics.columnSpacing) {
             VStack(spacing: V2MatchingPageMetrics.rowSpacing) {
                 ForEach(question.matchingPairs) { pair in
                     V2MatchingOptionCard(
                         title: pair.left,
                         state: state(for: pair.id, side: .left),
                         width: V2MatchingPageMetrics.optionCardWidth,
-                        height: V2MatchingPageMetrics.optionCardHeight,
+                        height: cardHeight,
                         horizontalPadding: V2MatchingPageMetrics.optionCardHorizontalPadding
                     ) {
                         handleTap(pairID: pair.id, side: .left)
@@ -452,7 +454,7 @@ struct V2MatchingQuestionView: View {
                         title: pair.right,
                         state: state(for: pair.id, side: .right),
                         width: V2MatchingPageMetrics.optionCardWidth,
-                        height: V2MatchingPageMetrics.optionCardHeight,
+                        height: cardHeight,
                         horizontalPadding: V2MatchingPageMetrics.optionCardHorizontalPadding
                     ) {
                         handleTap(pairID: pair.id, side: .right)
@@ -542,8 +544,10 @@ private enum V2MatchingPageMetrics {
     static let rowSpacing: CGFloat = 16
     static let columnSpacing: CGFloat = 17
     static let optionCardWidth: CGFloat = (V2Layout.contentMaxWidth - columnSpacing) / 2
-    static let optionCardHeight: CGFloat = 96
     static let optionCardHorizontalPadding: CGFloat = 14
+    static let optionCardBaseHeight: CGFloat = 96
+    static let optionCardThreeLineHeight: CGFloat = 116
+    static let optionCharactersPerLine = 9
     static let leftDecoY: CGFloat = 612
     static let rightDecoY: CGFloat = 648
     private static let mascotBottom: CGFloat = 691
@@ -553,6 +557,23 @@ private enum V2MatchingPageMetrics {
     static let mascotTop: CGFloat = mascotBottom - mascotHeight
     static let mascotCardOverlap: CGFloat = V2Layout.contentMaxWidth + mascotWidth - mascotRightEdge
     static let contentHeight: CGFloat = 760
+
+    static func optionCardHeight(for pairs: [V2MatchingPairData]) -> CGFloat {
+        let maxEstimatedLines = pairs
+            .flatMap { [$0.left, $0.right] }
+            .map(estimatedLineCount)
+            .max() ?? 1
+        return maxEstimatedLines >= 3 ? optionCardThreeLineHeight : optionCardBaseHeight
+    }
+
+    private static func estimatedLineCount(for text: String) -> Int {
+        let normalizedCount = text.reduce(0) { count, character in
+            let isASCII = character.unicodeScalars.allSatisfy { $0.isASCII }
+            return count + (isASCII ? 1 : 2)
+        }
+        let weightedLineCapacity = optionCharactersPerLine * 2
+        return max(1, Int(ceil(Double(normalizedCount) / Double(weightedLineCapacity))))
+    }
 }
 
 private enum V2QuestionFeedbackMetrics {
