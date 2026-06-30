@@ -5,7 +5,7 @@ enum V2ReviewFixture {
 
     static let chapter = V2ReviewChapterData(
         title: "Anthropic设计总监：为何您的整个团队都应该使用AI Agents协同工作",
-        overview: "这篇文章讨论团队如何把 AI Agents 当作协作同事，而不是只把它们看成个人效率工具。复习路径会先帮助你回忆文章主旨，再进入每个知识点的理解和应用。",
+        overview: "这篇文章讨论团队如何把 AI Agents 当作协作同事，而不是只把它们看成个人效率工具。学习路径会先帮助你回忆文章主旨，再进入每个知识点的理解和应用。",
         sourceTitle: "Anthropic 设计总监：AI Agents 协同工作",
         sourceAuthor: "Anthropic",
         sourceURL: "https://www.anthropic.com/",

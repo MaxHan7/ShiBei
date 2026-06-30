@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { runV2GenerationProgram } from "./v2GenerationProgram.js";
+import {
+  normalizeMultipleChoiceAnswerPositions,
+  runV2GenerationProgram
+} from "./v2GenerationProgram.js";
 
 test("runs the V2 pyramid stages in stable order", async () => {
   const calls = [];
@@ -26,6 +29,35 @@ test("runs the V2 pyramid stages in stable order", async () => {
     "matchingDraft",
     "unitCopyBatch"
   ]);
+});
+
+test("normalizes V2 multiple choice answer positions without changing option meaning", () => {
+  const questions = Array.from({ length: 6 }, (_, index) => ({
+    id: `q-${index + 1}`,
+    type: "multiple_choice",
+    practiceGoalId: `goal-${index + 1}`,
+    sourceAnchorId: "anchor-01",
+    stem: `测试题 ${index + 1}`,
+    options: [
+      { id: "a", text: "干扰项一" },
+      { id: "b", text: `正确理解 ${index + 1}` },
+      { id: "c", text: "干扰项二" },
+      { id: "d", text: "干扰项三" }
+    ],
+    correctOptionId: "b"
+  }));
+
+  const normalized = normalizeMultipleChoiceAnswerPositions(questions, "unit-01");
+
+  assert.deepEqual(
+    normalized.map((question) => question.correctOptionId),
+    ["D", "C", "B", "A", "D", "C"]
+  );
+  for (const [index, question] of normalized.entries()) {
+    assert.deepEqual(question.options.map((option) => option.id), ["A", "B", "C", "D"]);
+    const correctOption = question.options.find((option) => option.id === question.correctOptionId);
+    assert.equal(correctOption.text, `正确理解 ${index + 1}`);
+  }
 });
 
 test("calls scoped MC unit batches with only current unit briefs and source context", async () => {

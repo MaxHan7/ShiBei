@@ -688,7 +688,7 @@ private struct V2UnitCompletionResultBanner: View {
                 .frame(width: 170, height: 31)
 
                 HStack(alignment: .lastTextBaseline, spacing: 3) {
-                    Text("本单元复习")
+                    Text("本单元学习")
                         .font(V2Typography.caption)
                         .foregroundStyle(V2Color.topTitle)
 
@@ -1742,7 +1742,7 @@ private struct V2RecommendedArticleAddButton: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("添加为复习路径")
+        .accessibilityLabel("添加为学习路径")
     }
 }
 
@@ -1752,7 +1752,7 @@ private struct V2RecommendedArticleAddPopover: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: V2RecommendedArticleAddPopoverMetrics.contentSpacing) {
-            Text("将这篇好文生成复习路径？")
+            Text("将这篇好文生成学习路径？")
                 .font(V2Typography.bodyEmphasis)
                 .foregroundStyle(V2Color.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -1788,7 +1788,7 @@ private struct V2RecommendedArticleAddPopover: View {
             .v2Shadow()
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("将这篇好文生成复习路径")
+        .accessibilityLabel("将这篇好文生成学习路径")
     }
 }
 

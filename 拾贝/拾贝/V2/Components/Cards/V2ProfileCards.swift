@@ -419,7 +419,7 @@ private struct V2ProfilePresetAvatar: Identifiable, CaseIterable {
         .init(id: "failed", title: "提醒", assetName: "V2ProfileAvatarPreset04"),
         .init(id: "article", title: "文章", assetName: "V2ProfileAvatarPreset05"),
         .init(id: "notes", title: "笔记", assetName: "V2ProfileAvatarPreset06"),
-        .init(id: "book", title: "复习", assetName: "V2ProfileAvatarPreset07")
+        .init(id: "book", title: "学习", assetName: "V2ProfileAvatarPreset07")
     ]
 
     static func validAssetName(for storedAssetName: String) -> String {
@@ -600,19 +600,19 @@ private enum V2ProfileSettingsSheet: String, Identifiable {
         switch self {
         case .notifications:
             [
-                "Recallo 会在内容生成完成或失败时发送系统通知，帮助你回到对应章节继续复习。",
+                "Recallo 会在内容生成完成或失败时发送系统通知，帮助你回到对应章节继续学习。",
                 "如果你没有开启系统通知，仍然可以在 App 内通知页查看生成结果。成功通知打开后会自动归档，失败通知会保留到你处理或手动移除。"
             ]
         case .privacy:
             [
-                "你提交的文字、文章链接和生成结果会发送到Recallo 云端，用于提取知识点、生成题目和保存复习进度。",
+                "你提交的文字、文章链接和生成结果会发送到Recallo 云端，用于提取知识点、生成题目和保存学习进度。",
                 "生成过程中，内容可能会被发送给第三方 AI 模型服务处理。Recallo 不会把你的内容公开展示给其他用户。",
-                "服务器会保存章节、题目、通知、复习记录和题目反馈。你可以在“我的”页删除当前匿名设备下的数据。"
+                "服务器会保存章节、题目、通知、学习记录和题目反馈。你可以在“我的”页删除当前匿名设备下的数据。"
             ]
         case .account:
             [
                 "当前版本使用匿名设备身份保存数据，不需要注册或登录账号。",
-                "匿名设备身份只用于区分你的章节、通知、复习记录和题目反馈。后续如果提供账号系统，会再提供数据迁移方案。"
+                "匿名设备身份只用于区分你的章节、通知、学习记录和题目反馈。后续如果提供账号系统，会再提供数据迁移方案。"
             ]
         }
     }

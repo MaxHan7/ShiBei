@@ -14,7 +14,7 @@ struct V2NodePopover: View {
                     .lineLimit(2)
 
                 Button(action: action) {
-                    Text(node.kind == .start ? "复习" : "继续复习")
+                    Text(node.kind == .start ? "开始学习" : "继续学习")
                         .font(V2Typography.bodyEmphasis)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)

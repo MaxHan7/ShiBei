@@ -87,7 +87,7 @@ struct V2DiscoverHeroCard: View {
                 .frame(width: V2DiscoverHeroCardMetrics.titleWidth, height: V2DiscoverHeroCardMetrics.titleHeight, alignment: .leading)
                 .offset(x: V2DiscoverHeroCardMetrics.textX, y: V2DiscoverHeroCardMetrics.titleY)
 
-            Text("将知识一键变成复习路径，\n让“收藏“变成记住")
+            Text("将知识一键变成学习路径，\n让“收藏“变成记住")
                 .font(V2Typography.labelRegular)
                 .tracking(-0.24)
                 .foregroundStyle(V2Color.topTitle)

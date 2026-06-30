@@ -58,7 +58,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FA48BAF12FB8628200A66913"
-               BuildableName = "Recallo.app"
+            BuildableName = "Recallo.app"
             BlueprintName = "&#x62fe;&#x8d1d;"
             ReferencedContainer = "container:&#x62fe;&#x8d1d;.xcodeproj">
          </BuildableReference>
@@ -75,7 +75,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FA48BAF12FB8628200A66913"
-               BuildableName = "Recallo.app"
+            BuildableName = "Recallo.app"
             BlueprintName = "&#x62fe;&#x8d1d;"
             ReferencedContainer = "container:&#x62fe;&#x8d1d;.xcodeproj">
          </BuildableReference>

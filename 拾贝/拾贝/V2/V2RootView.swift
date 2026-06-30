@@ -910,9 +910,9 @@ struct V2RootView: View {
               backendChapter?.status == "completed",
               let session = v2ReviewSession ?? backendChapter?.v2ReviewSession,
               session.completedAt == nil else {
-            return "开始复习"
+            return "开始学习"
         }
-        return "继续复习"
+        return "继续学习"
     }
 
     private var activeHomeData: V2HomeData {
@@ -2039,6 +2039,13 @@ struct V2RootView: View {
     }
 
     private func hydrateLocalQuestionStates(from session: V2BackendReviewSession) {
+        if session.displayCard.type == "question",
+           let unitID = session.displayCard.unitId,
+           let questionID = session.displayCard.questionId,
+           session.displayQuestionStates[questionID] == nil {
+            questionInteractionStates.removeValue(forKey: questionStateKey(unitID: unitID, questionID: questionID))
+        }
+
         for (questionID, backendState) in session.displayQuestionStates {
             guard let unitID = unitID(containingQuestionID: questionID),
                   let question = activeQuestion(unitID: unitID, questionID: questionID) else {

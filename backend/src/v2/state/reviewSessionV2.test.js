@@ -89,7 +89,7 @@ test("advances through chapter overview, unit overview, question feedback, and u
   }
 });
 
-test("replays incorrectly answered V2 questions after all new cards before chapter completion", async () => {
+test("replays incorrectly answered V2 questions inside the same unit before unit summary", async () => {
   const [reviewPath] = await loadGoldenReviewPaths();
   const firstUnit = reviewPath.units[0];
   const firstQuestion = firstUnit.questions[0];
@@ -118,17 +118,19 @@ test("replays incorrectly answered V2 questions after all new cards before chapt
   for (let guard = 0; guard < 200; guard += 1) {
     if (
       session.currentCard.type === "question" &&
-      session.currentCard.questionId === firstQuestion.id &&
-      reviewPath.units.every((unit) => session.completedStepIds.includes(`${unit.id}:summary`))
+      session.currentCard.unitId === firstUnit.id &&
+      session.currentCard.questionId === firstQuestion.id
     ) {
       break;
     }
 
-    assert.notEqual(session.currentCard.type, "chapter_summary");
+    assert.notEqual(session.currentCard.type, "unit_summary");
+    assert.equal(session.currentCard.unitId, firstUnit.id);
 
     if (session.currentCard.type === "question") {
       const unit = reviewPath.units.find((candidate) => candidate.id === session.currentCard.unitId);
       const question = unit.questions.find((candidate) => candidate.id === session.currentCard.questionId);
+      assert.notEqual(question.id, firstQuestion.id);
       session = answerQuestionV2(
         reviewPath,
         session,
@@ -147,7 +149,9 @@ test("replays incorrectly answered V2 questions after all new cards before chapt
 
   assert.equal(session.currentCard.type, "question");
   assert.equal(session.currentCard.questionId, firstQuestion.id);
+  assert.equal(session.currentCard.unitId, firstUnit.id);
   assert.deepEqual(session.needsReviewQuestionIds, [firstQuestion.id]);
+  assert.equal(session.questionStates[firstQuestion.id], undefined);
 
   session = answerQuestionV2(
     reviewPath,
@@ -164,7 +168,8 @@ test("replays incorrectly answered V2 questions after all new cards before chapt
   assert.ok(session.completedStepIds.includes(`${firstUnit.id}:${firstQuestion.id}`));
 
   session = advanceReviewCardV2(reviewPath, session, { now: NOW });
-  assert.equal(session.currentCard.type, "chapter_summary");
+  assert.equal(session.currentCard.type, "unit_summary");
+  assert.equal(session.currentCard.unitId, firstUnit.id);
 });
 
 test("focuses a later V2 unit at its first incomplete card without losing earlier progress", async () => {
@@ -312,6 +317,103 @@ test("focused V2 unit keeps incorrectly answered questions incomplete until answ
   });
 });
 
+test("keeps incorrectly answered questions scoped to their own unit", async () => {
+  const [reviewPath] = await loadGoldenReviewPaths();
+  const firstUnit = reviewPath.units[0];
+  const laterUnit = reviewPath.units[1];
+  const firstUnitQuestion = firstUnit.questions[0];
+  const laterUnitQuestion = laterUnit.questions[0];
+  let session = createReviewSessionV2(reviewPath, { now: NOW });
+
+  session = focusReviewUnitV2(reviewPath, session, { unitId: firstUnit.id }, { now: NOW });
+  session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+  session = answerQuestionV2(
+    reviewPath,
+    session,
+    {
+      unitId: firstUnit.id,
+      questionId: firstUnitQuestion.id,
+      result: "incorrect",
+      selectedOptionId: "wrong-option"
+    },
+    { now: NOW }
+  );
+
+  session = focusReviewUnitV2(reviewPath, session, { unitId: laterUnit.id }, { now: NOW });
+  session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+  session = answerQuestionV2(
+    reviewPath,
+    session,
+    {
+      unitId: laterUnit.id,
+      questionId: laterUnitQuestion.id,
+      result: "incorrect",
+      selectedOptionId: "wrong-option"
+    },
+    { now: NOW }
+  );
+
+  session = focusReviewUnitV2(reviewPath, session, { unitId: firstUnit.id }, { now: NOW });
+  for (let guard = 0; guard < 100; guard += 1) {
+    if (session.currentCard.type === "question" && session.currentCard.questionId === firstUnitQuestion.id) {
+      break;
+    }
+
+    assert.equal(session.currentCard.unitId, firstUnit.id);
+    if (session.currentCard.type === "question") {
+      const question = firstUnit.questions.find((candidate) => candidate.id === session.currentCard.questionId);
+      assert.notEqual(question.id, laterUnitQuestion.id);
+      session = answerQuestionV2(
+        reviewPath,
+        session,
+        {
+          unitId: firstUnit.id,
+          questionId: question.id,
+          result: "correct",
+          selectedOptionId: question.correctOptionId ?? null
+        },
+        { now: NOW }
+      );
+    }
+    session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+  }
+
+  assert.equal(session.currentCard.type, "question");
+  assert.equal(session.currentCard.unitId, firstUnit.id);
+  assert.equal(session.currentCard.questionId, firstUnitQuestion.id);
+  assert.equal(session.questionStates[firstUnitQuestion.id], undefined);
+
+  session = focusReviewUnitV2(reviewPath, session, { unitId: laterUnit.id }, { now: NOW });
+  for (let guard = 0; guard < 100; guard += 1) {
+    if (session.currentCard.type === "question" && session.currentCard.questionId === laterUnitQuestion.id) {
+      break;
+    }
+
+    assert.equal(session.currentCard.unitId, laterUnit.id);
+    if (session.currentCard.type === "question") {
+      const question = laterUnit.questions.find((candidate) => candidate.id === session.currentCard.questionId);
+      assert.notEqual(question.id, firstUnitQuestion.id);
+      session = answerQuestionV2(
+        reviewPath,
+        session,
+        {
+          unitId: laterUnit.id,
+          questionId: question.id,
+          result: "correct",
+          selectedOptionId: question.correctOptionId ?? null
+        },
+        { now: NOW }
+      );
+    }
+    session = advanceReviewCardV2(reviewPath, session, { now: NOW });
+  }
+
+  assert.equal(session.currentCard.type, "question");
+  assert.equal(session.currentCard.unitId, laterUnit.id);
+  assert.equal(session.currentCard.questionId, laterUnitQuestion.id);
+  assert.equal(session.questionStates[laterUnitQuestion.id], undefined);
+});
+
 test("keeps a reinforcement question queued when it is answered incorrectly again", async () => {
   const [reviewPath] = await loadGoldenReviewPaths();
   const firstUnit = reviewPath.units[0];
@@ -330,6 +432,9 @@ test("keeps a reinforcement question queued when it is answered incorrectly agai
     completedStepIds: reviewPath.units.map((unit) => `${unit.id}:summary`),
     needsReviewQuestionIds: [firstQuestion.id]
   };
+  for (const question of firstUnit.questions.slice(1)) {
+    sessionInReinforcement.completedStepIds.push(`${firstUnit.id}:${question.id}`);
+  }
 
   const answered = answerQuestionV2(
     reviewPath,
@@ -349,6 +454,8 @@ test("keeps a reinforcement question queued when it is answered incorrectly agai
   const advanced = advanceReviewCardV2(reviewPath, answered, { now: NOW });
   assert.equal(advanced.currentCard.type, "question");
   assert.equal(advanced.currentCard.questionId, firstQuestion.id);
+  assert.equal(advanced.currentCard.unitId, firstUnit.id);
+  assert.equal(advanced.questionStates[firstQuestion.id], undefined);
 });
 
 test("does not regress current card when a delayed duplicate answer arrives", async () => {

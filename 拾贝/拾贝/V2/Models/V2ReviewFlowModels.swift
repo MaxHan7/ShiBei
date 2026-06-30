@@ -76,8 +76,8 @@ enum V2ChapterReviewStatus {
         switch self {
         case .generating: "生成中"
         case .failed: "生成失败"
-        case .notStarted: "未复习"
-        case .reviewing: "复习中"
+        case .notStarted: "未学习"
+        case .reviewing: "学习中"
         case .completed: "已完成"
         }
     }

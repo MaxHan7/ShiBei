@@ -598,7 +598,7 @@ function buildGeneratedUnitFromBatches({
     unit: {
       ...stripInternalPlannedUnitFields(plannedUnit),
       overview: unitCopy.overview,
-      questions,
+      questions: normalizeMultipleChoiceAnswerPositions(questions, plannedUnit.id),
       summary: {
         title: "单元完成",
         text: unitCopy.summary.text
@@ -1102,6 +1102,85 @@ function sortQuestionsByPlan(questions, questionPlans) {
     const bIndex = order.has(b.id) ? order.get(b.id) : Number.MAX_SAFE_INTEGER;
     return aIndex - bIndex;
   });
+}
+
+export function normalizeMultipleChoiceAnswerPositions(questions, unitId = "") {
+  return questions.map((question, index) => normalizeMultipleChoiceAnswerPosition(question, { unitId, index }));
+}
+
+function normalizeMultipleChoiceAnswerPosition(question, { unitId, index }) {
+  if (question?.type !== "multiple_choice") return question;
+
+  const labels = ["A", "B", "C", "D"];
+  if (!Array.isArray(question.options) || question.options.length !== labels.length) {
+    return {
+      ...question,
+      options: relabelOptions(question.options || [], labels)
+    };
+  }
+
+  const correct = question.options.find((option) => option.id === question.correctOptionId);
+  if (!correct) {
+    return {
+      ...question,
+      options: relabelOptions(question.options, labels)
+    };
+  }
+
+  const seed = [
+    "v2-multiple-choice-answer-position",
+    unitId,
+    index,
+    question.id,
+    question.practiceGoalId,
+    question.sourceAnchorId,
+    question.stem
+  ].join("|");
+  const targetIndex = (stableHash(`${seed}|correct`) + index) % labels.length;
+  const wrongOptions = stableShuffle(
+    question.options.filter((option) => option.id !== question.correctOptionId),
+    `${seed}|wrong-options`
+  );
+  const reordered = [];
+  let wrongIndex = 0;
+  for (let optionIndex = 0; optionIndex < labels.length; optionIndex += 1) {
+    reordered[optionIndex] = optionIndex === targetIndex ? correct : wrongOptions[wrongIndex++];
+  }
+
+  return {
+    ...question,
+    options: reordered.map((option, optionIndex) => ({
+      ...option,
+      id: labels[optionIndex]
+    })),
+    correctOptionId: labels[targetIndex]
+  };
+}
+
+function relabelOptions(options, labels) {
+  return options.map((option, index) => ({
+    ...option,
+    id: labels[index] || option.id || `option-${index + 1}`
+  }));
+}
+
+function stableShuffle(items, seed) {
+  return [...items]
+    .map((item, index) => ({
+      item,
+      rank: stableHash(`${seed}|${index}|${item.id}|${item.text}`)
+    }))
+    .sort((a, b) => a.rank - b.rank)
+    .map(({ item }) => item);
+}
+
+function stableHash(value) {
+  let hash = 2166136261;
+  for (const char of String(value)) {
+    hash ^= char.codePointAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
 }
 
 function stripInternalQuestionFields(question) {

@@ -82,9 +82,12 @@ export function advanceReviewCardV2(
 
   if (currentCard.type === "unit_overview") {
     const unit = findUnit(reviewPath, currentCard.unitId);
-    activeCore.currentCard = firstIncompleteCardInUnit(reviewPath, activeCore, unit, {
-      includeOverview: false
-    });
+    activeCore.currentCard = prepareNextCardForDisplay(
+      activeCore,
+      firstIncompleteCardInUnit(reviewPath, activeCore, unit, {
+        includeOverview: false
+      })
+    );
     return finalizeActiveMutation(reviewPath, nextSession, now);
   }
 
@@ -97,16 +100,22 @@ export function advanceReviewCardV2(
   }
 
   if (currentCard.type === "question_feedback") {
-    activeCore.currentCard = nextCardAfterQuestionFeedback(reviewPath, activeCore, currentCard);
+    activeCore.currentCard = prepareNextCardForDisplay(
+      activeCore,
+      nextCardAfterQuestionFeedback(reviewPath, activeCore, currentCard)
+    );
     return finalizeActiveMutation(reviewPath, nextSession, now);
   }
 
   if (currentCard.type === "unit_summary") {
     const unitIndex = reviewPath.units.findIndex((unit) => unit.id === currentCard.unitId);
     const nextUnit = reviewPath.units[unitIndex + 1];
-    activeCore.currentCard = nextUnit
-      ? firstIncompleteCardInUnit(reviewPath, activeCore, nextUnit)
-      : firstNeedsReviewQuestionCard(reviewPath, activeCore) ?? chapterSummaryCard(reviewPath);
+    activeCore.currentCard = prepareNextCardForDisplay(
+      activeCore,
+      nextUnit
+        ? firstIncompleteCardInUnit(reviewPath, activeCore, nextUnit)
+        : chapterSummaryCard(reviewPath)
+    );
     return finalizeActiveMutation(reviewPath, nextSession, now);
   }
 
@@ -130,7 +139,10 @@ export function focusReviewUnitV2(
   const unit = findUnit(reviewPath, unitId);
   const activeCore = activeReviewCore(nextSession);
 
-  activeCore.currentCard = firstIncompleteCardInUnit(reviewPath, activeCore, unit);
+  activeCore.currentCard = prepareNextCardForDisplay(
+    activeCore,
+    firstIncompleteCardInUnit(reviewPath, activeCore, unit)
+  );
   return finalizeActiveMutation(reviewPath, nextSession, now);
 }
 
@@ -596,19 +608,25 @@ function chapterSummaryCard(reviewPath) {
 }
 
 function nextCardAfterQuestionFeedback(reviewPath, session, card) {
-  if (allUnitSummariesCompleted(reviewPath, session)) {
-    return firstNeedsReviewQuestionCard(reviewPath, session) ?? chapterSummaryCard(reviewPath);
-  }
-
   const unit = findUnit(reviewPath, card.unitId);
   const questionIndex = unit.questions.findIndex((question) => question.id === card.questionId);
   const nextQuestion = unit.questions
     .slice(questionIndex + 1)
     .find((question) => !isQuestionCompleted(session, unit.id, question.id));
 
-  return nextQuestion
-    ? questionCard(reviewPath, unit, nextQuestion)
-    : unitSummaryCard(reviewPath, unit);
+  if (nextQuestion) {
+    return questionCard(reviewPath, unit, nextQuestion);
+  }
+
+  return firstNeedsReviewQuestionCardInUnit(reviewPath, session, unit) ?? unitSummaryCard(reviewPath, unit);
+}
+
+function prepareNextCardForDisplay(session, card) {
+  if (card?.type === "question" && isNeedsReviewQuestion(session, card.questionId)) {
+    delete session.questionStates[card.questionId];
+  }
+
+  return card;
 }
 
 function markCurrentCardCompleted(session, card) {
@@ -668,13 +686,8 @@ function unionStrings(left = [], right = []) {
   ];
 }
 
-function firstNeedsReviewQuestionCard(reviewPath, session) {
+function firstNeedsReviewQuestionCardInUnit(reviewPath, session, unit) {
   for (const questionId of session.needsReviewQuestionIds) {
-    const unit = reviewPath.units.find((candidate) =>
-      candidate.questions.some((question) => question.id === questionId)
-    );
-    if (!unit) continue;
-
     const question = unit.questions.find((candidate) => candidate.id === questionId);
     if (question) {
       return questionCard(reviewPath, unit, question);
@@ -684,18 +697,16 @@ function firstNeedsReviewQuestionCard(reviewPath, session) {
   return null;
 }
 
+function isNeedsReviewQuestion(session, questionId) {
+  return session.needsReviewQuestionIds.includes(questionId);
+}
+
 function isSameQuestionCard(card, questionCard) {
   return Boolean(
     card &&
     (card.type === "question" || card.type === "question_feedback") &&
     card.unitId === questionCard.unitId &&
     card.questionId === questionCard.questionId
-  );
-}
-
-function allUnitSummariesCompleted(reviewPath, session) {
-  return reviewPath.units.every((unit) =>
-    session.completedStepIds.includes(unitSummaryStepId(unit.id))
   );
 }
 
@@ -717,7 +728,7 @@ function firstIncompleteCardInUnit(
     return questionCard(reviewPath, unit, firstIncompleteQuestion);
   }
 
-  return unitSummaryCard(reviewPath, unit);
+  return firstNeedsReviewQuestionCardInUnit(reviewPath, session, unit) ?? unitSummaryCard(reviewPath, unit);
 }
 
 function isQuestionCompleted(session, unitId, questionId) {
