@@ -744,95 +744,115 @@ struct V2ChapterSummaryView: View {
 
     var body: some View {
         V2FlowScreen(title: "", onBack: onBack) {
-            ZStack(alignment: .top) {
-                Image("V2BgDecoSmallPlantCluster")
-                    .resizable()
-                    .renderingMode(.original)
-                    .scaledToFit()
-                    .frame(width: 60, height: 54)
-                    .opacity(0.66)
-                    .offset(x: -158, y: V2ChapterSummaryPageMetrics.leftDecoY)
-                    .allowsHitTesting(false)
+            GeometryReader { geometry in
+                ZStack {
+                    V2ChapterSummaryDecorationLayer()
 
-                Image("V2BgDecoRightHillPlant")
-                    .resizable()
-                    .renderingMode(.original)
-                    .scaledToFit()
-                    .frame(width: 104, height: 55)
-                    .opacity(0.66)
-                    .offset(x: 154, y: V2ChapterSummaryPageMetrics.rightDecoY)
-                    .allowsHitTesting(false)
+                    V2ChapterCompletionResultCard(chapter: chapter)
+                        .position(
+                            x: geometry.size.width / 2,
+                            y: geometry.size.height * V2ChapterSummaryPageMetrics.resultCardCenterYRatio
+                        )
+                        .zIndex(2)
 
-                V2ChapterCompletionHero(chapter: chapter)
-                    .offset(y: V2ChapterSummaryPageMetrics.heroY)
+                    V2ChapterCompletionBottomLayer()
+                    .frame(width: geometry.size.width, height: geometry.size.height, alignment: .bottom)
+                    .ignoresSafeArea(edges: .bottom)
+                    .zIndex(1)
 
-                V2PrimaryActionButton(title: "返回主页", action: onHome)
-                    .frame(width: V2Layout.primaryActionWidth)
-                    .offset(y: V2ChapterSummaryPageMetrics.buttonY)
-
-                Button(action: onDetail) {
-                    Text("查看章节详情")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Color(hex: 0x737946).opacity(0.55))
-                        .frame(height: 26)
+                    V2ChapterCompletionActionLayer(
+                        onHome: onHome,
+                        onDetail: onDetail
+                    )
+                    .position(
+                        x: geometry.size.width / 2,
+                        y: V2ChapterSummaryPageMetrics.actionCenterY
+                    )
+                    .zIndex(3)
                 }
-                .buttonStyle(.plain)
-                .offset(y: V2ChapterSummaryPageMetrics.detailY)
+                .frame(width: geometry.size.width, height: geometry.size.height)
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: V2ChapterSummaryPageMetrics.contentHeight, alignment: .top)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
 
 private enum V2ChapterSummaryPageMetrics {
-    static let heroY: CGFloat = 0
-    static let leftDecoY: CGFloat = 328
-    static let rightDecoY: CGFloat = 364
-    static let buttonY: CGFloat = V2Layout.primaryActionBottomY
-    static let detailY: CGFloat = V2Layout.primaryActionBottomY + 73
-    static let contentHeight: CGFloat = 742
+    static let resultCardCenterYRatio: CGFloat = 0.36
+    static let leftDecoX: CGFloat = -158
+    static let leftDecoY: CGFloat = 390
+    static let rightDecoX: CGFloat = 154
+    static let rightDecoY: CGFloat = 422
+    static let mascotWidth: CGFloat = 378
+    static let mascotHeight: CGFloat = 403
+    static let mascotBottomBleed: CGFloat = 42
+    static let actionCenterY: CGFloat = V2Layout.primaryActionBottomY + 27
+    static let detailTopGap: CGFloat = 25
 }
 
-private struct V2ChapterCompletionHero: View {
-    let chapter: V2ReviewChapterData
-
+private struct V2ChapterSummaryDecorationLayer: View {
     var body: some View {
-        ZStack(alignment: .top) {
-            Image("V2ChapterCompletionMascot")
+        ZStack {
+            Image("V2BgDecoSmallPlantCluster")
                 .resizable()
                 .renderingMode(.original)
                 .scaledToFit()
-                .frame(
-                    width: V2ChapterCompletionHeroMetrics.mascotWidth,
-                    height: V2ChapterCompletionHeroMetrics.mascotHeight
-                )
+                .frame(width: 60, height: 54)
+                .opacity(0.66)
                 .offset(
-                    x: V2ChapterCompletionHeroMetrics.mascotX,
-                    y: V2ChapterCompletionHeroMetrics.mascotY
+                    x: V2ChapterSummaryPageMetrics.leftDecoX,
+                    y: V2ChapterSummaryPageMetrics.leftDecoY
                 )
-                .zIndex(0)
 
-            V2ChapterCompletionResultCard(chapter: chapter)
-                .offset(y: V2ChapterCompletionHeroMetrics.resultCardY)
-                .zIndex(1)
+            Image("V2BgDecoRightHillPlant")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 104, height: 55)
+                .opacity(0.66)
+                .offset(
+                    x: V2ChapterSummaryPageMetrics.rightDecoX,
+                    y: V2ChapterSummaryPageMetrics.rightDecoY
+                )
         }
-        .frame(
-            width: V2ChapterCompletionHeroMetrics.width,
-            height: V2ChapterCompletionHeroMetrics.height,
-            alignment: .top
-        )
+        .allowsHitTesting(false)
     }
 }
 
-private enum V2ChapterCompletionHeroMetrics {
-    static let width: CGFloat = 402
-    static let height: CGFloat = 500
-    static let mascotWidth: CGFloat = 378
-    static let mascotHeight: CGFloat = 403
-    static let mascotX: CGFloat = 0
-    static let mascotY: CGFloat = 245
-    static let resultCardY: CGFloat = 255
+private struct V2ChapterCompletionBottomLayer: View {
+    var body: some View {
+        Image("V2ChapterCompletionMascot")
+            .resizable()
+            .renderingMode(.original)
+            .scaledToFit()
+            .frame(
+                width: V2ChapterSummaryPageMetrics.mascotWidth,
+                height: V2ChapterSummaryPageMetrics.mascotHeight
+            )
+            .offset(y: V2ChapterSummaryPageMetrics.mascotBottomBleed)
+            .allowsHitTesting(false)
+    }
+}
+
+private struct V2ChapterCompletionActionLayer: View {
+    let onHome: () -> Void
+    let onDetail: () -> Void
+
+    var body: some View {
+        VStack(spacing: V2ChapterSummaryPageMetrics.detailTopGap) {
+            V2PrimaryActionButton(title: "返回主页", action: onHome)
+                .frame(width: V2Layout.primaryActionWidth)
+
+            Button(action: onDetail) {
+                Text("查看章节详情")
+                    .font(.system(size: 14, weight: .regular, design: .default))
+                    .tracking(-0.24)
+                    .foregroundStyle(Color(hex: 0x737946).opacity(0.55))
+                    .frame(height: 26)
+            }
+            .buttonStyle(.plain)
+        }
+    }
 }
 
 private struct V2ChapterCompletionResultCard: View {
