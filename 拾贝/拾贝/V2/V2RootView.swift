@@ -27,6 +27,7 @@ struct V2RootView: View {
     @State private var questionInteractionStates: [String: V2QuestionInteractionState] = [:]
     @State private var backendChapters: [V2BackendChapter] = []
     @State private var backendChapter: V2BackendChapter?
+    @State private var selectedBackendChapterID = ""
     @State private var backendReviewChapter: V2ReviewChapterData?
     @State private var v2ReviewSession: V2BackendReviewSession?
     @State private var backendNotifications: [NotificationItem] = []
@@ -568,7 +569,7 @@ struct V2RootView: View {
         guard let chapter = backendChapters.first(where: { $0.id == id }) else {
             return false
         }
-        applyBackendChapter(chapter)
+        applyBackendChapter(chapter, activateForReview: true)
         return true
     }
 
@@ -993,13 +994,15 @@ struct V2RootView: View {
     }
 
     private var activeChapter: V2ReviewChapterData? {
-        backendReviewChapter ?? (usesFixtures ? V2ReviewFixture.chapter : nil)
+        selectedBackendChapter?.toReviewChapterData()
+            ?? backendReviewChapter
+            ?? (usesFixtures ? V2ReviewFixture.chapter : nil)
     }
 
     private var chapterDetailPrimaryActionTitle: String {
         guard !usesFixtures,
-              backendChapter?.status == "completed",
-              let session = v2ReviewSession ?? backendChapter?.v2ReviewSession,
+              selectedBackendChapter?.status == "completed",
+              let session = activeReviewSession,
               session.completedAt == nil else {
             return "开始学习"
         }
@@ -1058,7 +1061,7 @@ struct V2RootView: View {
         guard let chapter = activeLearningBackendChapter else {
             return false
         }
-        applyBackendChapter(chapter)
+        applyBackendChapter(chapter, activateForReview: true)
         return true
     }
 
@@ -1147,6 +1150,30 @@ struct V2RootView: View {
         activeChapter?.units.first?.id ?? ""
     }
 
+    private var selectedBackendChapter: V2BackendChapter? {
+        guard !selectedBackendChapterID.isEmpty else {
+            return nil
+        }
+        return backendChapters.first { $0.id == selectedBackendChapterID }
+    }
+
+    private var activeReviewBackendChapter: V2BackendChapter? {
+        selectedBackendChapter ?? backendChapter
+    }
+
+    private var activeReviewSession: V2BackendReviewSession? {
+        v2ReviewSession ?? selectedBackendChapter?.v2ReviewSession
+    }
+
+    private var deletionTargetBackendChapter: V2BackendChapter? {
+        switch routeStore.current {
+        case .generatingChapterDetail, .generationFailureDetail:
+            return backendChapter ?? activeReviewBackendChapter
+        default:
+            return activeReviewBackendChapter
+        }
+    }
+
     private var backendSavedQuestionItems: [V2SavedQuestionDisplayItem] {
         backendFavoriteQuestions.compactMap { record in
             backendSavedQuestionItem(record: record)
@@ -1231,7 +1258,7 @@ struct V2RootView: View {
     }
 
     private var usesBackendReviewChapter: Bool {
-        !usesFixtures && backendReviewChapter != nil && backendChapter?.status == "completed"
+        !usesFixtures && activeChapter != nil && activeReviewBackendChapter?.status == "completed"
     }
 
     private func activeUnit(id: String) -> V2ReviewUnitData? {
@@ -1354,7 +1381,10 @@ struct V2RootView: View {
                 do {
                     let chapter = try await apiClient.fetchV2Chapter(id: chapterID)
                     await MainActor.run {
-                        applyBackendChapter(chapter)
+                        let shouldActivateGeneratedChapter = routeStore.current == .generatingChapterDetail
+                            && !isFailedGenerationStatus(chapter.status)
+                            && chapter.toReviewChapterData() != nil
+                        applyBackendChapter(chapter, activateForReview: shouldActivateGeneratedChapter)
                     }
                     if chapter.progress?.isFinished == true || isTerminalGenerationStatus(chapter.status) {
                         await MainActor.run {
@@ -1417,7 +1447,7 @@ struct V2RootView: View {
                 return
             }
             let initialChapter = activeLearningBackendChapter ?? latestChapter
-            applyBackendChapter(initialChapter)
+            applyBackendChapter(initialChapter, activateForReview: true)
             if !isTerminalGenerationStatus(latestChapter.status) {
                 startGenerationPolling(chapterID: latestChapter.id)
             }
@@ -1426,19 +1456,24 @@ struct V2RootView: View {
         }
     }
 
-    private func applyBackendChapter(_ chapter: V2BackendChapter) {
+    private func applyBackendChapter(_ chapter: V2BackendChapter, activateForReview: Bool = false) {
         let previousChapterID = backendChapter?.id
         backendChapter = chapter
         upsertBackendChapter(chapter)
-        if previousChapterID != chapter.id {
+        if activateForReview {
+            selectedBackendChapterID = chapter.id
+        }
+
+        let updatesActiveReviewChapter = selectedBackendChapterID.isEmpty || selectedBackendChapterID == chapter.id
+        if previousChapterID != chapter.id && updatesActiveReviewChapter {
             generationState.clearError()
             backendReviewChapter = nil
             v2ReviewSession = nil
         }
-        if let reviewChapter = chapter.toReviewChapterData() {
+        if updatesActiveReviewChapter, let reviewChapter = chapter.toReviewChapterData() {
             backendReviewChapter = reviewChapter
         }
-        if let session = chapter.v2ReviewSession {
+        if updatesActiveReviewChapter, let session = chapter.v2ReviewSession {
             v2ReviewSession = session
             hydrateLocalQuestionStates(from: session)
         }
@@ -1480,7 +1515,7 @@ struct V2RootView: View {
 
     @MainActor
     private func deleteSelectedBackendChapter() async {
-        guard let chapterID = backendChapter?.id else {
+        guard let chapterID = deletionTargetBackendChapter?.id else {
             resetToHome(tab: .materials)
             return
         }
@@ -1498,9 +1533,12 @@ struct V2RootView: View {
             if activeLearningChapterID == chapterID {
                 activeLearningChapterID = ""
             }
+            if selectedBackendChapterID == chapterID {
+                selectedBackendChapterID = ""
+            }
             backendChapter = backendChapters.first
-            backendReviewChapter = backendChapter?.toReviewChapterData()
-            v2ReviewSession = backendChapter?.v2ReviewSession
+            backendReviewChapter = selectedBackendChapter?.toReviewChapterData() ?? backendChapter?.toReviewChapterData()
+            v2ReviewSession = selectedBackendChapter?.v2ReviewSession ?? backendChapter?.v2ReviewSession
             recommendedArticleGenerationSimulation = nil
             recommendedArticleGenerationPendingChapters.removeAll()
             generationState.resetAfterDelete()
@@ -1541,7 +1579,7 @@ struct V2RootView: View {
         recommendedArticleGenerationSimulation = nil
         recommendedArticleSimulationTask = nil
         if let chapter = recommendedArticleGenerationPendingChapters.removeValue(forKey: simulationID) {
-            applyBackendChapter(chapter)
+            applyBackendChapter(chapter, activateForReview: routeStore.current == .generatingChapterDetail)
         }
         generationState.showsChapterCard = false
         generationState.clearError()
@@ -1698,7 +1736,7 @@ struct V2RootView: View {
         let chapterID = notification.chapterId
         let cachedChapter = backendChapters.first(where: { $0.id == chapterID })
         if let cachedChapter {
-            applyBackendChapter(cachedChapter)
+            applyBackendChapter(cachedChapter, activateForReview: true)
             pushRoute(targetRoute)
         }
 
@@ -1735,12 +1773,12 @@ struct V2RootView: View {
     }
 
     private func openNotificationChapter(chapterID: String, forceRefresh: Bool = false) async {
-        guard !chapterID.isEmpty, forceRefresh || backendChapter?.id != chapterID else { return }
+        guard !chapterID.isEmpty, forceRefresh || selectedBackendChapterID != chapterID else { return }
 
         do {
             let chapter = try await apiClient.fetchV2Chapter(id: chapterID)
             await MainActor.run {
-                applyBackendChapter(chapter)
+                applyBackendChapter(chapter, activateForReview: true)
             }
         } catch {
             await MainActor.run {
@@ -1820,7 +1858,7 @@ struct V2RootView: View {
 
     @MainActor
     private func startOrResumeBackendReviewFromChapterDetail() async {
-        guard let chapterID = backendChapter?.id else {
+        guard let chapterID = activeReviewBackendChapter?.id else {
             openFirstUnit()
             return
         }
@@ -1840,7 +1878,7 @@ struct V2RootView: View {
 
     @MainActor
     private func startOrResumeBackendReviewFromLearningPath(fallbackUnitID: String) async {
-        guard let chapterID = backendChapter?.id else {
+        guard let chapterID = activeReviewBackendChapter?.id else {
             resetToRoute(.unitOverview(unitID: fallbackUnitID), tab: .learning)
             return
         }
@@ -1860,7 +1898,7 @@ struct V2RootView: View {
 
     @MainActor
     private func replayBackendReviewFromUnit(unitID: String) async {
-        guard let chapterID = backendChapter?.id else {
+        guard let chapterID = activeReviewBackendChapter?.id else {
             resetToRoute(.unitOverview(unitID: unitID), tab: .learning)
             return
         }
@@ -2061,11 +2099,11 @@ struct V2RootView: View {
 
     @MainActor
     private func ensureV2ReviewSession() async throws -> V2BackendReviewSession? {
-        if let v2ReviewSession {
-            return v2ReviewSession
+        if let activeReviewSession {
+            return activeReviewSession
         }
 
-        guard let chapterID = backendChapter?.id else {
+        guard let chapterID = activeReviewBackendChapter?.id else {
             return nil
         }
 
@@ -2105,7 +2143,7 @@ struct V2RootView: View {
             )
         }
         let chapterWithSession = response.chapter.replacingReviewSession(responseSession)
-        applyBackendChapter(chapterWithSession)
+        applyBackendChapter(chapterWithSession, activateForReview: true)
         if let session = responseSession {
             v2ReviewSession = session
             hydrateLocalQuestionStates(from: session)
@@ -2258,7 +2296,7 @@ struct V2RootView: View {
     }
 
     private func isBackendQuestionFavorite(questionID: String) -> Bool {
-        guard let chapterID = backendChapter?.id else {
+        guard let chapterID = activeReviewBackendChapter?.id else {
             return false
         }
         return isBackendQuestionFavorite(chapterID: chapterID, questionID: questionID)
@@ -2275,7 +2313,7 @@ struct V2RootView: View {
     }
 
     private func toggleBackendFavorite(questionID: String, isSaved: Bool) {
-        guard let chapterID = backendChapter?.id else {
+        guard let chapterID = activeReviewBackendChapter?.id else {
             return
         }
         toggleBackendFavorite(chapterID: chapterID, questionID: questionID, isSaved: isSaved)
