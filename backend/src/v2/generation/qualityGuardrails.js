@@ -18,6 +18,25 @@ const FORBIDDEN_EXPLANATION_PATTERNS = [
   /根据原文/
 ];
 
+const OPTION_TONE_CUE_TERMS = [
+  "完全",
+  "一定",
+  "所有",
+  "任何",
+  "只能",
+  "只要",
+  "不需要",
+  "无需",
+  "无关",
+  "没有关系",
+  "替代一切",
+  "全部替代",
+  "百分百",
+  "必然",
+  "绝不",
+  "绝对"
+];
+
 const WEAK_MATCHING_STEM_PATTERNS = [
   /概念.{0,6}(描述|解释|定义)/,
   /名词.{0,6}(描述|解释|定义)/,
@@ -114,6 +133,10 @@ function analyzeQuestion(question, unit, anchorIds) {
     const distractorCheck = analyzeDistractors(question);
     checks.distractorValue = distractorCheck.status;
     if (distractorCheck.issue) issues.push(distractorCheck.issue);
+
+    const toneCueCheck = analyzeOptionToneCues(question);
+    checks.optionToneCue = toneCueCheck.status;
+    if (toneCueCheck.issue) issues.push(toneCueCheck.issue);
   }
 
   if (question.type === "matching") {
@@ -173,6 +196,49 @@ function analyzeDistractors(question) {
   }
 
   return { status: "pass" };
+}
+
+function analyzeOptionToneCues(question) {
+  const options = Array.isArray(question.options) ? question.options : [];
+  const correct = options.find((option) => option.id === question.correctOptionId);
+  const distractors = options.filter((option) => option.id !== question.correctOptionId);
+
+  if (!correct || distractors.length === 0) {
+    return { status: "invalid_options" };
+  }
+
+  const correctHits = cueTermsInText(correct.text);
+  const distractorHits = distractors.flatMap((option) =>
+    cueTermsInText(option.text).map((term) => ({ optionId: option.id, term }))
+  );
+  const distractorHitOptionCount = new Set(distractorHits.map((hit) => hit.optionId)).size;
+
+  if (distractorHitOptionCount >= 2 && correctHits.length === 0) {
+    return {
+      status: "distractor_tone_cue",
+      issue: issue({
+        code: "v2_option_tone_cue",
+        severity: "warning",
+        message: `多个干扰项包含绝对化或否定化泄题词：${unique(distractorHits.map((hit) => hit.term)).join("、")}`,
+        targetId: question.id
+      })
+    };
+  }
+
+  if (distractorHits.length > 0) {
+    return { status: "watch", cueTerms: unique(distractorHits.map((hit) => hit.term)) };
+  }
+
+  return { status: "pass" };
+}
+
+function cueTermsInText(value = "") {
+  const text = String(value || "");
+  return OPTION_TONE_CUE_TERMS.filter((term) => text.includes(term));
+}
+
+function unique(values) {
+  return [...new Set(values.filter(Boolean))];
 }
 
 function analyzeMatchingRelation(question) {

@@ -28,6 +28,16 @@ function multipleChoiceVisibleTextLimits() {
   ];
 }
 
+function multipleChoiceOptionToneRules() {
+  return [
+    "选项语气平衡规则：",
+    "- 干扰项要像真实但错误的理解，不要靠语气词暴露错误。",
+    "- 避免让错误选项集中出现“完全、一定、所有、任何、只能、不需要、无关、替代一切、百分百”等绝对化或否定化表达。",
+    "- 只有原文确实在考边界时才使用强限定词；否则四个选项的语气、长度和抽象层级要相近。",
+    "- 错误选项应错在边界、条件、因果、对象或适用场景，而不是错在一眼可排除的极端措辞。"
+  ];
+}
+
 function matchingVisibleTextLimits() {
   return [
     "移动端显示上限：",
@@ -57,6 +67,7 @@ function buildQuestionDraftBatchMessages({ article, source, units }) {
       "- 4 个选项只能有一个正确答案；正确选项不能明显更长。",
       "- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。",
       "- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。",
+      ...multipleChoiceOptionToneRules(),
       ...multipleChoiceVisibleTextLimits(),
       "连线题规则：",
       "- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。",
@@ -97,6 +108,7 @@ function buildMultipleChoiceDraftBatchMessages({ article, source, units }) {
       "- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。",
       "- 选项尽量短，考理解、边界、误区或场景迁移，不做阅读理解复述。",
       "- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。",
+      ...multipleChoiceOptionToneRules(),
       ...multipleChoiceVisibleTextLimits(),
       "source 使用规则：",
       "- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。",
@@ -143,6 +155,7 @@ function buildMultipleChoiceDraftUnitBatchMessages({
       "- correctUnderstanding 写正确理解，misconception 写本题主要误区。",
       "- explanation 是用户答后看到的一句纠偏反馈：把 correctUnderstanding 和 misconception 融合成一句短解释，帮助用户形成正确理解并避开容易混淆的点。",
       "- explanation 不写逐项解析，不写“正确选项A/B/C/D”。",
+      ...multipleChoiceOptionToneRules(),
       ...multipleChoiceVisibleTextLimits(),
       "source 使用规则：",
       "- 只能引用当前 sourceContext.blocks，不要使用整章全文或其他 unit 的 source blocks。",
@@ -489,6 +502,7 @@ function buildMultipleChoiceDraftMessages({ article, source, blocks, sourceConte
       "- 正确选项不能明显更长、更像标准答案。",
       "- explanation 要短、明确，适合底部反馈浮窗；不要写“正确选项A/B/C/D”。",
       "- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。",
+      ...multipleChoiceOptionToneRules(),
       ...multipleChoiceVisibleTextLimits(),
       "",
       `当前 unit:\n${JSON.stringify(unit, null, 2)}`,

@@ -270,6 +270,9 @@ test("multipleChoiceDraftBatch prompt only generates planned multiple choice que
   assert.match(messages.user, /不要新增 questionPlan；不要漏掉任何 multiple_choice questionPlan/);
   assert.match(messages.user, /至少一个干扰项必须承载真实常见误区或混淆点/);
   assert.match(messages.user, /边界辨析/);
+  assert.match(messages.user, /选项语气平衡规则/);
+  assert.match(messages.user, /不要靠语气词暴露错误/);
+  assert.match(messages.user, /完全、一定、所有、任何、只能、不需要、无关、替代一切、百分百/);
   assert.match(messages.user, /stem 尽量不超过 60 个中文字/);
   assert.match(messages.user, /options\[\]\.text 尽量不超过 28 个中文字/);
   assert.match(messages.user, /不是 schema 硬失败条件/);
@@ -313,6 +316,8 @@ test("multipleChoiceDraftUnitBatch prompt turns current unit briefs into evidenc
   assert.match(messages.user, /不能为了变短牺牲关键区分点/);
   assert.match(messages.user, /把 correctUnderstanding 和 misconception 融合成一句短解释/);
   assert.match(messages.user, /不写逐项解析/);
+  assert.match(messages.user, /选项语气平衡规则/);
+  assert.match(messages.user, /错在边界、条件、因果、对象或适用场景/);
   assert.match(messages.user, /stem 尽量不超过 60 个中文字/);
   assert.match(messages.user, /options\[\]\.text 尽量不超过 28 个中文字/);
   assert.match(messages.user, /explanation 尽量不超过 60 个中文字/);
@@ -472,6 +477,8 @@ test("multipleChoiceDraft prompt requires misconception-first distractors", () =
   assert.match(messages.user, /生成 misconception/);
   assert.match(messages.user, /不能写“根据本文\/根据文章\/根据原文/);
   assert.match(messages.user, /正确选项不能明显更长/);
+  assert.match(messages.user, /选项语气平衡规则/);
+  assert.match(messages.user, /四个选项的语气、长度和抽象层级要相近/);
   assert.match(messages.user, /不要写“正确选项A\/B\/C\/D”/);
   assert.match(messages.user, /options\[\]\.text 尽量不超过 28 个中文字/);
 });

@@ -579,6 +579,37 @@ test("keeps generated questions when deterministic guardrails find forbidden phr
   assert.equal(reviewPath.generationMeta.qualityDiagnostics[0].issues[0].code, "v2_forbidden_stem_phrase");
 });
 
+test("reports option tone cues without blocking generated questions", async () => {
+  const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
+    promptCaller: async (stage, payload) => {
+      if (stage === "multipleChoiceDraftUnitBatch") {
+        const draft = await happyPathPromptCaller(stage, payload);
+        draft.questions[0].options = [
+          { id: "A", text: "关键动作前后的固定流程" },
+          { id: "B", text: "完全不需要流程约束" },
+          { id: "C", text: "只能让提示词承担所有提醒" },
+          { id: "D", text: "把规则沉淀成协作材料" }
+        ];
+        draft.questions[0].correctOptionId = "A";
+        return draft;
+      }
+      return happyPathPromptCaller(stage, payload);
+    },
+    now: "2026-06-19T00:00:00.000Z"
+  });
+
+  const toneIssue = reviewPath.generationMeta.qualityDiagnostics[0].issues.find((issue) =>
+    issue.code === "v2_option_tone_cue"
+  );
+
+  assert.equal(reviewPath.status, "completed");
+  assert.equal(reviewPath.generationMeta.qualityGate.blocking, false);
+  assert.equal(reviewPath.generationMeta.qualityGate.deterministicVerdict, "pass");
+  assert.equal(toneIssue.severity, "warning");
+  assert.match(toneIssue.message, /完全/);
+  assert.match(toneIssue.message, /只能/);
+});
+
 test("throws when the final review path violates the V2 contract", async () => {
   await assert.rejects(
     () =>
