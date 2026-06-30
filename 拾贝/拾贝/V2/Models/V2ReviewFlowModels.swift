@@ -2,19 +2,19 @@ import Foundation
 
 enum V2AppRoute: Equatable {
     case notifications
-    case generationFailureDetail
+    case generationFailureDetail(chapterID: String)
     case profile
-    case generatingChapterDetail
-    case chapterDetail
-    case sourceArticle
+    case generatingChapterDetail(chapterID: String?)
+    case chapterDetail(chapterID: String)
+    case sourceArticle(chapterID: String)
     case recommendedArticle(articleID: String)
-    case chapterOverview
-    case unitOverview(unitID: String)
-    case question(unitID: String, questionID: String)
+    case chapterOverview(chapterID: String)
+    case unitOverview(chapterID: String, unitID: String)
+    case question(chapterID: String, unitID: String, questionID: String)
     case savedQuestion(index: Int)
     case savedBackendQuestion(item: V2SavedQuestionDisplayItem)
-    case unitSummary(unitID: String)
-    case chapterSummary
+    case unitSummary(chapterID: String, unitID: String)
+    case chapterSummary(chapterID: String)
 }
 
 enum V2QuestionKind {

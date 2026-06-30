@@ -10,6 +10,11 @@ private enum V2ReviewEntryMode: Equatable {
     }
 }
 
+private enum V2NotificationRouteTarget {
+    case success
+    case failure
+}
+
 struct V2RootView: View {
     @AppStorage("v2.hasSeenGenerationStartedEducation")
     private var hasSeenGenerationStartedEducation = false
@@ -196,16 +201,16 @@ struct V2RootView: View {
                 notifications: backendNotifications,
                 onBack: goBack,
                 onOpenSuccess: { notification in
-                    openNotification(notification, route: .chapterDetail)
+                    openNotification(notification, target: .success)
                 },
                 onOpenFailure: { notification in
-                    openNotification(notification, route: .generationFailureDetail)
+                    openNotification(notification, target: .failure)
                 }
             )
-        case .generationFailureDetail:
+        case .generationFailureDetail(let chapterID):
             V2GenerationFailureDetailView(
                 title: "章节详情",
-                failureReason: activeGenerationFailureReason,
+                failureReason: activeGenerationFailureReason(for: chapterID),
                 onBack: goBack,
                 onSource: openSource,
                 onDelete: { showsDeleteChapterConfirmation = true }
@@ -235,27 +240,27 @@ struct V2RootView: View {
                     isCompleted: canOpenGeneratedChapterFromGenerationDetail,
                     onBack: goBack,
                     onSource: openSource,
-                    onOpenChapter: { replaceRoute(.chapterDetail) },
+                    onOpenChapter: { replaceRoute(chapterDetailRoute()) },
                     onDelete: { showsDeleteChapterConfirmation = true }
                 )
                 .id("generating-detail-running")
             }
-        case .chapterDetail:
-            if let chapter = activeChapter {
+        case .chapterDetail(let chapterID):
+            if let chapter = reviewChapter(for: chapterID) {
                 V2ChapterDetailView(
                     chapter: chapter,
-                    primaryActionTitle: chapterDetailPrimaryActionTitle,
+                    primaryActionTitle: chapterDetailPrimaryActionTitle(chapterID: chapterID),
                     onBack: goBack,
-                    onContinue: continueFromChapterDetail,
-                    onStartUnitReview: startReviewFromChapterDetailUnit,
+                    onContinue: { continueFromChapterDetail(chapterID: chapterID) },
+                    onStartUnitReview: { unitID in startReviewFromChapterDetailUnit(chapterID: chapterID, unitID: unitID) },
                     onSource: openSource,
                     onDelete: { showsDeleteChapterConfirmation = true }
                 )
             } else {
                 V2MissingRouteView(onBack: goBack)
             }
-        case .sourceArticle:
-            if let chapter = activeChapter {
+        case .sourceArticle(let chapterID):
+            if let chapter = reviewChapter(for: chapterID) {
                 V2SourceArticleView(chapter: chapter, question: sourceQuestion, onBack: goBack)
             } else {
                 V2MissingRouteView(onBack: goBack)
@@ -274,8 +279,8 @@ struct V2RootView: View {
             } else {
                 V2MissingRouteView(onBack: goBack)
             }
-        case .chapterOverview:
-            if let chapter = activeChapter {
+        case .chapterOverview(let chapterID):
+            if let chapter = reviewChapter(for: chapterID) {
                 V2ChapterOverviewView(
                     chapter: chapter,
                     onBack: goBack,
@@ -284,8 +289,8 @@ struct V2RootView: View {
             } else {
                 V2MissingRouteView(onBack: goBack)
             }
-        case .unitOverview(let unitID):
-            if let unit = activeUnit(id: unitID) {
+        case .unitOverview(let chapterID, let unitID):
+            if let unit = activeUnit(chapterID: chapterID, id: unitID) {
                 V2UnitOverviewView(
                     unit: unit,
                     unitTitle: unitDisplayTitle(id: unitID) ?? unit.title,
@@ -296,8 +301,8 @@ struct V2RootView: View {
             } else {
                 V2MissingRouteView(onBack: goBack)
             }
-        case .question(let unitID, let questionID):
-            if let question = activeQuestion(unitID: unitID, questionID: questionID) {
+        case .question(let chapterID, let unitID, let questionID):
+            if let question = activeQuestion(chapterID: chapterID, unitID: unitID, questionID: questionID) {
                 let progress = progressIndex(unitID: unitID, questionID: questionID)
                 let unitTitle = unitDisplayTitle(id: unitID) ?? question.title
                 switch question.kind {
@@ -368,7 +373,7 @@ struct V2RootView: View {
                 V2MissingRouteView(onBack: goBack)
             }
         case .savedBackendQuestion(let savedQuestion):
-            if let question = activeQuestion(unitID: savedQuestion.unitID, questionID: savedQuestion.questionID) {
+            if let question = activeQuestion(chapterID: savedQuestion.chapterID, unitID: savedQuestion.unitID, questionID: savedQuestion.questionID) {
                 let progress = (current: 0, total: 1)
                 switch question.kind {
                 case .multipleChoice:
@@ -407,8 +412,8 @@ struct V2RootView: View {
             } else {
                 V2MissingRouteView(onBack: goBack)
             }
-        case .unitSummary(let unitID):
-            if let unit = activeUnit(id: unitID) {
+        case .unitSummary(let chapterID, let unitID):
+            if let unit = activeUnit(chapterID: chapterID, id: unitID) {
                 V2UnitSummaryView(
                     unit: unit,
                     onBack: goBack,
@@ -417,13 +422,13 @@ struct V2RootView: View {
             } else {
                 V2MissingRouteView(onBack: goBack)
             }
-        case .chapterSummary:
-            if let chapter = activeChapter {
+        case .chapterSummary(let chapterID):
+            if let chapter = reviewChapter(for: chapterID) {
                 V2ChapterSummaryView(
                     chapter: chapter,
                     onBack: goBack,
                     onHome: completeChapterReviewAndReturnHome,
-                    onDetail: { pushRoute(.chapterDetail) }
+                    onDetail: { pushRoute(chapterDetailRoute(chapterID: chapterID)) }
                 )
             } else {
                 V2MissingRouteView(onBack: goBack)
@@ -440,15 +445,15 @@ struct V2RootView: View {
             return nil
         }
         switch sourceRoute {
-        case .question(let unitID, let questionID):
-            return activeQuestion(unitID: unitID, questionID: questionID)
+        case .question(let chapterID, let unitID, let questionID):
+            return activeQuestion(chapterID: chapterID, unitID: unitID, questionID: questionID)
         case .savedQuestion(let index):
             guard let savedQuestion = V2ReviewFixture.savedQuestion(at: index) else {
                 return nil
             }
             return V2ReviewFixture.question(for: savedQuestion)
         case .savedBackendQuestion(let savedQuestion):
-            return activeQuestion(unitID: savedQuestion.unitID, questionID: savedQuestion.questionID)
+            return activeQuestion(chapterID: savedQuestion.chapterID, unitID: savedQuestion.unitID, questionID: savedQuestion.questionID)
         default:
             return nil
         }
@@ -472,7 +477,7 @@ struct V2RootView: View {
 
         reviewEntryMode = .mainline
         if node.kind == .start {
-            resetToRoute(.chapterOverview, tab: .learning)
+            resetToRoute(chapterOverviewRoute(), tab: .learning)
         } else if usesBackendReviewChapter {
             Task {
                 await openBackendLearningPathNode(node)
@@ -481,7 +486,7 @@ struct V2RootView: View {
                   let currentRoute = route(for: v2ReviewSession?.currentCard) {
             resetToRoute(currentRoute, tab: .learning)
         } else {
-            resetToRoute(.unitOverview(unitID: node.id), tab: .learning)
+            resetToRoute(unitOverviewRoute(unitID: node.id), tab: .learning)
         }
     }
 
@@ -497,7 +502,7 @@ struct V2RootView: View {
             return
         }
 
-        resetToRoute(.unitOverview(unitID: node.id), tab: .learning)
+        resetToRoute(unitOverviewRoute(unitID: node.id), tab: .learning)
     }
 
     private func startTemporaryPractice(unitID: String) {
@@ -505,7 +510,7 @@ struct V2RootView: View {
             reviewEntryMode = .temporaryPractice
             selectedTab = .learning
             routeStore.clearStack()
-            replaceRoute(.unitOverview(unitID: unitID))
+            replaceRoute(unitOverviewRoute(unitID: unitID))
             return
         }
 
@@ -520,7 +525,7 @@ struct V2RootView: View {
         guard selectActiveLearningChapter() else {
             return
         }
-        pushRoute(.chapterDetail)
+        pushRoute(chapterDetailRoute())
     }
 
     private func openSavedQuestion(index: Int) {
@@ -543,24 +548,25 @@ struct V2RootView: View {
     }
 
     private func openGeneratingChapter(id: String?) {
+        let requestedChapterID = id
         guard let id, selectBackendChapter(id: id) else {
-            pushRoute(.generatingChapterDetail)
+            pushRoute(.generatingChapterDetail(chapterID: requestedChapterID))
             return
         }
         selectedTab = .materials
-        pushRoute(.generatingChapterDetail)
+        pushRoute(.generatingChapterDetail(chapterID: id))
     }
 
     private func openBackendChapter(id: String) {
         guard selectBackendChapter(id: id) else {
-            pushRoute(.chapterDetail)
+            pushRoute(chapterDetailRoute(chapterID: id))
             return
         }
         selectedTab = .materials
         if backendReviewChapter != nil {
-            pushRoute(.chapterDetail)
+            pushRoute(chapterDetailRoute(chapterID: id))
         } else {
-            pushRoute(.generatingChapterDetail)
+            pushRoute(.generatingChapterDetail(chapterID: id))
         }
     }
 
@@ -661,15 +667,15 @@ struct V2RootView: View {
     }
 
     private func openFirstUnit() {
-        replaceRoute(.unitOverview(unitID: activeFirstUnitID))
+        replaceRoute(unitOverviewRoute(unitID: activeFirstUnitID))
     }
 
     private func openFirstQuestion(in unitID: String) {
         guard let questionID = firstQuestionID(in: unitID) else {
-            replaceRoute(.unitSummary(unitID: unitID))
+            replaceRoute(unitSummaryRoute(unitID: unitID))
             return
         }
-        replaceRoute(.question(unitID: unitID, questionID: questionID))
+        replaceRoute(questionRoute(unitID: unitID, questionID: questionID))
     }
 
     private func continueAfterChapterOverview() {
@@ -680,11 +686,14 @@ struct V2RootView: View {
         }
 
         Task {
-            await advanceBackendReviewAndRoute(fallback: .unitOverview(unitID: activeFirstUnitID))
+            await advanceBackendReviewAndRoute(fallback: unitOverviewRoute(unitID: activeFirstUnitID))
         }
     }
 
-    private func startReviewFromChapterDetailUnit(unitID: String) {
+    private func startReviewFromChapterDetailUnit(chapterID: String, unitID: String) {
+        if !usesFixtures {
+            _ = selectBackendChapter(id: chapterID)
+        }
         startTemporaryPractice(unitID: unitID)
     }
 
@@ -692,7 +701,7 @@ struct V2RootView: View {
     private func startBackendPracticeFromUnit(unitID: String) async {
         do {
             guard let session = try await ensureV2ReviewSession() else {
-                resetToRoute(.unitOverview(unitID: unitID), tab: .learning)
+                resetToRoute(unitOverviewRoute(unitID: unitID), tab: .learning)
                 return
             }
 
@@ -703,10 +712,10 @@ struct V2RootView: View {
             applyV2ReviewSessionResponse(response)
             selectedTab = .learning
             routeStore.clearStack()
-            replaceRoute(route(for: response.reviewSession?.displayCard) ?? .unitOverview(unitID: unitID))
+            replaceRoute(route(for: response.reviewSession?.displayCard) ?? unitOverviewRoute(unitID: unitID))
         } catch {
             generationState.errorText = error.localizedDescription
-            resetToRoute(.unitOverview(unitID: unitID), tab: .learning)
+            resetToRoute(unitOverviewRoute(unitID: unitID), tab: .learning)
         }
     }
 
@@ -714,7 +723,7 @@ struct V2RootView: View {
     private func focusBackendReviewUnitAndRoute(unitID: String) async {
         do {
             guard let session = try await ensureV2ReviewSession() else {
-                resetToRoute(.unitOverview(unitID: unitID), tab: .learning)
+                resetToRoute(unitOverviewRoute(unitID: unitID), tab: .learning)
                 return
             }
 
@@ -726,18 +735,18 @@ struct V2RootView: View {
             applyV2ReviewSessionResponse(response)
             selectedTab = .learning
             routeStore.clearStack()
-            replaceRoute(route(for: response.reviewSession?.currentCard) ?? .unitOverview(unitID: unitID))
+            replaceRoute(route(for: response.reviewSession?.currentCard) ?? unitOverviewRoute(unitID: unitID))
         } catch {
             generationState.errorText = error.localizedDescription
-            resetToRoute(.unitOverview(unitID: unitID), tab: .learning)
+            resetToRoute(unitOverviewRoute(unitID: unitID), tab: .learning)
         }
     }
 
     private func continueAfterUnitOverview(unitID: String) {
         if usesBackendReviewChapter, reviewEntryMode.isTemporaryPractice {
             let fallback: V2AppRoute = firstQuestionID(in: unitID)
-                .map { .question(unitID: unitID, questionID: $0) }
-                ?? .unitSummary(unitID: unitID)
+                .map { questionRoute(unitID: unitID, questionID: $0) }
+                ?? unitSummaryRoute(unitID: unitID)
             Task {
                 await advanceBackendPracticeAndRoute(fallback: fallback)
             }
@@ -750,8 +759,8 @@ struct V2RootView: View {
         }
 
         let fallback: V2AppRoute = firstQuestionID(in: unitID)
-            .map { .question(unitID: unitID, questionID: $0) }
-            ?? .unitSummary(unitID: unitID)
+            .map { questionRoute(unitID: unitID, questionID: $0) }
+            ?? unitSummaryRoute(unitID: unitID)
 
         Task {
             await advanceBackendReviewAndRoute(fallback: fallback)
@@ -780,9 +789,9 @@ struct V2RootView: View {
         questionInteractionStates.removeValue(forKey: questionStateKey(unitID: unitID, questionID: questionID))
 
         if let nextQuestion = nextQuestion(after: questionID, in: unitID) {
-            replaceRoute(.question(unitID: unitID, questionID: nextQuestion.id))
+            replaceRoute(questionRoute(unitID: unitID, questionID: nextQuestion.id))
         } else {
-            replaceRoute(.unitSummary(unitID: unitID))
+            replaceRoute(unitSummaryRoute(unitID: unitID))
         }
     }
 
@@ -950,17 +959,17 @@ struct V2RootView: View {
 
     private func advanceLocalAfterUnit(unitID: String) {
         if let nextUnit = nextUnit(after: unitID) {
-            replaceRoute(.unitOverview(unitID: nextUnit.id))
+            replaceRoute(unitOverviewRoute(unitID: nextUnit.id))
         } else {
-            replaceRoute(.chapterSummary)
+            replaceRoute(chapterSummaryRoute())
         }
     }
 
     private func routeAfterUnitSummary(unitID: String) -> V2AppRoute {
         if let nextUnit = nextUnit(after: unitID) {
-            return .unitOverview(unitID: nextUnit.id)
+            return unitOverviewRoute(unitID: nextUnit.id)
         }
-        return .chapterSummary
+        return chapterSummaryRoute()
     }
 
     private func completeChapterReviewAndReturnHome() {
@@ -970,15 +979,17 @@ struct V2RootView: View {
         }
 
         Task {
-            await advanceBackendReviewAndRoute(fallback: .chapterSummary, resetHomeOnCompletion: true)
+            await advanceBackendReviewAndRoute(fallback: chapterSummaryRoute(), resetHomeOnCompletion: true)
         }
     }
 
-    private func continueFromChapterDetail() {
+    private func continueFromChapterDetail(chapterID: String? = nil) {
         reviewEntryMode = .mainline
-        if usesBackendReviewChapter {
+        let resolvedChapterID = resolvedChapterID(chapterID)
+        if !usesFixtures,
+           backendChapter(for: resolvedChapterID)?.status == "completed" {
             Task {
-                await startOrResumeBackendReviewFromChapterDetail()
+                await startOrResumeBackendReviewFromChapterDetail(chapterID: resolvedChapterID)
             }
             return
         }
@@ -987,22 +998,69 @@ struct V2RootView: View {
         selectedTab = .learning
         routeStore.clearStack()
         if activeUnit(id: currentNodeID) != nil {
-            replaceRoute(.unitOverview(unitID: currentNodeID))
+            replaceRoute(unitOverviewRoute(unitID: currentNodeID))
         } else {
             openFirstUnit()
         }
     }
 
     private var activeChapter: V2ReviewChapterData? {
-        selectedBackendChapter?.toReviewChapterData()
+        reviewChapter(for: selectedBackendChapterID)
             ?? backendReviewChapter
             ?? (usesFixtures ? V2ReviewFixture.chapter : nil)
     }
 
-    private var chapterDetailPrimaryActionTitle: String {
+    private func resolvedChapterID(_ preferredChapterID: String? = nil) -> String {
+        if let preferredChapterID, !preferredChapterID.isEmpty {
+            return preferredChapterID
+        }
+        if !selectedBackendChapterID.isEmpty {
+            return selectedBackendChapterID
+        }
+        if let activeID = activeReviewBackendChapter?.id, !activeID.isEmpty {
+            return activeID
+        }
+        if let learningID = activeLearningBackendChapter?.id, !learningID.isEmpty {
+            return learningID
+        }
+        if usesFixtures {
+            return "v2-fixture"
+        }
+        return ""
+    }
+
+    private func backendChapter(for chapterID: String) -> V2BackendChapter? {
+        guard !chapterID.isEmpty else {
+            return nil
+        }
+        return backendChapters.first { $0.id == chapterID }
+            ?? (backendChapter?.id == chapterID ? backendChapter : nil)
+    }
+
+    private func reviewChapter(for chapterID: String) -> V2ReviewChapterData? {
+        if usesFixtures, chapterID == "v2-fixture" {
+            return V2ReviewFixture.chapter
+        }
+        if let chapter = backendChapter(for: chapterID)?.toReviewChapterData() {
+            return chapter
+        }
+        if selectedBackendChapterID == chapterID {
+            return backendReviewChapter
+        }
+        return nil
+    }
+
+    private var isShowingGenerationDetail: Bool {
+        if case .generatingChapterDetail(_) = routeStore.current {
+            return true
+        }
+        return false
+    }
+
+    private func chapterDetailPrimaryActionTitle(chapterID: String) -> String {
         guard !usesFixtures,
-              selectedBackendChapter?.status == "completed",
-              let session = activeReviewSession,
+              backendChapter(for: chapterID)?.status == "completed",
+              let session = reviewSession(for: chapterID),
               session.completedAt == nil else {
             return "开始学习"
         }
@@ -1165,9 +1223,21 @@ struct V2RootView: View {
         v2ReviewSession ?? selectedBackendChapter?.v2ReviewSession
     }
 
+    private func reviewSession(for chapterID: String) -> V2BackendReviewSession? {
+        if v2ReviewSession?.chapterId == chapterID {
+            return v2ReviewSession
+        }
+        return backendChapter(for: chapterID)?.v2ReviewSession
+    }
+
     private var deletionTargetBackendChapter: V2BackendChapter? {
         switch routeStore.current {
-        case .generatingChapterDetail, .generationFailureDetail:
+        case .generationFailureDetail(let chapterID):
+            return backendChapter(for: chapterID) ?? activeReviewBackendChapter
+        case .generatingChapterDetail(let chapterID):
+            if let chapterID, let chapter = backendChapter(for: chapterID) {
+                return chapter
+            }
             return backendChapter ?? activeReviewBackendChapter
         default:
             return activeReviewBackendChapter
@@ -1221,6 +1291,17 @@ struct V2RootView: View {
         return userFacingGenerationFailureReason(reason)
     }
 
+    private func activeGenerationFailureReason(for chapterID: String) -> String {
+        let chapter = backendChapter(for: chapterID)
+        let reason = chapter?.failureReason
+            ?? chapter?.progress?.failureMessage
+            ?? (backendChapter?.id == chapterID ? generationState.errorText : "")
+        guard !reason.isEmpty else {
+            return "生成失败，请删除后重新上传。"
+        }
+        return userFacingGenerationFailureReason(reason)
+    }
+
     private func userFacingGenerationFailureReason(_ reason: String) -> String {
         let lowercasedReason = reason.lowercased()
         let internalMarkers = [
@@ -1251,10 +1332,11 @@ struct V2RootView: View {
     }
 
     private var canOpenActiveSource: Bool {
-        guard let activeChapter else {
+        let chapter = routeChapterID(routeStore.current).flatMap(reviewChapter(for:)) ?? activeChapter
+        guard let chapter else {
             return false
         }
-        return !activeChapter.sourceBody.isEmpty
+        return !chapter.sourceBody.isEmpty
     }
 
     private var usesBackendReviewChapter: Bool {
@@ -1265,8 +1347,16 @@ struct V2RootView: View {
         activeChapter?.units.first { $0.id == id }
     }
 
+    private func activeUnit(chapterID: String, id: String) -> V2ReviewUnitData? {
+        reviewChapter(for: chapterID)?.units.first { $0.id == id }
+    }
+
     private func activeQuestion(unitID: String, questionID: String) -> V2ReviewQuestionData? {
         activeUnit(id: unitID)?.questions.first { $0.id == questionID }
+    }
+
+    private func activeQuestion(chapterID: String, unitID: String, questionID: String) -> V2ReviewQuestionData? {
+        activeUnit(chapterID: chapterID, id: unitID)?.questions.first { $0.id == questionID }
     }
 
     private func unitDisplayTitle(id: String) -> String? {
@@ -1333,7 +1423,7 @@ struct V2RootView: View {
         }
 
         selectedTab = .materials
-        routeStore.reset(to: .generatingChapterDetail)
+        routeStore.reset(to: .generatingChapterDetail(chapterID: nil))
         backendChapter = nil
         backendReviewChapter = nil
         v2ReviewSession = nil
@@ -1381,7 +1471,7 @@ struct V2RootView: View {
                 do {
                     let chapter = try await apiClient.fetchV2Chapter(id: chapterID)
                     await MainActor.run {
-                        let shouldActivateGeneratedChapter = routeStore.current == .generatingChapterDetail
+                        let shouldActivateGeneratedChapter = isShowingGenerationDetail
                             && !isFailedGenerationStatus(chapter.status)
                             && chapter.toReviewChapterData() != nil
                         applyBackendChapter(chapter, activateForReview: shouldActivateGeneratedChapter)
@@ -1505,12 +1595,12 @@ struct V2RootView: View {
     }
 
     private func routeCompletedGenerationIfNeeded(_ chapter: V2BackendChapter) {
-        guard routeStore.current == .generatingChapterDetail,
+        guard isShowingGenerationDetail,
               !isFailedGenerationStatus(chapter.status),
               chapter.toReviewChapterData() != nil else {
             return
         }
-        replaceRoute(.chapterDetail)
+        replaceRoute(chapterDetailRoute(chapterID: chapter.id))
     }
 
     @MainActor
@@ -1550,7 +1640,7 @@ struct V2RootView: View {
 
     private func showGeneratedChapterDetail() {
         selectedTab = .materials
-        routeStore.reset(to: .generatingChapterDetail)
+        routeStore.reset(to: .generatingChapterDetail(chapterID: backendChapter?.id))
         if hasSeenGenerationStartedEducation {
             generationState.showsChapterCard = true
         } else {
@@ -1579,12 +1669,12 @@ struct V2RootView: View {
         recommendedArticleGenerationSimulation = nil
         recommendedArticleSimulationTask = nil
         if let chapter = recommendedArticleGenerationPendingChapters.removeValue(forKey: simulationID) {
-            applyBackendChapter(chapter, activateForReview: routeStore.current == .generatingChapterDetail)
+            applyBackendChapter(chapter, activateForReview: isShowingGenerationDetail)
         }
         generationState.showsChapterCard = false
         generationState.clearError()
-        if routeStore.current == .generatingChapterDetail {
-            replaceRoute(.chapterDetail)
+        if isShowingGenerationDetail {
+            replaceRoute(chapterDetailRoute(chapterID: backendChapter?.id))
         }
     }
 
@@ -1602,7 +1692,7 @@ struct V2RootView: View {
             progress: V2RecommendedArticleSimulationTimeline.steps.first?.progress ?? 0,
             statusText: V2RecommendedArticleSimulationTimeline.steps.first?.statusText ?? "准备生成"
         )
-        routeStore.reset(to: .generatingChapterDetail)
+        routeStore.reset(to: .generatingChapterDetail(chapterID: chapterID))
 
         if !hasSeenGenerationStartedEducation {
             withAnimation(.easeOut(duration: 0.18)) {
@@ -1718,7 +1808,7 @@ struct V2RootView: View {
             await MainActor.run {
                 openNotification(
                     notification,
-                    route: notification.type == .generationFailed ? .generationFailureDetail : .chapterDetail
+                    target: notification.type == .generationFailed ? .failure : .success
                 )
             }
             return
@@ -1727,13 +1817,21 @@ struct V2RootView: View {
         if let chapterID {
             await openNotificationChapter(chapterID: chapterID)
             await MainActor.run {
-                resetToRoute(notificationType == "generation_failed" ? .generationFailureDetail : .chapterDetail, tab: .materials)
+                resetToRoute(
+                    notificationType == "generation_failed"
+                        ? generationFailureRoute(chapterID: chapterID)
+                        : chapterDetailRoute(chapterID: chapterID),
+                    tab: .materials
+                )
             }
         }
     }
 
-    private func openNotification(_ notification: NotificationItem, route targetRoute: V2AppRoute) {
+    private func openNotification(_ notification: NotificationItem, target: V2NotificationRouteTarget) {
         let chapterID = notification.chapterId
+        let targetRoute: V2AppRoute = target == .failure
+            ? generationFailureRoute(chapterID: chapterID)
+            : chapterDetailRoute(chapterID: chapterID)
         let cachedChapter = backendChapters.first(where: { $0.id == chapterID })
         if let cachedChapter {
             applyBackendChapter(cachedChapter, activateForReview: true)
@@ -1798,7 +1896,59 @@ struct V2RootView: View {
                 await openBackendSourceRouteIfPossible(sourceAnchorId: sourceAnchorId)
             }
         }
-        pushRoute(.sourceArticle)
+        pushRoute(sourceArticleRoute())
+    }
+
+    private func chapterDetailRoute(chapterID: String? = nil) -> V2AppRoute {
+        .chapterDetail(chapterID: resolvedChapterID(chapterID))
+    }
+
+    private func sourceArticleRoute(chapterID: String? = nil) -> V2AppRoute {
+        .sourceArticle(chapterID: resolvedChapterID(chapterID ?? routeChapterID(routeStore.current)))
+    }
+
+    private func chapterOverviewRoute(chapterID: String? = nil) -> V2AppRoute {
+        .chapterOverview(chapterID: resolvedChapterID(chapterID))
+    }
+
+    private func unitOverviewRoute(unitID: String, chapterID: String? = nil) -> V2AppRoute {
+        .unitOverview(chapterID: resolvedChapterID(chapterID), unitID: unitID)
+    }
+
+    private func questionRoute(unitID: String, questionID: String, chapterID: String? = nil) -> V2AppRoute {
+        .question(chapterID: resolvedChapterID(chapterID), unitID: unitID, questionID: questionID)
+    }
+
+    private func unitSummaryRoute(unitID: String, chapterID: String? = nil) -> V2AppRoute {
+        .unitSummary(chapterID: resolvedChapterID(chapterID), unitID: unitID)
+    }
+
+    private func chapterSummaryRoute(chapterID: String? = nil) -> V2AppRoute {
+        .chapterSummary(chapterID: resolvedChapterID(chapterID))
+    }
+
+    private func generationFailureRoute(chapterID: String? = nil) -> V2AppRoute {
+        .generationFailureDetail(chapterID: resolvedChapterID(chapterID))
+    }
+
+    private func routeChapterID(_ route: V2AppRoute?) -> String? {
+        switch route {
+        case .generationFailureDetail(let chapterID),
+             .chapterDetail(let chapterID),
+             .sourceArticle(let chapterID),
+             .chapterOverview(let chapterID),
+             .unitOverview(let chapterID, _),
+             .question(let chapterID, _, _),
+             .unitSummary(let chapterID, _),
+             .chapterSummary(let chapterID):
+            chapterID
+        case .generatingChapterDetail(let chapterID):
+            chapterID
+        case .savedBackendQuestion(let item):
+            item.chapterID
+        default:
+            nil
+        }
     }
 
     private func pushRoute(_ nextRoute: V2AppRoute) {
@@ -1857,8 +2007,8 @@ struct V2RootView: View {
     }
 
     @MainActor
-    private func startOrResumeBackendReviewFromChapterDetail() async {
-        guard let chapterID = activeReviewBackendChapter?.id else {
+    private func startOrResumeBackendReviewFromChapterDetail(chapterID: String) async {
+        guard !chapterID.isEmpty else {
             openFirstUnit()
             return
         }
@@ -1869,7 +2019,7 @@ struct V2RootView: View {
             applyV2ReviewSessionResponse(response)
             selectedTab = .learning
             routeStore.clearStack()
-            replaceRoute(route(for: response.reviewSession?.displayCard) ?? .unitOverview(unitID: activeFirstUnitID))
+            replaceRoute(route(for: response.reviewSession?.displayCard) ?? unitOverviewRoute(unitID: activeFirstUnitID, chapterID: chapterID))
         } catch {
             generationState.errorText = error.localizedDescription
             openFirstUnit()
@@ -1879,7 +2029,7 @@ struct V2RootView: View {
     @MainActor
     private func startOrResumeBackendReviewFromLearningPath(fallbackUnitID: String) async {
         guard let chapterID = activeReviewBackendChapter?.id else {
-            resetToRoute(.unitOverview(unitID: fallbackUnitID), tab: .learning)
+            resetToRoute(unitOverviewRoute(unitID: fallbackUnitID), tab: .learning)
             return
         }
 
@@ -1889,17 +2039,17 @@ struct V2RootView: View {
             applyV2ReviewSessionResponse(response)
             selectedTab = .learning
             routeStore.clearStack()
-            replaceRoute(route(for: response.reviewSession?.displayCard) ?? .unitOverview(unitID: fallbackUnitID))
+            replaceRoute(route(for: response.reviewSession?.displayCard) ?? unitOverviewRoute(unitID: fallbackUnitID, chapterID: chapterID))
         } catch {
             generationState.errorText = error.localizedDescription
-            resetToRoute(.unitOverview(unitID: fallbackUnitID), tab: .learning)
+            resetToRoute(unitOverviewRoute(unitID: fallbackUnitID, chapterID: chapterID), tab: .learning)
         }
     }
 
     @MainActor
     private func replayBackendReviewFromUnit(unitID: String) async {
         guard let chapterID = activeReviewBackendChapter?.id else {
-            resetToRoute(.unitOverview(unitID: unitID), tab: .learning)
+            resetToRoute(unitOverviewRoute(unitID: unitID), tab: .learning)
             return
         }
 
@@ -1909,10 +2059,10 @@ struct V2RootView: View {
             applyV2ReviewSessionResponse(response)
             selectedTab = .learning
             routeStore.clearStack()
-            replaceRoute(route(for: response.reviewSession?.displayCard) ?? .unitOverview(unitID: unitID))
+            replaceRoute(route(for: response.reviewSession?.displayCard) ?? unitOverviewRoute(unitID: unitID, chapterID: chapterID))
         } catch {
             generationState.errorText = error.localizedDescription
-            resetToRoute(.unitOverview(unitID: unitID), tab: .learning)
+            resetToRoute(unitOverviewRoute(unitID: unitID, chapterID: chapterID), tab: .learning)
         }
     }
 
@@ -2092,9 +2242,9 @@ struct V2RootView: View {
 
     private func localRouteAfterQuestion(unitID: String, questionID: String) -> V2AppRoute {
         if let nextQuestion = nextQuestion(after: questionID, in: unitID) {
-            return .question(unitID: unitID, questionID: nextQuestion.id)
+            return questionRoute(unitID: unitID, questionID: nextQuestion.id)
         }
-        return .unitSummary(unitID: unitID)
+        return unitSummaryRoute(unitID: unitID)
     }
 
     @MainActor
@@ -2165,32 +2315,33 @@ struct V2RootView: View {
         guard let card else {
             return nil
         }
+        let chapterID = resolvedChapterID(card.chapterId)
 
         switch card.type {
         case "chapter_overview":
-            return .chapterOverview
+            return chapterOverviewRoute(chapterID: chapterID)
         case "unit_overview":
             guard let unitID = card.unitId,
-                  activeUnit(id: unitID) != nil else {
+                  activeUnit(chapterID: chapterID, id: unitID) != nil else {
                 return nil
             }
-            return .unitOverview(unitID: unitID)
+            return unitOverviewRoute(unitID: unitID, chapterID: chapterID)
         case "question", "question_feedback":
             guard let unitID = card.unitId, let questionID = card.questionId else {
                 return nil
             }
-            guard activeQuestion(unitID: unitID, questionID: questionID) != nil else {
+            guard activeQuestion(chapterID: chapterID, unitID: unitID, questionID: questionID) != nil else {
                 return nil
             }
-            return .question(unitID: unitID, questionID: questionID)
+            return questionRoute(unitID: unitID, questionID: questionID, chapterID: chapterID)
         case "unit_summary":
             guard let unitID = card.unitId,
-                  activeUnit(id: unitID) != nil else {
+                  activeUnit(chapterID: chapterID, id: unitID) != nil else {
                 return nil
             }
-            return .unitSummary(unitID: unitID)
+            return unitSummaryRoute(unitID: unitID, chapterID: chapterID)
         case "chapter_summary":
-            return .chapterSummary
+            return chapterSummaryRoute(chapterID: chapterID)
         default:
             return nil
         }
@@ -2456,9 +2607,9 @@ private struct V2MissingRouteView: View {
     let onBack: () -> Void
 
     var body: some View {
-        V2FlowScreen(title: "页面缺失", onBack: onBack) {
+        V2FlowScreen(title: "页面暂不可用", onBack: onBack) {
             V2InfoCard {
-                Text("这个本地 fixture 暂时没有对应页面数据。")
+                Text("页面数据暂时没有同步完成，请返回后重试。")
                     .font(V2Typography.body)
                     .foregroundStyle(V2Color.textSecondary)
             }
