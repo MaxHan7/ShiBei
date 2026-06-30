@@ -79,6 +79,7 @@ export function requestRequiresValidDeviceId(req) {
   if (!url.startsWith("/api/")) return false;
   if (method === "OPTIONS") return false;
   if (method === "GET" && url === "/api/health") return false;
+  if (method === "GET" && url === "/api/version") return false;
   if (method === "GET" && url.startsWith("/api/v2/recommended-articles")) return false;
   return true;
 }
@@ -195,6 +196,7 @@ export function rateLimitGroupForRequest(req) {
   if (method === "OPTIONS") return "none";
   if (!url.startsWith("/api/")) return "none";
   if (method === "GET" && url === "/api/health") return "none";
+  if (method === "GET" && url === "/api/version") return "none";
   if (isGenerationRoute(req)) return "generation";
   if (method === "POST" && /^\/api\/v2\/recommended-articles\/[^/]+\/import$/.test(url)) return "recommended-import";
   if (method !== "GET") return "mutation";

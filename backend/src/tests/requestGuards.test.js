@@ -56,6 +56,16 @@ test("requires valid device ids for private API routes only", () => {
     env: { SHIBEI_RATE_LIMIT_DISABLED: "1" }
   });
   assert.equal(publicGuard, null);
+
+  const versionGuard = evaluateRequestGuards(mockRequest({
+    method: "GET",
+    url: "/api/version",
+    headers: { "x-device-id": "../bad" }
+  }), {
+    deviceIdResult: invalid,
+    env: { SHIBEI_RATE_LIMIT_DISABLED: "1" }
+  });
+  assert.equal(versionGuard, null);
 });
 
 test("reads JSON body with a hard size limit", async () => {
@@ -86,6 +96,7 @@ test("classifies generation and mutation routes for limits", () => {
   assert.equal(rateLimitGroupForRequest(mockRequest({ method: "POST", url: "/api/v2/recommended-articles/a/import" })), "recommended-import");
   assert.equal(rateLimitGroupForRequest(mockRequest({ method: "POST", url: "/api/notifications/n1/read" })), "mutation");
   assert.equal(rateLimitGroupForRequest(mockRequest({ method: "GET", url: "/api/health" })), "none");
+  assert.equal(rateLimitGroupForRequest(mockRequest({ method: "GET", url: "/api/version" })), "none");
 });
 
 test("limits repeated generation requests by device and ip", () => {

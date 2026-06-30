@@ -84,6 +84,7 @@ import {
   RequestGuardError,
   resolveDeviceId
 } from "./security/requestGuards.js";
+import { buildVersionInfo } from "./versionInfo.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const projectRoot = resolve(__dirname, "..", "..");
@@ -1999,10 +2000,12 @@ const server = createServer(async (req, res) => {
     const database = await checkDatabase();
     const count = hasDatabase ? await chapterCount() : Array.from(memoryByDeviceId.values()).reduce((sum, item) => sum + item.chapters.length, 0);
     const queue = hasDatabase ? await getGenerationQueueSummary() : null;
+    const version = await buildVersionInfo({ startedAt });
     sendJson(res, 200, {
       ok: true,
       service: "recallo-api",
       startedAt,
+      version,
       storage: hasDatabase ? "postgres" : "memory",
       database,
       queue,
@@ -2011,6 +2014,11 @@ const server = createServer(async (req, res) => {
       chapterCount: count,
       memoryChapterCount: count
     });
+    return;
+  }
+
+  if (req.method === "GET" && req.url === "/api/version") {
+    sendJson(res, 200, await buildVersionInfo({ startedAt }));
     return;
   }
 
