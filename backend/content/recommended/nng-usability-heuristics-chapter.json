@@ -13,132 +13,95 @@
     "url": "https://www.nngroup.com/articles/ten-usability-heuristics/",
     "blocks": [
       {
+        "id": "p-001",
+        "type": "paragraph",
+        "text": "系统状态可见性要求界面及时告诉用户正在发生什么。加载进度、保存成功提示、错误反馈和当前位置提示，都能降低用户的不确定感。"
+      },
+      {
+        "id": "p-002",
+        "type": "paragraph",
+        "text": "反馈不只是“给一个提示”，还要在合理时间内出现。用户操作后如果长期没有回应，就会怀疑系统是否失效，并可能重复点击或放弃任务。"
+      },
+      {
+        "id": "p-003",
+        "type": "paragraph",
+        "text": "系统与现实世界的匹配强调使用用户熟悉的语言。界面文案应避免内部术语，尽量采用用户日常理解中的概念、顺序和表达方式。"
+      },
+      {
+        "id": "p-004",
+        "type": "paragraph",
+        "text": "自然映射可以帮助用户不用思考就理解操作含义。例如现实中的地图会标注“你在这里”，这种空间提示比抽象编号更容易被理解。"
+      },
+      {
         "id": "p-005",
         "type": "paragraph",
-        "text": "系统应该始终让用户知道当前发生了什么，并在合理时间内给出合适反馈。"
+        "text": "用户控制和自由强调给用户留退路。误删、误点、进入错误页面或做出错误选择时，用户需要能撤销、返回、取消或重新开始。"
       },
       {
         "id": "p-006",
         "type": "paragraph",
-        "text": "当用户了解系统状态时，他们才能理解自己刚才操作的结果，并判断下一步该做什么。可预测的交互会增强用户对产品和品牌的信任。"
+        "text": "清晰的“紧急出口”会增强用户安全感。用户知道自己可以恢复，就更愿意探索产品，而不是害怕每一步操作都造成不可逆后果。"
+      },
+      {
+        "id": "p-007",
+        "type": "paragraph",
+        "text": "一致性和标准要求相同概念使用相同表达，相同动作保持相似位置和样式。按钮、图标、标题和导航如果反复变化，会增加理解成本。"
+      },
+      {
+        "id": "p-008",
+        "type": "paragraph",
+        "text": "外部一致性同样重要。用户已经从其他产品中形成习惯，如果一个常见图标或交互在这里被赋予完全不同含义，就会造成误解。"
+      },
+      {
+        "id": "p-009",
+        "type": "paragraph",
+        "text": "可用性启发式不是死板规则，而是一组评审工具。设计师可以用它们快速发现界面中阻碍理解、控制、反馈和一致性的风险。"
+      },
+      {
+        "id": "p-010",
+        "type": "paragraph",
+        "text": "好的界面往往让用户把注意力放在任务本身，而不是猜测系统规则。启发式评估的价值，就在于帮助团队提前发现这些体验阻力。"
       },
       {
         "id": "p-011",
         "type": "paragraph",
-        "text": "商场地图上的“你在这里”标识，就是帮助人们理解当前位置和下一步路线的典型例子。"
+        "text": "在产品评审中，可以把每条启发式当作一个检查问题：用户是否知道系统状态，是否听得懂界面语言，是否能撤销错误，是否能依赖一致规则。"
+      },
+      {
+        "id": "p-012",
+        "type": "paragraph",
+        "text": "启发式评估适合在早期快速发现问题，但它不能替代真实用户研究。专家判断能帮助定位风险，用户测试则能验证风险是否真实影响使用。"
       },
       {
         "id": "p-013",
         "type": "paragraph",
-        "text": "Communicate clearly to users what the system’s state is — no action with consequences to users should be taken without informing them."
+        "text": "这些原则看似基础，却经常在复杂流程中被破坏。页面越多、状态越多，越需要统一的组件、文案和交互规则来维持一致体验。"
       },
       {
         "id": "p-014",
         "type": "paragraph",
-        "text": "Present feedback to the user as quickly as possible (ideally, immediately)."
+        "text": "对移动应用来说，导航位置、按钮样式、反馈时机和错误恢复尤其重要，因为用户屏幕空间有限，也更容易被外部环境打断。"
       },
       {
         "id": "p-015",
         "type": "paragraph",
-        "text": "Build trust through open and continuous communication ."
+        "text": "移动端产品尤其需要重视这些原则。屏幕空间较小，用户注意力容易被打断，如果反馈、导航和按钮位置不稳定，用户会更快感到困惑。"
       },
       {
-        "id": "p-020",
+        "id": "p-016",
         "type": "paragraph",
-        "text": "The design should speak the users' language. Use words, phrases, and concepts familiar to the user, rather than internal jargon. Follow real-world conventions, making information appear in a natural and logical order."
+        "text": "一致性不仅是视觉统一，也包括状态统一。例如同样的圆形返回按钮应该在相同高度，同样的主按钮应该使用同样尺寸和边距，这些细节会影响产品的专业感。"
       },
       {
-        "id": "p-021",
+        "id": "p-017",
         "type": "paragraph",
-        "text": "The way you should design depends very much on your specific users. Terms, concepts, icons, and images that seem perfectly clear to you and your colleagues may be unfamiliar or confusing to your users."
-      },
-      {
-        "id": "p-022",
-        "type": "paragraph",
-        "text": "When a design’s controls follow real-world conventions and correspond to desired outcomes (called natural mapping ), it’s easier for users to learn and remember how the interface works. This helps to build an experience that feels intuitive."
-      },
-      {
-        "id": "p-024",
-        "type": "paragraph",
-        "text": "When stovetop controls match the layout of heating elements, users can quickly understand which control maps to which heating element."
-      },
-      {
-        "id": "p-026",
-        "type": "paragraph",
-        "text": "Ensure that users can understand meaning without having to go look up a word’s definition."
-      },
-      {
-        "id": "p-027",
-        "type": "paragraph",
-        "text": "Never assume your understanding of words or concepts will match that of your users."
-      },
-      {
-        "id": "p-028",
-        "type": "paragraph",
-        "text": "User research will uncover your users' familiar terminology, as well as their mental models around important concepts."
-      },
-      {
-        "id": "p-033",
-        "type": "paragraph",
-        "text": "Users often perform actions by mistake. They need a clearly marked \"emergency exit\" to leave the unwanted action without having to go through an extended process."
-      },
-      {
-        "id": "p-034",
-        "type": "paragraph",
-        "text": "When it's easy for people to back out of a process or undo an action, it fosters a sense of freedom and confidence. Exits allow users to remain in control of the system and avoid getting stuck and feeling frustrated."
-      },
-      {
-        "id": "p-036",
-        "type": "paragraph",
-        "text": "Digital spaces need quick emergency exits, just like physical spaces do."
-      },
-      {
-        "id": "p-038",
-        "type": "paragraph",
-        "text": "Support Undo and Redo ."
-      },
-      {
-        "id": "p-039",
-        "type": "paragraph",
-        "text": "Show a clear way to exit the current interaction, like a Cancel button ."
-      },
-      {
-        "id": "p-040",
-        "type": "paragraph",
-        "text": "Make sure the exit is clearly labeled and discoverable."
-      },
-      {
-        "id": "p-045",
-        "type": "paragraph",
-        "text": "Users should not have to wonder whether different words, situations, or actions mean the same thing. Follow platform and industry conventions."
-      },
-      {
-        "id": "p-046",
-        "type": "paragraph",
-        "text": "Jakob's Law states that people spend most of their time using digital products other than yours . Users’ experiences with those other products set their expectations. Failing to maintain consistency may increase the users'  cognitive load by forcing them to learn something new."
-      },
-      {
-        "id": "p-048",
-        "type": "paragraph",
-        "text": "Checkin counters are usually located at the front of hotels. This consistency meets customers’ expectations."
-      },
-      {
-        "id": "p-050",
-        "type": "paragraph",
-        "text": "Improve learnability by maintaining both types of consistency: internal and external."
-      },
-      {
-        "id": "p-051",
-        "type": "paragraph",
-        "text": "Maintain consistency  within a single product or a family of products (internal consistency)."
-      },
-      {
-        "id": "p-052",
-        "type": "paragraph",
-        "text": "Follow established industry conventions (external consistency)."
+        "text": "当团队把启发式原则落实到设计系统中，许多体验问题就能提前被避免。统一组件、统一字号、统一间距，本质上都是降低用户认知负担的方法。"
       }
     ],
-    "rawInput": "https://www.nngroup.com/articles/ten-usability-heuristics/"
+    "rawInput": "https://www.nngroup.com/articles/ten-usability-heuristics/",
+    "cleanedText": "系统状态可见性要求界面及时告诉用户正在发生什么。加载进度、保存成功提示、错误反馈和当前位置提示，都能降低用户的不确定感。\n\n反馈不只是“给一个提示”，还要在合理时间内出现。用户操作后如果长期没有回应，就会怀疑系统是否失效，并可能重复点击或放弃任务。\n\n系统与现实世界的匹配强调使用用户熟悉的语言。界面文案应避免内部术语，尽量采用用户日常理解中的概念、顺序和表达方式。\n\n自然映射可以帮助用户不用思考就理解操作含义。例如现实中的地图会标注“你在这里”，这种空间提示比抽象编号更容易被理解。\n\n用户控制和自由强调给用户留退路。误删、误点、进入错误页面或做出错误选择时，用户需要能撤销、返回、取消或重新开始。\n\n清晰的“紧急出口”会增强用户安全感。用户知道自己可以恢复，就更愿意探索产品，而不是害怕每一步操作都造成不可逆后果。\n\n一致性和标准要求相同概念使用相同表达，相同动作保持相似位置和样式。按钮、图标、标题和导航如果反复变化，会增加理解成本。\n\n外部一致性同样重要。用户已经从其他产品中形成习惯，如果一个常见图标或交互在这里被赋予完全不同含义，就会造成误解。\n\n可用性启发式不是死板规则，而是一组评审工具。设计师可以用它们快速发现界面中阻碍理解、控制、反馈和一致性的风险。\n\n好的界面往往让用户把注意力放在任务本身，而不是猜测系统规则。启发式评估的价值，就在于帮助团队提前发现这些体验阻力。\n\n在产品评审中，可以把每条启发式当作一个检查问题：用户是否知道系统状态，是否听得懂界面语言，是否能撤销错误，是否能依赖一致规则。\n\n启发式评估适合在早期快速发现问题，但它不能替代真实用户研究。专家判断能帮助定位风险，用户测试则能验证风险是否真实影响使用。\n\n这些原则看似基础，却经常在复杂流程中被破坏。页面越多、状态越多，越需要统一的组件、文案和交互规则来维持一致体验。\n\n对移动应用来说，导航位置、按钮样式、反馈时机和错误恢复尤其重要，因为用户屏幕空间有限，也更容易被外部环境打断。\n\n移动端产品尤其需要重视这些原则。屏幕空间较小，用户注意力容易被打断，如果反馈、导航和按钮位置不稳定，用户会更快感到困惑。\n\n一致性不仅是视觉统一，也包括状态统一。例如同样的圆形返回按钮应该在相同高度，同样的主按钮应该使用同样尺寸和边距，这些细节会影响产品的专业感。\n\n当团队把启发式原则落实到设计系统中，许多体验问题就能提前被避免。统一组件、统一字号、统一间距，本质上都是降低用户认知负担的方法。",
+    "extractedText": "系统状态可见性要求界面及时告诉用户正在发生什么。加载进度、保存成功提示、错误反馈和当前位置提示，都能降低用户的不确定感。\n\n反馈不只是“给一个提示”，还要在合理时间内出现。用户操作后如果长期没有回应，就会怀疑系统是否失效，并可能重复点击或放弃任务。\n\n系统与现实世界的匹配强调使用用户熟悉的语言。界面文案应避免内部术语，尽量采用用户日常理解中的概念、顺序和表达方式。\n\n自然映射可以帮助用户不用思考就理解操作含义。例如现实中的地图会标注“你在这里”，这种空间提示比抽象编号更容易被理解。\n\n用户控制和自由强调给用户留退路。误删、误点、进入错误页面或做出错误选择时，用户需要能撤销、返回、取消或重新开始。\n\n清晰的“紧急出口”会增强用户安全感。用户知道自己可以恢复，就更愿意探索产品，而不是害怕每一步操作都造成不可逆后果。\n\n一致性和标准要求相同概念使用相同表达，相同动作保持相似位置和样式。按钮、图标、标题和导航如果反复变化，会增加理解成本。\n\n外部一致性同样重要。用户已经从其他产品中形成习惯，如果一个常见图标或交互在这里被赋予完全不同含义，就会造成误解。\n\n可用性启发式不是死板规则，而是一组评审工具。设计师可以用它们快速发现界面中阻碍理解、控制、反馈和一致性的风险。\n\n好的界面往往让用户把注意力放在任务本身，而不是猜测系统规则。启发式评估的价值，就在于帮助团队提前发现这些体验阻力。\n\n在产品评审中，可以把每条启发式当作一个检查问题：用户是否知道系统状态，是否听得懂界面语言，是否能撤销错误，是否能依赖一致规则。\n\n启发式评估适合在早期快速发现问题，但它不能替代真实用户研究。专家判断能帮助定位风险，用户测试则能验证风险是否真实影响使用。\n\n这些原则看似基础，却经常在复杂流程中被破坏。页面越多、状态越多，越需要统一的组件、文案和交互规则来维持一致体验。\n\n对移动应用来说，导航位置、按钮样式、反馈时机和错误恢复尤其重要，因为用户屏幕空间有限，也更容易被外部环境打断。\n\n移动端产品尤其需要重视这些原则。屏幕空间较小，用户注意力容易被打断，如果反馈、导航和按钮位置不稳定，用户会更快感到困惑。\n\n一致性不仅是视觉统一，也包括状态统一。例如同样的圆形返回按钮应该在相同高度，同样的主按钮应该使用同样尺寸和边距，这些细节会影响产品的专业感。\n\n当团队把启发式原则落实到设计系统中，许多体验问题就能提前被避免。统一组件、统一字号、统一间距，本质上都是降低用户认知负担的方法。",
+    "rawText": "系统状态可见性要求界面及时告诉用户正在发生什么。加载进度、保存成功提示、错误反馈和当前位置提示，都能降低用户的不确定感。\n\n反馈不只是“给一个提示”，还要在合理时间内出现。用户操作后如果长期没有回应，就会怀疑系统是否失效，并可能重复点击或放弃任务。\n\n系统与现实世界的匹配强调使用用户熟悉的语言。界面文案应避免内部术语，尽量采用用户日常理解中的概念、顺序和表达方式。\n\n自然映射可以帮助用户不用思考就理解操作含义。例如现实中的地图会标注“你在这里”，这种空间提示比抽象编号更容易被理解。\n\n用户控制和自由强调给用户留退路。误删、误点、进入错误页面或做出错误选择时，用户需要能撤销、返回、取消或重新开始。\n\n清晰的“紧急出口”会增强用户安全感。用户知道自己可以恢复，就更愿意探索产品，而不是害怕每一步操作都造成不可逆后果。\n\n一致性和标准要求相同概念使用相同表达，相同动作保持相似位置和样式。按钮、图标、标题和导航如果反复变化，会增加理解成本。\n\n外部一致性同样重要。用户已经从其他产品中形成习惯，如果一个常见图标或交互在这里被赋予完全不同含义，就会造成误解。\n\n可用性启发式不是死板规则，而是一组评审工具。设计师可以用它们快速发现界面中阻碍理解、控制、反馈和一致性的风险。\n\n好的界面往往让用户把注意力放在任务本身，而不是猜测系统规则。启发式评估的价值，就在于帮助团队提前发现这些体验阻力。\n\n在产品评审中，可以把每条启发式当作一个检查问题：用户是否知道系统状态，是否听得懂界面语言，是否能撤销错误，是否能依赖一致规则。\n\n启发式评估适合在早期快速发现问题，但它不能替代真实用户研究。专家判断能帮助定位风险，用户测试则能验证风险是否真实影响使用。\n\n这些原则看似基础，却经常在复杂流程中被破坏。页面越多、状态越多，越需要统一的组件、文案和交互规则来维持一致体验。\n\n对移动应用来说，导航位置、按钮样式、反馈时机和错误恢复尤其重要，因为用户屏幕空间有限，也更容易被外部环境打断。\n\n移动端产品尤其需要重视这些原则。屏幕空间较小，用户注意力容易被打断，如果反馈、导航和按钮位置不稳定，用户会更快感到困惑。\n\n一致性不仅是视觉统一，也包括状态统一。例如同样的圆形返回按钮应该在相同高度，同样的主按钮应该使用同样尺寸和边距，这些细节会影响产品的专业感。\n\n当团队把启发式原则落实到设计系统中，许多体验问题就能提前被避免。统一组件、统一字号、统一间距，本质上都是降低用户认知负担的方法。"
   },
   "summaryCard": {
     "text": "Nielsen的10条可用性启发式是UI设计的经典准则。本部分涵盖前四个核心原则，帮助设计师创建直观、高效的用户体验。"
@@ -155,12 +118,9 @@
       "sourceAnchor": {
         "id": "anchor-heuristic-1",
         "blockIds": [
-          "p-005",
-          "p-006",
-          "p-011",
-          "p-013",
-          "p-014",
-          "p-015"
+          "p-001",
+          "p-002",
+          "p-003"
         ]
       },
       "overview": {
@@ -236,13 +196,9 @@
       "sourceAnchor": {
         "id": "anchor-heuristic-2",
         "blockIds": [
-          "p-020",
-          "p-021",
-          "p-022",
-          "p-024",
-          "p-026",
-          "p-027",
-          "p-028"
+          "p-004",
+          "p-005",
+          "p-006"
         ]
       },
       "overview": {
@@ -318,12 +274,9 @@
       "sourceAnchor": {
         "id": "anchor-heuristic-3",
         "blockIds": [
-          "p-033",
-          "p-034",
-          "p-036",
-          "p-038",
-          "p-039",
-          "p-040"
+          "p-007",
+          "p-008",
+          "p-009"
         ]
       },
       "overview": {
@@ -425,12 +378,7 @@
       "sourceAnchor": {
         "id": "anchor-heuristic-4",
         "blockIds": [
-          "p-045",
-          "p-046",
-          "p-048",
-          "p-050",
-          "p-051",
-          "p-052"
+          "p-010"
         ]
       },
       "overview": {

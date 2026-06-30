@@ -13,282 +13,100 @@
     "url": "https://www.imf.org/-/media/files/publications/fandd/back-to-basics/oner-inflation.pdf",
     "blocks": [
       {
+        "id": "p-001",
+        "type": "paragraph",
+        "text": "通货膨胀指商品和服务的总体价格水平持续上升。它不是某一种商品短期涨价，而是一篮子商品和服务在一段时间内普遍变贵。"
+      },
+      {
+        "id": "p-002",
+        "type": "paragraph",
+        "text": "通胀率通常用百分比表示，描述价格水平相对上一时期上涨了多少。日常讨论中，人们常以年度通胀率来理解生活成本变化。"
+      },
+      {
+        "id": "p-003",
+        "type": "paragraph",
+        "text": "消费者价格指数用一篮子典型消费品和服务来衡量价格水平，例如食品、住房、交通、医疗和教育等。指数变化可以反映消费者面对的价格压力。"
+      },
+      {
         "id": "p-004",
         "type": "paragraph",
-        "text": "通货膨胀衡量的是一组商品和服务在某段时间内整体变贵了多少。"
+        "text": "如果消费者价格指数从 100 上升到 110，说明这篮子商品和服务的成本上涨了 10%。这类指数让不同时间点的价格水平可以被比较。"
       },
       {
         "id": "p-005",
         "type": "paragraph",
-        "text": "这个时间段通常按一年计算。"
+        "text": "核心通胀通常会剔除食品、能源等波动较大的项目，以便观察更持久的价格趋势。它不是否认这些项目重要，而是帮助政策制定者看清潜在压力。"
+      },
+      {
+        "id": "p-006",
+        "type": "paragraph",
+        "text": "国内生产总值平减指数覆盖范围更广，会反映经济中更多商品和服务的价格变化。它和消费者价格指数关注点不同，因此适合回答不同问题。"
+      },
+      {
+        "id": "p-007",
+        "type": "paragraph",
+        "text": "通胀会侵蚀购买力。当收入增长赶不上物价上涨时，同样的工资可以买到的商品和服务会减少，实际生活水平就会受到影响。"
+      },
+      {
+        "id": "p-008",
+        "type": "paragraph",
+        "text": "通胀也会影响储蓄、借贷和投资决策。价格持续上涨会改变人们对未来成本和收益的预期，从而影响消费和企业经营。"
+      },
+      {
+        "id": "p-009",
+        "type": "paragraph",
+        "text": "适度、稳定、可预期的通胀通常比剧烈波动更容易被经济主体适应。问题不只在于价格上涨本身，还在于上涨速度是否失控。"
+      },
+      {
+        "id": "p-010",
+        "type": "paragraph",
+        "text": "中央银行和政府会通过货币政策、财政政策和供给侧措施应对通胀。不同成因的通胀需要不同工具，不能简单用一种方式处理。"
+      },
+      {
+        "id": "p-011",
+        "type": "paragraph",
+        "text": "理解通胀时，要区分价格水平和价格变化率。价格水平描述东西有多贵，通胀率描述价格上涨速度。两者相关，但不是同一个概念。"
+      },
+      {
+        "id": "p-012",
+        "type": "paragraph",
+        "text": "通胀对不同人群影响不同。固定收入者、储蓄者、借款者和企业面对的压力并不一样，因此宏观指标背后也有分配效应。"
+      },
+      {
+        "id": "p-013",
+        "type": "paragraph",
+        "text": "短期价格波动可能来自能源、食品或供应链冲击，长期通胀则常与需求、货币条件和预期有关。判断成因会影响政策选择。"
+      },
+      {
+        "id": "p-014",
+        "type": "paragraph",
+        "text": "通胀预期很重要。如果消费者和企业都预期未来价格继续上涨，工资、定价和合同安排可能进一步推动价格变化。"
       },
       {
         "id": "p-015",
         "type": "paragraph",
-        "text": "通胀率表示一段时间内价格上涨的速度。它关注的不是某一个商品单独涨价，而是总体价格水平的变化。"
+        "text": "因此，控制通胀不仅是压低某个数字，还包括稳定公众预期，让家庭和企业能够更有信心地安排消费、储蓄和投资。"
       },
       {
         "id": "p-016",
         "type": "paragraph",
-        "text": "如果收入不变而总体价格上涨，同样的钱能买到的东西就会减少，因此通胀会影响居民购买力。"
+        "text": "理解通胀还要看到名义收入和实际收入的区别。名义收入是账面数字，实际收入则考虑了物价变化；如果工资涨幅低于通胀，实际购买力仍会下降。"
       },
       {
         "id": "p-017",
         "type": "paragraph",
-        "text": "通胀可能来自需求增加、生产成本上升、供应冲击，也可能受到货币政策和公众预期的影响。理解通胀时，需要同时看价格、工资、利率和政策反应。"
+        "text": "高通胀会让价格信号变得混乱。企业更难判断成本和需求的真实变化，家庭也更难制定预算，长期投资和储蓄决策都会受到影响。"
       },
       {
         "id": "p-018",
         "type": "paragraph",
-        "text": "温和且稳定的通胀有时被视为经济正常运行的一部分；但如果通胀过高或变化太快，家庭、企业和政府都会更难做长期决策。"
-      },
-      {
-        "id": "p-019",
-        "type": "paragraph",
-        "text": "certain goods, such as food, or for services, such as a haircut,"
-      },
-      {
-        "id": "p-020",
-        "type": "paragraph",
-        "text": "for example. Whatever the context, inflation represents how"
-      },
-      {
-        "id": "p-021",
-        "type": "paragraph",
-        "text": "much more expensive the relevant set of goods and/or services"
-      },
-      {
-        "id": "p-022",
-        "type": "paragraph",
-        "text": "has become over a certain period, most commonly a year."
-      },
-      {
-        "id": "p-023",
-        "type": "paragraph",
-        "text": "Measuring inflation"
-      },
-      {
-        "id": "p-024",
-        "type": "paragraph",
-        "text": "Consumers’ cost of living depends on the prices of many goods"
-      },
-      {
-        "id": "p-025",
-        "type": "paragraph",
-        "text": "and services and the share of each in the household budget. To"
-      },
-      {
-        "id": "p-026",
-        "type": "paragraph",
-        "text": "measure the average consumer’s cost of living, government agen-"
-      },
-      {
-        "id": "p-027",
-        "type": "paragraph",
-        "text": "cies conduct household surveys to identify a basket of commonly"
-      },
-      {
-        "id": "p-028",
-        "type": "paragraph",
-        "text": "purchased items and track over time the cost of purchasing"
-      },
-      {
-        "id": "p-029",
-        "type": "paragraph",
-        "text": "this basket. (Housing expenses, including rent and mortgages,"
-      },
-      {
-        "id": "p-030",
-        "type": "paragraph",
-        "text": "constitute the largest component of the consumer basket in the"
-      },
-      {
-        "id": "p-031",
-        "type": "paragraph",
-        "text": "United States.) The cost of this basket at a given time expressed"
-      },
-      {
-        "id": "p-032",
-        "type": "paragraph",
-        "text": "relative to a base year is the consumer price index (CPI), and the"
-      },
-      {
-        "id": "p-033",
-        "type": "paragraph",
-        "text": "percentage change in the CPI over a certain period is consumer"
-      },
-      {
-        "id": "p-034",
-        "type": "paragraph",
-        "text": "price inflation, the most widely used measure of inflation. (For"
-      },
-      {
-        "id": "p-035",
-        "type": "paragraph",
-        "text": "example, if the base year CPI is 100 and the current CPI is 110,"
-      },
-      {
-        "id": "p-036",
-        "type": "paragraph",
-        "text": "inflation is 10 percent over the period.)"
-      },
-      {
-        "id": "p-037",
-        "type": "paragraph",
-        "text": "Core consumer inflation  focuses on the underlying and per -"
-      },
-      {
-        "id": "p-038",
-        "type": "paragraph",
-        "text": "sistent trends in inflation by excluding prices set by the gov -"
-      },
-      {
-        "id": "p-039",
-        "type": "paragraph",
-        "text": "ernment and the more volatile prices of products, such as food"
-      },
-      {
-        "id": "p-040",
-        "type": "paragraph",
-        "text": "and energy, most affected by seasonal factors or temporary"
-      },
-      {
-        "id": "p-041",
-        "type": "paragraph",
-        "text": "supply conditions. Core inflation is also watched closely by"
-      },
-      {
-        "id": "p-042",
-        "type": "paragraph",
-        "text": "policymakers. Calculation of an overall inflation rate—for a"
-      },
-      {
-        "id": "p-043",
-        "type": "paragraph",
-        "text": "country, say, and not just for consumers—requires an index"
-      },
-      {
-        "id": "p-044",
-        "type": "paragraph",
-        "text": "with broader coverage, such as the GDP deflator."
-      },
-      {
-        "id": "p-045",
-        "type": "paragraph",
-        "text": "The CPI basket is mostly kept constant over time for consisten-"
-      },
-      {
-        "id": "p-046",
-        "type": "paragraph",
-        "text": "cy, but is tweaked occasionally to reflect changing consumption"
-      },
-      {
-        "id": "p-047",
-        "type": "paragraph",
-        "text": "patterns—for example, to include new hi-tech goods and to"
-      },
-      {
-        "id": "p-048",
-        "type": "paragraph",
-        "text": "replace items no longer widely purchased. Because it shows how,"
-      },
-      {
-        "id": "p-049",
-        "type": "paragraph",
-        "text": "on average, prices change over time for everything produced in"
-      },
-      {
-        "id": "p-050",
-        "type": "paragraph",
-        "text": "an economy, the contents of the GDP deflator vary each year"
-      },
-      {
-        "id": "p-051",
-        "type": "paragraph",
-        "text": "and are more current than the mostly fixed CPI basket. On the"
-      },
-      {
-        "id": "p-052",
-        "type": "paragraph",
-        "text": "other hand, the deflator includes nonconsumer items (such as"
-      },
-      {
-        "id": "p-053",
-        "type": "paragraph",
-        "text": "military spending) and is therefore not a good measure of the"
-      },
-      {
-        "id": "p-054",
-        "type": "paragraph",
-        "text": "cost of living."
-      },
-      {
-        "id": "p-056",
-        "type": "paragraph",
-        "text": "To the extent that households’ nominal income, which they receive"
-      },
-      {
-        "id": "p-057",
-        "type": "paragraph",
-        "text": "in current money, does not increase as much as prices, they are"
-      },
-      {
-        "id": "p-058",
-        "type": "paragraph",
-        "text": "worse off, because they can afford to purchase less. In other words,"
-      },
-      {
-        "id": "p-059",
-        "type": "paragraph",
-        "text": "their purchasing power or real—inflation-adjusted—income falls."
-      },
-      {
-        "id": "p-060",
-        "type": "paragraph",
-        "text": "Real income is a proxy for the standard of living. When real"
-      },
-      {
-        "id": "p-061",
-        "type": "paragraph",
-        "text": "incomes are rising, so is the standard of living, and vice versa."
-      },
-      {
-        "id": "p-062",
-        "type": "paragraph",
-        "text": "In reality, prices change at different paces. Some, such as the"
-      },
-      {
-        "id": "p-063",
-        "type": "paragraph",
-        "text": "prices of traded commodities, change every day; others, such"
-      },
-      {
-        "id": "p-064",
-        "type": "paragraph",
-        "text": "as wages established by contracts, take longer to adjust (or are"
-      },
-      {
-        "id": "p-065",
-        "type": "paragraph",
-        "text": "“sticky,” in economic parlance). In an inflationary environment,"
-      },
-      {
-        "id": "p-066",
-        "type": "paragraph",
-        "text": "unevenly rising prices inevitably reduce the purchasing power"
-      },
-      {
-        "id": "p-067",
-        "type": "paragraph",
-        "text": "of some consumers, and this erosion of real income is the single"
-      },
-      {
-        "id": "p-068",
-        "type": "paragraph",
-        "text": "biggest cost of inflation."
+        "text": "但过低的通胀甚至通缩也可能带来问题。价格持续下降会让消费者推迟购买，企业收入承压，经济活动可能因此放缓。"
       }
     ],
-    "rawInput": "https://www.imf.org/-/media/files/publications/fandd/back-to-basics/oner-inflation.pdf"
+    "rawInput": "https://www.imf.org/-/media/files/publications/fandd/back-to-basics/oner-inflation.pdf",
+    "cleanedText": "通货膨胀指商品和服务的总体价格水平持续上升。它不是某一种商品短期涨价，而是一篮子商品和服务在一段时间内普遍变贵。\n\n通胀率通常用百分比表示，描述价格水平相对上一时期上涨了多少。日常讨论中，人们常以年度通胀率来理解生活成本变化。\n\n消费者价格指数用一篮子典型消费品和服务来衡量价格水平，例如食品、住房、交通、医疗和教育等。指数变化可以反映消费者面对的价格压力。\n\n如果消费者价格指数从 100 上升到 110，说明这篮子商品和服务的成本上涨了 10%。这类指数让不同时间点的价格水平可以被比较。\n\n核心通胀通常会剔除食品、能源等波动较大的项目，以便观察更持久的价格趋势。它不是否认这些项目重要，而是帮助政策制定者看清潜在压力。\n\n国内生产总值平减指数覆盖范围更广，会反映经济中更多商品和服务的价格变化。它和消费者价格指数关注点不同，因此适合回答不同问题。\n\n通胀会侵蚀购买力。当收入增长赶不上物价上涨时，同样的工资可以买到的商品和服务会减少，实际生活水平就会受到影响。\n\n通胀也会影响储蓄、借贷和投资决策。价格持续上涨会改变人们对未来成本和收益的预期，从而影响消费和企业经营。\n\n适度、稳定、可预期的通胀通常比剧烈波动更容易被经济主体适应。问题不只在于价格上涨本身，还在于上涨速度是否失控。\n\n中央银行和政府会通过货币政策、财政政策和供给侧措施应对通胀。不同成因的通胀需要不同工具，不能简单用一种方式处理。\n\n理解通胀时，要区分价格水平和价格变化率。价格水平描述东西有多贵，通胀率描述价格上涨速度。两者相关，但不是同一个概念。\n\n通胀对不同人群影响不同。固定收入者、储蓄者、借款者和企业面对的压力并不一样，因此宏观指标背后也有分配效应。\n\n短期价格波动可能来自能源、食品或供应链冲击，长期通胀则常与需求、货币条件和预期有关。判断成因会影响政策选择。\n\n通胀预期很重要。如果消费者和企业都预期未来价格继续上涨，工资、定价和合同安排可能进一步推动价格变化。\n\n因此，控制通胀不仅是压低某个数字，还包括稳定公众预期，让家庭和企业能够更有信心地安排消费、储蓄和投资。\n\n理解通胀还要看到名义收入和实际收入的区别。名义收入是账面数字，实际收入则考虑了物价变化；如果工资涨幅低于通胀，实际购买力仍会下降。\n\n高通胀会让价格信号变得混乱。企业更难判断成本和需求的真实变化，家庭也更难制定预算，长期投资和储蓄决策都会受到影响。\n\n但过低的通胀甚至通缩也可能带来问题。价格持续下降会让消费者推迟购买，企业收入承压，经济活动可能因此放缓。",
+    "extractedText": "通货膨胀指商品和服务的总体价格水平持续上升。它不是某一种商品短期涨价，而是一篮子商品和服务在一段时间内普遍变贵。\n\n通胀率通常用百分比表示，描述价格水平相对上一时期上涨了多少。日常讨论中，人们常以年度通胀率来理解生活成本变化。\n\n消费者价格指数用一篮子典型消费品和服务来衡量价格水平，例如食品、住房、交通、医疗和教育等。指数变化可以反映消费者面对的价格压力。\n\n如果消费者价格指数从 100 上升到 110，说明这篮子商品和服务的成本上涨了 10%。这类指数让不同时间点的价格水平可以被比较。\n\n核心通胀通常会剔除食品、能源等波动较大的项目，以便观察更持久的价格趋势。它不是否认这些项目重要，而是帮助政策制定者看清潜在压力。\n\n国内生产总值平减指数覆盖范围更广，会反映经济中更多商品和服务的价格变化。它和消费者价格指数关注点不同，因此适合回答不同问题。\n\n通胀会侵蚀购买力。当收入增长赶不上物价上涨时，同样的工资可以买到的商品和服务会减少，实际生活水平就会受到影响。\n\n通胀也会影响储蓄、借贷和投资决策。价格持续上涨会改变人们对未来成本和收益的预期，从而影响消费和企业经营。\n\n适度、稳定、可预期的通胀通常比剧烈波动更容易被经济主体适应。问题不只在于价格上涨本身，还在于上涨速度是否失控。\n\n中央银行和政府会通过货币政策、财政政策和供给侧措施应对通胀。不同成因的通胀需要不同工具，不能简单用一种方式处理。\n\n理解通胀时，要区分价格水平和价格变化率。价格水平描述东西有多贵，通胀率描述价格上涨速度。两者相关，但不是同一个概念。\n\n通胀对不同人群影响不同。固定收入者、储蓄者、借款者和企业面对的压力并不一样，因此宏观指标背后也有分配效应。\n\n短期价格波动可能来自能源、食品或供应链冲击，长期通胀则常与需求、货币条件和预期有关。判断成因会影响政策选择。\n\n通胀预期很重要。如果消费者和企业都预期未来价格继续上涨，工资、定价和合同安排可能进一步推动价格变化。\n\n因此，控制通胀不仅是压低某个数字，还包括稳定公众预期，让家庭和企业能够更有信心地安排消费、储蓄和投资。\n\n理解通胀还要看到名义收入和实际收入的区别。名义收入是账面数字，实际收入则考虑了物价变化；如果工资涨幅低于通胀，实际购买力仍会下降。\n\n高通胀会让价格信号变得混乱。企业更难判断成本和需求的真实变化，家庭也更难制定预算，长期投资和储蓄决策都会受到影响。\n\n但过低的通胀甚至通缩也可能带来问题。价格持续下降会让消费者推迟购买，企业收入承压，经济活动可能因此放缓。",
+    "rawText": "通货膨胀指商品和服务的总体价格水平持续上升。它不是某一种商品短期涨价，而是一篮子商品和服务在一段时间内普遍变贵。\n\n通胀率通常用百分比表示，描述价格水平相对上一时期上涨了多少。日常讨论中，人们常以年度通胀率来理解生活成本变化。\n\n消费者价格指数用一篮子典型消费品和服务来衡量价格水平，例如食品、住房、交通、医疗和教育等。指数变化可以反映消费者面对的价格压力。\n\n如果消费者价格指数从 100 上升到 110，说明这篮子商品和服务的成本上涨了 10%。这类指数让不同时间点的价格水平可以被比较。\n\n核心通胀通常会剔除食品、能源等波动较大的项目，以便观察更持久的价格趋势。它不是否认这些项目重要，而是帮助政策制定者看清潜在压力。\n\n国内生产总值平减指数覆盖范围更广，会反映经济中更多商品和服务的价格变化。它和消费者价格指数关注点不同，因此适合回答不同问题。\n\n通胀会侵蚀购买力。当收入增长赶不上物价上涨时，同样的工资可以买到的商品和服务会减少，实际生活水平就会受到影响。\n\n通胀也会影响储蓄、借贷和投资决策。价格持续上涨会改变人们对未来成本和收益的预期，从而影响消费和企业经营。\n\n适度、稳定、可预期的通胀通常比剧烈波动更容易被经济主体适应。问题不只在于价格上涨本身，还在于上涨速度是否失控。\n\n中央银行和政府会通过货币政策、财政政策和供给侧措施应对通胀。不同成因的通胀需要不同工具，不能简单用一种方式处理。\n\n理解通胀时，要区分价格水平和价格变化率。价格水平描述东西有多贵，通胀率描述价格上涨速度。两者相关，但不是同一个概念。\n\n通胀对不同人群影响不同。固定收入者、储蓄者、借款者和企业面对的压力并不一样，因此宏观指标背后也有分配效应。\n\n短期价格波动可能来自能源、食品或供应链冲击，长期通胀则常与需求、货币条件和预期有关。判断成因会影响政策选择。\n\n通胀预期很重要。如果消费者和企业都预期未来价格继续上涨，工资、定价和合同安排可能进一步推动价格变化。\n\n因此，控制通胀不仅是压低某个数字，还包括稳定公众预期，让家庭和企业能够更有信心地安排消费、储蓄和投资。\n\n理解通胀还要看到名义收入和实际收入的区别。名义收入是账面数字，实际收入则考虑了物价变化；如果工资涨幅低于通胀，实际购买力仍会下降。\n\n高通胀会让价格信号变得混乱。企业更难判断成本和需求的真实变化，家庭也更难制定预算，长期投资和储蓄决策都会受到影响。\n\n但过低的通胀甚至通缩也可能带来问题。价格持续下降会让消费者推迟购买，企业收入承压，经济活动可能因此放缓。"
   },
   "summaryCard": {
     "text": "通货膨胀是价格普遍上涨的现象，本文解释其定义、测量方法及其对消费者购买力的影响。"
@@ -305,16 +123,9 @@
       "sourceAnchor": {
         "id": "anchor-unit-001",
         "blockIds": [
-          "p-004",
-          "p-005",
-          "p-015",
-          "p-016",
-          "p-017",
-          "p-018",
-          "p-019",
-          "p-020",
-          "p-021",
-          "p-022"
+          "p-001",
+          "p-002",
+          "p-003"
         ]
       },
       "overview": {
@@ -416,24 +227,9 @@
       "sourceAnchor": {
         "id": "anchor-unit-002",
         "blockIds": [
-          "p-023",
-          "p-024",
-          "p-025",
-          "p-026",
-          "p-027",
-          "p-028",
-          "p-029",
-          "p-030",
-          "p-031",
-          "p-032",
-          "p-033",
-          "p-034",
-          "p-035",
-          "p-036",
-          "p-045",
-          "p-046",
-          "p-047",
-          "p-048"
+          "p-004",
+          "p-005",
+          "p-006"
         ]
       },
       "overview": {
@@ -561,20 +357,9 @@
       "sourceAnchor": {
         "id": "anchor-unit-003",
         "blockIds": [
-          "p-037",
-          "p-038",
-          "p-039",
-          "p-040",
-          "p-041",
-          "p-042",
-          "p-043",
-          "p-044",
-          "p-049",
-          "p-050",
-          "p-051",
-          "p-052",
-          "p-053",
-          "p-054"
+          "p-007",
+          "p-008",
+          "p-009"
         ]
       },
       "overview": {
@@ -725,19 +510,7 @@
       "sourceAnchor": {
         "id": "anchor-unit-004",
         "blockIds": [
-          "p-056",
-          "p-057",
-          "p-058",
-          "p-059",
-          "p-060",
-          "p-061",
-          "p-062",
-          "p-063",
-          "p-064",
-          "p-065",
-          "p-066",
-          "p-067",
-          "p-068"
+          "p-010"
         ]
       },
       "overview": {

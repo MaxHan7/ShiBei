@@ -113,9 +113,7 @@ struct V2LearningPathNodeView: View {
         switch node.state {
         case .current:
             .current
-        case .inProgress:
-            .partial
-        case .start, .completed, .locked:
+        case .start, .completed, .inProgress, .locked:
             nil
         }
     }
@@ -234,11 +232,6 @@ private struct V2SegmentedNodeProgressStyle {
         completedColor: V2SegmentedNodeProgressMetrics.currentCompletedColor,
         pendingColor: V2SegmentedNodeProgressMetrics.currentPendingColor
     )
-
-    static let partial = V2SegmentedNodeProgressStyle(
-        completedColor: V2SegmentedNodeProgressMetrics.partialCompletedColor,
-        pendingColor: V2SegmentedNodeProgressMetrics.partialPendingColor
-    )
 }
 
 private enum V2SegmentedNodeProgressMetrics {
@@ -251,8 +244,6 @@ private enum V2SegmentedNodeProgressMetrics {
     static let gapLength: CGFloat = 13
     static let currentCompletedColor = Color(hex: 0x9EA860)
     static let currentPendingColor = Color(hex: 0xDCE1B1).opacity(0.72)
-    static let partialCompletedColor = Color(hex: 0x8F8F8F).opacity(0.72)
-    static let partialPendingColor = Color(hex: 0xD8D8D8).opacity(0.64)
 
     // Starts the progress rhythm on the lower-left side, matching the
     // hand-drawn node reference more closely than a top-centered circular ring.

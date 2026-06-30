@@ -53,6 +53,12 @@ enum V2LearningPathNodeState {
     case locked
 }
 
+enum V2LearningPathNodeAction {
+    case mainline
+    case practice
+    case previewOnly
+}
+
 struct V2CurrentChapterData {
     let eyebrow: String
     let title: String
@@ -64,6 +70,7 @@ struct V2LearningPathNodeData: Identifiable, Equatable {
     let subtitle: String
     let kind: V2LearningPathNodeKind
     let state: V2LearningPathNodeState
+    let action: V2LearningPathNodeAction
     let completedQuestionCount: Int
     let totalQuestionCount: Int
     let position: CGPoint
@@ -103,6 +110,7 @@ struct V2HomeData {
             subtitle: "章节概要",
             kind: .start,
             state: currentNodeID == "start" ? .current : .completed,
+            action: .mainline,
             completedQuestionCount: 0,
             totalQuestionCount: 0,
             position: CGPoint(x: 0.66, y: 0.88)
@@ -119,6 +127,13 @@ struct V2HomeData {
                     currentNodeID: currentNodeID,
                     completedUnitIDs: completedUnitIDs,
                     startedUnitIDs: startedUnitIDs
+                ),
+                action: V2HomeData.nodeAction(
+                    unitID: unit.id,
+                    currentNodeID: currentNodeID,
+                    completedUnitIDs: completedUnitIDs,
+                    startedUnitIDs: startedUnitIDs,
+                    isChapterCompleted: reviewSession?.completedAt != nil
                 ),
                 completedQuestionCount: completedQuestionCounts[unit.id, default: 0],
                 totalQuestionCount: unit.questions.count,
@@ -273,5 +288,27 @@ struct V2HomeData {
         }
 
         return .locked
+    }
+
+    private static func nodeAction(
+        unitID: String,
+        currentNodeID: String,
+        completedUnitIDs: Set<String>,
+        startedUnitIDs: Set<String>,
+        isChapterCompleted: Bool
+    ) -> V2LearningPathNodeAction {
+        if isChapterCompleted {
+            return .practice
+        }
+
+        if unitID == currentNodeID {
+            return .mainline
+        }
+
+        if completedUnitIDs.contains(unitID) || startedUnitIDs.contains(unitID) {
+            return .practice
+        }
+
+        return .previewOnly
     }
 }

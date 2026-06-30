@@ -57,13 +57,17 @@ import {
 import { apnsConfigurationSummary, isAPNSConfigured, sendGenerationNotification } from "./apns.js";
 import { enqueueV2ChapterGeneration } from "./v2/generation/v2ChapterQueue.js";
 import {
+  advancePracticeCardV2,
   advanceReviewCardV2,
+  answerPracticeQuestionV2,
   answerQuestionV2,
   createReviewSessionV2,
+  finishPracticeV2,
   normalizeReviewSessionV2,
   openSourceFromReviewV2,
   returnFromSourceToReviewV2,
-  setQuestionFeedbackVisibleV2
+  setQuestionFeedbackVisibleV2,
+  startPracticeFromUnitV2
 } from "./v2/state/reviewSessionV2.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -2143,6 +2147,40 @@ const server = createServer(async (req, res) => {
       sendJson(res, 200, serializeV2ReviewSessionResponse(chapter, reviewSession));
     } catch (error) {
       sendJson(res, error.statusCode || 422, { errorCode: "v2_review_session_unavailable", message: error.message || "V2 复习会话不可用。" });
+    }
+    return;
+  }
+
+  const v2PracticeActionMatch = req.url?.match(/^\/api\/v2\/review-sessions\/([^/]+)\/practice\/(start|advance|answer|finish)$/);
+  if (v2PracticeActionMatch && req.method === "POST") {
+    const sessionId = decodeURIComponent(v2PracticeActionMatch[1]);
+    const action = v2PracticeActionMatch[2];
+    const chapters = await listStoredChapters(deviceId);
+    const chapter = chapters.find((item) => item.v2ReviewSession?.id === sessionId);
+    if (!chapter) {
+      sendJson(res, 404, { errorCode: "v2_review_session_not_found", message: "V2 复习会话不存在。" });
+      return;
+    }
+    try {
+      const body = await readBody(req);
+      const reviewSession = applyV2ReviewSessionMutation(chapter, (session) => {
+        switch (action) {
+        case "start":
+          return startPracticeFromUnitV2(chapter, session, body);
+        case "advance":
+          return advancePracticeCardV2(chapter, session);
+        case "answer":
+          return answerPracticeQuestionV2(chapter, session, body);
+        case "finish":
+          return finishPracticeV2(chapter, session);
+        default:
+          return session;
+        }
+      });
+      await upsertStoredChapter(deviceId, chapter);
+      sendJson(res, 200, serializeV2ReviewSessionResponse(chapter, reviewSession));
+    } catch (error) {
+      sendJson(res, error.statusCode || 422, { errorCode: "v2_practice_session_update_failed", message: error.message || "V2 临时复习状态保存失败。" });
     }
     return;
   }

@@ -23,8 +23,12 @@ export function createReviewSessionV2(
     chapterId: reviewPath.id,
     status: "active",
     currentCard: chapterOverviewCard(reviewPath),
+    activeCard: null,
     questionStates: {},
+    activeQuestionStates: null,
     completedStepIds: [],
+    mode: "mainline",
+    practice: null,
     sourceRoute: null,
     createdAt: now,
     updatedAt: now,
@@ -43,19 +47,130 @@ export function normalizeReviewSessionV2(
     return createReviewSessionV2(reviewPath, { now });
   }
 
+  const practice = normalizePracticeSession(reviewPath, session.practice, { now });
   return {
     schemaVersion: V2_REVIEW_SESSION_SCHEMA_VERSION,
     id: session.id || `v2-session-${Date.now()}`,
     chapterId: reviewPath.id,
     status: session.status === "completed" ? "completed" : "active",
     currentCard: normalizeCurrentCard(reviewPath, session.currentCard),
+    activeCard: practice?.currentCard ?? null,
     questionStates: normalizeQuestionStates(session.questionStates),
+    activeQuestionStates: practice?.questionStates ?? null,
     completedStepIds: normalizeCompletedStepIds(session.completedStepIds),
+    mode: practice ? "practice" : "mainline",
+    practice,
     sourceRoute: session.sourceRoute ?? null,
     createdAt: session.createdAt || now,
     updatedAt: session.updatedAt || now,
     completedAt: session.completedAt ?? null
   };
+}
+
+export function startPracticeFromUnitV2(
+  reviewPath,
+  session,
+  { unitId },
+  { practiceId = `v2-practice-${Date.now()}`, now = new Date().toISOString() } = {}
+) {
+  const currentSession = normalizeReviewSessionV2(reviewPath, session, { now });
+  const unit = findUnit(reviewPath, unitId);
+  const nextSession = cloneSession(currentSession);
+
+  nextSession.practice = {
+    id: practiceId,
+    mode: "unit_practice",
+    startUnitId: unit.id,
+    status: "active",
+    currentCard: unitOverviewCard(reviewPath, unit),
+    questionStates: {},
+    completedStepIds: [],
+    createdAt: now,
+    updatedAt: now,
+    completedAt: null
+  };
+
+  return touchSession(withActivePractice(nextSession), now);
+}
+
+export function advancePracticeCardV2(
+  reviewPath,
+  session,
+  { now = new Date().toISOString() } = {}
+) {
+  const currentSession = normalizeReviewSessionV2(reviewPath, session, { now });
+  const practice = normalizePracticeSession(reviewPath, currentSession.practice, { now });
+  if (!practice) {
+    return touchSession(withActivePractice(cloneSession(currentSession)), now);
+  }
+
+  const nextSession = cloneSession(currentSession);
+  const nextPractice = cloneSession(practice);
+  const currentCard = nextPractice.currentCard;
+
+  markCurrentCardCompleted(nextPractice, currentCard);
+
+  if (currentCard.type === "unit_overview") {
+    const unit = findUnit(reviewPath, currentCard.unitId);
+    nextPractice.currentCard = questionCard(reviewPath, unit, unit.questions[0]);
+  } else if (currentCard.type === "question") {
+    const questionState = nextPractice.questionStates[currentCard.questionId];
+    if (questionState?.status === "answered") {
+      nextPractice.currentCard = questionFeedbackCard(currentCard);
+    }
+  } else if (currentCard.type === "question_feedback") {
+    nextPractice.currentCard = nextCardAfterQuestionFeedback(reviewPath, currentCard);
+  } else if (currentCard.type === "unit_summary") {
+    nextPractice.status = "completed";
+    nextPractice.completedAt = now;
+  }
+
+  nextSession.practice = touchPractice(nextPractice, now);
+  return touchSession(withActivePractice(nextSession), now);
+}
+
+export function answerPracticeQuestionV2(
+  reviewPath,
+  session,
+  body,
+  { now = new Date().toISOString() } = {}
+) {
+  const currentSession = normalizeReviewSessionV2(reviewPath, session, { now });
+  const practice = normalizePracticeSession(reviewPath, currentSession.practice, { now });
+  if (!practice) {
+    throw new Error("Practice session has not started.");
+  }
+
+  const unit = findUnit(reviewPath, body.unitId);
+  const question = findQuestion(unit, body.questionId);
+  const normalizedResult = body.result === "correct" ? "correct" : "incorrect";
+  const nextSession = cloneSession(currentSession);
+  const nextPractice = cloneSession(practice);
+
+  nextPractice.questionStates[question.id] = {
+    status: "answered",
+    result: normalizedResult,
+    selectedOptionId: body.selectedOptionId ?? null,
+    matchedPairs: Array.isArray(body.matchedPairs) ? body.matchedPairs : [],
+    lockedPairIds: Array.isArray(body.lockedPairIds) ? body.lockedPairIds : [],
+    feedbackVisible: true,
+    answeredAt: now
+  };
+  addCompletedStep(nextPractice, questionStepId(unit.id, question.id));
+  nextPractice.currentCard = questionFeedbackCard(questionCard(reviewPath, unit, question));
+
+  nextSession.practice = touchPractice(nextPractice, now);
+  return touchSession(withActivePractice(nextSession), now);
+}
+
+export function finishPracticeV2(
+  reviewPath,
+  session,
+  { now = new Date().toISOString() } = {}
+) {
+  const nextSession = cloneSession(normalizeReviewSessionV2(reviewPath, session, { now }));
+  nextSession.practice = null;
+  return touchSession(withActivePractice(nextSession), now);
 }
 
 export function advanceReviewCardV2(
@@ -354,6 +469,54 @@ function normalizeQuestionStates(questionStates) {
   return structuredClone(questionStates);
 }
 
+function normalizePracticeSession(reviewPath, practice, { now = new Date().toISOString() } = {}) {
+  if (!practice || typeof practice !== "object") {
+    return null;
+  }
+
+  let startUnit;
+  try {
+    startUnit = findUnit(reviewPath, practice.startUnitId || practice.unitId);
+  } catch {
+    return null;
+  }
+
+  return {
+    id: practice.id || `v2-practice-${Date.now()}`,
+    mode: practice.mode || "unit_practice",
+    startUnitId: startUnit.id,
+    status: practice.status === "completed" ? "completed" : "active",
+    currentCard: normalizePracticeCard(reviewPath, startUnit, practice.currentCard),
+    questionStates: normalizeQuestionStates(practice.questionStates),
+    completedStepIds: normalizeCompletedStepIds(practice.completedStepIds),
+    createdAt: practice.createdAt || now,
+    updatedAt: practice.updatedAt || now,
+    completedAt: practice.completedAt ?? null
+  };
+}
+
+function normalizePracticeCard(reviewPath, startUnit, card) {
+  const normalizedCard = normalizeCurrentCard(reviewPath, card);
+  if (normalizedCard.type === "chapter_overview" || normalizedCard.type === "chapter_summary") {
+    return unitOverviewCard(reviewPath, startUnit);
+  }
+  if (normalizedCard.unitId !== startUnit.id) {
+    return unitOverviewCard(reviewPath, startUnit);
+  }
+  return normalizedCard;
+}
+
+function withActivePractice(session) {
+  const practice = session.practice ?? null;
+  return {
+    ...session,
+    activeCard: practice?.currentCard ?? null,
+    activeQuestionStates: practice?.questionStates ?? null,
+    mode: practice ? "practice" : "mainline",
+    practice
+  };
+}
+
 function normalizeCompletedStepIds(stepIds) {
   if (!Array.isArray(stepIds)) {
     return [];
@@ -504,6 +667,13 @@ function cloneSession(session) {
 function touchSession(session, now) {
   return {
     ...session,
+    updatedAt: now
+  };
+}
+
+function touchPractice(practice, now) {
+  return {
+    ...practice,
     updatedAt: now
   };
 }

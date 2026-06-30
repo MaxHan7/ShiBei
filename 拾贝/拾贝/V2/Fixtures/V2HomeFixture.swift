@@ -22,6 +22,7 @@ enum V2HomeFixture {
                 subtitle: "章节概要",
                 kind: .start,
                 state: .start,
+                action: .mainline,
                 completedQuestionCount: 0,
                 totalQuestionCount: 0,
                 position: CGPoint(x: 0.66, y: 0.88)
@@ -32,6 +33,7 @@ enum V2HomeFixture {
                 subtitle: "理解协作的切入点",
                 kind: .unit,
                 state: .current,
+                action: .mainline,
                 completedQuestionCount: 1,
                 totalQuestionCount: 3,
                 position: CGPoint(x: 0.28, y: 0.70)
@@ -42,6 +44,7 @@ enum V2HomeFixture {
                 subtitle: "把AI当作协作同事",
                 kind: .unit,
                 state: .locked,
+                action: .previewOnly,
                 completedQuestionCount: 0,
                 totalQuestionCount: 5,
                 position: CGPoint(x: 0.39, y: 0.47)
@@ -52,6 +55,7 @@ enum V2HomeFixture {
                 subtitle: "让团队形成共享上下文",
                 kind: .unit,
                 state: .locked,
+                action: .previewOnly,
                 completedQuestionCount: 0,
                 totalQuestionCount: 4,
                 position: CGPoint(x: 0.73, y: 0.31)

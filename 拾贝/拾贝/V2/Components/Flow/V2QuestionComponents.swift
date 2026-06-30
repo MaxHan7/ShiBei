@@ -220,6 +220,9 @@ struct V2MultipleChoiceQuestionCard: View {
 struct V2MatchingOptionCard: View {
     let title: String
     let state: V2MatchingOptionState
+    var width: CGFloat = V2MatchingOptionCardMetrics.width
+    var height: CGFloat = V2MatchingOptionCardMetrics.height
+    var horizontalPadding: CGFloat = V2MatchingOptionCardMetrics.horizontalPadding
     let action: () -> Void
 
     private enum Metrics {
@@ -301,6 +304,12 @@ struct V2MatchingOptionCard: View {
             return V2Color.textPrimary
         }
     }
+}
+
+private enum V2MatchingOptionCardMetrics {
+    static let width: CGFloat = 152
+    static let height: CGFloat = 96
+    static let horizontalPadding: CGFloat = 14
 }
 
 struct V2AnswerFeedbackPanel: View {
