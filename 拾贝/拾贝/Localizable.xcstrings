@@ -2849,7 +2849,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "继续复习"
+            "value" : "继续学习"
           }
         }
       }
@@ -2866,7 +2866,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "开始复习"
+            "value" : "开始学习"
           }
         }
       }
