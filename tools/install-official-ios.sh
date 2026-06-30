@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROJECT="$ROOT_DIR/拾贝/拾贝.xcodeproj"
-SCHEME="拾贝"
+SCHEME="Recallo"
 BUNDLE_ID="com.maxhan.shibei"
 DEVICE_ID="${1:-26BD96F1-4C9A-5123-92A7-6733CAE2BE21}"
 DESTINATION="${RECALLO_IOS_DESTINATION:-${SHIBEI_IOS_DESTINATION:-id=00008130-000465522213803A}}"

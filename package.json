@@ -11,6 +11,7 @@
     "check:ios-signing": "node tools/ios-signing-guard.mjs",
     "check:production-release-evidence": "node tools/production-release-evidence-guard.mjs",
     "check:production-deploy-inputs": "node tools/production-deploy-inputs-guard.mjs",
+    "hooks:install": "bash tools/install-git-hooks.sh",
     "iteration:log": "node tools/iteration-log/create-entry.mjs",
     "blog:serve": "node tools/iteration-log/serve-blog.mjs"
   },

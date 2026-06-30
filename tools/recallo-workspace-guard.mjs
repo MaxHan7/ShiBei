@@ -72,14 +72,17 @@ if (project.includes("path = \"拾贝.app\";")) {
 }
 
 const installScript = readFileSync(resolve(repoRoot, "tools/install-official-ios.sh"), "utf8");
-if (installScript.includes("Recallo.app") && installScript.includes('DISPLAY_NAME" != "Recallo"')) {
+if (
+  installScript.includes('SCHEME="Recallo"')
+  && installScript.includes("Recallo.app")
+  && installScript.includes('DISPLAY_NAME" != "Recallo"')
+) {
   pass("install_script_requires_recallo_app_and_display_name");
 } else {
-  fail("install_script_missing_recallo_app_or_display_name_guard");
+  fail("install_script_missing_recallo_scheme_app_or_display_name_guard");
 }
 
 if (process.exitCode) {
   console.error("Workspace is not safe for Recallo install/deploy.");
   process.exit(process.exitCode);
 }
-

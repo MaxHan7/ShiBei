@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - master
-      - codex/shibei-v2-isolated-build
+      - codex/recallo-review-replay-mode
 
 concurrency:
   group: v2-production-readiness-${{ github.ref }}
