@@ -13,23 +13,29 @@ const files = {
 const source = Object.fromEntries(
   Object.entries(files).map(([key, path]) => [key, readFileSync(path, "utf8")])
 );
+const matchingCardSource = extractMatchingCardSource(source.questionComponents);
 const matchingScreenSource = extractMatchingScreenSource(source.reviewFlowScreens);
 
 const checks = [
   check(
     "matching_card_uses_external_width",
-    /\.frame\(width: width(?:,|\))/.test(source.questionComponents),
+    /\.frame\(width: width(?:,|\))/.test(matchingCardSource),
     "V2MatchingOptionCard must use its width parameter, not a private fixed width."
   ),
   check(
     "matching_card_uses_external_exact_height",
-    /\.frame\(width: width,\s*height: height\)/.test(source.questionComponents),
+    /\.frame\(width: width,\s*height: height\)/.test(matchingCardSource),
     "V2MatchingOptionCard must use its height parameter as the exact semantic height for the estimated line count."
   ),
   check(
     "matching_card_uses_external_horizontal_padding",
-    /\.padding\(\.horizontal,\s*horizontalPadding\)/.test(source.questionComponents),
+    /\.padding\(\.horizontal,\s*horizontalPadding\)/.test(matchingCardSource),
     "V2MatchingOptionCard must use its horizontalPadding parameter."
+  ),
+  check(
+    "matching_card_has_no_outer_vertical_padding",
+    !/ZStack\s*\{[\s\S]*?\}\s*\.padding\(\.vertical,/.test(matchingCardSource),
+    "V2MatchingOptionCard must not add vertical padding around the whole card because it makes visual row gaps drift."
   ),
   check(
     "matching_card_has_no_private_fixed_width_metrics",

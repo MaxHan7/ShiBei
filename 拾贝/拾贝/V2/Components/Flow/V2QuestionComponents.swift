@@ -226,7 +226,7 @@ struct V2MatchingOptionCard: View {
     let action: () -> Void
 
     private enum Metrics {
-        static let verticalPadding: CGFloat = 12
+        static let verticalTextPadding: CGFloat = 12
         static let textLineSpacing: CGFloat = 3
         static let maxTextLines = 3
     }
@@ -249,9 +249,9 @@ struct V2MatchingOptionCard: View {
                     .lineLimit(Metrics.maxTextLines)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, horizontalPadding)
+                    .padding(.vertical, Metrics.verticalTextPadding)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
-            .padding(.vertical, Metrics.verticalPadding)
             .frame(width: width, height: height)
         }
         .buttonStyle(.plain)
