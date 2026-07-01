@@ -1,0 +1,25 @@
+{
+  "date": "2026-07-01",
+  "title": "生成完成推送改为完成时可靠投递",
+  "phase": "发布准备",
+  "problem": "拾贝的长内容生成可能持续较久，用户把文章交给系统后往往会离开当前页面；如果完成提醒只依赖重新注册 push token 时补发未读通知，用户既可能错过真正的完成时刻，也可能在恢复登录或重装后收到过期提醒。今天要解决的问题是：生成任务完成、数据库通知、APNs 投递和 v2 复习入口之间必须形成同一条可验证链路，让用户在内容可复习时被及时拉回，而不是靠补偿机制猜测。",
+  "changes": [
+    "通知创建链路从 fire-and-forget 改为 await sendPushNotifications，确保 createGenerationNotification 返回前已经完成一次推送交付尝试，使生成完成事件和提醒状态具备一致的因果顺序。",
+    "抽出 backend/src/notificationPush.js 作为数据库通知到 APNs 的单一投递模块，统一处理 APNs 未配置、无 token、失败记录、sent 状态写回和 already_sent 去重，避免旧 worker 与 v2 worker 各自维护不同语义。",
+    "v2GenerationJobRunner 接入同一个 sendDatabasePushNotifications，使 v2 章节生成完成后也会立即触发完成提醒，支撑用户从后台生成回到主线复习。",
+    "移除 push-token 注册接口中的 pendingPush 补发窗口和 pendingPush 响应字段，把 token 注册恢复为能力同步接口，避免注册动作重放陈旧的 generation_completed/generation_failed 通知。",
+    "新增 pushNotificationFlow node:test：验证生成通知会等待推送尝试完成，并用源码断言防止 pending push replay 逻辑回流；同时把 notificationPush.js 和该测试纳入 backend check。",
+    "iOS 入口在 v2 root 下跳过 legacy AppStore 的前台刷新和 push observer 安装，降低新 v2 体验被旧根视图生命周期重复同步、重复提醒或旧状态污染的风险。"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/2026-07-01-生成完成推送改为完成时可靠投递.svg",
+      "caption": "2026-07-01 迭代摘要"
+    }
+  ],
+  "result": "今天的可见结果是，生成完成提醒从“用户注册 token 时尝试补发”收敛为“生成任务完成时立即投递并记录状态”的闭环：数据库通知保存、APNs 发送、失败原因回写、重复发送保护和 v2 worker 接入都在同一模块内完成。验证依据包括新增的 pushNotificationFlow 测试、backend check 脚本纳入新模块与测试，以及对 server.js 的源码断言，确认 pendingPush replay 不再存在。限制是这仍是后端单元/契约级验证，还需要在真机或 TestFlight 环境用真实 APNs token 观察完成提醒的到达时间、失败状态和用户点击后的复习入口。",
+  "next": "下一步用一台已授权推送的真机跑 v2 生成：提交长文章后退到后台，记录 generation_completed 通知到达时间、/api/devices/push-status 中 pushDeliveryStatus/pushAttemptCount，以及点击通知后是否直接回到可复习章节；若失败，再区分 APNs 配置、token 注册和 worker 完成事件三类问题。",
+  "commits": [
+    "7cfae8f"
+  ]
+}

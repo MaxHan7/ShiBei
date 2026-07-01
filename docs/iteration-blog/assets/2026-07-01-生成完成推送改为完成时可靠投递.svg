@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <rect x="92" y="82" width="1016" height="596" rx="42" fill="#fff" stroke="#fbf3e4" stroke-width="3"/>
+  <text x="150" y="154" fill="#e09859" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24" font-weight="800">发布准备</text>
+  <text x="150" y="220" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="44" font-weight="900">生成完成推送改为完成时可靠投递</text>
+  <rect x="150" y="286" width="420" height="250" rx="28" fill="#fffaf4" stroke="#eadfcd"/>
+  <text x="188" y="346" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="800">问题</text>
+  <text x="188" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">拾贝的长内容生成可能持续较久，用户把文章交给系统后往往会离开当前页面；如</text>
+  <text x="188" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">果完成提醒只依赖重新注册 push token 时补发未读通知，用户既可</text>
+  <text x="188" y="462" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">能错过真正的完成时刻，也可能在恢复登录或重装后收到过期提醒。今天要解决的</text>
+  <text x="188" y="496" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">问题是：生成任务完成、数据库通知、APNs 投递和 v2 复习入口之间必</text>
+  <rect x="630" y="286" width="420" height="250" rx="28" fill="#fffaf4" stroke="#eadfcd"/>
+  <text x="668" y="346" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="800">效果</text>
+  <text x="668" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">今天的可见结果是，生成完成提醒从“用户注册 token 时尝试补发”收敛为“</text>
+  <text x="668" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">生成任务完成时立即投递并记录状态”的闭环：数据库通知保存、APNs 发送、失</text>
+  <text x="668" y="462" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">败原因回写、重复发送保护和 v2 worker 接入都在同一模块内完成。验证</text>
+  <text x="668" y="496" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">依据包括新增的 pushNotificationFlow 测试、backen</text>
+  <text x="150" y="612" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">2026-07-01</text>
+</svg>
