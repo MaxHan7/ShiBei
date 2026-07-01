@@ -55,6 +55,17 @@ final class AppStore: ObservableObject {
     private var generationPollTasks: [String: Task<Void, Never>] = [:]
     private var notificationObservers: [NSObjectProtocol] = []
     private var latestFeedbackWasSevere = false
+    private static var shouldUseV2Root: Bool {
+        #if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        let environment = ProcessInfo.processInfo.environment
+        return !arguments.contains("-RecalloUseLegacyRoot")
+            && !arguments.contains("-ShibeiUseLegacyRoot")
+            && environment["SHIBEI_USE_LEGACY_ROOT"] != "1"
+        #else
+        return true
+        #endif
+    }
 
     init(
         chapterService: any ChapterServicing = MockChapterService(),
@@ -100,7 +111,9 @@ final class AppStore: ObservableObject {
         dataMode = .cloudAPI
         dataSourceMessage = localized("debug.message.connecting_cloud")
         #endif
-        installPushNotificationObservers()
+        if !Self.shouldUseV2Root {
+            installPushNotificationObservers()
+        }
     }
 
     func setAppLanguage(_ language: AppLanguage) {

@@ -20,7 +20,7 @@ struct ContentView: View {
             }
         }
             .task(id: scenePhase) {
-                guard scenePhase == .active else { return }
+                guard scenePhase == .active, !shouldUseV2Root else { return }
                 await store.refreshVisibleProcessingChapterFromAPI()
                 await store.syncPushTokenIfAuthorized()
             }

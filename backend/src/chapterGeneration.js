@@ -175,6 +175,6 @@ export async function createGenerationNotification({
     createdAt: new Date().toISOString()
   };
   const saved = await upsertNotification(deviceId, notification);
-  if (sendPushNotifications) void sendPushNotifications(deviceId, saved, chapter);
+  if (sendPushNotifications) await sendPushNotifications(deviceId, saved, chapter);
   return saved;
 }

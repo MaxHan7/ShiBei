@@ -101,7 +101,6 @@ const REINFORCEMENT_GAP = 3;
 const REVIEW_SESSION_SCHEMA_VERSION = 2;
 const MAX_REINFORCEMENTS_PER_QUESTION = 2;
 const GENERATION_JOB_TIMEOUT_MS = readPositiveInt(process.env.GENERATION_JOB_TIMEOUT_MS, 360_000);
-const PENDING_PUSH_REPLAY_WINDOW_MS = readPositiveInt(process.env.PENDING_PUSH_REPLAY_WINDOW_MS, 30 * 60 * 1000);
 const databaseInitializedByParent = process.env.SHIBEI_DB_INITIALIZED_BY_PARENT === "1";
 
 const contentTypes = {
@@ -1388,28 +1387,6 @@ async function updateStoredNotificationPushDelivery(deviceId, notification, deli
   return next;
 }
 
-function isPendingPushNotification(notification) {
-  if (!notification || notification.dismissed || notification.read || notification.pushSentAt) return false;
-  if (!["generation_completed", "generation_failed"].includes(notification.type)) return false;
-  const createdAtMs = Date.parse(notification.createdAt || "");
-  if (!Number.isFinite(createdAtMs)) return true;
-  return Date.now() - createdAtMs <= PENDING_PUSH_REPLAY_WINDOW_MS;
-}
-
-async function sendPendingStoredPushNotifications(deviceId) {
-  const notifications = await listStoredNotifications(deviceId);
-  const pending = notifications.filter(isPendingPushNotification);
-  if (pending.length === 0) return { attempted: 0 };
-
-  let sent = 0;
-  for (const notification of pending) {
-    const chapter = await getStoredChapter(deviceId, notification.chapterId);
-    const result = await sendStoredPushNotifications(deviceId, notification, chapter);
-    sent += toIntegerValue(result?.sentCount, 0);
-  }
-  return { attempted: pending.length, sent };
-}
-
 function normalizeReviewSession(session = {}, chapter = {}) {
   const now = new Date().toISOString();
   const normalized = {
@@ -2202,7 +2179,6 @@ const server = createServer(async (req, res) => {
       sendJson(res, 422, { errorCode: "invalid_push_token", message: "推送 token 无效。" });
       return;
     }
-    const pendingPush = await sendPendingStoredPushNotifications(deviceId);
     sendJson(res, 200, {
       ok: true,
       pushToken: {
@@ -2211,8 +2187,7 @@ const server = createServer(async (req, res) => {
         preferredLanguage: pushToken.preferredLanguage
       },
       apnsConfigured: isAPNSConfigured(),
-      apns: apnsConfigurationSummary(),
-      pendingPush
+      apns: apnsConfigurationSummary()
     });
     return;
   }

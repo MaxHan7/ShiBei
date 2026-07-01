@@ -10,6 +10,7 @@ import {
   deleteNotificationsForChapter,
   upsertNotification
 } from "../../db.js";
+import { sendDatabasePushNotifications } from "../../notificationPush.js";
 import { extractSourceContent as defaultExtractSourceContent } from "../../sources/extractSourceContent.js";
 import { runV2GenerationJob } from "./runV2GenerationJob.js";
 import {
@@ -443,6 +444,7 @@ async function defaultCreateNotification(deviceId, chapter) {
     deviceId,
     chapter,
     deleteNotificationsForChapter,
-    upsertNotification
+    upsertNotification,
+    sendPushNotifications: sendDatabasePushNotifications
   });
 }
