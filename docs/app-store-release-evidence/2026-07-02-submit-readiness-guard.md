@@ -21,6 +21,7 @@ npm run check:app-store-submit:report
 - 日常开发和普通 `npm run check` 不被用户未提供的信息阻塞。
 - 最终提交 App Store 前，严格模式必须通过。
 - 如果 Support URL、Privacy URL、支持邮箱、审核决策仍是占位符，严格模式会失败。
+- 如果 `docs/app-store-user-decision-form-zh.md` 仍有 `待填写`，严格模式会失败。
 
 ## 当前报告结果
 
@@ -36,7 +37,7 @@ git diff --check -- tools/app-store-submit-readiness-guard.mjs package.json docs
 
 - 脚本语法检查通过。
 - diff whitespace 检查通过。
-- report 模式显示 `NOT READY`，共有 9 个 blocker。
+- report 模式显示 `NOT READY`，共有 10 个 blocker。
 
 这些 blocker 均符合预期，因为当前仍缺：
 
@@ -45,6 +46,7 @@ git diff --check -- tools/app-store-submit-readiness-guard.mjs package.json docs
 - 最终 Support URL。
 - App Store Review 包中的账号/价格/首版策略最终确认。
 - 用户手动事项清单中的最终 URL 回写。
+- 一页式用户决策表尚未填写。
 
 ## 后续使用方式
 

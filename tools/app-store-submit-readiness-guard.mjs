@@ -35,7 +35,8 @@ const files = {
   privacyHTML: "docs/privacy-policy.html",
   metadata: "docs/app-store-metadata-zh.md",
   reviewPack: "docs/app-store-review-submission-pack-zh.md",
-  userChecklist: "docs/app-store-user-action-checklist-zh.md"
+  userChecklist: "docs/app-store-user-action-checklist-zh.md",
+  decisionForm: "docs/app-store-user-decision-form-zh.md"
 };
 
 const supportHTML = read(files.supportHTML);
@@ -43,6 +44,7 @@ const privacyHTML = read(files.privacyHTML);
 const metadata = read(files.metadata);
 const reviewPack = read(files.reviewPack);
 const userChecklist = read(files.userChecklist);
+const decisionForm = read(files.decisionForm);
 
 console.log("# Recallo App Store Submit Readiness Guard");
 console.log(`repoRoot=${repoRoot}`);
@@ -93,6 +95,11 @@ addCheck(
   "user_checklist_has_final_urls",
   containsHttpsURL(userChecklist) && !/Support URL[^\n]*已准备|Privacy URL[^\n]*已准备/.test(userChecklist),
   `${files.userChecklist} must be updated with final Support/Privacy URLs instead of preparation instructions`
+);
+addCheck(
+  "decision_form_is_finalized",
+  !/待填写|待确认|待决策|待用户|待补充/.test(decisionForm),
+  `${files.decisionForm} must be filled before App Store submission`
 );
 
 for (const check of checks) {
