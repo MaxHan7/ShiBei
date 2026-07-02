@@ -725,11 +725,11 @@ npm run check
 
 必须写清楚：
 
-- [ ] 当前匿名 ID 如何生成、存储、上传。
-- [ ] 为什么之前发生过“切语言后数据丢失”的风险，当前如何防。
-- [ ] 如果不做账号，用户重装/换机时会怎样。
-- [ ] 如果做 Apple 登录，需要新增哪些表、接口、前端入口。
-- [ ] 如果做账号，删除账号必须删哪些表和字段。
+- [x] 当前匿名 ID 如何生成、存储、上传。
+- [x] 为什么之前发生过“切语言后数据丢失”的风险，当前如何防。
+- [x] 如果不做账号，用户重装/换机时会怎样。
+- [x] 如果做 Apple 登录，需要新增哪些表、接口、前端入口。
+- [x] 如果做账号，删除账号必须删哪些表和字段。
 
 决策输出：
 
@@ -740,7 +740,7 @@ npm run check
 
 验收：
 
-- [ ] 用户能基于文档做出首版是否做 Apple 登录的决策。
+- [x] 用户能基于文档做出首版是否做 Apple 登录的决策。
 - [ ] 决策结果回写到本文档“当前开放决策”。
 
 ### Task 7：隐私政策和 App Privacy 标签更新
@@ -914,12 +914,12 @@ App Store Connect 操作：
 | 决策 | 推荐 | 原因 | 状态 |
 | --- | --- | --- | --- |
 | 首版是否免费 | 是 | 降低审核和用户进入门槛 | 待确认 |
-| 是否做每日额度 | 是 | 控制模型成本和滥用 | 待设计 |
+| 是否做每日额度 | 是 | 控制模型成本和滥用 | 已实现默认 3 次/UTC day，待用户确认数字 |
 | 是否做付费积分/订阅 | 否，后置 | 避免首版 IAP 复杂度 | 建议后置 |
-| 是否首版加入 Apple 登录 | 推荐可选加入 | 解决数据恢复和正式用户信任 | 待确认 |
+| 是否首版加入 Apple 登录 | 推荐可选加入 | 解决数据恢复和正式用户信任；匿名首版只适合短期 | 待用户拍板 |
 | 是否强制登录后生成 | 否 | 会显著提高首次体验门槛 | 建议不强制 |
 | 推荐好文是否计入额度 | 建议不计或单独计 | 预生成内容成本低，适合新手体验 | 待确认 |
-| 旧匿名数据如何迁移 | 登录时可绑定当前匿名数据 | 防止用户升级后数据丢失 | 待设计 |
+| 旧匿名数据如何迁移 | 登录时可绑定当前匿名数据 | 防止用户升级后数据丢失 | 已给出方案，待是否做 Apple 登录决策 |
 
 ## 8. 执行台账
 
@@ -933,6 +933,7 @@ App Store Connect 操作：
 | 2026-07-02 | 执行 Task 3：Release/Archive 工程防错脚本 | 已新增 `npm run check:release-ios`；官方工作区通过，旧工作区调用失败；Railway/deviceId/旧 debug 参数列为 warning | `tools/release-archive-preflight.mjs`、`docs/app-store-release-evidence/2026-07-02-release-archive-preflight.md` | 进入 Task 4：AI 处理同意机制 |
 | 2026-07-02 | 执行 Task 4：AI 处理同意机制 | 已新增真实生成前一次性 AI 处理同意弹窗；拒绝不创建任务，同意后持久化；隐私说明可回看；`npm run check:release-ios`、XcodeBuildMCP 模拟器构建、`npm run check` 均通过 | `拾贝/拾贝/V2/Components/V2AIProcessingConsentSheet.swift`、`docs/app-store-release-evidence/2026-07-02-ai-processing-consent.md` | 进入 Task 5：免费每日额度系统 |
 | 2026-07-02 | 执行 Task 5：免费每日额度系统 | 已新增服务端每日真实生成额度；默认 3 篇/UTC day；推荐好文导入不计入；Postgres 使用 device+day 事务锁防并发绕过；`npm run check` 通过，204 tests passed | `backend/src/generationQuota.js`、`backend/src/tests/generationQuota.test.js`、`docs/app-store-release-evidence/2026-07-02-generation-quota.md` | 进入 Task 6：账号和数据恢复决策包 |
+| 2026-07-02 | 执行 Task 6：账号和数据恢复决策包 | 已梳理匿名 deviceId 生成/存储/上传、数据“像丢失”的真实机制、匿名首版边界、Apple 登录所需表/接口/前端入口、账号删除范围 | `docs/account-data-recovery-decision-zh.md` | 等用户拍板是否首版加入 Apple 登录；可并行进入 Task 7 隐私政策更新 |
 
 ## 9. 维护规则
 
