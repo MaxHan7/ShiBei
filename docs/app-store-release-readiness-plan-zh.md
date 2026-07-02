@@ -940,6 +940,7 @@ App Store Connect 操作：
 | 2026-07-02 | 推进 Task 10：Archive 和 App Store Connect 提交流程 | 已创建 Archive/提交 runbook，明确 Codex 可跑的检查、用户 Xcode 步骤、App Store Connect 填写顺序、停止条件和提交后记录字段 | `docs/app-store-archive-submit-runbook-zh.md` | 用户完成真机验收、提供 Support/Privacy URL 后，可按 runbook Archive 并上传 |
 | 2026-07-02 | 收口用户手动事项和 release preflight | 已单独列出所有必须用户拍板/手动操作事项；`npm run check:release-ios` 通过，仍有非阻塞 warning 需在真机验收中确认不可见 | `docs/app-store-user-action-checklist-zh.md`、`docs/app-store-release-evidence/2026-07-02-user-action-and-preflight.md` | 等用户决策/URL/真机验收/截图；Codex 可继续陪跑检查和回写证据 |
 | 2026-07-02 | 准备 Support URL / Privacy URL 静态页面 | 已新增支持页 HTML/Markdown 和 URL 发布说明；隐私页已有 HTML，可直接托管；仍缺正式支持邮箱和公开托管地址 | `docs/support.html`、`docs/support-zh.md`、`docs/app-store-url-publishing-guide-zh.md` | 用户提供支持邮箱并选择托管方式；Codex 回写最终 URL |
+| 2026-07-02 | 自动 Release preflight 和生产 health 自检 | `npm run check:release-ios`、`npm run check`、production `/api/health` 均通过；推荐好文 catalog 为 9 篇、5 个 filter；仍有非阻塞 release visibility warning | `docs/app-store-release-evidence/2026-07-02-automated-release-preflight.md` | 用户完成 URL、真机验收和截图后进入 Archive |
 
 ## 9. 维护规则
 
