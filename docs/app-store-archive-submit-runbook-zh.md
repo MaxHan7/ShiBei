@@ -25,6 +25,7 @@ git status --short
 git log -1 --oneline
 npm run check:release-ios
 npm run check
+npm run check:app-store-submit:report
 curl -s https://shibei-production.up.railway.app/api/health
 ```
 
@@ -36,6 +37,7 @@ curl -s https://shibei-production.up.railway.app/api/health
 - Bundle ID 仍是 `com.maxhan.shibei`，用于替换旧 TestFlight 并沿用推送配置。
 - Release 默认 API 是 production。
 - 没有旧工程、fixture、Railway、JSON decode 等可见阻塞文案。
+- `npm run check:app-store-submit` 在最终提交前通过；如果 report 模式仍显示 NOT READY，说明还有用户决策、邮箱或 URL 没有收口。
 
 ## 3. 用户 Xcode Archive 步骤
 
@@ -115,4 +117,3 @@ curl -s https://shibei-production.up.railway.app/api/health
 - 隐私政策 URL 无法公开访问。
 - App Privacy 标签和隐私政策不一致。
 - 上传后 App Store Connect 选择的是错误 build。
-
