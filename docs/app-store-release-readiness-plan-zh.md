@@ -937,6 +937,7 @@ App Store Connect 操作：
 | 2026-07-02 | 推进 Task 7：隐私政策和 App Privacy 标签更新 | 已将隐私政策 Markdown/HTML 更新为 Recallo 当前真实数据流；同步 App Review 隐私标签草案、App Store 元数据草案和 App 内隐私/账号说明；仍缺公开支持邮箱 | `docs/privacy-policy-zh.md`、`docs/privacy-policy.html`、`docs/app-store-review-submission-pack-zh.md`、`docs/app-store-metadata-zh.md` | 用户提供支持邮箱；随后进入 Task 8 截图与元数据包 |
 | 2026-07-02 | 推进 Task 8：App Store 元数据和截图包 | 已补 App Store 可填写字段、What’s New、Description、关键词核对、年龄分级建议和 6 张截图脚本；Support URL/Privacy URL 与真实截图仍需用户提供/上传 | `docs/app-store-metadata-zh.md`、`docs/app-store-release-evidence/screenshots-checklist.md` | 用户提供 URL 并按清单截取 Release/TestFlight 截图；Codex 进入 Task 9 生产稳定性验收包 |
 | 2026-07-02 | 执行 Task 9：生产稳定性验收包 | 已创建可复制的上架前验收模板，覆盖自动检查、真机核心链路、网络异常、截图验收和 P0/P1/P2 分级 | `docs/app-store-release-evidence/production-acceptance-template.md` | 用户按模板跑真机验收；Codex 可继续 Task 10 Archive/提交陪跑文档 |
+| 2026-07-02 | 推进 Task 10：Archive 和 App Store Connect 提交流程 | 已创建 Archive/提交 runbook，明确 Codex 可跑的检查、用户 Xcode 步骤、App Store Connect 填写顺序、停止条件和提交后记录字段 | `docs/app-store-archive-submit-runbook-zh.md` | 用户完成真机验收、提供 Support/Privacy URL 后，可按 runbook Archive 并上传 |
 
 ## 9. 维护规则
 
@@ -948,16 +949,13 @@ App Store Connect 操作：
 
 ## 10. 下一步建议
 
-下一步建议进入 Task 3：Release/Archive 工程防错脚本。输出应该是一套能在打包前自动运行的检查：
+Task 1-10 的 Codex 可产出部分已经基本落入文档、脚本和台账。继续提交 App Store 前，下一步不应再扩散新功能，而应收敛到以下人工阻塞项：
 
-- 正确工作区才能通过。
-- 错误旧工作区必须失败。
-- Release 可见文案不能包含旧品牌、debug、fixture、Railway 等风险文本。
-- Archive 前能输出 commit hash、branch、scheme 和关键配置。
-
-这样后续进入 Xcode Archive 前，先用脚本挡住“打错旧工程/旧版本”的问题。
-
-Task 1 和 Task 2 已完成：
+1. 用户确认是否首版加入 Apple 登录；如果不加入，确认匿名首版的数据恢复文案。
+2. 用户提供 Support URL 和 Privacy URL。
+3. 用户按 `docs/app-store-release-evidence/production-acceptance-template.md` 跑真机验收并补证据。
+4. 用户按 `docs/app-store-release-evidence/screenshots-checklist.md` 准备 6 张截图。
+5. 没有 P0/P1 后，按 `docs/app-store-archive-submit-runbook-zh.md` 进行 Archive 和 App Store Connect 上传。
 
 - `docs/app-store-release-evidence/README.md`
 - `docs/app-store-review-submission-pack-zh.md`
