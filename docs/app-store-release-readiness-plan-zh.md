@@ -761,21 +761,21 @@ npm run check
 
 必须覆盖：
 
-- [ ] 用户提交的链接、正文、生成内容。
-- [ ] 第三方 AI 处理说明。
-- [ ] 匿名设备 ID / 账号 ID。
-- [ ] APNs token。
-- [ ] 学习进度、收藏、通知。
-- [ ] 错误日志和诊断。
-- [ ] 数据删除入口和流程。
+- [x] 用户提交的链接、正文、生成内容。
+- [x] 第三方 AI 处理说明。
+- [x] 匿名设备 ID / 账号 ID。
+- [x] APNs token。
+- [x] 学习进度、收藏、通知。
+- [x] 错误日志和诊断。
+- [x] 数据删除入口和流程。
 - [ ] 联系方式/支持方式。
 
 验收：
 
-- [ ] 文档中品牌名全部为 Recallo。
-- [ ] App Privacy 标签草案和隐私政策一致。
-- [ ] 如果做 Apple 登录，隐私政策包含账号删除说明。
-- [ ] 如果不做 Apple 登录，隐私政策不误称有账号系统。
+- [x] 文档中品牌名全部为 Recallo。
+- [x] App Privacy 标签草案和隐私政策一致。
+- [x] 如果做 Apple 登录，隐私政策包含账号删除说明。
+- [x] 如果不做 Apple 登录，隐私政策不误称有账号系统。
 
 ### Task 8：App Store 元数据和截图包
 
@@ -934,6 +934,7 @@ App Store Connect 操作：
 | 2026-07-02 | 执行 Task 4：AI 处理同意机制 | 已新增真实生成前一次性 AI 处理同意弹窗；拒绝不创建任务，同意后持久化；隐私说明可回看；`npm run check:release-ios`、XcodeBuildMCP 模拟器构建、`npm run check` 均通过 | `拾贝/拾贝/V2/Components/V2AIProcessingConsentSheet.swift`、`docs/app-store-release-evidence/2026-07-02-ai-processing-consent.md` | 进入 Task 5：免费每日额度系统 |
 | 2026-07-02 | 执行 Task 5：免费每日额度系统 | 已新增服务端每日真实生成额度；默认 3 篇/UTC day；推荐好文导入不计入；Postgres 使用 device+day 事务锁防并发绕过；`npm run check` 通过，204 tests passed | `backend/src/generationQuota.js`、`backend/src/tests/generationQuota.test.js`、`docs/app-store-release-evidence/2026-07-02-generation-quota.md` | 进入 Task 6：账号和数据恢复决策包 |
 | 2026-07-02 | 执行 Task 6：账号和数据恢复决策包 | 已梳理匿名 deviceId 生成/存储/上传、数据“像丢失”的真实机制、匿名首版边界、Apple 登录所需表/接口/前端入口、账号删除范围 | `docs/account-data-recovery-decision-zh.md` | 等用户拍板是否首版加入 Apple 登录；可并行进入 Task 7 隐私政策更新 |
+| 2026-07-02 | 推进 Task 7：隐私政策和 App Privacy 标签更新 | 已将隐私政策 Markdown/HTML 更新为 Recallo 当前真实数据流；同步 App Review 隐私标签草案、App Store 元数据草案和 App 内隐私/账号说明；仍缺公开支持邮箱 | `docs/privacy-policy-zh.md`、`docs/privacy-policy.html`、`docs/app-store-review-submission-pack-zh.md`、`docs/app-store-metadata-zh.md` | 用户提供支持邮箱；随后进入 Task 8 截图与元数据包 |
 
 ## 9. 维护规则
 

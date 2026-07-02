@@ -83,7 +83,7 @@ Please pay special attention to:
 | --- | --- | --- | --- | --- | --- |
 | User Content | 用户提交的文章链接、正文、生成章节、题目、解释、来源上下文 | App 功能：生成和恢复学习内容 | 是，关联匿名设备或账号 | 否 | 声明 |
 | Identifiers | 匿名设备 ID、账号 ID、APNs token | App 功能：区分用户、发送通知、恢复数据 | 是 | 否 | 声明 |
-| Usage Data | 学习进度、答题结果、收藏、通知状态、反馈 | App 功能：恢复学习状态、改善体验 | 是 | 否 | 声明 |
+| Usage Data | 学习进度、答题结果、收藏、通知状态、反馈、每日生成额度使用 | App 功能：恢复学习状态、控制免费额度、改善体验 | 是 | 否 | 声明 |
 | Diagnostics | 错误类型、生成失败码、服务诊断信息 | App 功能/诊断：排查生成和通知问题 | 可能关联设备 | 否 | 若生产日志保留诊断，应声明 |
 | Contact Info | 邮箱 | 仅当支持邮件或账号系统收集时 | 待定 | 否 | 首版若不收集则不声明 |
 | Location | 无 | 无 | 否 | 否 | 不声明 |
@@ -213,6 +213,7 @@ learning,study,AI,articles,reading,quiz,knowledge,notes,memory,review
 - [ ] App Privacy 标签与隐私政策一致。
 - [ ] 截图来自正确 Recallo build。
 - [ ] Review Notes 没有中文旧品牌名和占位符。
+- [ ] 如果首版暂不做 Apple 登录，审核说明和隐私政策不得误称已有账号系统。
 - [ ] Production `/api/health` 正常。
 - [ ] TestFlight/Release 真机验收无 P0/P1。
 - [ ] 提交 build 的 commit hash、build number、Railway deployment id 已记录。
