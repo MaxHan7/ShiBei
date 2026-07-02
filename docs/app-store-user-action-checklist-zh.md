@@ -126,7 +126,7 @@ com.maxhan.shibei
 
 - 把你的决策回写到 `docs/app-store-release-readiness-plan-zh.md`。
 - 把最终 Support URL / Privacy URL 和支持邮箱写入隐私政策、支持页、元数据和提交包。
-- 跑 `npm run check:app-store-submit`，确保提交前没有邮箱、URL 或审核决策占位符。
+- 跑 `npm run check:app-store-submit:report` 查看下一步动作；最终提交前跑 `npm run check:app-store-submit`，确保没有邮箱、URL 或审核决策占位符。
 - 根据你提供的截图/录屏更新验收记录。
 - 跑 `npm run check:release-ios`、`npm run check`、Release build 和 production health。
 - 陪跑 Archive 前检查。

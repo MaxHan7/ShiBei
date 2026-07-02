@@ -22,6 +22,8 @@ npm run check:app-store-submit:report
 - 最终提交 App Store 前，严格模式必须通过。
 - 如果 Support URL、Privacy URL、支持邮箱、审核决策仍是占位符，严格模式会失败。
 - 如果 `docs/app-store-user-decision-form-zh.md` 仍有 `待填写`，严格模式会失败。
+- 每个失败项会输出对应的中文下一步动作，减少用户在多份文档之间来回查找。
+- 多个同类失败项会合并成一条动作；当前 10 个 blocker 会归并为 4 条实际行动。
 
 ## 当前报告结果
 
