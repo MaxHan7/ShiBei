@@ -15,11 +15,18 @@ private enum V2NotificationRouteTarget {
     case failure
 }
 
+private struct V2PendingAIProcessingConsentSourceText: Identifiable {
+    let id = UUID()
+    let value: String
+}
+
 struct V2RootView: View {
     @AppStorage("v2.hasSeenGenerationStartedEducation")
     private var hasSeenGenerationStartedEducation = false
     @AppStorage("v2.hasRequestedGenerationNotificationPermission")
     private var hasRequestedGenerationNotificationPermission = false
+    @AppStorage("v2.hasAcceptedAIProcessingConsent")
+    private var hasAcceptedAIProcessingConsent = false
     @AppStorage("v2.usesMockData")
     private var usesMockData = false
     @AppStorage("v2.activeLearningChapterID")
@@ -49,6 +56,7 @@ struct V2RootView: View {
     @State private var hasLoadedInitialBackendChapter = false
     @State private var showsStartupSplash = true
     @State private var generationState = V2GenerationState()
+    @State private var pendingAIProcessingConsentSourceText: V2PendingAIProcessingConsentSourceText?
 
     private let apiClient: APIClient
     private let allowsMockDataToggle: Bool
@@ -114,6 +122,20 @@ struct V2RootView: View {
             }
         } message: {
             Text("删除后，这个章节和它的生成任务都会被移除。")
+        }
+        .sheet(item: $pendingAIProcessingConsentSourceText) { pendingSourceText in
+            V2AIProcessingConsentSheet(
+                onAgree: {
+                    hasAcceptedAIProcessingConsent = true
+                    pendingAIProcessingConsentSourceText = nil
+                    startV2GenerationAfterConsent(sourceText: pendingSourceText.value)
+                },
+                onCancel: {
+                    pendingAIProcessingConsentSourceText = nil
+                }
+            )
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
         }
         .onReceive(NotificationCenter.default.publisher(for: .shiBeiDidRegisterForRemoteNotifications)) { notification in
             guard let token = notification.userInfo?["deviceToken"] as? String else { return }
@@ -1417,6 +1439,20 @@ struct V2RootView: View {
     }
 
     private func startV2Generation(sourceText: String) {
+        let trimmed = sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            return
+        }
+
+        guard hasAcceptedAIProcessingConsent else {
+            pendingAIProcessingConsentSourceText = V2PendingAIProcessingConsentSourceText(value: trimmed)
+            return
+        }
+
+        startV2GenerationAfterConsent(sourceText: trimmed)
+    }
+
+    private func startV2GenerationAfterConsent(sourceText: String) {
         let trimmed = sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             return
