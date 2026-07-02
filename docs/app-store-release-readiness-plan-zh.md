@@ -958,8 +958,8 @@ Task 1-10 的 Codex 可产出部分已经基本落入文档、脚本和台账。
 
 完整用户手动事项见：`docs/app-store-user-action-checklist-zh.md`。
 
-1. 用户确认是否首版加入 Apple 登录；如果不加入，确认匿名首版的数据恢复文案。
-2. 用户按 `docs/app-store-url-publishing-guide-zh.md` 部署 Support URL / Privacy URL，并提供支持邮箱。
+1. 用户填写 `docs/app-store-user-decision-form-zh.md`，确认价格、额度、推荐好文计额、Apple 登录、支持邮箱和 URL。
+2. Codex 根据决策表回写隐私政策、支持页、元数据、审核包和提交 guard。
 3. 用户按 `docs/app-store-release-evidence/production-acceptance-template.md` 跑真机验收并补证据。
 4. 用户按 `docs/app-store-release-evidence/screenshots-checklist.md` 准备 6 张截图。
 5. 没有 P0/P1 后，按 `docs/app-store-archive-submit-runbook-zh.md` 进行 Archive 和 App Store Connect 上传。

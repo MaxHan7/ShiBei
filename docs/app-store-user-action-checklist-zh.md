@@ -2,6 +2,8 @@
 
 > 本文档只列必须由用户手动完成或拍板的事项。Codex 可自动执行的工程、文档、检查和记录工作不放在这里，避免混淆。
 
+最短操作方式：直接填写 `docs/app-store-user-decision-form-zh.md`。Codex 会根据该表把本清单、隐私政策、支持页、App Store 元数据和审核包同步收口。
+
 ## 1. 必须拍板的产品决策
 
 | 决策 | 当前推荐 | 你需要确认什么 | 不确认的影响 |
@@ -132,8 +134,8 @@ com.maxhan.shibei
 
 ## 7. 当前最短路径
 
-1. 你确认：免费首版、每日 3 次额度、推荐好文不计额、暂不强制登录。
-2. 你决定：首版是否加入可选 Apple 登录。
-3. 你按 `docs/app-store-url-publishing-guide-zh.md` 部署 `docs/privacy-policy.html` 和 `docs/support.html`，并提供最终 URL 和支持邮箱。
+1. 你填写 `docs/app-store-user-decision-form-zh.md`。
+2. 你按 `docs/app-store-url-publishing-guide-zh.md` 部署 `docs/privacy-policy.html` 和 `docs/support.html`，并提供最终 URL 和支持邮箱。
+3. Codex 根据决策表回写所有上架文档，并跑 `npm run check:app-store-submit`。
 4. 你按模板跑真机验收。
 5. 没有 P0/P1 后，按 Archive runbook 上传。
