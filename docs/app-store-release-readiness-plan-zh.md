@@ -793,31 +793,31 @@ npm run check
 
 必须产出：
 
-- [ ] App Name：Recallo。
-- [ ] Subtitle：30 字符以内。
-- [ ] Promotional Text：170 字符以内。
-- [ ] Description。
-- [ ] Keywords：100 字符以内。
-- [ ] What’s New。
+- [x] App Name：Recallo。
+- [x] Subtitle：30 字符以内。
+- [x] Promotional Text：170 字符以内。
+- [x] Description。
+- [x] Keywords：100 字符以内。
+- [x] What’s New。
 - [ ] Support URL。
 - [ ] Privacy URL。
-- [ ] 年龄分级问卷建议答案。
-- [ ] 5-6 张截图脚本。
+- [x] 年龄分级问卷建议答案。
+- [x] 5-6 张截图脚本。
 
 截图脚本：
 
-- [ ] 首页学习路径。
-- [ ] 添加文章。
-- [ ] 生成中页面。
-- [ ] 章节详情。
-- [ ] 做题页面。
-- [ ] 发现页推荐好文。
+- [x] 首页学习路径。
+- [x] 添加文章。
+- [x] 生成中页面。
+- [x] 章节详情。
+- [x] 做题页面。
+- [x] 发现页推荐好文。
 
 验收：
 
 - [ ] 截图中没有旧名字、旧图标、旧 UI、debug 文案。
 - [ ] 截图来自真实 TestFlight/Release 包，不来自旧工程。
-- [ ] 文案不承诺无法稳定保证的能力，例如“永久保存”“无限生成”。
+- [x] 文案不承诺无法稳定保证的能力，例如“永久保存”“无限生成”。
 
 ### Task 9：生产稳定性验收包
 
@@ -935,6 +935,7 @@ App Store Connect 操作：
 | 2026-07-02 | 执行 Task 5：免费每日额度系统 | 已新增服务端每日真实生成额度；默认 3 篇/UTC day；推荐好文导入不计入；Postgres 使用 device+day 事务锁防并发绕过；`npm run check` 通过，204 tests passed | `backend/src/generationQuota.js`、`backend/src/tests/generationQuota.test.js`、`docs/app-store-release-evidence/2026-07-02-generation-quota.md` | 进入 Task 6：账号和数据恢复决策包 |
 | 2026-07-02 | 执行 Task 6：账号和数据恢复决策包 | 已梳理匿名 deviceId 生成/存储/上传、数据“像丢失”的真实机制、匿名首版边界、Apple 登录所需表/接口/前端入口、账号删除范围 | `docs/account-data-recovery-decision-zh.md` | 等用户拍板是否首版加入 Apple 登录；可并行进入 Task 7 隐私政策更新 |
 | 2026-07-02 | 推进 Task 7：隐私政策和 App Privacy 标签更新 | 已将隐私政策 Markdown/HTML 更新为 Recallo 当前真实数据流；同步 App Review 隐私标签草案、App Store 元数据草案和 App 内隐私/账号说明；仍缺公开支持邮箱 | `docs/privacy-policy-zh.md`、`docs/privacy-policy.html`、`docs/app-store-review-submission-pack-zh.md`、`docs/app-store-metadata-zh.md` | 用户提供支持邮箱；随后进入 Task 8 截图与元数据包 |
+| 2026-07-02 | 推进 Task 8：App Store 元数据和截图包 | 已补 App Store 可填写字段、What’s New、Description、关键词核对、年龄分级建议和 6 张截图脚本；Support URL/Privacy URL 与真实截图仍需用户提供/上传 | `docs/app-store-metadata-zh.md`、`docs/app-store-release-evidence/screenshots-checklist.md` | 用户提供 URL 并按清单截取 Release/TestFlight 截图；Codex 进入 Task 9 生产稳定性验收包 |
 
 ## 9. 维护规则
 

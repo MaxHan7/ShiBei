@@ -23,6 +23,30 @@
 
 推荐第一版：把文章变成复习题
 
+## App Store Connect 可填写版本
+
+| 字段 | 建议内容 | 状态 |
+| --- | --- | --- |
+| App Name | Recallo | 已定 |
+| Subtitle | 把文章变成练习题 | 待用户确认语气 |
+| Promotional Text | 把文章、长文和好内容变成知识点与练习题，让阅读真正变成可以继续学习的进度。 | 待用户确认 |
+| Privacy Policy URL | 待部署公开 URL | 待用户提供/部署 |
+| Support URL | 待公开支持 URL 或邮箱页 | 待用户提供 |
+| Category | Education | 建议 |
+| Secondary Category | Productivity | 可选 |
+| Price | Free | 待用户确认 |
+| In-App Purchases | 首版不启用 | 待用户确认 |
+
+## What’s New 草案
+
+首个 Recallo TestFlight 候选版本：
+
+- 全新 Recallo 品牌、启动页和主流程视觉。
+- 支持把文章链接或文字生成学习章节。
+- 支持知识点、练习题、解释、收藏和学习进度。
+- 支持生成完成/失败通知和当前设备数据删除。
+- 增加 AI 处理说明、每日免费生成额度和上架前隐私说明。
+
 ## App 描述草案
 
 Recallo 是一款帮助你吸收新知识的学习工具。
@@ -42,11 +66,32 @@ Recallo 是一款帮助你吸收新知识的学习工具。
 
 当前版本处于 Beta 测试阶段，使用匿名设备身份保存数据。未来版本会支持账号登录、跨设备同步和订阅能力。
 
+## App Store Description 可复制版本
+
+Recallo 是一款帮助你把文章和长内容真正学进去的学习工具。
+
+每天都有大量值得学习的文章、观点和信息，但它们通常太新、太散，很难被及时整理成系统课程。Recallo 会把你提交的文章链接或文字整理成学习章节，提取知识点，生成练习题，并保留来源上下文。
+
+你可以用 Recallo：
+
+- 添加文章链接或文字
+- 生成知识点、学习路径和练习题
+- 通过题卡检查自己是否真正理解
+- 答错后查看解释和来源依据
+- 收藏题目，继续之前的学习进度
+- 接收生成完成或失败提醒
+
+当前版本不强制登录账号，使用匿名设备身份保存当前设备下的数据。你提交的内容会上传到 Recallo 云端，并可能经第三方 AI 模型服务处理，用于生成学习材料。App 内提供 AI 处理说明、隐私说明和删除当前设备数据的入口。
+
+Recallo 适合想把文章、观点、产品案例、AI 内容和深度阅读变成可复习知识的人。
+
 ## 关键词草案
 
 限制：100 字符以内，逗号分隔，不使用竞品名。
 
 学习,知识管理,文章,AI,记忆,题库,阅读,笔记,知识点,碎片知识,练习
+
+字符数核对：31 个中文/ASCII 字符，不含 App Store Connect 额外转义。
 
 ## 分类建议
 
@@ -107,13 +152,14 @@ Recallo 当前不需要账号登录即可使用。App 使用匿名设备身份�
 
 ## 截图脚本
 
-第一组截图建议使用 5 张：
+第一组截图建议使用 6 张：
 
 1. 首页：展示当前章节和复习入口。
 2. 添加页：展示粘贴文章或文字。
-3. 章节详情：展示知识点和题目数量。
-4. 复习题卡：展示选择题复习。
-5. 解释页：展示解释和来源上下文。
+3. 生成中页面：展示等待进度和完成后通知。
+4. 章节详情：展示知识点和题目数量。
+5. 做题页面：展示选择题或连线题学习。
+6. 发现页：展示推荐好文和预置学习内容。
 
 截图文案方向：
 
@@ -122,6 +168,32 @@ Recallo 当前不需要账号登录即可使用。App 使用匿名设备身份�
 - 用题卡检查是否真的理解
 - 答错后回到原文依据
 - 让新知识留下来
+
+截图技术要求：
+
+- 从正确 Recallo Release/TestFlight 包截取，不使用旧工程、旧 UI 或 Mock 页面。
+- 截图数量：1 到 10 张；首版建议 6 张。
+- 格式：PNG、JPG 或 JPEG。
+- 方向：iPhone 竖屏。
+- 首选 6.9 英寸 iPhone 截图；如果 UI 一致，可由 App Store Connect 缩放到较小尺寸。
+- 不出现调试文案、fixture 文案、Railway 文案、旧“拾贝”品牌名或旧图标。
+- 截图不承诺“永久保存”“无限生成”“自动掌握”等无法保证的能力。
+
+## 年龄分级问卷建议答案
+
+| 问题方向 | 建议答案 | 说明 |
+| --- | --- | --- |
+| Cartoon or Fantasy Violence | None | 产品没有暴力内容。 |
+| Realistic Violence | None | 产品没有暴力内容。 |
+| Prolonged Graphic or Sadistic Realistic Violence | None | 产品没有此类内容。 |
+| Profanity or Crude Humor | None | App 自身不提供此类内容；用户输入内容不可控但不作为内容社区展示。 |
+| Mature/Suggestive Themes | None | App 自身不提供此类内容。 |
+| Horror/Fear Themes | None | App 自身不提供此类内容。 |
+| Medical/Treatment Information | None | 不提供医疗建议。 |
+| Alcohol, Tobacco, Drug Use or References | None | App 自身不提供此类内容。 |
+| Gambling | None | 无博彩功能。 |
+| Unrestricted Web Access | No | 用户可提交文章链接，但 App 不提供通用网页浏览器。 |
+| User-Generated Content | No community publishing | 用户输入只用于个人学习生成，不公开给其他用户。 |
 
 ## 上线前仍需确认
 
