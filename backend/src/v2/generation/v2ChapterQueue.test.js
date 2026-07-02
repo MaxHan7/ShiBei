@@ -44,6 +44,7 @@ test("enqueues a new V2 chapter generation job", async () => {
   const calls = [];
   const chapters = new Map();
   const jobs = new Map();
+  const quotaClaims = [];
   const result = await enqueueV2ChapterGeneration({
     deviceId: "device-1",
     body: {
@@ -52,7 +53,7 @@ test("enqueues a new V2 chapter generation job", async () => {
       rawText: "Hook 是流程控制器。"
     },
     now: "2026-06-25T09:00:00.000Z",
-    deps: mockDeps({ calls, chapters, jobs })
+    deps: mockDeps({ calls, chapters, jobs, quotaClaims })
   });
 
   assert.equal(result.reused, false);
@@ -61,8 +62,14 @@ test("enqueues a new V2 chapter generation job", async () => {
   assert.equal(result.job.idempotencyKey, "upload-001");
   assert.deepEqual(
     calls.map((call) => call.name),
-    ["getPendingGenerationJobByIdempotencyKey", "upsertChapter", "enqueueIdempotentGenerationJob"]
+    [
+      "getPendingGenerationJobByIdempotencyKey",
+      "claimDailyGenerationQuota",
+      "upsertChapter",
+      "enqueueIdempotentGenerationJob"
+    ]
   );
+  assert.equal(result.quota.used, 1);
 });
 
 test("reuses existing pending V2 generation job", async () => {
@@ -99,6 +106,7 @@ test("reuses existing pending V2 generation job", async () => {
     calls.map((call) => call.name),
     ["getPendingGenerationJobByIdempotencyKey", "getChapter"]
   );
+  assert.equal(result.quota, null);
 });
 
 test("allows the same source URL to be generated again with a new client request id", async () => {
@@ -134,7 +142,40 @@ test("allows the same source URL to be generated again with a new client request
   assert.equal(second.job.idempotencyKey, "upload-002");
 });
 
-function mockDeps({ calls, chapters, jobs }) {
+test("rejects the fourth real V2 generation for the same device and UTC day", async () => {
+  const calls = [];
+  const chapters = new Map();
+  const jobs = new Map();
+  const quotaClaims = [];
+  const deps = mockDeps({ calls, chapters, jobs, quotaClaims, quotaLimit: 3 });
+
+  for (const clientRequestId of ["upload-001", "upload-002", "upload-003"]) {
+    await enqueueV2ChapterGeneration({
+      deviceId: "device-1",
+      body: {
+        clientRequestId,
+        rawText: `第 ${clientRequestId} 篇文章`
+      },
+      now: "2026-06-25T09:00:00.000Z",
+      deps
+    });
+  }
+
+  await assert.rejects(
+    enqueueV2ChapterGeneration({
+      deviceId: "device-1",
+      body: {
+        clientRequestId: "upload-004",
+        rawText: "第 4 篇文章"
+      },
+      now: "2026-06-25T09:00:00.000Z",
+      deps
+    }),
+    /今天的免费生成次数已经用完/
+  );
+});
+
+function mockDeps({ calls, chapters, jobs, quotaClaims = [], quotaLimit = 3 }) {
   return {
     getPendingGenerationJobByIdempotencyKey: async (_deviceId, key) => {
       calls.push({ name: "getPendingGenerationJobByIdempotencyKey", key });
@@ -159,6 +200,26 @@ function mockDeps({ calls, chapters, jobs }) {
       };
       jobs.set(job.idempotencyKey, normalized);
       return { job: normalized, reused: false };
+    },
+    claimDailyGenerationQuota: async (_deviceId, claim) => {
+      calls.push({ name: "claimDailyGenerationQuota", claim });
+      const reused = quotaClaims.includes(claim.requestId);
+      if (!reused && quotaClaims.length >= quotaLimit) {
+        return {
+          allowed: false,
+          used: quotaClaims.length,
+          limit: quotaLimit,
+          quotaDay: claim.quotaDay
+        };
+      }
+      if (!reused) quotaClaims.push(claim.requestId);
+      return {
+        allowed: true,
+        reused,
+        used: quotaClaims.length,
+        limit: quotaLimit,
+        quotaDay: claim.quotaDay
+      };
     }
   };
 }

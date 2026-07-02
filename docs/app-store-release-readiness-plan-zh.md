@@ -681,12 +681,12 @@ npm run check:release-ios
 
 服务端规则：
 
-- [ ] 默认每日真实 AI 生成额度：3 篇。
-- [ ] 推荐好文预设章节导入不计入额度。
-- [ ] URL 格式错误、前置校验失败不计入额度。
-- [ ] job 已开始后取消，计入额度。
-- [ ] 已调用模型后失败，首版计入额度。
-- [ ] 每日额度按服务器日期计算，先使用 UTC 或固定 production timezone，并在文档中写明。
+- [x] 默认每日真实 AI 生成额度：3 篇。待用户最终确认额度数字。
+- [x] 推荐好文预设章节导入不计入额度。
+- [x] URL 格式错误、前置校验失败不计入额度。
+- [x] job 已开始后取消，计入额度。
+- [x] 已调用模型后失败，首版计入额度。
+- [x] 每日额度按服务器日期计算，先使用 UTC 或固定 production timezone，并在文档中写明。
 
 错误码：
 
@@ -702,10 +702,10 @@ npm run check
 
 验收：
 
-- [ ] 连续第 4 次真实生成被服务端拒绝。
-- [ ] 推荐好文导入不影响额度。
-- [ ] 并发两次请求不能绕过额度。
-- [ ] 前端显示用户友好文案，不显示内部错误字段。
+- [x] 连续第 4 次真实生成被服务端拒绝。
+- [x] 推荐好文导入不影响额度。
+- [x] 并发两次请求不能绕过额度。
+- [x] 前端显示用户友好文案，不显示内部错误字段。
 
 ### Task 6：账号和数据恢复决策包
 
@@ -932,6 +932,7 @@ App Store Connect 操作：
 | 2026-07-02 | 执行 Task 2：生成 App Review 提交包草案 | 已创建审核说明、隐私标签、年龄分级、截图和手动操作清单 | `docs/app-store-review-submission-pack-zh.md` | 进入 Task 3：Release/Archive 工程防错脚本 |
 | 2026-07-02 | 执行 Task 3：Release/Archive 工程防错脚本 | 已新增 `npm run check:release-ios`；官方工作区通过，旧工作区调用失败；Railway/deviceId/旧 debug 参数列为 warning | `tools/release-archive-preflight.mjs`、`docs/app-store-release-evidence/2026-07-02-release-archive-preflight.md` | 进入 Task 4：AI 处理同意机制 |
 | 2026-07-02 | 执行 Task 4：AI 处理同意机制 | 已新增真实生成前一次性 AI 处理同意弹窗；拒绝不创建任务，同意后持久化；隐私说明可回看；`npm run check:release-ios`、XcodeBuildMCP 模拟器构建、`npm run check` 均通过 | `拾贝/拾贝/V2/Components/V2AIProcessingConsentSheet.swift`、`docs/app-store-release-evidence/2026-07-02-ai-processing-consent.md` | 进入 Task 5：免费每日额度系统 |
+| 2026-07-02 | 执行 Task 5：免费每日额度系统 | 已新增服务端每日真实生成额度；默认 3 篇/UTC day；推荐好文导入不计入；Postgres 使用 device+day 事务锁防并发绕过；`npm run check` 通过，204 tests passed | `backend/src/generationQuota.js`、`backend/src/tests/generationQuota.test.js`、`docs/app-store-release-evidence/2026-07-02-generation-quota.md` | 进入 Task 6：账号和数据恢复决策包 |
 
 ## 9. 维护规则
 

@@ -29,6 +29,7 @@ import {
 import {
   chapterCount,
   checkDatabase,
+  claimDailyGenerationQuota,
   deleteChapter as deleteDatabaseChapter,
   deleteDeviceData as deleteDatabaseDeviceData,
   deleteFavoriteQuestion as deleteDatabaseFavoriteQuestion,
@@ -54,6 +55,7 @@ import {
   upsertNotification as upsertDatabaseNotification,
   upsertPushToken as upsertDatabasePushToken
 } from "./db.js";
+import { GenerationQuotaError } from "./generationQuota.js";
 import { apnsConfigurationSummary, isAPNSConfigured, sendGenerationNotification } from "./apns.js";
 import { buildServiceCapabilities } from "./serviceCapabilities.js";
 import { enqueueV2ChapterGeneration } from "./v2/generation/v2ChapterQueue.js";
@@ -208,7 +210,8 @@ async function handleCreateV2Chapter(req, res) {
       getPendingGenerationJobByIdempotencyKey,
       getChapter: getDatabaseChapter,
       upsertChapter: upsertDatabaseChapter,
-      enqueueIdempotentGenerationJob
+      enqueueIdempotentGenerationJob,
+      claimDailyGenerationQuota
     }
   });
 
@@ -2426,6 +2429,14 @@ const server = createServer(async (req, res) => {
 
 function handleRequestError(res, error) {
   if (res.writableEnded) return;
+  if (error instanceof GenerationQuotaError) {
+    sendJson(res, error.statusCode, {
+      errorCode: error.errorCode,
+      message: error.message,
+      quota: error.quota || null
+    });
+    return;
+  }
   if (error instanceof RequestGuardError) {
     sendJson(res, error.statusCode, {
       errorCode: error.errorCode,

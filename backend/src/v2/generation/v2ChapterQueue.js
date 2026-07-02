@@ -1,4 +1,5 @@
 import { createId, createSubmittedChapter } from "../../chapterGeneration.js";
+import { enforceDailyGenerationQuota } from "../../generationQuota.js";
 import { buildV2GenerationIdempotencyKey } from "./generationIdempotency.js";
 import {
   buildV2GenerationProgress,
@@ -71,6 +72,12 @@ export async function enqueueV2ChapterGeneration({
     });
   }
 
+  const quota = await enforceDailyGenerationQuota({
+    deviceId,
+    requestId: idempotencyKey,
+    claimQuota: services.claimDailyGenerationQuota,
+    now
+  });
   const chapterId = body.chapterId || body.id || createId("chapter");
   const jobId = createId("generation");
   const pendingChapter = buildPendingV2Chapter(body, { chapterId, jobId, now });
@@ -88,7 +95,7 @@ export async function enqueueV2ChapterGeneration({
     ? (await services.getChapter(deviceId, job.chapterId)) || savedChapter
     : savedChapter;
 
-  return buildQueueResponse({ chapter, job, reused });
+  return buildQueueResponse({ chapter, job, reused, quota });
 }
 
 function buildV2JobPayload(body) {
@@ -99,13 +106,14 @@ function buildV2JobPayload(body) {
   return payload;
 }
 
-function buildQueueResponse({ chapter, job, reused }) {
+function buildQueueResponse({ chapter, job, reused, quota = null }) {
   return {
     status: chapter?.status || "submitted",
     chapter,
     generationProgress: chapter?.generationProgress || chapter?.generationMeta?.v2Progress || null,
     job,
-    reused: Boolean(reused)
+    reused: Boolean(reused),
+    quota
   };
 }
 
@@ -114,7 +122,8 @@ function normalizeDeps(deps = {}) {
     "getPendingGenerationJobByIdempotencyKey",
     "getChapter",
     "upsertChapter",
-    "enqueueIdempotentGenerationJob"
+    "enqueueIdempotentGenerationJob",
+    "claimDailyGenerationQuota"
   ];
   for (const key of required) {
     if (typeof deps[key] !== "function") {

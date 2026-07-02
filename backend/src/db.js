@@ -129,6 +129,17 @@ export async function initDatabase() {
       ON generation_jobs(device_id, idempotency_key)
       WHERE idempotency_key <> '' AND queue_status IN ('queued', 'running');
 
+    CREATE TABLE IF NOT EXISTS generation_quota_claims (
+      device_id TEXT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+      request_id TEXT NOT NULL,
+      quota_day DATE NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (device_id, request_id)
+    );
+
+    CREATE INDEX IF NOT EXISTS generation_quota_claims_device_day_idx
+      ON generation_quota_claims(device_id, quota_day, created_at DESC);
+
     CREATE TABLE IF NOT EXISTS device_push_tokens (
       device_id TEXT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
       token TEXT NOT NULL,
@@ -928,6 +939,88 @@ export async function getPendingGenerationJobByIdempotencyKey(deviceId, idempote
     [deviceId, key]
   );
   return result.rows[0] ? normalizeGenerationJobRow(result.rows[0]) : null;
+}
+
+export async function claimDailyGenerationQuota(deviceId, {
+  requestId,
+  quotaDay,
+  limit
+} = {}) {
+  await ensureDevice(deviceId);
+  const stableRequestId = String(requestId || "").trim();
+  const day = String(quotaDay || "").trim();
+  const dailyLimit = Number.parseInt(String(limit || ""), 10);
+  if (!stableRequestId || !day || !Number.isFinite(dailyLimit) || dailyLimit <= 0) {
+    throw new Error("invalid generation quota claim");
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))", [deviceId, day]);
+
+    const existing = await client.query(
+      `SELECT 1
+         FROM generation_quota_claims
+        WHERE device_id = $1
+          AND request_id = $2
+        LIMIT 1`,
+      [deviceId, stableRequestId]
+    );
+    if (existing.rowCount > 0) {
+      const used = await generationQuotaUsedCount(client, deviceId, day);
+      await client.query("COMMIT");
+      return {
+        allowed: true,
+        reused: true,
+        used,
+        limit: dailyLimit,
+        quotaDay: day
+      };
+    }
+
+    const usedBefore = await generationQuotaUsedCount(client, deviceId, day);
+    if (usedBefore >= dailyLimit) {
+      await client.query("COMMIT");
+      return {
+        allowed: false,
+        reused: false,
+        used: usedBefore,
+        limit: dailyLimit,
+        quotaDay: day
+      };
+    }
+
+    await client.query(
+      `INSERT INTO generation_quota_claims (device_id, request_id, quota_day)
+       VALUES ($1, $2, $3::date)`,
+      [deviceId, stableRequestId, day]
+    );
+    await client.query("COMMIT");
+    return {
+      allowed: true,
+      reused: false,
+      used: usedBefore + 1,
+      limit: dailyLimit,
+      quotaDay: day
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+async function generationQuotaUsedCount(client, deviceId, quotaDay) {
+  const result = await client.query(
+    `SELECT COUNT(*)::int AS count
+       FROM generation_quota_claims
+      WHERE device_id = $1
+        AND quota_day = $2::date`,
+    [deviceId, quotaDay]
+  );
+  return result.rows[0]?.count || 0;
 }
 
 export async function getGenerationJob(deviceId, jobId) {
