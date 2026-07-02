@@ -936,6 +936,7 @@ App Store Connect 操作：
 | 2026-07-02 | 执行 Task 6：账号和数据恢复决策包 | 已梳理匿名 deviceId 生成/存储/上传、数据“像丢失”的真实机制、匿名首版边界、Apple 登录所需表/接口/前端入口、账号删除范围 | `docs/account-data-recovery-decision-zh.md` | 等用户拍板是否首版加入 Apple 登录；可并行进入 Task 7 隐私政策更新 |
 | 2026-07-02 | 推进 Task 7：隐私政策和 App Privacy 标签更新 | 已将隐私政策 Markdown/HTML 更新为 Recallo 当前真实数据流；同步 App Review 隐私标签草案、App Store 元数据草案和 App 内隐私/账号说明；仍缺公开支持邮箱 | `docs/privacy-policy-zh.md`、`docs/privacy-policy.html`、`docs/app-store-review-submission-pack-zh.md`、`docs/app-store-metadata-zh.md` | 用户提供支持邮箱；随后进入 Task 8 截图与元数据包 |
 | 2026-07-02 | 推进 Task 8：App Store 元数据和截图包 | 已补 App Store 可填写字段、What’s New、Description、关键词核对、年龄分级建议和 6 张截图脚本；Support URL/Privacy URL 与真实截图仍需用户提供/上传 | `docs/app-store-metadata-zh.md`、`docs/app-store-release-evidence/screenshots-checklist.md` | 用户提供 URL 并按清单截取 Release/TestFlight 截图；Codex 进入 Task 9 生产稳定性验收包 |
+| 2026-07-02 | 执行 Task 9：生产稳定性验收包 | 已创建可复制的上架前验收模板，覆盖自动检查、真机核心链路、网络异常、截图验收和 P0/P1/P2 分级 | `docs/app-store-release-evidence/production-acceptance-template.md` | 用户按模板跑真机验收；Codex 可继续 Task 10 Archive/提交陪跑文档 |
 
 ## 9. 维护规则
 
