@@ -30,8 +30,8 @@
 | App Name | Recallo | 已定 |
 | Subtitle | 把文章变成练习题 | 待用户确认语气 |
 | Promotional Text | 把文章、长文和好内容变成知识点与练习题，让阅读真正变成可以继续学习的进度。 | 待用户确认 |
-| Privacy Policy URL | 待部署公开 URL | 待用户提供/部署 |
-| Support URL | 待公开支持 URL 或邮箱页 | 待用户提供 |
+| Privacy Policy URL | `docs/privacy-policy.html` 已准备，待部署公开 URL | 待用户部署/提供最终 URL |
+| Support URL | `docs/support.html` 已准备，待部署公开 URL 和支持邮箱 | 待用户提供邮箱并部署 |
 | Category | Education | 建议 |
 | Secondary Category | Productivity | 可选 |
 | Price | Free | 待用户确认 |

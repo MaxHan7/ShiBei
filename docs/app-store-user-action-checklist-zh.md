@@ -16,8 +16,8 @@
 
 | 信息 | 用途 | 你需要给 Codex 什么 |
 | --- | --- | --- |
-| Support URL | App Store Connect 必填/强建议，用于用户支持 | 一个公开网页 URL，或确认使用哪个支持邮箱页面 |
-| Privacy URL | App Store Connect 隐私政策 URL | 一个公开可访问的 `docs/privacy-policy.html` 托管地址 |
+| Support URL | App Store Connect 必填/强建议，用于用户支持 | `docs/support.html` 已准备；你需要提供公开托管后的 URL |
+| Privacy URL | App Store Connect 隐私政策 URL | `docs/privacy-policy.html` 已准备；你需要提供公开托管后的 URL |
 | 支持邮箱 | 隐私政策和用户支持 | 一个对外邮箱，例如 `support@...` |
 | App Store Connect App 状态 | 确认是否在旧 `com.maxhan.shibei` App 下提交 | 截图或口头确认当前 App 页面和 bundle id |
 | 最终截图文件 | 产品页截图上传 | 按 `docs/app-store-release-evidence/screenshots-checklist.md` 准备的 6 张截图 |
@@ -116,13 +116,14 @@ com.maxhan.shibei
 - `docs/app-store-review-submission-pack-zh.md`
 - `docs/app-store-release-evidence/screenshots-checklist.md`
 - `docs/app-store-archive-submit-runbook-zh.md`
+- `docs/app-store-url-publishing-guide-zh.md`
 
 ## 6. Codex 可以继续自动做的事
 
 在你完成或提供上述信息后，Codex 可以继续自动执行：
 
 - 把你的决策回写到 `docs/app-store-release-readiness-plan-zh.md`。
-- 把 Support URL / Privacy URL 写入隐私政策、元数据和提交包。
+- 把最终 Support URL / Privacy URL 和支持邮箱写入隐私政策、支持页、元数据和提交包。
 - 根据你提供的截图/录屏更新验收记录。
 - 跑 `npm run check:release-ios`、`npm run check`、Release build 和 production health。
 - 陪跑 Archive 前检查。
@@ -132,7 +133,6 @@ com.maxhan.shibei
 
 1. 你确认：免费首版、每日 3 次额度、推荐好文不计额、暂不强制登录。
 2. 你决定：首版是否加入可选 Apple 登录。
-3. 你提供：Support URL、Privacy URL、支持邮箱。
+3. 你按 `docs/app-store-url-publishing-guide-zh.md` 部署 `docs/privacy-policy.html` 和 `docs/support.html`，并提供最终 URL 和支持邮箱。
 4. 你按模板跑真机验收。
 5. 没有 P0/P1 后，按 Archive runbook 上传。
-

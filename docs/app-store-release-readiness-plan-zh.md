@@ -63,7 +63,7 @@
 | 隐私合规 | 有隐私政策文档和 App 内说明基础 | 部分完成 | 更新为 Recallo 名称，补第三方 AI 处理和数据保留说明 |
 | App Store 元数据 | 已有草案，但仍有旧“拾贝”命名 | 部分完成 | 全量改为 Recallo，准备截图、描述、关键词、审核备注 |
 | 商业化 | 暂无付费 | 不阻塞首版 | 首版只做免费额度，不做 IAP |
-| 用户支持 | 需要 Support URL 和反馈入口 | 缺失/待确认 | 准备支持页面或邮箱说明 |
+| 用户支持 | 需要 Support URL 和反馈入口 | 页面已准备/待公开 URL | `docs/support.html` 已准备；待用户提供支持邮箱并部署公开 URL |
 
 ### 2.1 首版范围边界
 
@@ -939,6 +939,7 @@ App Store Connect 操作：
 | 2026-07-02 | 执行 Task 9：生产稳定性验收包 | 已创建可复制的上架前验收模板，覆盖自动检查、真机核心链路、网络异常、截图验收和 P0/P1/P2 分级 | `docs/app-store-release-evidence/production-acceptance-template.md` | 用户按模板跑真机验收；Codex 可继续 Task 10 Archive/提交陪跑文档 |
 | 2026-07-02 | 推进 Task 10：Archive 和 App Store Connect 提交流程 | 已创建 Archive/提交 runbook，明确 Codex 可跑的检查、用户 Xcode 步骤、App Store Connect 填写顺序、停止条件和提交后记录字段 | `docs/app-store-archive-submit-runbook-zh.md` | 用户完成真机验收、提供 Support/Privacy URL 后，可按 runbook Archive 并上传 |
 | 2026-07-02 | 收口用户手动事项和 release preflight | 已单独列出所有必须用户拍板/手动操作事项；`npm run check:release-ios` 通过，仍有非阻塞 warning 需在真机验收中确认不可见 | `docs/app-store-user-action-checklist-zh.md`、`docs/app-store-release-evidence/2026-07-02-user-action-and-preflight.md` | 等用户决策/URL/真机验收/截图；Codex 可继续陪跑检查和回写证据 |
+| 2026-07-02 | 准备 Support URL / Privacy URL 静态页面 | 已新增支持页 HTML/Markdown 和 URL 发布说明；隐私页已有 HTML，可直接托管；仍缺正式支持邮箱和公开托管地址 | `docs/support.html`、`docs/support-zh.md`、`docs/app-store-url-publishing-guide-zh.md` | 用户提供支持邮箱并选择托管方式；Codex 回写最终 URL |
 
 ## 9. 维护规则
 
@@ -955,7 +956,7 @@ Task 1-10 的 Codex 可产出部分已经基本落入文档、脚本和台账。
 完整用户手动事项见：`docs/app-store-user-action-checklist-zh.md`。
 
 1. 用户确认是否首版加入 Apple 登录；如果不加入，确认匿名首版的数据恢复文案。
-2. 用户提供 Support URL、Privacy URL 和支持邮箱。
+2. 用户按 `docs/app-store-url-publishing-guide-zh.md` 部署 Support URL / Privacy URL，并提供支持邮箱。
 3. 用户按 `docs/app-store-release-evidence/production-acceptance-template.md` 跑真机验收并补证据。
 4. 用户按 `docs/app-store-release-evidence/screenshots-checklist.md` 准备 6 张截图。
 5. 没有 P0/P1 后，按 `docs/app-store-archive-submit-runbook-zh.md` 进行 Archive 和 App Store Connect 上传。
