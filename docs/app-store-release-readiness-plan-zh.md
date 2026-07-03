@@ -172,11 +172,12 @@
 
 必须完成：
 
-- [ ] 设计 `daily_generation_quota` 的服务端规则。
-- [ ] 记录每个 device/account 每日生成次数、失败次数、推荐好文导入次数。
-- [ ] 超额时返回稳定错误码和用户友好文案。
-- [ ] App 内展示今日剩余额度或在超额时解释。
-- [ ] 后端增加测试覆盖：跨天重置、重复请求、失败是否计额、推荐好文是否计额。
+- [x] 设计 `daily_generation_quota` 的服务端规则。默认 3 篇/UTC day，可用 `RECALLO_DAILY_REAL_GENERATION_LIMIT` 配置，待用户最终确认数字。
+- [x] 记录每个 device 的每日真实 AI 生成次数。已通过 `generation_quota_claims` 和 device+day 事务锁实现。
+- [ ] 记录失败次数、推荐好文导入次数的运营统计。当前推荐好文导入不经过真实生成 quota；失败/导入可用于后续运营观测，但不阻塞首版提交。
+- [x] 超额时返回稳定错误码和用户友好文案。已返回 `quota_exceeded_daily_generation` / HTTP `429`。
+- [x] App 内在超额时解释。首版暂不常驻展示今日剩余额度，只在超额时提示。
+- [x] 后端增加测试覆盖：跨天重置、重复请求、失败是否计额、推荐好文是否计额。当前测试覆盖 UTC 日期、前三次允许/第四次拒绝、requestId 幂等、次日重置、V2 enqueue 扣额、pending job 复用不重复扣；推荐好文导入由独立 import 路径保证不扣额。
 
 额度规则建议先按以下版本落地：
 
@@ -219,19 +220,19 @@
 
 必须完成：
 
-- [ ] 将 `docs/privacy-policy-zh.md` 和 `docs/privacy-policy.html` 更新为 Recallo。
-- [ ] 明确第三方 AI 模型处理：用户内容可能发送给模型服务用于生成知识点和题目。
-- [ ] 明确数据保留周期：用户主动删除、账号删除、备份保留边界。
-- [ ] 明确日志脱敏：不在日志里记录完整用户原文、APNs token、API key。
-- [ ] 更新 App Store Connect App Privacy 标签。
+- [x] 将 `docs/privacy-policy-zh.md` 和 `docs/privacy-policy.html` 更新为 Recallo。仍待用户提供正式支持邮箱和公开 HTTPS URL。
+- [x] 明确第三方 AI 模型处理：用户内容可能发送给模型服务用于生成知识点和题目。
+- [x] 明确数据保留周期：用户主动删除、账号删除、备份保留边界。账号删除部分仍取决于首版是否加入 Apple 登录。
+- [x] 明确日志脱敏：不在日志里记录完整用户原文、APNs token、API key。
+- [ ] 更新 App Store Connect App Privacy 标签。文档草案已准备；实际 App Store Connect 填写仍需用户手动完成。
 
 必须新增的 App 内 AI 同意点：
 
-- [ ] 首次点击“开始生成/开始学习”前，展示一次 AI 处理说明。
-- [ ] 文案要说明：文章链接/文本会发送给第三方 AI 服务，用于生成章节、知识点和题目。
-- [ ] 用户可以不同意；不同意时不能使用需要 AI 处理的生成能力，但仍可浏览本地/预设内容。
-- [ ] 同意状态保存在服务端或本地稳定存储中，并可在隐私说明里查看。
-- [ ] App Review Notes 中主动说明该同意机制的位置和触发方式。
+- [x] 首次点击“开始生成/开始学习”前，展示一次 AI 处理说明。
+- [x] 文案要说明：文章链接/文本会发送给第三方 AI 服务，用于生成章节、知识点和题目。
+- [x] 用户可以不同意；不同意时不能使用需要 AI 处理的生成能力，但仍可浏览本地/预设内容。
+- [x] 同意状态保存在本地稳定存储中，并可在隐私说明里查看。
+- [x] App Review Notes 中主动说明该同意机制的位置和触发方式。
 
 建议文案草案：
 
@@ -964,6 +965,7 @@ App Store Connect 操作：
 | 2026-07-03 | 增加用户回复收口编排脚本 | 已新增 `npm run app-store:ingest-user-reply`，把用户模板回复解析、标准 JSON 生成、决策表 dry-run、联系信息 dry-run、状态总览和粘贴包检查串成一个安全入口；默认不改正式文档，需显式 `--apply` 才回写 | `tools/app-store-ingest-user-reply.mjs`、`docs/app-store-release-evidence/2026-07-03-user-reply-intake-orchestrator.md` | 用户回复最终模板后，Codex 先跑 dry-run 编排，确认无误后用 `--apply` 一次性收口文档和证据 |
 | 2026-07-03 | 同步状态总览下一步提示 | 已更新 `npm run app-store:status` 的 Next action，使其指向当前 `create-user-handoff` + `ingest-user-reply` dry-run/apply 流程，避免继续提示旧的手动多命令路径 | `tools/app-store-status.mjs`、`docs/app-store-release-evidence/2026-07-03-status-next-action-refresh.md` | 用户回复交接包模板后，按状态提示执行安全收口流程 |
 | 2026-07-03 | 对账 Release/Archive 工程防错 checklist | 已用当前 `check:release-ios`、iOS production guard、workspace guard 和 UI regression guard 对账 3.1；自动门禁已覆盖官方工作区、Recallo 名称/图标配置、V2 Release 入口、production API、mock/debug 控制和 Archive 证据生成；仍保留 Organizer/真机截图等用户侧证据 | `docs/app-store-release-evidence/2026-07-03-release-guard-reconciliation.md` | 用户 Archive/Upload 后补 Organizer/App Store Connect 证据；TestFlight 验收确认 warning 字符串不可见 |
+| 2026-07-03 | 对账额度、隐私和 AI 同意 checklist | 已用当前代码、测试和提交材料对账 3.3/3.4；真实生成每日额度、稳定错误码、超额提示、AI 处理说明、首次真实生成同意门槛、隐私政策/审核备注已完成；失败/推荐导入运营统计、最终邮箱/URL、App Store Connect 隐私标签仍保留为开放项 | `docs/app-store-release-evidence/2026-07-03-quota-privacy-checklist-reconciliation.md` | 用户确认每日额度、提供邮箱/URL，并在 App Store Connect 填写隐私标签 |
 
 ## 9. 维护规则
 
