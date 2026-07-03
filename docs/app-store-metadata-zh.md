@@ -1,6 +1,6 @@
 # Recallo App Store 元数据草案
 
-本文档用于准备 TestFlight、App Store Connect 和首轮用户测试。当前目标是 Beta 测试，不承诺最终商业化细节。
+本文档用于准备 TestFlight 扩大测试、App Store Connect 和 App Store 首版提交。当前目标是一个免费、无广告、无 IAP 的 Recallo 首版候选包；商业化、账号同步和订阅能力进入后续版本规划。
 
 ## 基础信息
 
@@ -9,7 +9,7 @@
 - 平台：iPhone
 - 方向：竖屏
 - 最低系统：iOS 26
-- 当前商业模式：Beta 阶段免费测试
+- 当前商业模式：App Store 首版免费
 - 后续规划：账号登录、跨设备同步、订阅能力
 
 ## 副标题候选

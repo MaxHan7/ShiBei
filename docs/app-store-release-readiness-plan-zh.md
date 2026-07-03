@@ -242,16 +242,16 @@
 
 必须准备：
 
-- [ ] App 名称：Recallo。
-- [ ] Subtitle：30 字符以内。
-- [ ] App Description。
-- [ ] Keywords：100 字符以内。
-- [ ] Support URL。
-- [ ] Privacy Policy URL。
-- [ ] 截图：至少 iPhone 尺寸，覆盖首页、添加、生成中/完成、复习、解释/来源。
-- [ ] Review Notes：说明 AI 生成、通知用途、是否需要登录、测试方式。
-- [ ] 年龄分级。
-- [ ] 如果有登录，提供审核账号或说明 Sign in with Apple。
+- [x] App 名称：Recallo。
+- [x] Subtitle：30 字符以内。已有推荐文案，待用户最终确认。
+- [x] App Description。已有 App Store 可复制版本，待用户最终确认。
+- [x] Keywords：100 字符以内。已有中英文草案并控制长度，待用户最终确认。
+- [ ] Support URL。支持页已准备，仍待用户提供公开 HTTPS URL。
+- [ ] Privacy Policy URL。隐私页已准备，仍待用户提供公开 HTTPS URL。
+- [ ] 截图：至少 iPhone 尺寸，覆盖首页、添加、生成中/完成、复习、解释/来源。截图规格和场景清单已准备，仍待用户交付正式截图。
+- [x] Review Notes：说明 AI 生成、通知用途、是否需要登录、测试方式。已有审核提交包草案，仍需按最终账号决策保留正确段落。
+- [ ] 年龄分级。已有问卷建议答案，仍需用户在 App Store Connect 按真实问卷填写。
+- [ ] 如果有登录，提供审核账号或说明 Sign in with Apple。当前仍待用户拍板 Apple 登录是否进入首版。
 
 Review Notes 草案结构：
 
@@ -286,9 +286,9 @@ Push notifications are used only to notify users when chapter generation succeed
 
 需要更新：
 
-- [ ] 将旧“拾贝”命名替换为 Recallo。
-- [ ] 将 Beta 口径改成 App Store 首版口径。
-- [ ] 加入免费额度和 AI 数据处理说明。
+- [x] 将旧“拾贝”命名替换为 Recallo。
+- [x] 将 Beta 口径改成 App Store 首版口径。
+- [x] 加入免费额度和 AI 数据处理说明。
 
 ### 3.6 生产稳定性和监控
 
@@ -966,6 +966,7 @@ App Store Connect 操作：
 | 2026-07-03 | 同步状态总览下一步提示 | 已更新 `npm run app-store:status` 的 Next action，使其指向当前 `create-user-handoff` + `ingest-user-reply` dry-run/apply 流程，避免继续提示旧的手动多命令路径 | `tools/app-store-status.mjs`、`docs/app-store-release-evidence/2026-07-03-status-next-action-refresh.md` | 用户回复交接包模板后，按状态提示执行安全收口流程 |
 | 2026-07-03 | 对账 Release/Archive 工程防错 checklist | 已用当前 `check:release-ios`、iOS production guard、workspace guard 和 UI regression guard 对账 3.1；自动门禁已覆盖官方工作区、Recallo 名称/图标配置、V2 Release 入口、production API、mock/debug 控制和 Archive 证据生成；仍保留 Organizer/真机截图等用户侧证据 | `docs/app-store-release-evidence/2026-07-03-release-guard-reconciliation.md` | 用户 Archive/Upload 后补 Organizer/App Store Connect 证据；TestFlight 验收确认 warning 字符串不可见 |
 | 2026-07-03 | 对账额度、隐私和 AI 同意 checklist | 已用当前代码、测试和提交材料对账 3.3/3.4；真实生成每日额度、稳定错误码、超额提示、AI 处理说明、首次真实生成同意门槛、隐私政策/审核备注已完成；失败/推荐导入运营统计、最终邮箱/URL、App Store Connect 隐私标签仍保留为开放项 | `docs/app-store-release-evidence/2026-07-03-quota-privacy-checklist-reconciliation.md` | 用户确认每日额度、提供邮箱/URL，并在 App Store Connect 填写隐私标签 |
+| 2026-07-03 | 对账 App Review 材料 checklist | 已将 3.5 中已有草案的 App 名称、副标题、描述、关键词、Review Notes、隐私标签草案、年龄分级建议和截图清单标记为草案完成；同步把元数据文档口径从 Beta 测试改成 App Store 首版候选包 | `docs/app-store-metadata-zh.md`、`docs/app-store-review-submission-pack-zh.md`、`docs/app-store-release-evidence/2026-07-03-review-materials-reconciliation.md` | 用户提供最终 URL/邮箱/截图/账号决策后，生成无 blocker 的 App Store Connect 粘贴包 |
 
 ## 9. 维护规则
 
