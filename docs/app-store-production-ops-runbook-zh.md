@@ -35,6 +35,12 @@ npm run check:app-store-health
 npm run check:release-ios
 ```
 
+如果当前环境有 production `DATABASE_URL` 只读/运维访问权限，额外执行：
+
+```bash
+npm run app-store:ops-diagnostics
+```
+
 如果要生成候选包证据：
 
 ```bash
@@ -103,8 +109,14 @@ npm run app-store:create-archive-evidence -- \
    npm run app-store:health-audit -- --report
    ```
 
-2. 在 Railway logs 搜索同一时间段的 `Generation worker`、`failedStage`、`failureReason`、`generation job`。
-3. 判断失败类别：
+2. 如果有 `DATABASE_URL`，先跑只读聚合：
+
+   ```bash
+   npm run app-store:ops-diagnostics
+   ```
+
+3. 在 Railway logs 搜索同一时间段的 `Generation worker`、`failedStage`、`failureReason`、`generation job`。
+4. 判断失败类别：
 
    | 类别 | 用户影响 | 处理 |
    | --- | --- | --- |
@@ -114,8 +126,8 @@ npm run app-store:create-archive-evidence -- \
    | `quality_failed` | 内容不适合生成题目 | P2/P1；看失败率和样本 |
    | unknown | 未归类异常 | P1；先保存日志和输入元信息，避免继续扩大 |
 
-4. 不直接把内部字段暴露给用户；用户侧只显示精简原因。
-5. 修复后必须用同类文章重跑一次真实生成，并记录结果。
+5. 不直接把内部字段暴露给用户；用户侧只显示精简原因。
+6. 修复后必须用同类文章重跑一次真实生成，并记录结果。
 
 ## 7. APNs 通知异常处理
 
@@ -140,13 +152,19 @@ npm run app-store:create-archive-evidence -- \
    - iOS Settings > Notifications > Recallo。
    - App 内通知设置和系统权限状态一致。
 
-3. 查看数据库 notifications 里的状态字段：
+3. 如果有 `DATABASE_URL`，先跑只读聚合：
+
+   ```bash
+   npm run app-store:ops-diagnostics
+   ```
+
+4. 查看数据库 notifications 里的状态字段：
    - `pushDeliveryStatus`
    - `pushDeliveryError`
    - `pushSentAt`
    - `dismissed`
 
-4. 常见 APNs 错误判断：
+5. 常见 APNs 错误判断：
 
    | 错误 | 可能原因 | 处理 |
    | --- | --- | --- |
@@ -155,7 +173,7 @@ npm run app-store:create-archive-evidence -- \
    | `DeviceTokenNotForTopic` | bundle id 不匹配 | 检查 `APNS_BUNDLE_ID=com.maxhan.shibei` |
    | `apns_not_configured` | Railway 变量缺失 | 补齐 APNs 变量后重新 health |
 
-5. 修复后至少做两条真机验收：
+6. 修复后至少做两条真机验收：
    - App 在后台，生成成功后收到系统通知。
    - App 不打开的情况下，不重复收到同一条通知。
 

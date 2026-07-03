@@ -6,6 +6,10 @@ Scope: App Store production operations readiness
 ## Created
 
 - `docs/app-store-production-ops-runbook-zh.md`
+- `backend/scripts/app-store-production-ops-diagnostics.mjs`
+- Root npm scripts:
+  - `npm run app-store:ops-diagnostics`
+  - `npm run check:app-store-ops-diagnostics`
 
 ## Covered
 
@@ -40,6 +44,11 @@ Scope: App Store production operations readiness
   - missing covers
   - filter rollback
   - missing simulated generation
+- Read-only production diagnostics:
+  - recent generation job queue/status/stage summary
+  - recent failed chapter status/stage/reason aggregation
+  - recent APNs delivery status/error aggregation
+  - recent quota claim usage by day
 
 ## Still Not Claimed Complete
 
