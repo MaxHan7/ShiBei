@@ -946,6 +946,7 @@ App Store Connect 操作：
 | 2026-07-02 | 增加用户决策表解析工具 | 已新增 `npm run app-store:decision-report`，可解析一页式决策表并输出缺失字段与 JSON summary，为后续自动回写铺路 | `tools/app-store-decision-form-report.mjs`、`docs/app-store-release-evidence/2026-07-02-decision-form-parser.md` | 用户填表后，Codex 用该报告驱动文档回写 |
 | 2026-07-03 | 增加用户行动分组报告 | 已新增 `npm run app-store:user-actions`，可按决策表章节分组输出仍需用户完成的事项，并列出用户补齐信息后 Codex 的自动回写动作 | `tools/app-store-user-action-report.mjs`、`docs/app-store-release-evidence/2026-07-03-user-action-report.md` | 用户按报告补齐决策/邮箱/URL/验收状态；Codex 再回写全部提交材料 |
 | 2026-07-03 | 增加 App Store 截图规格审计 | 已新增 `npm run app-store:screenshot-audit` 和 `npm run check:app-store-screenshots`，默认检查 `docs/app-store-release-evidence/screenshots/app-store/` 下的 6.9 英寸 iPhone 竖屏截图数量、格式和尺寸 | `tools/app-store-screenshot-audit.mjs`、`docs/app-store-release-evidence/2026-07-03-screenshot-audit.md` | 用户放入 6 张正式截图后运行 strict 检查，全部通过后上传 App Store Connect |
+| 2026-07-03 | 增加 App Store 状态总览 | 已新增 `npm run app-store:status`，聚合决策表、用户行动、截图、提交 readiness 和 iOS Release preflight，作为每日上架推进入口 | `tools/app-store-status.mjs`、`docs/app-store-release-evidence/2026-07-03-app-store-status.md` | 用户补齐决策和截图后先跑状态总览，再跑严格门禁 |
 
 ## 9. 维护规则
 
