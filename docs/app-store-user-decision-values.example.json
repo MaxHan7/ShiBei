@@ -1,0 +1,26 @@
+{
+  "decisions": {
+    "首版价格": "免费",
+    "首版是否启用 IAP/订阅": "不启用",
+    "每日真实 AI 生成额度": "每天 3 篇，按 UTC day",
+    "推荐好文是否计入额度": "不计入",
+    "匿名用户是否可直接生成": "可以，不强制登录",
+    "首版是否加入可选 Apple 登录": "首版暂不做 Apple 登录",
+    "如果首版暂不做 Apple 登录，是否接受匿名数据恢复边界": "接受，并在说明中明确重装、换机、系统重置可能无法恢复",
+    "如果首版做 Apple 登录，是否同步做删除账号入口": "不适用：首版暂不做 Apple 登录",
+    "支持邮箱": "<填写正式支持邮箱>",
+    "Privacy Policy URL": "<填写公开 HTTPS 隐私政策 URL>",
+    "Support URL": "<填写公开 HTTPS 支持页 URL>",
+    "Subtitle": "把文章变成练习题",
+    "Promotional Text": "把文章、长文和好内容变成知识点与练习题，让阅读真正变成可以继续学习的进度。",
+    "Category": "Education",
+    "Secondary Category": "Productivity",
+    "Keywords": "学习,知识管理,文章,AI,记忆,题库,阅读,笔记,知识点,碎片知识,练习",
+    "真机验收记录文件": "<填写验收记录文件路径>",
+    "是否仍有 P0": "<无 P0 / 有 P0>",
+    "是否仍有未豁免 P1": "<无未豁免 P1 / 有未豁免 P1>",
+    "App Store 截图是否已准备": "<已准备 / 未准备>",
+    "Archive 中 App 名称/图标是否正确": "<已确认 Recallo 名称、新图标、Bundle ID com.maxhan.shibei / 未确认>",
+    "App Store Connect 是否选择旧 bundle id 对应 App": "<已确认在 com.maxhan.shibei 对应现有 App 下提交 / 未确认>"
+  }
+}

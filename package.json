@@ -12,6 +12,7 @@
     "check:app-store-submit": "node tools/app-store-submit-readiness-guard.mjs",
     "check:app-store-submit:report": "node tools/app-store-submit-readiness-guard.mjs --report",
     "app-store:decision-report": "node tools/app-store-decision-form-report.mjs",
+    "app-store:apply-decisions": "node tools/app-store-apply-user-decisions.mjs",
     "app-store:user-actions": "node tools/app-store-user-action-report.mjs",
     "app-store:screenshot-audit": "node tools/app-store-screenshot-audit.mjs",
     "app-store:status": "node tools/app-store-status.mjs",
