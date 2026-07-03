@@ -5,7 +5,7 @@
 | 字段 | 值 |
 | --- | --- |
 | 日期 | 2026-07-03 |
-| Git commit | 0d88abdc4c25 |
+| 生成基准 Git commit | fbf02c56dd8e |
 | Branch | codex/recallo-review-replay-mode |
 | 决策字段总数 | 26 |
 | 已完成字段 | 4 |
@@ -15,7 +15,7 @@
 
 - BLOCKED 用户决策表: totalFields=26, missingFields=22
 - BLOCKED 用户行动分组: totalFields=26, missingFields=22
-- BLOCKED 截图规格报告: Screenshot readiness: NOT READY (7 issues)
+- BLOCKED 截图规格报告: Screenshot readiness: NOT READY (1 issue)
 - BLOCKED 真机验收报告: Production acceptance: NOT READY (36 issues)
 - PASS 生产健康报告: Production health: READY
 - BLOCKED 公开页面报告: Static pages readiness: NOT READY (6 issues)
@@ -27,7 +27,7 @@ Overall status: NOT READY (7 blocking areas)
 - 运行 `npm run app-store:create-user-handoff -- --force` 刷新用户交接包，作为当前唯一用户待办入口。
 - 用户按交接包模板补齐价格、额度、Apple 登录、邮箱、URL、元数据、截图和验收状态；Codex 随后运行 `npm run app-store:ingest-user-reply -- --input <reply-file> --acceptance-record <acceptance-file>` 做 dry-run，确认后加 `--apply` 回写。
 - 用户提供正式支持邮箱、Privacy Policy URL、Support URL；Codex 用 `npm run app-store:apply-contact -- <contact-json> --dry-run` 验证并回写公开页面和提交包。
-- 用户把 6 张正式 App Store 截图放入 `docs/app-store-release-evidence/screenshots/app-store/`；Codex 运行 `npm run check:app-store-screenshots`。
+- 用户把至少 1 张符合规格的正式 App Store 截图放入 `docs/app-store-release-evidence/screenshots/app-store/`；首版仍建议补齐 6 张核心场景。Codex 运行 `npm run check:app-store-screenshots`。
 - 用户填写已创建的真机/TestFlight 验收记录 `docs/app-store-release-evidence/2026-07-03-production-acceptance.md`；Codex 用 `npm run check:app-store-acceptance -- docs/app-store-release-evidence/2026-07-03-production-acceptance.md` 做严格检查。
 - 用户填写已创建的 `.release/app-store-inputs/external-console-checks.json`；Codex 运行 `npm run check:app-store-external-console`。
 - 所有用户输入回写后，Codex 跑 `npm run app-store:final-gate` 预览最终缺口；严格通过 `npm run check:app-store-final`、`npm run check:release-ios`、`npm run check` 后，用户再 Archive / Upload。
@@ -93,7 +93,7 @@ Overall status: NOT READY (7 blocking areas)
 1. 先按下面“建议直接回复模板”给 Codex 一次性回复产品决策、邮箱、URL、元数据和验收状态。
 2. 再按“真机验收记录”填写 TestFlight/真机结果。
 3. 然后按“Apple 外部控制台确认文件”填写 App Store Connect / Apple Developer 后台实际值。
-4. 最后把 6 张 App Store 截图放入 `docs/app-store-release-evidence/screenshots/app-store/`。
+4. 最后把至少 1 张符合规格的 App Store 截图放入 `docs/app-store-release-evidence/screenshots/app-store/`；首版仍建议补齐 6 张核心场景。
 
 你不需要手动改隐私政策、支持页、元数据、审核说明或总计划。你给出上述输入后，Codex 会 dry-run、回写、跑 gate、记录证据并提交。
 

@@ -83,7 +83,7 @@ function renderMarkdown(values) {
 | 字段 | 值 |
 | --- | --- |
 | 日期 | ${values.date} |
-| Git commit | ${values.gitCommit} |
+| 生成基准 Git commit | ${values.gitCommit} |
 | Branch | ${values.gitBranch} |
 | 决策字段总数 | ${values.totalFields} |
 | 已完成字段 | ${values.readyFields} |
@@ -104,7 +104,7 @@ ${renderMissingGroups(values.missingGroups)}
 1. 先按下面“建议直接回复模板”给 Codex 一次性回复产品决策、邮箱、URL、元数据和验收状态。
 2. 再按“真机验收记录”填写 TestFlight/真机结果。
 3. 然后按“Apple 外部控制台确认文件”填写 App Store Connect / Apple Developer 后台实际值。
-4. 最后把 6 张 App Store 截图放入 \`docs/app-store-release-evidence/screenshots/app-store/\`。
+4. 最后把至少 1 张符合规格的 App Store 截图放入 \`docs/app-store-release-evidence/screenshots/app-store/\`；首版仍建议补齐 6 张核心场景。
 
 你不需要手动改隐私政策、支持页、元数据、审核说明或总计划。你给出上述输入后，Codex 会 dry-run、回写、跑 gate、记录证据并提交。
 
