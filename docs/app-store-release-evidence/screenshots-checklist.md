@@ -11,6 +11,35 @@
 - 首选设备：6.9 英寸 iPhone 截图；若 UI 在各尺寸一致，可让 App Store Connect 缩放。
 - 禁止出现：旧“拾贝”品牌名、旧图标、debug 文案、fixture 文案、Railway 文案、JSON/decode/本地数据缺失提示。
 
+截图保存目录：
+
+```text
+docs/app-store-release-evidence/screenshots/app-store/
+```
+
+建议文件名：
+
+```text
+01-home-learning-path.png
+02-add-article.png
+03-generating.png
+04-chapter-detail.png
+05-question-card.png
+06-discover-recommendations.png
+```
+
+保存后先运行 report 模式：
+
+```bash
+npm run app-store:screenshot-audit
+```
+
+提交前运行 strict 模式：
+
+```bash
+npm run check:app-store-screenshots
+```
+
 ## 截图 1：首页学习路径
 
 - 目标：展示 Recallo 的核心结果不是摘要，而是可继续学习的路径。
@@ -74,9 +103,9 @@
 ## 提交前总检查
 
 - [ ] 截图来自正确 Recallo build。
+- [ ] `npm run check:app-store-screenshots` 通过。
 - [ ] 截图里 App 名、图标、颜色、字体都是新版本。
 - [ ] 没有旧品牌、旧 UI、旧工程路径或调试文案。
 - [ ] 每张截图都有明确场景和价值。
 - [ ] 截图文案不承诺“永久保存”“无限生成”“完全准确”等无法保证的能力。
 - [ ] 截图与 App Store 描述、隐私政策、审核说明一致。
-

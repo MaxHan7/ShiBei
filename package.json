@@ -13,6 +13,8 @@
     "check:app-store-submit:report": "node tools/app-store-submit-readiness-guard.mjs --report",
     "app-store:decision-report": "node tools/app-store-decision-form-report.mjs",
     "app-store:user-actions": "node tools/app-store-user-action-report.mjs",
+    "app-store:screenshot-audit": "node tools/app-store-screenshot-audit.mjs",
+    "check:app-store-screenshots": "node tools/app-store-screenshot-audit.mjs --strict",
     "check:ios-signing": "node tools/ios-signing-guard.mjs",
     "check:production-release-evidence": "node tools/production-release-evidence-guard.mjs",
     "check:production-deploy-inputs": "node tools/production-deploy-inputs-guard.mjs",

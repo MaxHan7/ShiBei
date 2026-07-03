@@ -28,7 +28,7 @@ npm run app-store:user-actions
 | Privacy URL | App Store Connect 隐私政策 URL | `docs/privacy-policy.html` 已准备；你需要提供公开托管后的 URL |
 | 支持邮箱 | 隐私政策和用户支持 | 一个对外邮箱，例如 `support@...` |
 | App Store Connect App 状态 | 确认是否在旧 `com.maxhan.shibei` App 下提交 | 截图或口头确认当前 App 页面和 bundle id |
-| 最终截图文件 | 产品页截图上传 | 按 `docs/app-store-release-evidence/screenshots-checklist.md` 准备的 6 张截图 |
+| 最终截图文件 | 产品页截图上传 | 按 `docs/app-store-release-evidence/screenshots-checklist.md` 准备的 6 张截图，并放入 `docs/app-store-release-evidence/screenshots/app-store/` 后运行 `npm run check:app-store-screenshots` |
 
 ## 3. 你需要在真机上执行的验收
 
@@ -135,6 +135,7 @@ com.maxhan.shibei
 - 跑 `npm run check:app-store-submit:report` 查看下一步动作；最终提交前跑 `npm run check:app-store-submit`，确保没有邮箱、URL 或审核决策占位符。
 - 根据你提供的截图/录屏更新验收记录。
 - 跑 `npm run check:release-ios`、`npm run check`、Release build 和 production health。
+- 跑 `npm run app-store:screenshot-audit` 或 `npm run check:app-store-screenshots` 检查截图规格。
 - 陪跑 Archive 前检查。
 - 根据 App Store Connect 的拒审或警告更新文档和修复代码。
 

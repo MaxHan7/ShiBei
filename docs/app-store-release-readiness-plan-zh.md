@@ -945,6 +945,7 @@ App Store Connect 操作：
 | 2026-07-02 | 增加 App Store 最终提交 readiness guard | 已新增严格提交前检查和 report 模式，用于拦截支持邮箱、Support URL、Privacy URL、审核决策占位符未收口的情况；已接入一页式用户决策表检查；该检查不进入日常 `npm run check`，避免阻塞开发 | `tools/app-store-submit-readiness-guard.mjs`、`docs/app-store-release-evidence/2026-07-02-submit-readiness-guard.md` | 用户提供 URL/邮箱/决策后，Codex 回写并跑严格模式 |
 | 2026-07-02 | 增加用户决策表解析工具 | 已新增 `npm run app-store:decision-report`，可解析一页式决策表并输出缺失字段与 JSON summary，为后续自动回写铺路 | `tools/app-store-decision-form-report.mjs`、`docs/app-store-release-evidence/2026-07-02-decision-form-parser.md` | 用户填表后，Codex 用该报告驱动文档回写 |
 | 2026-07-03 | 增加用户行动分组报告 | 已新增 `npm run app-store:user-actions`，可按决策表章节分组输出仍需用户完成的事项，并列出用户补齐信息后 Codex 的自动回写动作 | `tools/app-store-user-action-report.mjs`、`docs/app-store-release-evidence/2026-07-03-user-action-report.md` | 用户按报告补齐决策/邮箱/URL/验收状态；Codex 再回写全部提交材料 |
+| 2026-07-03 | 增加 App Store 截图规格审计 | 已新增 `npm run app-store:screenshot-audit` 和 `npm run check:app-store-screenshots`，默认检查 `docs/app-store-release-evidence/screenshots/app-store/` 下的 6.9 英寸 iPhone 竖屏截图数量、格式和尺寸 | `tools/app-store-screenshot-audit.mjs`、`docs/app-store-release-evidence/2026-07-03-screenshot-audit.md` | 用户放入 6 张正式截图后运行 strict 检查，全部通过后上传 App Store Connect |
 
 ## 9. 维护规则
 
