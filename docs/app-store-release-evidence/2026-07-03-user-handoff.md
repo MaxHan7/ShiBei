@@ -5,7 +5,7 @@
 | 字段 | 值 |
 | --- | --- |
 | 日期 | 2026-07-03 |
-| Git commit | 065ec3e5e309 |
+| Git commit | 53fb54d0f4db |
 | Branch | codex/recallo-review-replay-mode |
 | 决策字段总数 | 26 |
 | 已完成字段 | 4 |
@@ -19,6 +19,7 @@
 - BLOCKED 真机验收报告: Production acceptance: NOT READY (1 issue)
 - PASS 生产健康报告: Production health: READY
 - BLOCKED 公开页面报告: Static pages readiness: NOT READY (6 issues)
+- PASS 隐私标签报告: App Store privacy labels readiness: READY
 - BLOCKED 提交 readiness 报告: App Store submission readiness: NOT READY (10 blockers)
 - PASS iOS Release 预检: Release archive preflight passed.
 Overall status: NOT READY (6 blocking areas)
