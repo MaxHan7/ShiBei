@@ -7,7 +7,7 @@
 1. 先按 `docs/app-store-release-evidence/2026-07-03-user-handoff.md` 里的“建议直接回复模板”回复产品决策、邮箱、URL 和元数据。
 2. 再填 `docs/app-store-release-evidence/2026-07-03-production-acceptance.md` 的真机验收结果。
 3. 再填 `.release/app-store-inputs/external-console-checks.json` 的 Apple Developer / App Store Connect 后台确认值。
-4. 最后把 6 张截图放到 `docs/app-store-release-evidence/screenshots/app-store/`。
+4. 最后把至少 1 张符合规格截图放到 `docs/app-store-release-evidence/screenshots/app-store/`；首版建议补齐 6 张核心场景截图。
 
 ## 2. 决策表字段
 
@@ -78,7 +78,7 @@ open .release/app-store-inputs/external-console-checks.json
 | `appStoreConnect.supportUrl` | 公开 HTTPS 支持页 URL | App Information | 必须与决策表一致。 |
 | `appStoreConnect.appPrivacyLabelsCompleted` | `true` | App Privacy | 按 `docs/app-store-privacy-labels-zh.md` 填完。 |
 | `appStoreConnect.ageRatingCompleted` | `true` | App Information > Age Rating | 问卷完成。 |
-| `appStoreConnect.screenshotsUploaded` | `true` | Product Page | 6 张截图已上传且无旧品牌/旧 UI。 |
+| `appStoreConnect.screenshotsUploaded` | `true` | Product Page | 至少 1 张符合规格截图已上传且无旧品牌/旧 UI；首版建议补齐 6 张核心场景。 |
 | `appStoreConnect.latestRecalloBuildSelected` | `true` | Build 选择区域 | 选择最新 Recallo build。 |
 | `appStoreConnect.reviewNotesPasted` | `true` | App Review Information | 粘贴最新审核说明。 |
 
@@ -110,7 +110,7 @@ npm run check:app-store-external-console
 - 验收人
 - A1-A17 每条核心路径结果
 - N1-N3 网络异常结果
-- 6 张截图验收结果
+- App Store 截图验收结果，至少 1 张符合规格；首版建议 6 张核心场景
 - 最终结论勾选和 `通过 / 不通过`
 
 自动检查项已经由 Codex 填好，不需要用户再填。

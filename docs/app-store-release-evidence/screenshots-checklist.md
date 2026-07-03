@@ -5,7 +5,7 @@
 ## 技术规格
 
 - 来源：真实 iPhone 或 iOS Simulator 中的 Release/TestFlight 包。
-- 数量：首版建议 6 张；Apple 允许每个本地化上传 1 到 10 张截图。
+- 数量：Apple 允许每个本地化上传 1 到 10 张截图；Recallo 首版产品展示建议准备 6 张。
 - 格式：`.png`、`.jpg` 或 `.jpeg`。
 - 方向：竖屏。
 - 首选设备：6.9 英寸 iPhone 截图；若 UI 在各尺寸一致，可让 App Store Connect 缩放。
@@ -24,7 +24,7 @@ docs/app-store-release-evidence/screenshots/app-store/
 docs/app-store-release-evidence/screenshots/app-store/README.md
 ```
 
-建议文件名：
+推荐文件名：
 
 ```text
 01-home-learning-path.png
@@ -41,7 +41,7 @@ docs/app-store-release-evidence/screenshots/app-store/README.md
 npm run app-store:screenshot-audit
 ```
 
-提交前运行 strict 模式：
+提交前运行 strict 模式。strict 只拦截 Apple 基础规格问题；推荐 6 张场景缺失会输出 warning，仍建议补齐后再提交：
 
 ```bash
 npm run check:app-store-screenshots

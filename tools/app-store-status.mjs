@@ -159,7 +159,7 @@ function buildNextActions(blockers) {
     actions.push("用户提供正式支持邮箱、Privacy Policy URL、Support URL；Codex 用 `npm run app-store:apply-contact -- <contact-json> --dry-run` 验证并回写公开页面和提交包。");
   }
   if (blockerNames.has("截图规格报告")) {
-    actions.push("用户把 6 张正式 App Store 截图放入 `docs/app-store-release-evidence/screenshots/app-store/`；Codex 运行 `npm run check:app-store-screenshots`。");
+    actions.push("用户把至少 1 张符合规格的正式 App Store 截图放入 `docs/app-store-release-evidence/screenshots/app-store/`；首版仍建议补齐 6 张核心场景。Codex 运行 `npm run check:app-store-screenshots`。");
   }
   if (blockerNames.has("真机验收报告")) {
     if (existsSync(resolve(repoRoot, acceptanceRecordPath))) {

@@ -45,7 +45,7 @@ npm run check:app-store-final
 | 支持邮箱 | 隐私政策和用户支持 | 一个对外邮箱，例如 `support@...` |
 | App Store Connect App 状态 | 确认是否在旧 `com.maxhan.shibei` App 下提交 | 截图或口头确认当前 App 页面和 bundle id |
 | Apple Developer / App Store Connect 外部控制台确认 | 确认 Push capability、现有 App 记录、隐私标签、截图、年龄分级、最新 build 等 Codex 无法登录检查的项目 | 按 `docs/app-store-external-console-checklist-zh.md` 填写 `.release/app-store-inputs/external-console-checks.json` |
-| 最终截图文件 | 产品页截图上传 | 按 `docs/app-store-release-evidence/screenshots-checklist.md` 准备的 6 张截图，并放入 `docs/app-store-release-evidence/screenshots/app-store/` 后运行 `npm run check:app-store-screenshots` |
+| 最终截图文件 | 产品页截图上传 | 至少准备 1 张符合规格截图，首版建议按 `docs/app-store-release-evidence/screenshots-checklist.md` 补齐 6 张核心场景；放入 `docs/app-store-release-evidence/screenshots/app-store/` 后运行 `npm run check:app-store-screenshots` |
 
 ## 3. 你需要在真机上执行的验收
 
@@ -156,7 +156,7 @@ com.maxhan.shibei
 - 填 Privacy URL。
 - 填 App Privacy 标签。
 - 填年龄分级。
-- 上传 6 张截图。
+- 上传至少 1 张符合规格截图；首版建议补齐 6 张核心场景截图。
 - 粘贴 Review Notes。
 - 提交审核。
 

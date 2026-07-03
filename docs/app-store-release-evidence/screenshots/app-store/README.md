@@ -2,9 +2,9 @@
 
 把最终要上传到 App Store Connect 的截图放在本目录。截图必须来自正确的 Recallo Release/TestFlight 包，不能来自旧工程、旧 UI、Mock 页面或本地 fixture。
 
-## 必需文件名
+## 推荐文件名
 
-首版建议准备 6 张截图，文件名使用下面前缀，扩展名可以是 `.png`、`.jpg` 或 `.jpeg`：
+Apple 硬要求是每个本地化 1 到 10 张截图；Recallo 首版建议准备 6 张，用来完整展示核心体验。推荐文件名使用下面前缀，扩展名可以是 `.png`、`.jpg` 或 `.jpeg`：
 
 ```text
 01-home-learning-path.png
@@ -17,7 +17,7 @@
 
 ## 技术规格
 
-- 数量：1 到 10 张；首版目标为 6 张。
+- 数量：Apple 硬要求 1 到 10 张；首版产品展示目标为 6 张。
 - 方向：竖屏。
 - 设备规格：6.9 英寸 iPhone 竖屏。
 - 可接受尺寸：
@@ -52,4 +52,4 @@ npm run app-store:screenshot-audit
 npm run check:app-store-screenshots
 ```
 
-strict 通过后，才能把这些截图上传到 App Store Connect。
+strict 通过表示截图满足 App Store 基础规格；如果仍有推荐文件名 warning，表示产品展示清单还没完全覆盖，但不是 Apple 截图规格硬失败。

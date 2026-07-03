@@ -29,6 +29,7 @@ const absoluteDir = resolve(repoRoot, screenshotDir);
 const files = listImageFiles(absoluteDir);
 const reports = files.map((file) => inspectImage(join(absoluteDir, file)));
 const failures = [];
+const warnings = [];
 
 if (reports.length < 1 || reports.length > 10) {
   failures.push(`截图数量必须是 1-10 张，当前为 ${reports.length} 张。`);
@@ -36,7 +37,7 @@ if (reports.length < 1 || reports.length > 10) {
 
 for (const expected of expectedScreenshots) {
   if (!reports.some((report) => report.basename.startsWith(expected))) {
-    failures.push(`缺少建议截图文件：${expected}.*`);
+    warnings.push(`缺少建议截图文件：${expected}.*`);
   }
 }
 
@@ -69,6 +70,14 @@ if (reports.length > 0) {
   for (const report of reports) {
     const size = report.error ? `ERROR ${report.error}` : `${report.width}x${report.height}`;
     console.log(`- ${report.basename}: ${size}`);
+  }
+}
+
+if (warnings.length > 0) {
+  console.log("");
+  console.log(`## Warnings (${warnings.length})`);
+  for (const warning of warnings) {
+    console.log(`WARN ${warning}`);
   }
 }
 
