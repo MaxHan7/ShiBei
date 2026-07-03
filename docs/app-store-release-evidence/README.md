@@ -95,6 +95,30 @@ npm run app-store:create-fast-release-inputs -- \
 
 This writes `.release/app-store-inputs/decision-values.json` and `.release/app-store-inputs/contact-values.json`. The `.release/` folder is intentionally ignored by Git because it may contain release-specific contact information and temporary user-provided values.
 
+## User Reply Intake Orchestrator
+
+After the user replies with the fast first-release template, use the safe orchestrator first:
+
+```bash
+cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
+npm run app-store:ingest-user-reply -- \
+  --input .release/recallo-user-reply.txt \
+  --acceptance-record docs/app-store-release-evidence/YYYY-MM-DD-production-acceptance.md \
+  --force
+```
+
+This creates ignored `.release/` JSON inputs, dry-runs all document updates, prints the release status, and checks whether the App Store Connect copy pack is ready. It does not modify tracked documents unless `--apply` is passed.
+
+After reviewing the dry-run output:
+
+```bash
+npm run app-store:ingest-user-reply -- \
+  --input .release/recallo-user-reply.txt \
+  --acceptance-record docs/app-store-release-evidence/YYYY-MM-DD-production-acceptance.md \
+  --force \
+  --apply
+```
+
 ## App Store Connect Copy Pack Generator
 
 After user decisions, support email, Privacy URL, Support URL, screenshots, and production acceptance are finalized, generate the final App Store Connect copy/paste pack:

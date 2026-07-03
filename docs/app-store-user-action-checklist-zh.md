@@ -2,7 +2,7 @@
 
 > 本文档只列必须由用户手动完成或拍板的事项。Codex 可自动执行的工程、文档、检查和记录工作不放在这里，避免混淆。
 
-最短操作方式：先运行 `npm run app-store:create-user-handoff` 生成当前交接包；如果同意推荐路径，直接按交接包里的模板回复；如果要逐项拍板，则填写 `docs/app-store-user-decision-form-zh.md`。Codex 会根据最终选择优先运行 `npm run app-store:parse-fast-release-reply` 解析你的模板回复，或运行 `npm run app-store:create-fast-release-inputs` 手动补齐字段，生成 `.release/app-store-inputs/decision-values.json` 和 `.release/app-store-inputs/contact-values.json`，再通过 apply 脚本把本清单、隐私政策、支持页、App Store 元数据和审核包同步收口。
+最短操作方式：先运行 `npm run app-store:create-user-handoff` 生成当前交接包；如果同意推荐路径，直接按交接包里的模板回复；如果要逐项拍板，则填写 `docs/app-store-user-decision-form-zh.md`。Codex 会优先运行 `npm run app-store:ingest-user-reply`，把你的模板回复解析成标准输入 JSON、dry-run 回写决策/联系信息、输出状态总览；确认无误后再用 `--apply` 把本清单、隐私政策、支持页、App Store 元数据和审核包同步收口。
 
 可随时运行下面命令生成“还需要用户做什么”的完整交接包：
 
@@ -158,7 +158,7 @@ com.maxhan.shibei
 在你完成或提供上述信息后，Codex 可以继续自动执行：
 
 - 把你的决策回写到 `docs/app-store-release-readiness-plan-zh.md`。
-- 运行 `npm run app-store:parse-fast-release-reply` 或 `npm run app-store:create-fast-release-inputs` 生成本次 release 的标准输入 JSON。
+- 运行 `npm run app-store:ingest-user-reply`，用一次安全编排完成回复解析、标准输入 JSON 生成、dry-run 回写和状态总览。
 - 用 `npm run app-store:apply-contact -- .release/app-store-inputs/contact-values.json` 写入隐私政策、支持页、元数据和提交包。
 - 跑 `npm run check:app-store-submit:report` 查看下一步动作；最终提交前跑 `npm run check:app-store-submit`，确保没有邮箱、URL 或审核决策占位符。
 - 根据你提供的截图/录屏更新验收记录。
@@ -171,9 +171,9 @@ com.maxhan.shibei
 
 ## 7. 当前最短路径
 
-1. 你填写 `docs/app-store-user-decision-form-zh.md`。
-2. 你运行或让 Codex 运行 `npm run app-store:user-actions`，确认没有遗漏用户事项。
-3. 你按 `docs/app-store-url-publishing-guide-zh.md` 部署 `docs/privacy-policy.html` 和 `docs/support.html`，并提供最终 URL 和支持邮箱。
-4. Codex 根据决策表回写所有上架文档，并跑 `npm run check:app-store-submit`。
+1. 你按交接包模板回复，或填写 `docs/app-store-user-decision-form-zh.md`。
+2. 你按 `docs/app-store-url-publishing-guide-zh.md` 部署 `docs/privacy-policy.html` 和 `docs/support.html`，并提供最终 URL 和支持邮箱。
+3. Codex 运行 `npm run app-store:ingest-user-reply` 先 dry-run，确认无误后用 `--apply` 回写所有上架文档。
+4. Codex 跑 `npm run check:app-store-submit`、`npm run app-store:create-connect-copy-pack` 和总检查。
 5. 你按模板跑真机验收。
 6. 没有 P0/P1 后，按 Archive runbook 上传。
