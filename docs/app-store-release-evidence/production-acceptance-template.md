@@ -26,6 +26,7 @@
 cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
 npm run check:release-ios
 npm run check
+npm run check:app-store-health
 xcodebuild -project '拾贝/拾贝.xcodeproj' -scheme 'Recallo' -destination 'generic/platform=iOS' -configuration Release build CODE_SIGNING_ALLOWED=NO
 curl -s https://shibei-production.up.railway.app/api/health
 ```
@@ -34,6 +35,7 @@ curl -s https://shibei-production.up.railway.app/api/health
 | --- | --- | --- | --- |
 | `npm run check:release-ios` | PASS |  |  |
 | `npm run check` | PASS |  |  |
+| `npm run check:app-store-health` | PASS |  |  |
 | iOS Release build | PASS |  |  |
 | `/api/health` | 200，服务正常 |  |  |
 | 正确工作区 | `/Users/hanmingyu/Downloads/拾贝-prod-hardening` |  |  |
@@ -105,4 +107,3 @@ curl -s https://shibei-production.up.railway.app/api/health
 ```text
 通过 / 不通过
 ```
-

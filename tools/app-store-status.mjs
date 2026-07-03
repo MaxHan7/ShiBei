@@ -30,6 +30,11 @@ const checks = [
     blockingWhenNotReady: true
   },
   {
+    name: "生产健康报告",
+    command: ["node", "tools/app-store-production-health-audit.mjs", "--report"],
+    blockingWhenNotReady: true
+  },
+  {
     name: "提交 readiness 报告",
     command: ["node", "tools/app-store-submit-readiness-guard.mjs", "--report"],
     blockingWhenNotReady: true
@@ -103,7 +108,7 @@ function hasMissingFields(output) {
 
 function summarize(output, status) {
   const lines = output.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  const readyLine = lines.find((line) => /Overall status:|readiness:|App Store submission readiness:|Production acceptance:/.test(line));
+  const readyLine = lines.find((line) => /Overall status:|readiness:|App Store submission readiness:|Production acceptance:|Production health:/.test(line));
   if (readyLine) return readyLine;
 
   const totalFields = lines.find((line) => line.startsWith("totalFields="));
