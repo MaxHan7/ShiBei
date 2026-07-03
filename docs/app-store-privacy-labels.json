@@ -1,0 +1,110 @@
+{
+  "appName": "Recallo",
+  "bundleId": "com.maxhan.shibei",
+  "updatedAt": "2026-07-03",
+  "tracking": {
+    "usesDataForTracking": false,
+    "notes": "Recallo does not use advertising SDKs, cross-app tracking, or cross-site tracking."
+  },
+  "collectedDataTypes": [
+    {
+      "appleDataType": "User Content",
+      "declareInAppStoreConnect": true,
+      "examples": [
+        "article URLs submitted by the user",
+        "extracted article text",
+        "generated chapters",
+        "knowledge points",
+        "practice questions",
+        "explanations",
+        "source references"
+      ],
+      "purposes": [
+        "App Functionality"
+      ],
+      "linkedToUser": true,
+      "usedForTracking": false,
+      "retentionSummary": "Kept while the user keeps the generated content; removed from active data when the user deletes device data or a chapter."
+    },
+    {
+      "appleDataType": "Identifiers",
+      "declareInAppStoreConnect": true,
+      "examples": [
+        "anonymous device identifier",
+        "account identifier if Sign in with Apple is added",
+        "APNs device token"
+      ],
+      "purposes": [
+        "App Functionality"
+      ],
+      "linkedToUser": true,
+      "usedForTracking": false,
+      "retentionSummary": "Kept to restore device data, send generation notifications, and enforce quota; removed from active data when device data/account data is deleted."
+    },
+    {
+      "appleDataType": "Usage Data",
+      "declareInAppStoreConnect": true,
+      "examples": [
+        "learning progress",
+        "question answers",
+        "favorites",
+        "feedback",
+        "notification read/dismiss state",
+        "daily generation quota claims"
+      ],
+      "purposes": [
+        "App Functionality",
+        "Analytics"
+      ],
+      "linkedToUser": true,
+      "usedForTracking": false,
+      "retentionSummary": "Kept to resume learning, enforce quota, and improve product reliability; removed from active data when device/account data is deleted."
+    },
+    {
+      "appleDataType": "Diagnostics",
+      "declareInAppStoreConnect": true,
+      "examples": [
+        "generation failure category",
+        "queue status",
+        "push delivery status",
+        "service error category",
+        "sanitized diagnostic logs"
+      ],
+      "purposes": [
+        "App Functionality",
+        "Analytics"
+      ],
+      "linkedToUser": true,
+      "usedForTracking": false,
+      "retentionSummary": "Kept only as needed to diagnose generation, notification, and service reliability issues. Full article text, API keys, and APNs tokens must not be logged."
+    }
+  ],
+  "notCollectedDataTypes": [
+    "Contact Info",
+    "Location",
+    "Contacts",
+    "Photos or Videos",
+    "Audio Data",
+    "Health and Fitness",
+    "Financial Info",
+    "Sensitive Info",
+    "Advertising Data",
+    "Browsing History",
+    "Search History",
+    "Purchases"
+  ],
+  "conditionalNotes": [
+    {
+      "condition": "If optional Sign in with Apple ships in the first App Store version",
+      "requiredUpdate": "Re-check whether Contact Info or User ID fields become collected and ensure in-app account deletion is implemented before submission."
+    },
+    {
+      "condition": "If support email is only used by the user voluntarily outside the app",
+      "requiredUpdate": "Do not declare Contact Info as collected by the app unless the app itself collects or stores email addresses."
+    },
+    {
+      "condition": "If payments, subscriptions, advertising, or third-party analytics are added later",
+      "requiredUpdate": "Update this file, privacy policy, App Store Connect App Privacy, and Review Notes before release."
+    }
+  ]
+}

@@ -224,7 +224,7 @@
 - [x] 明确第三方 AI 模型处理：用户内容可能发送给模型服务用于生成知识点和题目。
 - [x] 明确数据保留周期：用户主动删除、账号删除、备份保留边界。账号删除部分仍取决于首版是否加入 Apple 登录。
 - [x] 明确日志脱敏：不在日志里记录完整用户原文、APNs token、API key。
-- [ ] 更新 App Store Connect App Privacy 标签。文档草案已准备；实际 App Store Connect 填写仍需用户手动完成。
+- [x] 更新 App Store Connect App Privacy 标签。已新增 `docs/app-store-privacy-labels.json`、`docs/app-store-privacy-labels-zh.md` 和 `npm run app-store:privacy-labels-audit`，可机读核对 User Content、Identifiers、Usage Data、Diagnostics、Tracking=false 与隐私政策/审核包一致；实际 App Store Connect 网页填写仍需用户手动完成。
 
 必须新增的 App 内 AI 同意点：
 
@@ -970,6 +970,7 @@ App Store Connect 操作：
 | 2026-07-03 | 对账 Release/Archive 工程防错 checklist | 已用当前 `check:release-ios`、iOS production guard、workspace guard 和 UI regression guard 对账 3.1；自动门禁已覆盖官方工作区、Recallo 名称/图标配置、V2 Release 入口、production API、mock/debug 控制和 Archive 证据生成；仍保留 Organizer/真机截图等用户侧证据 | `docs/app-store-release-evidence/2026-07-03-release-guard-reconciliation.md` | 用户 Archive/Upload 后补 Organizer/App Store Connect 证据；TestFlight 验收确认 warning 字符串不可见 |
 | 2026-07-03 | 对账额度、隐私和 AI 同意 checklist | 已用当前代码、测试和提交材料对账 3.3/3.4；真实生成每日额度、稳定错误码、超额提示、AI 处理说明、首次真实生成同意门槛、隐私政策/审核备注已完成；失败/推荐导入运营统计、最终邮箱/URL、App Store Connect 隐私标签仍保留为开放项 | `docs/app-store-release-evidence/2026-07-03-quota-privacy-checklist-reconciliation.md` | 用户确认每日额度、提供邮箱/URL，并在 App Store Connect 填写隐私标签 |
 | 2026-07-03 | 对账 App Review 材料 checklist | 已将 3.5 中已有草案的 App 名称、副标题、描述、关键词、Review Notes、隐私标签草案、年龄分级建议和截图清单标记为草案完成；同步把元数据文档口径从 Beta 测试改成 App Store 首版候选包 | `docs/app-store-metadata-zh.md`、`docs/app-store-review-submission-pack-zh.md`、`docs/app-store-release-evidence/2026-07-03-review-materials-reconciliation.md` | 用户提供最终 URL/邮箱/截图/账号决策后，生成无 blocker 的 App Store Connect 粘贴包 |
+| 2026-07-03 | 增加 App Privacy 标签机读核对包 | 已新增 App Store Connect 隐私标签 JSON、中文填写表和 audit 脚本，检查 User Content、Identifiers、Usage Data、Diagnostics、Tracking=false 与隐私政策、审核提交包、元数据草案一致；避免用户在 ASC 网页里靠散落文案手填 | `docs/app-store-privacy-labels.json`、`docs/app-store-privacy-labels-zh.md`、`tools/app-store-privacy-labels-audit.mjs`、`docs/app-store-release-evidence/2026-07-03-privacy-labels-audit.md` | 用户仍需在 App Store Connect 手动填写 App Privacy 并发截图；Codex 可用 audit 继续校验材料一致性 |
 | 2026-07-03 | 对账生产稳定性 checklist | 已用 production health audit 和部署 runbook 对账 3.6；当前线上 `/api/health`、Postgres、queue、APNs production、推荐好文 catalog 和核心 capability 均为 READY，且 runbook 保留 preserve-data/reset-data 区分；告警、失败率 dashboard、APNs 聚合和恢复演练仍保留开放 | `docs/app-store-release-evidence/2026-07-03-production-stability-reconciliation.md` | Archive 前继续跑 `npm run check:app-store-health`；中度公开前补事故/告警/恢复证据 |
 
 ## 9. 维护规则
