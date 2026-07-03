@@ -22,11 +22,13 @@ const metadataPath = "docs/app-store-metadata-zh.md";
 const reviewPackPath = "docs/app-store-review-submission-pack-zh.md";
 const decisionFormPath = "docs/app-store-user-decision-form-zh.md";
 const screenshotChecklistPath = "docs/app-store-release-evidence/screenshots-checklist.md";
+const privacyLabelsGuidePath = "docs/app-store-privacy-labels-zh.md";
 
 const metadata = read(metadataPath);
 const reviewPack = read(reviewPackPath);
 const decisionForm = read(decisionFormPath);
 const screenshotChecklist = read(screenshotChecklistPath);
+const privacyLabelsGuide = read(privacyLabelsGuidePath);
 const metadataRows = parseTables(metadata).find((table) => table.headers.includes("字段") && table.headers.includes("建议内容"))?.rows || [];
 const decisionRows = parseTables(decisionForm).flatMap((table) => table.rows);
 const reviewRows = parseTables(reviewPack).flatMap((table) => table.rows);
@@ -49,12 +51,15 @@ const copyBlocks = {
   description: sectionText(metadata, "## App Store Description 可复制版本", "## 关键词草案"),
   reviewNotes: sectionCodeBlock(reviewPack, "## 2. App Review Notes 草案"),
   testFlightNotes: sectionCodeBlock(reviewPack, "## 3. TestFlight / App Store 测试说明草案"),
-  privacyLabels: sectionText(reviewPack, "## 4. App Privacy 标签填写草案", "## 5. AI 处理披露文案"),
+  privacyLabels: sectionText(privacyLabelsGuide, "## 1. 总结", "## 5. 与其他材料的一致性检查"),
   ageRating: sectionText(reviewPack, "## 6. 年龄分级预填建议", "## 7. 截图清单"),
   screenshotChecklist: sectionText(screenshotChecklist, "## 技术规格", "## 提交前总检查")
 };
 
 const blockers = collectBlockers({ appStoreFields, copyBlocks, decisionForm, metadata, reviewPack });
+if (!privacyLabelsAuditReady()) {
+  blockers.push("App Privacy labels audit is not ready.");
+}
 const markdown = renderCopyPack({ date, appStoreFields, copyBlocks, blockers });
 
 console.log("# Recallo App Store Connect Copy Pack");
@@ -153,6 +158,8 @@ ${values.copyBlocks.testFlightNotes}
 
 ${values.copyBlocks.privacyLabels}
 
+Source: \`${privacyLabelsGuidePath}\`. Before submitting, run \`npm run check:app-store-privacy-labels\` and fill App Store Connect > App Privacy manually from this section.
+
 ## Age Rating
 
 ${values.copyBlocks.ageRating}
@@ -191,6 +198,19 @@ function collectBlockers(values) {
     found.push("Review submission pack still contains pending decisions.");
   }
   return [...new Set(found)];
+}
+
+function privacyLabelsAuditReady() {
+  try {
+    execFileSync("node", ["tools/app-store-privacy-labels-audit.mjs"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+      stdio: "pipe"
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function read(path) {

@@ -10,6 +10,7 @@ Scope: App Store Connect App Privacy label preparation.
 - npm scripts:
   - `npm run app-store:privacy-labels-audit`
   - `npm run check:app-store-privacy-labels`
+- `tools/app-store-create-connect-copy-pack.mjs` now embeds the privacy labels guide into the App Store Connect copy pack and blocks final packs if the privacy-label audit is not ready.
 
 ## Covered
 
