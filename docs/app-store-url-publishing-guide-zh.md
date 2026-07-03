@@ -16,6 +16,20 @@ App Store Connect 需要两个公开可访问 URL：
 
 这两个页面可以部署到任意稳定的 HTTPS 静态托管地址。提交审核前，最终 URL 必须可以在未登录状态下打开。
 
+正式部署前，推荐先生成只包含公开页面的静态站包：
+
+```bash
+npm run app-store:build-static-site
+```
+
+输出目录：
+
+```text
+.release/app-store-static-site/
+```
+
+该命令会先运行公开页面 gate。支持邮箱或 URL 仍是占位符时，正式打包会失败，避免把未完成页面部署出去。
+
 ## 用户需要提供或确认
 
 | 项目 | 当前状态 | 用户需要做什么 |
@@ -70,7 +84,14 @@ https://<github-user>.github.io/<repo>/support.html
 注意：
 
 - 不要上传 `.env`、token、数据库备份或任何私密文件。
-- 只部署这两个静态页面或一个独立的静态站目录。
+- 只部署这两个静态页面或 `.release/app-store-static-site/` 独立静态站目录。
+
+推荐公开路径：
+
+```text
+https://your-domain.com/privacy/
+https://your-domain.com/support/
+```
 
 ## 部署后 Codex 要回写的位置
 

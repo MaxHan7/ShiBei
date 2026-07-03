@@ -954,6 +954,7 @@ App Store Connect 操作：
 | 2026-07-03 | 增加生产健康门禁脚本 | 已新增 `npm run app-store:health-audit` 和严格模式 `npm run check:app-store-health`，用于检查 production `/api/health`、Postgres、队列失败数、APNs production、推荐好文 catalog 和核心 capability；同时纳入 `npm run app-store:status` | `tools/app-store-production-health-audit.mjs`、`docs/app-store-release-evidence/2026-07-03-production-health-audit.md` | 每次 Archive 前运行 strict 模式，并把 deployment id 写入验收记录 |
 | 2026-07-03 | 增加公开支持/隐私页面门禁 | 已新增 `npm run app-store:static-pages-audit` 和严格模式 `npm run check:app-store-static-pages`，用于检查隐私政策和支持页的标题、品牌、占位符、真实邮箱、关键隐私章节和支持页隐私链接；同时纳入 `npm run app-store:status` | `tools/app-store-static-pages-audit.mjs`、`docs/app-store-release-evidence/2026-07-03-static-pages-audit.md` | 用户提供真实支持邮箱并回写后，运行 strict 模式；通过后再公开托管页面 |
 | 2026-07-03 | 增加验收记录生成器 | 已新增 `npm run app-store:create-acceptance`，自动从当前 git 和 production health 生成本次 `YYYY-MM-DD-production-acceptance.md`，填入日期、commit、branch、production URL、Railway deployment id 和部分自动检查证据，避免手工复制模板填错旧工作区或旧部署 | `tools/app-store-create-acceptance-record.mjs`、`docs/app-store-release-evidence/2026-07-03-acceptance-record-generator.md` | Archive 前用生成器创建记录；用户只填写真机结果、build 信息和最终结论 |
+| 2026-07-03 | 增加 App Store 静态页面打包器 | 已新增 `npm run app-store:build-static-site`，用于在公开页面 gate 通过后生成 `.release/app-store-static-site/`，只包含隐私政策、支持页和轻量入口页，避免部署整个仓库或混入无关文件 | `tools/app-store-build-static-site.mjs`、`docs/app-store-release-evidence/2026-07-03-static-site-packager.md`、`docs/app-store-url-publishing-guide-zh.md` | 用户提供邮箱/URL 并通过 `check:app-store-static-pages` 后，生成静态站包并部署到 HTTPS |
 
 ## 9. 维护规则
 
