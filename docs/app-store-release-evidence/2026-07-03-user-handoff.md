@@ -5,7 +5,7 @@
 | 字段 | 值 |
 | --- | --- |
 | 日期 | 2026-07-03 |
-| Git commit | 7e56b000b118 |
+| Git commit | 30e38aa68edd |
 | Branch | codex/recallo-review-replay-mode |
 | 决策字段总数 | 26 |
 | 已完成字段 | 4 |
@@ -86,6 +86,15 @@ Overall status: NOT READY (7 blocking areas)
 | Archive 中 App 名称/图标是否正确 | 待填写 | 旧名称或旧图标时立即停止 |
 | App Store Connect 是否选择旧 bundle id 对应 App | 待填写 | 不要创建新 App |
 
+## 推荐执行顺序
+
+1. 先按下面“建议直接回复模板”给 Codex 一次性回复产品决策、邮箱、URL、元数据和验收状态。
+2. 再按“真机验收记录”填写 TestFlight/真机结果。
+3. 然后按“Apple 外部控制台确认文件”填写 App Store Connect / Apple Developer 后台实际值。
+4. 最后把 6 张 App Store 截图放入 `docs/app-store-release-evidence/screenshots/app-store/`。
+
+你不需要手动改隐私政策、支持页、元数据、审核说明或总计划。你给出上述输入后，Codex 会 dry-run、回写、跑 gate、记录证据并提交。
+
 ## 建议直接回复模板
 
 如果你同意快速首版方案，可以直接复制并填写这段：
@@ -123,11 +132,13 @@ App Store Connect 和 Apple Developer 后台信息不能靠 Codex 猜，需要�
 
 Codex 已创建本地文件：`.release/app-store-inputs/external-console-checks.json`。
 
+打开它：
+
 ```bash
-cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
-mkdir -p .release/app-store-inputs
-cp docs/app-store-external-console-checks.example.json .release/app-store-inputs/external-console-checks.json
+open .release/app-store-inputs/external-console-checks.json
 ```
+
+不要重新复制模板覆盖这个文件；如果已经填过一部分，只继续补缺失字段。
 
 然后按照 `docs/app-store-external-console-checklist-zh.md`，把 `.release/app-store-inputs/external-console-checks.json` 里的 `待确认` 改成实际值。填完后运行：
 
@@ -140,6 +151,12 @@ npm run check:app-store-external-console
 ## 真机验收记录
 
 Codex 已创建真机验收记录草稿：`docs/app-store-release-evidence/2026-07-03-production-acceptance.md`。
+
+打开它：
+
+```bash
+open docs/app-store-release-evidence/2026-07-03-production-acceptance.md
+```
 
 你只需要在这份记录里填写真机/TestFlight 结果、截图证据、iOS build number、设备、iOS 版本和最终结论。填完后运行：
 
