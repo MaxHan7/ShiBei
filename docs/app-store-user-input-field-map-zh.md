@@ -28,6 +28,7 @@
 | 支持邮箱 | 用户提供真实邮箱 | 是 | 必须是真实可收信邮箱，不能是占位符。 |
 | Privacy Policy URL | 用户提供公开 HTTPS URL | 是 | App Store Connect 必填；必须公网可访问。 |
 | Support URL | 用户提供公开 HTTPS URL | 是 | App Store Connect 支持入口；必须公网可访问。 |
+| App Name | Recallo | 是 | App Store Connect 和 Xcode Organizer 里都应显示 Recallo。 |
 | Subtitle | 把文章变成练习题 | 是 | 可以采用草案，也可以改。 |
 | Promotional Text | 把文章、长文和好内容变成知识点与练习题，让阅读真正变成可以继续学习的进度。 | 是 | 可以采用草案，也可以改。 |
 | Category | Education | 是 | App Store Connect > App Information。 |
@@ -90,6 +91,12 @@ open .release/app-store-inputs/external-console-checks.json
 | `reviewSubmission.archiveIconIsRecallo` | `true` | Xcode Organizer 图标 | 必须是新 Recallo 图标。 |
 | `reviewSubmission.noOldShibeiBrandVisible` | `true` | Archive 包、截图、App Store 文案 | 不得出现旧品牌/旧 UI。 |
 | `reviewSubmission.readyToSubmitForReview` | `true` | 用户最终确认 | 只有所有 gate 通过后再填 true。 |
+
+填完后运行严格检查：
+
+```bash
+npm run check:app-store-external-console
+```
 
 ## 4. 真机验收记录字段
 
