@@ -12,6 +12,18 @@ npm run app-store:create-user-handoff
 
 交接包会写入 `docs/app-store-release-evidence/YYYY-MM-DD-user-handoff.md`，并包含当前状态摘要、用户待补字段、推荐回复模板和 Codex 后续自动执行清单。只想看命令行分组报告时，可以运行 `npm run app-store:user-actions`。
 
+最终 Archive / Upload 前，Codex 应先运行：
+
+```bash
+npm run app-store:final-gate
+```
+
+这会汇总用户决策、外部控制台、截图、真机验收、公开页面、隐私标签、提交材料、生产健康和 iOS Release 预检。所有用户输入回写完成后，再用严格门禁确认：
+
+```bash
+npm run check:app-store-final
+```
+
 ## 1. 必须拍板的产品决策
 
 | 决策 | 当前推荐 | 你需要确认什么 | 不确认的影响 |

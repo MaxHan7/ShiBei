@@ -165,6 +165,6 @@ function buildNextActions(blockers) {
     actions.push("用户按 `docs/app-store-external-console-checklist-zh.md` 填写 `.release/app-store-inputs/external-console-checks.json`；Codex 运行 `npm run check:app-store-external-console`。");
   }
 
-  actions.push("所有用户输入回写后，Codex 跑 `npm run app-store:status`、`npm run check:app-store-submit`、`npm run check:release-ios`、`npm run check`；全部通过后用户再 Archive / Upload。");
+  actions.push("所有用户输入回写后，Codex 跑 `npm run app-store:final-gate` 预览最终缺口；严格通过 `npm run check:app-store-final`、`npm run check:release-ios`、`npm run check` 后，用户再 Archive / Upload。");
   return actions;
 }
