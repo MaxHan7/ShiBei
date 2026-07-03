@@ -974,6 +974,7 @@ App Store Connect 操作：
 | 2026-07-03 | 对账生产稳定性 checklist | 已用 production health audit 和部署 runbook 对账 3.6；当前线上 `/api/health`、Postgres、queue、APNs production、推荐好文 catalog 和核心 capability 均为 READY，且 runbook 保留 preserve-data/reset-data 区分；告警、失败率 dashboard、APNs 聚合和恢复演练仍保留开放 | `docs/app-store-release-evidence/2026-07-03-production-stability-reconciliation.md` | Archive 前继续跑 `npm run check:app-store-health`；中度公开前补事故/告警/恢复证据 |
 | 2026-07-03 | 增加 Apple 外部控制台确认 gate | 已新增外部控制台确认清单、机器可读 JSON 模板和 `npm run app-store:external-console-audit` / `npm run check:app-store-external-console`；总状态会把 Apple Developer / App Store Connect 未确认项作为阻塞项展示 | `docs/app-store-external-console-checklist-zh.md`、`tools/app-store-external-console-audit.mjs`、`docs/app-store-release-evidence/2026-07-03-external-console-audit.md` | 用户填写 `.release/app-store-inputs/external-console-checks.json` 后运行 strict 检查，通过后才能进入最终提交审核 |
 | 2026-07-03 | 增加 App Store 最终提交总门禁 | 已新增 `npm run app-store:final-gate` 报告模式和 `npm run check:app-store-final` 严格模式，统一聚合用户决策、用户行动、截图、真机验收、生产健康、公开页面、隐私标签、外部控制台、提交材料和 iOS Release 预检；避免 Archive 前遗漏某个独立检查 | `tools/app-store-final-submission-gate.mjs`、`docs/app-store-release-evidence/2026-07-03-final-submission-gate.md` | 用户补齐邮箱、URL、截图、真机验收和外部控制台确认后，Codex 运行最终严格门禁；通过后再由用户 Archive / Upload |
+| 2026-07-03 | 预创建真机验收和外部控制台输入入口 | 已用 `npm run app-store:create-acceptance -- --force` 创建当天真机验收记录，自动写入当前 commit、branch、production URL、Railway deployment id 和部分自动检查证据；同时创建本地 `.release/app-store-inputs/external-console-checks.json` 草稿并生成 report，用户只需填写真机结果和 Apple 后台实际确认值 | `docs/app-store-release-evidence/2026-07-03-production-acceptance.md`、`docs/app-store-release-evidence/2026-07-03-acceptance-record-created.md`、`docs/app-store-release-evidence/2026-07-03-external-console-input-created.md` | 用户填写验收记录和 `.release/app-store-inputs/external-console-checks.json` 后，Codex 跑 strict 门禁并回写最终提交包 |
 
 ## 9. 维护规则
 
@@ -991,7 +992,7 @@ Task 1-10 的 Codex 可产出部分已经基本落入文档、脚本和台账。
 
 1. 用户按 `docs/app-store-recommended-decisions-zh.md` 第 4 节模板回复，或填写 `docs/app-store-user-decision-form-zh.md`，确认价格、额度、推荐好文计额、Apple 登录、支持邮箱和 URL。
 2. Codex 用 `npm run app-store:parse-fast-release-reply` 或 `npm run app-store:create-fast-release-inputs` 生成标准输入 JSON，并根据决策表回写隐私政策、支持页、元数据、审核包和提交 guard。
-3. 用户按 `docs/app-store-release-evidence/production-acceptance-template.md` 跑真机验收并补证据。
+3. 用户按 `docs/app-store-release-evidence/2026-07-03-production-acceptance.md` 跑真机验收并补证据。
 4. 用户按 `docs/app-store-release-evidence/screenshots-checklist.md` 准备 6 张截图。
 5. 没有 P0/P1 后，按 `docs/app-store-archive-submit-runbook-zh.md` 进行 Archive 和 App Store Connect 上传。
 

@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import { realpathSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = realpathSync(resolve(scriptDir, ".."));
+const today = new Date().toISOString().slice(0, 10);
+const acceptanceRecordPath = `docs/app-store-release-evidence/${today}-production-acceptance.md`;
+const externalConsoleInputPath = ".release/app-store-inputs/external-console-checks.json";
 
 const checks = [
   {
@@ -159,10 +162,17 @@ function buildNextActions(blockers) {
     actions.push("用户把 6 张正式 App Store 截图放入 `docs/app-store-release-evidence/screenshots/app-store/`；Codex 运行 `npm run check:app-store-screenshots`。");
   }
   if (blockerNames.has("真机验收报告")) {
-    actions.push("用户完成真机/TestFlight 核心路径验收；Codex 运行 `npm run app-store:create-acceptance` 生成记录，并用 `npm run check:app-store-acceptance -- <record>` 做严格检查。");
+    if (existsSync(resolve(repoRoot, acceptanceRecordPath))) {
+      actions.push(`用户填写已创建的真机/TestFlight 验收记录 \`${acceptanceRecordPath}\`；Codex 用 \`npm run check:app-store-acceptance -- ${acceptanceRecordPath}\` 做严格检查。`);
+    } else {
+      actions.push("用户完成真机/TestFlight 核心路径验收；Codex 运行 `npm run app-store:create-acceptance` 生成记录，并用 `npm run check:app-store-acceptance -- <record>` 做严格检查。");
+    }
   }
   if (blockerNames.has("外部控制台确认")) {
-    actions.push("用户按 `docs/app-store-external-console-checklist-zh.md` 填写 `.release/app-store-inputs/external-console-checks.json`；Codex 运行 `npm run check:app-store-external-console`。");
+    const externalConsoleAction = existsSync(resolve(repoRoot, externalConsoleInputPath))
+      ? `用户填写已创建的 \`${externalConsoleInputPath}\``
+      : `用户按 \`docs/app-store-external-console-checklist-zh.md\` 创建并填写 \`${externalConsoleInputPath}\``;
+    actions.push(`${externalConsoleAction}；Codex 运行 \`npm run check:app-store-external-console\`。`);
   }
 
   actions.push("所有用户输入回写后，Codex 跑 `npm run app-store:final-gate` 预览最终缺口；严格通过 `npm run check:app-store-final`、`npm run check:release-ios`、`npm run check` 后，用户再 Archive / Upload。");

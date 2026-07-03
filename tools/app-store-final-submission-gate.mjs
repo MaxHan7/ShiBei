@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import { realpathSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = realpathSync(resolve(scriptDir, ".."));
 const reportMode = process.argv.includes("--report");
+const today = new Date().toISOString().slice(0, 10);
+const acceptanceRecordPath = `docs/app-store-release-evidence/${today}-production-acceptance.md`;
+const externalConsoleInputPath = ".release/app-store-inputs/external-console-checks.json";
 
 const checks = [
   {
@@ -152,10 +155,17 @@ function buildNextActions(failures) {
     actions.push("把 6 张正式 App Store 截图放入 `docs/app-store-release-evidence/screenshots/app-store/`。");
   }
   if (names.has("真机验收")) {
-    actions.push("完成真机/TestFlight 验收记录，或运行 `npm run app-store:create-acceptance` 生成记录后填写。");
+    if (existsSync(resolve(repoRoot, acceptanceRecordPath))) {
+      actions.push(`填写真机/TestFlight 验收记录 \`${acceptanceRecordPath}\`，补齐设备、build、截图证据、每条路径结果和最终结论。`);
+    } else {
+      actions.push("完成真机/TestFlight 验收记录，或运行 `npm run app-store:create-acceptance` 生成记录后填写。");
+    }
   }
   if (names.has("外部控制台确认")) {
-    actions.push("按 `docs/app-store-external-console-checklist-zh.md` 填写 `.release/app-store-inputs/external-console-checks.json`。");
+    const prefix = existsSync(resolve(repoRoot, externalConsoleInputPath))
+      ? `填写已创建的 \`${externalConsoleInputPath}\``
+      : `创建并填写 \`${externalConsoleInputPath}\``;
+    actions.push(`${prefix}，按 \`docs/app-store-external-console-checklist-zh.md\` 回填 Apple Developer / App Store Connect 实际确认值。`);
   }
   if (names.has("iOS Release 预检")) {
     actions.push("停止 Archive，先修复 `npm run check:release-ios` 报出的工作区、bundle、图标、Release 入口或 API 配置问题。");

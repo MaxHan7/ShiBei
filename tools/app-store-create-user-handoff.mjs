@@ -42,6 +42,10 @@ const readyFields = totalFields - missingFields;
 const gitCommit = git(["rev-parse", "--short=12", "HEAD"]);
 const gitBranch = git(["branch", "--show-current"]);
 const statusSummary = readStatusSummary();
+const acceptanceRecordPath = `docs/app-store-release-evidence/${date}-production-acceptance.md`;
+const acceptanceRecordExists = existsSync(resolve(repoRoot, acceptanceRecordPath));
+const externalConsoleInputPath = ".release/app-store-inputs/external-console-checks.json";
+const externalConsoleInputExists = existsSync(resolve(repoRoot, externalConsoleInputPath));
 
 const markdown = renderMarkdown({
   date,
@@ -51,7 +55,11 @@ const markdown = renderMarkdown({
   readyFields,
   missingFields,
   missingGroups,
-  statusSummary
+  statusSummary,
+  acceptanceRecordPath,
+  acceptanceRecordExists,
+  externalConsoleInputPath,
+  externalConsoleInputExists
 });
 
 if (dryRun) {
@@ -122,7 +130,9 @@ App Store Connect 确认：<是否在 com.maxhan.shibei 对应 App 下提交>
 
 ## Apple 外部控制台确认文件
 
-App Store Connect 和 Apple Developer 后台信息不能靠 Codex 猜，需要你按下面命令创建确认文件：
+App Store Connect 和 Apple Developer 后台信息不能靠 Codex 猜，需要你填写确认文件：
+
+${values.externalConsoleInputExists ? `Codex 已创建本地文件：\`${values.externalConsoleInputPath}\`。` : "如果本地文件还不存在，先运行："}
 
 \`\`\`bash
 cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
@@ -130,13 +140,23 @@ mkdir -p .release/app-store-inputs
 cp docs/app-store-external-console-checks.example.json .release/app-store-inputs/external-console-checks.json
 \`\`\`
 
-然后按照 \`docs/app-store-external-console-checklist-zh.md\`，把 \`.release/app-store-inputs/external-console-checks.json\` 里的 \`待确认\` 改成实际值。填完后运行：
+然后按照 \`docs/app-store-external-console-checklist-zh.md\`，把 \`${values.externalConsoleInputPath}\` 里的 \`待确认\` 改成实际值。填完后运行：
 
 \`\`\`bash
 npm run check:app-store-external-console
 \`\`\`
 
 这个检查通过前，不进入最终 App Review 提交。
+
+## 真机验收记录
+
+${values.acceptanceRecordExists ? `Codex 已创建真机验收记录草稿：\`${values.acceptanceRecordPath}\`。` : `Codex 尚未创建今日验收记录；需要时运行 \`npm run app-store:create-acceptance\`。`}
+
+你只需要在这份记录里填写真机/TestFlight 结果、截图证据、iOS build number、设备、iOS 版本和最终结论。填完后运行：
+
+\`\`\`bash
+npm run check:app-store-acceptance -- ${values.acceptanceRecordPath}
+\`\`\`
 
 ## 你回复后 Codex 自动执行
 
@@ -145,8 +165,8 @@ npm run check:app-store-external-console
 3. 运行 \`npm run app-store:apply-decisions -- .release/app-store-inputs/decision-values.json --dry-run\`。
 4. 运行 \`npm run app-store:apply-contact -- .release/app-store-inputs/contact-values.json --dry-run\`。
 5. dry-run 通过后，运行正式回写命令，更新决策表、隐私政策、支持页、App Store 元数据、审核包、用户清单和 Archive runbook。
-6. 运行 \`npm run app-store:create-acceptance\` 创建真机验收记录。
-7. 运行 \`npm run app-store:status\`、\`npm run check:app-store-submit\`、\`npm run check:release-ios\`、\`npm run check\`。
+6. 运行 \`npm run app-store:final-gate\` 预览剩余缺口。
+7. 用户输入全部回写且验收完成后，运行 \`npm run check:app-store-final\`、\`npm run check:release-ios\`、\`npm run check\`。
 8. 把结果写回 \`docs/app-store-release-readiness-plan-zh.md\` 和证据目录。
 
 ## 仍需用户手动完成的外部动作

@@ -5,7 +5,7 @@
 | 字段 | 值 |
 | --- | --- |
 | 日期 | 2026-07-03 |
-| Git commit | b1669a0740f9 |
+| Git commit | 1d1f7db50253 |
 | Branch | codex/recallo-review-replay-mode |
 | 决策字段总数 | 26 |
 | 已完成字段 | 4 |
@@ -16,11 +16,11 @@
 - BLOCKED 用户决策表: totalFields=26, missingFields=22
 - BLOCKED 用户行动分组: totalFields=26, missingFields=22
 - BLOCKED 截图规格报告: Screenshot readiness: NOT READY (7 issues)
-- BLOCKED 真机验收报告: Production acceptance: NOT READY (1 issue)
+- BLOCKED 真机验收报告: Production acceptance: NOT READY (39 issues)
 - PASS 生产健康报告: Production health: READY
 - BLOCKED 公开页面报告: Static pages readiness: NOT READY (6 issues)
 - PASS 隐私标签报告: App Store privacy labels readiness: READY
-- BLOCKED 外部控制台确认: External console readiness: NOT READY (1 blocker)
+- BLOCKED 外部控制台确认: External console readiness: NOT READY (26 blockers)
 - BLOCKED 提交 readiness 报告: App Store submission readiness: NOT READY (10 blockers)
 - PASS iOS Release 预检: Release archive preflight passed.
 Overall status: NOT READY (7 blocking areas)
@@ -28,8 +28,8 @@ Overall status: NOT READY (7 blocking areas)
 - 用户按交接包模板补齐价格、额度、Apple 登录、邮箱、URL、元数据、截图和验收状态；Codex 随后运行 `npm run app-store:ingest-user-reply -- --input <reply-file> --acceptance-record <acceptance-file>` 做 dry-run，确认后加 `--apply` 回写。
 - 用户提供正式支持邮箱、Privacy Policy URL、Support URL；Codex 用 `npm run app-store:apply-contact -- <contact-json> --dry-run` 验证并回写公开页面和提交包。
 - 用户把 6 张正式 App Store 截图放入 `docs/app-store-release-evidence/screenshots/app-store/`；Codex 运行 `npm run check:app-store-screenshots`。
-- 用户完成真机/TestFlight 核心路径验收；Codex 运行 `npm run app-store:create-acceptance` 生成记录，并用 `npm run check:app-store-acceptance -- <record>` 做严格检查。
-- 用户按 `docs/app-store-external-console-checklist-zh.md` 填写 `.release/app-store-inputs/external-console-checks.json`；Codex 运行 `npm run check:app-store-external-console`。
+- 用户填写已创建的真机/TestFlight 验收记录 `docs/app-store-release-evidence/2026-07-03-production-acceptance.md`；Codex 用 `npm run check:app-store-acceptance -- docs/app-store-release-evidence/2026-07-03-production-acceptance.md` 做严格检查。
+- 用户填写已创建的 `.release/app-store-inputs/external-console-checks.json`；Codex 运行 `npm run check:app-store-external-console`。
 - 所有用户输入回写后，Codex 跑 `npm run app-store:final-gate` 预览最终缺口；严格通过 `npm run check:app-store-final`、`npm run check:release-ios`、`npm run check` 后，用户再 Archive / Upload。
 
 ## 你需要补齐的事项
@@ -119,7 +119,9 @@ App Store Connect 确认：<是否在 com.maxhan.shibei 对应 App 下提交>
 
 ## Apple 外部控制台确认文件
 
-App Store Connect 和 Apple Developer 后台信息不能靠 Codex 猜，需要你按下面命令创建确认文件：
+App Store Connect 和 Apple Developer 后台信息不能靠 Codex 猜，需要你填写确认文件：
+
+Codex 已创建本地文件：`.release/app-store-inputs/external-console-checks.json`。
 
 ```bash
 cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
@@ -135,6 +137,16 @@ npm run check:app-store-external-console
 
 这个检查通过前，不进入最终 App Review 提交。
 
+## 真机验收记录
+
+Codex 已创建真机验收记录草稿：`docs/app-store-release-evidence/2026-07-03-production-acceptance.md`。
+
+你只需要在这份记录里填写真机/TestFlight 结果、截图证据、iOS build number、设备、iOS 版本和最终结论。填完后运行：
+
+```bash
+npm run check:app-store-acceptance -- docs/app-store-release-evidence/2026-07-03-production-acceptance.md
+```
+
 ## 你回复后 Codex 自动执行
 
 1. 把你的回复保存为临时文本，运行 `npm run app-store:parse-fast-release-reply -- --input <回复文本> --acceptance-record <验收记录路径>`，生成 `.release/app-store-inputs/decision-values.json` 和 `.release/app-store-inputs/contact-values.json`。
@@ -142,8 +154,8 @@ npm run check:app-store-external-console
 3. 运行 `npm run app-store:apply-decisions -- .release/app-store-inputs/decision-values.json --dry-run`。
 4. 运行 `npm run app-store:apply-contact -- .release/app-store-inputs/contact-values.json --dry-run`。
 5. dry-run 通过后，运行正式回写命令，更新决策表、隐私政策、支持页、App Store 元数据、审核包、用户清单和 Archive runbook。
-6. 运行 `npm run app-store:create-acceptance` 创建真机验收记录。
-7. 运行 `npm run app-store:status`、`npm run check:app-store-submit`、`npm run check:release-ios`、`npm run check`。
+6. 运行 `npm run app-store:final-gate` 预览剩余缺口。
+7. 用户输入全部回写且验收完成后，运行 `npm run check:app-store-final`、`npm run check:release-ios`、`npm run check`。
 8. 把结果写回 `docs/app-store-release-readiness-plan-zh.md` 和证据目录。
 
 ## 仍需用户手动完成的外部动作

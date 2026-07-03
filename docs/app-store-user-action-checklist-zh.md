@@ -53,7 +53,7 @@ npm run check:app-store-final
 npm run app-store:create-acceptance
 ```
 
-该命令会自动填入 commit、branch、production URL、Railway deployment id 和部分自动检查证据。然后在生成出的 `docs/app-store-release-evidence/YYYY-MM-DD-production-acceptance.md` 里，填写真机/TestFlight 核心路径结果：
+Codex 可以先创建当天草稿；该命令会自动填入 commit、branch、production URL、Railway deployment id 和部分自动检查证据。然后在生成出的 `docs/app-store-release-evidence/YYYY-MM-DD-production-acceptance.md` 里，填写真机/TestFlight 核心路径结果：
 
 - 新用户首次启动。
 - 首次真实生成前 AI 处理说明。
@@ -158,7 +158,7 @@ com.maxhan.shibei
 - 粘贴 Review Notes。
 - 提交审核。
 
-同时按下面文档把 App Store Connect 和 Apple Developer 的实际确认值写成机器可读输入：
+同时按下面文档把 App Store Connect 和 Apple Developer 的实际确认值写成机器可读输入。Codex 可以先创建 `.release/app-store-inputs/external-console-checks.json` 草稿；如果需要重新创建，运行：
 
 ```bash
 cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
