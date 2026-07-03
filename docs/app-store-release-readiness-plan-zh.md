@@ -371,11 +371,11 @@ Push notifications are used only to notify users when chapter generation succeed
 
 目标：把当前所有上架缺口标成阻塞、非阻塞、后续优化。
 
-- [ ] 更新本文档每一项状态。
+- [x] 更新本文档每一项状态。当前已把工程防错、AI 同意、额度、隐私、元数据、生产健康、截图、真机验收、Archive/提交门禁拆到 Task 1-10 和执行台账。
 - [ ] 核对 App Store Connect 当前配置。
 - [ ] 核对 Apple Developer capability：Push Notifications、Sign in with Apple 是否需要启用。
-- [ ] 核对 Xcode Release / Archive 配置。
-- [ ] 输出一份“App Review 前必须完成清单”。
+- [x] 核对 Xcode Release / Archive 配置。已由 `npm run check:release-ios`、`tools/release-archive-preflight.mjs` 和 `tools/recallo-workspace-guard.mjs` 验证官方工作区、scheme、display name、icon、Release root。
+- [x] 输出一份“App Review 前必须完成清单”。已形成 `docs/app-store-user-action-checklist-zh.md`、`docs/app-store-review-submission-pack-zh.md` 和 `docs/app-store-archive-submit-runbook-zh.md`。
 
 产出物：
 
@@ -387,10 +387,10 @@ Push notifications are used only to notify users when chapter generation succeed
 
 目标：决定首版是否加入 Apple 登录，以及匿名数据如何处理。
 
-- [ ] 画出匿名用户、登录用户、删除账号、重装 App 的数据流。
+- [x] 画出匿名用户、登录用户、删除账号、重装 App 的数据流。已记录在 `docs/account-data-recovery-decision-zh.md`。
 - [ ] 决定是否做 Apple 登录可选入口。
-- [ ] 明确账号删除入口和服务端删除范围。
-- [ ] 更新隐私政策和审核备注。
+- [x] 明确账号删除入口和服务端删除范围。已在决策包和隐私政策中给出 Apple 登录进入首版/后置两套口径；最终启用取决于用户决策。
+- [x] 更新隐私政策和审核备注。已更新 Recallo 隐私政策、App Review 提交包和 App Store 元数据草案；最终公开 URL 和 ASC 填写仍需用户完成。
 
 建议执行顺序：
 
@@ -403,11 +403,11 @@ Push notifications are used only to notify users when chapter generation succeed
 
 目标：把 AI 生成成本纳入服务端控制。
 
-- [ ] 定义每日免费生成次数。
-- [ ] 定义推荐好文是否计额。
-- [ ] 定义失败、取消、重复提交是否计额。
-- [ ] 设计后端数据结构和接口错误码。
-- [ ] 设计前端展示文案。
+- [x] 定义每日免费生成次数。当前默认 3 篇/UTC day，可由 `RECALLO_DAILY_REAL_GENERATION_LIMIT` 配置；最终数字待用户确认。
+- [x] 定义推荐好文是否计额。当前推荐好文导入不经过真实生成 quota，不计入真实 AI 生成额度。
+- [x] 定义失败、取消、重复提交是否计额。当前以服务端真实生成 claim 为准，前置校验失败不计额；重复 pending job 不重复扣。
+- [x] 设计后端数据结构和接口错误码。已实现 `generation_quota_claims`、事务锁和 `quota_exceeded_daily_generation` / HTTP `429`。
+- [x] 设计前端展示文案。首版采用超额时解释，不做常驻剩余额度展示。
 
 验收边界：
 
@@ -420,10 +420,10 @@ Push notifications are used only to notify users when chapter generation succeed
 
 目标：确保 App Store 隐私标签、隐私政策和真实数据流一致。
 
-- [ ] 更新隐私政策页面为 Recallo。
-- [ ] 梳理 App Privacy 标签填写表。
-- [ ] 检查 App 内隐私说明、账号说明、通知设置文案。
-- [ ] 检查日志脱敏和数据删除。
+- [x] 更新隐私政策页面为 Recallo。`docs/privacy-policy-zh.md` 和 `docs/privacy-policy.html` 已更新；仍待用户提供正式邮箱和公开 HTTPS URL。
+- [x] 梳理 App Privacy 标签填写表。草案已写入 `docs/app-store-review-submission-pack-zh.md`；App Store Connect 实际填写仍需用户手动完成。
+- [x] 检查 App 内隐私说明、账号说明、通知设置文案。已按 Recallo 和 AI 处理说明口径更新/审查；最终真机显示仍纳入验收。
+- [x] 检查日志脱敏和数据删除。隐私政策和数据治理口径已收口；账号删除闭环是否首版启用仍取决于 Apple 登录决策。
 
 必须同步更新：
 
@@ -436,11 +436,11 @@ Push notifications are used only to notify users when chapter generation succeed
 
 目标：准备可提交审核的素材。
 
-- [ ] 更新 `docs/app-store-metadata-zh.md`。
+- [x] 更新 `docs/app-store-metadata-zh.md`。
 - [ ] 准备 5-6 张 App Store 截图。
-- [ ] 准备 Review Notes。
+- [x] 准备 Review Notes。
 - [ ] 准备 Support URL 和 Privacy URL。
-- [ ] 准备年龄分级答案。
+- [x] 准备年龄分级答案。
 
 建议截图场景：
 
@@ -462,7 +462,7 @@ Push notifications are used only to notify users when chapter generation succeed
 - [ ] 测试 App 后台、锁屏、杀进程后的状态恢复。
 - [ ] 测试重装、切语言、更新版本后的数据保留。
 - [ ] 测试删除章节、删除账号/数据、收藏、进度恢复。
-- [ ] 检查 Railway health、queue、APNs、错误日志。
+- [x] 检查 Railway health、queue、APNs、错误日志。自动生产健康门禁 `npm run check:app-store-health` 已通过；锁屏/后台通知和真机端到端验收仍需用户执行。
 
 发布前最低验收矩阵：
 
@@ -483,7 +483,7 @@ Push notifications are used only to notify users when chapter generation succeed
 - [ ] Archive 正确工作区和正确 commit。
 - [ ] 上传 App Store Connect。
 - [ ] 填写 App Privacy。
-- [ ] 填写 Review Notes。
+- [x] 准备 Review Notes。实际粘贴到 App Store Connect 仍属于用户手动提交步骤。
 - [ ] 提交审核。
 - [ ] 记录审核反馈和处理台账。
 
@@ -958,6 +958,7 @@ App Store Connect 操作：
 | 2026-07-03 | 增加验收记录生成器 | 已新增 `npm run app-store:create-acceptance`，自动从当前 git 和 production health 生成本次 `YYYY-MM-DD-production-acceptance.md`，填入日期、commit、branch、production URL、Railway deployment id 和部分自动检查证据，避免手工复制模板填错旧工作区或旧部署 | `tools/app-store-create-acceptance-record.mjs`、`docs/app-store-release-evidence/2026-07-03-acceptance-record-generator.md` | Archive 前用生成器创建记录；用户只填写真机结果、build 信息和最终结论 |
 | 2026-07-03 | 增加 App Store 静态页面打包器 | 已新增 `npm run app-store:build-static-site`，用于在公开页面 gate 通过后生成 `.release/app-store-static-site/`，只包含隐私政策、支持页和轻量入口页，避免部署整个仓库或混入无关文件 | `tools/app-store-build-static-site.mjs`、`docs/app-store-release-evidence/2026-07-03-static-site-packager.md`、`docs/app-store-url-publishing-guide-zh.md` | 用户提供邮箱/URL 并通过 `check:app-store-static-pages` 后，生成静态站包并部署到 HTTPS |
 | 2026-07-03 | 增加 Archive 证据生成器 | 已新增 `npm run app-store:create-archive-evidence`，用于在用户完成 Xcode Archive / App Store Connect Upload 后生成 `YYYY-MM-DD-build-<build-number>-archive.md`，自动补入 commit、branch、官方 Xcode project、scheme、production URL 和 Railway deployment id，并拒绝 unknown/TBD/待补充等占位值 | `tools/app-store-create-archive-evidence.mjs`、`docs/app-store-archive-submit-runbook-zh.md`、`docs/app-store-release-evidence/2026-07-03-archive-evidence-generator.md` | 用户 Archive/Upload 后提供 Organizer 和 App Store Connect 看到的 build/version/结果字段，Codex 用脚本生成候选包证据 |
+| 2026-07-03 | 收口 Checkpoint 重复状态 | 已将第 5 节早期 Checkpoint 与 Task 1-10 的证据对齐：Codex 已完成的文档、脚本、自动门禁标为完成；App Store Connect、截图、真机验收、Archive/提交等用户事项继续保留为开放项 | `docs/app-store-release-evidence/2026-07-03-checkpoint-status-reconciliation.md` | 继续等待用户补齐邮箱、URL、决策、截图和真机验收；Codex 可继续自动回写和跑门禁 |
 | 2026-07-03 | 增加用户交接包生成器 | 已新增 `npm run app-store:create-user-handoff`，从当前决策表和 `app-store:status` 自动生成 `YYYY-MM-DD-user-handoff.md`，只列用户必须补齐的事项、推荐回复模板和 Codex 后续自动动作，避免用户在多个文档之间来回找缺口 | `tools/app-store-create-user-handoff.mjs`、`docs/app-store-user-action-checklist-zh.md`、`docs/app-store-release-evidence/2026-07-03-user-handoff-generator.md` | 下一步用户可直接看最新 user handoff 回复；Codex 根据回复回写决策、邮箱、URL、验收和提交材料 |
 | 2026-07-03 | 增加快速首版输入生成器 | 已新增 `npm run app-store:create-fast-release-inputs`，把用户按模板提供的邮箱、URL、验收、截图、Archive 和 App Store Connect 确认生成成标准决策 JSON 与联系信息 JSON；缺少必填用户字段或 URL/邮箱格式不对时拒绝继续，减少手工搬运错误 | `tools/app-store-create-fast-release-inputs.mjs`、`docs/app-store-release-evidence/2026-07-03-fast-release-input-generator.md` | 用户回复最终字段后，Codex 用生成器创建 `.release/app-store-inputs/`，先 dry-run 再正式回写 |
 | 2026-07-03 | 增加快速首版回复解析器 | 已新增 `npm run app-store:parse-fast-release-reply`，可从用户按模板回复的纯文本中解析邮箱、URL、额度、元数据、验收、截图和 Archive/ASC 确认，并委托输入生成器输出标准 JSON，进一步减少手工转参数风险 | `tools/app-store-parse-fast-release-reply.mjs`、`docs/app-store-release-evidence/2026-07-03-fast-release-reply-parser.md` | 用户回复模板后，Codex 优先用解析器生成 `.release/app-store-inputs/`，再 dry-run 两个 apply 脚本 |
