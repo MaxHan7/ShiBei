@@ -17,6 +17,12 @@ npm run check:app-store-screenshots
 docs/app-store-release-evidence/screenshots/app-store/
 ```
 
+截图交付目录说明：
+
+```text
+docs/app-store-release-evidence/screenshots/app-store/README.md
+```
+
 ## 检查内容
 
 - 截图数量是否为 1-10 张。
@@ -39,6 +45,10 @@ docs/app-store-release-evidence/screenshots/app-store/
 Apple App Store Connect Screenshot specifications 要求上传 1 到 10 张 `.jpeg`、`.jpg` 或 `.png` 截图，并列出 6.9 英寸 iPhone 竖屏尺寸为 `1260 x 2736`、`1290 x 2796`、`1320 x 2868`。
 
 参考：https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications
+
+## 本次补充
+
+2026-07-03 补充 `screenshots/app-store/README.md`，把截图文件名前缀、6.9 英寸尺寸、截图前排雷清单和验收命令放到截图目录本身，避免截图素材交付时脱离主清单。
 
 ## 当前状态
 

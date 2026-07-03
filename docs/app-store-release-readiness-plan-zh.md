@@ -950,6 +950,7 @@ App Store Connect 操作：
 | 2026-07-03 | 增加推荐决策稿和用户回复模板 | 已把用户需要拍板的 26 项压缩成快速首版方案、稳健正式版方案和可直接复制回复的模板；同时新增机器可读 JSON 样例和决策表回写脚本，减少后续手工改表风险 | `docs/app-store-recommended-decisions-zh.md`、`docs/app-store-user-decision-values.example.json`、`tools/app-store-apply-user-decisions.mjs`、`docs/app-store-release-evidence/2026-07-03-recommended-decisions.md` | 用户确认采用推荐方案并提供邮箱/URL/验收/截图状态后，Codex 自动回写全部提交材料 |
 | 2026-07-03 | 增加支持邮箱和 URL 自动回写脚本 | 已新增联系信息 JSON 样例和 `npm run app-store:apply-contact`，用于把支持邮箱、Privacy Policy URL、Support URL 同步到隐私政策、支持页、元数据、审核包、用户清单、Archive runbook 和 URL 发布说明；占位符会被拒绝，完整临时输入 dry-run 通过 | `docs/app-store-contact-values.example.json`、`tools/app-store-apply-contact-info.mjs`、`docs/app-store-release-evidence/2026-07-03-contact-info-apply-script.md` | 用户提供真实邮箱和两个 HTTPS URL 后，Codex dry-run 验证并自动回写 |
 | 2026-07-03 | 增加真机验收门禁脚本 | 已新增 `npm run app-store:acceptance-audit -- <验收记录>` 和严格模式 `npm run check:app-store-acceptance -- <验收记录>`，用于拦截候选版本信息缺失、自动检查未通过、P0 未通过、P1 未通过且未豁免、截图未通过或最终结论未勾选；同时纳入 `npm run app-store:status` | `tools/app-store-acceptance-audit.mjs`、`docs/app-store-release-evidence/2026-07-03-acceptance-audit.md` | 用户完成真机验收记录后，用 report 模式定位缺口；严格模式通过后才进入 Archive |
+| 2026-07-03 | 补充截图交付目录说明 | 已在 App Store 截图目录内新增 README，明确 6 张建议截图文件名前缀、6.9 英寸竖屏尺寸、截图前排雷清单和验收命令，降低截图交付和规格检查成本 | `docs/app-store-release-evidence/screenshots/app-store/README.md`、`docs/app-store-release-evidence/screenshots-checklist.md`、`docs/app-store-release-evidence/2026-07-03-screenshot-audit.md` | 用户把最终截图放入目录后运行 `npm run check:app-store-screenshots` |
 
 ## 9. 维护规则
 

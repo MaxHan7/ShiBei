@@ -9,12 +9,19 @@
 - 格式：`.png`、`.jpg` 或 `.jpeg`。
 - 方向：竖屏。
 - 首选设备：6.9 英寸 iPhone 截图；若 UI 在各尺寸一致，可让 App Store Connect 缩放。
+- 可接受尺寸：`1260x2736`、`1290x2796`、`1320x2868`。
 - 禁止出现：旧“拾贝”品牌名、旧图标、debug 文案、fixture 文案、Railway 文案、JSON/decode/本地数据缺失提示。
 
 截图保存目录：
 
 ```text
 docs/app-store-release-evidence/screenshots/app-store/
+```
+
+目录内交付说明：
+
+```text
+docs/app-store-release-evidence/screenshots/app-store/README.md
 ```
 
 建议文件名：
