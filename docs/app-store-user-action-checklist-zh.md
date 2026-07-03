@@ -30,6 +30,7 @@ npm run app-store:create-user-handoff
 | Privacy URL | App Store Connect 隐私政策 URL | `docs/privacy-policy.html` 已准备；你需要提供公开托管后的 URL |
 | 支持邮箱 | 隐私政策和用户支持 | 一个对外邮箱，例如 `support@...` |
 | App Store Connect App 状态 | 确认是否在旧 `com.maxhan.shibei` App 下提交 | 截图或口头确认当前 App 页面和 bundle id |
+| Apple Developer / App Store Connect 外部控制台确认 | 确认 Push capability、现有 App 记录、隐私标签、截图、年龄分级、最新 build 等 Codex 无法登录检查的项目 | 按 `docs/app-store-external-console-checklist-zh.md` 填写 `.release/app-store-inputs/external-console-checks.json` |
 | 最终截图文件 | 产品页截图上传 | 按 `docs/app-store-release-evidence/screenshots-checklist.md` 准备的 6 张截图，并放入 `docs/app-store-release-evidence/screenshots/app-store/` 后运行 `npm run check:app-store-screenshots` |
 
 ## 3. 你需要在真机上执行的验收
@@ -144,6 +145,22 @@ com.maxhan.shibei
 - 上传 6 张截图。
 - 粘贴 Review Notes。
 - 提交审核。
+
+同时按下面文档把 App Store Connect 和 Apple Developer 的实际确认值写成机器可读输入：
+
+```bash
+cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
+mkdir -p .release/app-store-inputs
+cp docs/app-store-external-console-checks.example.json .release/app-store-inputs/external-console-checks.json
+```
+
+填写完成后运行：
+
+```bash
+npm run check:app-store-external-console
+```
+
+完整填写说明见 `docs/app-store-external-console-checklist-zh.md`。
 
 填写材料来源：
 

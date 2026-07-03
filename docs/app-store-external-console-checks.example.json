@@ -1,0 +1,34 @@
+{
+  "appleDeveloper": {
+    "teamName": "待确认",
+    "bundleId": "待确认",
+    "appIdUsesExistingBundle": "待确认",
+    "pushNotificationsEnabled": "待确认",
+    "productionApnsConfigured": "待确认",
+    "signInWithAppleDecision": "待确认",
+    "signInWithAppleCapabilityMatchesDecision": "待确认"
+  },
+  "appStoreConnect": {
+    "usesExistingAppRecord": "待确认",
+    "bundleId": "待确认",
+    "appName": "待确认",
+    "sku": "待确认",
+    "primaryCategory": "待确认",
+    "pricing": "待确认",
+    "iapOrSubscriptionsEnabled": "待确认",
+    "privacyPolicyUrl": "待确认",
+    "supportUrl": "待确认",
+    "appPrivacyLabelsCompleted": "待确认",
+    "ageRatingCompleted": "待确认",
+    "screenshotsUploaded": "待确认",
+    "latestRecalloBuildSelected": "待确认",
+    "reviewNotesPasted": "待确认"
+  },
+  "reviewSubmission": {
+    "archiveAppName": "待确认",
+    "archiveBundleId": "待确认",
+    "archiveIconIsRecallo": "待确认",
+    "noOldShibeiBrandVisible": "待确认",
+    "readyToSubmitForReview": "待确认"
+  }
+}

@@ -373,8 +373,8 @@ Push notifications are used only to notify users when chapter generation succeed
 目标：把当前所有上架缺口标成阻塞、非阻塞、后续优化。
 
 - [x] 更新本文档每一项状态。当前已把工程防错、AI 同意、额度、隐私、元数据、生产健康、截图、真机验收、Archive/提交门禁拆到 Task 1-10 和执行台账。
-- [ ] 核对 App Store Connect 当前配置。
-- [ ] 核对 Apple Developer capability：Push Notifications、Sign in with Apple 是否需要启用。
+- [ ] 核对 App Store Connect 当前配置。已新增 `docs/app-store-external-console-checklist-zh.md`、`.release/app-store-inputs/external-console-checks.json` 输入模板和 `npm run check:app-store-external-console`；实际 App Store Connect 网页确认仍需用户填写。
+- [ ] 核对 Apple Developer capability：Push Notifications、Sign in with Apple 是否需要启用。已纳入外部控制台确认 gate；用户需在 Apple Developer 后台确认 App ID capability 后填入 `.release/app-store-inputs/external-console-checks.json`。
 - [x] 核对 Xcode Release / Archive 配置。已由 `npm run check:release-ios`、`tools/release-archive-preflight.mjs` 和 `tools/recallo-workspace-guard.mjs` 验证官方工作区、scheme、display name、icon、Release root。
 - [x] 输出一份“App Review 前必须完成清单”。已形成 `docs/app-store-user-action-checklist-zh.md`、`docs/app-store-review-submission-pack-zh.md` 和 `docs/app-store-archive-submit-runbook-zh.md`。
 
@@ -972,6 +972,7 @@ App Store Connect 操作：
 | 2026-07-03 | 对账 App Review 材料 checklist | 已将 3.5 中已有草案的 App 名称、副标题、描述、关键词、Review Notes、隐私标签草案、年龄分级建议和截图清单标记为草案完成；同步把元数据文档口径从 Beta 测试改成 App Store 首版候选包 | `docs/app-store-metadata-zh.md`、`docs/app-store-review-submission-pack-zh.md`、`docs/app-store-release-evidence/2026-07-03-review-materials-reconciliation.md` | 用户提供最终 URL/邮箱/截图/账号决策后，生成无 blocker 的 App Store Connect 粘贴包 |
 | 2026-07-03 | 增加 App Privacy 标签机读核对包 | 已新增 App Store Connect 隐私标签 JSON、中文填写表和 audit 脚本，检查 User Content、Identifiers、Usage Data、Diagnostics、Tracking=false 与隐私政策、审核提交包、元数据草案一致；避免用户在 ASC 网页里靠散落文案手填 | `docs/app-store-privacy-labels.json`、`docs/app-store-privacy-labels-zh.md`、`tools/app-store-privacy-labels-audit.mjs`、`docs/app-store-release-evidence/2026-07-03-privacy-labels-audit.md` | 用户仍需在 App Store Connect 手动填写 App Privacy 并发截图；Codex 可用 audit 继续校验材料一致性 |
 | 2026-07-03 | 对账生产稳定性 checklist | 已用 production health audit 和部署 runbook 对账 3.6；当前线上 `/api/health`、Postgres、queue、APNs production、推荐好文 catalog 和核心 capability 均为 READY，且 runbook 保留 preserve-data/reset-data 区分；告警、失败率 dashboard、APNs 聚合和恢复演练仍保留开放 | `docs/app-store-release-evidence/2026-07-03-production-stability-reconciliation.md` | Archive 前继续跑 `npm run check:app-store-health`；中度公开前补事故/告警/恢复证据 |
+| 2026-07-03 | 增加 Apple 外部控制台确认 gate | 已新增外部控制台确认清单、机器可读 JSON 模板和 `npm run app-store:external-console-audit` / `npm run check:app-store-external-console`；总状态会把 Apple Developer / App Store Connect 未确认项作为阻塞项展示 | `docs/app-store-external-console-checklist-zh.md`、`tools/app-store-external-console-audit.mjs`、`docs/app-store-release-evidence/2026-07-03-external-console-audit.md` | 用户填写 `.release/app-store-inputs/external-console-checks.json` 后运行 strict 检查，通过后才能进入最终提交审核 |
 
 ## 9. 维护规则
 
