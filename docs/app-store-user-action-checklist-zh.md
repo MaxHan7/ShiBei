@@ -97,6 +97,32 @@ Archive 后确认：
 
 如果 Archive 里还是旧名称或旧图标，立即停止。
 
+Archive / Upload 成功后，把以下字段发给 Codex，或直接按命令生成证据：
+
+| 字段 | 从哪里看 |
+| --- | --- |
+| iOS version | Xcode Organizer 里的 Version |
+| iOS build number | Xcode Organizer 里的 Build |
+| Archive result | Archive 是否成功；成功填 `PASS` |
+| Upload result | Distribute App 上传是否成功；成功填 `PASS` |
+| Organizer app name | Xcode Organizer 中显示的 App 名，必须是 `Recallo` |
+| Organizer bundle id | Xcode Organizer / App Store Connect 中显示的 bundle id，必须是 `com.maxhan.shibei` |
+| Organizer icon confirmed | 图标是否是新版 Recallo 图标；是填 `yes` |
+| App Store Connect build | App Store Connect 处理完成后的 build 标识或编号 |
+
+```bash
+cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
+npm run app-store:create-archive-evidence -- \
+  --ios-build-number <build-number> \
+  --version <version> \
+  --archive-result PASS \
+  --upload-result PASS \
+  --organizer-app-name Recallo \
+  --organizer-bundle-id com.maxhan.shibei \
+  --organizer-icon-confirmed yes \
+  --app-store-connect-build <App Store Connect build>
+```
+
 ## 5. 你需要在 App Store Connect 手动完成的操作
 
 进入旧 TestFlight 对应的现有 App，确认 bundle id 是：

@@ -48,6 +48,24 @@ Each evidence note should include:
 - Data evidence: update/reopen/language-change data retention checks.
 - Privacy evidence: AI processing consent, privacy text, account/data deletion path.
 
+## Archive Evidence Generator
+
+After Xcode Archive and App Store Connect upload, generate the build evidence from the official workspace:
+
+```bash
+cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
+npm run app-store:create-archive-evidence -- \
+  --ios-build-number <build-number> \
+  --version <version> \
+  --archive-result PASS \
+  --upload-result PASS \
+  --organizer-app-name Recallo \
+  --organizer-bundle-id com.maxhan.shibei \
+  --organizer-icon-confirmed yes
+```
+
+The generator fills git commit, branch, Xcode project path, scheme, production URL, and Railway deployment id. It refuses placeholder values such as `TBD`, `unknown`, or `待补充`.
+
 ## Storage Rule
 
 Do not store secrets, API keys, APNs tokens, full user-submitted article text, or private user data in this folder. Redact sensitive values before saving command output.

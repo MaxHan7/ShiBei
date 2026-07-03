@@ -71,6 +71,25 @@ curl -s https://shibei-production.up.railway.app/api/health
 
 如果 Archive 里仍显示旧名称或旧图标，立即停止，不要上传。
 
+Archive / Upload 完成后，在官方工作区生成证据记录：
+
+```bash
+cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
+npm run app-store:create-archive-evidence -- \
+  --ios-build-number <Xcode Organizer 里的 build number> \
+  --version <Xcode Organizer 里的 version> \
+  --archive-result PASS \
+  --upload-result PASS \
+  --organizer-app-name Recallo \
+  --organizer-bundle-id com.maxhan.shibei \
+  --organizer-icon-confirmed yes \
+  --app-store-connect-build <App Store Connect 里的 build 标识或编号> \
+  --archive-time "YYYY-MM-DD HH:mm timezone" \
+  --upload-time "YYYY-MM-DD HH:mm timezone"
+```
+
+该命令会自动补入当前 git commit、branch、官方 Xcode project、scheme、production URL 和 Railway deployment id。不要把 `unknown`、`TBD`、`待补充` 这类占位值写进证据；还没拿到 App Store Connect build 时，可以先不传 `--app-store-connect-build`，等处理完成后重新生成或手动补充。
+
 ## 4. App Store Connect 操作
 
 1. 打开 App Store Connect。
@@ -109,6 +128,8 @@ curl -s https://shibei-production.up.railway.app/api/health
 | App Review 状态 | Waiting for Review / In Review / Rejected / Approved |
 | Support URL |  |
 | Privacy URL |  |
+
+优先用 `npm run app-store:create-archive-evidence` 生成 `docs/app-store-release-evidence/YYYY-MM-DD-build-<build-number>-archive.md`，再把关键信息同步回本文档或真机验收记录。
 
 ## 6. 常见停止条件
 
