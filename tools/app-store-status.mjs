@@ -79,7 +79,9 @@ if (blockers.length > 0) {
   console.log(`Overall status: NOT READY (${blockers.length} blocking area${blockers.length === 1 ? "" : "s"})`);
   console.log("");
   console.log("## Next action");
-  console.log("先运行 `npm run app-store:create-user-handoff` 刷新用户交接包。用户按交接包模板补齐决策、URL、邮箱、截图和真机验收状态后，Codex 运行 `npm run app-store:ingest-user-reply -- --input <reply-file> --acceptance-record <acceptance-file>` 做 dry-run；确认无误后加 `--apply` 自动回写、验证并生成提交材料。");
+  for (const action of buildNextActions(blockers)) {
+    console.log(`- ${action}`);
+  }
 } else {
   console.log("Overall status: READY FOR FINAL STRICT CHECKS");
   console.log("");
@@ -139,4 +141,30 @@ function summarize(output, status) {
   if (screenshotCount) return screenshotCount;
 
   return status === 0 ? "command passed" : `command exited with ${status}`;
+}
+
+function buildNextActions(blockers) {
+  const blockerNames = new Set(blockers.map((blocker) => blocker.name));
+  const actions = [
+    "运行 `npm run app-store:create-user-handoff -- --force` 刷新用户交接包，作为当前唯一用户待办入口。"
+  ];
+
+  if (blockerNames.has("用户决策表") || blockerNames.has("用户行动分组")) {
+    actions.push("用户按交接包模板补齐价格、额度、Apple 登录、邮箱、URL、元数据、截图和验收状态；Codex 随后运行 `npm run app-store:ingest-user-reply -- --input <reply-file> --acceptance-record <acceptance-file>` 做 dry-run，确认后加 `--apply` 回写。");
+  }
+  if (blockerNames.has("公开页面报告") || blockerNames.has("提交 readiness 报告")) {
+    actions.push("用户提供正式支持邮箱、Privacy Policy URL、Support URL；Codex 用 `npm run app-store:apply-contact -- <contact-json> --dry-run` 验证并回写公开页面和提交包。");
+  }
+  if (blockerNames.has("截图规格报告")) {
+    actions.push("用户把 6 张正式 App Store 截图放入 `docs/app-store-release-evidence/screenshots/app-store/`；Codex 运行 `npm run check:app-store-screenshots`。");
+  }
+  if (blockerNames.has("真机验收报告")) {
+    actions.push("用户完成真机/TestFlight 核心路径验收；Codex 运行 `npm run app-store:create-acceptance` 生成记录，并用 `npm run check:app-store-acceptance -- <record>` 做严格检查。");
+  }
+  if (blockerNames.has("外部控制台确认")) {
+    actions.push("用户按 `docs/app-store-external-console-checklist-zh.md` 填写 `.release/app-store-inputs/external-console-checks.json`；Codex 运行 `npm run check:app-store-external-console`。");
+  }
+
+  actions.push("所有用户输入回写后，Codex 跑 `npm run app-store:status`、`npm run check:app-store-submit`、`npm run check:release-ios`、`npm run check`；全部通过后用户再 Archive / Upload。");
+  return actions;
 }
