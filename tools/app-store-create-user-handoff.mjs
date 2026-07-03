@@ -120,6 +120,24 @@ Archive 确认：<名称/图标/Bundle ID 是否正确>
 App Store Connect 确认：<是否在 com.maxhan.shibei 对应 App 下提交>
 \`\`\`
 
+## Apple 外部控制台确认文件
+
+App Store Connect 和 Apple Developer 后台信息不能靠 Codex 猜，需要你按下面命令创建确认文件：
+
+\`\`\`bash
+cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
+mkdir -p .release/app-store-inputs
+cp docs/app-store-external-console-checks.example.json .release/app-store-inputs/external-console-checks.json
+\`\`\`
+
+然后按照 \`docs/app-store-external-console-checklist-zh.md\`，把 \`.release/app-store-inputs/external-console-checks.json\` 里的 \`待确认\` 改成实际值。填完后运行：
+
+\`\`\`bash
+npm run check:app-store-external-console
+\`\`\`
+
+这个检查通过前，不进入最终 App Review 提交。
+
 ## 你回复后 Codex 自动执行
 
 1. 把你的回复保存为临时文本，运行 \`npm run app-store:parse-fast-release-reply -- --input <回复文本> --acceptance-record <验收记录路径>\`，生成 \`.release/app-store-inputs/decision-values.json\` 和 \`.release/app-store-inputs/contact-values.json\`。
@@ -134,6 +152,7 @@ App Store Connect 确认：<是否在 com.maxhan.shibei 对应 App 下提交>
 ## 仍需用户手动完成的外部动作
 
 - 在 Apple Developer / App Store Connect 中确认旧 bundle id 对应的 App。
+- 按 \`docs/app-store-external-console-checklist-zh.md\` 填写 \`.release/app-store-inputs/external-console-checks.json\`。
 - 在 Xcode 中执行 Archive 和 Upload。
 - 在 App Store Connect 中选择 build、填写隐私标签、上传截图、填写年龄分级并提交审核。
 - 真机或 TestFlight 上完成核心路径验收并确认没有 P0 / 未豁免 P1。
