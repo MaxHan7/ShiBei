@@ -35,11 +35,10 @@ npm run app-store:user-actions
 复制模板：
 
 ```bash
-cp docs/app-store-release-evidence/production-acceptance-template.md \
-  docs/app-store-release-evidence/YYYY-MM-DD-production-acceptance.md
+npm run app-store:create-acceptance
 ```
 
-然后在真机/TestFlight 上完成这些核心路径：
+该命令会自动填入 commit、branch、production URL、Railway deployment id 和部分自动检查证据。然后在生成出的 `docs/app-store-release-evidence/YYYY-MM-DD-production-acceptance.md` 里，填写真机/TestFlight 核心路径结果：
 
 - 新用户首次启动。
 - 首次真实生成前 AI 处理说明。
@@ -134,6 +133,7 @@ com.maxhan.shibei
 - 把最终 Support URL / Privacy URL 和支持邮箱整理成 `docs/app-store-contact-values.example.json` 同结构的 JSON，并运行 `npm run app-store:apply-contact -- <联系信息 JSON 文件>` 写入隐私政策、支持页、元数据和提交包。
 - 跑 `npm run check:app-store-submit:report` 查看下一步动作；最终提交前跑 `npm run check:app-store-submit`，确保没有邮箱、URL 或审核决策占位符。
 - 根据你提供的截图/录屏更新验收记录。
+- 用 `npm run app-store:create-acceptance` 创建本次验收记录，并把当前 commit、branch、production health 和 deployment id 自动写入。
 - 跑 `npm run app-store:acceptance-audit -- <验收记录文件>` 或最终严格检查 `npm run check:app-store-acceptance -- <验收记录文件>`，确认真机验收无 P0 / 未豁免 P1。
 - 跑 `npm run check:release-ios`、`npm run check`、Release build 和 production health。
 - 跑 `npm run app-store:screenshot-audit` 或 `npm run check:app-store-screenshots` 检查截图规格。

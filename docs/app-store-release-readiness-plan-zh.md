@@ -953,6 +953,7 @@ App Store Connect 操作：
 | 2026-07-03 | 补充截图交付目录说明 | 已在 App Store 截图目录内新增 README，明确 6 张建议截图文件名前缀、6.9 英寸竖屏尺寸、截图前排雷清单和验收命令，降低截图交付和规格检查成本 | `docs/app-store-release-evidence/screenshots/app-store/README.md`、`docs/app-store-release-evidence/screenshots-checklist.md`、`docs/app-store-release-evidence/2026-07-03-screenshot-audit.md` | 用户把最终截图放入目录后运行 `npm run check:app-store-screenshots` |
 | 2026-07-03 | 增加生产健康门禁脚本 | 已新增 `npm run app-store:health-audit` 和严格模式 `npm run check:app-store-health`，用于检查 production `/api/health`、Postgres、队列失败数、APNs production、推荐好文 catalog 和核心 capability；同时纳入 `npm run app-store:status` | `tools/app-store-production-health-audit.mjs`、`docs/app-store-release-evidence/2026-07-03-production-health-audit.md` | 每次 Archive 前运行 strict 模式，并把 deployment id 写入验收记录 |
 | 2026-07-03 | 增加公开支持/隐私页面门禁 | 已新增 `npm run app-store:static-pages-audit` 和严格模式 `npm run check:app-store-static-pages`，用于检查隐私政策和支持页的标题、品牌、占位符、真实邮箱、关键隐私章节和支持页隐私链接；同时纳入 `npm run app-store:status` | `tools/app-store-static-pages-audit.mjs`、`docs/app-store-release-evidence/2026-07-03-static-pages-audit.md` | 用户提供真实支持邮箱并回写后，运行 strict 模式；通过后再公开托管页面 |
+| 2026-07-03 | 增加验收记录生成器 | 已新增 `npm run app-store:create-acceptance`，自动从当前 git 和 production health 生成本次 `YYYY-MM-DD-production-acceptance.md`，填入日期、commit、branch、production URL、Railway deployment id 和部分自动检查证据，避免手工复制模板填错旧工作区或旧部署 | `tools/app-store-create-acceptance-record.mjs`、`docs/app-store-release-evidence/2026-07-03-acceptance-record-generator.md` | Archive 前用生成器创建记录；用户只填写真机结果、build 信息和最终结论 |
 
 ## 9. 维护规则
 

@@ -27,6 +27,7 @@ npm run check:release-ios
 npm run check
 npm run check:app-store-health
 npm run check:app-store-static-pages
+npm run app-store:create-acceptance -- --dry-run
 npm run check:app-store-submit:report
 npm run app-store:acceptance-audit -- docs/app-store-release-evidence/YYYY-MM-DD-production-acceptance.md
 curl -s https://shibei-production.up.railway.app/api/health
@@ -41,6 +42,7 @@ curl -s https://shibei-production.up.railway.app/api/health
 - Release 默认 API 是 production。
 - 没有旧工程、fixture、Railway、JSON decode 等可见阻塞文案。
 - `npm run check:app-store-submit` 在最终提交前通过；如果 report 模式仍显示 NOT READY，说明还有用户决策、邮箱或 URL 没有收口。
+- `npm run app-store:create-acceptance` 已为本次候选包生成验收记录，且用户已填完真机结果。
 
 ## 3. 用户 Xcode Archive 步骤
 
