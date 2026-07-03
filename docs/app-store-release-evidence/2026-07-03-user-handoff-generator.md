@@ -40,5 +40,6 @@ The generated handoff includes:
 | `npm run app-store:create-user-handoff -- --dry-run` | PASS | Dry-run confirmed default output path. |
 | `npm run app-store:create-user-handoff -- --output /tmp/recallo-user-handoff.md --force` | PASS | Temporary handoff generated and inspected. |
 | `npm run app-store:create-user-handoff -- --force` | PASS | Current official handoff generated at `docs/app-store-release-evidence/2026-07-03-user-handoff.md`. |
+| `npm run app-store:status` | PASS as report | Status now points users to `npm run app-store:create-user-handoff` as the next action. |
 | `git diff --check` | PASS | No whitespace errors. |
 | `npm run check` | PASS | Backend tests passed; 204 tests passed. Workspace, iOS production, and V2 UI guards passed. |

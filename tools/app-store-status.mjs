@@ -69,7 +69,7 @@ if (blockers.length > 0) {
   console.log(`Overall status: NOT READY (${blockers.length} blocking area${blockers.length === 1 ? "" : "s"})`);
   console.log("");
   console.log("## Next action");
-  console.log("先运行 `npm run app-store:user-actions`，按分组补齐用户决策、URL、邮箱、截图和真机验收状态。");
+  console.log("先运行 `npm run app-store:create-user-handoff`，生成当前用户交接包；用户按交接包补齐决策、URL、邮箱、截图和真机验收状态后，Codex 再自动回写和验证。");
 } else {
   console.log("Overall status: READY FOR FINAL STRICT CHECKS");
   console.log("");

@@ -5,7 +5,7 @@
 | 字段 | 值 |
 | --- | --- |
 | 日期 | 2026-07-03 |
-| Git commit | f272048ee260 |
+| Git commit | 0cca28c24214 |
 | Branch | codex/recallo-review-replay-mode |
 | 决策字段总数 | 26 |
 | 已完成字段 | 4 |
@@ -22,7 +22,7 @@
 - BLOCKED 提交 readiness 报告: App Store submission readiness: NOT READY (10 blockers)
 - PASS iOS Release 预检: Release archive preflight passed.
 Overall status: NOT READY (6 blocking areas)
-先运行 `npm run app-store:user-actions`，按分组补齐用户决策、URL、邮箱、截图和真机验收状态。
+先运行 `npm run app-store:create-user-handoff`，生成当前用户交接包；用户按交接包补齐决策、URL、邮箱、截图和真机验收状态后，Codex 再自动回写和验证。
 
 ## 你需要补齐的事项
 
