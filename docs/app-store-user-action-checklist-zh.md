@@ -2,7 +2,7 @@
 
 > 本文档只列必须由用户手动完成或拍板的事项。Codex 可自动执行的工程、文档、检查和记录工作不放在这里，避免混淆。
 
-最短操作方式：直接填写 `docs/app-store-user-decision-form-zh.md`。Codex 会根据该表把本清单、隐私政策、支持页、App Store 元数据和审核包同步收口。
+最短操作方式：如果同意推荐路径，直接按 `docs/app-store-recommended-decisions-zh.md` 第 4 节模板回复；如果要逐项拍板，则填写 `docs/app-store-user-decision-form-zh.md`。Codex 会根据最终选择把本清单、隐私政策、支持页、App Store 元数据和审核包同步收口。
 
 可随时运行下面命令查看“还需要用户做什么”的分组报告：
 
