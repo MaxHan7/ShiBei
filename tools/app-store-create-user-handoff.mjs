@@ -122,13 +122,14 @@ App Store Connect 确认：<是否在 com.maxhan.shibei 对应 App 下提交>
 
 ## 你回复后 Codex 自动执行
 
-1. 把你的回复映射为 \`npm run app-store:create-fast-release-inputs\` 参数，生成 \`.release/app-store-inputs/decision-values.json\` 和 \`.release/app-store-inputs/contact-values.json\`。
-2. 运行 \`npm run app-store:apply-decisions -- .release/app-store-inputs/decision-values.json --dry-run\`。
-3. 运行 \`npm run app-store:apply-contact -- .release/app-store-inputs/contact-values.json --dry-run\`。
-4. dry-run 通过后，运行正式回写命令，更新决策表、隐私政策、支持页、App Store 元数据、审核包、用户清单和 Archive runbook。
-5. 运行 \`npm run app-store:create-acceptance\` 创建真机验收记录。
-6. 运行 \`npm run app-store:status\`、\`npm run check:app-store-submit\`、\`npm run check:release-ios\`、\`npm run check\`。
-7. 把结果写回 \`docs/app-store-release-readiness-plan-zh.md\` 和证据目录。
+1. 把你的回复保存为临时文本，运行 \`npm run app-store:parse-fast-release-reply -- --input <回复文本> --acceptance-record <验收记录路径>\`，生成 \`.release/app-store-inputs/decision-values.json\` 和 \`.release/app-store-inputs/contact-values.json\`。
+2. 如果你没有一次性提供所有字段，Codex 会改用 \`npm run app-store:create-fast-release-inputs\` 补齐或生成 draft。
+3. 运行 \`npm run app-store:apply-decisions -- .release/app-store-inputs/decision-values.json --dry-run\`。
+4. 运行 \`npm run app-store:apply-contact -- .release/app-store-inputs/contact-values.json --dry-run\`。
+5. dry-run 通过后，运行正式回写命令，更新决策表、隐私政策、支持页、App Store 元数据、审核包、用户清单和 Archive runbook。
+6. 运行 \`npm run app-store:create-acceptance\` 创建真机验收记录。
+7. 运行 \`npm run app-store:status\`、\`npm run check:app-store-submit\`、\`npm run check:release-ios\`、\`npm run check\`。
+8. 把结果写回 \`docs/app-store-release-readiness-plan-zh.md\` 和证据目录。
 
 ## 仍需用户手动完成的外部动作
 

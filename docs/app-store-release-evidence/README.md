@@ -72,6 +72,15 @@ After the user replies with the fast first-release template, create machine-read
 
 ```bash
 cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
+npm run app-store:parse-fast-release-reply -- \
+  --input /tmp/recallo-user-reply.txt \
+  --acceptance-record docs/app-store-release-evidence/YYYY-MM-DD-production-acceptance.md
+```
+
+If the reply is incomplete or needs manual overrides, use the lower-level generator:
+
+```bash
+cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
 npm run app-store:create-fast-release-inputs -- \
   --support-email <support-email> \
   --privacy-url <public-privacy-policy-url> \

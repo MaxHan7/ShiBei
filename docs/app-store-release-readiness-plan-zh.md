@@ -959,6 +959,7 @@ App Store Connect 操作：
 | 2026-07-03 | 增加 Archive 证据生成器 | 已新增 `npm run app-store:create-archive-evidence`，用于在用户完成 Xcode Archive / App Store Connect Upload 后生成 `YYYY-MM-DD-build-<build-number>-archive.md`，自动补入 commit、branch、官方 Xcode project、scheme、production URL 和 Railway deployment id，并拒绝 unknown/TBD/待补充等占位值 | `tools/app-store-create-archive-evidence.mjs`、`docs/app-store-archive-submit-runbook-zh.md`、`docs/app-store-release-evidence/2026-07-03-archive-evidence-generator.md` | 用户 Archive/Upload 后提供 Organizer 和 App Store Connect 看到的 build/version/结果字段，Codex 用脚本生成候选包证据 |
 | 2026-07-03 | 增加用户交接包生成器 | 已新增 `npm run app-store:create-user-handoff`，从当前决策表和 `app-store:status` 自动生成 `YYYY-MM-DD-user-handoff.md`，只列用户必须补齐的事项、推荐回复模板和 Codex 后续自动动作，避免用户在多个文档之间来回找缺口 | `tools/app-store-create-user-handoff.mjs`、`docs/app-store-user-action-checklist-zh.md`、`docs/app-store-release-evidence/2026-07-03-user-handoff-generator.md` | 下一步用户可直接看最新 user handoff 回复；Codex 根据回复回写决策、邮箱、URL、验收和提交材料 |
 | 2026-07-03 | 增加快速首版输入生成器 | 已新增 `npm run app-store:create-fast-release-inputs`，把用户按模板提供的邮箱、URL、验收、截图、Archive 和 App Store Connect 确认生成成标准决策 JSON 与联系信息 JSON；缺少必填用户字段或 URL/邮箱格式不对时拒绝继续，减少手工搬运错误 | `tools/app-store-create-fast-release-inputs.mjs`、`docs/app-store-release-evidence/2026-07-03-fast-release-input-generator.md` | 用户回复最终字段后，Codex 用生成器创建 `.release/app-store-inputs/`，先 dry-run 再正式回写 |
+| 2026-07-03 | 增加快速首版回复解析器 | 已新增 `npm run app-store:parse-fast-release-reply`，可从用户按模板回复的纯文本中解析邮箱、URL、额度、元数据、验收、截图和 Archive/ASC 确认，并委托输入生成器输出标准 JSON，进一步减少手工转参数风险 | `tools/app-store-parse-fast-release-reply.mjs`、`docs/app-store-release-evidence/2026-07-03-fast-release-reply-parser.md` | 用户回复模板后，Codex 优先用解析器生成 `.release/app-store-inputs/`，再 dry-run 两个 apply 脚本 |
 
 ## 9. 维护规则
 
@@ -975,7 +976,7 @@ Task 1-10 的 Codex 可产出部分已经基本落入文档、脚本和台账。
 完整用户手动事项见：`docs/app-store-user-action-checklist-zh.md`。
 
 1. 用户按 `docs/app-store-recommended-decisions-zh.md` 第 4 节模板回复，或填写 `docs/app-store-user-decision-form-zh.md`，确认价格、额度、推荐好文计额、Apple 登录、支持邮箱和 URL。
-2. Codex 用 `npm run app-store:create-fast-release-inputs` 生成标准输入 JSON，并根据决策表回写隐私政策、支持页、元数据、审核包和提交 guard。
+2. Codex 用 `npm run app-store:parse-fast-release-reply` 或 `npm run app-store:create-fast-release-inputs` 生成标准输入 JSON，并根据决策表回写隐私政策、支持页、元数据、审核包和提交 guard。
 3. 用户按 `docs/app-store-release-evidence/production-acceptance-template.md` 跑真机验收并补证据。
 4. 用户按 `docs/app-store-release-evidence/screenshots-checklist.md` 准备 6 张截图。
 5. 没有 P0/P1 后，按 `docs/app-store-archive-submit-runbook-zh.md` 进行 Archive 和 App Store Connect 上传。

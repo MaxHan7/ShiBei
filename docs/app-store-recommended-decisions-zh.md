@@ -82,7 +82,7 @@ App Store Connect 确认：<是否在 com.maxhan.shibei 对应 App 下提交>
 
 用户确认并补齐第 3 节信息后，Codex 自动执行以下动作：
 
-1. 用 `npm run app-store:create-fast-release-inputs` 把用户回复生成成两份标准 JSON：`.release/app-store-inputs/decision-values.json` 和 `.release/app-store-inputs/contact-values.json`。
+1. 优先用 `npm run app-store:parse-fast-release-reply -- --input <回复文本> --acceptance-record <验收记录路径>` 从用户模板回复生成两份标准 JSON：`.release/app-store-inputs/decision-values.json` 和 `.release/app-store-inputs/contact-values.json`。如果用户没有一次性提供所有字段，再用 `npm run app-store:create-fast-release-inputs` 补齐。
 2. 运行 `npm run app-store:apply-decisions -- .release/app-store-inputs/decision-values.json`，回写 `docs/app-store-user-decision-form-zh.md`。
 3. 更新 `docs/privacy-policy-zh.md` 和 `docs/privacy-policy.html`。
 4. 更新 `docs/support-zh.md` 和 `docs/support.html`。
@@ -95,6 +95,7 @@ App Store Connect 确认：<是否在 com.maxhan.shibei 对应 App 下提交>
 
 ```bash
 npm run app-store:create-fast-release-inputs -- <用户最终字段> --dry-run
+npm run app-store:parse-fast-release-reply -- --input <回复文本> --acceptance-record <验收记录路径> --dry-run
 npm run app-store:apply-decisions -- .release/app-store-inputs/decision-values.json --dry-run
 npm run app-store:apply-contact -- .release/app-store-inputs/contact-values.json --dry-run
 npm run app-store:decision-report
