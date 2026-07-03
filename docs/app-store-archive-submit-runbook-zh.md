@@ -29,6 +29,7 @@ npm run check:app-store-health
 npm run check:app-store-static-pages
 npm run app-store:create-acceptance -- --dry-run
 npm run check:app-store-submit:report
+npm run app-store:create-connect-copy-pack -- --dry-run
 npm run app-store:acceptance-audit -- docs/app-store-release-evidence/YYYY-MM-DD-production-acceptance.md
 curl -s https://shibei-production.up.railway.app/api/health
 ```
@@ -43,6 +44,7 @@ curl -s https://shibei-production.up.railway.app/api/health
 - 没有旧工程、fixture、Railway、JSON decode 等可见阻塞文案。
 - `npm run check:app-store-submit` 在最终提交前通过；如果 report 模式仍显示 NOT READY，说明还有用户决策、邮箱或 URL 没有收口。
 - `npm run app-store:create-acceptance` 已为本次候选包生成验收记录，且用户已填完真机结果。
+- `npm run app-store:create-connect-copy-pack` 已生成无 blocker 的最终 App Store Connect 粘贴包。
 
 ## 3. 用户 Xcode Archive 步骤
 
@@ -96,22 +98,31 @@ npm run app-store:create-archive-evidence -- \
 2. 进入现有 `com.maxhan.shibei` 对应 App，确保是在替换旧 TestFlight 产品，不是创建新 App。
 3. 等待刚上传的 build 处理完成。
 4. 选择该 build。
-5. 填写 App Information：
+5. 在官方工作区生成最终粘贴包：
+
+```bash
+cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
+npm run app-store:create-connect-copy-pack
+```
+
+确认生成文件的 `Blockers` 为空，再从该文件复制 App Store Connect 字段。
+
+6. 填写 App Information：
    - Name：`Recallo`
    - Subtitle：见 `docs/app-store-metadata-zh.md`
    - Category：Education
-6. 填写 App Privacy：
+7. 填写 App Privacy：
    - 参考 `docs/app-store-review-submission-pack-zh.md` 第 4 节。
    - 必须与 `docs/privacy-policy-zh.md` 一致。
-7. 上传截图：
+8. 上传截图：
    - 参考 `docs/app-store-release-evidence/screenshots-checklist.md`
    - 截图必须来自正确 Recallo build。
-8. 填写年龄分级：
+9. 填写年龄分级：
    - 参考 `docs/app-store-metadata-zh.md` 年龄分级建议。
-9. 填写 Review Notes：
+10. 填写 Review Notes：
    - 参考 `docs/app-store-review-submission-pack-zh.md`
-10. 填写 Support URL 和 Privacy URL。
-11. 提交审核。
+11. 填写 Support URL 和 Privacy URL。
+12. 提交审核。
 
 ## 5. 提交后记录
 

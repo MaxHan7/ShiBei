@@ -95,6 +95,23 @@ npm run app-store:create-fast-release-inputs -- \
 
 This writes `.release/app-store-inputs/decision-values.json` and `.release/app-store-inputs/contact-values.json`. The `.release/` folder is intentionally ignored by Git because it may contain release-specific contact information and temporary user-provided values.
 
+## App Store Connect Copy Pack Generator
+
+After user decisions, support email, Privacy URL, Support URL, screenshots, and production acceptance are finalized, generate the final App Store Connect copy/paste pack:
+
+```bash
+cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
+npm run app-store:create-connect-copy-pack
+```
+
+The command refuses to create a final pack while required fields are pending. For an internal draft before all blockers are resolved:
+
+```bash
+npm run app-store:create-connect-copy-pack -- --allow-pending --force --output /tmp/recallo-app-store-connect-copy-pack.md
+```
+
+Submit only from a pack whose `Blockers` section is empty.
+
 ## Storage Rule
 
 Do not store secrets, API keys, APNs tokens, full user-submitted article text, or private user data in this folder. Redact sensitive values before saving command output.
