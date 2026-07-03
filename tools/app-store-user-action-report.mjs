@@ -42,7 +42,8 @@ if (missingGroups.length > 0) {
 
 console.log("");
 console.log("## Codex-owned follow-up after user input");
-console.log("- 回写隐私政策、支持页、App Store 元数据、审核包和提交 runbook。");
+console.log("- 运行 `npm run app-store:create-fast-release-inputs` 生成标准决策 JSON 和联系信息 JSON。");
+console.log("- 先 dry-run `app-store:apply-decisions` 和 `app-store:apply-contact`，通过后正式回写隐私政策、支持页、App Store 元数据、审核包和提交 runbook。");
 console.log("- 运行 `npm run check:app-store-submit`、`npm run check:release-ios`、`npm run check`。");
 console.log("- 把验证结果写回 `docs/app-store-release-readiness-plan-zh.md` 和证据目录。");
 

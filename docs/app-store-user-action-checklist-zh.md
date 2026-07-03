@@ -2,7 +2,7 @@
 
 > 本文档只列必须由用户手动完成或拍板的事项。Codex 可自动执行的工程、文档、检查和记录工作不放在这里，避免混淆。
 
-最短操作方式：先运行 `npm run app-store:create-user-handoff` 生成当前交接包；如果同意推荐路径，直接按交接包里的模板回复；如果要逐项拍板，则填写 `docs/app-store-user-decision-form-zh.md`。Codex 会根据最终选择整理成 `docs/app-store-user-decision-values.example.json` 同结构的 JSON，并运行 `npm run app-store:apply-decisions -- <决策 JSON 文件>`，再把本清单、隐私政策、支持页、App Store 元数据和审核包同步收口。
+最短操作方式：先运行 `npm run app-store:create-user-handoff` 生成当前交接包；如果同意推荐路径，直接按交接包里的模板回复；如果要逐项拍板，则填写 `docs/app-store-user-decision-form-zh.md`。Codex 会根据最终选择运行 `npm run app-store:create-fast-release-inputs`，生成 `.release/app-store-inputs/decision-values.json` 和 `.release/app-store-inputs/contact-values.json`，再通过 apply 脚本把本清单、隐私政策、支持页、App Store 元数据和审核包同步收口。
 
 可随时运行下面命令生成“还需要用户做什么”的完整交接包：
 
@@ -158,7 +158,8 @@ com.maxhan.shibei
 在你完成或提供上述信息后，Codex 可以继续自动执行：
 
 - 把你的决策回写到 `docs/app-store-release-readiness-plan-zh.md`。
-- 把最终 Support URL / Privacy URL 和支持邮箱整理成 `docs/app-store-contact-values.example.json` 同结构的 JSON，并运行 `npm run app-store:apply-contact -- <联系信息 JSON 文件>` 写入隐私政策、支持页、元数据和提交包。
+- 运行 `npm run app-store:create-fast-release-inputs` 生成本次 release 的标准输入 JSON。
+- 用 `npm run app-store:apply-contact -- .release/app-store-inputs/contact-values.json` 写入隐私政策、支持页、元数据和提交包。
 - 跑 `npm run check:app-store-submit:report` 查看下一步动作；最终提交前跑 `npm run check:app-store-submit`，确保没有邮箱、URL 或审核决策占位符。
 - 根据你提供的截图/录屏更新验收记录。
 - 用 `npm run app-store:create-acceptance` 创建本次验收记录，并把当前 commit、branch、production health 和 deployment id 自动写入。

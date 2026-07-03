@@ -66,6 +66,26 @@ npm run app-store:create-archive-evidence -- \
 
 The generator fills git commit, branch, Xcode project path, scheme, production URL, and Railway deployment id. It refuses placeholder values such as `TBD`, `unknown`, or `待补充`.
 
+## Fast Release Input Generator
+
+After the user replies with the fast first-release template, create machine-readable inputs before applying changes:
+
+```bash
+cd /Users/hanmingyu/Downloads/拾贝-prod-hardening
+npm run app-store:create-fast-release-inputs -- \
+  --support-email <support-email> \
+  --privacy-url <public-privacy-policy-url> \
+  --support-url <public-support-url> \
+  --acceptance-record <production-acceptance-record-path> \
+  --p0-status "无 P0" \
+  --p1-status "无未豁免 P1" \
+  --screenshots-status "已准备" \
+  --archive-confirmation "已确认 Recallo 名称、新图标、Bundle ID com.maxhan.shibei" \
+  --asc-confirmation "已确认在 com.maxhan.shibei 对应现有 App 下提交"
+```
+
+This writes `.release/app-store-inputs/decision-values.json` and `.release/app-store-inputs/contact-values.json`. The `.release/` folder is intentionally ignored by Git because it may contain release-specific contact information and temporary user-provided values.
+
 ## Storage Rule
 
 Do not store secrets, API keys, APNs tokens, full user-submitted article text, or private user data in this folder. Redact sensitive values before saving command output.

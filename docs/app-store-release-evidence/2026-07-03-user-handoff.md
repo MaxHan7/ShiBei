@@ -5,7 +5,7 @@
 | 字段 | 值 |
 | --- | --- |
 | 日期 | 2026-07-03 |
-| Git commit | 0cca28c24214 |
+| Git commit | b91668d137df |
 | Branch | codex/recallo-review-replay-mode |
 | 决策字段总数 | 26 |
 | 已完成字段 | 4 |
@@ -111,14 +111,13 @@ App Store Connect 确认：<是否在 com.maxhan.shibei 对应 App 下提交>
 
 ## 你回复后 Codex 自动执行
 
-1. 把你的回复整理成决策 JSON。
-2. 运行 `npm run app-store:apply-decisions -- <决策 JSON>`。
-3. 把邮箱和 URL 整理成联系信息 JSON。
-4. 运行 `npm run app-store:apply-contact -- <联系信息 JSON>`。
-5. 回写隐私政策、支持页、App Store 元数据、审核包、用户清单和 Archive runbook。
-6. 运行 `npm run app-store:create-acceptance` 创建真机验收记录。
-7. 运行 `npm run app-store:status`、`npm run check:app-store-submit`、`npm run check:release-ios`、`npm run check`。
-8. 把结果写回 `docs/app-store-release-readiness-plan-zh.md` 和证据目录。
+1. 把你的回复映射为 `npm run app-store:create-fast-release-inputs` 参数，生成 `.release/app-store-inputs/decision-values.json` 和 `.release/app-store-inputs/contact-values.json`。
+2. 运行 `npm run app-store:apply-decisions -- .release/app-store-inputs/decision-values.json --dry-run`。
+3. 运行 `npm run app-store:apply-contact -- .release/app-store-inputs/contact-values.json --dry-run`。
+4. dry-run 通过后，运行正式回写命令，更新决策表、隐私政策、支持页、App Store 元数据、审核包、用户清单和 Archive runbook。
+5. 运行 `npm run app-store:create-acceptance` 创建真机验收记录。
+6. 运行 `npm run app-store:status`、`npm run check:app-store-submit`、`npm run check:release-ios`、`npm run check`。
+7. 把结果写回 `docs/app-store-release-readiness-plan-zh.md` 和证据目录。
 
 ## 仍需用户手动完成的外部动作
 

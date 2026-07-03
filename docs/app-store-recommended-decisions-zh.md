@@ -82,20 +82,21 @@ App Store Connect 确认：<是否在 com.maxhan.shibei 对应 App 下提交>
 
 用户确认并补齐第 3 节信息后，Codex 自动执行以下动作：
 
-1. 把用户回复整理成 `docs/app-store-user-decision-values.example.json` 同结构的 JSON。
-2. 运行 `npm run app-store:apply-decisions -- <决策 JSON 文件>`，回写 `docs/app-store-user-decision-form-zh.md`。如果 JSON 由 Codex 临时生成，也可以用 `npm run app-store:apply-decisions -- -` 从 stdin 读取。
+1. 用 `npm run app-store:create-fast-release-inputs` 把用户回复生成成两份标准 JSON：`.release/app-store-inputs/decision-values.json` 和 `.release/app-store-inputs/contact-values.json`。
+2. 运行 `npm run app-store:apply-decisions -- .release/app-store-inputs/decision-values.json`，回写 `docs/app-store-user-decision-form-zh.md`。
 3. 更新 `docs/privacy-policy-zh.md` 和 `docs/privacy-policy.html`。
 4. 更新 `docs/support-zh.md` 和 `docs/support.html`。
 5. 更新 `docs/app-store-metadata-zh.md`。
 6. 更新 `docs/app-store-review-submission-pack-zh.md`。
 7. 更新 `docs/app-store-user-action-checklist-zh.md`。
 8. 更新 `docs/app-store-archive-submit-runbook-zh.md`。
-9. 把支持邮箱和 URL 整理成 `docs/app-store-contact-values.example.json` 同结构的 JSON，并运行 `npm run app-store:apply-contact -- <联系信息 JSON 文件>`。
+9. 运行 `npm run app-store:apply-contact -- .release/app-store-inputs/contact-values.json`，把支持邮箱和 URL 同步到所有提交材料。
 10. 运行：
 
 ```bash
-npm run app-store:apply-decisions -- <决策 JSON 文件> --dry-run
-npm run app-store:apply-contact -- <联系信息 JSON 文件> --dry-run
+npm run app-store:create-fast-release-inputs -- <用户最终字段> --dry-run
+npm run app-store:apply-decisions -- .release/app-store-inputs/decision-values.json --dry-run
+npm run app-store:apply-contact -- .release/app-store-inputs/contact-values.json --dry-run
 npm run app-store:decision-report
 npm run app-store:user-actions
 npm run app-store:status
