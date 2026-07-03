@@ -69,7 +69,7 @@ if (blockers.length > 0) {
   console.log(`Overall status: NOT READY (${blockers.length} blocking area${blockers.length === 1 ? "" : "s"})`);
   console.log("");
   console.log("## Next action");
-  console.log("先运行 `npm run app-store:create-user-handoff`，生成当前用户交接包；用户按交接包补齐决策、URL、邮箱、截图和真机验收状态后，Codex 再自动回写和验证。");
+  console.log("先运行 `npm run app-store:create-user-handoff` 刷新用户交接包。用户按交接包模板补齐决策、URL、邮箱、截图和真机验收状态后，Codex 运行 `npm run app-store:ingest-user-reply -- --input <reply-file> --acceptance-record <acceptance-file>` 做 dry-run；确认无误后加 `--apply` 自动回写、验证并生成提交材料。");
 } else {
   console.log("Overall status: READY FOR FINAL STRICT CHECKS");
   console.log("");

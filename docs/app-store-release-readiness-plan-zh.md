@@ -962,6 +962,7 @@ App Store Connect 操作：
 | 2026-07-03 | 增加快速首版回复解析器 | 已新增 `npm run app-store:parse-fast-release-reply`，可从用户按模板回复的纯文本中解析邮箱、URL、额度、元数据、验收、截图和 Archive/ASC 确认，并委托输入生成器输出标准 JSON，进一步减少手工转参数风险 | `tools/app-store-parse-fast-release-reply.mjs`、`docs/app-store-release-evidence/2026-07-03-fast-release-reply-parser.md` | 用户回复模板后，Codex 优先用解析器生成 `.release/app-store-inputs/`，再 dry-run 两个 apply 脚本 |
 | 2026-07-03 | 增加 App Store Connect 粘贴包生成器 | 已新增 `npm run app-store:create-connect-copy-pack`，从元数据、审核提交包、用户决策表和截图清单生成单份 App Store Connect 可粘贴材料；严格模式会在 URL/决策未收口时拒绝生成最终包，draft 模式可用于提前预览 | `tools/app-store-create-connect-copy-pack.mjs`、`docs/app-store-release-evidence/2026-07-03-app-store-connect-copy-pack-generator.md` | 用户补齐 URL/邮箱/决策/验收/截图后，生成无 blocker 的最终粘贴包并按 runbook 提交 |
 | 2026-07-03 | 增加用户回复收口编排脚本 | 已新增 `npm run app-store:ingest-user-reply`，把用户模板回复解析、标准 JSON 生成、决策表 dry-run、联系信息 dry-run、状态总览和粘贴包检查串成一个安全入口；默认不改正式文档，需显式 `--apply` 才回写 | `tools/app-store-ingest-user-reply.mjs`、`docs/app-store-release-evidence/2026-07-03-user-reply-intake-orchestrator.md` | 用户回复最终模板后，Codex 先跑 dry-run 编排，确认无误后用 `--apply` 一次性收口文档和证据 |
+| 2026-07-03 | 同步状态总览下一步提示 | 已更新 `npm run app-store:status` 的 Next action，使其指向当前 `create-user-handoff` + `ingest-user-reply` dry-run/apply 流程，避免继续提示旧的手动多命令路径 | `tools/app-store-status.mjs`、`docs/app-store-release-evidence/2026-07-03-status-next-action-refresh.md` | 用户回复交接包模板后，按状态提示执行安全收口流程 |
 
 ## 9. 维护规则
 
