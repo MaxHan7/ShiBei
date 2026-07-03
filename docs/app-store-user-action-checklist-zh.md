@@ -2,13 +2,15 @@
 
 > 本文档只列必须由用户手动完成或拍板的事项。Codex 可自动执行的工程、文档、检查和记录工作不放在这里，避免混淆。
 
-最短操作方式：如果同意推荐路径，直接按 `docs/app-store-recommended-decisions-zh.md` 第 4 节模板回复；如果要逐项拍板，则填写 `docs/app-store-user-decision-form-zh.md`。Codex 会根据最终选择整理成 `docs/app-store-user-decision-values.example.json` 同结构的 JSON，并运行 `npm run app-store:apply-decisions -- <决策 JSON 文件>`，再把本清单、隐私政策、支持页、App Store 元数据和审核包同步收口。
+最短操作方式：先运行 `npm run app-store:create-user-handoff` 生成当前交接包；如果同意推荐路径，直接按交接包里的模板回复；如果要逐项拍板，则填写 `docs/app-store-user-decision-form-zh.md`。Codex 会根据最终选择整理成 `docs/app-store-user-decision-values.example.json` 同结构的 JSON，并运行 `npm run app-store:apply-decisions -- <决策 JSON 文件>`，再把本清单、隐私政策、支持页、App Store 元数据和审核包同步收口。
 
-可随时运行下面命令查看“还需要用户做什么”的分组报告：
+可随时运行下面命令生成“还需要用户做什么”的完整交接包：
 
 ```bash
-npm run app-store:user-actions
+npm run app-store:create-user-handoff
 ```
+
+交接包会写入 `docs/app-store-release-evidence/YYYY-MM-DD-user-handoff.md`，并包含当前状态摘要、用户待补字段、推荐回复模板和 Codex 后续自动执行清单。只想看命令行分组报告时，可以运行 `npm run app-store:user-actions`。
 
 ## 1. 必须拍板的产品决策
 
