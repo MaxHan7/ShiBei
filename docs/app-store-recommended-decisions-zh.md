@@ -90,10 +90,12 @@ App Store Connect 确认：<是否在 com.maxhan.shibei 对应 App 下提交>
 6. 更新 `docs/app-store-review-submission-pack-zh.md`。
 7. 更新 `docs/app-store-user-action-checklist-zh.md`。
 8. 更新 `docs/app-store-archive-submit-runbook-zh.md`。
-9. 运行：
+9. 把支持邮箱和 URL 整理成 `docs/app-store-contact-values.example.json` 同结构的 JSON，并运行 `npm run app-store:apply-contact -- <联系信息 JSON 文件>`。
+10. 运行：
 
 ```bash
 npm run app-store:apply-decisions -- <决策 JSON 文件> --dry-run
+npm run app-store:apply-contact -- <联系信息 JSON 文件> --dry-run
 npm run app-store:decision-report
 npm run app-store:user-actions
 npm run app-store:status

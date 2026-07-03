@@ -948,6 +948,7 @@ App Store Connect 操作：
 | 2026-07-03 | 增加 App Store 截图规格审计 | 已新增 `npm run app-store:screenshot-audit` 和 `npm run check:app-store-screenshots`，默认检查 `docs/app-store-release-evidence/screenshots/app-store/` 下的 6.9 英寸 iPhone 竖屏截图数量、格式和尺寸 | `tools/app-store-screenshot-audit.mjs`、`docs/app-store-release-evidence/2026-07-03-screenshot-audit.md` | 用户放入 6 张正式截图后运行 strict 检查，全部通过后上传 App Store Connect |
 | 2026-07-03 | 增加 App Store 状态总览 | 已新增 `npm run app-store:status`，聚合决策表、用户行动、截图、提交 readiness 和 iOS Release preflight，作为每日上架推进入口 | `tools/app-store-status.mjs`、`docs/app-store-release-evidence/2026-07-03-app-store-status.md` | 用户补齐决策和截图后先跑状态总览，再跑严格门禁 |
 | 2026-07-03 | 增加推荐决策稿和用户回复模板 | 已把用户需要拍板的 26 项压缩成快速首版方案、稳健正式版方案和可直接复制回复的模板；同时新增机器可读 JSON 样例和决策表回写脚本，减少后续手工改表风险 | `docs/app-store-recommended-decisions-zh.md`、`docs/app-store-user-decision-values.example.json`、`tools/app-store-apply-user-decisions.mjs`、`docs/app-store-release-evidence/2026-07-03-recommended-decisions.md` | 用户确认采用推荐方案并提供邮箱/URL/验收/截图状态后，Codex 自动回写全部提交材料 |
+| 2026-07-03 | 增加支持邮箱和 URL 自动回写脚本 | 已新增联系信息 JSON 样例和 `npm run app-store:apply-contact`，用于把支持邮箱、Privacy Policy URL、Support URL 同步到隐私政策、支持页、元数据、审核包、用户清单、Archive runbook 和 URL 发布说明；占位符会被拒绝，完整临时输入 dry-run 通过 | `docs/app-store-contact-values.example.json`、`tools/app-store-apply-contact-info.mjs`、`docs/app-store-release-evidence/2026-07-03-contact-info-apply-script.md` | 用户提供真实邮箱和两个 HTTPS URL 后，Codex dry-run 验证并自动回写 |
 
 ## 9. 维护规则
 
