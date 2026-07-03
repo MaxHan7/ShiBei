@@ -26,6 +26,7 @@ git log -1 --oneline
 npm run check:release-ios
 npm run check
 npm run check:app-store-submit:report
+npm run app-store:acceptance-audit -- docs/app-store-release-evidence/YYYY-MM-DD-production-acceptance.md
 curl -s https://shibei-production.up.railway.app/api/health
 ```
 

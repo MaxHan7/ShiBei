@@ -134,6 +134,7 @@ com.maxhan.shibei
 - 把最终 Support URL / Privacy URL 和支持邮箱整理成 `docs/app-store-contact-values.example.json` 同结构的 JSON，并运行 `npm run app-store:apply-contact -- <联系信息 JSON 文件>` 写入隐私政策、支持页、元数据和提交包。
 - 跑 `npm run check:app-store-submit:report` 查看下一步动作；最终提交前跑 `npm run check:app-store-submit`，确保没有邮箱、URL 或审核决策占位符。
 - 根据你提供的截图/录屏更新验收记录。
+- 跑 `npm run app-store:acceptance-audit -- <验收记录文件>` 或最终严格检查 `npm run check:app-store-acceptance -- <验收记录文件>`，确认真机验收无 P0 / 未豁免 P1。
 - 跑 `npm run check:release-ios`、`npm run check`、Release build 和 production health。
 - 跑 `npm run app-store:screenshot-audit` 或 `npm run check:app-store-screenshots` 检查截图规格。
 - 陪跑 Archive 前检查。
