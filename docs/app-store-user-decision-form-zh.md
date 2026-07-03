@@ -75,6 +75,7 @@
 然后运行：
 
 ```bash
+npm run app-store:decision-report
 npm run check:app-store-submit
 npm run check:release-ios
 npm run check

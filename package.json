@@ -11,6 +11,7 @@
     "check:release-ios": "node tools/release-archive-preflight.mjs",
     "check:app-store-submit": "node tools/app-store-submit-readiness-guard.mjs",
     "check:app-store-submit:report": "node tools/app-store-submit-readiness-guard.mjs --report",
+    "app-store:decision-report": "node tools/app-store-decision-form-report.mjs",
     "check:ios-signing": "node tools/ios-signing-guard.mjs",
     "check:production-release-evidence": "node tools/production-release-evidence-guard.mjs",
     "check:production-deploy-inputs": "node tools/production-deploy-inputs-guard.mjs",
