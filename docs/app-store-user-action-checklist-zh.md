@@ -4,6 +4,12 @@
 
 最短操作方式：直接填写 `docs/app-store-user-decision-form-zh.md`。Codex 会根据该表把本清单、隐私政策、支持页、App Store 元数据和审核包同步收口。
 
+可随时运行下面命令查看“还需要用户做什么”的分组报告：
+
+```bash
+npm run app-store:user-actions
+```
+
 ## 1. 必须拍板的产品决策
 
 | 决策 | 当前推荐 | 你需要确认什么 | 不确认的影响 |
@@ -135,7 +141,8 @@ com.maxhan.shibei
 ## 7. 当前最短路径
 
 1. 你填写 `docs/app-store-user-decision-form-zh.md`。
-2. 你按 `docs/app-store-url-publishing-guide-zh.md` 部署 `docs/privacy-policy.html` 和 `docs/support.html`，并提供最终 URL 和支持邮箱。
-3. Codex 根据决策表回写所有上架文档，并跑 `npm run check:app-store-submit`。
-4. 你按模板跑真机验收。
-5. 没有 P0/P1 后，按 Archive runbook 上传。
+2. 你运行或让 Codex 运行 `npm run app-store:user-actions`，确认没有遗漏用户事项。
+3. 你按 `docs/app-store-url-publishing-guide-zh.md` 部署 `docs/privacy-policy.html` 和 `docs/support.html`，并提供最终 URL 和支持邮箱。
+4. Codex 根据决策表回写所有上架文档，并跑 `npm run check:app-store-submit`。
+5. 你按模板跑真机验收。
+6. 没有 P0/P1 后，按 Archive runbook 上传。
