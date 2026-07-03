@@ -5,7 +5,7 @@
 | 字段 | 值 |
 | --- | --- |
 | 日期 | 2026-07-03 |
-| Git commit | 30e38aa68edd |
+| Git commit | 5c7f6e41672f |
 | Branch | codex/recallo-review-replay-mode |
 | 决策字段总数 | 26 |
 | 已完成字段 | 4 |
@@ -87,6 +87,8 @@ Overall status: NOT READY (7 blocking areas)
 | App Store Connect 是否选择旧 bundle id 对应 App | 待填写 | 不要创建新 App |
 
 ## 推荐执行顺序
+
+字段不知道填什么时，先看：`docs/app-store-user-input-field-map-zh.md`。
 
 1. 先按下面“建议直接回复模板”给 Codex 一次性回复产品决策、邮箱、URL、元数据和验收状态。
 2. 再按“真机验收记录”填写 TestFlight/真机结果。

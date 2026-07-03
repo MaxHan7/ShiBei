@@ -4,6 +4,8 @@
 
 最短操作方式：先运行 `npm run app-store:create-user-handoff` 生成当前交接包；如果同意推荐路径，直接按交接包里的模板回复；如果要逐项拍板，则填写 `docs/app-store-user-decision-form-zh.md`。Codex 会优先运行 `npm run app-store:ingest-user-reply`，把你的模板回复解析成标准输入 JSON、dry-run 回写决策/联系信息、输出状态总览；确认无误后再用 `--apply` 把本清单、隐私政策、支持页、App Store 元数据和审核包同步收口。
 
+如果你不确定某个字段应该填什么、去哪里找，直接看字段映射表：`docs/app-store-user-input-field-map-zh.md`。
+
 可随时运行下面命令生成“还需要用户做什么”的完整交接包：
 
 ```bash

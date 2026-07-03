@@ -99,6 +99,8 @@ ${renderMissingGroups(values.missingGroups)}
 
 ## 推荐执行顺序
 
+字段不知道填什么时，先看：\`docs/app-store-user-input-field-map-zh.md\`。
+
 1. 先按下面“建议直接回复模板”给 Codex 一次性回复产品决策、邮箱、URL、元数据和验收状态。
 2. 再按“真机验收记录”填写 TestFlight/真机结果。
 3. 然后按“Apple 外部控制台确认文件”填写 App Store Connect / Apple Developer 后台实际值。
