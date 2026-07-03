@@ -296,13 +296,13 @@ Push notifications are used only to notify users when chapter generation succeed
 
 必须完成：
 
-- [ ] `/api/health` 继续覆盖数据库、队列、APNs、核心 capability。
-- [ ] 增加或明确 Railway 崩溃/重启邮件告警处理流程。
-- [ ] 队列积压告警：queued/running/failed 异常时能发现。
-- [ ] 生成失败率监控：按失败类型统计。
-- [ ] APNs 失败监控：BadDeviceToken、BadEnvironmentKeyInToken、未配置等聚合。
-- [ ] 生产部署 runbook 继续保留 preserve-data / reset-data 区分。
-- [ ] 备份和恢复流程做一次演练或至少写成可执行文档。
+- [x] `/api/health` 继续覆盖数据库、队列、APNs、核心 capability。已由 `npm run app-store:health-audit` 验证 production 返回 `READY`。
+- [ ] 增加或明确 Railway 崩溃/重启邮件告警处理流程。当前可在 Railway 邮件/面板观察，但还缺上架级处理 runbook。
+- [x] 队列积压告警：queued/running/failed 异常时能发现。当前 health audit 会读取 queued/running/failed，并在 `failed > 0` 时阻塞 App Store 状态；正式 dashboard/告警仍可后续增强。
+- [ ] 生成失败率监控：按失败类型统计。当前后端有失败类型和质量实验指标，但缺 production dashboard/告警闭环。
+- [ ] APNs 失败监控：BadDeviceToken、BadEnvironmentKeyInToken、未配置等聚合。当前 health audit 检查 APNs configured/environment，通知发送链路记录错误；仍缺失败原因聚合和告警。
+- [x] 生产部署 runbook 继续保留 preserve-data / reset-data 区分。
+- [ ] 备份和恢复流程做一次演练或至少写成可执行文档。当前部署 runbook 要求备份引用，仍需恢复演练或独立恢复 runbook。
 
 上架前必须保留的证据：
 
@@ -967,6 +967,7 @@ App Store Connect 操作：
 | 2026-07-03 | 对账 Release/Archive 工程防错 checklist | 已用当前 `check:release-ios`、iOS production guard、workspace guard 和 UI regression guard 对账 3.1；自动门禁已覆盖官方工作区、Recallo 名称/图标配置、V2 Release 入口、production API、mock/debug 控制和 Archive 证据生成；仍保留 Organizer/真机截图等用户侧证据 | `docs/app-store-release-evidence/2026-07-03-release-guard-reconciliation.md` | 用户 Archive/Upload 后补 Organizer/App Store Connect 证据；TestFlight 验收确认 warning 字符串不可见 |
 | 2026-07-03 | 对账额度、隐私和 AI 同意 checklist | 已用当前代码、测试和提交材料对账 3.3/3.4；真实生成每日额度、稳定错误码、超额提示、AI 处理说明、首次真实生成同意门槛、隐私政策/审核备注已完成；失败/推荐导入运营统计、最终邮箱/URL、App Store Connect 隐私标签仍保留为开放项 | `docs/app-store-release-evidence/2026-07-03-quota-privacy-checklist-reconciliation.md` | 用户确认每日额度、提供邮箱/URL，并在 App Store Connect 填写隐私标签 |
 | 2026-07-03 | 对账 App Review 材料 checklist | 已将 3.5 中已有草案的 App 名称、副标题、描述、关键词、Review Notes、隐私标签草案、年龄分级建议和截图清单标记为草案完成；同步把元数据文档口径从 Beta 测试改成 App Store 首版候选包 | `docs/app-store-metadata-zh.md`、`docs/app-store-review-submission-pack-zh.md`、`docs/app-store-release-evidence/2026-07-03-review-materials-reconciliation.md` | 用户提供最终 URL/邮箱/截图/账号决策后，生成无 blocker 的 App Store Connect 粘贴包 |
+| 2026-07-03 | 对账生产稳定性 checklist | 已用 production health audit 和部署 runbook 对账 3.6；当前线上 `/api/health`、Postgres、queue、APNs production、推荐好文 catalog 和核心 capability 均为 READY，且 runbook 保留 preserve-data/reset-data 区分；告警、失败率 dashboard、APNs 聚合和恢复演练仍保留开放 | `docs/app-store-release-evidence/2026-07-03-production-stability-reconciliation.md` | Archive 前继续跑 `npm run check:app-store-health`；中度公开前补事故/告警/恢复证据 |
 
 ## 9. 维护规则
 
