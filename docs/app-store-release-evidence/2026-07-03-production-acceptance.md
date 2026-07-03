@@ -7,7 +7,7 @@
 | 项目 | 值 |
 | --- | --- |
 | 日期 | 2026-07-03 |
-| Git commit | 1d1f7db50253 |
+| Git commit | 7e56b000b118 |
 | Branch | codex/recallo-review-replay-mode |
 | iOS build number |  |
 | TestFlight build |  |
@@ -33,11 +33,11 @@ curl -s https://shibei-production.up.railway.app/api/health
 
 | 检查项 | 期望 | 结果 | 证据 |
 | --- | --- | --- | --- |
-| `npm run check:release-ios` | PASS |  |  |
-| `npm run check` | PASS |  |  |
-| `npm run check:app-store-health` | PASS | PASS | production health gate 当前通过；提交前需重跑 |
-| iOS Release build | PASS |  |  |
-| `/api/health` | 200，服务正常 | PASS | deployment id `51ae3233-4431-471e-9194-a80b5b09a900`；提交前需重跑 |
+| `npm run check:release-ios` | PASS | PASS | `docs/app-store-release-evidence/2026-07-03-release-ios-check-for-acceptance.md` |
+| `npm run check` | PASS | PASS | `docs/app-store-release-evidence/2026-07-03-full-check-for-acceptance.md` |
+| `npm run check:app-store-health` | PASS | PASS | `docs/app-store-release-evidence/2026-07-03-health-check-for-acceptance.md`；提交前需重跑 |
+| iOS Release build | PASS | PASS | `docs/app-store-release-evidence/2026-07-03-ios-release-build-for-acceptance.log` |
+| `/api/health` | 200，服务正常 | PASS | deployment id `51ae3233-4431-471e-9194-a80b5b09a900`；见 `docs/app-store-release-evidence/2026-07-03-health-check-for-acceptance.md`；提交前需重跑 |
 | 正确工作区 | `/Users/hanmingyu/Downloads/拾贝-prod-hardening` | PASS | 本文件由官方工作区脚本生成 |
 | 正确 scheme | `Recallo` | PASS | release preflight 覆盖；Archive 前仍需用户确认 Xcode 顶栏 |
 | 正确 display name | `Recallo` | PASS | release preflight 覆盖；Archive 后仍需用户确认 Organizer |

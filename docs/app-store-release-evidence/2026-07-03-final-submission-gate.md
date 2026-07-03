@@ -10,7 +10,7 @@ mode=report
 - FAIL 用户决策表: missingFields=22
 - FAIL 用户行动分组: missingFields=22
 - FAIL 截图规格: Screenshot readiness: NOT READY (7 issues)
-- FAIL 真机验收: Production acceptance: NOT READY (39 issues)
+- FAIL 真机验收: Production acceptance: NOT READY (36 issues)
 - PASS 生产健康: Production health: READY
 - FAIL 公开页面: Static pages readiness: NOT READY (6 issues)
 - PASS 隐私标签: App Store privacy labels readiness: READY
@@ -204,14 +204,11 @@ Screenshot readiness: NOT READY (7 issues)
 - 缺少建议截图文件：06-discover-recommendations.*
 
 ### 真机验收
-Production acceptance: NOT READY (39 issues)
+Production acceptance: NOT READY (36 issues)
 - 候选版本信息缺失：iOS build number
 - 候选版本信息缺失：验收设备
 - 候选版本信息缺失：iOS 版本
 - 候选版本信息缺失：验收人
-- 自动检查未通过：`npm run check:release-ios` = (empty)
-- 自动检查未通过：`npm run check` = (empty)
-- 自动检查未通过：iOS Release build = (empty)
 - P1 未通过且未豁免：A1 新用户首次启动 = (empty)
 - P1 未通过且未豁免：A2 AI 处理同意 = (empty)
 - P0 未通过：A3 真实生成成功 = (empty)

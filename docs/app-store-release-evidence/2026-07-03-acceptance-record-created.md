@@ -7,14 +7,11 @@ repoRoot=/Users/hanmingyu/Downloads/拾贝-prod-hardening
 mode=report
 source=docs/app-store-release-evidence/2026-07-03-production-acceptance.md
 
-Production acceptance: NOT READY (39 issues)
+Production acceptance: NOT READY (36 issues)
 - 候选版本信息缺失：iOS build number
 - 候选版本信息缺失：验收设备
 - 候选版本信息缺失：iOS 版本
 - 候选版本信息缺失：验收人
-- 自动检查未通过：`npm run check:release-ios` = (empty)
-- 自动检查未通过：`npm run check` = (empty)
-- 自动检查未通过：iOS Release build = (empty)
 - P1 未通过且未豁免：A1 新用户首次启动 = (empty)
 - P1 未通过且未豁免：A2 AI 处理同意 = (empty)
 - P0 未通过：A3 真实生成成功 = (empty)

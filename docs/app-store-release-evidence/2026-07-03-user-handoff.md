@@ -5,7 +5,7 @@
 | 字段 | 值 |
 | --- | --- |
 | 日期 | 2026-07-03 |
-| Git commit | 1d1f7db50253 |
+| Git commit | 7e56b000b118 |
 | Branch | codex/recallo-review-replay-mode |
 | 决策字段总数 | 26 |
 | 已完成字段 | 4 |
@@ -16,7 +16,7 @@
 - BLOCKED 用户决策表: totalFields=26, missingFields=22
 - BLOCKED 用户行动分组: totalFields=26, missingFields=22
 - BLOCKED 截图规格报告: Screenshot readiness: NOT READY (7 issues)
-- BLOCKED 真机验收报告: Production acceptance: NOT READY (39 issues)
+- BLOCKED 真机验收报告: Production acceptance: NOT READY (36 issues)
 - PASS 生产健康报告: Production health: READY
 - BLOCKED 公开页面报告: Static pages readiness: NOT READY (6 issues)
 - PASS 隐私标签报告: App Store privacy labels readiness: READY
