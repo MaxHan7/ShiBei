@@ -103,11 +103,11 @@
 
 必须完成：
 
-- [ ] Xcode scheme、Product Name、Display Name、App Icon 都显示 Recallo。
-- [ ] Release / Archive 包默认使用 V2 root。
-- [ ] Release 包不包含 Mock 切换、本地 API、Railway 输入框、debug 文案、fixture 缺失提示。
-- [ ] 旧工程目录继续隔离，不作为 Archive 入口。
-- [ ] 打包前 guard 能检查当前工作区、bundle id、display name、icon、API base URL。
+- [x] Xcode scheme、Product Name、Display Name、App Icon 都显示 Recallo。已由 `npm run check:release-ios` 和 `node tools/recallo-workspace-guard.mjs` 验证。
+- [x] Release / Archive 包默认使用 V2 root。已由 `npm run check:release-ios` 验证。
+- [x] Release 包不包含 Mock 切换、本地 API、Railway 输入框、debug 文案、fixture 缺失提示。已由 `node tools/ios-production-guard.mjs` 和 `npm run check:release-ios` 验证；仍有 `Railway`/`deviceId`/`ShibeiUseLegacyRoot` 代码级 warning，需要在真机验收确认用户不可见。
+- [x] 旧工程目录继续隔离，不作为 Archive 入口。已由本地 worktree guard 和 `check:release-ios` 验证官方路径。
+- [x] 打包前 guard 能检查当前工作区、bundle id、display name、icon、API base URL。已由 `tools/release-archive-preflight.mjs`、`tools/recallo-workspace-guard.mjs` 和 `tools/ios-production-guard.mjs` 覆盖。
 
 验收方式：
 
@@ -117,11 +117,11 @@
 
 必须新增的工程安全 guard：
 
-- [ ] 仓库内增加 Release preflight 脚本，检查当前路径必须是官方工作区。
-- [ ] 检查 `PRODUCT_NAME`、`INFOPLIST_KEY_CFBundleDisplayName`、App Icon、scheme 是否为 Recallo。
-- [ ] 检查 `ContentView` Release 必须进入 `V2RootView`。
-- [ ] 检查 Release 包不得出现 `fixture 没有对应页面数据`、`拾贝`、`ShibeiUseLegacyRoot` 可见文案。
-- [ ] Archive 前输出 commit hash，写入提交包记录。
+- [x] 仓库内增加 Release preflight 脚本，检查当前路径必须是官方工作区。
+- [x] 检查 `PRODUCT_NAME`、`INFOPLIST_KEY_CFBundleDisplayName`、App Icon、scheme 是否为 Recallo。
+- [x] 检查 `ContentView` Release 必须进入 `V2RootView`。
+- [x] 检查 Release 包不得出现 `fixture 没有对应页面数据`、`拾贝`、`ShibeiUseLegacyRoot` 可见文案。当前脚本可拦截 fixture/旧页面缺失文案；`ShibeiUseLegacyRoot` 仍作为兼容启动参数出现在 DEBUG guard 中，已降为可见性 warning，需真机验收确认不可见。
+- [x] Archive 前输出 commit hash，写入提交包记录。已由 `npm run app-store:create-archive-evidence` 负责生成 Archive 证据。
 
 ### 3.2 账号与数据恢复策略
 
@@ -963,6 +963,7 @@ App Store Connect 操作：
 | 2026-07-03 | 增加 App Store Connect 粘贴包生成器 | 已新增 `npm run app-store:create-connect-copy-pack`，从元数据、审核提交包、用户决策表和截图清单生成单份 App Store Connect 可粘贴材料；严格模式会在 URL/决策未收口时拒绝生成最终包，draft 模式可用于提前预览 | `tools/app-store-create-connect-copy-pack.mjs`、`docs/app-store-release-evidence/2026-07-03-app-store-connect-copy-pack-generator.md` | 用户补齐 URL/邮箱/决策/验收/截图后，生成无 blocker 的最终粘贴包并按 runbook 提交 |
 | 2026-07-03 | 增加用户回复收口编排脚本 | 已新增 `npm run app-store:ingest-user-reply`，把用户模板回复解析、标准 JSON 生成、决策表 dry-run、联系信息 dry-run、状态总览和粘贴包检查串成一个安全入口；默认不改正式文档，需显式 `--apply` 才回写 | `tools/app-store-ingest-user-reply.mjs`、`docs/app-store-release-evidence/2026-07-03-user-reply-intake-orchestrator.md` | 用户回复最终模板后，Codex 先跑 dry-run 编排，确认无误后用 `--apply` 一次性收口文档和证据 |
 | 2026-07-03 | 同步状态总览下一步提示 | 已更新 `npm run app-store:status` 的 Next action，使其指向当前 `create-user-handoff` + `ingest-user-reply` dry-run/apply 流程，避免继续提示旧的手动多命令路径 | `tools/app-store-status.mjs`、`docs/app-store-release-evidence/2026-07-03-status-next-action-refresh.md` | 用户回复交接包模板后，按状态提示执行安全收口流程 |
+| 2026-07-03 | 对账 Release/Archive 工程防错 checklist | 已用当前 `check:release-ios`、iOS production guard、workspace guard 和 UI regression guard 对账 3.1；自动门禁已覆盖官方工作区、Recallo 名称/图标配置、V2 Release 入口、production API、mock/debug 控制和 Archive 证据生成；仍保留 Organizer/真机截图等用户侧证据 | `docs/app-store-release-evidence/2026-07-03-release-guard-reconciliation.md` | 用户 Archive/Upload 后补 Organizer/App Store Connect 证据；TestFlight 验收确认 warning 字符串不可见 |
 
 ## 9. 维护规则
 
