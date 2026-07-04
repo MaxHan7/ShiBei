@@ -181,6 +181,8 @@ Recallo 当前不需要账号登录即可使用。App 使用匿名设备身份�
 
 ## 年龄分级问卷建议答案
 
+App Store Connect 年龄分级必须在当前线上页面重新填写。Apple 2026 年提交流已经使用新的年龄值和问卷口径；不要复用旧 TestFlight/旧 App Store 记录。
+
 | 问题方向 | 建议答案 | 说明 |
 | --- | --- | --- |
 | Cartoon or Fantasy Violence | None | 产品没有暴力内容。 |
@@ -194,6 +196,13 @@ Recallo 当前不需要账号登录即可使用。App 使用匿名设备身份�
 | Gambling | None | 无博彩功能。 |
 | Unrestricted Web Access | No | 用户可提交文章链接，但 App 不提供通用网页浏览器。 |
 | User-Generated Content | No community publishing | 用户输入只用于个人学习生成，不公开给其他用户。 |
+
+填完后需要保存两类证据：
+
+- App Store Connect 年龄分级完成页截图。
+- `.release/app-store-inputs/external-console-checks.json` 中 `appStoreConnect.ageRatingCompleted=true`。
+
+如 App Store Connect 问卷出现本表没有覆盖的新项，按真实产品能力填写，并把新项截图发给 Codex 更新本文档。
 
 ## 上线前仍需确认
 

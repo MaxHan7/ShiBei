@@ -114,7 +114,16 @@ App 内首次真实 AI 生成前建议展示：
 
 ## 6. 年龄分级预填建议
 
-提交前需要用户在 App Store Connect 问卷中按真实情况确认。当前产品形态建议：
+提交前需要用户在 App Store Connect 问卷中按真实情况确认。Apple 已将年龄分级更新为 iOS 26 / iPadOS 26 / macOS Tahoe 26 等系统上的新年龄值和问卷口径；2026 年提交时不要沿用旧截图或旧问卷记忆，必须在当前 App Store Connect 页面重新走一遍问卷。
+
+操作路径：
+
+1. App Store Connect > Apps > Recallo > App Information。
+2. 找到 Age Rating / 年龄分级，点击 Set Up Age Ratings 或 Edit。
+3. 逐屏按当前真实产品能力填写，并在完成页截图留证。
+4. 把完成截图或最终结果记录到 `.release/app-store-inputs/external-console-checks.json` 的 `appStoreConnect.ageRatingCompleted`。
+
+当前产品形态建议：
 
 | 问题方向 | 建议答案 | 理由 |
 | --- | --- | --- |
@@ -126,7 +135,12 @@ App 内首次真实 AI 生成前建议展示：
 | 无限制网页访问 | 无 | 原文链接可跳外部网页，但 App 核心不是浏览器；提交前需按 Apple 问卷具体措辞确认 |
 | AI 生成内容 | 有 AI 生成学习内容 | 需要在审核备注和隐私说明中主动说明 |
 
-注意：如果未来加入公开社区、用户互相发布内容、网页浏览器能力或敏感主题推荐，需要重新评估年龄分级。
+填写边界：
+
+- 用户粘贴 URL 或跳转外部原文，不等于 App 内提供通用网页浏览器；如果问卷明确问“unrestricted web access”，当前建议选 No。
+- 用户输入内容只用于个人生成，不公开展示给其他用户；当前不应按社区/公开 UGC 产品填写。
+- 如果未来加入公开社区、用户互相发布内容、通用网页浏览器、儿童专区、敏感主题推荐或内容过滤能力，需要重新评估年龄分级。
+- 如果 App Store Connect 因用户输入文本/AI 内容提出更细问题，以当前真实能力为准，不要为了低年龄分级隐瞒 AI 处理。
 
 ## 7. 截图清单
 

@@ -251,7 +251,7 @@
 - [ ] Privacy Policy URL。隐私页已准备，仍待用户提供公开 HTTPS URL。
 - [ ] 截图：至少 iPhone 尺寸，覆盖首页、添加、生成中/完成、复习、解释/来源。截图规格和场景清单已准备，仍待用户交付正式截图。
 - [x] Review Notes：说明 AI 生成、通知用途、是否需要登录、测试方式。已有审核提交包草案，仍需按最终账号决策保留正确段落。
-- [ ] 年龄分级。已有问卷建议答案，仍需用户在 App Store Connect 按真实问卷填写。
+- [ ] 年龄分级。已有问卷建议答案和 2026 新口径操作清单，仍需用户在 App Store Connect 当前页面按真实问卷填写并截图留证。
 - [ ] 如果有登录，提供审核账号或说明 Sign in with Apple。当前仍待用户拍板 Apple 登录是否进入首版。
 
 Review Notes 草案结构：
@@ -993,6 +993,7 @@ App Store Connect 操作：
 | 2026-07-04 | 刷新最终提交门禁和责任边界证据 | 已刷新 final gate、责任边界和运维 readiness 证据；final gate 下一步提示现在自动指向最新 `2026-07-04-user-handoff.md`，截图文案同步为“至少 1 张符合 Apple 规格是硬门槛、6 张核心场景为首版建议”；当前仍为 NOT READY，阻塞项均来自用户决策、截图、真机验收、公开 URL 和 Apple 外部控制台确认 | `tools/app-store-final-submission-gate.mjs`、`docs/app-store-release-evidence/2026-07-04-final-submission-gate.md`、`docs/app-store-release-evidence/2026-07-04-responsibility-boundary.md`、`docs/app-store-release-evidence/2026-07-04-ops-readiness-boundary.md` | 用户补齐 handoff、验收记录、截图和外部控制台 JSON 后，Codex 继续 ingest/dry-run/apply/final gate |
 | 2026-07-04 | 自动回写验收记录路径并刷新用户交接入口 | 已把决策表中的“真机验收记录文件”从待填写改为当天验收记录路径，用户待补字段从 22 降到 21；账号策略 audit 增加对决策表的覆盖，防止“二选一”旧推荐再次进入用户填表入口；重新生成 handoff、状态、final gate、账号一致性和截图证据快照 | `docs/app-store-user-decision-form-zh.md`、`tools/app-store-account-decision-consistency-audit.mjs`、`docs/app-store-release-evidence/2026-07-04-user-handoff.md`、`docs/app-store-release-evidence/2026-07-04-screenshot-evidence.md` | 用户继续补 21 个外部/决策字段；Codex 收到输入后继续自动回写和跑 strict gate |
 | 2026-07-04 | 同步用户输入字段映射表到最新证据入口 | 已把字段映射表中的用户 handoff 和真机验收路径从 7 月 3 日更新到 7 月 4 日；`app-store:user-input-field-map-audit` 改为自动寻找最新 production acceptance 证据，避免未来日期继续硬编码；当天字段映射 audit 为 READY | `docs/app-store-user-input-field-map-zh.md`、`tools/app-store-user-input-field-map-audit.mjs`、`docs/app-store-release-evidence/2026-07-04-user-input-field-map-audit.md` | 用户按字段映射表补外部输入；Codex 后续继续解析、dry-run、回写和跑 final gate |
+| 2026-07-04 | 细化 2026 App Store 年龄分级执行清单 | 已根据 Apple 当前年龄分级帮助页和 2026 更新提醒，把年龄分级从“建议答案”细化为 App Store Connect 操作路径、填写边界和证据要求；明确 URL 输入不等于通用网页浏览器，私有学习内容不等于公开社区 UGC；已重新生成允许 pending 的 App Store Connect copy pack 草稿，保留 5 个由用户 URL/决策造成的 blocker | `docs/app-store-review-submission-pack-zh.md`、`docs/app-store-metadata-zh.md`、`docs/app-store-release-evidence/2026-07-04-age-rating-2026-checklist.md`、`docs/app-store-release-evidence/2026-07-04-connect-copy-pack-draft-after-age-rating.md`、`docs/app-store-release-evidence/2026-07-04-static-pages-audit.md` | 用户在 App Store Connect 完成年龄分级问卷并截图；Codex 根据截图/JSON 继续跑外部控制台 gate |
 
 ## 9. 维护规则
 
