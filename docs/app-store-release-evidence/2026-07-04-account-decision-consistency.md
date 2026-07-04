@@ -1,7 +1,3 @@
-
-> recallo@0.1.0 app-store:account-decision-audit
-> node tools/app-store-account-decision-consistency-audit.mjs --report
-
 # Recallo App Store Account Decision Consistency Audit
 repoRoot=/Users/hanmingyu/Downloads/拾贝-prod-hardening
 mode=report
@@ -22,5 +18,10 @@ PASS docs/app-store-review-submission-pack-zh.md contains required text: 快速�
 PASS docs/app-store-review-submission-pack-zh.md contains required text: Anonymous-first release
 PASS docs/app-store-review-submission-pack-zh.md excludes forbidden text: Apple 登录是否进入首版待决策
 PASS docs/app-store-review-submission-pack-zh.md excludes forbidden text: 推荐可选加入；若赶时间可匿名首版
+PASS docs/app-store-release-readiness-plan-zh.md contains required text: 快速首版暂不做 Apple 登录
+PASS docs/app-store-release-readiness-plan-zh.md contains required text: 上架后 P1 做可选 Apple 登录
+PASS docs/app-store-release-readiness-plan-zh.md excludes forbidden text: 推荐可选加入
+PASS docs/app-store-release-readiness-plan-zh.md excludes forbidden text: 推荐 App Store 首版目标
+PASS docs/app-store-release-readiness-plan-zh.md excludes forbidden text: 倾向可选做
 
 Account decision consistency: READY

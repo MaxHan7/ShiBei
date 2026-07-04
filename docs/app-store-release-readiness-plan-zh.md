@@ -81,7 +81,7 @@
 | 社交分享/社区发布 | 不做 | 非首版必要 |
 | 完整后台 CMS | 不做 | 推荐好文先用脚本/JSON 维护 |
 | 第三方社交登录 | 不做 | 避免引入 Sign in with Apple 以外的审核复杂度 |
-| Apple 登录 | 倾向可选做 | 数据恢复价值高，但必须同步账号删除 |
+| Apple 登录 | 首版暂不做；上架后 P1 做可选 Apple 登录 | 快速首版优先降低账号删除/迁移/审核复杂度；用户需确认接受匿名数据恢复边界 |
 
 ### 2.2 App Store 提交包拆解
 
@@ -130,12 +130,13 @@
 首版决策建议：
 
 - App Store 首版可以继续允许匿名体验。
-- 推荐加入 Sign in with Apple，作为“保存和同步学习数据”的可选能力。
-- 如果首版不做账号，则必须在产品文案中明确“当前数据绑定本设备”，但这会削弱正式上架可信度。
+- 快速首版暂不做 Sign in with Apple，用户需确认接受匿名数据恢复边界。
+- Sign in with Apple 列为上架后 P1，用于“保存和同步学习数据”。
+- 首版不做账号时，产品文案和审核说明必须明确“当前数据绑定本设备”，并把数据恢复边界写入用户交接包和审核材料。
 
 必须完成：
 
-- [ ] 明确首版是否加入 Apple 登录。
+- [ ] 用户最终确认：快速首版暂不做 Apple 登录，并接受匿名数据恢复边界。
 - [ ] 明确匿名用户数据如何绑定、迁移、删除和恢复。
 - [ ] 如果提供账号创建，App 内必须提供账号删除入口。
 - [ ] 数据删除应删除章节、复习记录、收藏、通知、push token 和用户 profile。
@@ -154,8 +155,8 @@
 
 | 方案 | 优点 | 风险 | 建议 |
 | --- | --- | --- | --- |
-| 继续匿名 | 实现最快，审核复杂度低 | 数据恢复弱，正式用户信任风险高 | 可用于 TestFlight，不建议长期正式版只靠它 |
-| Apple 登录可选 | 数据可恢复，符合 iOS 生态 | 需要账号删除、迁移、权限和测试 | 推荐 App Store 首版目标 |
+| 继续匿名 | 实现最快，审核复杂度低 | 数据恢复弱，正式用户信任风险高 | 快速首版推荐；需用户明确确认匿名数据恢复边界 |
+| Apple 登录可选 | 数据可恢复，符合 iOS 生态 | 需要账号删除、迁移、权限和测试 | 上架后 P1 做可选 Apple 登录 |
 | 强制登录 | 数据一致性最好 | 首次体验门槛高 | 不建议首版 |
 
 ### 3.3 免费额度和成本控制
@@ -920,10 +921,10 @@ App Store Connect 操作：
 | 首版是否免费 | 是 | 降低审核和用户进入门槛 | 待确认 |
 | 是否做每日额度 | 是 | 控制模型成本和滥用 | 已实现默认 3 次/UTC day，待用户确认数字 |
 | 是否做付费积分/订阅 | 否，后置 | 避免首版 IAP 复杂度 | 建议后置 |
-| 是否首版加入 Apple 登录 | 推荐可选加入 | 解决数据恢复和正式用户信任；匿名首版只适合短期 | 待用户拍板 |
+| 是否首版加入 Apple 登录 | 快速首版暂不做；上架后 P1 做可选 Apple 登录 | 降低首版账号删除、迁移和审核复杂度；用户需接受匿名数据恢复边界 | 待用户最终确认 |
 | 是否强制登录后生成 | 否 | 会显著提高首次体验门槛 | 建议不强制 |
 | 推荐好文是否计入额度 | 建议不计或单独计 | 预生成内容成本低，适合新手体验 | 待确认 |
-| 旧匿名数据如何迁移 | 登录时可绑定当前匿名数据 | 防止用户升级后数据丢失 | 已给出方案，待是否做 Apple 登录决策 |
+| 旧匿名数据如何迁移 | 上架后 P1 做 Apple 登录时，登录可绑定当前匿名数据 | 防止用户升级后数据丢失 | 后置到 Apple 登录 P1 |
 
 ## 8. 执行台账
 
@@ -987,6 +988,7 @@ App Store Connect 操作：
 | 2026-07-03 | 增加 App Store 截图证据生成器 | 已新增 `npm run app-store:create-screenshot-evidence`，会读取正式截图目录并记录每张截图的尺寸、文件大小、SHA-256、推荐场景覆盖和截图 audit 原始输出；当前目录仍为 0 张截图，因此证据状态保持 NOT READY | `tools/app-store-create-screenshot-evidence.mjs`、`docs/app-store-release-evidence/2026-07-03-screenshot-evidence.md`、`package.json` | 用户放入最终截图后，Codex 运行该命令刷新截图证据，再跑 `npm run check:app-store-screenshots` 和最终 gate |
 | 2026-07-04 | 收口首版账号策略推荐口径 | 已把用户手动事项清单和审核提交包中的账号策略统一为“快速首版暂不做 Apple 登录、接受匿名数据恢复边界、上架后 P1 做可选 Apple 登录”，并新增 `npm run app-store:account-decision-audit` 防止用户交接、字段映射、推荐决策稿和审核包再次出现互相矛盾的建议 | `tools/app-store-account-decision-consistency-audit.mjs`、`docs/app-store-release-evidence/2026-07-04-account-decision-consistency.md`、`docs/app-store-user-action-checklist-zh.md`、`docs/app-store-review-submission-pack-zh.md`、`package.json` | 用户仍需最终确认是否采用快速首版方案；若改为首版做 Apple 登录，必须同步追加账号绑定、删除账号和验收路径 |
 | 2026-07-04 | 刷新最新用户交接包 | 已用当前 commit 重新生成 `2026-07-04-user-handoff.md`，并将账号策略一致性 audit 改为自动检查最新 handoff；最新交接包仍显示 22 个用户待补字段和 7 个阻塞区域 | `docs/app-store-release-evidence/2026-07-04-user-handoff.md`、`tools/app-store-account-decision-consistency-audit.mjs`、`docs/app-store-release-evidence/2026-07-04-account-decision-consistency.md` | 用户以 7 月 4 日 handoff 为唯一回复入口；Codex 收到回复后执行 ingest/dry-run/apply/final gate |
+| 2026-07-04 | 收口总控台账中的账号策略口径 | 已将总控计划第 2/3/7 节的 Apple 登录建议统一为“快速首版暂不做 Apple 登录，接受匿名数据恢复边界，上架后 P1 做可选 Apple 登录”；账号策略一致性 audit 覆盖总控计划，防止旧建议再次残留 | `docs/app-store-release-readiness-plan-zh.md`、`tools/app-store-account-decision-consistency-audit.mjs` | 用户仍需在 handoff 中最终确认快速首版方案；若改为首版 Apple 登录，需重新打开账号删除/迁移工作流 |
 
 ## 9. 维护规则
 
@@ -1002,9 +1004,9 @@ Task 1-10 的 Codex 可产出部分已经基本落入文档、脚本和台账。
 
 完整用户手动事项见：`docs/app-store-user-action-checklist-zh.md`。
 
-1. 用户按 `docs/app-store-recommended-decisions-zh.md` 第 4 节模板回复，或填写 `docs/app-store-user-decision-form-zh.md`，确认价格、额度、推荐好文计额、Apple 登录、支持邮箱和 URL。
+1. 用户按最新 `docs/app-store-release-evidence/2026-07-04-user-handoff.md` 模板回复，或填写 `docs/app-store-user-decision-form-zh.md`，确认价格、额度、推荐好文计额、首版暂不做 Apple 登录且接受匿名数据恢复边界、支持邮箱和 URL。
 2. Codex 用 `npm run app-store:parse-fast-release-reply` 或 `npm run app-store:create-fast-release-inputs` 生成标准输入 JSON，并根据决策表回写隐私政策、支持页、元数据、审核包和提交 guard。
-3. 用户按 `docs/app-store-release-evidence/2026-07-03-production-acceptance.md` 跑真机验收并补证据。
+3. 用户运行 `npm run app-store:create-acceptance -- --force` 生成当天真机验收记录，或继续填写已有最新验收记录，然后跑真机/TestFlight 验收并补证据。
 4. 用户按 `docs/app-store-release-evidence/screenshots-checklist.md` 准备 6 张截图。
 5. 没有 P0/P1 后，按 `docs/app-store-archive-submit-runbook-zh.md` 进行 Archive 和 App Store Connect 上传。
 

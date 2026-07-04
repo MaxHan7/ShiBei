@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import { existsSync, realpathSync } from "node:fs";
+import { existsSync, readdirSync, realpathSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -10,6 +10,7 @@ const repoRoot = realpathSync(resolve(scriptDir, ".."));
 const today = new Date().toISOString().slice(0, 10);
 const acceptanceRecordPath = `docs/app-store-release-evidence/${today}-production-acceptance.md`;
 const externalConsoleInputPath = ".release/app-store-inputs/external-console-checks.json";
+const latestUserHandoffPath = findLatestUserHandoffPath();
 
 const checks = [
   {
@@ -148,9 +149,13 @@ function summarize(output, status) {
 
 function buildNextActions(blockers) {
   const blockerNames = new Set(blockers.map((blocker) => blocker.name));
-  const actions = [
-    "运行 `npm run app-store:create-user-handoff -- --force` 刷新用户交接包，作为当前唯一用户待办入口。"
-  ];
+  const actions = [];
+
+  if (latestUserHandoffPath) {
+    actions.push(`使用最新用户交接包 \`${latestUserHandoffPath}\` 作为当前唯一用户待办入口；只有台账或状态变化后才需要重新运行 \`npm run app-store:create-user-handoff -- --force\`。`);
+  } else {
+    actions.push("运行 `npm run app-store:create-user-handoff -- --force` 刷新用户交接包，作为当前唯一用户待办入口。");
+  }
 
   if (blockerNames.has("用户决策表") || blockerNames.has("用户行动分组")) {
     actions.push("用户按交接包模板补齐价格、额度、Apple 登录、邮箱、URL、元数据、截图和验收状态；Codex 随后运行 `npm run app-store:ingest-user-reply -- --input <reply-file> --acceptance-record <acceptance-file>` 做 dry-run，确认后加 `--apply` 回写。");
@@ -177,4 +182,16 @@ function buildNextActions(blockers) {
 
   actions.push("所有用户输入回写后，Codex 跑 `npm run app-store:final-gate` 预览最终缺口；严格通过 `npm run check:app-store-final`、`npm run check:release-ios`、`npm run check` 后，用户再 Archive / Upload。");
   return actions;
+}
+
+function findLatestUserHandoffPath() {
+  const evidenceDir = resolve(repoRoot, "docs/app-store-release-evidence");
+  if (!existsSync(evidenceDir)) return null;
+
+  const handoffs = readdirSync(evidenceDir)
+    .filter((name) => /^\d{4}-\d{2}-\d{2}-user-handoff\.md$/.test(name))
+    .sort();
+
+  if (handoffs.length === 0) return null;
+  return `docs/app-store-release-evidence/${handoffs.at(-1)}`;
 }

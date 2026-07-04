@@ -34,6 +34,11 @@ const documents = [
     path: "docs/app-store-review-submission-pack-zh.md",
     required: ["快速首版匿名优先；暂不做 Apple 登录", "Anonymous-first release"],
     forbidden: ["Apple 登录是否进入首版待决策", "推荐可选加入；若赶时间可匿名首版"]
+  },
+  {
+    path: "docs/app-store-release-readiness-plan-zh.md",
+    required: ["快速首版暂不做 Apple 登录", "上架后 P1 做可选 Apple 登录"],
+    forbidden: ["推荐可选加入", "推荐 App Store 首版目标", "倾向可选做"]
   }
 ];
 
