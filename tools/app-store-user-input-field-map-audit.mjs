@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readFileSync, realpathSync } from "node:fs";
+import { readdirSync, readFileSync, realpathSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -11,6 +11,7 @@ const reportMode = process.argv.includes("--report");
 const fieldMapPath = "docs/app-store-user-input-field-map-zh.md";
 const decisionFormPath = "docs/app-store-user-decision-form-zh.md";
 const externalConsoleExamplePath = "docs/app-store-external-console-checks.example.json";
+const latestAcceptanceRecordPath = findLatestEvidencePath(/^\d{4}-\d{2}-\d{2}-production-acceptance\.md$/);
 
 const checks = [];
 
@@ -43,7 +44,7 @@ for (const path of jsonPaths) {
 }
 
 for (const requiredText of [
-  "docs/app-store-release-evidence/2026-07-03-production-acceptance.md",
+  latestAcceptanceRecordPath,
   "docs/app-store-release-evidence/screenshots/app-store/",
   "npm run check:app-store-screenshots",
   "npm run check:app-store-external-console"
@@ -59,6 +60,17 @@ finish();
 
 function read(path) {
   return readFileSync(resolve(repoRoot, path), "utf8");
+}
+
+function findLatestEvidencePath(pattern) {
+  const evidenceDir = resolve(repoRoot, "docs/app-store-release-evidence");
+  const files = readdirSync(evidenceDir)
+    .filter((file) => pattern.test(file))
+    .sort((a, b) => a.localeCompare(b));
+  if (files.length === 0) {
+    throw new Error(`No evidence file found matching ${pattern}`);
+  }
+  return `docs/app-store-release-evidence/${files.at(-1)}`;
 }
 
 function parseDecisionFields(markdown) {

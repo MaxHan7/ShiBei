@@ -573,7 +573,7 @@ App Store submission readiness: NOT READY (10 blockers)
 repoRoot=/Users/hanmingyu/Downloads/拾贝-prod-hardening
 cwd=/Users/hanmingyu/Downloads/拾贝-prod-hardening
 branch=codex/recallo-review-replay-mode
-commit=920502c2204e
+commit=53e1f81523da
 
 PASS workspace_is_official_prod_hardening - /Users/hanmingyu/Downloads/拾贝-prod-hardening
 PASS cwd_is_inside_official_worktree - /Users/hanmingyu/Downloads/拾贝-prod-hardening

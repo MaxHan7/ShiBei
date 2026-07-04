@@ -4,8 +4,8 @@
 
 ## 1. 推荐填写顺序
 
-1. 先按 `docs/app-store-release-evidence/2026-07-03-user-handoff.md` 里的“建议直接回复模板”回复产品决策、邮箱、URL 和元数据。
-2. 再填 `docs/app-store-release-evidence/2026-07-03-production-acceptance.md` 的真机验收结果。
+1. 先按 `docs/app-store-release-evidence/2026-07-04-user-handoff.md` 里的“建议直接回复模板”回复产品决策、邮箱、URL 和元数据。
+2. 再填 `docs/app-store-release-evidence/2026-07-04-production-acceptance.md` 的真机验收结果。
 3. 再填 `.release/app-store-inputs/external-console-checks.json` 的 Apple Developer / App Store Connect 后台确认值。
 4. 最后把至少 1 张符合规格截图放到 `docs/app-store-release-evidence/screenshots/app-store/`；首版建议补齐 6 张核心场景截图。
 
@@ -34,7 +34,7 @@
 | Category | Education | 是 | App Store Connect > App Information。 |
 | Secondary Category | Productivity | 是 | App Store Connect > App Information。 |
 | Keywords | 学习,知识管理,文章,AI,记忆,题库,阅读,笔记,知识点,碎片知识,练习 | 是 | App Store Connect 关键词字段。 |
-| 真机验收记录文件 | `docs/app-store-release-evidence/2026-07-03-production-acceptance.md` | 是 | 已创建，继续填写即可。 |
+| 真机验收记录文件 | `docs/app-store-release-evidence/2026-07-04-production-acceptance.md` | 否，Codex 已回写 | 已创建，继续填写真机/TestFlight 结果即可。 |
 | 是否仍有 P0 | 无 P0 / 有 P0 | 是 | 有 P0 时不能 Archive/提交审核。 |
 | 是否仍有未豁免 P1 | 无未豁免 P1 / 有未豁免 P1 | 是 | 有未豁免 P1 时不能 Archive/提交审核。 |
 | App Store 截图是否已准备 | 已准备 / 未准备 | 是 | 截图 strict 检查通过前不能提交。 |
@@ -100,7 +100,7 @@ npm run check:app-store-external-console
 
 ## 4. 真机验收记录字段
 
-来源文件：`docs/app-store-release-evidence/2026-07-03-production-acceptance.md`
+来源文件：`docs/app-store-release-evidence/2026-07-04-production-acceptance.md`
 
 必须由用户在真机或 TestFlight 上填写：
 

@@ -5,7 +5,7 @@
 | 字段 | 值 |
 | --- | --- |
 | 日期 | 2026-07-04 |
-| 生成基准 Git commit | 920502c2204e |
+| 生成基准 Git commit | 53e1f81523da |
 | Branch | codex/recallo-review-replay-mode |
 | 决策字段总数 | 26 |
 | 已完成字段 | 5 |
