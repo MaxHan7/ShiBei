@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import { existsSync, realpathSync } from "node:fs";
+import { existsSync, readdirSync, realpathSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -11,6 +11,7 @@ const reportMode = process.argv.includes("--report");
 const today = new Date().toISOString().slice(0, 10);
 const acceptanceRecordPath = `docs/app-store-release-evidence/${today}-production-acceptance.md`;
 const externalConsoleInputPath = ".release/app-store-inputs/external-console-checks.json";
+const latestUserHandoffPath = findLatestUserHandoffPath();
 
 const checks = [
   {
@@ -146,13 +147,16 @@ function buildNextActions(failures) {
   const names = new Set(failures.map((failure) => failure.name));
   const actions = [];
   if (names.has("用户决策表") || names.has("用户行动分组")) {
-    actions.push("填写 `docs/app-store-release-evidence/2026-07-03-user-handoff.md` 里的用户回复模板，或直接填写 `docs/app-store-user-decision-form-zh.md`。");
+    const handoffAction = latestUserHandoffPath
+      ? `填写最新用户交接包 \`${latestUserHandoffPath}\` 里的用户回复模板`
+      : "运行 `npm run app-store:create-user-handoff -- --force` 生成用户交接包后填写模板";
+    actions.push(`${handoffAction}，或直接填写 \`docs/app-store-user-decision-form-zh.md\`。`);
   }
   if (names.has("公开页面") || names.has("提交材料")) {
     actions.push("提供支持邮箱、Privacy Policy URL 和 Support URL；Codex 用 `app-store:apply-contact` 回写并重跑门禁。");
   }
   if (names.has("截图规格")) {
-    actions.push("把 6 张正式 App Store 截图放入 `docs/app-store-release-evidence/screenshots/app-store/`。");
+    actions.push("把至少 1 张符合 Apple 规格的正式 App Store 截图放入 `docs/app-store-release-evidence/screenshots/app-store/`；首版仍建议补齐 6 张核心场景。");
   }
   if (names.has("真机验收")) {
     if (existsSync(resolve(repoRoot, acceptanceRecordPath))) {
@@ -177,4 +181,16 @@ function buildNextActions(failures) {
     actions.push("先修复 `docs/app-store-privacy-labels.json`、隐私政策、审核包或元数据里的 App Privacy 不一致。");
   }
   return actions.length > 0 ? actions : ["运行 `npm run app-store:status` 查看当前阻塞项。"];
+}
+
+function findLatestUserHandoffPath() {
+  const evidenceDir = resolve(repoRoot, "docs/app-store-release-evidence");
+  if (!existsSync(evidenceDir)) return null;
+
+  const handoffs = readdirSync(evidenceDir)
+    .filter((name) => /^\d{4}-\d{2}-\d{2}-user-handoff\.md$/.test(name))
+    .sort();
+
+  if (handoffs.length === 0) return null;
+  return `docs/app-store-release-evidence/${handoffs.at(-1)}`;
 }
