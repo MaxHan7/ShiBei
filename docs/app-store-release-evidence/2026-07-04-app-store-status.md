@@ -24,7 +24,7 @@ Overall status: NOT READY (7 blocking areas)
 - 用户按交接包模板补齐价格、额度、Apple 登录、邮箱、URL、元数据、截图和验收状态；Codex 随后运行 `npm run app-store:ingest-user-reply -- --input <reply-file> --acceptance-record <acceptance-file>` 做 dry-run，确认后加 `--apply` 回写。
 - 用户提供正式支持邮箱、Privacy Policy URL、Support URL；Codex 用 `npm run app-store:apply-contact -- <contact-json> --dry-run` 验证并回写公开页面和提交包。
 - 用户把至少 1 张符合规格的正式 App Store 截图放入 `docs/app-store-release-evidence/screenshots/app-store/`；首版仍建议补齐 6 张核心场景。Codex 运行 `npm run check:app-store-screenshots`。
-- 用户完成真机/TestFlight 核心路径验收；Codex 运行 `npm run app-store:create-acceptance` 生成记录，并用 `npm run check:app-store-acceptance -- <record>` 做严格检查。
+- 用户填写已创建的真机/TestFlight 验收记录 `docs/app-store-release-evidence/2026-07-04-production-acceptance.md`；Codex 用 `npm run check:app-store-acceptance -- docs/app-store-release-evidence/2026-07-04-production-acceptance.md` 做严格检查。
 - 用户填写已创建的 `.release/app-store-inputs/external-console-checks.json`；Codex 运行 `npm run check:app-store-external-console`。
 - 所有用户输入回写后，Codex 跑 `npm run app-store:final-gate` 预览最终缺口；严格通过 `npm run check:app-store-final`、`npm run check:release-ios`、`npm run check` 后，用户再 Archive / Upload。
 
@@ -402,7 +402,7 @@ Screenshot readiness: NOT READY (1 issue)
 # Recallo App Store Production Acceptance Audit
 repoRoot=/Users/hanmingyu/Downloads/拾贝-prod-hardening
 mode=report
-source=docs/app-store-release-evidence/2026-07-03-production-acceptance.md
+source=docs/app-store-release-evidence/2026-07-04-production-acceptance.md
 
 Production acceptance: NOT READY (36 issues)
 - 候选版本信息缺失：iOS build number
@@ -585,7 +585,7 @@ App Store submission readiness: NOT READY (10 blockers)
 repoRoot=/Users/hanmingyu/Downloads/拾贝-prod-hardening
 cwd=/Users/hanmingyu/Downloads/拾贝-prod-hardening
 branch=codex/recallo-review-replay-mode
-commit=5ad81a815091
+commit=131f94beda79
 
 PASS workspace_is_official_prod_hardening - /Users/hanmingyu/Downloads/拾贝-prod-hardening
 PASS cwd_is_inside_official_worktree - /Users/hanmingyu/Downloads/拾贝-prod-hardening
