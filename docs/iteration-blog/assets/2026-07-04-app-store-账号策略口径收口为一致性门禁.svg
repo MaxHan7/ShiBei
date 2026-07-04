@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <rect x="92" y="82" width="1016" height="596" rx="42" fill="#fff" stroke="#fbf3e4" stroke-width="3"/>
+  <text x="150" y="154" fill="#e09859" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24" font-weight="800">发布准备</text>
+  <text x="150" y="220" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="44" font-weight="900">App Store 账号策略口径收口为一致性门禁</text>
+  <rect x="150" y="286" width="420" height="250" rx="28" fill="#fffaf4" stroke="#eadfcd"/>
+  <text x="188" y="346" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="800">问题</text>
+  <text x="188" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">拾贝首版提交前，账号策略已经影响审核说明、用户手动确认事项、匿名数据恢复</text>
+  <text x="188" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">边界和后续 Apple 登录优先级。如果文档中同时存在“推荐可选加入”“</text>
+  <text x="188" y="462" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">是否进入首版待决策”和“快速首版暂不做”等口径，团队很容易在审核包、用户</text>
+  <text x="188" y="496" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">交接和实现计划之间形成相互矛盾的承诺，进而削弱首版匿名生成与长内容复习路</text>
+  <rect x="630" y="286" width="420" height="250" rx="28" fill="#fffaf4" stroke="#eadfcd"/>
+  <text x="668" y="346" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="800">效果</text>
+  <text x="668" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">已生成 2026-07-04 account decision consis</text>
+  <text x="668" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">tency 证据报告，所有被检查文档均通过必需文本和禁用旧口径校验，审计结果</text>
+  <text x="668" y="462" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">为 READY。当前结果说明账号策略从人工解释问题变成了可验证的发布约束；限</text>
+  <text x="668" y="496" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">制是最终仍需用户确认是否接受匿名首版方案，若改为首版加入 Apple 登录，</text>
+  <text x="150" y="612" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">2026-07-04</text>
+</svg>
