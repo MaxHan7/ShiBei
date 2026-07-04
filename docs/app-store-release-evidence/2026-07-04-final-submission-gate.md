@@ -7,8 +7,8 @@ repoRoot=/Users/hanmingyu/Downloads/拾贝-prod-hardening
 mode=report
 
 ## Summary
-- FAIL 用户决策表: missingFields=22
-- FAIL 用户行动分组: missingFields=22
+- FAIL 用户决策表: missingFields=21
+- FAIL 用户行动分组: missingFields=21
 - FAIL 截图规格: Screenshot readiness: NOT READY (1 issue)
 - FAIL 真机验收: Production acceptance: NOT READY (36 issues)
 - PASS 生产健康: Production health: READY
@@ -47,7 +47,6 @@ Final submission readiness: NOT READY (7 blockers)
 - Category: 待填写
 - Secondary Category: 待填写
 - Keywords: 待填写
-- 真机验收记录文件: 待填写
 - 是否仍有 P0: 待填写
 - 是否仍有未豁免 P1: 待填写
 - App Store 截图是否已准备: 待填写
@@ -56,7 +55,7 @@ Final submission readiness: NOT READY (7 blockers)
 ## JSON summary
 {
   "ready": false,
-  "readyFields": 4,
+  "readyFields": 5,
   "missingFields": [
     {
       "label": "首版价格",
@@ -110,6 +109,7 @@ Final submission readiness: NOT READY (7 blockers)
     },
     {
       "label": "Support URL",
+      "value": "待填写",
 
 ### 用户行动分组
 ## User-owned missing items
@@ -134,7 +134,6 @@ Final submission readiness: NOT READY (7 blockers)
 - Secondary Category: 待填写
 - Keywords: 待填写
 ### 真机验收与截图
-- 真机验收记录文件: 待填写
 - 是否仍有 P0: 待填写
 - 是否仍有未豁免 P1: 待填写
 - App Store 截图是否已准备: 待填写
@@ -150,7 +149,7 @@ Final submission readiness: NOT READY (7 blockers)
 {
   "ready": false,
   "totalFields": 26,
-  "readyFields": 4,
+  "readyFields": 5,
   "missingGroups": [
     {
       "title": "产品与商业化决策",
@@ -192,6 +191,7 @@ Final submission readiness: NOT READY (7 blockers)
         },
         {
           "label": "如果首版暂不做 Apple 登录，是否接受匿名数据恢复边界",
+          "value": "待填写",
 
 ### 截图规格
 Screenshot readiness: NOT READY (1 issue)

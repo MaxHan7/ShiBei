@@ -5,16 +5,16 @@
 | 字段 | 值 |
 | --- | --- |
 | 日期 | 2026-07-04 |
-| 生成基准 Git commit | 41fd6f978b49 |
+| 生成基准 Git commit | 920502c2204e |
 | Branch | codex/recallo-review-replay-mode |
 | 决策字段总数 | 26 |
-| 已完成字段 | 4 |
-| 待用户补齐字段 | 22 |
+| 已完成字段 | 5 |
+| 待用户补齐字段 | 21 |
 
 ## 当前状态摘要
 
-- BLOCKED 用户决策表: totalFields=26, missingFields=22
-- BLOCKED 用户行动分组: totalFields=26, missingFields=22
+- BLOCKED 用户决策表: totalFields=26, missingFields=21
+- BLOCKED 用户行动分组: totalFields=26, missingFields=21
 - BLOCKED 截图规格报告: Screenshot readiness: NOT READY (1 issue)
 - BLOCKED 真机验收报告: Production acceptance: NOT READY (36 issues)
 - PASS 生产健康报告: Production health: READY
@@ -24,11 +24,11 @@
 - BLOCKED 提交 readiness 报告: App Store submission readiness: NOT READY (10 blockers)
 - PASS iOS Release 预检: Release archive preflight passed.
 Overall status: NOT READY (7 blocking areas)
-- 运行 `npm run app-store:create-user-handoff -- --force` 刷新用户交接包，作为当前唯一用户待办入口。
+- 使用最新用户交接包 `docs/app-store-release-evidence/2026-07-04-user-handoff.md` 作为当前唯一用户待办入口；只有台账或状态变化后才需要重新运行 `npm run app-store:create-user-handoff -- --force`。
 - 用户按交接包模板补齐价格、额度、Apple 登录、邮箱、URL、元数据、截图和验收状态；Codex 随后运行 `npm run app-store:ingest-user-reply -- --input <reply-file> --acceptance-record <acceptance-file>` 做 dry-run，确认后加 `--apply` 回写。
 - 用户提供正式支持邮箱、Privacy Policy URL、Support URL；Codex 用 `npm run app-store:apply-contact -- <contact-json> --dry-run` 验证并回写公开页面和提交包。
 - 用户把至少 1 张符合规格的正式 App Store 截图放入 `docs/app-store-release-evidence/screenshots/app-store/`；首版仍建议补齐 6 张核心场景。Codex 运行 `npm run check:app-store-screenshots`。
-- 用户完成真机/TestFlight 核心路径验收；Codex 运行 `npm run app-store:create-acceptance` 生成记录，并用 `npm run check:app-store-acceptance -- <record>` 做严格检查。
+- 用户填写已创建的真机/TestFlight 验收记录 `docs/app-store-release-evidence/2026-07-04-production-acceptance.md`；Codex 用 `npm run check:app-store-acceptance -- docs/app-store-release-evidence/2026-07-04-production-acceptance.md` 做严格检查。
 - 用户填写已创建的 `.release/app-store-inputs/external-console-checks.json`；Codex 运行 `npm run check:app-store-external-console`。
 - 所有用户输入回写后，Codex 跑 `npm run app-store:final-gate` 预览最终缺口；严格通过 `npm run check:app-store-final`、`npm run check:release-ios`、`npm run check` 后，用户再 Archive / Upload。
 
@@ -74,7 +74,6 @@ Overall status: NOT READY (7 blocking areas)
 
 | 项目 | 当前值 | 影响 |
 | --- | --- | --- |
-| 真机验收记录文件 | 待填写 | 复制 `docs/app-store-release-evidence/production-acceptance-template.md` 后填写 |
 | 是否仍有 P0 | 待填写 | 有 P0 时不能 Archive |
 | 是否仍有未豁免 P1 | 待填写 | 有未豁免 P1 时不能 Archive |
 | App Store 截图是否已准备 | 待填写 | 按 `docs/app-store-release-evidence/screenshots-checklist.md` |
@@ -152,9 +151,13 @@ npm run check:app-store-external-console
 
 ## 真机验收记录
 
-Codex 尚未创建今日验收记录；需要时运行 `npm run app-store:create-acceptance`。
+Codex 已创建真机验收记录草稿：`docs/app-store-release-evidence/2026-07-04-production-acceptance.md`。
 
+打开它：
 
+```bash
+open docs/app-store-release-evidence/2026-07-04-production-acceptance.md
+```
 
 你只需要在这份记录里填写真机/TestFlight 结果、截图证据、iOS build number、设备、iOS 版本和最终结论。填完后运行：
 

@@ -16,7 +16,7 @@
 
 | 决策项 | 推荐选择 | 最终选择 | 影响范围 |
 | --- | --- | --- | --- |
-| 首版是否加入可选 Apple 登录 | 二选一：若要数据恢复更稳，做；若要最快上架，首版暂不做 | 待填写 | 账号删除、隐私政策、App Review、前端入口 |
+| 首版是否加入可选 Apple 登录 | 快速首版暂不做；上架后 P1 做可选 Apple 登录 | 待填写 | 账号删除、隐私政策、App Review、前端入口 |
 | 如果首版暂不做 Apple 登录，是否接受匿名数据恢复边界 | 接受，并在说明中明确重装/换机可能无法恢复 | 待填写 | 隐私政策、账号说明、审核备注 |
 | 如果首版做 Apple 登录，是否同步做删除账号入口 | 必须做 | 待填写 | Apple 审核硬要求、后端删除接口、前端入口 |
 
@@ -43,7 +43,7 @@
 
 | 项目 | 最终状态 | 备注 |
 | --- | --- | --- |
-| 真机验收记录文件 | 待填写 | 复制 `docs/app-store-release-evidence/production-acceptance-template.md` 后填写 |
+| 真机验收记录文件 | `docs/app-store-release-evidence/2026-07-04-production-acceptance.md` | Codex 已创建当天验收记录草稿；用户只需补真机/TestFlight 结果 |
 | 是否仍有 P0 | 待填写 | 有 P0 时不能 Archive |
 | 是否仍有未豁免 P1 | 待填写 | 有未豁免 P1 时不能 Archive |
 | App Store 截图是否已准备 | 待填写 | 按 `docs/app-store-release-evidence/screenshots-checklist.md` |

@@ -26,6 +26,11 @@ const documents = [
     forbidden: ["推荐可选加入；若赶时间可匿名首版"]
   },
   {
+    path: "docs/app-store-user-decision-form-zh.md",
+    required: ["快速首版暂不做；上架后 P1 做可选 Apple 登录"],
+    forbidden: ["二选一：若要数据恢复更稳，做；若要最快上架，首版暂不做"]
+  },
+  {
     path: latestHandoffPath,
     required: ["首版暂不做 Apple 登录，并接受匿名数据恢复边界：确认"],
     forbidden: ["推荐可选加入；若赶时间可匿名首版"]

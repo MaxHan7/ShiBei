@@ -6,8 +6,8 @@
 repoRoot=/Users/hanmingyu/Downloads/拾贝-prod-hardening
 
 ## Summary
-- BLOCKED 用户决策表: totalFields=26, missingFields=22
-- BLOCKED 用户行动分组: totalFields=26, missingFields=22
+- BLOCKED 用户决策表: totalFields=26, missingFields=21
+- BLOCKED 用户行动分组: totalFields=26, missingFields=21
 - BLOCKED 截图规格报告: Screenshot readiness: NOT READY (1 issue)
 - BLOCKED 真机验收报告: Production acceptance: NOT READY (36 issues)
 - PASS 生产健康报告: Production health: READY
@@ -35,8 +35,8 @@ Overall status: NOT READY (7 blocking areas)
 repoRoot=/Users/hanmingyu/Downloads/拾贝-prod-hardening
 source=docs/app-store-user-decision-form-zh.md
 totalFields=26
-readyFields=4
-missingFields=22
+readyFields=5
+missingFields=21
 
 ## Missing fields
 - 首版价格: 待填写
@@ -55,7 +55,6 @@ missingFields=22
 - Category: 待填写
 - Secondary Category: 待填写
 - Keywords: 待填写
-- 真机验收记录文件: 待填写
 - 是否仍有 P0: 待填写
 - 是否仍有未豁免 P1: 待填写
 - App Store 截图是否已准备: 待填写
@@ -65,7 +64,7 @@ missingFields=22
 ## JSON summary
 {
   "ready": false,
-  "readyFields": 4,
+  "readyFields": 5,
   "missingFields": [
     {
       "label": "首版价格",
@@ -148,11 +147,6 @@ missingFields=22
       "ready": false
     },
     {
-      "label": "真机验收记录文件",
-      "value": "待填写",
-      "ready": false
-    },
-    {
       "label": "是否仍有 P0",
       "value": "待填写",
       "ready": false
@@ -185,8 +179,8 @@ missingFields=22
 repoRoot=/Users/hanmingyu/Downloads/拾贝-prod-hardening
 source=docs/app-store-user-decision-form-zh.md
 totalFields=26
-readyFields=4
-missingFields=22
+readyFields=5
+missingFields=21
 
 ## User-owned missing items
 
@@ -215,7 +209,6 @@ missingFields=22
 - Keywords: 待填写
 
 ### 真机验收与截图
-- 真机验收记录文件: 待填写
 - 是否仍有 P0: 待填写
 - 是否仍有未豁免 P1: 待填写
 - App Store 截图是否已准备: 待填写
@@ -234,7 +227,7 @@ missingFields=22
 {
   "ready": false,
   "totalFields": 26,
-  "readyFields": 4,
+  "readyFields": 5,
   "missingGroups": [
     {
       "title": "产品与商业化决策",
@@ -339,11 +332,6 @@ missingFields=22
     {
       "title": "真机验收与截图",
       "missing": [
-        {
-          "label": "真机验收记录文件",
-          "value": "待填写",
-          "note": "复制 `docs/app-store-release-evidence/production-acceptance-template.md` 后填写"
-        },
         {
           "label": "是否仍有 P0",
           "value": "待填写",
@@ -585,7 +573,7 @@ App Store submission readiness: NOT READY (10 blockers)
 repoRoot=/Users/hanmingyu/Downloads/拾贝-prod-hardening
 cwd=/Users/hanmingyu/Downloads/拾贝-prod-hardening
 branch=codex/recallo-review-replay-mode
-commit=131f94beda79
+commit=920502c2204e
 
 PASS workspace_is_official_prod_hardening - /Users/hanmingyu/Downloads/拾贝-prod-hardening
 PASS cwd_is_inside_official_worktree - /Users/hanmingyu/Downloads/拾贝-prod-hardening

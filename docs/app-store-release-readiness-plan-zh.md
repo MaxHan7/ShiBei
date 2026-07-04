@@ -991,6 +991,7 @@ App Store Connect 操作：
 | 2026-07-04 | 收口总控台账中的账号策略口径 | 已将总控计划第 2/3/7 节的 Apple 登录建议统一为“快速首版暂不做 Apple 登录，接受匿名数据恢复边界，上架后 P1 做可选 Apple 登录”；账号策略一致性 audit 覆盖总控计划，防止旧建议再次残留 | `docs/app-store-release-readiness-plan-zh.md`、`tools/app-store-account-decision-consistency-audit.mjs` | 用户仍需在 handoff 中最终确认快速首版方案；若改为首版 Apple 登录，需重新打开账号删除/迁移工作流 |
 | 2026-07-04 | 生成当天真机验收记录并回填自动检查证据 | 已创建 `2026-07-04-production-acceptance.md`，自动写入当前 commit、branch、production URL、Railway deployment id；已回填 `check:release-ios`、完整 `npm run check`、production health 和 iOS Release 无签名 build 均通过；验收缺口剩余 36 项，均为用户真机/截图/最终确认 | `docs/app-store-release-evidence/2026-07-04-production-acceptance.md`、`docs/app-store-release-evidence/2026-07-04-app-store-status.md` | 用户填写该验收记录中的设备、iOS 版本、build number、真机路径结果、截图证据和最终结论；Codex 跑 strict acceptance gate |
 | 2026-07-04 | 刷新最终提交门禁和责任边界证据 | 已刷新 final gate、责任边界和运维 readiness 证据；final gate 下一步提示现在自动指向最新 `2026-07-04-user-handoff.md`，截图文案同步为“至少 1 张符合 Apple 规格是硬门槛、6 张核心场景为首版建议”；当前仍为 NOT READY，阻塞项均来自用户决策、截图、真机验收、公开 URL 和 Apple 外部控制台确认 | `tools/app-store-final-submission-gate.mjs`、`docs/app-store-release-evidence/2026-07-04-final-submission-gate.md`、`docs/app-store-release-evidence/2026-07-04-responsibility-boundary.md`、`docs/app-store-release-evidence/2026-07-04-ops-readiness-boundary.md` | 用户补齐 handoff、验收记录、截图和外部控制台 JSON 后，Codex 继续 ingest/dry-run/apply/final gate |
+| 2026-07-04 | 自动回写验收记录路径并刷新用户交接入口 | 已把决策表中的“真机验收记录文件”从待填写改为当天验收记录路径，用户待补字段从 22 降到 21；账号策略 audit 增加对决策表的覆盖，防止“二选一”旧推荐再次进入用户填表入口；重新生成 handoff、状态、final gate、账号一致性和截图证据快照 | `docs/app-store-user-decision-form-zh.md`、`tools/app-store-account-decision-consistency-audit.mjs`、`docs/app-store-release-evidence/2026-07-04-user-handoff.md`、`docs/app-store-release-evidence/2026-07-04-screenshot-evidence.md` | 用户继续补 21 个外部/决策字段；Codex 收到输入后继续自动回写和跑 strict gate |
 
 ## 9. 维护规则
 
@@ -1008,8 +1009,8 @@ Task 1-10 的 Codex 可产出部分已经基本落入文档、脚本和台账。
 
 1. 用户按最新 `docs/app-store-release-evidence/2026-07-04-user-handoff.md` 模板回复，或填写 `docs/app-store-user-decision-form-zh.md`，确认价格、额度、推荐好文计额、首版暂不做 Apple 登录且接受匿名数据恢复边界、支持邮箱和 URL。
 2. Codex 用 `npm run app-store:parse-fast-release-reply` 或 `npm run app-store:create-fast-release-inputs` 生成标准输入 JSON，并根据决策表回写隐私政策、支持页、元数据、审核包和提交 guard。
-3. 用户运行 `npm run app-store:create-acceptance -- --force` 生成当天真机验收记录，或继续填写已有最新验收记录，然后跑真机/TestFlight 验收并补证据。
-4. 用户按 `docs/app-store-release-evidence/screenshots-checklist.md` 准备 6 张截图。
+3. 用户继续填写已有最新验收记录 `docs/app-store-release-evidence/2026-07-04-production-acceptance.md`，然后跑真机/TestFlight 验收并补证据。
+4. 用户按 `docs/app-store-release-evidence/screenshots-checklist.md` 至少准备 1 张符合 Apple 规格的正式截图；首版仍建议补齐 6 张核心场景。
 5. 没有 P0/P1 后，按 `docs/app-store-archive-submit-runbook-zh.md` 进行 Archive 和 App Store Connect 上传。
 
 - `docs/app-store-release-evidence/README.md`
