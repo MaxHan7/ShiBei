@@ -6,6 +6,7 @@
 repoRoot=/Users/hanmingyu/Downloads/拾贝-prod-hardening
 mode=report
 canonicalRecommendation=快速首版暂不做 Apple 登录；接受匿名数据恢复边界；上架后 P1 做可选 Apple 登录。
+latestHandoff=docs/app-store-release-evidence/2026-07-04-user-handoff.md
 
 ## Checks
 PASS docs/app-store-recommended-decisions-zh.md contains required text: 首版 Apple 登录 | 快速首版暂不做
@@ -15,8 +16,8 @@ PASS docs/app-store-user-input-field-map-zh.md contains required text: disabled-
 PASS docs/app-store-user-action-checklist-zh.md contains required text: 首版是否加入 Apple 登录 | 快速首版暂不做
 PASS docs/app-store-user-action-checklist-zh.md contains required text: 上架后 P1 做可选 Apple 登录
 PASS docs/app-store-user-action-checklist-zh.md excludes forbidden text: 推荐可选加入；若赶时间可匿名首版
-PASS docs/app-store-release-evidence/2026-07-03-user-handoff.md contains required text: 首版暂不做 Apple 登录，并接受匿名数据恢复边界：确认
-PASS docs/app-store-release-evidence/2026-07-03-user-handoff.md excludes forbidden text: 推荐可选加入；若赶时间可匿名首版
+PASS docs/app-store-release-evidence/2026-07-04-user-handoff.md contains required text: 首版暂不做 Apple 登录，并接受匿名数据恢复边界：确认
+PASS docs/app-store-release-evidence/2026-07-04-user-handoff.md excludes forbidden text: 推荐可选加入；若赶时间可匿名首版
 PASS docs/app-store-review-submission-pack-zh.md contains required text: 快速首版匿名优先；暂不做 Apple 登录
 PASS docs/app-store-review-submission-pack-zh.md contains required text: Anonymous-first release
 PASS docs/app-store-review-submission-pack-zh.md excludes forbidden text: Apple 登录是否进入首版待决策
