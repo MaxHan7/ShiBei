@@ -1,0 +1,29 @@
+{
+  "date": "2026-07-05",
+  "title": "可选 Apple 登录把匿名首版升级为可迁移身份闭环",
+  "phase": "发布准备",
+  "problem": "拾贝首版原本以匿名优先换取低摩擦体验，但 App Store 上架前用户提出需要账号登录；这会改变数据归属、额度计数、删除账号、隐私政策和审核说明。如果只在界面上增加登录按钮，长内容生成出来的章节、收藏、通知和复习进度仍可能停留在设备级身份里，无法支撑可复习、可恢复、可迁移的长期学习资产。",
+  "changes": [
+    "账号方案决策：将首版范围从纯匿名调整为匿名可直接使用 + 可选 Sign in with Apple，明确微信登录、手机号、邮箱密码和 IAP 后置，避免上架前引入额外第三方审核变量。",
+    "后端身份层：新增 Apple identity token 校验、accounts、account_device_links、account_deletion_jobs 以及章节、通知、收藏、生成任务、push token 的 account_id 归属字段，使当前设备数据能在登录后挂接到可恢复账号。",
+    "前端账号入口：在个人主页加入匿名状态、Apple 登录、已绑定状态和删除账号入口，让用户在不阻断首次生成的前提下，把学习记录、收藏、通知和生成额度绑定到 Apple 账号。",
+    "发布口径收口：把每日真实 AI 生成额度从 3 篇调整为用户确认的 5 篇，并同步推荐决策、用户行动清单、审核包、公开隐私政策和支持页，减少 App Store Connect、后端行为与用户可见说明之间的不一致。",
+    "公开页面交付：后端增加 privacy/support HTML 的公开路由，配合隐私政策、支持页面、URL 发布指南和审核材料更新，把提交审核需要的外部 URL 从文档待办推进到可托管页面。"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/2026-07-05-可选-apple-登录把匿名首版升级为可迁移身份闭环.svg",
+      "caption": "2026-07-05 迭代摘要"
+    }
+  ],
+  "result": "今天已经形成从 PRD、实现到发布材料的闭环：Apple token 验证有本地签名 JWT 测试覆盖，额度测试更新为 5 篇后拒绝第 6 篇，后端具备账号绑定与删除数据结构，公开 privacy/support 页面可由服务端路由承载。限制仍然明确：Apple Developer capability、Sign in with Apple private key、authorizationCode 换取 refresh token 与 revoke token 还需在真机 Archive 和生产环境中完成验证。",
+  "next": "下一步用真机和 App Store Connect 验证 Sign in with Apple capability、账号删除入口、公开 Privacy Policy/Support URL 和 5 篇额度口径，确认这些发布约束不会破坏匿名首次生成与复习主流程。",
+  "commits": [
+    "9c37cfa",
+    "47ed5c9",
+    "fe67af4",
+    "bde72d8",
+    "2b3cfb4",
+    "02530ce"
+  ]
+}
