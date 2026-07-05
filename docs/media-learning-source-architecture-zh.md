@@ -4,6 +4,8 @@
 
 拾贝当前已经能把文本或文章链接生成可复习章节、知识点和题目。视频功能的目标不是做一个通用视频摘要器，而是让用户粘贴抖音、小红书等视频链接后，系统可以把其中有学习价值的内容变成可复习章节。
 
+文章与视频的内容形态差异会影响后续评测和迭代判断。相关调研见 `docs/content-modality-question-generation-research-zh.md`：结论不是按平台写死“文章=叙事、视频=硬核”。第一版先不根据来源或内容结构调整出题策略，只保留 `LearningSource` 元数据和真实样本评测分桶；是否引入 `ContentStructure`、`visualDependency`、`temporalDependency` 等结构标签进入出题系统，等实际效果验证后再决定。
+
 成熟产品的共同经验是 source-first / transcript-first：
 
 - NotebookLM 对 YouTube 的公开支持依赖字幕或自动字幕，并只把视频文字 transcript 导入为 source。
@@ -23,7 +25,8 @@
 - 后端把视频音轨转成 transcript，并保留时间戳片段。
 - 对画面信息依赖较强的视频，后端抽关键帧做 OCR 或画面摘要，作为 transcript 的补充。
 - 后端把 transcript、文案、OCR、画面摘要合并成 `LearningSource.normalizedText`。
-- 现有 V2 生成系统继续基于文本生成章节、知识点和题目。
+- 模型无关的 V2 生成系统继续基于文本生成章节、知识点和题目。
+- 第一版不按 `article_link` / `video_link` 或内容结构分支调整题型、prompt、质量检查规则。
 - 第一版至少支持文字来源回看；时间戳跳回视频作为二阶段增强。
 
 非目标：
@@ -56,7 +59,7 @@
   保留 timestamp、source reference、provider metadata
 
 → Review Generation
-  现有 V2 生成管线
+  模型无关的 V2 生成管线
   知识点提取
   出题
   质检
@@ -74,7 +77,7 @@
 
 - TikHub 解决“让后端拿到公开视频内容”的问题，不解决“学习理解和出题”的问题。
 - ASR/OCR/视觉摘要解决“把媒体变成可引用文本”的问题。
-- 现有 V2 出题系统继续解决“从文本生成可复习知识”的问题。
+- V2 出题引擎继续解决“从文本生成可复习知识”的问题，但它必须通过 provider-neutral model caller 调用模型，不能和某一个基座模型或供应商绑定。
 
 ## 4. TikHub 取源方案
 
@@ -210,11 +213,11 @@ type MediaStageRecord = {
 }
 ```
 
-`normalizedText` 是当前 V2 出题系统的主要输入。`sourceSections` 是后续视频时间点回看的基础。
+`normalizedText` 是当前 V2 出题引擎的主要输入。`sourceSections` 是后续视频时间点回看的基础。
 
 ## 6. 与现有后端的对接判断
 
-现有出题系统可以复用，原因是 V2 生成管线的输入主要是：
+现有出题系统可以复用，原因是 V2 生成管线的业务输入主要是：
 
 - `rawText` / `cleanedText`
 - `sourceTitle`
@@ -222,7 +225,7 @@ type MediaStageRecord = {
 - `sourceAccount`
 - `originalSourceType`
 
-视频前处理只要产出高质量 `normalizedText`，就能转换为现有输入：
+视频前处理只要产出高质量 `normalizedText`，就能转换为现有输入。这里的“现有输入”是出题引擎合同，不是某个模型 API 合同：
 
 ```ts
 {
@@ -240,7 +243,7 @@ type MediaStageRecord = {
 
 - `extractSourceContent` 遇到 `video_link` 时不再直接失败，而是调用 `extractVideoLearningSource`。
 - V2 队列的 source extraction 阶段从只支持 `article_link/wechat_article` 扩展到 `video_link`。
-- 成功后把 `LearningSource.normalizedText` 写回 chapter source，并继续运行现有 V2 生成管线。
+- 成功后把 `LearningSource.normalizedText` 写回 chapter source，并继续运行模型无关的 V2 生成管线。
 
 需要小扩展的地方：
 
@@ -265,11 +268,11 @@ ASR 服务
 OCR / 视觉模型
   负责识别画面文字、PPT/代码/屏幕内容、关键帧摘要
 
-文本 LLM
+LLM 或规则化合并器
   负责把 transcript + OCR + visual summary 合并成 LearningSource.normalizedText
 
-现有 V2 出题模型
-  负责知识点、题目、质检和复习路径
+V2 出题引擎
+  负责知识点、题目、质检和复习路径；底层模型通过 ModelJsonClient / prompt caller 抽象替换
 ```
 
 候选技术：
@@ -277,8 +280,70 @@ OCR / 视觉模型
 - ASR：火山 ASR、OpenAI transcription、阿里/腾讯/百度语音服务。
 - 视频直接理解对照：Gemini video understanding、Qwen-VL/百炼视频理解。
 - 视觉摘要：Qwen-VL、Gemini、OpenAI vision frames。
+- 出题生成模型：DeepSeek、OpenAI、Qwen、Gemini 或其它 JSON-capable LLM 都应只接在 provider-neutral model caller 后面。
 
 直接视频理解模型用于 benchmark 和 fallback，不作为第一版主路径。
+
+### 7.1 多模型可替换架构
+
+视频能力上线后，模型选择应拆成三个互不绑定的位置：
+
+```text
+SpeechToTextProvider
+  输入：音频文件
+  输出：timestamped transcript
+  候选：阿里 Fun-ASR、OpenAI transcription、火山 ASR、腾讯/百度语音
+
+VideoUnderstandingProvider
+  输入：关键帧、视频片段、transcript
+  输出：OCR、画面摘要、视觉线索、时间点
+  候选：Qwen-VL / 百炼视觉理解、Gemini video understanding、OpenAI vision frames
+
+ModelJsonClient
+  输入：LearningSource.normalizedText + source sections
+  输出：章节、知识点、题目、质检结果、复习路径
+  候选：DeepSeek、Qwen text、OpenAI、Gemini 或其它 JSON-capable LLM
+```
+
+这三个位置可以使用不同供应商。不要因为视频理解选了 Qwen 或 Gemini，就强迫出题生成也切到同一个模型；也不要因为出题模型表现好，就让它兼职做 ASR。
+
+### 7.2 候选模型判断
+
+| 候选 | 适合位置 | 第一版判断 |
+| --- | --- | --- |
+| Qwen / 阿里百炼视觉理解 | `VideoUnderstandingProvider`、`ModelJsonClient` 候选 | 很适合中文视频、画面文字、PPT/字幕类内容评测；可作为视觉增强和出题生成替代候选。 |
+| Gemini video understanding | `VideoUnderstandingProvider`、直接视频理解 benchmark | 官方支持处理视频 audio + visual streams，适合做分层方案的对照组和复杂视频 fallback。 |
+| OpenAI transcription / Realtime Whisper | `SpeechToTextProvider` | 适合作为 ASR 基线，尤其需要稳定转写和时间片段时；不代表出题模型必须使用 OpenAI。 |
+| 阿里 Fun-ASR / 火山 ASR | `SpeechToTextProvider` | 中文短视频转写值得优先评测，可能在成本、中文口音、延迟上更适合国内内容。 |
+| DeepSeek / Qwen text / OpenAI / Gemini text | `ModelJsonClient` | 按 JSON 稳定性、中文理解、题目质量、成本、延迟做横评，不与视频取源和 ASR 绑定。 |
+| Qwen2.5-Omni / Qwen3-VL 开源自托管 | 实验室 / 长期备选 | 有参考意义，但第一版生产不建议直接自托管，除非后续明确算力、延迟、运维和模型更新策略。 |
+
+推荐第一版评测组合：
+
+```text
+主路径 A：
+TikHub → 专用 ASR → LearningSource → 当前 ModelJsonClient
+
+视觉增强 B：
+TikHub → 专用 ASR → Qwen/Gemini 关键帧视觉补充 → LearningSource → 当前 ModelJsonClient
+
+直接理解对照 C：
+TikHub 或原视频文件 → Gemini/Qwen video understanding → LearningSource → 当前 ModelJsonClient
+
+出题模型横评 D：
+同一份 LearningSource → DeepSeek / Qwen / OpenAI / Gemini 的 ModelJsonClient → 质量与成本对比
+```
+
+### 7.3 DSPy 的位置
+
+DSPy 仍然有参考意义，但定位在实验室，不进入第一版生产 runtime：
+
+- DSPy Signature 对应拾贝的 prompt schema / JSON schema。
+- DSPy Module 对应 `reviewPathPlan`、`unitKnowledgeMap`、`taskBriefPlan`、`questionDraft`、`qualityJudge` 等阶段。
+- DSPy Metric 对应来源支撑率、答案唯一性、干扰项质量、解释一致性和人工评分。
+- DSPy Optimizer / GEPA / MIPROv2 可用于实验室优化 prompt，但优化产物必须经过固定测试集和生产准入门槛后，才能手工迁移进生产 prompt。
+
+因此生产后端只吸收 DSPy 的结构化思想和实验结果，不依赖 DSPy Python runtime。
 
 ## 8. 生成状态和失败状态
 
@@ -404,9 +469,9 @@ chapter_summary
 对照实验：
 
 ```text
-方案 A：TikHub + ASR transcript + 现有 V2 出题
-方案 B：TikHub + ASR + OCR/关键帧摘要 + 现有 V2 出题
-方案 C：TikHub + Gemini/Qwen 直接视频理解 + 现有 V2 出题
+方案 A：TikHub + ASR transcript + 模型无关 V2 出题
+方案 B：TikHub + ASR + OCR/关键帧摘要 + 模型无关 V2 出题
+方案 C：TikHub + Gemini/Qwen 直接视频理解 + 模型无关 V2 出题
 ```
 
 验收门槛建议：
@@ -441,7 +506,7 @@ chapter_summary
 → ASR
 → transcript cleanup
 → normalizedText
-→ 现有 V2 生成管线
+→ 模型无关 V2 生成管线
 ```
 
 适合口播、访谈、教程讲解、播客切片。
@@ -456,7 +521,7 @@ chapter_summary
 → keyframes
 → OCR / visual summary
 → transcript + visual context merge
-→ 现有 V2 生成管线
+→ 模型无关 V2 生成管线
 ```
 
 适合 PPT 课、代码教程、屏幕录制、产品演示。
@@ -485,7 +550,7 @@ chapter_summary
 
 ## 13. 结论
 
-拾贝视频功能可以直接复用现有后端出题系统，但前提是先把视频转成 `LearningSource.normalizedText`。
+拾贝视频功能可以直接复用现有后端出题系统，但前提是先把视频转成 `LearningSource.normalizedText`。复用的是出题引擎的输入/输出合同和生成阶段，不是绑定某个模型供应商。
 
 第一版推荐路线：
 
@@ -494,7 +559,7 @@ chapter_summary
 → TikHub 取源
 → ASR 转写
 → LearningSource
-→ 现有 V2 出题系统
+→ 模型无关 V2 出题系统
 ```
 
-关键工程工作不在重写出题系统，而在新增稳定的 `VideoSourceProvider`、音视频前处理、成本记录和失败归因。等音轨版跑稳后，再加入关键帧/OCR 和时间戳回看。
+关键工程工作不在重写出题系统，也不在绑定某个基座模型，而在新增稳定的 `VideoSourceProvider`、音视频前处理、模型调用抽象、成本记录和失败归因。等音轨版跑稳后，再加入关键帧/OCR 和时间戳回看。
