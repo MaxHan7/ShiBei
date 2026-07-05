@@ -24,6 +24,21 @@ const requiredRoutes = [
     detail: "GET /api/chapters"
   },
   {
+    name: "apple_auth",
+    pattern: /req\.method === "POST" && req\.url === "\/api\/auth\/apple"[\s\S]*handleAppleAuth/,
+    detail: "POST /api/auth/apple"
+  },
+  {
+    name: "account_get",
+    pattern: /req\.method === "GET" && req\.url === "\/api\/account"[\s\S]*handleGetAccount/,
+    detail: "GET /api/account"
+  },
+  {
+    name: "account_delete",
+    pattern: /req\.method === "DELETE" && req\.url === "\/api\/account"[\s\S]*handleDeleteAccount/,
+    detail: "DELETE /api/account"
+  },
+  {
     name: "get_chapter",
     pattern: /const chapterMatch = req\.url\?\.match\([^;]*api\\\/chapters[\s\S]*if \(chapterMatch && req\.method === "GET"\)/,
     detail: "GET /api/chapters/:id"

@@ -1152,6 +1152,11 @@ struct V2ProfileView: View {
     let allowsMockDataToggle: Bool
     let reviewedCount: String
     let streakDays: String
+    let account: AccountSnapshot?
+    let isAccountLoading: Bool
+    let accountMessage: String
+    let onSignInWithApple: (Data?, Data?) async -> Void
+    let onDeleteAccount: () async -> Void
     let onBack: () -> Void
 
     var body: some View {
@@ -1186,7 +1191,13 @@ struct V2ProfileView: View {
                             selectedPresetAvatarName: $profilePresetAvatarName
                         )
 
-                        V2ProfileSettingsCard()
+                        V2ProfileSettingsCard(
+                            account: account,
+                            isAccountLoading: isAccountLoading,
+                            accountMessage: accountMessage,
+                            onSignInWithApple: onSignInWithApple,
+                            onDeleteAccount: onDeleteAccount
+                        )
 
                         if allowsMockDataToggle {
                             V2RuntimeModeCard(usesMockData: $usesMockData)

@@ -190,8 +190,8 @@ flowchart TD
 
 ### Checkpoint A：最终决策
 
-- [ ] 用户确认首版账号方案：`保持匿名优先` / `加入可选 Apple 登录` / `坚持 Apple + 微信`。
-- [ ] 如果选择账号，确认首版只做 Apple 登录，不做微信。
+- [x] 用户确认首版账号方案：加入可选 Apple 登录。
+- [x] 首版只做 Apple 登录，不做微信。
 - [ ] 用户在 Apple Developer 确认 `com.maxhan.shibei` App ID 是否启用 Sign in with Apple capability。
 - [ ] 用户确认 App Store Connect 中 App 仍是 `com.maxhan.shibei` 对应 App。
 
@@ -205,32 +205,39 @@ flowchart TD
 
 ### Checkpoint C：后端 Apple 登录
 
-- [ ] 新增 `accounts` 和 `account_device_links` migration。
-- [ ] 新增 Apple token 验证模块。
-- [ ] 新增 `/api/auth/apple`。
-- [ ] 新增 session/account snapshot 返回。
-- [ ] 新增 account owner 查询逻辑。
-- [ ] 新增 quota 按 account 优先计数。
+- [x] 新增 `accounts` 和 `account_device_links` migration。
+- [x] 新增 Apple identity token 验证模块。
+- [x] 新增 `/api/auth/apple`。
+- [x] 新增 `/api/account` account snapshot 返回。
+- [x] 新增 account owner 查询逻辑。
+- [x] 新增 quota 按 account 优先计数。
 - [ ] 新增后端测试：首次登录、重复登录、device 绑定、额度迁移。
 
 ### Checkpoint D：删除账号闭环
 
-- [ ] 新增 `/api/account/delete` 或 `/api/account/deletion-request`。
-- [ ] 删除或匿名化账号关联业务数据。
+- [x] 新增 `DELETE /api/account`。
+- [x] 删除或匿名化账号关联业务数据。
 - [ ] 撤销 Apple token/authorization。
-- [ ] 删除 push token 绑定。
-- [ ] 写入删除完成审计。
+- [x] 删除 push token 绑定。
+- [x] 写入删除完成审计。
 - [ ] 新增后端测试：删除后不能恢复旧数据、匿名状态可继续使用。
+
+Apple token revoke 需要补齐的生产配置：
+
+- Apple Developer 的 Sign in with Apple private key、Team ID、Key ID。
+- 服务端 client secret 生成。
+- iOS 登录时已经把一次性 `authorizationCode` 发给后端。
+- 后端用 authorization code exchange 换取 refresh token，并在删除账号时调用 Apple revoke tokens。
 
 ### Checkpoint E：iOS 前端登录
 
 - [ ] 增加 Sign in with Apple capability。
-- [ ] 接入 `AuthenticationServices`。
-- [ ] 个人主页增加登录/已登录状态。
-- [ ] 登录成功后刷新全局 store。
-- [ ] 登录失败/取消有明确但轻量的提示。
-- [ ] 删除账号入口放入账号说明/账号设置。
-- [ ] 删除账号后清本地 session，回到匿名状态。
+- [x] 接入 `AuthenticationServices`。
+- [x] 个人主页增加登录/已登录状态。
+- [x] 登录成功后刷新全局 store。
+- [x] 登录失败/取消有明确但轻量的提示。
+- [x] 删除账号入口放入账号说明/账号设置。
+- [x] 删除账号后清本地 session，回到匿名状态。
 
 ### Checkpoint F：隐私、审核、截图
 

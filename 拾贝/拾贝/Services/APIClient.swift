@@ -261,6 +261,19 @@ struct APIClient {
         try await get("/api/devices/push-status")
     }
 
+    func fetchAccount() async throws -> AccountStatusResponse {
+        try await get("/api/account")
+    }
+
+    func signInWithApple(identityToken: String, authorizationCode: String?) async throws -> AccountAuthResponse {
+        let request = AppleAuthRequest(identityToken: identityToken, authorizationCode: authorizationCode)
+        return try await send("/api/auth/apple", method: "POST", body: request, acceptsFailureBody: false)
+    }
+
+    func deleteAccount() async throws -> AccountDeletionResponse {
+        try await send("/api/account", method: "DELETE", body: EmptyRequest(), acceptsFailureBody: false)
+    }
+
     private func get<Response: Decodable>(_ path: String) async throws -> Response {
         let url = baseURL.appending(path: path)
         var request = URLRequest(url: url)
@@ -453,6 +466,40 @@ struct PushStatusResponse: Codable {
     var pushTokenCount: Int
     var pushTokens: [Token]
     var recentNotifications: [RecentNotification]
+}
+
+struct AccountSnapshot: Codable, Equatable {
+    var id: String
+    var provider: String
+    var createdAt: String
+    var updatedAt: String
+    var deletedAt: String?
+}
+
+struct AccountStatusResponse: Codable {
+    var account: AccountSnapshot?
+    var mode: String
+}
+
+struct AppleAuthRequest: Codable {
+    var identityToken: String
+    var authorizationCode: String?
+}
+
+struct AccountAuthResponse: Codable {
+    var ok: Bool
+    var account: AccountSnapshot
+    var linkedDeviceId: String
+}
+
+struct AccountDeletionResponse: Codable {
+    struct DeletedSummary: Codable {
+        var accountId: String
+        var deletionJobId: String
+    }
+
+    var ok: Bool
+    var deleted: DeletedSummary
 }
 
 struct ChapterCreateRequest: Codable {

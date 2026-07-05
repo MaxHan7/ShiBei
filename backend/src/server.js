@@ -30,6 +30,7 @@ import {
   chapterCount,
   checkDatabase,
   claimDailyGenerationQuota,
+  deleteAccountData as deleteDatabaseAccountData,
   deleteChapter as deleteDatabaseChapter,
   deleteDeviceData as deleteDatabaseDeviceData,
   deleteFavoriteQuestion as deleteDatabaseFavoriteQuestion,
@@ -37,7 +38,9 @@ import {
   enqueueGenerationJob,
   enqueueIdempotentGenerationJob,
   ensureDevice,
+  findOrCreateAccountForProvider,
   getFavoriteQuestion as getDatabaseFavoriteQuestion,
+  getAccountForDevice as getDatabaseAccountForDevice,
   getChapter as getDatabaseChapter,
   getGenerationQueueSummary,
   getNotification as getDatabaseNotification,
@@ -87,6 +90,7 @@ import {
   resolveDeviceId
 } from "./security/requestGuards.js";
 import { buildVersionInfo } from "./versionInfo.js";
+import { AppleAuthError, verifyAppleIdentityToken } from "./appleAuth.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const projectRoot = resolve(__dirname, "..", "..");
@@ -219,6 +223,82 @@ async function handleCreateV2Chapter(req, res) {
     ...result,
     chapter: serializeChapterForClient(result.chapter),
     message: result.generationProgress?.displayText || "已收到文章，准备生成"
+  });
+}
+
+async function handleAppleAuth(req, res) {
+  if (!hasDatabase) {
+    sendJson(res, 503, {
+      errorCode: "account_requires_database",
+      message: "账号登录需要启用云端数据库。"
+    });
+    return;
+  }
+  const deviceId = getDeviceId(req);
+  const body = await readBody(req);
+  try {
+    const appleIdentity = await verifyAppleIdentityToken(body.identityToken || body.identity_token);
+    const result = await findOrCreateAccountForProvider({
+      provider: appleIdentity.provider,
+      providerSubject: appleIdentity.providerSubject,
+      email: appleIdentity.email,
+      deviceId
+    });
+    sendJson(res, 200, {
+      ok: true,
+      account: result.account,
+      linkedDeviceId: result.linkedDeviceId,
+      ownership: result.ownership
+    });
+  } catch (error) {
+    if (error instanceof AppleAuthError) {
+      sendJson(res, error.statusCode || 401, {
+        errorCode: error.errorCode,
+        message: error.message
+      });
+      return;
+    }
+    throw error;
+  }
+}
+
+async function handleGetAccount(req, res) {
+  if (!hasDatabase) {
+    sendJson(res, 200, { account: null, mode: "memory" });
+    return;
+  }
+  const account = await getDatabaseAccountForDevice(getDeviceId(req));
+  sendJson(res, 200, { account, mode: account ? "account" : "anonymous" });
+}
+
+async function handleDeleteAccount(req, res) {
+  if (!hasDatabase) {
+    sendJson(res, 503, {
+      errorCode: "account_requires_database",
+      message: "账号删除需要启用云端数据库。"
+    });
+    return;
+  }
+  const deviceId = getDeviceId(req);
+  const account = await getDatabaseAccountForDevice(deviceId);
+  if (!account) {
+    sendJson(res, 404, {
+      errorCode: "account_not_found",
+      message: "当前设备还没有绑定账号。"
+    });
+    return;
+  }
+  const result = await deleteDatabaseAccountData(account.id, {
+    requestedDeviceId: deviceId,
+    reason: "account_deleted_by_user"
+  });
+  sendJson(res, 200, {
+    ok: true,
+    deleted: result,
+    appleTokenRevocation: {
+      status: "not_configured",
+      message: "服务端已删除账号数据。Apple token revoke 需要在接入 authorization code exchange 后启用。"
+    }
   });
 }
 
@@ -1999,6 +2079,21 @@ const server = createServer(async (req, res) => {
 
   if (req.method === "GET" && req.url === "/api/version") {
     sendJson(res, 200, await buildVersionInfo({ startedAt }));
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/api/auth/apple") {
+    await handleAppleAuth(req, res);
+    return;
+  }
+
+  if (req.method === "GET" && req.url === "/api/account") {
+    await handleGetAccount(req, res);
+    return;
+  }
+
+  if (req.method === "DELETE" && req.url === "/api/account") {
+    await handleDeleteAccount(req, res);
     return;
   }
 

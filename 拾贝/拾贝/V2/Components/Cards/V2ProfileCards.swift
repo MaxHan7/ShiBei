@@ -1,3 +1,4 @@
+import AuthenticationServices
 import PhotosUI
 import SwiftUI
 import UIKit
@@ -532,6 +533,11 @@ private enum V2ProfileStatMetrics {
 }
 
 struct V2ProfileSettingsCard: View {
+    let account: AccountSnapshot?
+    let isAccountLoading: Bool
+    let accountMessage: String
+    let onSignInWithApple: (Data?, Data?) async -> Void
+    let onDeleteAccount: () async -> Void
     @State private var activeSheet: V2ProfileSettingsSheet?
 
     var body: some View {
@@ -564,7 +570,14 @@ struct V2ProfileSettingsCard: View {
                 .v2Shadow()
         )
         .sheet(item: $activeSheet) { sheet in
-            V2ProfileSettingsSheetView(sheet: sheet)
+            V2ProfileSettingsSheetView(
+                sheet: sheet,
+                account: account,
+                isAccountLoading: isAccountLoading,
+                accountMessage: accountMessage,
+                onSignInWithApple: onSignInWithApple,
+                onDeleteAccount: onDeleteAccount
+            )
                 .presentationDetents(sheet.detents)
                 .presentationDragIndicator(.visible)
         }
@@ -612,9 +625,9 @@ private enum V2ProfileSettingsSheet: String, Identifiable {
             ]
         case .account:
             [
-                "当前版本使用匿名设备身份保存数据，不需要注册或登录账号。",
-                "匿名设备身份只用于区分你的章节、通知、学习记录、收藏和题目反馈。",
-                "如果你删除 App、换机，或安装到不同 App 身份上下文，历史数据可能无法自动恢复。后续如果提供账号系统，会再提供数据迁移方案。"
+                "你可以继续匿名使用 Recallo，也可以选择绑定 Apple 账号。",
+                "绑定后，当前设备上的章节、通知、学习记录、收藏和额度记录会归入这个账号。",
+                "删除账号会删除这个账号关联的云端学习数据；删除后仍可继续匿名使用。"
             ]
         }
     }
@@ -629,6 +642,11 @@ private enum V2ProfileSettingsSheet: String, Identifiable {
 
 private struct V2ProfileSettingsSheetView: View {
     let sheet: V2ProfileSettingsSheet
+    let account: AccountSnapshot?
+    let isAccountLoading: Bool
+    let accountMessage: String
+    let onSignInWithApple: (Data?, Data?) async -> Void
+    let onDeleteAccount: () async -> Void
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -652,6 +670,16 @@ private struct V2ProfileSettingsSheetView: View {
                 V2ProfileNotificationPermissionPanel()
             }
 
+            if sheet == .account {
+                V2ProfileAccountPanel(
+                    account: account,
+                    isLoading: isAccountLoading,
+                    message: accountMessage,
+                    onSignInWithApple: onSignInWithApple,
+                    onDeleteAccount: onDeleteAccount
+                )
+            }
+
             Spacer(minLength: 0)
         }
         .padding(.horizontal, V2ProfileSettingsSheetMetrics.horizontalPadding)
@@ -659,6 +687,113 @@ private struct V2ProfileSettingsSheetView: View {
         .padding(.bottom, V2ProfileSettingsSheetMetrics.bottomPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(V2ProfileSettingsSheetMetrics.sheetBackground.ignoresSafeArea())
+    }
+}
+
+private struct V2ProfileAccountPanel: View {
+    let account: AccountSnapshot?
+    let isLoading: Bool
+    let message: String
+    let onSignInWithApple: (Data?, Data?) async -> Void
+    let onDeleteAccount: () async -> Void
+    @State private var localMessage = ""
+    @State private var showsDeleteConfirmation = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: V2ProfileSettingsSheetMetrics.permissionPanelSpacing) {
+            HStack(spacing: V2ProfileSettingsSheetMetrics.permissionStatusGap) {
+                Circle()
+                    .fill(account == nil ? V2Color.selectedBlueBorder : V2Color.primaryAction)
+                    .frame(
+                        width: V2ProfileSettingsSheetMetrics.statusDotSize,
+                        height: V2ProfileSettingsSheetMetrics.statusDotSize
+                    )
+
+                Text(account == nil ? "当前为匿名模式" : "已绑定 Apple 账号")
+                    .font(V2Typography.bodySmallEmphasis)
+                    .foregroundStyle(V2Color.textPrimary)
+
+                Spacer()
+            }
+
+            Text(account == nil ? "匿名模式可以直接生成和学习；绑定 Apple 账号后，更适合后续换机和数据恢复。" : "账号 ID：\(account?.id.suffix(8) ?? "")")
+                .font(V2Typography.labelRegular)
+                .foregroundStyle(V2Color.textMuted)
+                .lineSpacing(3)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if account == nil {
+                SignInWithAppleButton(.signIn) { request in
+                    request.requestedScopes = []
+                } onCompletion: { result in
+                    handleAppleResult(result)
+                }
+                .signInWithAppleButtonStyle(.black)
+                .frame(height: V2ProfileSettingsSheetMetrics.primaryButtonHeight)
+                .clipShape(RoundedRectangle(cornerRadius: V2Radius.medium, style: .continuous))
+                .disabled(isLoading)
+                .opacity(isLoading ? 0.72 : 1)
+            } else {
+                Button {
+                    showsDeleteConfirmation = true
+                } label: {
+                    Text(isLoading ? "正在处理..." : "删除账号数据")
+                        .font(V2Typography.primaryButton)
+                        .foregroundStyle(V2Color.surfaceCream)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: V2ProfileSettingsSheetMetrics.primaryButtonHeight)
+                        .background(V2Color.notificationBadge)
+                        .clipShape(RoundedRectangle(cornerRadius: V2Radius.medium, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .disabled(isLoading)
+                .opacity(isLoading ? 0.72 : 1)
+                .confirmationDialog("删除账号数据", isPresented: $showsDeleteConfirmation, titleVisibility: .visible) {
+                    Button("删除账号数据", role: .destructive) {
+                        Task {
+                            await onDeleteAccount()
+                        }
+                    }
+                    Button("取消", role: .cancel) {}
+                } message: {
+                    Text("这会删除账号关联的云端章节、学习记录、通知、收藏和推送绑定。")
+                }
+            }
+
+            if !displayMessage.isEmpty {
+                Text(displayMessage)
+                    .font(V2Typography.labelRegular)
+                    .foregroundStyle(V2Color.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(V2ProfileSettingsSheetMetrics.permissionPanelPadding)
+        .background(V2Color.surfaceCream)
+        .clipShape(RoundedRectangle(cornerRadius: V2Radius.medium, style: .continuous))
+        .v2Shadow(V2Shadow.subtleGreen)
+    }
+
+    private var displayMessage: String {
+        message.isEmpty ? localMessage : message
+    }
+
+    private func handleAppleResult(_ result: Result<ASAuthorization, Error>) {
+        switch result {
+        case .success(let authorization):
+            guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
+                localMessage = "Apple 登录返回了无法识别的凭证。"
+                return
+            }
+            Task {
+                await onSignInWithApple(credential.identityToken, credential.authorizationCode)
+            }
+        case .failure(let error):
+            if let authError = error as? ASAuthorizationError, authError.code == .canceled {
+                localMessage = ""
+            } else {
+                localMessage = "Apple 登录未完成，请稍后重试。"
+            }
+        }
     }
 }
 

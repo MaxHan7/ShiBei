@@ -57,6 +57,9 @@ struct V2RootView: View {
     @State private var showsStartupSplash = true
     @State private var generationState = V2GenerationState()
     @State private var pendingAIProcessingConsentSourceText: V2PendingAIProcessingConsentSourceText?
+    @State private var account: AccountSnapshot?
+    @State private var isAccountLoading = false
+    @State private var accountMessage = ""
 
     private let apiClient: APIClient
     private let allowsMockDataToggle: Bool
@@ -243,6 +246,11 @@ struct V2RootView: View {
                 allowsMockDataToggle: allowsMockDataToggle,
                 reviewedCount: profileReviewedKnowledgeCountText,
                 streakDays: profileStreakDaysText,
+                account: account,
+                isAccountLoading: isAccountLoading,
+                accountMessage: accountMessage,
+                onSignInWithApple: signInWithApple,
+                onDeleteAccount: deleteAccount,
                 onBack: goBack
             )
         case .generatingChapterDetail:
@@ -1537,6 +1545,7 @@ struct V2RootView: View {
     @MainActor
     private func runStartupSequence() async {
         async let minimumDisplayDuration: Void = sleepStartupSplashMinimumDuration()
+        await refreshAccount()
         await loadLatestBackendChapterIfNeeded()
         await minimumDisplayDuration
 
@@ -1551,6 +1560,69 @@ struct V2RootView: View {
 
     private func sleepStartupSplashMinimumDuration() async {
         try? await Task.sleep(nanoseconds: 650_000_000)
+    }
+
+    @MainActor
+    private func refreshAccount() async {
+        guard !usesFixtures else {
+            account = nil
+            accountMessage = ""
+            return
+        }
+        do {
+            let response = try await apiClient.fetchAccount()
+            account = response.account
+        } catch {
+            accountMessage = ""
+        }
+    }
+
+    @MainActor
+    private func signInWithApple(identityTokenData: Data?, authorizationCodeData: Data?) async {
+        guard let identityTokenData,
+              let identityToken = String(data: identityTokenData, encoding: .utf8),
+              !identityToken.isEmpty else {
+            accountMessage = "Apple 登录没有返回有效凭证，请重试。"
+            return
+        }
+        let authorizationCode = authorizationCodeData.flatMap { String(data: $0, encoding: .utf8) }
+        isAccountLoading = true
+        accountMessage = ""
+        do {
+            let response = try await apiClient.signInWithApple(identityToken: identityToken, authorizationCode: authorizationCode)
+            account = response.account
+            accountMessage = "已绑定 Apple 账号。"
+            await refreshBackendContentAfterAccountChange()
+        } catch {
+            accountMessage = userFacingErrorMessage(error, fallback: "Apple 登录失败，请稍后重试。")
+        }
+        isAccountLoading = false
+    }
+
+    @MainActor
+    private func deleteAccount() async {
+        isAccountLoading = true
+        accountMessage = ""
+        do {
+            _ = try await apiClient.deleteAccount()
+            account = nil
+            accountMessage = "账号数据已删除，当前设备会继续以匿名模式使用。"
+            await refreshBackendContentAfterAccountChange()
+        } catch {
+            accountMessage = userFacingErrorMessage(error, fallback: "删除账号失败，请稍后重试。")
+        }
+        isAccountLoading = false
+    }
+
+    @MainActor
+    private func refreshBackendContentAfterAccountChange() async {
+        hasLoadedInitialBackendChapter = false
+        await loadLatestBackendChapterIfNeeded()
+    }
+
+    private func userFacingErrorMessage(_ error: Error, fallback: String) -> String {
+        let message = error.localizedDescription.trimmingCharacters(in: .whitespacesAndNewlines)
+        return message.isEmpty ? fallback : message
     }
 
     @MainActor

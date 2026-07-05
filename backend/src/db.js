@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import pg from "pg";
 
 const { Pool } = pg;
@@ -39,6 +39,53 @@ export async function initDatabase() {
       last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
+    CREATE TABLE IF NOT EXISTS accounts (
+      id TEXT PRIMARY KEY,
+      provider TEXT NOT NULL,
+      provider_subject_hash TEXT NOT NULL,
+      email_hash TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      deleted_at TIMESTAMPTZ,
+      deleted_reason TEXT NOT NULL DEFAULT ''
+    );
+
+    ALTER TABLE accounts
+      ADD COLUMN IF NOT EXISTS provider TEXT NOT NULL DEFAULT 'apple',
+      ADD COLUMN IF NOT EXISTS provider_subject_hash TEXT NOT NULL DEFAULT '',
+      ADD COLUMN IF NOT EXISTS email_hash TEXT NOT NULL DEFAULT '',
+      ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ,
+      ADD COLUMN IF NOT EXISTS deleted_reason TEXT NOT NULL DEFAULT '';
+
+    CREATE UNIQUE INDEX IF NOT EXISTS accounts_provider_subject_active_uidx
+      ON accounts(provider, provider_subject_hash)
+      WHERE deleted_at IS NULL;
+
+    CREATE TABLE IF NOT EXISTS account_device_links (
+      account_id TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+      device_id TEXT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+      linked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (account_id, device_id)
+    );
+
+    CREATE INDEX IF NOT EXISTS account_device_links_device_idx
+      ON account_device_links(device_id, last_seen_at DESC);
+
+    CREATE TABLE IF NOT EXISTS account_deletion_jobs (
+      id TEXT PRIMARY KEY,
+      account_id TEXT NOT NULL,
+      requested_device_id TEXT NOT NULL,
+      status TEXT NOT NULL,
+      metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+      error_message TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      completed_at TIMESTAMPTZ
+    );
+
+    CREATE INDEX IF NOT EXISTS account_deletion_jobs_account_created_idx
+      ON account_deletion_jobs(account_id, created_at DESC);
+
     CREATE TABLE IF NOT EXISTS chapters (
       id TEXT PRIMARY KEY,
       device_id TEXT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
@@ -53,7 +100,8 @@ export async function initDatabase() {
 
     ALTER TABLE chapters
       ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ,
-      ADD COLUMN IF NOT EXISTS deleted_reason TEXT NOT NULL DEFAULT '';
+      ADD COLUMN IF NOT EXISTS deleted_reason TEXT NOT NULL DEFAULT '',
+      ADD COLUMN IF NOT EXISTS account_id TEXT;
 
     CREATE INDEX IF NOT EXISTS chapters_device_created_idx
       ON chapters(device_id, created_at DESC);
@@ -61,6 +109,10 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS chapters_device_active_created_idx
       ON chapters(device_id, created_at DESC)
       WHERE deleted_at IS NULL;
+
+    CREATE INDEX IF NOT EXISTS chapters_account_active_created_idx
+      ON chapters(account_id, created_at DESC)
+      WHERE deleted_at IS NULL AND account_id IS NOT NULL;
 
     CREATE TABLE IF NOT EXISTS notifications (
       id TEXT PRIMARY KEY,
@@ -75,7 +127,8 @@ export async function initDatabase() {
 
     ALTER TABLE notifications
       ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ,
-      ADD COLUMN IF NOT EXISTS deleted_reason TEXT NOT NULL DEFAULT '';
+      ADD COLUMN IF NOT EXISTS deleted_reason TEXT NOT NULL DEFAULT '',
+      ADD COLUMN IF NOT EXISTS account_id TEXT;
 
     CREATE INDEX IF NOT EXISTS notifications_device_created_idx
       ON notifications(device_id, created_at DESC);
@@ -83,6 +136,10 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS notifications_device_active_created_idx
       ON notifications(device_id, created_at DESC)
       WHERE deleted_at IS NULL;
+
+    CREATE INDEX IF NOT EXISTS notifications_account_active_created_idx
+      ON notifications(account_id, created_at DESC)
+      WHERE deleted_at IS NULL AND account_id IS NOT NULL;
 
     CREATE TABLE IF NOT EXISTS generation_jobs (
       id TEXT PRIMARY KEY,
@@ -113,7 +170,8 @@ export async function initDatabase() {
       ADD COLUMN IF NOT EXISTS last_error TEXT NOT NULL DEFAULT '',
       ADD COLUMN IF NOT EXISTS idempotency_key TEXT NOT NULL DEFAULT '',
       ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ,
-      ADD COLUMN IF NOT EXISTS deleted_reason TEXT NOT NULL DEFAULT '';
+      ADD COLUMN IF NOT EXISTS deleted_reason TEXT NOT NULL DEFAULT '',
+      ADD COLUMN IF NOT EXISTS account_id TEXT;
 
     CREATE INDEX IF NOT EXISTS generation_jobs_queue_idx
       ON generation_jobs(queue_status, available_at, updated_at);
@@ -133,12 +191,20 @@ export async function initDatabase() {
       device_id TEXT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
       request_id TEXT NOT NULL,
       quota_day DATE NOT NULL,
+      account_id TEXT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       PRIMARY KEY (device_id, request_id)
     );
 
+    ALTER TABLE generation_quota_claims
+      ADD COLUMN IF NOT EXISTS account_id TEXT;
+
     CREATE INDEX IF NOT EXISTS generation_quota_claims_device_day_idx
       ON generation_quota_claims(device_id, quota_day, created_at DESC);
+
+    CREATE INDEX IF NOT EXISTS generation_quota_claims_account_day_idx
+      ON generation_quota_claims(account_id, quota_day, created_at DESC)
+      WHERE account_id IS NOT NULL;
 
     CREATE TABLE IF NOT EXISTS device_push_tokens (
       device_id TEXT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
@@ -152,10 +218,15 @@ export async function initDatabase() {
     );
 
     ALTER TABLE device_push_tokens
-      ADD COLUMN IF NOT EXISTS preferred_language TEXT NOT NULL DEFAULT 'zh-Hans';
+      ADD COLUMN IF NOT EXISTS preferred_language TEXT NOT NULL DEFAULT 'zh-Hans',
+      ADD COLUMN IF NOT EXISTS account_id TEXT;
 
     CREATE INDEX IF NOT EXISTS device_push_tokens_device_idx
       ON device_push_tokens(device_id, updated_at DESC);
+
+    CREATE INDEX IF NOT EXISTS device_push_tokens_account_idx
+      ON device_push_tokens(account_id, updated_at DESC)
+      WHERE account_id IS NOT NULL;
 
     CREATE TABLE IF NOT EXISTS favorite_questions (
       id TEXT PRIMARY KEY,
@@ -172,7 +243,8 @@ export async function initDatabase() {
 
     ALTER TABLE favorite_questions
       ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ,
-      ADD COLUMN IF NOT EXISTS deleted_reason TEXT NOT NULL DEFAULT '';
+      ADD COLUMN IF NOT EXISTS deleted_reason TEXT NOT NULL DEFAULT '',
+      ADD COLUMN IF NOT EXISTS account_id TEXT;
 
     CREATE INDEX IF NOT EXISTS favorite_questions_device_created_idx
       ON favorite_questions(device_id, created_at DESC);
@@ -180,6 +252,10 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS favorite_questions_device_active_created_idx
       ON favorite_questions(device_id, created_at DESC)
       WHERE deleted_at IS NULL;
+
+    CREATE INDEX IF NOT EXISTS favorite_questions_account_active_created_idx
+      ON favorite_questions(account_id, created_at DESC)
+      WHERE deleted_at IS NULL AND account_id IS NOT NULL;
 
     CREATE TABLE IF NOT EXISTS audit_events (
       id TEXT PRIMARY KEY,
@@ -230,6 +306,303 @@ export async function ensureDevice(deviceId) {
   );
 }
 
+export function hashAccountIdentifier(value, options = {}) {
+  const provider = normalizeAccountProvider(options.provider);
+  const raw = String(value || "").trim();
+  if (!raw) throw new Error("account identifier is required");
+  const salt = process.env.RECALLO_ACCOUNT_HASH_SALT || "recallo-account-v1";
+  return createHash("sha256").update(`${salt}:${provider}:${raw}`).digest("hex");
+}
+
+export function normalizeAccountProvider(value = "") {
+  return String(value || "").trim().toLowerCase() === "apple" ? "apple" : String(value || "").trim().toLowerCase();
+}
+
+function createId(prefix) {
+  return `${prefix}-${randomUUID()}`;
+}
+
+export async function findOrCreateAccountForProvider({
+  provider = "apple",
+  providerSubject,
+  email = "",
+  deviceId = ""
+} = {}) {
+  if (!pool) return null;
+  const normalizedProvider = normalizeAccountProvider(provider);
+  if (normalizedProvider !== "apple") throw new Error("unsupported account provider");
+  const subjectHash = hashAccountIdentifier(providerSubject, { provider: normalizedProvider });
+  const emailHash = String(email || "").trim()
+    ? hashAccountIdentifier(String(email).trim().toLowerCase(), { provider: `${normalizedProvider}:email` })
+    : "";
+  const stableDeviceId = String(deviceId || "").trim();
+  if (!stableDeviceId) throw new Error("deviceId is required to link account");
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query(
+      `INSERT INTO devices (id)
+       VALUES ($1)
+       ON CONFLICT (id)
+       DO UPDATE SET last_seen_at = NOW()`,
+      [stableDeviceId]
+    );
+
+    let account = await selectAccountByProviderSubject(client, normalizedProvider, subjectHash);
+    if (!account) {
+      try {
+        const created = await client.query(
+          `INSERT INTO accounts (id, provider, provider_subject_hash, email_hash, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, NOW(), NOW())
+           RETURNING id, provider, provider_subject_hash, email_hash, created_at, updated_at, deleted_at`,
+          [createId("account"), normalizedProvider, subjectHash, emailHash]
+        );
+        account = created.rows[0];
+      } catch (error) {
+        if (error?.code !== "23505") throw error;
+        account = await selectAccountByProviderSubject(client, normalizedProvider, subjectHash);
+      }
+    } else if (emailHash && !account.email_hash) {
+      const updated = await client.query(
+        `UPDATE accounts
+            SET email_hash = $2,
+                updated_at = NOW()
+          WHERE id = $1
+          RETURNING id, provider, provider_subject_hash, email_hash, created_at, updated_at, deleted_at`,
+        [account.id, emailHash]
+      );
+      account = updated.rows[0];
+    }
+
+    await client.query(
+      `INSERT INTO account_device_links (account_id, device_id, linked_at, last_seen_at)
+       VALUES ($1, $2, NOW(), NOW())
+       ON CONFLICT (account_id, device_id)
+       DO UPDATE SET last_seen_at = NOW()`,
+      [account.id, stableDeviceId]
+    );
+
+    const ownership = await attachDeviceDataToAccount(client, {
+      accountId: account.id,
+      deviceId: stableDeviceId
+    });
+    await insertAuditEvent(client, {
+      deviceId: stableDeviceId,
+      action: "account.link_device",
+      entityType: "account",
+      entityId: account.id,
+      metadata: {
+        provider: normalizedProvider,
+        ownership
+      },
+      snapshot: null
+    });
+    await client.query("COMMIT");
+    return {
+      account: serializeAccountRow(account),
+      linkedDeviceId: stableDeviceId,
+      ownership
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+export async function getAccountForDevice(deviceId) {
+  if (!pool) return null;
+  await ensureDevice(deviceId);
+  const result = await pool.query(
+    `SELECT a.id, a.provider, a.provider_subject_hash, a.email_hash, a.created_at, a.updated_at, a.deleted_at
+       FROM account_device_links l
+       JOIN accounts a ON a.id = l.account_id
+      WHERE l.device_id = $1
+        AND a.deleted_at IS NULL
+      ORDER BY l.last_seen_at DESC
+      LIMIT 1`,
+    [deviceId]
+  );
+  return result.rows[0] ? serializeAccountRow(result.rows[0]) : null;
+}
+
+async function getLinkedAccountId(queryable, deviceId) {
+  const result = await queryable.query(
+    `SELECT a.id
+       FROM account_device_links l
+       JOIN accounts a ON a.id = l.account_id
+      WHERE l.device_id = $1
+        AND a.deleted_at IS NULL
+      ORDER BY l.last_seen_at DESC
+      LIMIT 1`,
+    [deviceId]
+  );
+  return result.rows[0]?.id || null;
+}
+
+async function selectAccountByProviderSubject(queryable, provider, providerSubjectHash) {
+  const result = await queryable.query(
+    `SELECT id, provider, provider_subject_hash, email_hash, created_at, updated_at, deleted_at
+       FROM accounts
+      WHERE provider = $1
+        AND provider_subject_hash = $2
+        AND deleted_at IS NULL
+      LIMIT 1`,
+    [provider, providerSubjectHash]
+  );
+  return result.rows[0] || null;
+}
+
+function serializeAccountRow(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    provider: row.provider,
+    createdAt: toIsoString(row.created_at),
+    updatedAt: toIsoString(row.updated_at),
+    deletedAt: toIsoString(row.deleted_at)
+  };
+}
+
+async function attachDeviceDataToAccount(queryable, { accountId, deviceId } = {}) {
+  const tables = [
+    "chapters",
+    "favorite_questions",
+    "notifications",
+    "generation_jobs",
+    "generation_quota_claims",
+    "device_push_tokens"
+  ];
+  const counts = {};
+  for (const table of tables) {
+    const result = await queryable.query(
+      `UPDATE ${table}
+          SET account_id = $1
+        WHERE device_id = $2
+          AND account_id IS NULL`,
+      [accountId, deviceId]
+    );
+    counts[table] = result.rowCount || 0;
+  }
+  return counts;
+}
+
+export async function deleteAccountData(accountId, {
+  requestedDeviceId = "",
+  reason = "account_deleted_by_user"
+} = {}) {
+  if (!pool) return null;
+  const stableAccountId = String(accountId || "").trim();
+  const stableDeviceId = String(requestedDeviceId || "").trim();
+  if (!stableAccountId || !stableDeviceId) throw new Error("accountId and requestedDeviceId are required");
+  await ensureDevice(stableDeviceId);
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const jobId = createId("account-deletion");
+    await client.query(
+      `INSERT INTO account_deletion_jobs (id, account_id, requested_device_id, status, metadata_json, created_at)
+       VALUES ($1, $2, $3, 'running', $4::jsonb, NOW())`,
+      [jobId, stableAccountId, stableDeviceId, JSON.stringify({ reason })]
+    );
+
+    const chapters = await softDeleteRowsByAccount(client, {
+      table: "chapters",
+      jsonColumn: "chapter_json",
+      accountId: stableAccountId,
+      reason
+    });
+    const favorites = await softDeleteRowsByAccount(client, {
+      table: "favorite_questions",
+      jsonColumn: "favorite_json",
+      accountId: stableAccountId,
+      reason
+    });
+    const notifications = await softDeleteRowsByAccount(client, {
+      table: "notifications",
+      jsonColumn: "notification_json",
+      accountId: stableAccountId,
+      reason
+    });
+    const generationJobs = await softDeleteGenerationJobsByAccount(client, {
+      accountId: stableAccountId,
+      reason
+    });
+    const pushTokens = await client.query(
+      `DELETE FROM device_push_tokens
+        WHERE account_id = $1
+        RETURNING token, platform, environment, preferred_language, created_at, updated_at`,
+      [stableAccountId]
+    );
+    const quotaClaims = await client.query(
+      `DELETE FROM generation_quota_claims
+        WHERE account_id = $1
+        RETURNING request_id, quota_day, created_at`,
+      [stableAccountId]
+    );
+    const links = await client.query(
+      `DELETE FROM account_device_links
+        WHERE account_id = $1
+        RETURNING device_id, linked_at, last_seen_at`,
+      [stableAccountId]
+    );
+    await client.query(
+      `UPDATE accounts
+          SET deleted_at = NOW(),
+              deleted_reason = $2,
+              updated_at = NOW()
+        WHERE id = $1
+          AND deleted_at IS NULL`,
+      [stableAccountId, reason]
+    );
+    const counts = {
+      chapters: chapters.rowCount || 0,
+      favorites: favorites.rowCount || 0,
+      notifications: notifications.rowCount || 0,
+      generationJobs: generationJobs.rowCount || 0,
+      pushTokens: pushTokens.rowCount || 0,
+      quotaClaims: quotaClaims.rowCount || 0,
+      deviceLinks: links.rowCount || 0
+    };
+    await insertAuditEvent(client, {
+      deviceId: stableDeviceId,
+      action: "account.soft_delete",
+      entityType: "account",
+      entityId: stableAccountId,
+      metadata: {
+        reason,
+        counts
+      },
+      snapshot: {
+        chapters: chapters.rows.map((row) => row.snapshot),
+        favorites: favorites.rows.map((row) => row.snapshot),
+        notifications: notifications.rows.map((row) => row.snapshot),
+        generationJobs: generationJobs.rows.map((row) => row.snapshot),
+        pushTokens: pushTokens.rows,
+        quotaClaims: quotaClaims.rows,
+        deviceLinks: links.rows
+      }
+    });
+    await client.query(
+      `UPDATE account_deletion_jobs
+          SET status = 'completed',
+              completed_at = NOW(),
+              metadata_json = $2::jsonb
+        WHERE id = $1`,
+      [jobId, JSON.stringify({ reason, counts })]
+    );
+    await client.query("COMMIT");
+    return { accountId: stableAccountId, deletionJobId: jobId, counts };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 export async function listChapters(deviceId) {
   await ensureDevice(deviceId);
   const result = await pool.query(
@@ -259,10 +632,20 @@ export async function getChapter(deviceId, chapterId) {
 export async function upsertChapter(deviceId, chapter) {
   await ensureDevice(deviceId);
   await pool.query(
-    `INSERT INTO chapters (id, device_id, status, title, chapter_json, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7)
+    `INSERT INTO chapters (id, device_id, account_id, status, title, chapter_json, created_at, updated_at)
+     VALUES (
+       $1,
+       $2,
+       (SELECT account_id FROM account_device_links WHERE device_id = $2 ORDER BY last_seen_at DESC LIMIT 1),
+       $3,
+       $4,
+       $5::jsonb,
+       $6,
+       $7
+     )
      ON CONFLICT (id)
      DO UPDATE SET
+       account_id = COALESCE(chapters.account_id, EXCLUDED.account_id),
        status = EXCLUDED.status,
        title = EXCLUDED.title,
        chapter_json = EXCLUDED.chapter_json,
@@ -457,10 +840,20 @@ export async function getFavoriteQuestion(deviceId, favoriteId) {
 export async function upsertFavoriteQuestion(deviceId, favorite) {
   await ensureDevice(deviceId);
   await pool.query(
-    `INSERT INTO favorite_questions (id, device_id, chapter_id, question_id, favorite_json, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, $5::jsonb, $6, NOW())
+    `INSERT INTO favorite_questions (id, device_id, account_id, chapter_id, question_id, favorite_json, created_at, updated_at)
+     VALUES (
+       $1,
+       $2,
+       (SELECT account_id FROM account_device_links WHERE device_id = $2 ORDER BY last_seen_at DESC LIMIT 1),
+       $3,
+       $4,
+       $5::jsonb,
+       $6,
+       NOW()
+     )
      ON CONFLICT (device_id, chapter_id, question_id)
      DO UPDATE SET
+       account_id = COALESCE(favorite_questions.account_id, EXCLUDED.account_id),
        favorite_json = EXCLUDED.favorite_json,
        updated_at = NOW(),
        deleted_at = NULL,
@@ -613,6 +1006,23 @@ async function softDeleteRows(queryable, options = {}) {
   );
 }
 
+async function softDeleteRowsByAccount(queryable, options = {}) {
+  const table = validateSoftDeleteTable(options.table);
+  const jsonColumn = validateSnapshotColumn(table, options.jsonColumn);
+  const accountId = String(options.accountId || "");
+  const reason = String(options.reason || "soft_deleted").slice(0, 200);
+  return queryable.query(
+    `UPDATE ${table}
+        SET deleted_at = NOW(),
+            deleted_reason = $2,
+            updated_at = NOW()
+      WHERE account_id = $1
+        AND deleted_at IS NULL
+      RETURNING id, ${jsonColumn} AS snapshot`,
+    [accountId, reason]
+  );
+}
+
 async function softDeleteGenerationJobs(queryable, options = {}) {
   const deviceId = String(options.deviceId || "");
   const reason = String(options.reason || "soft_deleted").slice(0, 200);
@@ -634,6 +1044,27 @@ async function softDeleteGenerationJobs(queryable, options = {}) {
         AND (${whereSql})
       RETURNING id, to_jsonb(generation_jobs) AS snapshot`,
     [deviceId, ...params, reason]
+  );
+}
+
+async function softDeleteGenerationJobsByAccount(queryable, options = {}) {
+  const accountId = String(options.accountId || "");
+  const reason = String(options.reason || "soft_deleted").slice(0, 200);
+  return queryable.query(
+    `UPDATE generation_jobs
+        SET deleted_at = NOW(),
+            deleted_reason = $2,
+            queue_status = CASE
+              WHEN queue_status IN ('queued', 'running') THEN 'cancelled'
+              ELSE queue_status
+            END,
+            locked_by = '',
+            locked_until = NULL,
+            updated_at = NOW()
+      WHERE account_id = $1
+        AND deleted_at IS NULL
+      RETURNING id, to_jsonb(generation_jobs) AS snapshot`,
+    [accountId, reason]
   );
 }
 
@@ -685,8 +1116,17 @@ export async function upsertPushToken(deviceId, pushToken) {
     await client.query("BEGIN");
     await client.query("DELETE FROM device_push_tokens WHERE device_id = $1", [deviceId]);
     await client.query(
-      `INSERT INTO device_push_tokens (device_id, token, platform, environment, preferred_language, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
+      `INSERT INTO device_push_tokens (device_id, account_id, token, platform, environment, preferred_language, created_at, updated_at)
+       VALUES (
+         $1,
+         (SELECT account_id FROM account_device_links WHERE device_id = $1 ORDER BY last_seen_at DESC LIMIT 1),
+         $2,
+         $3,
+         $4,
+         $5,
+         NOW(),
+         NOW()
+       )`,
       [
         deviceId,
         pushToken.token,
@@ -756,10 +1196,19 @@ export async function getNotification(deviceId, notificationId) {
 export async function upsertNotification(deviceId, notification) {
   await ensureDevice(deviceId);
   await pool.query(
-    `INSERT INTO notifications (id, device_id, chapter_id, notification_json, created_at, updated_at)
-     VALUES ($1, $2, $3, $4::jsonb, $5, NOW())
+    `INSERT INTO notifications (id, device_id, account_id, chapter_id, notification_json, created_at, updated_at)
+     VALUES (
+       $1,
+       $2,
+       (SELECT account_id FROM account_device_links WHERE device_id = $2 ORDER BY last_seen_at DESC LIMIT 1),
+       $3,
+       $4::jsonb,
+       $5,
+       NOW()
+     )
      ON CONFLICT (id)
      DO UPDATE SET
+       account_id = COALESCE(notifications.account_id, EXCLUDED.account_id),
        notification_json = EXCLUDED.notification_json,
        updated_at = NOW(),
        deleted_at = NULL,
@@ -821,10 +1270,20 @@ export async function deleteNotificationsForChapter(deviceId, chapterId, type = 
 export async function startGenerationJob(deviceId, job) {
   await ensureDevice(deviceId);
   await pool.query(
-    `INSERT INTO generation_jobs (id, device_id, chapter_id, status, current_stage, started_at, updated_at)
-     VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+    `INSERT INTO generation_jobs (id, device_id, account_id, chapter_id, status, current_stage, started_at, updated_at)
+     VALUES (
+       $1,
+       $2,
+       (SELECT account_id FROM account_device_links WHERE device_id = $2 ORDER BY last_seen_at DESC LIMIT 1),
+       $3,
+       $4,
+       $5,
+       NOW(),
+       NOW()
+     )
      ON CONFLICT (id)
      DO UPDATE SET
+       account_id = COALESCE(generation_jobs.account_id, EXCLUDED.account_id),
        status = EXCLUDED.status,
        current_stage = EXCLUDED.current_stage,
        error_message = '',
@@ -840,9 +1299,10 @@ export async function enqueueGenerationJob(deviceId, job) {
   await ensureDevice(deviceId);
   const record = normalizeGenerationJobInput(job);
   await pool.query(
-    `INSERT INTO generation_jobs (
+     `INSERT INTO generation_jobs (
        id,
        device_id,
+       account_id,
        chapter_id,
        status,
        current_stage,
@@ -859,9 +1319,29 @@ export async function enqueueGenerationJob(deviceId, job) {
        started_at,
        updated_at
      )
-     VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, 'queued', 0, $8, $9, '', NULL, '', $10, NOW(), NOW())
+     VALUES (
+       $1,
+       $2,
+       (SELECT account_id FROM account_device_links WHERE device_id = $2 ORDER BY last_seen_at DESC LIMIT 1),
+       $3,
+       $4,
+       $5,
+       $6,
+       $7::jsonb,
+       'queued',
+       0,
+       $8,
+       $9,
+       '',
+       NULL,
+       '',
+       $10,
+       NOW(),
+       NOW()
+     )
      ON CONFLICT (id)
      DO UPDATE SET
+       account_id = COALESCE(generation_jobs.account_id, EXCLUDED.account_id),
        status = EXCLUDED.status,
        current_stage = EXCLUDED.current_stage,
        job_type = EXCLUDED.job_type,
@@ -957,18 +1437,29 @@ export async function claimDailyGenerationQuota(deviceId, {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    await client.query("SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))", [deviceId, day]);
+    const accountId = await getLinkedAccountId(client, deviceId);
+    const quotaOwner = accountId || deviceId;
+    await client.query("SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))", [quotaOwner, day]);
 
-    const existing = await client.query(
-      `SELECT 1
-         FROM generation_quota_claims
-        WHERE device_id = $1
-          AND request_id = $2
-        LIMIT 1`,
-      [deviceId, stableRequestId]
-    );
+    const existing = accountId
+      ? await client.query(
+          `SELECT 1
+             FROM generation_quota_claims
+            WHERE account_id = $1
+              AND request_id = $2
+            LIMIT 1`,
+          [accountId, stableRequestId]
+        )
+      : await client.query(
+          `SELECT 1
+             FROM generation_quota_claims
+            WHERE device_id = $1
+              AND request_id = $2
+            LIMIT 1`,
+          [deviceId, stableRequestId]
+        );
     if (existing.rowCount > 0) {
-      const used = await generationQuotaUsedCount(client, deviceId, day);
+      const used = await generationQuotaUsedCount(client, { deviceId, accountId, quotaDay: day });
       await client.query("COMMIT");
       return {
         allowed: true,
@@ -979,7 +1470,7 @@ export async function claimDailyGenerationQuota(deviceId, {
       };
     }
 
-    const usedBefore = await generationQuotaUsedCount(client, deviceId, day);
+    const usedBefore = await generationQuotaUsedCount(client, { deviceId, accountId, quotaDay: day });
     if (usedBefore >= dailyLimit) {
       await client.query("COMMIT");
       return {
@@ -992,9 +1483,9 @@ export async function claimDailyGenerationQuota(deviceId, {
     }
 
     await client.query(
-      `INSERT INTO generation_quota_claims (device_id, request_id, quota_day)
-       VALUES ($1, $2, $3::date)`,
-      [deviceId, stableRequestId, day]
+      `INSERT INTO generation_quota_claims (device_id, account_id, request_id, quota_day)
+       VALUES ($1, $2, $3, $4::date)`,
+      [deviceId, accountId, stableRequestId, day]
     );
     await client.query("COMMIT");
     return {
@@ -1012,14 +1503,22 @@ export async function claimDailyGenerationQuota(deviceId, {
   }
 }
 
-async function generationQuotaUsedCount(client, deviceId, quotaDay) {
-  const result = await client.query(
-    `SELECT COUNT(*)::int AS count
-       FROM generation_quota_claims
-      WHERE device_id = $1
-        AND quota_day = $2::date`,
-    [deviceId, quotaDay]
-  );
+async function generationQuotaUsedCount(client, { deviceId, accountId = null, quotaDay } = {}) {
+  const result = accountId
+    ? await client.query(
+        `SELECT COUNT(*)::int AS count
+           FROM generation_quota_claims
+          WHERE account_id = $1
+            AND quota_day = $2::date`,
+        [accountId, quotaDay]
+      )
+    : await client.query(
+        `SELECT COUNT(*)::int AS count
+           FROM generation_quota_claims
+          WHERE device_id = $1
+            AND quota_day = $2::date`,
+        [deviceId, quotaDay]
+      );
   return result.rows[0]?.count || 0;
 }
 
