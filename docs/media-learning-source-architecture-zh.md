@@ -2,94 +2,153 @@
 
 ## 1. 背景
 
-拾贝当前已经能把文本或文章链接生成可复习章节、知识点和题目。后续如果支持播客、视频、YouTube、访谈等内容，不建议直接把完整音视频交给一个昂贵多模态模型从头到尾生成题目。
+拾贝当前已经能把文本或文章链接生成可复习章节、知识点和题目。视频功能的目标不是做一个通用视频摘要器，而是让用户粘贴抖音、小红书等视频链接后，系统可以把其中有学习价值的内容变成可复习章节。
 
-更适合拾贝的方式是把任务拆成两层：
+成熟产品的共同经验是 source-first / transcript-first：
 
-```text
-便宜或专用模型负责感知原始媒体
-稳定文本模型负责结构化学习和出题
-```
+- NotebookLM 对 YouTube 的公开支持依赖字幕或自动字幕，并只把视频文字 transcript 导入为 source。
+- Readwise Reader 把 YouTube 视频和 time-synced transcript 放在一起，让用户按 transcript 跳转、划线和总结。
+- Snipd 对播客的核心能力是 transcript、AI summary、AI chapters 和按片段保存。
+- Azure AI Video Indexer 这类企业级产品也会先输出 transcript、OCR、topics、scene 等结构化中间产物，再供搜索、总结和问答使用。
 
-也就是先把音频、视频转成可引用、可缓存、可检查的学习源文本，再复用现有出题链路。
+因此拾贝不应把“完整视频直接丢给一个多模态大模型”作为生产主路径。更稳的方式是先建立一层可引用、可缓存、可检查的 `LearningSource`，再复用现有 V2 出题链路。
 
-## 2. 参考产品和架构
+## 2. 第一版目标
 
-### NotebookLM
+第一版聚焦抖音和小红书视频链接，不要求用户上传视频文件。
 
-NotebookLM 的核心思路是 source-first：先把文档、YouTube、音频等变成可引用 source，再基于 source 生成摘要、FAQ、study guide 和问答。拾贝可以借鉴这个来源层设计，让所有题目和知识点都能回到原文、字幕或时间点。
+目标：
 
-参考：https://support.google.com/notebooklm/answer/16215270
+- 用户粘贴公开视频链接后，后端尝试解析视频元数据、文案和可访问播放地址。
+- 后端把视频音轨转成 transcript，并保留时间戳片段。
+- 对画面信息依赖较强的视频，后端抽关键帧做 OCR 或画面摘要，作为 transcript 的补充。
+- 后端把 transcript、文案、OCR、画面摘要合并成 `LearningSource.normalizedText`。
+- 现有 V2 生成系统继续基于文本生成章节、知识点和题目。
+- 第一版至少支持文字来源回看；时间戳跳回视频作为二阶段增强。
 
-### Snipd
+非目标：
 
-Snipd 针对播客提供 transcript、章节、AI summary 和用户保存片段能力。它的启发是：播客学习不应只有全文总结，还应该有高价值片段、时间点和可复习内容。
-
-参考：https://www.snipd.com/
-
-### Readwise Reader
-
-Readwise Reader 支持 YouTube transcript、highlight 和 AI summary。它的关键启发是：视频学习体验里，time-synced transcript 很重要，用户需要能从总结或题目跳回原始片段。
-
-参考：https://docs.readwise.io/reader/docs/faqs/videos
-
-### Intel / NVIDIA 视频总结架构
-
-公开工程架构通常采用 chunk pipeline：视频进入 ingestion service，被切块，抽帧，转写音频，生成分段摘要，再进入 object store、向量库或 LLM 总结流程。
-
-参考：
-
-- Intel Video Search and Summarization Architecture: https://docs.openedgeplatform.intel.com/oep/edge-ai-libraries/video-search-and-summarization/overview-architecture-summary.html
-- NVIDIA VSS Architecture: https://docs.nvidia.com/vss/2.4.0/content/architecture.html
+- 不承诺支持私密、删除、地区限制、版权限制或平台过滤的视频。
+- 不把第三方平台数据用于公开题库、训练公共模型或跨用户共享。
+- 不在 iOS 端下载视频、调用模型或保存平台 API Key。
+- 不把 TikHub 绑定成不可替换的长期架构，只作为第一版 `VideoSourceProvider` 候选实现。
 
 ## 3. 总体架构
 
-建议新增一层 `LearningSource`，位于现有 `extractSourceContent` 和 `generateReviewChapter` 之间。
-
 ```text
 用户输入
-  文本 / 文章链接 / 播客 / 视频 / YouTube
+  抖音 / 小红书视频链接
 
-→ Source Ingestion
-  下载、抓取、识别来源类型、保存原始元数据
+→ Video Source Provider
+  TikHub 解析分享链接、视频元数据、文案、播放地址、封面、作者信息
 
 → Media Understanding
-  ASR 转写
-  视频抽帧
-  画面摘要
-  speaker / timestamp / chapter 分段
+  下载或读取视频地址
+  ffmpeg 抽音频
+  ASR 转写音频
+  抽关键帧
+  OCR / 画面摘要
 
 → Learning Source
   清洗 transcript
-  合并画面线索
+  合并平台文案、OCR、视觉摘要
   分段和压缩
-  保留 timestamp 和 source reference
+  保留 timestamp、source reference、provider metadata
 
 → Review Generation
-  现有知识点提取
+  现有 V2 生成管线
+  知识点提取
   出题
   质检
   重写
   入池
 
 → User Learning
-  章节
+  章节详情
   复习
-  收藏
-  回到原时间点
+  来源片段回看
+  后续跳回视频时间点
 ```
 
-## 4. 核心数据结构
+关键架构判断：
 
-第一版可以用一个服务端内部结构承接不同来源：
+- TikHub 解决“让后端拿到公开视频内容”的问题，不解决“学习理解和出题”的问题。
+- ASR/OCR/视觉摘要解决“把媒体变成可引用文本”的问题。
+- 现有 V2 出题系统继续解决“从文本生成可复习知识”的问题。
+
+## 4. TikHub 取源方案
+
+TikHub 是第一版可验证的第三方数据入口。它对拾贝的价值是把抖音/小红书公开链接转成结构化数据和可处理的视频地址。
+
+### 抖音
+
+优先候选接口：
+
+- `/api/v1/douyin/app/v3/fetch_one_video_by_share_url`
+- `/api/v1/douyin/app/v3/fetch_one_video`
+- `/api/v1/douyin/app/v3/fetch_multi_video_high_quality_play_url`
+
+预期可用字段：
+
+- 视频 ID
+- 标题或 `desc`
+- 作者信息
+- 封面
+- 播放地址
+- 时长
+- 公开互动指标
+
+工程约束：
+
+- App V3 作为主路径，Web 系列作为 fallback。
+- 播放地址可能有时效，处理失败或过期时需要重新解析。
+- 私密、删除、地区版权限制、作者可见性限制等情况必须进入 `failed_extract_video`。
+
+### 小红书
+
+优先候选接口：
+
+- `/api/v1/xiaohongshu/app_v2/get_video_note_detail`
+- `/api/v1/xiaohongshu/app_v2/get_image_note_detail`
+
+预期可用字段：
+
+- 笔记 ID
+- 标题
+- 正文/文案
+- 作者信息
+- 视频或图片资源
+- 评论和互动信息
+
+工程约束：
+
+- App V2 作为主路径。
+- 小红书端点维护成本高，响应可能需要重试或等待。
+- 不依赖播放量、下载量等小红书不稳定或不公开字段。
+
+### 供应商边界
+
+TikHub 不是官方开放平台。生产使用前需要明确：
+
+- 只处理用户主动提交的公开链接。
+- 不绕过私密内容、登录态或权限限制。
+- 对平台内容只做用户个人学习目的下的临时处理和章节生成。
+- 删除章节时同步删除提取文本、转写片段和缓存引用。
+- 后端保留 provider 抽象，未来可替换为官方 API、其他服务商或自建解析。
+
+## 5. LearningSource 数据结构
+
+第一版新增服务端内部结构，不要求一次性暴露给 iOS 全量字段。
 
 ```ts
 type LearningSource = {
   id: string
-  sourceType: "text" | "article" | "podcast" | "video"
+  sourceType: "video_link"
+  platform: "douyin" | "xiaohongshu" | "unknown"
   title: string
-  url?: string
+  url: string
   account?: string
+  author?: string
   durationSeconds?: number
 
   rawText: string
@@ -99,11 +158,16 @@ type LearningSource = {
   visualSegments: VisualSegment[]
   sourceSections: SourceSection[]
 
+  media: {
+    provider: "tikhub"
+    providerContentId?: string
+    coverUrl?: string
+    playUrlExpiresAt?: string
+    cachedMediaRef?: string
+  }
+
   extractionMeta: {
-    provider: string
-    model: string
-    stages: string[]
-    costUsage: ModelUsageRecord[]
+    stages: MediaStageRecord[]
     createdAt: string
   }
 }
@@ -114,6 +178,7 @@ type TranscriptSegment = {
   endSeconds: number
   speaker?: string
   text: string
+  confidence?: number
 }
 
 type VisualSegment = {
@@ -121,285 +186,315 @@ type VisualSegment = {
   startSeconds: number
   endSeconds: number
   frameRefs: string[]
-  summary: string
+  ocrText?: string
+  summary?: string
 }
 
 type SourceSection = {
   id: string
-  sourceRole: "body" | "audio_transcript" | "visual_context" | "summary"
+  sourceRole: "caption" | "audio_transcript" | "ocr" | "visual_summary" | "platform_description"
   startSeconds?: number
   endSeconds?: number
   text: string
 }
+
+type MediaStageRecord = {
+  stage: string
+  provider?: string
+  model?: string
+  startedAt: string
+  finishedAt?: string
+  status: "succeeded" | "failed" | "skipped"
+  cost?: number
+  errorCode?: string
+}
 ```
 
-现有 `generateReviewChapter` 可以继续消费 `normalizedText`。后续如果要让题目跳回视频时间点，再把 `sourceSections` 传入知识点提取和题目解释链路。
+`normalizedText` 是当前 V2 出题系统的主要输入。`sourceSections` 是后续视频时间点回看的基础。
 
-## 5. 模型分工
+## 6. 与现有后端的对接判断
 
-### 音频 / 播客
+现有出题系统可以复用，原因是 V2 生成管线的输入主要是：
 
-推荐第一版走专用 ASR 或低成本多模态模型：
+- `rawText` / `cleanedText`
+- `sourceTitle`
+- `sourceUrl`
+- `sourceAccount`
+- `originalSourceType`
+
+视频前处理只要产出高质量 `normalizedText`，就能转换为现有输入：
+
+```ts
+{
+  sourceType: "text",
+  originalSourceType: "video_link",
+  rawText: learningSource.normalizedText,
+  cleanedText: learningSource.normalizedText,
+  sourceTitle: learningSource.title,
+  sourceUrl: learningSource.url,
+  sourceAccount: learningSource.account
+}
+```
+
+第一版接入点：
+
+- `extractSourceContent` 遇到 `video_link` 时不再直接失败，而是调用 `extractVideoLearningSource`。
+- V2 队列的 source extraction 阶段从只支持 `article_link/wechat_article` 扩展到 `video_link`。
+- 成功后把 `LearningSource.normalizedText` 写回 chapter source，并继续运行现有 V2 生成管线。
+
+需要小扩展的地方：
+
+- 当前 V2 `source.blocks` 只有 `id/type/text`，可先把 `SourceSection.text` 转成文本块。
+- 如果要跳回视频时间点，需要把 `startSeconds/endSeconds/sourceRole` 加到 source block 或 source anchor。
+- 当前 iOS `V2BackendSourceBlock` 只解码 `id/type/text`，第一版可以不改；时间点回看阶段再扩展 Swift 模型。
+
+## 7. 模型与处理分工
+
+第一版推荐分层处理，而不是单一基座模型直看视频。
 
 ```text
-音频文件或播客链接
-→ ASR 转写
-→ transcript 清洗
-→ 分段摘要
-→ normalizedText
-→ 现有章节生成
+TikHub
+  负责公开视频取源、元数据、播放地址
+
+ffmpeg
+  负责抽音频、抽关键帧、基础转码
+
+ASR 服务
+  负责把音频转 timestamped transcript
+
+OCR / 视觉模型
+  负责识别画面文字、PPT/代码/屏幕内容、关键帧摘要
+
+文本 LLM
+  负责把 transcript + OCR + visual summary 合并成 LearningSource.normalizedText
+
+现有 V2 出题模型
+  负责知识点、题目、质检和复习路径
 ```
 
-可选模型或服务：
+候选技术：
 
-- 豆包 / 火山 ASR
-- Whisper / OpenAI transcription
-- Gemini Flash / Flash-Lite 音频理解
-- Qwen Omni 音频理解
+- ASR：火山 ASR、OpenAI transcription、阿里/腾讯/百度语音服务。
+- 视频直接理解对照：Gemini video understanding、Qwen-VL/百炼视频理解。
+- 视觉摘要：Qwen-VL、Gemini、OpenAI vision frames。
 
-### 视频
+直接视频理解模型用于 benchmark 和 fallback，不作为第一版主路径。
 
-视频不建议直接整段送给最贵多模态模型。建议拆成音频和画面两条线：
+## 8. 生成状态和失败状态
+
+新增内部阶段：
 
 ```text
-视频
-→ 抽音频 → ASR transcript
-→ 抽关键帧 → 视觉摘要
-→ transcript + visual summary 合并
-→ normalizedText
-→ 现有章节生成
+fetching_video_source       正在解析视频来源
+fetching_video_media        正在读取视频内容
+transcribing_audio          正在转写视频语音
+extracting_visual_context   正在识别画面信息
+merging_learning_source     正在整理视频内容
 ```
 
-画面摘要不是每一帧都需要。第一版可以按固定间隔或场景切换抽帧，例如每 30 秒、每 60 秒或每个 slide/scene 一帧。
+前台可以继续映射为：
 
-## 6. 成本拆分
+```text
+submitted / fetching_video_source     已提交，等待处理
+fetching_video_media                  正在提取视频内容
+transcribing_audio                    正在提取视频内容
+extracting_visual_context             正在提取视频内容
+merging_learning_source               正在提取视频内容
+generating_points                     正在生成知识点
+generating_questions                  正在生成题目
+quality_checking                      正在检查题目质量
+completed                             已生成
+failed_extract_video                  视频内容提取失败
+```
 
-音视频功能必须把成本拆开记录，不能只看最终章节成本。
+失败原因需要结构化记录：
+
+- `video_provider_unavailable`
+- `video_private_or_deleted`
+- `video_region_or_copyright_restricted`
+- `video_play_url_expired`
+- `video_download_failed`
+- `audio_transcription_failed`
+- `video_no_speech`
+- `video_content_too_short`
+- `visual_context_failed`
+- `learning_source_merge_failed`
+
+用户可见文案保持克制，例如：“这条视频暂时无法提取可复习内容，请稍后重试或换一个公开视频链接。”
+
+## 9. 成本拆分
+
+音视频功能必须把前处理成本和出题成本分开记录。
 
 ```text
 TotalCost
-= MediaUnderstandingCost
+= SourceProviderCost
++ MediaUnderstandingCost
 + LearningSourceNormalizationCost
 + ReviewGenerationCost
 ```
 
-更细：
+阶段建议：
 
 ```text
-MediaUnderstandingCost
-= audio_transcription
-+ video_frame_extraction
-+ visual_summary
-
-ReviewGenerationCost
-= knowledge_points
-+ questions_initial
-+ judge_initial
-+ question_rewrite
-+ judge_rewrite
-+ question_supplement
-+ judge_supplement
-+ chapter_summary
-```
-
-成本工作台后续需要新增这些 stage：
-
-```text
+tikhub_video_source_fetch
+video_media_fetch
 audio_transcription
-audio_transcript_cleanup
+video_frame_extraction
+video_ocr
 video_frame_summary
 media_learning_source_merge
+knowledge_points
+questions_initial
+judge_initial
+question_rewrite
+judge_rewrite
+question_supplement
+judge_supplement
+chapter_summary
 ```
 
-这样才能比较不同方案：
+成本工作台后续需要展示：
+
+- 每条视频取源成本
+- 每分钟 ASR 成本
+- 每分钟视觉处理成本
+- 每章出题成本
+- 每道入池题总成本
+- 失败视频的 sunk cost
+
+## 10. 缓存和数据保留
+
+缓存原则：
+
+- 缓存 `LearningSource` 和 transcript，用于重新生成题目。
+- 不长期保存原始视频文件，除非后续有明确存储策略和用户告知。
+- 播放地址如果有时效，只保存 provider metadata 和必要引用，不依赖长期可用。
+- 删除章节时删除 transcript、visual summary、normalizedText、sourceSections 和 provider metadata。
+
+隐私原则：
+
+- 只处理用户主动提交的公开链接。
+- 提取内容只用于该用户的章节、题目、解释、复习记录和质量反馈。
+- 不把平台作者、评论者等个人信息暴露到题目内容里，除非它是用户学习内容本身不可缺少的信息。
+
+## 11. 验证计划
+
+第一轮不要直接改生产生成链路，先做 benchmark。
+
+样本：
+
+- 抖音公开视频 20 条。
+- 小红书公开视频笔记 20 条。
+- 每个平台覆盖：口播、教程、带字幕、无字幕、PPT/屏幕录制、生活经验类、低信息密度视频。
+
+验证指标：
+
+- TikHub 链接解析成功率。
+- 视频播放地址获取成功率。
+- 视频读取/下载成功率。
+- ASR 成功率。
+- 关键帧/OCR 有效信息率。
+- LearningSource 可读性评分。
+- 生成章节成功率。
+- 题目来源支撑率。
+- 单条视频总成本。
+- 失败原因分布。
+
+对照实验：
 
 ```text
-方案 A：Gemini 直接理解视频 + DeepSeek 出题
-方案 B：豆包 ASR + Qwen 画面摘要 + DeepSeek 出题
-方案 C：Whisper 转写 + Gemini Flash-Lite 摘要 + DeepSeek 出题
+方案 A：TikHub + ASR transcript + 现有 V2 出题
+方案 B：TikHub + ASR + OCR/关键帧摘要 + 现有 V2 出题
+方案 C：TikHub + Gemini/Qwen 直接视频理解 + 现有 V2 出题
 ```
 
-## 7. 对现有代码的影响
+验收门槛建议：
 
-改动属于中等，不需要推倒出题系统。
+- 公开视频取源成功率达到 80% 以上才进入产品内测。
+- 生成章节成功率达到 70% 以上才默认开放视频链接入口。
+- 人工抽样题目来源支撑率达到 85% 以上才进入 TestFlight 候选。
 
-### 基本保持不变
+## 12. 分阶段实施建议
 
-- 知识点提取
-- 出题
-- 质检
-- 重写
-- 章节结构
-- 复习系统
+### Phase 0：离线技术验证
 
-### 需要新增
+目标：验证 TikHub 是否能稳定把抖音/小红书视频交给后端处理。
 
-- `LearningSource` 结构
-- 音频转写模块
-- 视频抽帧和画面摘要模块
-- 音视频前处理任务队列
-- 前处理成本记录
-- source segment 到题目的引用关系
+工作：
 
-### 可能需要调整
+- 准备真实链接样本。
+- 调 TikHub 解析元数据和播放地址。
+- 用 ffmpeg 抽音频。
+- 接一个 ASR 服务生成 transcript。
+- 把 transcript 塞进现有 V2 生成实验脚本。
+- 记录成功率、失败原因、成本和人工质量评分。
 
-- `extractSourceContent` 从“直接返回 rawText”升级为“返回 LearningSource 或 normalizedText”
-- `generationMeta.modelUsage` 支持前处理 stage
-- 成本工作台展示“前处理成本 + 出题成本”
-- iOS 章节详情支持跳回原音视频时间点
+### Phase 1：视频音轨 MVP
 
-## 8. 优势
-
-### 成本更低
-
-音视频感知由便宜模型或专用服务完成，文本出题继续使用当前 DeepSeek 或后续校准后的模型。避免所有工作都交给昂贵多模态模型。
-
-### 质量更可控
-
-中间产物可检查。如果题目质量不好，可以判断问题来自：
-
-- ASR 转写错误
-- 视频画面摘要遗漏
-- transcript 清洗丢信息
-- 知识点提取不准
-- 出题或质检不稳定
-
-### 可缓存
-
-同一条播客或视频只需要转写和抽帧一次。后续重新生成题目、切换模型、调整 prompt，都可以复用 `LearningSource`。
-
-### 可替换模型
-
-音频、画面、文本出题可以使用不同 provider。模型选择变成可组合策略，而不是押注单一多模态模型。
-
-### 更适合拾贝定位
-
-拾贝不是普通摘要工具，而是把内容变成可复习知识。拆层后，核心出题系统仍然是产品壁垒。
-
-## 9. 劣势和风险
-
-### 链路变长
-
-音视频前处理会增加延迟。长视频可能需要异步任务、进度状态和失败重试。
-
-### 信息可能损失
-
-如果 ASR 或画面摘要遗漏重点，后面的出题模型无法恢复信息。需要保留原 transcript segment 和 source reference。
-
-### 工程复杂度上升
-
-需要处理文件、链接下载、存储、队列、超时、重试、缓存、隐私和成本追踪。
-
-### 质量归因更复杂
-
-最终题目不好时，需要区分是前处理问题还是出题问题。质量工作台要支持查看中间产物。
-
-## 10. 分阶段实施建议
-
-### Phase 1：播客 MVP
-
-目标：先支持音频或播客链接，不做视频画面。
-
-```text
-音频 / 播客链接
-→ ASR
-→ transcript cleanup
-→ normalizedText
-→ 现有 generateReviewChapter
-```
-
-新增 stage：
-
-```text
-audio_transcription
-audio_transcript_cleanup
-```
-
-验收标准：
-
-- 能生成章节和题目
-- 能记录 ASR 成本和出题成本
-- 每道入池题成本可计算
-- transcript 可回看
-
-### Phase 2：视频音轨版
-
-目标：视频先只处理音轨，不做画面理解。
+目标：视频先只处理音轨和平台文案，不做画面理解。
 
 ```text
 视频链接
-→ 提取音频
+→ TikHub
+→ 音频抽取
 → ASR
+→ transcript cleanup
 → normalizedText
-→ 现有章节生成
+→ 现有 V2 生成管线
 ```
 
-适合访谈、播客视频、课程口播。
+适合口播、访谈、教程讲解、播客切片。
 
-### Phase 3：视频画面增强版
+### Phase 2：画面文字增强
 
-目标：加入关键帧和画面摘要。
+目标：加入关键帧 OCR 和轻量画面摘要。
 
 ```text
 视频
 → ASR transcript
 → keyframes
-→ visual summary
-→ transcript + visual summary merge
-→ 章节生成
+→ OCR / visual summary
+→ transcript + visual context merge
+→ 现有 V2 生成管线
 ```
 
-适合 PPT 课程、产品演示、代码教程、带视觉信息的视频。
+适合 PPT 课、代码教程、屏幕录制、产品演示。
 
-### Phase 4：模型评测平台
+### Phase 3：时间戳回看
 
-目标：成本工作台支持多模型横评。
+目标：题目和知识点可以跳回视频片段。
 
-对同一条音视频，比较：
+工作：
 
-- 前处理成本
-- 出题成本
-- 总成本
-- 每分钟成本
-- 每道入池题成本
-- 生成成功率
-- JSON 稳定性
-- 人工质量评分
+- `source.blocks` 扩展 `startSeconds/endSeconds/sourceRole`。
+- `sourceAnchor` 或 client serializer 暴露视频时间点。
+- iOS 来源页支持按时间点打开原链接或视频内嵌回看。
 
-## 11. 第一版推荐路线
+### Phase 4：多模型评测平台
 
-第一版不要先做完整视频多模态，建议从播客开始。
+目标：让成本工作台支持视频链路横评。
 
-推荐实现：
+比较：
 
-```text
-ASR / 音频理解模型
-→ transcript cleanup
-→ DeepSeek 结构化出题
-→ 成本工作台记录完整费用
-```
-
-原因：
-
-- 音频链路比视频简单
-- 播客和访谈内容更接近文章
-- 现有出题系统可以最大程度复用
-- 成本和质量更容易校准
-
-等播客稳定后，再加入视频画面摘要。
-
-## 12. 待决策问题
-
-1. 第一版是否只支持用户上传音频，还是也支持播客链接？
-2. 是否需要保存完整 transcript，还是只保存清洗后的 normalizedText？
-3. 用户是否能从题目跳回原音频/视频时间点？
-4. 音视频文件是否进入长期存储，还是处理后立即删除？
-5. 前处理模型优先选国产、海外，还是同时接入评测？
-6. 成本工作台是否先支持离线评测，不进入 iOS App？
+- TikHub 取源成功率。
+- ASR 模型准确率和成本。
+- OCR/视觉摘要模型有效率。
+- 直接视频理解模型 vs 分层理解方案。
+- 每分钟成本、每道入池题成本、人工质量评分。
 
 ## 13. 结论
 
-拾贝支持播客和视频时，推荐采用“音视频前处理 + 文本出题链路”的分层架构。
+拾贝视频功能可以直接复用现有后端出题系统，但前提是先把视频转成 `LearningSource.normalizedText`。
 
-这套架构的关键不是多模态模型本身，而是建立稳定的 `LearningSource` 层。它把不同来源统一成可引用、可缓存、可复习的学习材料，让现有章节生成、题目质量控制和成本计算继续发挥作用。
+第一版推荐路线：
 
+```text
+抖音/小红书链接
+→ TikHub 取源
+→ ASR 转写
+→ LearningSource
+→ 现有 V2 出题系统
+```
+
+关键工程工作不在重写出题系统，而在新增稳定的 `VideoSourceProvider`、音视频前处理、成本记录和失败归因。等音轨版跑稳后，再加入关键帧/OCR 和时间戳回看。
