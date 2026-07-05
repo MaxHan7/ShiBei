@@ -80,8 +80,8 @@
 | 付费订阅/IAP | 不做 | 增加审核和工程复杂度 |
 | 社交分享/社区发布 | 不做 | 非首版必要 |
 | 完整后台 CMS | 不做 | 推荐好文先用脚本/JSON 维护 |
-| 第三方社交登录 | 不做 | 避免引入 Sign in with Apple 以外的审核复杂度 |
-| Apple 登录 | 首版暂不做；上架后 P1 做可选 Apple 登录 | 快速首版优先降低账号删除/迁移/审核复杂度；用户需确认接受匿名数据恢复边界 |
+| 第三方社交登录 | 首版不建议做微信/Google/Facebook 等第三方登录 | 避免额外 SDK、外部平台配置和 Sign in with Apple 审核复杂度 |
+| Apple 登录 | 决策重新打开；若首版需要账号，推荐只做可选 Sign in with Apple | 账号功能必须同步做账号删除、匿名数据绑定、隐私和审核材料 |
 
 ### 2.2 App Store 提交包拆解
 
@@ -127,16 +127,18 @@
 
 目标：避免正式用户因为重装、换机、系统语言变化、设备 ID 变化导致数据不可恢复。
 
-首版决策建议：
+首版决策状态：
 
 - App Store 首版可以继续允许匿名体验。
-- 快速首版暂不做 Sign in with Apple，用户需确认接受匿名数据恢复边界。
-- Sign in with Apple 列为上架后 P1，用于“保存和同步学习数据”。
+- 原推荐方案是快速首版暂不做 Sign in with Apple，用户确认接受匿名数据恢复边界。
+- 用户现在提出首版可能需要 Apple 登录或微信登录，因此账号决策已重新打开。
+- 账号专项计划见：`docs/app-store-account-login-plan-zh.md`。
+- 当前技术建议：如果首版必须做账号，只做可选 Sign in with Apple，不做微信登录。
 - 首版不做账号时，产品文案和审核说明必须明确“当前数据绑定本设备”，并把数据恢复边界写入用户交接包和审核材料。
 
 必须完成：
 
-- [ ] 用户最终确认：快速首版暂不做 Apple 登录，并接受匿名数据恢复边界。
+- [ ] 用户最终确认：保持匿名优先，或首版加入可选 Sign in with Apple。
 - [ ] 明确匿名用户数据如何绑定、迁移、删除和恢复。
 - [ ] 如果提供账号创建，App 内必须提供账号删除入口。
 - [ ] 数据删除应删除章节、复习记录、收藏、通知、push token 和用户 profile。
@@ -994,6 +996,7 @@ App Store Connect 操作：
 | 2026-07-04 | 自动回写验收记录路径并刷新用户交接入口 | 已把决策表中的“真机验收记录文件”从待填写改为当天验收记录路径，用户待补字段从 22 降到 21；账号策略 audit 增加对决策表的覆盖，防止“二选一”旧推荐再次进入用户填表入口；重新生成 handoff、状态、final gate、账号一致性和截图证据快照 | `docs/app-store-user-decision-form-zh.md`、`tools/app-store-account-decision-consistency-audit.mjs`、`docs/app-store-release-evidence/2026-07-04-user-handoff.md`、`docs/app-store-release-evidence/2026-07-04-screenshot-evidence.md` | 用户继续补 21 个外部/决策字段；Codex 收到输入后继续自动回写和跑 strict gate |
 | 2026-07-04 | 同步用户输入字段映射表到最新证据入口 | 已把字段映射表中的用户 handoff 和真机验收路径从 7 月 3 日更新到 7 月 4 日；`app-store:user-input-field-map-audit` 改为自动寻找最新 production acceptance 证据，避免未来日期继续硬编码；当天字段映射 audit 为 READY | `docs/app-store-user-input-field-map-zh.md`、`tools/app-store-user-input-field-map-audit.mjs`、`docs/app-store-release-evidence/2026-07-04-user-input-field-map-audit.md` | 用户按字段映射表补外部输入；Codex 后续继续解析、dry-run、回写和跑 final gate |
 | 2026-07-04 | 细化 2026 App Store 年龄分级执行清单 | 已根据 Apple 当前年龄分级帮助页和 2026 更新提醒，把年龄分级从“建议答案”细化为 App Store Connect 操作路径、填写边界和证据要求；明确 URL 输入不等于通用网页浏览器，私有学习内容不等于公开社区 UGC；已重新生成允许 pending 的 App Store Connect copy pack 草稿，保留 5 个由用户 URL/决策造成的 blocker | `docs/app-store-review-submission-pack-zh.md`、`docs/app-store-metadata-zh.md`、`docs/app-store-release-evidence/2026-07-04-age-rating-2026-checklist.md`、`docs/app-store-release-evidence/2026-07-04-connect-copy-pack-draft-after-age-rating.md`、`docs/app-store-release-evidence/2026-07-04-static-pages-audit.md` | 用户在 App Store Connect 完成年龄分级问卷并截图；Codex 根据截图/JSON 继续跑外部控制台 gate |
+| 2026-07-05 | 重开首版账号登录决策并建立专项计划 | 用户提出首版需要 Apple 登录或微信登录；已调研 Apple 官方账号删除/Sign in with Apple 审核要求和 Supabase/Firebase/Clerk/Auth0 等成熟 Auth 服务，结论是首版若必须账号，推荐只做可选 Sign in with Apple，不建议微信登录；已将账号模型、删除账号、额度、推送、隐私、审核和用户手动事项拆成 checkpoint | `docs/app-store-account-login-plan-zh.md`、`docs/app-store-release-readiness-plan-zh.md` | 用户在 A 保持匿名优先 / B 可选 Apple 登录 / C Apple+微信 中拍板；若选 B/C，进入账号 PRD、数据模型和删除账号闭环实现 |
 
 ## 9. 维护规则
 
@@ -1009,7 +1012,7 @@ Task 1-10 的 Codex 可产出部分已经基本落入文档、脚本和台账。
 
 完整用户手动事项见：`docs/app-store-user-action-checklist-zh.md`。
 
-1. 用户按最新 `docs/app-store-release-evidence/2026-07-04-user-handoff.md` 模板回复，或填写 `docs/app-store-user-decision-form-zh.md`，确认价格、额度、推荐好文计额、首版暂不做 Apple 登录且接受匿名数据恢复边界、支持邮箱和 URL。
+1. 用户先在 `docs/app-store-account-login-plan-zh.md` 的 A/B/C 三个账号方案中拍板；若选择首版账号，则先执行账号专项计划，再回到 App Store 最终提交门禁。
 2. Codex 用 `npm run app-store:parse-fast-release-reply` 或 `npm run app-store:create-fast-release-inputs` 生成标准输入 JSON，并根据决策表回写隐私政策、支持页、元数据、审核包和提交 guard。
 3. 用户继续填写已有最新验收记录 `docs/app-store-release-evidence/2026-07-04-production-acceptance.md`，然后跑真机/TestFlight 验收并补证据。
 4. 用户按 `docs/app-store-release-evidence/screenshots-checklist.md` 至少准备 1 张符合 Apple 规格的正式截图；首版仍建议补齐 6 张核心场景。
