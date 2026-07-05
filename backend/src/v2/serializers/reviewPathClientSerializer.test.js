@@ -61,6 +61,29 @@ test("maps multiple choice answers to correctOptionIndex", async () => {
   );
 });
 
+test("preserves optional video source block metadata for clients", async () => {
+  const [sample] = await loadGoldenReviewPaths();
+  const videoSample = structuredClone(sample);
+  videoSample.source.type = "video_link";
+  videoSample.source.blocks[0] = {
+    ...videoSample.source.blocks[0],
+    sourceRole: "audio_transcript",
+    startSeconds: 12,
+    endSeconds: 18
+  };
+
+  const serialized = serializeReviewPathForClient(videoSample);
+
+  assert.deepEqual(serialized.chapter.sourceBody[0], {
+    id: videoSample.source.blocks[0].id,
+    kind: videoSample.source.blocks[0].type,
+    text: videoSample.source.blocks[0].text,
+    sourceRole: "audio_transcript",
+    startSeconds: 12,
+    endSeconds: 18
+  });
+});
+
 test("joins matching pair ids to left and right display text", async () => {
   const [sample] = await loadGoldenReviewPaths();
   const serialized = serializeReviewPathForClient(sample);

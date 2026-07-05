@@ -1,0 +1,32 @@
+{
+  "sources": [
+    {
+      "id": "douyin-mouth-001",
+      "platform": "douyin",
+      "url": "https://v.douyin.com/<share-token>/",
+      "contentType": "口播教程"
+    },
+    {
+      "id": "xhs-ppt-001",
+      "platform": "xiaohongshu",
+      "url": "https://www.xiaohongshu.com/explore/<note-id>",
+      "contentType": "PPT讲解"
+    }
+  ],
+  "asrCandidates": [
+    { "id": "openai-transcription", "provider": "openai", "enabled": true },
+    { "id": "aliyun-funasr", "provider": "aliyun", "enabled": false },
+    { "id": "volcengine-asr", "provider": "volcengine", "enabled": false }
+  ],
+  "visualCandidates": [
+    { "id": "none", "provider": "none", "enabled": true },
+    { "id": "qwen-vl", "provider": "dashscope", "enabled": false },
+    { "id": "gemini-video", "provider": "gemini", "enabled": false }
+  ],
+  "generationCandidates": [
+    { "id": "current-default", "provider": "current", "enabled": true },
+    { "id": "qwen-json", "provider": "qwen", "enabled": false },
+    { "id": "gemini-json", "provider": "gemini", "enabled": false },
+    { "id": "deepseek-json", "provider": "deepseek", "enabled": false }
+  ]
+}

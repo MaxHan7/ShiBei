@@ -65,7 +65,10 @@ function serializeSourceBlock(block) {
   return {
     id: block.id,
     kind: block.type,
-    text: block.text
+    text: block.text,
+    ...(block.sourceRole ? { sourceRole: block.sourceRole } : {}),
+    ...(Number.isFinite(Number(block.startSeconds)) ? { startSeconds: Number(block.startSeconds) } : {}),
+    ...(Number.isFinite(Number(block.endSeconds)) ? { endSeconds: Number(block.endSeconds) } : {})
   };
 }
 

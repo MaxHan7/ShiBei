@@ -123,6 +123,36 @@ test("valid payload passes", () => {
   });
 });
 
+test("valid payload accepts optional video source block metadata", () => {
+  const payload = validReviewPath({
+    source: {
+      type: "video_link",
+      blocks: [
+        { id: "p-001", type: "heading", text: "标题" },
+        {
+          id: "transcript-001",
+          type: "paragraph",
+          text: "先明确用户问题。",
+          sourceRole: "audio_transcript",
+          startSeconds: 0,
+          endSeconds: 4
+        },
+        { id: "p-003", type: "quote", text: "引用正文。" },
+        { id: "p-004", type: "paragraph", text: "第二段正文。" }
+      ]
+    },
+    units: [
+      {
+        sourceAnchor: {
+          blockIds: ["transcript-001", "p-003", "p-004"]
+        }
+      }
+    ]
+  });
+
+  assert.equal(validateReviewPathV2(payload).ok, true);
+});
+
 test("exports V2 contract constants", () => {
   assert.equal(V2_REVIEW_PATH_SCHEMA_VERSION, "v2_review_path_1");
   assert.deepEqual(V2_QUESTION_TYPES, ["multiple_choice", "matching"]);

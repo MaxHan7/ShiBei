@@ -895,6 +895,11 @@ function normalizeChapterSource(chapter, chapterId) {
     url: toStringValue(source.url || chapter.sourceUrl || ""),
     author,
     accountOrDomain,
+    platform: toStringValue(source.platform || chapter.sourcePlatform || ""),
+    durationSeconds: Number.isFinite(Number(source.durationSeconds || chapter.durationSeconds))
+      ? Number(source.durationSeconds || chapter.durationSeconds)
+      : null,
+    media: normalizeSourceMedia(source.media),
     rawInput,
     extractedText,
     blocks: normalizeV2SourceBlocks(source.blocks),
@@ -1076,8 +1081,21 @@ function normalizeV2SourceBlocks(blocks) {
   return blocks.map((block, index) => ({
     id: toStringValue(block?.id || `p-${String(index + 1).padStart(3, "0")}`),
     type: toStringValue(block?.type || "paragraph"),
-    text: toStringValue(block?.text || "")
+    text: toStringValue(block?.text || ""),
+    ...(block?.sourceRole ? { sourceRole: toStringValue(block.sourceRole) } : {}),
+    ...(Number.isFinite(Number(block?.startSeconds)) ? { startSeconds: Number(block.startSeconds) } : {}),
+    ...(Number.isFinite(Number(block?.endSeconds)) ? { endSeconds: Number(block.endSeconds) } : {})
   })).filter((block) => block.text);
+}
+
+function normalizeSourceMedia(media) {
+  if (!media || typeof media !== "object" || Array.isArray(media)) return null;
+  return {
+    provider: toStringValue(media.provider || ""),
+    providerContentId: toStringValue(media.providerContentId || ""),
+    coverUrl: toStringValue(media.coverUrl || ""),
+    playUrlExpiresAt: toStringValue(media.playUrlExpiresAt || "")
+  };
 }
 
 function normalizeV2SummaryCard(summaryCard) {
