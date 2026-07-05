@@ -40,9 +40,9 @@ npm run check:app-store-final
 
 | 信息 | 用途 | 你需要给 Codex 什么 |
 | --- | --- | --- |
-| Support URL | App Store Connect 必填/强建议，用于用户支持 | `docs/support.html` 已准备；你需要提供公开托管后的 URL |
-| Privacy URL | App Store Connect 隐私政策 URL | `docs/privacy-policy.html` 已准备；你需要提供公开托管后的 URL |
-| 支持邮箱 | 隐私政策和用户支持 | 一个对外邮箱，例如 `support@...` |
+| Support URL | App Store Connect 必填/强建议，用于用户支持 | https://shibei-production.up.railway.app/support |
+| Privacy URL | App Store Connect 隐私政策 URL | https://shibei-production.up.railway.app/privacy |
+| 支持邮箱 | 隐私政策和用户支持 | mingyuhan0814@gmail.com |
 | App Store Connect App 状态 | 确认是否在旧 `com.maxhan.shibei` App 下提交 | 截图或口头确认当前 App 页面和 bundle id |
 | Apple Developer / App Store Connect 外部控制台确认 | 确认 Push capability、现有 App 记录、隐私标签、截图、年龄分级、最新 build 等 Codex 无法登录检查的项目 | 按 `docs/app-store-external-console-checklist-zh.md` 填写 `.release/app-store-inputs/external-console-checks.json` |
 | 最终截图文件 | 产品页截图上传 | 至少准备 1 张符合规格截图，首版建议按 `docs/app-store-release-evidence/screenshots-checklist.md` 补齐 6 张核心场景；放入 `docs/app-store-release-evidence/screenshots/app-store/` 后运行 `npm run check:app-store-screenshots` |

@@ -6,13 +6,13 @@
 
 | 项目 | 当前建议 | 状态 |
 | --- | --- | --- |
-| App 名称 | Recallo | 待最终 App Store Connect 确认 |
+| App 名称 | Recallo | App Store Connect 最终核对项 |
 | Bundle ID | `com.maxhan.shibei` | 沿用旧 TestFlight/App Store 产品，避免重新配置通知 |
-| 价格 | 免费 | 待确认 |
+| 价格 | 免费 | 首版决策已定 |
 | 订阅/IAP | 首版不接入 | 建议确认 |
 | 广告 | 不接入 | 建议确认 |
 | 第三方分析 SDK | 不接入 | 建议确认 |
-| 账号 | 可选 Apple 登录；匿名仍可直接使用；App 内提供删除账号入口 | 待 Apple Developer capability / signing 确认 |
+| 账号 | 可选 Apple 登录；匿名仍可直接使用；App 内提供删除账号入口 | Apple Developer capability / signing 最终核对项 |
 | AI 服务 | 服务端调用第三方 AI 模型 | 必须披露 |
 | Push 通知 | 仅用于章节生成成功/失败提醒 | 已接入，需真机复验 |
 
@@ -85,7 +85,7 @@ Please pay special attention to:
 | Identifiers | 匿名设备 ID、账号 ID、APNs token | App 功能：区分用户、发送通知、恢复数据 | 是 | 否 | 声明 |
 | Usage Data | 学习进度、答题结果、收藏、通知状态、反馈、每日生成额度使用 | App 功能：恢复学习状态、控制免费额度、改善体验 | 是 | 否 | 声明 |
 | Diagnostics | 错误类型、生成失败码、服务诊断信息 | App 功能/诊断：排查生成和通知问题 | 可能关联设备 | 否 | 若生产日志保留诊断，应声明 |
-| Contact Info | 邮箱 | 仅当支持邮件或账号系统收集时 | 待定 | 否 | 首版若不收集则不声明 |
+| Contact Info | 邮箱 | 仅当用户主动通过支持邮箱联系，或账号系统返回私有转发邮箱时 | 不用于追踪 | 否 | 支持邮件由用户主动发送；Sign in with Apple 邮箱仅用于账号识别和数据恢复 |
 | Location | 无 | 无 | 否 | 否 | 不声明 |
 | Contacts | 无 | 无 | 否 | 否 | 不声明 |
 | Photos or Videos | 无 | 无 | 否 | 否 | 不声明 |
@@ -148,12 +148,12 @@ App 内首次真实 AI 生成前建议展示：
 
 | 顺序 | 场景 | 截图要求 | 状态 |
 | --- | --- | --- | --- |
-| 1 | 首页学习路径 | 显示当前学习章节和路径，不出现空状态误闪 | 待拍 |
-| 2 | 添加文章 | 显示粘贴链接/文本入口，不出现 debug 文案 | 待拍 |
-| 3 | 生成中 | 显示章节正在生成、进度条、查看原文按钮 | 待拍 |
-| 4 | 章节详情 | 显示知识点、作者/查看原文、开始/继续学习按钮 | 待拍 |
-| 5 | 做题页 | 显示选择题或连线题，题干和选项排版正常 | 待拍 |
-| 6 | 发现页推荐好文 | 显示推荐文章卡片、封面、精简 filter | 待拍 |
+| 1 | 首页学习路径 | 显示当前学习章节和路径，不出现空状态误闪 | 未拍摄 |
+| 2 | 添加文章 | 显示粘贴链接/文本入口，不出现 debug 文案 | 未拍摄 |
+| 3 | 生成中 | 显示章节正在生成、进度条、查看原文按钮 | 未拍摄 |
+| 4 | 章节详情 | 显示知识点、作者/查看原文、开始/继续学习按钮 | 未拍摄 |
+| 5 | 做题页 | 显示选择题或连线题，题干和选项排版正常 | 未拍摄 |
+| 6 | 发现页推荐好文 | 显示推荐文章卡片、封面、精简 filter | 未拍摄 |
 
 截图拒收标准：
 
@@ -231,3 +231,9 @@ learning,study,AI,articles,reading,quiz,knowledge,notes,memory,review
 - [ ] Production `/api/health` 正常。
 - [ ] TestFlight/Release 真机验收无 P0/P1。
 - [ ] 提交 build 的 commit hash、build number、Railway deployment id 已记录。
+
+## 11. 对外联系与 URL
+
+- Support URL：https://shibei-production.up.railway.app/support
+- Privacy Policy URL：https://shibei-production.up.railway.app/privacy
+- 支持邮箱：mingyuhan0814@gmail.com

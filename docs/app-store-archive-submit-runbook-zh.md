@@ -11,8 +11,8 @@
 - [ ] `npm run check` 通过。
 - [ ] iOS Release build 通过。
 - [ ] Production `/api/health` 正常。
-- [ ] Support URL 已确定。
-- [ ] Privacy URL 已确定并可公开访问。
+- [x] Support URL 已确定：https://shibei-production.up.railway.app/support
+- [x] Privacy URL 已确定并可公开访问：https://shibei-production.up.railway.app/privacy
 - [ ] App Store Connect 截图已按 `screenshots-checklist.md` 准备。
 
 ## 2. Codex 可先执行的检查
@@ -137,8 +137,8 @@ npm run app-store:create-connect-copy-pack
 | App Store Connect build |  |
 | Railway deployment id |  |
 | App Review 状态 | Waiting for Review / In Review / Rejected / Approved |
-| Support URL |  |
-| Privacy URL |  |
+| Support URL | https://shibei-production.up.railway.app/support |
+| Privacy URL | https://shibei-production.up.railway.app/privacy |
 
 优先用 `npm run app-store:create-archive-evidence` 生成 `docs/app-store-release-evidence/YYYY-MM-DD-build-<build-number>-archive.md`，再把关键信息同步回本文档或真机验收记录。
 

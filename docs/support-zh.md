@@ -2,11 +2,11 @@
 
 更新日期：2026 年 7 月 2 日
 
-> 本文档是 `docs/support.html` 的可编辑 Markdown 草案。正式提交 App Store 前，需要把“支持邮箱：待补充”替换为真实对外邮箱，并将 HTML 页面部署到公开 URL。
+> 本文档是 `docs/support.html` 的可编辑 Markdown 草案。正式提交 App Store 前，需要把“支持邮箱：mingyuhan0814@gmail.com”替换为真实对外邮箱，并将 HTML 页面部署到公开 URL。
 
 ## 支持邮箱
 
-支持邮箱：待补充
+支持邮箱：mingyuhan0814@gmail.com
 
 提交 App Store 前，请将这里替换为正式对外支持邮箱，并同步更新：
 
@@ -48,4 +48,4 @@
 
 ## 隐私政策
 
-关于 Recallo 收集哪些信息、如何使用 AI 模型处理内容、如何保存和删除数据，请查看 `docs/privacy-policy.html`。
+关于 Recallo 收集哪些信息、如何使用 AI 模型处理内容、如何保存和删除数据，请查看 https://shibei-production.up.railway.app/privacy。

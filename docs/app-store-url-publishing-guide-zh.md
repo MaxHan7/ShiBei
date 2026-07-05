@@ -34,9 +34,9 @@ npm run app-store:build-static-site
 
 | 项目 | 当前状态 | 用户需要做什么 |
 | --- | --- | --- |
-| 支持邮箱 | `待补充` | 提供正式对外邮箱，例如 `support@your-domain.com` |
-| Privacy Policy URL | 页面已准备，未公开部署 | 选择托管方式并提供最终 URL |
-| Support URL | 页面已准备，未公开部署 | 选择托管方式并提供最终 URL |
+| 支持邮箱 | `mingyuhan0814@gmail.com` | 已提供，Codex 可同步回写 |
+| Privacy Policy URL | https://shibei-production.up.railway.app/privacy | 已提供，提交前需确认公开可访问 |
+| Support URL | https://shibei-production.up.railway.app/support | 已提供，提交前需确认公开可访问 |
 
 ## 推荐托管方式
 

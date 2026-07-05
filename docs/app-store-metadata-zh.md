@@ -28,14 +28,14 @@
 | 字段 | 建议内容 | 状态 |
 | --- | --- | --- |
 | App Name | Recallo | 已定 |
-| Subtitle | 把文章变成练习题 | 待用户确认语气 |
-| Promotional Text | 把文章、长文和好内容变成知识点与练习题，让阅读真正变成可以继续学习的进度。 | 待用户确认 |
-| Privacy Policy URL | `docs/privacy-policy.html` 已准备，待部署公开 URL | 待用户部署/提供最终 URL |
-| Support URL | `docs/support.html` 已准备，待部署公开 URL 和支持邮箱 | 待用户提供邮箱并部署 |
+| Subtitle | 把文章变成练习题 | 已确认 |
+| Promotional Text | 把文章、长文和好内容变成知识点与练习题，让阅读真正变成可以继续学习的进度。 | 已确认 |
+| Privacy Policy URL | https://shibei-production.up.railway.app/privacy | 已确定 |
+| Support URL | https://shibei-production.up.railway.app/support | 已确定 |
 | Category | Education | 建议 |
 | Secondary Category | Productivity | 可选 |
-| Price | Free | 待用户确认 |
-| In-App Purchases | 首版不启用 | 待用户确认 |
+| Price | Free | 已确认 |
+| In-App Purchases | 首版不启用 | 已确认 |
 
 ## What’s New 草案
 

@@ -95,6 +95,7 @@ import { AppleAuthError, verifyAppleIdentityToken } from "./appleAuth.js";
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const projectRoot = resolve(__dirname, "..", "..");
 const demoRoot = resolve(projectRoot, "demo");
+const docsRoot = resolve(projectRoot, "docs");
 const costRunRoot = resolve(projectRoot, ".tmp", "cost-runs");
 const host = process.env.HOST || "0.0.0.0";
 const port = Number(process.env.PORT || 5173);
@@ -152,6 +153,24 @@ function requestBaseUrl(req) {
   if (!host) return process.env.SHIBEI_PUBLIC_BASE_URL || "";
   const inferredProto = proto || (host.endsWith(".up.railway.app") ? "https" : "http");
   return `${inferredProto}://${host}`;
+}
+
+async function sendPublicHtml(req, res, fileName) {
+  const filePath = resolve(docsRoot, fileName);
+  if (!filePath.startsWith(docsRoot)) {
+    sendText(res, 403, "Forbidden");
+    return;
+  }
+  const data = await readFile(filePath, "utf8");
+  if (req.method === "HEAD") {
+    res.writeHead(200, {
+      "content-type": "text/html; charset=utf-8",
+      ...responseCorsHeaders(res)
+    });
+    res.end();
+    return;
+  }
+  sendText(res, 200, data, "text/html; charset=utf-8");
 }
 
 async function readBody(req) {
@@ -2053,6 +2072,19 @@ const server = createServer(async (req, res) => {
       ...corsPreflightHeaders(req)
     });
     res.end();
+    return;
+  }
+
+  const requestUrl = new URL(req.url || "/", "http://localhost");
+  const pathname = requestUrl.pathname.replace(/\/+$/, "") || "/";
+
+  if (["GET", "HEAD"].includes(req.method) && ["/privacy", "/privacy-policy.html"].includes(pathname)) {
+    await sendPublicHtml(req, res, "privacy-policy.html");
+    return;
+  }
+
+  if (["GET", "HEAD"].includes(req.method) && ["/support", "/support.html"].includes(pathname)) {
+    await sendPublicHtml(req, res, "support.html");
     return;
   }
 
