@@ -119,10 +119,11 @@ ${renderMissingGroups(values.missingGroups)}
 Privacy Policy URL：<填写公开 HTTPS URL>
 Support URL：<填写公开 HTTPS URL>
 
-每日真实 AI 生成额度：每天 3 篇，按 UTC day
+每日真实 AI 生成额度：每天 5 篇，按 UTC day
 推荐好文不计入额度：确认
 匿名用户可直接生成：确认
-首版暂不做 Apple 登录，并接受匿名数据恢复边界：确认
+首版需要做 Apple 登录：确认
+账号删除入口：确认同步做
 首版不启用 IAP/订阅：确认
 
 App Store 元数据：

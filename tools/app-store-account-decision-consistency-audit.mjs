@@ -12,37 +12,37 @@ const latestHandoffPath = findLatestHandoffPath();
 const documents = [
   {
     path: "docs/app-store-recommended-decisions-zh.md",
-    required: ["首版 Apple 登录 | 快速首版暂不做", "Apple 登录列入上架后 P1"],
+    required: ["首版 Apple 登录 | 加入可选 Apple 登录", "删除账号入口 | 必须同步做"],
     forbidden: []
   },
   {
     path: "docs/app-store-user-input-field-map-zh.md",
-    required: ["首版是否加入可选 Apple 登录 | 快速首版暂不做", "disabled-first-release"],
+    required: ["首版是否加入可选 Apple 登录 | 加入可选 Apple 登录", "enabled"],
     forbidden: []
   },
   {
     path: "docs/app-store-user-action-checklist-zh.md",
-    required: ["首版是否加入 Apple 登录 | 快速首版暂不做", "上架后 P1 做可选 Apple 登录"],
+    required: ["首版是否加入 Apple 登录 | 加入可选 Apple 登录", "必须同步做账号删除闭环"],
     forbidden: ["推荐可选加入；若赶时间可匿名首版"]
   },
   {
     path: "docs/app-store-user-decision-form-zh.md",
-    required: ["快速首版暂不做；上架后 P1 做可选 Apple 登录"],
+    required: ["加入可选 Apple 登录", "必须做"],
     forbidden: ["二选一：若要数据恢复更稳，做；若要最快上架，首版暂不做"]
   },
   {
     path: latestHandoffPath,
-    required: ["首版暂不做 Apple 登录，并接受匿名数据恢复边界：确认"],
+    required: ["首版需要做 Apple 登录：确认", "账号删除入口：确认同步做"],
     forbidden: ["推荐可选加入；若赶时间可匿名首版"]
   },
   {
     path: "docs/app-store-review-submission-pack-zh.md",
-    required: ["快速首版匿名优先；暂不做 Apple 登录", "Anonymous-first release"],
+    required: ["可选 Apple 登录", "Account deletion is available"],
     forbidden: ["Apple 登录是否进入首版待决策", "推荐可选加入；若赶时间可匿名首版"]
   },
   {
     path: "docs/app-store-release-readiness-plan-zh.md",
-    required: ["快速首版暂不做 Apple 登录", "上架后 P1 做可选 Apple 登录"],
+    required: ["用户已确认首版加入可选 Sign in with Apple", "账号删除闭环"],
     forbidden: ["推荐可选加入", "推荐 App Store 首版目标", "倾向可选做"]
   }
 ];
@@ -71,7 +71,7 @@ for (const document of documents) {
 console.log("# Recallo App Store Account Decision Consistency Audit");
 console.log(`repoRoot=${repoRoot}`);
 console.log(`mode=${reportMode ? "report" : "strict"}`);
-console.log("canonicalRecommendation=快速首版暂不做 Apple 登录；接受匿名数据恢复边界；上架后 P1 做可选 Apple 登录。");
+console.log("canonicalRecommendation=首版加入可选 Sign in with Apple；匿名仍可用；账号删除闭环必须同步完成。");
 console.log(`latestHandoff=${latestHandoffPath}`);
 console.log("");
 console.log("## Checks");

@@ -19,12 +19,12 @@
 | --- | --- | --- | --- |
 | 首版价格 | 免费 | 是 | App Store Pricing 也要选 free。 |
 | 首版是否启用 IAP/订阅 | 不启用 | 是 | 首版不接 StoreKit，降低审核复杂度。 |
-| 每日真实 AI 生成额度 | 每天 3 篇，按 UTC day | 是 | 当前后端默认额度已按这个实现；如果改数字，需要同步后端/文案。 |
+| 每日真实 AI 生成额度 | 每天 5 篇，按 UTC day | 是 | 用户已确认首版额度为 5；后端/文案需保持一致。 |
 | 推荐好文是否计入额度 | 不计入 | 是 | 推荐好文是预生成内容，用来让新用户快速体验。 |
 | 匿名用户是否可直接生成 | 可以，不强制登录 | 是 | 保持首版首次体验顺滑。 |
-| 首版是否加入可选 Apple 登录 | 快速首版暂不做 | 是 | 如果改成“做”，需要新增账号绑定、删除账号入口和验收路径。 |
-| 如果首版暂不做 Apple 登录，是否接受匿名数据恢复边界 | 接受，并在说明中明确重装/换机可能无法恢复 | 是 | 这是匿名首版必须接受并透明说明的边界。 |
-| 如果首版做 Apple 登录，是否同步做删除账号入口 | 首版不适用；保留删除当前设备数据入口 | 是 | 如果最终选择做 Apple 登录，这一项必须改成“必须同步做”。 |
+| 首版是否加入可选 Apple 登录 | 加入可选 Apple 登录 | 是 | 匿名仍可直接使用；Apple 登录用于保存和恢复学习数据。 |
+| 如果首版暂不做 Apple 登录，是否接受匿名数据恢复边界 | 不适用：首版做 Apple 登录，但匿名模式仍需说明恢复边界 | 是 | 匿名模式仍保留，因此文案仍需说明重装/换机可能无法恢复。 |
+| 如果首版做 Apple 登录，是否同步做删除账号入口 | 必须同步做 | 是 | Apple 审核硬要求；App 内必须可删除账号。 |
 | 支持邮箱 | 用户提供真实邮箱 | 是 | 必须是真实可收信邮箱，不能是占位符。 |
 | Privacy Policy URL | 用户提供公开 HTTPS URL | 是 | App Store Connect 必填；必须公网可访问。 |
 | Support URL | 用户提供公开 HTTPS URL | 是 | App Store Connect 支持入口；必须公网可访问。 |
@@ -60,7 +60,7 @@ open .release/app-store-inputs/external-console-checks.json
 | `appleDeveloper.appIdUsesExistingBundle` | `true` | Identifiers 列表 | 确认不是新建了另一个 App ID。 |
 | `appleDeveloper.pushNotificationsEnabled` | `true` | App ID capability 列表 | 系统推送必须开启。 |
 | `appleDeveloper.productionApnsConfigured` | `true` | APNs key/certificate + Railway 生产环境变量 | 确认生产推送配置一致。 |
-| `appleDeveloper.signInWithAppleDecision` | `disabled-first-release` 或 `enabled` | 由首版账号决策决定 | 快速首版推荐 `disabled-first-release`。 |
+| `appleDeveloper.signInWithAppleDecision` | `enabled` | 由首版账号决策决定 | 用户已确认首版做可选 Apple 登录。 |
 | `appleDeveloper.signInWithAppleCapabilityMatchesDecision` | `true` | App ID capability 列表 | capability 必须和上一个决策一致。 |
 
 ### 3.2 App Store Connect

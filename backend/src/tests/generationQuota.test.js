@@ -13,16 +13,16 @@ test("generation quota day uses UTC calendar date", () => {
   assert.equal(generationQuotaDayUTC("2026-07-03T00:00:00.000Z"), "2026-07-03");
 });
 
-test("allows three daily real generation claims and rejects the fourth", async () => {
+test("allows five daily real generation claims and rejects the sixth", async () => {
   const store = createMemoryGenerationQuotaStore();
 
-  for (const requestId of ["request-1", "request-2", "request-3"]) {
+  for (const requestId of ["request-1", "request-2", "request-3", "request-4", "request-5"]) {
     const quota = await enforceDailyGenerationQuota({
       deviceId: "device-1",
       requestId,
       claimQuota: store.claimDailyGenerationQuota,
       now: "2026-07-02T10:00:00.000Z",
-      limit: 3
+      limit: 5
     });
     assert.equal(quota.allowed, true);
   }
@@ -30,16 +30,16 @@ test("allows three daily real generation claims and rejects the fourth", async (
   await assert.rejects(
     enforceDailyGenerationQuota({
       deviceId: "device-1",
-      requestId: "request-4",
+      requestId: "request-6",
       claimQuota: store.claimDailyGenerationQuota,
       now: "2026-07-02T11:00:00.000Z",
-      limit: 3
+      limit: 5
     }),
     (error) => {
       assert.equal(error instanceof GenerationQuotaError, true);
       assert.equal(error.errorCode, "quota_exceeded_daily_generation");
       assert.equal(error.statusCode, 429);
-      assert.equal(error.quota.used, 3);
+      assert.equal(error.quota.used, 5);
       return true;
     }
   );

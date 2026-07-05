@@ -130,17 +130,17 @@
 首版决策状态：
 
 - App Store 首版可以继续允许匿名体验。
-- 原推荐方案是快速首版暂不做 Sign in with Apple，用户确认接受匿名数据恢复边界。
-- 用户现在提出首版可能需要 Apple 登录或微信登录，因此账号决策已重新打开。
+- 用户已确认首版加入可选 Sign in with Apple，匿名用户仍可直接使用。
+- 用户已确认首版不做微信登录。
 - 账号专项计划见：`docs/app-store-account-login-plan-zh.md`。
-- 当前技术建议：如果首版必须做账号，只做可选 Sign in with Apple，不做微信登录。
-- 首版不做账号时，产品文案和审核说明必须明确“当前数据绑定本设备”，并把数据恢复边界写入用户交接包和审核材料。
+- 当前技术方案：只做可选 Sign in with Apple，不做微信登录。
+- 匿名模式仍保留，产品文案和审核说明仍需明确“未登录时数据绑定本设备”；登录后当前设备数据绑定到 Apple 账号。
 
 必须完成：
 
-- [ ] 用户最终确认：保持匿名优先，或首版加入可选 Sign in with Apple。
-- [ ] 明确匿名用户数据如何绑定、迁移、删除和恢复。
-- [ ] 如果提供账号创建，App 内必须提供账号删除入口。
+- [x] 用户最终确认：首版加入可选 Sign in with Apple。
+- [x] 明确匿名用户数据如何绑定、迁移、删除和恢复。
+- [x] 如果提供账号创建，App 内必须提供账号删除入口。
 - [ ] 数据删除应删除章节、复习记录、收藏、通知、push token 和用户 profile。
 - [ ] 更新隐私政策和 App Review 备注。
 
@@ -149,16 +149,18 @@
 - [ ] 登录前说明：用于保存和恢复学习数据，不强制用户登录才能体验。
 - [ ] 匿名数据绑定：登录成功后，把当前匿名 device 数据绑定到 Apple account。
 - [ ] 多设备冲突策略：同一账号多设备以服务端数据为准，本地只缓存。
-- [ ] 删除账号入口：个人主页 > 账号说明/账号设置 > 删除账号。
-- [ ] 删除账号接口：删除 user profile、account link、chapters、review progress、favorites、notifications、push tokens。
-- [ ] 删除账号后本地清理：清空 token/account id，回到匿名新用户状态。
+- [x] 删除账号入口：个人主页 > 账号说明/账号设置 > 删除账号。
+- [x] 删除账号接口：删除 user profile、account link、chapters、review progress、favorites、notifications、push tokens。
+- [x] 删除账号后本地清理：清空 token/account id，回到匿名新用户状态。
+- [ ] Apple Developer/App ID 开启 Sign in with Apple capability，并重新生成包含 entitlement 的 provisioning profile。
+- [ ] 补齐 Apple token revoke：配置 Team ID、Key ID、private key，后端 exchange authorization code 并在删除账号时 revoke refresh token。
 
 推荐方案：
 
 | 方案 | 优点 | 风险 | 建议 |
 | --- | --- | --- | --- |
-| 继续匿名 | 实现最快，审核复杂度低 | 数据恢复弱，正式用户信任风险高 | 快速首版推荐；需用户明确确认匿名数据恢复边界 |
-| Apple 登录可选 | 数据可恢复，符合 iOS 生态 | 需要账号删除、迁移、权限和测试 | 上架后 P1 做可选 Apple 登录 |
+| 继续匿名 | 实现最快，审核复杂度低 | 数据恢复弱，正式用户信任风险高 | 已不采用为首版主方案；仍保留匿名使用 |
+| Apple 登录可选 | 数据可恢复，符合 iOS 生态 | 需要账号删除、迁移、权限和测试 | 当前首版方案 |
 | 强制登录 | 数据一致性最好 | 首次体验门槛高 | 不建议首版 |
 
 ### 3.3 免费额度和成本控制
@@ -167,7 +169,7 @@
 
 首版建议：
 
-- 免费用户每日生成额度：先设为 3 篇。
+- 免费用户每日生成额度：先设为 5 篇。
 - 推荐好文导入：不计入额度或单独低成本计量。
 - 失败重试：服务端限制每篇文章自动重试次数。
 - 文章长度：保留服务端上限，但文案要用户可理解。
@@ -175,12 +177,12 @@
 
 必须完成：
 
-- [x] 设计 `daily_generation_quota` 的服务端规则。默认 3 篇/UTC day，可用 `RECALLO_DAILY_REAL_GENERATION_LIMIT` 配置，待用户最终确认数字。
+- [x] 设计 `daily_generation_quota` 的服务端规则。默认 5 篇/UTC day，可用 `RECALLO_DAILY_REAL_GENERATION_LIMIT` 配置；用户已确认首版额度为 5。
 - [x] 记录每个 device 的每日真实 AI 生成次数。已通过 `generation_quota_claims` 和 device+day 事务锁实现。
 - [ ] 记录失败次数、推荐好文导入次数的运营统计。当前推荐好文导入不经过真实生成 quota；失败/导入可用于后续运营观测，但不阻塞首版提交。
 - [x] 超额时返回稳定错误码和用户友好文案。已返回 `quota_exceeded_daily_generation` / HTTP `429`。
 - [x] App 内在超额时解释。首版暂不常驻展示今日剩余额度，只在超额时提示。
-- [x] 后端增加测试覆盖：跨天重置、重复请求、失败是否计额、推荐好文是否计额。当前测试覆盖 UTC 日期、前三次允许/第四次拒绝、requestId 幂等、次日重置、V2 enqueue 扣额、pending job 复用不重复扣；推荐好文导入由独立 import 路径保证不扣额。
+- [x] 后端增加测试覆盖：跨天重置、重复请求、失败是否计额、推荐好文是否计额。当前测试覆盖 UTC 日期、前五次允许/第六次拒绝、requestId 幂等、次日重置、V2 enqueue 扣额、pending job 复用不重复扣；推荐好文导入由独立 import 路径保证不扣额。
 
 额度规则建议先按以下版本落地：
 
@@ -407,7 +409,7 @@ Push notifications are used only to notify users when chapter generation succeed
 
 目标：把 AI 生成成本纳入服务端控制。
 
-- [x] 定义每日免费生成次数。当前默认 3 篇/UTC day，可由 `RECALLO_DAILY_REAL_GENERATION_LIMIT` 配置；最终数字待用户确认。
+- [x] 定义每日免费生成次数。当前默认 5 篇/UTC day，可由 `RECALLO_DAILY_REAL_GENERATION_LIMIT` 配置；用户已确认首版额度为 5。
 - [x] 定义推荐好文是否计额。当前推荐好文导入不经过真实生成 quota，不计入真实 AI 生成额度。
 - [x] 定义失败、取消、重复提交是否计额。当前以服务端真实生成 claim 为准，前置校验失败不计额；重复 pending job 不重复扣。
 - [x] 设计后端数据结构和接口错误码。已实现 `generation_quota_claims`、事务锁和 `quota_exceeded_daily_generation` / HTTP `429`。
@@ -923,10 +925,10 @@ App Store Connect 操作：
 | 首版是否免费 | 是 | 降低审核和用户进入门槛 | 待确认 |
 | 是否做每日额度 | 是 | 控制模型成本和滥用 | 已实现默认 3 次/UTC day，待用户确认数字 |
 | 是否做付费积分/订阅 | 否，后置 | 避免首版 IAP 复杂度 | 建议后置 |
-| 是否首版加入 Apple 登录 | 快速首版暂不做；上架后 P1 做可选 Apple 登录 | 降低首版账号删除、迁移和审核复杂度；用户需接受匿名数据恢复边界 | 待用户最终确认 |
+| 是否首版加入 Apple 登录 | 加入可选 Apple 登录；匿名仍可直接使用；账号删除闭环同步做 | 数据可恢复，符合 iOS 生态；需要完成 Apple capability、删除账号和 token revoke 配置 | 用户已确认，工程第一阶段已完成 |
 | 是否强制登录后生成 | 否 | 会显著提高首次体验门槛 | 建议不强制 |
 | 推荐好文是否计入额度 | 建议不计或单独计 | 预生成内容成本低，适合新手体验 | 待确认 |
-| 旧匿名数据如何迁移 | 上架后 P1 做 Apple 登录时，登录可绑定当前匿名数据 | 防止用户升级后数据丢失 | 后置到 Apple 登录 P1 |
+| 旧匿名数据如何迁移 | Apple 登录成功后绑定当前匿名设备数据 | 防止用户升级后数据丢失 | 工程第一阶段已完成 |
 
 ## 8. 执行台账
 

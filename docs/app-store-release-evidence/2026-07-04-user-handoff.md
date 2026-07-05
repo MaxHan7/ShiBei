@@ -48,9 +48,9 @@ Overall status: NOT READY (7 blocking areas)
 
 | 项目 | 当前值 | 影响 |
 | --- | --- | --- |
-| 首版是否加入可选 Apple 登录 | 待填写 | 账号删除、隐私政策、App Review、前端入口 |
-| 如果首版暂不做 Apple 登录，是否接受匿名数据恢复边界 | 待填写 | 隐私政策、账号说明、审核备注 |
-| 如果首版做 Apple 登录，是否同步做删除账号入口 | 待填写 | Apple 审核硬要求、后端删除接口、前端入口 |
+| 首版是否加入可选 Apple 登录 | 加入可选 Apple 登录 | 账号删除、隐私政策、App Review、前端入口 |
+| 如果首版暂不做 Apple 登录，是否接受匿名数据恢复边界 | 不适用：首版做 Apple 登录；匿名模式仍需说明恢复边界 | 隐私政策、账号说明、审核备注 |
+| 如果首版做 Apple 登录，是否同步做删除账号入口 | 必须同步做 | Apple 审核硬要求、后端删除接口、前端入口 |
 
 ### 对外联系与 URL
 
@@ -98,7 +98,7 @@ Overall status: NOT READY (7 blocking areas)
 
 ## 建议直接回复模板
 
-如果你同意快速首版方案，可以直接复制并填写这段：
+如果你同意当前快速首版方案，可以直接复制并填写这段：
 
 ```text
 采用快速首版方案。
@@ -107,10 +107,11 @@ Overall status: NOT READY (7 blocking areas)
 Privacy Policy URL：<填写公开 HTTPS URL>
 Support URL：<填写公开 HTTPS URL>
 
-每日真实 AI 生成额度：每天 3 篇，按 UTC day
+每日真实 AI 生成额度：每天 5 篇，按 UTC day
 推荐好文不计入额度：确认
 匿名用户可直接生成：确认
-首版暂不做 Apple 登录，并接受匿名数据恢复边界：确认
+首版需要做 Apple 登录：确认
+账号删除入口：确认同步做
 首版不启用 IAP/订阅：确认
 
 App Store 元数据：

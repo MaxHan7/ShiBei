@@ -80,6 +80,13 @@ function parseReply(text) {
     values["anonymous-recovery-boundary"] = "接受，并在说明中明确重装、换机、系统重置可能无法恢复";
     values["account-deletion"] = "不适用：首版暂不做 Apple 登录";
   }
+  if (/首版需要做\s*Apple\s*登录[：:]\s*确认/.test(text)) {
+    values["apple-login"] = "加入可选 Apple 登录";
+    values["anonymous-recovery-boundary"] = "不适用：首版做 Apple 登录；匿名模式仍需说明恢复边界";
+  }
+  if (/账号删除入口[：:]\s*确认同步做/.test(text)) {
+    values["account-deletion"] = "必须做";
+  }
   if (/首版不启用\s*IAP\/订阅[：:]\s*确认/.test(text)) {
     values.iap = "不启用";
   }

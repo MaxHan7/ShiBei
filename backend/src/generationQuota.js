@@ -1,6 +1,6 @@
 const DEFAULT_DAILY_REAL_GENERATION_LIMIT = readPositiveInt(
   process.env.RECALLO_DAILY_REAL_GENERATION_LIMIT,
-  3
+  5
 );
 
 export class GenerationQuotaError extends Error {

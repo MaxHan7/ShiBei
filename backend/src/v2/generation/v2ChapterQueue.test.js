@@ -142,14 +142,14 @@ test("allows the same source URL to be generated again with a new client request
   assert.equal(second.job.idempotencyKey, "upload-002");
 });
 
-test("rejects the fourth real V2 generation for the same device and UTC day", async () => {
+test("rejects the sixth real V2 generation for the same device and UTC day", async () => {
   const calls = [];
   const chapters = new Map();
   const jobs = new Map();
   const quotaClaims = [];
-  const deps = mockDeps({ calls, chapters, jobs, quotaClaims, quotaLimit: 3 });
+  const deps = mockDeps({ calls, chapters, jobs, quotaClaims, quotaLimit: 5 });
 
-  for (const clientRequestId of ["upload-001", "upload-002", "upload-003"]) {
+  for (const clientRequestId of ["upload-001", "upload-002", "upload-003", "upload-004", "upload-005"]) {
     await enqueueV2ChapterGeneration({
       deviceId: "device-1",
       body: {
@@ -165,8 +165,8 @@ test("rejects the fourth real V2 generation for the same device and UTC day", as
     enqueueV2ChapterGeneration({
       deviceId: "device-1",
       body: {
-        clientRequestId: "upload-004",
-        rawText: "第 4 篇文章"
+        clientRequestId: "upload-006",
+        rawText: "第 6 篇文章"
       },
       now: "2026-06-25T09:00:00.000Z",
       deps
