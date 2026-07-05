@@ -43,7 +43,7 @@ export const STATUS_TEXT = {
   auto_regenerating_questions: "正在检查题目质量",
   completed: "已生成",
   failed_extract_article: "文章正文提取失败",
-  failed_extract_video: "视频文本提取失败",
+  failed_extract_video: "视频内容提取失败",
   failed_points: "知识点生成失败",
   failed_questions: "题目生成失败",
   failed_no_qualified_questions: "题目生成失败"

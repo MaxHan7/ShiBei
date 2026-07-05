@@ -1,8 +1,13 @@
+import { extractVideoLearningSource as defaultExtractVideoLearningSource } from "../media/extractVideoLearningSource.js";
+import { buildV2SourceFromLearningSource } from "../media/learningSource.js";
+
 const MIN_ARTICLE_TEXT_LENGTH = 200;
 const ARTICLE_FETCH_TIMEOUT_MS = readPositiveInt(process.env.ARTICLE_FETCH_TIMEOUT_MS, 30_000);
 const WECHAT_EXTRACT_TIMEOUT_MS = readPositiveInt(process.env.WECHAT_EXTRACT_TIMEOUT_MS, 60_000);
 
-export async function extractSourceContent(input) {
+export async function extractSourceContent(input, {
+  extractVideoLearningSource = defaultExtractVideoLearningSource
+} = {}) {
   const sourceType = input?.sourceType;
   if (sourceType === "text") {
     return {
@@ -15,10 +20,23 @@ export async function extractSourceContent(input) {
   }
 
   if (sourceType === "video_link") {
-    throw sourceFailure(
-      "failed_extract_video",
-      "当前 Demo 暂未接入视频文本提取。请先粘贴视频摘要、字幕或笔记文本。"
-    );
+    const learningSource = await extractVideoLearningSource({
+      sourceUrl: input.sourceUrl,
+      rawText: input.rawText,
+      sourceTitle: input.sourceTitle
+    });
+    const v2Source = buildV2SourceFromLearningSource(learningSource);
+    return {
+      sourceType: "video_link",
+      sourceTitle: v2Source.title,
+      sourceUrl: v2Source.url,
+      sourceAccount: v2Source.account,
+      rawText: v2Source.cleanedText,
+      platform: v2Source.platform,
+      blocks: v2Source.blocks,
+      learningSource,
+      source: v2Source
+    };
   }
 
   if (sourceType !== "article_link") {
