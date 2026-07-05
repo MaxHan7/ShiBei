@@ -57,6 +57,13 @@ test("keeps question progress text at the stage level", () => {
   assert.equal(progress.unitTitle, "DMC模型");
 });
 
+test("maps video extraction stages to user-safe copy", () => {
+  assert.equal(buildV2GenerationProgress({ stage: V2_GENERATION_STAGE.FETCHING_VIDEO_SOURCE }).displayText, "正在提取视频内容");
+  assert.equal(buildV2GenerationProgress({ stage: V2_GENERATION_STAGE.FETCHING_VIDEO_MEDIA }).displayText, "正在提取视频内容");
+  assert.equal(buildV2GenerationProgress({ stage: V2_GENERATION_STAGE.TRANSCRIBING_AUDIO }).displayText, "正在提取视频内容");
+  assert.equal(buildV2GenerationProgress({ stage: V2_GENERATION_STAGE.MERGING_LEARNING_SOURCE }).displayText, "正在提取视频内容");
+});
+
 test("does not expose long unit titles in question progress text", () => {
   const progress = buildV2GenerationProgress({
     status: V2_GENERATION_STATUS.RUNNING,

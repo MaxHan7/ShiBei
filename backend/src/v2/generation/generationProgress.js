@@ -9,6 +9,10 @@ export const V2_GENERATION_STATUS = Object.freeze({
 export const V2_GENERATION_STAGE = Object.freeze({
   ACCEPTED: "accepted",
   EXTRACTING_SOURCE: "extracting_source",
+  FETCHING_VIDEO_SOURCE: "fetching_video_source",
+  FETCHING_VIDEO_MEDIA: "fetching_video_media",
+  TRANSCRIBING_AUDIO: "transcribing_audio",
+  MERGING_LEARNING_SOURCE: "merging_learning_source",
   PLANNING_REVIEW_PATH: "planning_review_path",
   MAPPING_KNOWLEDGE: "mapping_knowledge",
   PLANNING_PRACTICE: "planning_practice",
@@ -30,6 +34,26 @@ const STAGE_COPY = {
     displayText: "正在提取原文",
     stageGroup: "source",
     progress: 0.1
+  },
+  [V2_GENERATION_STAGE.FETCHING_VIDEO_SOURCE]: {
+    displayText: "正在提取视频内容",
+    stageGroup: "source",
+    progress: 0.07
+  },
+  [V2_GENERATION_STAGE.FETCHING_VIDEO_MEDIA]: {
+    displayText: "正在提取视频内容",
+    stageGroup: "source",
+    progress: 0.1
+  },
+  [V2_GENERATION_STAGE.TRANSCRIBING_AUDIO]: {
+    displayText: "正在提取视频内容",
+    stageGroup: "source",
+    progress: 0.14
+  },
+  [V2_GENERATION_STAGE.MERGING_LEARNING_SOURCE]: {
+    displayText: "正在提取视频内容",
+    stageGroup: "source",
+    progress: 0.18
   },
   [V2_GENERATION_STAGE.PLANNING_REVIEW_PATH]: {
     displayText: "正在分析文章",
@@ -183,6 +207,7 @@ function normalizeProgressDisplayText({
 function userFacingFailureText(failureMessage) {
   const value = String(failureMessage || "").trim();
   if (!value) return "";
+  if (value.includes("视频") || value.includes("failed_extract_video")) return "视频提取失败";
   if (value.includes("文章太长")) return "文章太长";
   if (value.includes("原文提取")) return "原文提取失败";
   if (value.includes("API Key") || value.includes("模型配置")) return "模型配置缺失";

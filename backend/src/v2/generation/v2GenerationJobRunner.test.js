@@ -160,6 +160,90 @@ test("extracts wechat article links before running V2 generation", async () => {
   assert.equal(chapters.get("chapter-1").source.author, "Recallo 测试号");
 });
 
+test("extracts video links before running V2 generation", async () => {
+  const calls = [];
+  const chapters = new Map([
+    ["chapter-1", {
+      id: "chapter-1",
+      title: "抖音视频",
+      status: "submitted",
+      source: { type: "video_link", url: "https://v.douyin.com/abc/" },
+      generationMeta: {},
+      createdAt: "2026-07-05T00:00:00.000Z"
+    }]
+  ]);
+  const deps = mockDeps({
+    calls,
+    chapters,
+    extractSourceContent: async (input) => {
+      calls.push({ name: "extractSourceContent", input });
+      return {
+        sourceType: "video_link",
+        sourceTitle: "AI 产品调研",
+        sourceUrl: input.sourceUrl,
+        sourceAccount: "产品老张",
+        rawText: "平台文案：AI 产品调研。\n\n先明确用户问题，再整理主题。".repeat(10),
+        platform: "douyin",
+        blocks: [
+          { id: "video-platform-description", type: "paragraph", text: "平台文案：AI 产品调研。", sourceRole: "platform_description" },
+          { id: "transcript-001", type: "paragraph", text: "先明确用户问题，再整理主题。", sourceRole: "audio_transcript", startSeconds: 0, endSeconds: 4 }
+        ],
+        source: {
+          type: "video_link",
+          platform: "douyin",
+          title: "AI 产品调研",
+          url: input.sourceUrl,
+          account: "产品老张",
+          accountOrDomain: "产品老张",
+          rawInput: input.sourceUrl,
+          cleanedText: "平台文案：AI 产品调研。\n\n先明确用户问题，再整理主题。".repeat(10),
+          blocks: [
+            { id: "video-platform-description", type: "paragraph", text: "平台文案：AI 产品调研。", sourceRole: "platform_description" },
+            { id: "transcript-001", type: "paragraph", text: "先明确用户问题，再整理主题。", sourceRole: "audio_transcript", startSeconds: 0, endSeconds: 4 }
+          ]
+        }
+      };
+    },
+    runV2GenerationJob: async (input) => {
+      calls.push({ name: "runV2GenerationJob", input });
+      return {
+        status: "completed",
+        chapter: {
+          schemaVersion: "v2_review_path_1",
+          id: input.chapterId,
+          title: input.sourceTitle,
+          status: "completed",
+          source: input.source,
+          units: []
+        }
+      };
+    }
+  });
+
+  const result = await runV2GenerationQueuedJob(baseJob({
+    sourceType: "video_link",
+    sourceUrl: "https://v.douyin.com/abc/",
+    sourceTitle: "抖音视频"
+  }), deps);
+
+  assert.equal(result.status, "completed");
+  assert.equal(calls.find((call) => call.name === "extractSourceContent").input.sourceType, "video_link");
+  const modelInput = calls.find((call) => call.name === "runV2GenerationJob").input;
+  assert.equal(modelInput.sourceType, "text");
+  assert.equal(modelInput.originalSourceType, "video_link");
+  assert.equal(modelInput.source.type, "video_link");
+  assert.equal(modelInput.source.platform, "douyin");
+  assert.equal(modelInput.source.blocks[1].startSeconds, 0);
+  assert.equal(chapters.get("chapter-1").source.type, "video_link");
+  assert.equal(
+    calls.some((call) =>
+      call.name === "updateGenerationJob" &&
+      call.fields.currentStage === "fetching_video_source"
+    ),
+    true
+  );
+});
+
 test("persists extracted article author before model output can overwrite source", async () => {
   const calls = [];
   const chapters = new Map([
@@ -241,6 +325,48 @@ test("stores source extraction failures without calling the model", async () => 
   assert.equal(result.generationProgress.failureCode, "failed_extract_article");
   assert.equal(failedChapter.status, "failed_generation");
   assert.equal(failedChapter.displayStatusText, "原文提取失败");
+  assert.equal(failCall.fields.retry, false);
+  assert.equal(calls.some((call) => call.name === "runV2GenerationJob"), false);
+});
+
+test("stores video extraction failures without calling the model", async () => {
+  const calls = [];
+  const chapters = new Map([
+    ["chapter-1", {
+      id: "chapter-1",
+      title: "抖音视频",
+      status: "submitted",
+      generationMeta: {},
+      createdAt: "2026-07-05T00:00:00.000Z"
+    }]
+  ]);
+  const deps = mockDeps({
+    calls,
+    chapters,
+    extractSourceContent: async () => {
+      const error = new Error("这条视频无法公开访问。");
+      error.code = "failed_extract_video";
+      error.mediaErrorType = "video_private_or_deleted";
+      error.retryable = false;
+      throw error;
+    },
+    runV2GenerationJob: async () => {
+      throw new Error("model should not be called");
+    }
+  });
+
+  const result = await runV2GenerationQueuedJob(baseJob({
+    sourceType: "video_link",
+    sourceUrl: "https://v.douyin.com/abc/",
+    sourceTitle: "抖音视频"
+  }), deps);
+  const failedChapter = chapters.get("chapter-1");
+  const failCall = calls.find((call) => call.name === "failGenerationJob");
+
+  assert.equal(result.status, "failed_generation");
+  assert.equal(result.generationProgress.failureCode, "failed_extract_video");
+  assert.equal(failedChapter.displayStatusText, "视频内容提取失败");
+  assert.equal(failedChapter.generationMeta.mediaErrorType, "video_private_or_deleted");
   assert.equal(failCall.fields.retry, false);
   assert.equal(calls.some((call) => call.name === "runV2GenerationJob"), false);
 });

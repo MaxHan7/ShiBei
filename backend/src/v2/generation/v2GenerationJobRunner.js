@@ -172,7 +172,7 @@ async function runResolvedV2GenerationJob({ job, input, services }) {
 }
 
 async function resolveV2QueuedGenerationInput(job, input, services) {
-  if (!isExtractableArticleSource(input.sourceType)) {
+  if (!isExtractableSource(input.sourceType)) {
     return input;
   }
 
@@ -182,13 +182,15 @@ async function resolveV2QueuedGenerationInput(job, input, services) {
       jobId: job.id,
       chapterId: job.chapterId,
       status: V2_GENERATION_STATUS.RUNNING,
-      stage: V2_GENERATION_STAGE.EXTRACTING_SOURCE
+      stage: input.sourceType === "video_link"
+        ? V2_GENERATION_STAGE.FETCHING_VIDEO_SOURCE
+        : V2_GENERATION_STAGE.EXTRACTING_SOURCE
     }),
     services
   );
 
   const source = await services.extractSourceContent({
-    sourceType: "article_link",
+    sourceType: input.sourceType === "wechat_article" ? "article_link" : input.sourceType,
     sourceUrl: input.sourceUrl,
     rawText: input.rawText,
     sourceTitle: input.sourceTitle,
@@ -205,6 +207,7 @@ async function resolveV2QueuedGenerationInput(job, input, services) {
     rawText: source.rawText || "",
     cleanedText: source.rawText || "",
     source: {
+      ...(source.source || {}),
       type: input.sourceType || source.sourceType,
       title: source.sourceTitle || input.sourceTitle || input.title || "",
       url: source.sourceUrl || input.sourceUrl || "",
@@ -222,8 +225,8 @@ async function resolveV2QueuedGenerationInput(job, input, services) {
   return resolvedInput;
 }
 
-function isExtractableArticleSource(sourceType) {
-  return sourceType === "article_link" || sourceType === "wechat_article";
+function isExtractableSource(sourceType) {
+  return ["article_link", "wechat_article", "video_link"].includes(sourceType);
 }
 
 async function persistResolvedV2Source(job, resolvedInput, services) {
@@ -288,6 +291,7 @@ function buildFailedV2Chapter({ job, existing, result, input }) {
       failedStage: result.failedStage || "",
       failureReason: result.failureReason || "",
       failureCode: result.generationProgress?.failureCode || "",
+      ...(result.mediaErrorType ? { mediaErrorType: result.mediaErrorType } : {}),
       ...(Array.isArray(result.errors) ? { errors: result.errors.slice(0, 12) } : {}),
       ...(Array.isArray(result.issues) ? { issues: result.issues.slice(0, 12) } : {}),
       ...(Array.isArray(result.diagnostics) ? { diagnostics: result.diagnostics.slice(0, 12) } : {}),
@@ -344,22 +348,27 @@ function buildSourceExtractionFailureResult(job = {}, error) {
   const message = error instanceof Error
     ? error.message
     : "原文提取失败，请检查链接后重试。";
-  const userFacingMessage = userFacingSourceExtractionFailure(message);
   const failureCode = error?.code || error?.status || "failed_extract_article";
+  const isVideoFailure = failureCode === "failed_extract_video";
+  const userFacingMessage = isVideoFailure
+    ? userFacingVideoExtractionFailure(message)
+    : userFacingSourceExtractionFailure(message);
+  const retryable = Boolean(error?.retryable);
   return {
     status: "failed_generation",
-    displayStatusText: "原文提取失败",
+    displayStatusText: isVideoFailure ? "视频内容提取失败" : "原文提取失败",
     failedStage: "source_extraction",
     failureReason: userFacingMessage,
-    retryable: false,
-    canRetry: false,
-    retryDelayMs: 0,
+    retryable,
+    canRetry: retryable,
+    retryDelayMs: retryable ? 30_000 : 0,
+    ...(error?.mediaErrorType ? { mediaErrorType: error.mediaErrorType } : {}),
     generationProgress: buildV2GenerationProgress({
       jobId: job.id,
       chapterId: job.chapterId,
       status: V2_GENERATION_STATUS.FAILED,
       stage: V2_GENERATION_STAGE.FAILED,
-      canRetry: false,
+      canRetry: retryable,
       failureCode,
       failureMessage: userFacingMessage
     })
@@ -381,6 +390,26 @@ function userFacingSourceExtractionFailure(message = "") {
     return "没有提取到可用于生成的正文。可以检查原文链接，或稍后重试。";
   }
   return "原文提取失败，请检查链接后重试。";
+}
+
+function userFacingVideoExtractionFailure(message = "") {
+  const normalized = String(message || "").toLowerCase();
+  if (normalized.includes("timeout") || message.includes("超时")) {
+    return "视频内容提取超时，请稍后重试。";
+  }
+  if (message.includes("私密") || message.includes("删除") || message.includes("无法公开访问")) {
+    return "这条视频无法公开访问。可以换一个公开视频链接。";
+  }
+  if (message.includes("过大")) {
+    return "视频文件过大，暂时无法生成复习内容。";
+  }
+  if (message.includes("无语音") || message.includes("没有识别到")) {
+    return "这条视频没有识别到足够清晰的语音内容。";
+  }
+  if (message.includes("太短") || normalized.includes("too short")) {
+    return "这条视频没有提取到足够的可复习内容。";
+  }
+  return "视频内容提取失败，请稍后重试或换一个公开视频链接。";
 }
 
 function shouldRetryQueuedV2Job(job = {}, result = {}) {
