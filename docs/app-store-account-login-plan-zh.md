@@ -197,11 +197,11 @@ flowchart TD
 
 ### Checkpoint B：账号 PRD 和数据模型
 
-- [ ] 写 `docs/account-login-prd-zh.md`。
-- [ ] 明确登录入口文案、账号说明、删除账号文案。
-- [ ] 明确匿名数据绑定和冲突策略。
-- [ ] 明确删除账号范围。
-- [ ] 设计 DB migration。
+- [x] 写 `docs/account-login-prd-zh.md`。
+- [x] 明确登录入口文案、账号说明、删除账号文案。
+- [x] 明确匿名数据绑定和冲突策略。
+- [x] 明确删除账号范围。
+- [x] 设计 DB migration。
 
 ### Checkpoint C：后端 Apple 登录
 
