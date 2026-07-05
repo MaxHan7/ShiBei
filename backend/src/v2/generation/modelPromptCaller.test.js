@@ -33,6 +33,43 @@ test("calls the JSON model transport with sourceMap schema and messages", async 
   assert.match(calls[0].user, /sourceMap/);
 });
 
+test("uses injected modelJsonCaller instead of binding to a provider client", async () => {
+  const calls = [];
+  const caller = createV2ModelPromptCaller({
+    retryCount: 0,
+    modelJsonCaller: async (request) => {
+      calls.push(request);
+      return {
+        title: "AI 产品调研",
+        summaryCard: { text: "视频内容被整理为可复习章节。" },
+        units: [
+          {
+            id: "unit-01",
+            order: 1,
+            title: "明确用户问题",
+            nodeLabel: "用户问题",
+            shortSummary: "先明确用户问题，再整理主题。",
+            detailSummary: "调研前先定义用户问题，后续整理才有方向。",
+            why: "这是让调研可复用的基础。",
+            sourceAnchor: { id: "anchor-unit-01", blockIds: ["p-001"] }
+          }
+        ],
+        chapterSummary: { encouragementText: "你已经掌握这段内容的核心流程。" }
+      };
+    }
+  });
+
+  const result = await caller("reviewPathPlan", {
+    article: { title: "AI 产品调研" },
+    source: { title: "抖音视频" },
+    blocks: [{ id: "p-001", type: "paragraph", text: "先明确用户问题，再整理主题。" }]
+  });
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].stage, "v2_reviewPathPlan");
+  assert.equal(result.units[0].id, "unit-01");
+});
+
 test("passes modelUsageRecorder through to the transport", async () => {
   const recorder = { record() {} };
   const caller = createV2ModelPromptCaller({

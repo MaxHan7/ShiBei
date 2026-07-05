@@ -75,6 +75,8 @@ export async function callOpenAIJson({
   }
 }
 
+export const callModelJson = callOpenAIJson;
+
 async function callDeepSeekJson({
   system,
   user,

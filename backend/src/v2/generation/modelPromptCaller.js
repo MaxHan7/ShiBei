@@ -1,4 +1,4 @@
-import { callOpenAIJson } from "../../generation/openaiClient.js";
+import { callModelJson } from "../../generation/openaiClient.js";
 import { classifyModelRuntimeError } from "./runtimeReliability.js";
 import { buildV2PromptMessages } from "./prompts/buildV2PromptMessages.js";
 import {
@@ -143,7 +143,7 @@ const STAGE_SCHEMAS = {
 const DEFAULT_MODEL_JSON_RETRY_COUNT = 2;
 
 export function createV2ModelPromptCaller({
-  modelJsonCaller = callOpenAIJson,
+  modelJsonCaller = callModelJson,
   modelUsageRecorder = null,
   runtimeRecorder = null,
   retryCount = readOptionalNonNegativeInt(process.env.V2_MODEL_JSON_RETRIES) ?? DEFAULT_MODEL_JSON_RETRY_COUNT
