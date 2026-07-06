@@ -6,7 +6,7 @@
 
 **Architecture:** Add a bounded media-learning layer under `backend/src/media/`: provider adapters fetch video metadata and processable media URLs, media processors extract audio and ASR transcript, a LearningSource normalizer merges platform text and transcript into source blocks. `extractSourceContent(video_link)` and the V2 queued job runner consume this layer and persist a source compatible with the current V2 serializer. The V2 question-generation engine stays model-agnostic behind a JSON model caller boundary.
 
-**Tech Stack:** Node.js 20 ESM, native `fetch`, `node:test`, existing V2 generation queue, TikHub REST API, `ffmpeg` CLI via `node:child_process`, `SpeechToTextProvider` abstraction with an OpenAI transcription adapter as the first implementation, provider-agnostic V2 JSON model caller, existing PostgreSQL-backed chapter/job persistence.
+**Tech Stack:** Node.js 20 ESM, native `fetch`, `node:test`, existing V2 generation queue, TikHub REST API, `ffmpeg` CLI via `node:child_process`, `SpeechToTextProvider` abstraction, provider-agnostic V2 JSON model caller with DeepSeek as the preferred configured provider, optional `VisualUnderstandingProvider` boundary, existing PostgreSQL-backed chapter/job persistence.
 
 ---
 
@@ -19,7 +19,9 @@ Included:
 - TikHub adapter skeleton for Douyin and Xiaohongshu public video links.
 - Video media fetch and bounded temporary file handling.
 - ffmpeg audio extraction.
-- OpenAI transcription provider as the first ASR implementation.
+- ASR provider boundary; the first committed adapter is OpenAI transcription, but deployment can replace it with a non-OpenAI speech-to-text adapter without changing V2 generation.
+- DeepSeek-first model provider selection for V2 JSON generation, with OpenAI fallback for existing environments.
+- Visual understanding provider boundary, defaulting to `none`, so Qwen-VL/Gemini style video understanding can be added later without changing the V2 queue contract.
 - Model-agnostic boundary checks for the V2 question-generation engine.
 - `LearningSource` normalization and source block generation.
 - V2 queued generation integration.
@@ -40,7 +42,8 @@ Excluded from this backend pass:
 - First backend version accepts only URL input for `video_link`; no user video upload.
 - ASR is a separate speech-to-text provider boundary. The first adapter can be OpenAI transcription REST, but this does not bind the question-generation engine to OpenAI.
 - The V2 question-generation engine must depend on a generic JSON model caller contract, not on OpenAI, DeepSeek, Qwen, Gemini, or any other provider directly.
-- Existing names like `callOpenAIJson` are implementation details that should be wrapped or renamed behind `callModelJson` before video work expands the generation surface.
+- Existing names like `callOpenAIJson` are compatibility exports. New generation code should depend on `callModelJson`, whose provider selection prefers `DEEPSEEK_API_KEY`/`AI_PROVIDER=deepseek` and falls back to OpenAI only when DeepSeek is not configured.
+- Multimodal video understanding must stay behind `VisualUnderstandingProvider`. The first implementation is a no-op provider that returns no visual segments and records that visual understanding was skipped; real multimodal providers are added only after real samples show transcript/OCR is insufficient.
 - `LearningSource.normalizedText` is the only required input for V2 generation.
 - `source.blocks[].id/type/text` remains backward compatible. Optional metadata such as `sourceRole/startSeconds/endSeconds` is retained server-side and can be exposed after the iOS contract is expanded.
 - First release does not change V2 question-generation prompts, task selection, or quality rubrics based on source type or content structure. Article/video structure research is used for metadata preservation, benchmark bucketing, and future decisions after real sample results.

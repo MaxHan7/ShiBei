@@ -77,7 +77,8 @@
 
 - TikHub 解决“让后端拿到公开视频内容”的问题，不解决“学习理解和出题”的问题。
 - ASR/OCR/视觉摘要解决“把媒体变成可引用文本”的问题。
-- V2 出题引擎继续解决“从文本生成可复习知识”的问题，但它必须通过 provider-neutral model caller 调用模型，不能和某一个基座模型或供应商绑定。
+- V2 出题引擎继续解决“从文本生成可复习知识”的问题，但它必须通过 provider-neutral model caller 调用模型，不能和某一个基座模型或供应商绑定。当前实现优先使用 DeepSeek；如果未配置 DeepSeek，则保留 OpenAI 兼容 fallback。
+- 多模态视频理解是增强层，不是第一版阻断项。后端需要预留 `VisualUnderstandingProvider` 边界，默认 provider 为 `none`，后续可接 Qwen-VL、Gemini video understanding 或云厂商视觉服务，把输出统一合并为 `LearningSource.visualSegments`。
 
 ## 4. TikHub 取源方案
 
