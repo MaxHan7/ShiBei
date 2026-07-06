@@ -79,6 +79,66 @@
 - ASR/OCR/视觉摘要解决“把媒体变成可引用文本”的问题。当前 ASR 通过 `SpeechToTextProvider` 选择，第一版推荐本地 Faster-Whisper，避免把视频链路绑定到 OpenAI；OpenAI transcription 只作为显式兼容 adapter。
 - V2 出题引擎继续解决“从文本生成可复习知识”的问题，但它必须通过 provider-neutral model caller 调用模型，不能和某一个基座模型或供应商绑定。当前实现优先使用 DeepSeek；如果未配置 DeepSeek，则保留 OpenAI 兼容 fallback。
 - 多模态视频理解是增强层，不是第一版阻断项。后端需要预留 `VisualUnderstandingProvider` 边界，默认 provider 为 `none`，后续可接 Qwen-VL、Gemini video understanding 或云厂商视觉服务，把输出统一合并为 `LearningSource.visualSegments`。
+- `claude-real-video` 的可取之处是 scene-aware 抽帧、RGB diff 去重和 contact sheet，而不是它的 URL 下载、Whisper CLI 或 manifest。详细审查见 `docs/video-visual-understanding-crv-adapter-zh.md`，执行计划见 `docs/superpowers/plans/2026-07-07-video-visual-understanding-adapter.md`。
+
+### 3.1 画面理解增强架构
+
+第一版视频文本链路已经可由 TikHub、ffmpeg 和 ASR 组成。画面理解增强不应直接把完整视频交给出题模型，而是增加一个可关闭、可替换的 `VideoFramePackProvider`：
+
+```text
+TikHub 下载后的 mediaFile
+  → VideoFramePackProvider
+      scene-aware 抽帧
+      逐帧 timestamp
+      sliding-window 去重
+      3x3 contact sheet
+  → VisualUnderstandingProvider
+      Qwen-VL / Gemini / 其他多模态模型
+  → visualSegments
+  → LearningSource.normalizedText
+```
+
+新增内部合同建议：
+
+```ts
+type VideoFramePack = {
+  provider: "crv_style_ffmpeg" | "none"
+  skipped?: boolean
+  reason?: string
+  video: {
+    durationSeconds?: number
+    fps?: number
+    width?: number
+    height?: number
+  }
+  frames: Array<{
+    id: string
+    path: string
+    order: number
+    startSeconds: number
+    endSeconds: number
+    kept: boolean
+    diffPercent?: number | null
+  }>
+  grids: Array<{
+    id: string
+    path: string
+    frameIds: string[]
+    startSeconds: number
+    endSeconds: number
+    rows: number
+    cols: number
+  }>
+  debug: {
+    extractedFrameCount?: number
+    keptFrameCount?: number
+    cappedFrameCount?: number
+    timestampMode?: "metadata" | "estimated"
+  }
+}
+```
+
+第一阶段可以只实现 `VIDEO_FRAME_PROVIDER=crv_style_ffmpeg` 和 `VIDEO_VISUAL_PROVIDER=none`，用于验证抽帧和九宫格稳定性。第二阶段再接入 Qwen-VL、Gemini 或其他多模态 provider，把 grid/frames 解释成 `visualSegments`。这保证 DeepSeek 继续只负责文本出题，视觉模型只负责把画面转成可引用文本。
 
 ## 4. TikHub 取源方案
 
