@@ -2,7 +2,20 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { createModelUsageRecorder } from "../modelCost.js";
-import { callOpenAIJson, parseModelJson } from "../openaiClient.js";
+import { callModelJson, callOpenAIJson, parseModelJson, resolveModelJsonProvider } from "../openaiClient.js";
+
+test("resolves DeepSeek as the default model provider when its key is configured", () => {
+  assert.equal(resolveModelJsonProvider({
+    DEEPSEEK_API_KEY: "test-deepseek-key",
+    OPENAI_API_KEY: "test-openai-key"
+  }), "deepseek");
+
+  assert.equal(resolveModelJsonProvider({
+    AI_PROVIDER: "openai",
+    DEEPSEEK_API_KEY: "test-deepseek-key",
+    OPENAI_API_KEY: "test-openai-key"
+  }), "openai");
+});
 
 test("records OpenAI usage while preserving parsed JSON return shape", async () => {
   const originalFetch = globalThis.fetch;
@@ -67,7 +80,7 @@ test("records DeepSeek usage while preserving parsed JSON return shape", async (
   }), { status: 200, headers: { "content-type": "application/json" } });
 
   try {
-    const payload = await callOpenAIJson({
+    const payload = await callModelJson({
       system: "system",
       user: "user",
       schemaName: "mock_schema",
@@ -82,6 +95,79 @@ test("records DeepSeek usage while preserving parsed JSON return shape", async (
     assert.equal(recorder.calls[0].provider, "deepseek");
     assert.equal(recorder.calls[0].actual.cachedInputTokens, 40);
     assert.equal(recorder.calls[0].actual.currency, "CNY");
+  } finally {
+    globalThis.fetch = originalFetch;
+    restoreEnv("DEEPSEEK_API_KEY", originalDeepSeekKey);
+    restoreEnv("AI_PROVIDER", originalProvider);
+  }
+});
+
+test("lets AI_PROVIDER=openai override a configured DeepSeek key", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalOpenAIKey = process.env.OPENAI_API_KEY;
+  const originalDeepSeekKey = process.env.DEEPSEEK_API_KEY;
+  const originalProvider = process.env.AI_PROVIDER;
+  const urls = [];
+
+  process.env.OPENAI_API_KEY = "test-openai-key";
+  process.env.DEEPSEEK_API_KEY = "test-deepseek-key";
+  process.env.AI_PROVIDER = "openai";
+  globalThis.fetch = async (url) => {
+    urls.push(String(url));
+    return new Response(JSON.stringify({
+      output_text: "{\"ok\":true}",
+      usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 }
+    }), { status: 200, headers: { "content-type": "application/json" } });
+  };
+
+  try {
+    const payload = await callModelJson({
+      system: "system",
+      user: "user",
+      schemaName: "mock_schema",
+      schema: { type: "object", properties: { ok: { type: "boolean" } }, required: ["ok"] },
+      stage: "chapter_summary",
+      estimatedOutputTokens: 10
+    });
+
+    assert.deepEqual(payload, { ok: true });
+    assert.equal(urls[0], "https://api.openai.com/v1/responses");
+  } finally {
+    globalThis.fetch = originalFetch;
+    restoreEnv("OPENAI_API_KEY", originalOpenAIKey);
+    restoreEnv("DEEPSEEK_API_KEY", originalDeepSeekKey);
+    restoreEnv("AI_PROVIDER", originalProvider);
+  }
+});
+
+test("legacy callOpenAIJson export still uses the model provider selector", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalDeepSeekKey = process.env.DEEPSEEK_API_KEY;
+  const originalProvider = process.env.AI_PROVIDER;
+  const urls = [];
+
+  process.env.DEEPSEEK_API_KEY = "test-deepseek-key";
+  delete process.env.AI_PROVIDER;
+  globalThis.fetch = async (url) => {
+    urls.push(String(url));
+    return new Response(JSON.stringify({
+      choices: [{ message: { content: "{\"ok\":true}" } }],
+      usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 }
+    }), { status: 200, headers: { "content-type": "application/json" } });
+  };
+
+  try {
+    const payload = await callOpenAIJson({
+      system: "system",
+      user: "user",
+      schemaName: "mock_schema",
+      schema: { type: "object", properties: { ok: { type: "boolean" } }, required: ["ok"] },
+      stage: "chapter_summary",
+      estimatedOutputTokens: 10
+    });
+
+    assert.deepEqual(payload, { ok: true });
+    assert.equal(urls[0], "https://api.deepseek.com/chat/completions");
   } finally {
     globalThis.fetch = originalFetch;
     restoreEnv("DEEPSEEK_API_KEY", originalDeepSeekKey);

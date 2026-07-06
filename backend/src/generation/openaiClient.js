@@ -2,7 +2,24 @@ const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const DEEPSEEK_CHAT_URL = "https://api.deepseek.com/chat/completions";
 const MODEL_REQUEST_TIMEOUT_MS = readPositiveInt(process.env.MODEL_REQUEST_TIMEOUT_MS, 90_000);
 
-export async function callOpenAIJson({
+export async function callModelJson(request) {
+  const provider = resolveModelJsonProvider();
+  if (provider === "deepseek") return callDeepSeekJson(request);
+  if (provider === "openai") return callOpenAIResponsesJson(request);
+  throw new Error(`不支持的模型供应商：${provider}`);
+}
+
+// Compatibility export for legacy generation modules. New code should import callModelJson.
+export const callOpenAIJson = callModelJson;
+
+export function resolveModelJsonProvider(env = process.env) {
+  const explicitProvider = String(env.AI_PROVIDER || "").trim().toLowerCase();
+  if (explicitProvider) return explicitProvider;
+  if (env.DEEPSEEK_API_KEY) return "deepseek";
+  return "openai";
+}
+
+async function callOpenAIResponsesJson({
   system,
   user,
   schemaName,
@@ -11,10 +28,6 @@ export async function callOpenAIJson({
   modelUsageRecorder,
   estimatedOutputTokens
 }) {
-  if (process.env.DEEPSEEK_API_KEY || process.env.AI_PROVIDER === "deepseek") {
-    return callDeepSeekJson({ system, user, schemaName, schema, stage, modelUsageRecorder, estimatedOutputTokens });
-  }
-
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("缺少模型 API Key。请先设置 DEEPSEEK_API_KEY 或 OPENAI_API_KEY。");
@@ -75,8 +88,6 @@ export async function callOpenAIJson({
   }
 }
 
-export const callModelJson = callOpenAIJson;
-
 async function callDeepSeekJson({
   system,
   user,
@@ -92,6 +103,7 @@ async function callDeepSeekJson({
   }
 
   const model = process.env.DEEPSEEK_MODEL || "deepseek-v4-flash";
+  const thinkingType = normalizeDeepSeekThinking(process.env.DEEPSEEK_THINKING);
   const systemMessage = `${system}\n\n你必须只输出一个 JSON 对象，不要输出 Markdown、代码块或解释文字。JSON 必须符合这个 schema 名称：${schemaName}。\n\nJSON Schema:\n${JSON.stringify(schema)}`;
   const requestText = [systemMessage, user].join("\n\n");
   const response = await fetchWithTimeout(DEEPSEEK_CHAT_URL, {
@@ -111,6 +123,7 @@ async function callDeepSeekJson({
       ],
       response_format: { type: "json_object" },
       stream: false,
+      thinking: { type: thinkingType },
       temperature: 0.2,
       max_tokens: normalizeMaxTokens(estimatedOutputTokens)
     })
@@ -192,6 +205,11 @@ function normalizeMaxTokens(value) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed) || parsed <= 0) return 4096;
   return Math.max(1024, Math.min(16_000, Math.ceil(parsed)));
+}
+
+function normalizeDeepSeekThinking(value) {
+  const normalized = String(value || "disabled").trim().toLowerCase();
+  return normalized === "enabled" ? "enabled" : "disabled";
 }
 
 function stripCodeFence(text) {
