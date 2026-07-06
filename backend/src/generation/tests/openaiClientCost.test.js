@@ -94,7 +94,7 @@ test("records DeepSeek usage while preserving parsed JSON return shape", async (
     assert.equal(recorder.calls.length, 1);
     assert.equal(recorder.calls[0].provider, "deepseek");
     assert.equal(recorder.calls[0].actual.cachedInputTokens, 40);
-    assert.equal(recorder.calls[0].actual.currency, "CNY");
+    assert.equal(recorder.calls[0].actual.currency, "USD");
   } finally {
     globalThis.fetch = originalFetch;
     restoreEnv("DEEPSEEK_API_KEY", originalDeepSeekKey);

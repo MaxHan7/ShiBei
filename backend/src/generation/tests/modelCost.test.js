@@ -36,7 +36,7 @@ test("normalizes OpenAI Responses usage and calculates actual cost", () => {
   assert.equal(record.diff.costDelta, record.estimated.cost - record.actual.cost);
 });
 
-test("normalizes DeepSeek chat usage and uses CNY pricing", () => {
+test("normalizes DeepSeek chat usage and uses current USD pricing", () => {
   const usage = {
     prompt_tokens: 8000,
     prompt_cache_hit_tokens: 3000,
@@ -63,8 +63,8 @@ test("normalizes DeepSeek chat usage and uses CNY pricing", () => {
   assert.equal(record.actual.cachedInputTokens, 3000);
   assert.equal(record.actual.uncachedInputTokens, 5000);
   assert.equal(record.actual.outputTokens, 1200);
-  assert.equal(record.actual.cost, 0.00746);
-  assert.equal(record.actual.currency, "CNY");
+  assert.equal(record.actual.cost, 0.0010444);
+  assert.equal(record.actual.currency, "USD");
 });
 
 test("summarizes model usage by currency and renders comparison report", () => {

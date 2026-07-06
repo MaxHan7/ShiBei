@@ -1,4 +1,5 @@
 const PRICE_CHECKED_AT = "2026-05-26";
+const DEEPSEEK_PRICE_CHECKED_AT = "2026-07-06";
 
 const MODEL_PRICES = [
   {
@@ -15,13 +16,13 @@ const MODEL_PRICES = [
   {
     provider: "deepseek",
     model: "deepseek-v4-flash",
-    currency: "CNY",
-    inputPerMillion: 1,
-    cachedInputPerMillion: 0.02,
-    outputPerMillion: 2,
+    currency: "USD",
+    inputPerMillion: 0.14,
+    cachedInputPerMillion: 0.0028,
+    outputPerMillion: 0.28,
     perCallFee: 0,
-    priceSourceUrl: "https://api-docs.deepseek.com/zh-cn/quick_start/pricing",
-    checkedAt: PRICE_CHECKED_AT
+    priceSourceUrl: "https://api-docs.deepseek.com/quick_start/pricing",
+    checkedAt: DEEPSEEK_PRICE_CHECKED_AT
   }
 ];
 
