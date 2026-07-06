@@ -3,6 +3,7 @@ import { basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createMediaExtractionError } from "./mediaErrors.js";
+import { normalizeTranscriptionPayload } from "./transcriptionResult.js";
 
 const OPENAI_TRANSCRIPTIONS_URL = "https://api.openai.com/v1/audio/transcriptions";
 const DEFAULT_TIMEOUT_MS = readPositiveInt(process.env.VIDEO_ASR_TIMEOUT_MS, 120_000);
@@ -42,7 +43,7 @@ export async function transcribeAudioWithOpenAI({
         { retryable: response.status === 429 || response.status >= 500, provider: "openai", status: response.status }
       );
     }
-    return normalizeTranscriptionPayload(payload);
+    return normalizeTranscriptionPayload(payload, { provider: "openai" });
   } catch (error) {
     if (error?.name === "AbortError") {
       throw createMediaExtractionError("asr_timeout", "视频语音转写超时，请稍后重试。", {
@@ -59,30 +60,6 @@ export async function transcribeAudioWithOpenAI({
   } finally {
     clearTimeout(timeout);
   }
-}
-
-function normalizeTranscriptionPayload(payload) {
-  const text = String(payload?.text || "").trim();
-  const segments = Array.isArray(payload?.segments)
-    ? payload.segments
-      .map((segment, index) => ({
-        id: `transcript-${String(segment.id ?? index + 1).padStart(3, "0")}`,
-        startSeconds: Number.isFinite(Number(segment.start)) ? Number(segment.start) : null,
-        endSeconds: Number.isFinite(Number(segment.end)) ? Number(segment.end) : null,
-        text: String(segment.text || "").trim()
-      }))
-      .filter((segment) => segment.text)
-    : [];
-  if (!text && segments.length === 0) {
-    throw createMediaExtractionError("video_no_speech", "这条视频没有识别到足够清晰的语音内容。", {
-      retryable: false,
-      provider: "openai"
-    });
-  }
-  return {
-    text: text || segments.map((segment) => segment.text).join(" "),
-    segments
-  };
 }
 
 function pathForName(audioPath) {

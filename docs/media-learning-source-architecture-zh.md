@@ -76,7 +76,7 @@
 关键架构判断：
 
 - TikHub 解决“让后端拿到公开视频内容”的问题，不解决“学习理解和出题”的问题。
-- ASR/OCR/视觉摘要解决“把媒体变成可引用文本”的问题。
+- ASR/OCR/视觉摘要解决“把媒体变成可引用文本”的问题。当前 ASR 通过 `SpeechToTextProvider` 选择，第一版推荐本地 Faster-Whisper，避免把视频链路绑定到 OpenAI；OpenAI transcription 只作为显式兼容 adapter。
 - V2 出题引擎继续解决“从文本生成可复习知识”的问题，但它必须通过 provider-neutral model caller 调用模型，不能和某一个基座模型或供应商绑定。当前实现优先使用 DeepSeek；如果未配置 DeepSeek，则保留 OpenAI 兼容 fallback。
 - 多模态视频理解是增强层，不是第一版阻断项。后端需要预留 `VisualUnderstandingProvider` 边界，默认 provider 为 `none`，后续可接 Qwen-VL、Gemini video understanding 或云厂商视觉服务，把输出统一合并为 `LearningSource.visualSegments`。
 
@@ -315,6 +315,7 @@ ModelJsonClient
 | Qwen / 阿里百炼视觉理解 | `VideoUnderstandingProvider`、`ModelJsonClient` 候选 | 很适合中文视频、画面文字、PPT/字幕类内容评测；可作为视觉增强和出题生成替代候选。 |
 | Gemini video understanding | `VideoUnderstandingProvider`、直接视频理解 benchmark | 官方支持处理视频 audio + visual streams，适合做分层方案的对照组和复杂视频 fallback。 |
 | OpenAI transcription / Realtime Whisper | `SpeechToTextProvider` | 适合作为 ASR 基线，尤其需要稳定转写和时间片段时；不代表出题模型必须使用 OpenAI。 |
+| Faster-Whisper 本地转写 | `SpeechToTextProvider` | 第一版推荐的非 OpenAI ASR。后端/worker 临时抽音频后本地转写，不需要用户安装，也不需要 OpenAI key；需要部署环境安装 Python 包和模型缓存。 |
 | 阿里 Fun-ASR / 火山 ASR | `SpeechToTextProvider` | 中文短视频转写值得优先评测，可能在成本、中文口音、延迟上更适合国内内容。 |
 | DeepSeek / Qwen text / OpenAI / Gemini text | `ModelJsonClient` | 按 JSON 稳定性、中文理解、题目质量、成本、延迟做横评，不与视频取源和 ASR 绑定。 |
 | Qwen2.5-Omni / Qwen3-VL 开源自托管 | 实验室 / 长期备选 | 有参考意义，但第一版生产不建议直接自托管，除非后续明确算力、延迟、运维和模型更新策略。 |
@@ -492,9 +493,26 @@ chapter_summary
 - 准备真实链接样本。
 - 调 TikHub 解析元数据和播放地址。
 - 用 ffmpeg 抽音频。
-- 接一个 ASR 服务生成 transcript。
+- 接一个 ASR 服务生成 transcript。测试环境首选 `VIDEO_ASR_PROVIDER=local_whisper`。
 - 把 transcript 塞进现有 V2 生成实验脚本。
 - 记录成功率、失败原因、成本和人工质量评分。
+
+本地 Faster-Whisper 配置：
+
+```bash
+python3 -m venv .venv-video-asr
+.venv-video-asr/bin/pip install -r backend/requirements-video-asr.txt
+
+VIDEO_ASR_PROVIDER=local_whisper
+LOCAL_WHISPER_PYTHON=.venv-video-asr/bin/python
+LOCAL_WHISPER_MODEL=small
+LOCAL_WHISPER_DEVICE=auto
+LOCAL_WHISPER_COMPUTE_TYPE=int8
+LOCAL_WHISPER_LANGUAGE=zh
+VIDEO_ASR_TIMEOUT_MS=180000
+```
+
+生产环境应把 Python 依赖、模型缓存和 ffmpeg 放进后端 worker 镜像。用户侧不需要安装 Faster-Whisper、ffmpeg 或任何模型依赖；用户只粘贴公开视频链接。
 
 ### Phase 1：视频音轨 MVP
 

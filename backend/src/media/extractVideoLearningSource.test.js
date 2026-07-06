@@ -36,6 +36,7 @@ test("extracts a video learning source through provider, media, audio, and ASR",
     transcribeAudio: async () => {
       calls.push("asr");
       return {
+        provider: "mock_asr",
         segments: [
           {
             id: "seg-1",
@@ -103,6 +104,7 @@ test("records media usage summary when a recorder is provided", async () => {
     downloadMedia: async () => ({ path: "/tmp/video-dir/source-video", dir: "/tmp/video-dir", bytes: 1200, contentType: "video/mp4" }),
     extractAudio: async () => ({ path: "/tmp/video-dir/audio.wav", dir: "/tmp/video-dir", format: "wav", sampleRate: 16000 }),
     transcribeAudio: async () => ({
+      provider: "mock_asr",
       segments: [
         {
           id: "seg-1",
@@ -118,7 +120,9 @@ test("records media usage summary when a recorder is provided", async () => {
   assert.equal(recorder.calls.length, 5);
   assert.equal(learningSource.extractionMeta.mediaUsage.callCount, 5);
   assert.equal(learningSource.extractionMeta.mediaUsage.byStage.video_media_fetch.callCount, 1);
+  assert.equal(learningSource.extractionMeta.mediaUsage.byStage.audio_transcription.callCount, 1);
   assert.equal(learningSource.extractionMeta.mediaUsage.byStage.visual_understanding.callCount, 1);
+  assert.equal(recorder.calls[3].provider, "mock_asr");
   assert.equal(recorder.calls[4].provider, "none");
   assert.equal(recorder.calls[4].metadata.skipped, true);
 });
@@ -141,6 +145,7 @@ test("merges visual understanding segments when a provider is injected", async (
     downloadMedia: async () => ({ path: "/tmp/video-dir/source-video", dir: "/tmp/video-dir" }),
     extractAudio: async () => ({ path: "/tmp/video-dir/audio.wav", dir: "/tmp/video-dir" }),
     transcribeAudio: async () => ({
+      provider: "mock_asr",
       segments: [
         {
           id: "seg-1",

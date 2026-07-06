@@ -2,7 +2,7 @@ import { dirname } from "node:path";
 
 import { cleanupMediaTempFiles, downloadMediaToTempFile } from "./mediaFiles.js";
 import { extractAudioWithFfmpeg } from "./ffmpegAudio.js";
-import { transcribeAudioWithOpenAI } from "./openAITranscriptionProvider.js";
+import { createSpeechToTextProvider } from "./speechToTextProvider.js";
 import { fetchTikHubVideoSource } from "./tikhubVideoProvider.js";
 import { buildLearningSourceFromVideo } from "./learningSource.js";
 import { summarizeMediaUsage } from "./mediaCost.js";
@@ -18,7 +18,8 @@ export async function extractVideoLearningSource({
   provider = { fetchVideoSource: fetchTikHubVideoSource },
   downloadMedia = downloadMediaToTempFile,
   extractAudio = extractAudioWithFfmpeg,
-  transcribeAudio = transcribeAudioWithOpenAI,
+  speechToTextProvider = createSpeechToTextProvider(),
+  transcribeAudio = null,
   visualUnderstandingProvider = createVisualUnderstandingProvider(),
   understandVisuals = understandVideoVisuals,
   cleanup = cleanupMediaTempFiles,
@@ -53,10 +54,12 @@ export async function extractVideoLearningSource({
       metadata: { format: audio.format || "", sampleRate: audio.sampleRate || null }
     });
     tempFiles.push(audio);
-    const transcript = await transcribeAudio({ audioPath: audio.path });
+    const activeTranscribeAudio = transcribeAudio || speechToTextProvider.transcribeAudio;
+    const transcript = await activeTranscribeAudio({ audioPath: audio.path });
+    const transcriptProvider = transcript.provider || speechToTextProvider.name || "custom";
     recordMediaUsage(mediaUsageRecorder, {
-      stage: "openai_transcription",
-      provider: "openai",
+      stage: "audio_transcription",
+      provider: transcriptProvider,
       cost: 0,
       metadata: { segmentCount: Array.isArray(transcript.segments) ? transcript.segments.length : 0 }
     });

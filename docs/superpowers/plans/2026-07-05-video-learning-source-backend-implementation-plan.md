@@ -19,7 +19,7 @@ Included:
 - TikHub adapter skeleton for Douyin and Xiaohongshu public video links.
 - Video media fetch and bounded temporary file handling.
 - ffmpeg audio extraction.
-- ASR provider boundary; the first committed adapter is OpenAI transcription, but deployment can replace it with a non-OpenAI speech-to-text adapter without changing V2 generation.
+- ASR provider boundary; deployment should prefer local Faster-Whisper for the first non-OpenAI path, while keeping OpenAI transcription as an explicit compatibility adapter.
 - DeepSeek-first model provider selection for V2 JSON generation, with OpenAI fallback for existing environments.
 - Visual understanding provider boundary, defaulting to `none`, so Qwen-VL/Gemini style video understanding can be added later without changing the V2 queue contract.
 - Model-agnostic boundary checks for the V2 question-generation engine.
@@ -41,6 +41,7 @@ Excluded from this backend pass:
 - `TikHub` is hidden behind `VideoSourceProvider`; callers never depend on TikHub response shapes.
 - First backend version accepts only URL input for `video_link`; no user video upload.
 - ASR is a separate speech-to-text provider boundary. The first adapter can be OpenAI transcription REST, but this does not bind the question-generation engine to OpenAI.
+- The first non-OpenAI ASR path is `VIDEO_ASR_PROVIDER=local_whisper`, backed by `backend/scripts/transcribe-local-whisper.py` and `backend/requirements-video-asr.txt`. It runs only in the backend/worker environment; users do not install ASR dependencies.
 - The V2 question-generation engine must depend on a generic JSON model caller contract, not on OpenAI, DeepSeek, Qwen, Gemini, or any other provider directly.
 - Existing names like `callOpenAIJson` are compatibility exports. New generation code should depend on `callModelJson`, whose provider selection prefers `DEEPSEEK_API_KEY`/`AI_PROVIDER=deepseek` and falls back to OpenAI only when DeepSeek is not configured.
 - Multimodal video understanding must stay behind `VisualUnderstandingProvider`. The first implementation is a no-op provider that returns no visual segments and records that visual understanding was skipped; real multimodal providers are added only after real samples show transcript/OCR is insufficient.
