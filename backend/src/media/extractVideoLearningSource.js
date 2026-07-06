@@ -6,6 +6,10 @@ import { transcribeAudioWithOpenAI } from "./openAITranscriptionProvider.js";
 import { fetchTikHubVideoSource } from "./tikhubVideoProvider.js";
 import { buildLearningSourceFromVideo } from "./learningSource.js";
 import { summarizeMediaUsage } from "./mediaCost.js";
+import {
+  createVisualUnderstandingProvider,
+  understandVideoVisuals
+} from "./visualUnderstandingProvider.js";
 
 export async function extractVideoLearningSource({
   sourceUrl,
@@ -15,6 +19,8 @@ export async function extractVideoLearningSource({
   downloadMedia = downloadMediaToTempFile,
   extractAudio = extractAudioWithFfmpeg,
   transcribeAudio = transcribeAudioWithOpenAI,
+  visualUnderstandingProvider = createVisualUnderstandingProvider(),
+  understandVisuals = understandVideoVisuals,
   cleanup = cleanupMediaTempFiles,
   mediaUsageRecorder = null,
   now = new Date().toISOString()
@@ -54,6 +60,22 @@ export async function extractVideoLearningSource({
       cost: 0,
       metadata: { segmentCount: Array.isArray(transcript.segments) ? transcript.segments.length : 0 }
     });
+    const visualUnderstanding = await understandVisuals({
+      provider: visualUnderstandingProvider,
+      video,
+      mediaFile,
+      transcriptSegments: transcript.segments
+    });
+    recordMediaUsage(mediaUsageRecorder, {
+      stage: "visual_understanding",
+      provider: visualUnderstanding.provider || visualUnderstandingProvider.name || "unknown",
+      cost: 0,
+      metadata: {
+        skipped: Boolean(visualUnderstanding.skipped),
+        reason: visualUnderstanding.reason || "",
+        segmentCount: Array.isArray(visualUnderstanding.segments) ? visualUnderstanding.segments.length : 0
+      }
+    });
     const learningSource = buildLearningSourceFromVideo({
       platform: video.platform,
       title: sourceTitle || video.title,
@@ -63,6 +85,7 @@ export async function extractVideoLearningSource({
       durationSeconds: video.durationSeconds,
       description: video.description,
       transcriptSegments: transcript.segments,
+      visualSegments: visualUnderstanding.segments,
       media: {
         provider: video.provider,
         providerContentId: video.providerContentId,

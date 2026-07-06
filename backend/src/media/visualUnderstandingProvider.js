@@ -1,0 +1,98 @@
+import { createMediaExtractionError } from "./mediaErrors.js";
+
+const DISABLED_PROVIDER_NAMES = new Set(["", "none", "off", "disabled"]);
+
+export function resolveVisualUnderstandingProviderName(env = process.env) {
+  const provider = String(env.VIDEO_VISUAL_PROVIDER || "none").trim().toLowerCase();
+  return DISABLED_PROVIDER_NAMES.has(provider) ? "none" : provider;
+}
+
+export function createNoopVisualUnderstandingProvider({
+  reason = "visual_understanding_disabled"
+} = {}) {
+  return {
+    name: "none",
+    async understandVideo() {
+      return {
+        provider: "none",
+        skipped: true,
+        reason,
+        segments: []
+      };
+    }
+  };
+}
+
+export function createVisualUnderstandingProvider({
+  env = process.env
+} = {}) {
+  const providerName = resolveVisualUnderstandingProviderName(env);
+  if (providerName === "none") return createNoopVisualUnderstandingProvider();
+
+  throw createMediaExtractionError(
+    "unsupported_visual_understanding_provider",
+    `暂不支持的视频画面理解供应商：${providerName}`,
+    { retryable: false, provider: providerName }
+  );
+}
+
+export async function understandVideoVisuals({
+  provider = createVisualUnderstandingProvider(),
+  video = {},
+  mediaFile = null,
+  transcriptSegments = []
+} = {}) {
+  if (!provider || typeof provider.understandVideo !== "function") {
+    throw createMediaExtractionError(
+      "invalid_visual_understanding_provider",
+      "视频画面理解供应商未实现 understandVideo。",
+      { retryable: false }
+    );
+  }
+
+  const result = await provider.understandVideo({
+    video,
+    mediaFile,
+    transcriptSegments
+  });
+
+  return normalizeVisualUnderstandingResult(result, provider.name || "");
+}
+
+function normalizeVisualUnderstandingResult(result, fallbackProvider) {
+  const payload = result && typeof result === "object" ? result : {};
+  return {
+    provider: String(payload.provider || fallbackProvider || "unknown"),
+    skipped: Boolean(payload.skipped),
+    reason: String(payload.reason || ""),
+    segments: normalizeVisualSegments(payload.segments)
+  };
+}
+
+function normalizeVisualSegments(segments) {
+  return Array.isArray(segments)
+    ? segments
+      .map((segment, index) => ({
+        id: segment.id || `visual-${String(index + 1).padStart(3, "0")}`,
+        sourceRole: segment.sourceRole || "visual_summary",
+        startSeconds: finiteNumber(segment.startSeconds),
+        endSeconds: finiteNumber(segment.endSeconds),
+        text: cleanText(segment.text || segment.summary || segment.ocrText || ""),
+        ...(segment.confidence !== undefined ? { confidence: finiteNumber(segment.confidence) } : {})
+      }))
+      .filter((segment) => segment.text)
+    : [];
+}
+
+function cleanText(value) {
+  return String(value || "")
+    .replace(/\r/g, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function finiteNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
