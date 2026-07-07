@@ -7,6 +7,10 @@ import { fetchTikHubVideoSource } from "./tikhubVideoProvider.js";
 import { buildLearningSourceFromVideo } from "./learningSource.js";
 import { summarizeMediaUsage } from "./mediaCost.js";
 import {
+  createVideoFramePack,
+  createVideoFramePackProvider
+} from "./videoFramePackProvider.js";
+import {
   createVisualUnderstandingProvider,
   understandVideoVisuals
 } from "./visualUnderstandingProvider.js";
@@ -20,6 +24,8 @@ export async function extractVideoLearningSource({
   extractAudio = extractAudioWithFfmpeg,
   speechToTextProvider = createSpeechToTextProvider(),
   transcribeAudio = null,
+  framePackProvider = createVideoFramePackProvider(),
+  createFramePack = createVideoFramePack,
   visualUnderstandingProvider = createVisualUnderstandingProvider(),
   understandVisuals = understandVideoVisuals,
   cleanup = cleanupMediaTempFiles,
@@ -63,11 +69,30 @@ export async function extractVideoLearningSource({
       cost: 0,
       metadata: { segmentCount: Array.isArray(transcript.segments) ? transcript.segments.length : 0 }
     });
+    const framePack = await createFramePack({
+      provider: framePackProvider,
+      video,
+      mediaFile,
+      transcriptSegments: transcript.segments
+    });
+    recordMediaUsage(mediaUsageRecorder, {
+      stage: "video_frame_pack",
+      provider: framePack.provider || framePackProvider.name || "unknown",
+      cost: 0,
+      metadata: {
+        skipped: Boolean(framePack.skipped),
+        reason: framePack.reason || "",
+        frameCount: Array.isArray(framePack.frames) ? framePack.frames.length : 0,
+        gridCount: Array.isArray(framePack.grids) ? framePack.grids.length : 0,
+        timestampMode: framePack.debug?.timestampMode || ""
+      }
+    });
     const visualUnderstanding = await understandVisuals({
       provider: visualUnderstandingProvider,
       video,
       mediaFile,
-      transcriptSegments: transcript.segments
+      transcriptSegments: transcript.segments,
+      framePack
     });
     recordMediaUsage(mediaUsageRecorder, {
       stage: "visual_understanding",

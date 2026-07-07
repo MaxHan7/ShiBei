@@ -40,7 +40,8 @@ export async function understandVideoVisuals({
   provider = createVisualUnderstandingProvider(),
   video = {},
   mediaFile = null,
-  transcriptSegments = []
+  transcriptSegments = [],
+  framePack = null
 } = {}) {
   if (!provider || typeof provider.understandVideo !== "function") {
     throw createMediaExtractionError(
@@ -53,7 +54,8 @@ export async function understandVideoVisuals({
   const result = await provider.understandVideo({
     video,
     mediaFile,
-    transcriptSegments
+    transcriptSegments,
+    framePack
   });
 
   return normalizeVisualUnderstandingResult(result, provider.name || "");

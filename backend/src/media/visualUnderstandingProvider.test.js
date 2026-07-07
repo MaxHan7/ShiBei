@@ -56,6 +56,24 @@ test("normalizes visual provider segments into LearningSource-compatible shape",
   assert.equal(result.segments[0].confidence, 0.8);
 });
 
+test("forwards frame pack to concrete visual provider", async () => {
+  let received = null;
+  const result = await understandVideoVisuals({
+    provider: {
+      name: "fake-vision",
+      async understandVideo(input) {
+        received = input;
+        return { provider: "fake-vision", segments: [] };
+      }
+    },
+    framePack: { provider: "crv_style_ffmpeg", frames: [{ id: "frame-0001" }], grids: [] }
+  });
+
+  assert.equal(received.framePack.provider, "crv_style_ffmpeg");
+  assert.equal(received.framePack.frames.length, 1);
+  assert.equal(result.provider, "fake-vision");
+});
+
 test("rejects unsupported configured visual understanding providers", () => {
   assert.throws(
     () => createVisualUnderstandingProvider({ env: { VIDEO_VISUAL_PROVIDER: "gemini-video" } }),

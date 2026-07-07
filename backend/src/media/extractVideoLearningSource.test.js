@@ -117,14 +117,70 @@ test("records media usage summary when a recorder is provided", async () => {
     cleanup: async () => {}
   });
 
-  assert.equal(recorder.calls.length, 5);
-  assert.equal(learningSource.extractionMeta.mediaUsage.callCount, 5);
+  assert.equal(recorder.calls.length, 6);
+  assert.equal(learningSource.extractionMeta.mediaUsage.callCount, 6);
   assert.equal(learningSource.extractionMeta.mediaUsage.byStage.video_media_fetch.callCount, 1);
   assert.equal(learningSource.extractionMeta.mediaUsage.byStage.audio_transcription.callCount, 1);
+  assert.equal(learningSource.extractionMeta.mediaUsage.byStage.video_frame_pack.callCount, 1);
   assert.equal(learningSource.extractionMeta.mediaUsage.byStage.visual_understanding.callCount, 1);
   assert.equal(recorder.calls[3].provider, "mock_asr");
   assert.equal(recorder.calls[4].provider, "none");
   assert.equal(recorder.calls[4].metadata.skipped, true);
+  assert.equal(recorder.calls[5].provider, "none");
+  assert.equal(recorder.calls[5].metadata.skipped, true);
+});
+
+test("passes timestamped frame pack into visual understanding", async () => {
+  let receivedFramePack = null;
+  const learningSource = await extractVideoLearningSource({
+    sourceUrl: "https://v.douyin.com/abc/",
+    provider: {
+      fetchVideoSource: async () => ({
+        provider: "tikhub",
+        platform: "douyin",
+        sourceUrl: "https://v.douyin.com/abc/",
+        title: "Figma Motion",
+        description: "平台文案说明这个视频介绍 Figma Motion 的动画能力，并用屏幕录制展示 shader 和组件化流程。",
+        account: "月半AI酱",
+        durationSeconds: 76,
+        mediaUrl: "https://media.example.com/video.mp4",
+        providerContentId: "video-1"
+      })
+    },
+    downloadMedia: async () => ({ path: "/tmp/video-dir/source-video", dir: "/tmp/video-dir" }),
+    extractAudio: async () => ({ path: "/tmp/video-dir/audio.wav", dir: "/tmp/video-dir" }),
+    transcribeAudio: async () => ({
+      provider: "local_whisper",
+      segments: [{
+        startSeconds: 0,
+        endSeconds: 5,
+        text: "这是一个 Figma Motion 教程，介绍 shader、组件、变量、agent 和开发模式五个重点更新。"
+      }]
+    }),
+    framePackProvider: {
+      name: "crv_style_ffmpeg",
+      createFramePack: async () => ({
+        provider: "crv_style_ffmpeg",
+        skipped: false,
+        frames: [{ id: "frame-0001", path: "/tmp/f.jpg", startSeconds: 0, endSeconds: 5, kept: true }],
+        grids: [{ id: "grid-0001", path: "/tmp/g.jpg", frameIds: ["frame-0001"], startSeconds: 0, endSeconds: 5 }],
+        debug: { keptFrameCount: 1, timestampMode: "metadata" }
+      })
+    },
+    understandVisuals: async ({ framePack }) => {
+      receivedFramePack = framePack;
+      return {
+        provider: "fake-vision",
+        segments: [{ id: "visual-001", startSeconds: 0, endSeconds: 5, text: "画面展示 Figma Motion 面板。" }]
+      };
+    },
+    cleanup: async () => {}
+  });
+
+  assert.equal(receivedFramePack.provider, "crv_style_ffmpeg");
+  assert.equal(receivedFramePack.frames.length, 1);
+  assert.equal(learningSource.visualSegments.length, 1);
+  assert.match(learningSource.normalizedText, /画面展示 Figma Motion 面板/);
 });
 
 test("merges visual understanding segments when a provider is injected", async () => {
