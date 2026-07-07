@@ -21,9 +21,11 @@ export function summarizeMediaUsage(calls = []) {
   const byStage = {};
   const totalsByCurrency = {};
   for (const call of calls) {
-    byStage[call.stage] ||= { callCount: 0, totalCost: 0 };
+    byStage[call.stage] ||= { callCount: 0, totalCost: 0, provider: "", metadata: {} };
     byStage[call.stage].callCount += 1;
     byStage[call.stage].totalCost = roundCost(byStage[call.stage].totalCost + Number(call.cost || 0));
+    byStage[call.stage].provider = call.provider || byStage[call.stage].provider;
+    byStage[call.stage].metadata = call.metadata || byStage[call.stage].metadata || {};
     totalsByCurrency[call.currency] ||= { currency: call.currency, callCount: 0, totalCost: 0 };
     totalsByCurrency[call.currency].callCount += 1;
     totalsByCurrency[call.currency].totalCost = roundCost(totalsByCurrency[call.currency].totalCost + Number(call.cost || 0));

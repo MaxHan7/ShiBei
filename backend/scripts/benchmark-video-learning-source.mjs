@@ -7,15 +7,17 @@ import { dirname, resolve } from "node:path";
 import { createMediaUsageRecorder, summarizeMediaUsage } from "../src/media/mediaCost.js";
 import { extractVideoLearningSource } from "../src/media/extractVideoLearningSource.js";
 
-const inputPath = process.argv[2];
-const outputPath = process.argv[3] || resolve(process.cwd(), "../quality-test-set/results/video-learning-source/benchmark.json");
+const args = parseArgs(process.argv.slice(2));
+const inputPath = args.inputPath;
+const outputPath = args.outputPath || resolve(process.cwd(), "../quality-test-set/results/video-learning-source/benchmark.json");
 
 if (!inputPath) {
   console.error("Usage: node backend/scripts/benchmark-video-learning-source.mjs <links.json> [output.json]");
+  console.error("   or: node backend/scripts/benchmark-video-learning-source.mjs --url <video-url> [output.json]");
   process.exit(1);
 }
 
-const links = JSON.parse(await readFile(inputPath, "utf8"));
+const links = args.sourceUrl ? [{ url: args.sourceUrl }] : JSON.parse(await readFile(inputPath, "utf8"));
 const results = [];
 
 for (const [index, item] of links.entries()) {
@@ -25,6 +27,7 @@ for (const [index, item] of links.entries()) {
   const usageRecorder = createMediaUsageRecorder({ runId: `video-benchmark-${index + 1}` });
   try {
     const source = await extractVideoLearningSource({ sourceUrl, mediaUsageRecorder: usageRecorder });
+    const mediaUsage = summarizeMediaUsage(usageRecorder.calls);
     results.push({
       index,
       sourceUrl,
@@ -34,11 +37,13 @@ for (const [index, item] of links.entries()) {
       title: source.title,
       normalizedTextLength: source.normalizedText.length,
       sectionCount: source.sourceSections.length,
-      mediaUsage: summarizeMediaUsage(usageRecorder.calls),
+      framePack: summarizeFramePack(mediaUsage),
+      mediaUsage,
       startedAt,
       finishedAt: new Date().toISOString()
     });
   } catch (error) {
+    const mediaUsage = summarizeMediaUsage(usageRecorder.calls);
     results.push({
       index,
       sourceUrl,
@@ -48,7 +53,8 @@ for (const [index, item] of links.entries()) {
       mediaErrorType: error.mediaErrorType || "",
       message: error.message,
       retryable: Boolean(error.retryable),
-      mediaUsage: summarizeMediaUsage(usageRecorder.calls),
+      framePack: summarizeFramePack(mediaUsage),
+      mediaUsage,
       startedAt,
       finishedAt: new Date().toISOString()
     });
@@ -66,3 +72,30 @@ await writeFile(outputPath, JSON.stringify({
 }, null, 2));
 
 console.log(`Wrote ${outputPath}`);
+
+function summarizeFramePack(mediaUsage) {
+  const stage = mediaUsage?.byStage?.video_frame_pack || {};
+  const metadata = stage.metadata || {};
+  return {
+    provider: stage.provider || "",
+    frameCount: Number(metadata.frameCount || 0),
+    gridCount: Number(metadata.gridCount || 0),
+    skipped: Boolean(metadata.skipped),
+    reason: String(metadata.reason || ""),
+    timestampMode: String(metadata.timestampMode || "")
+  };
+}
+
+function parseArgs(argv) {
+  if (argv[0] === "--url") {
+    return {
+      sourceUrl: argv[1] || "",
+      inputPath: "inline-url",
+      outputPath: argv[2] || ""
+    };
+  }
+  return {
+    inputPath: argv[0] || "",
+    outputPath: argv[1] || ""
+  };
+}
