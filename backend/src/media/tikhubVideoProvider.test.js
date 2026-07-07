@@ -37,19 +37,23 @@ test("normalizes Douyin TikHub response", async () => {
 });
 
 test("normalizes Xiaohongshu TikHub response", async () => {
+  const calls = [];
   const result = await fetchTikHubVideoSource({
     sourceUrl: "https://www.xiaohongshu.com/explore/1",
     apiKey: "key",
-    fetchImpl: async () => jsonResponse({
-      data: {
-        note_id: "xhs-1",
-        title: "增长案例",
-        desc: "小红书笔记文案",
-        user: { nickname: "增长笔记" },
-        video: { media: { stream: { h264: [{ master_url: "https://media.example.com/xhs.mp4" }] } } },
-        image_list: [{ url: "https://media.example.com/xhs-cover.jpg" }]
-      }
-    })
+    fetchImpl: async (url) => {
+      calls.push(String(url));
+      return jsonResponse({
+        data: {
+          note_id: "xhs-1",
+          title: "增长案例",
+          desc: "小红书笔记文案",
+          user: { nickname: "增长笔记" },
+          video: { media: { stream: { h264: [{ master_url: "https://media.example.com/xhs.mp4" }] } } },
+          image_list: [{ url: "https://media.example.com/xhs-cover.jpg" }]
+        }
+      });
+    }
   });
 
   assert.equal(result.platform, "xiaohongshu");
@@ -57,6 +61,61 @@ test("normalizes Xiaohongshu TikHub response", async () => {
   assert.equal(result.title, "增长案例");
   assert.equal(result.description, "小红书笔记文案");
   assert.equal(result.mediaUrl, "https://media.example.com/xhs.mp4");
+  assert.match(calls[0], /get_video_note_detail/);
+  assert.match(calls[0], /share_text=/);
+  assert.doesNotMatch(calls[0], /[?&]url=/);
+});
+
+test("normalizes Xiaohongshu App V2 video_info_v2 response", async () => {
+  const result = await fetchTikHubVideoSource({
+    sourceUrl: "https://www.xiaohongshu.com/discovery/item/6a27a685000000001c025262",
+    apiKey: "key",
+    fetchImpl: async () => jsonResponse({
+      data: {
+        data: [{
+          id: "6a27a685000000001c025262",
+          title: "苹果官方最新课程「出色设计的原则」",
+          desc: "官方课程",
+          user: { nickname: "Design_韬" },
+          video_info_v2: {
+            image: {
+              first_frame: "https://media.example.com/first-frame.jpg",
+              thumbnail: "https://media.example.com/thumb.webp"
+            },
+            media: {
+              video: {
+                duration: 1037,
+                subtitles: {
+                  "zh-CN": [{ url: "https://media.example.com/zh.srt" }]
+                }
+              },
+              stream: {
+                h264: [{
+                  master_url: "https://media.example.com/app-v2.mp4",
+                  duration: 1036400
+                }]
+              }
+            }
+          }
+        }]
+      }
+    })
+  });
+
+  assert.equal(result.platform, "xiaohongshu");
+  assert.equal(result.providerContentId, "6a27a685000000001c025262");
+  assert.equal(result.title, "苹果官方最新课程「出色设计的原则」");
+  assert.equal(result.description, "官方课程");
+  assert.equal(result.account, "Design_韬");
+  assert.equal(result.mediaUrl, "https://media.example.com/app-v2.mp4");
+  assert.equal(result.coverUrl, "https://media.example.com/first-frame.jpg");
+  assert.equal(result.durationSeconds, 1036);
+  assert.deepEqual(result.subtitles, [{
+    language: "zh-CN",
+    url: "https://media.example.com/zh.srt",
+    format: "",
+    type: ""
+  }]);
 });
 
 test("fails unsupported platforms before calling provider", async () => {

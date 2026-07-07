@@ -2,10 +2,15 @@
 import "../src/env.js";
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { dirname, isAbsolute, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const configPath = process.argv[2];
-const outputPath = process.argv[3] || resolve(process.cwd(), "../quality-test-set/results/video-learning-source/model-candidates.json");
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(scriptDir, "../..");
+const configPath = resolveRepoPath(process.argv[2] || "");
+const outputPath = resolveRepoPath(
+  process.argv[3] || "quality-test-set/results/video-learning-source/model-candidates.json"
+);
 
 if (!configPath) {
   console.error("Usage: node backend/scripts/benchmark-video-model-candidates.mjs <candidates.json> [output.json]");
@@ -57,4 +62,10 @@ console.log(`Wrote ${outputPath}`);
 
 function enabled(items = []) {
   return items.filter((item) => item.enabled !== false);
+}
+
+function resolveRepoPath(value) {
+  if (!value) return "";
+  if (isAbsolute(value)) return value;
+  return value.startsWith(".") ? resolve(process.cwd(), value) : resolve(repoRoot, value);
 }

@@ -1,4 +1,5 @@
 import { createMediaExtractionError } from "./mediaErrors.js";
+import { normalizeSubtitleTracks } from "./platformSubtitles.js";
 import { detectVideoPlatform, normalizeVideoSourceUrl } from "./videoPlatforms.js";
 
 const DEFAULT_TIKHUB_BASE_URL = process.env.TIKHUB_BASE_URL || "https://api.tikhub.io";
@@ -42,11 +43,13 @@ export async function fetchTikHubVideoSource({
 
 function buildEndpoint({ platform, sourceUrl, baseUrl }) {
   const root = String(baseUrl || "").replace(/\/+$/, "");
-  const encoded = encodeURIComponent(sourceUrl);
+  const params = new URLSearchParams();
   if (platform === "douyin") {
-    return `${root}/api/v1/douyin/app/v3/fetch_one_video_by_share_url?share_url=${encoded}`;
+    params.set("share_url", sourceUrl);
+    return `${root}/api/v1/douyin/app/v3/fetch_one_video_by_share_url?${params.toString()}`;
   }
-  return `${root}/api/v1/xiaohongshu/app_v2/get_video_note_detail?url=${encoded}`;
+  params.set("share_text", sourceUrl);
+  return `${root}/api/v1/xiaohongshu/app_v2/get_video_note_detail?${params.toString()}`;
 }
 
 async function fetchJsonWithTimeout(url, { headers, timeoutMs, fetchImpl }) {
@@ -108,8 +111,15 @@ function normalizeDouyinPayload(payload, sourceUrl) {
 }
 
 function normalizeXiaohongshuPayload(payload, sourceUrl) {
-  const data = payload?.data?.note_card || payload?.data || payload?.note_card || payload;
+  const data = payload?.data?.note_card
+    || payload?.data?.data?.[0]
+    || payload?.data
+    || payload?.note_card
+    || payload;
+  const videoInfo = data?.video_info_v2;
   const mediaUrl = firstString(
+    videoInfo?.media?.stream?.h264?.map((item) => item?.master_url || item?.backup_urls?.[0]),
+    videoInfo?.media?.stream?.h265?.map((item) => item?.master_url || item?.backup_urls?.[0]),
     data?.video?.media?.stream?.h264?.map((item) => item?.master_url || item?.backup_urls?.[0]),
     data?.video?.media?.stream?.h265?.map((item) => item?.master_url || item?.backup_urls?.[0]),
     data?.video?.url,
@@ -125,8 +135,20 @@ function normalizeXiaohongshuPayload(payload, sourceUrl) {
     account: stringValue(data?.user?.nickname || data?.user_info?.nickname || ""),
     sourceUrl,
     mediaUrl,
-    coverUrl: firstString(data?.image_list?.map((item) => item?.url || item?.info_list?.[0]?.url)),
-    durationSeconds: millisToSeconds(data?.video?.duration || data?.duration)
+    coverUrl: firstString(
+      videoInfo?.image?.first_frame,
+      videoInfo?.image?.thumbnail,
+      data?.image_list?.map((item) => item?.url || item?.info_list?.[0]?.url),
+      data?.images_list?.map((item) => item?.url || item?.info_list?.[0]?.url)
+    ),
+    durationSeconds: firstDurationSeconds(
+      { value: firstNumber(videoInfo?.media?.stream?.h264?.map((item) => item?.duration)), unit: "milliseconds" },
+      { value: firstNumber(videoInfo?.media?.stream?.h265?.map((item) => item?.duration)), unit: "milliseconds" },
+      { value: videoInfo?.media?.video?.duration, unit: "seconds" },
+      { value: videoInfo?.capa?.duration, unit: "seconds" },
+      { value: data?.video?.duration || data?.duration, unit: "auto" }
+    ),
+    subtitles: normalizeSubtitleTracks(videoInfo?.media?.video?.subtitles || data?.video?.subtitles)
   };
 }
 
@@ -145,6 +167,14 @@ function firstString(...values) {
   return "";
 }
 
+function firstNumber(...values) {
+  for (const value of values.flat(Infinity)) {
+    const number = Number(value);
+    if (Number.isFinite(number) && number > 0) return number;
+  }
+  return null;
+}
+
 function stringValue(value) {
   return String(value || "").trim();
 }
@@ -153,6 +183,17 @@ function millisToSeconds(value) {
   const number = Number(value);
   if (!Number.isFinite(number) || number <= 0) return null;
   return number > 1000 ? Math.round(number / 1000) : Math.round(number);
+}
+
+function firstDurationSeconds(...candidates) {
+  for (const candidate of candidates) {
+    const number = Number(candidate?.value);
+    if (!Number.isFinite(number) || number <= 0) continue;
+    if (candidate.unit === "milliseconds") return Math.round(number / 1000);
+    if (candidate.unit === "seconds") return Math.round(number);
+    return millisToSeconds(number);
+  }
+  return null;
 }
 
 function readPositiveInt(value, fallback) {

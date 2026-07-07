@@ -2,14 +2,19 @@
 import "../src/env.js";
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { dirname, isAbsolute, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { createMediaUsageRecorder, summarizeMediaUsage } from "../src/media/mediaCost.js";
 import { extractVideoLearningSource } from "../src/media/extractVideoLearningSource.js";
 
 const args = parseArgs(process.argv.slice(2));
-const inputPath = args.inputPath;
-const outputPath = args.outputPath || resolve(process.cwd(), "../quality-test-set/results/video-learning-source/benchmark.json");
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(scriptDir, "../..");
+const inputPath = resolveRepoPath(args.inputPath);
+const outputPath = resolveRepoPath(
+  args.outputPath || "quality-test-set/results/video-learning-source/benchmark.json"
+);
 
 if (!inputPath) {
   console.error("Usage: node backend/scripts/benchmark-video-learning-source.mjs <links.json> [output.json]");
@@ -98,4 +103,10 @@ function parseArgs(argv) {
     inputPath: argv[0] || "",
     outputPath: argv[1] || ""
   };
+}
+
+function resolveRepoPath(value) {
+  if (!value || value === "inline-url") return value || "";
+  if (isAbsolute(value)) return value;
+  return value.startsWith(".") ? resolve(process.cwd(), value) : resolve(repoRoot, value);
 }

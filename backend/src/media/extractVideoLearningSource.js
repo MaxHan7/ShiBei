@@ -6,6 +6,7 @@ import { createSpeechToTextProvider } from "./speechToTextProvider.js";
 import { fetchTikHubVideoSource } from "./tikhubVideoProvider.js";
 import { buildLearningSourceFromVideo } from "./learningSource.js";
 import { summarizeMediaUsage } from "./mediaCost.js";
+import { fetchPlatformSubtitleTranscript } from "./platformSubtitles.js";
 import {
   createVideoFramePack,
   createVideoFramePackProvider
@@ -24,6 +25,7 @@ export async function extractVideoLearningSource({
   extractAudio = extractAudioWithFfmpeg,
   speechToTextProvider = createSpeechToTextProvider(),
   transcribeAudio = null,
+  fetchPlatformTranscript = fetchPlatformSubtitleTranscript,
   framePackProvider = createVideoFramePackProvider(),
   createFramePack = createVideoFramePack,
   visualUnderstandingProvider = createVisualUnderstandingProvider(),
@@ -49,25 +51,31 @@ export async function extractVideoLearningSource({
       metadata: { bytes: mediaFile.bytes || 0, contentType: mediaFile.contentType || "" }
     });
     tempFiles.push(mediaFile);
-    const audio = await extractAudio({
-      inputPath: mediaFile.path,
-      outputDir: dirname(mediaFile.path)
-    });
-    recordMediaUsage(mediaUsageRecorder, {
-      stage: "audio_extraction",
-      provider: "ffmpeg",
-      cost: 0,
-      metadata: { format: audio.format || "", sampleRate: audio.sampleRate || null }
-    });
-    tempFiles.push(audio);
-    const activeTranscribeAudio = transcribeAudio || speechToTextProvider.transcribeAudio;
-    const transcript = await activeTranscribeAudio({ audioPath: audio.path });
+    let transcript = await fetchPlatformTranscript({ subtitles: video.subtitles });
+    if (!transcript) {
+      const audio = await extractAudio({
+        inputPath: mediaFile.path,
+        outputDir: dirname(mediaFile.path)
+      });
+      recordMediaUsage(mediaUsageRecorder, {
+        stage: "audio_extraction",
+        provider: "ffmpeg",
+        cost: 0,
+        metadata: { format: audio.format || "", sampleRate: audio.sampleRate || null }
+      });
+      tempFiles.push(audio);
+      const activeTranscribeAudio = transcribeAudio || speechToTextProvider.transcribeAudio;
+      transcript = await activeTranscribeAudio({ audioPath: audio.path });
+    }
     const transcriptProvider = transcript.provider || speechToTextProvider.name || "custom";
     recordMediaUsage(mediaUsageRecorder, {
       stage: "audio_transcription",
       provider: transcriptProvider,
       cost: 0,
-      metadata: { segmentCount: Array.isArray(transcript.segments) ? transcript.segments.length : 0 }
+      metadata: {
+        segmentCount: Array.isArray(transcript.segments) ? transcript.segments.length : 0,
+        source: transcriptProvider.startsWith("platform_subtitle:") ? "platform_subtitle" : "asr"
+      }
     });
     const framePack = await createFramePack({
       provider: framePackProvider,

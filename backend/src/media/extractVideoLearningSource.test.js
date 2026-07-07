@@ -84,6 +84,56 @@ test("cleans temporary files when ASR fails", async () => {
   assert.deepEqual(calls, ["cleanup:2"]);
 });
 
+test("uses platform subtitles before falling back to ASR", async () => {
+  const calls = [];
+  const learningSource = await extractVideoLearningSource({
+    sourceUrl: "https://www.xiaohongshu.com/discovery/item/1",
+    provider: {
+      fetchVideoSource: async () => ({
+        provider: "tikhub",
+        platform: "xiaohongshu",
+        providerContentId: "xhs-1",
+        title: "设计原则",
+        description: "平台文案说明这条视频介绍苹果设计原则。",
+        account: "Design_韬",
+        sourceUrl: "https://www.xiaohongshu.com/discovery/item/1",
+        mediaUrl: "https://media.example.com/video.mp4",
+        subtitles: [{ language: "zh-CN", url: "https://media.example.com/zh.srt" }]
+      })
+    },
+    downloadMedia: async () => {
+      calls.push("download");
+      return { path: "/tmp/video-dir/source-video", dir: "/tmp/video-dir" };
+    },
+    extractAudio: async () => {
+      calls.push("audio");
+      return { path: "/tmp/video-dir/audio.wav", dir: "/tmp/video-dir" };
+    },
+    fetchPlatformTranscript: async ({ subtitles }) => {
+      calls.push(`subtitle:${subtitles[0].language}`);
+      return {
+        provider: "platform_subtitle:zh-CN",
+        segments: [{
+          id: "subtitle-1",
+          startSeconds: 1,
+          endSeconds: 5,
+          text: "出色设计需要先明确内容层级，再用动效帮助用户理解状态变化。设计师应该把核心任务放在最容易注意的位置，用对比、留白和节奏降低理解成本，并在每一次状态切换中给出清晰反馈。"
+        }]
+      };
+    },
+    transcribeAudio: async () => {
+      calls.push("asr");
+      return { provider: "mock_asr", segments: [] };
+    },
+    cleanup: async (...files) => {
+      calls.push(`cleanup:${files.length}`);
+    }
+  });
+
+  assert.deepEqual(calls, ["download", "subtitle:zh-CN", "cleanup:1"]);
+  assert.match(learningSource.normalizedText, /内容层级/);
+});
+
 test("records media usage summary when a recorder is provided", async () => {
   const recorder = createMediaUsageRecorder({ runId: "run-1" });
   const learningSource = await extractVideoLearningSource({
