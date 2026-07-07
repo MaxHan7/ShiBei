@@ -31,6 +31,24 @@ test("runs the V2 pyramid stages in stable order", async () => {
   ]);
 });
 
+test("repairs mechanically duplicated matching right ids before validation", async () => {
+  const promptCaller = async (stage, payload) => {
+    if (stage === "matchingDraft") return matchingDraftWithDuplicateRightId(payload.unit.id);
+    return fixtureOutputForStage(stage, payload);
+  };
+
+  const reviewPath = await runV2GenerationProgram(makeArticleFixture(), {
+    promptCaller,
+    now: "2026-06-21T00:00:00.000Z"
+  });
+
+  const matchingQuestion = reviewPath.units[0].questions.find((question) => question.type === "matching");
+  assert.deepEqual(
+    matchingQuestion.pairs.map((pair) => pair.rightId),
+    ["r1", "r2", "r3"]
+  );
+});
+
 test("normalizes V2 multiple choice answer positions without changing option meaning", () => {
   const questions = Array.from({ length: 6 }, (_, index) => ({
     id: `q-${index + 1}`,
@@ -278,6 +296,39 @@ function fixtureOutputForStage(stage, payload) {
     };
   }
   throw new Error(`Unexpected stage ${stage}`);
+}
+
+function matchingDraftWithDuplicateRightId(unitId) {
+  return {
+    unitId,
+    questions: [
+      {
+        id: "q-002",
+        type: "matching",
+        practiceGoalId: "goal-02",
+        relationType: "responsibility",
+        relationGoal: "区分规则、上下文和验证在 Hook 中的职责。",
+        stem: "把 Hook 稳定流程中的元素与职责连起来。",
+        leftItems: [
+          { id: "l1", text: "规则" },
+          { id: "l2", text: "上下文" },
+          { id: "l3", text: "验证" }
+        ],
+        rightItems: [
+          { id: "r1", text: "约束动作边界" },
+          { id: "r2", text: "提供判断依据" },
+          { id: "r3", text: "检查结果是否达标" }
+        ],
+        pairs: [
+          { leftId: "l1", rightId: "r1" },
+          { leftId: "l2", rightId: "r2" },
+          { leftId: "l3", rightId: "r2" }
+        ],
+        explanation: "Hook 通过规则、上下文和验证把动作变成可控流程。",
+        sourceAnchorId: "anchor-unit-01"
+      }
+    ]
+  };
 }
 
 function reviewPathPlanFixture() {

@@ -533,6 +533,7 @@ function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote
       "连线题规则：",
       "- question.type 只能是 matching。",
       "- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。",
+      "- pairs 中每个 leftId 和每个 rightId 都只能使用一次；不能让两个 leftId 指向同一个 rightId。",
       "- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。",
       "- stem 必须说明匹配的关系：职责、边界、使用时机、场景作用、验证维度或流程信号。",
       "- 右侧必须是具体作用、处理方式、职责边界、判断结果、典型场景或验证维度。",

@@ -24,7 +24,10 @@ import {
   normalizeUnitKnowledgeMapOutput,
   validateUnitKnowledgeMapOutput
 } from "../prompts/unitKnowledgeMap.js";
-import { validateMatchingDraftOutput } from "../prompts/matchingDraft.js";
+import {
+  normalizeMatchingDraftOutput,
+  validateMatchingDraftOutput
+} from "../prompts/matchingDraft.js";
 import { validateMultipleChoiceDraftOutput } from "../prompts/multipleChoiceDraft.js";
 import {
   MATCHING_RELATION_TYPES,
@@ -263,10 +266,12 @@ export async function runV2GenerationProgram(
             }),
           {
             normalize: (output) =>
-              normalizeDraftQuestionIds(
-                output,
-                input.practicePlan.questionPlans,
-                "matching"
+              normalizeMatchingDraftOutput(
+                normalizeDraftQuestionIds(
+                  output,
+                  input.practicePlan.questionPlans,
+                  "matching"
+                )
               )
           }
         )

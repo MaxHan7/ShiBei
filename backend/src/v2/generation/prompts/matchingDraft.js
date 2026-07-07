@@ -129,6 +129,15 @@ export function validateMatchingDraftOutput(
   return createValidationResult(errors);
 }
 
+export function normalizeMatchingDraftOutput(output) {
+  if (!isPlainObject(output) || !Array.isArray(output.questions)) return output;
+
+  return {
+    ...output,
+    questions: output.questions.map((question) => normalizeMatchingQuestionPairs(question))
+  };
+}
+
 function validateMatchingQuestion(question, {
   path,
   expectedPlanIds,
@@ -236,4 +245,57 @@ function validateMatchingItems(question, path, errors) {
     seenLeftIds.add(pair.leftId);
     seenRightIds.add(pair.rightId);
   });
+}
+
+function normalizeMatchingQuestionPairs(question) {
+  if (!isPlainObject(question)) return question;
+  if (
+    !Array.isArray(question.leftItems)
+    || !Array.isArray(question.rightItems)
+    || !Array.isArray(question.pairs)
+  ) {
+    return question;
+  }
+  if (
+    question.leftItems.length !== question.rightItems.length
+    || question.pairs.length !== question.leftItems.length
+  ) {
+    return question;
+  }
+
+  const leftIds = question.leftItems.map((item) => item?.id).filter(isNonEmptyString);
+  const rightIds = question.rightItems.map((item) => item?.id).filter(isNonEmptyString);
+  if (leftIds.length !== question.leftItems.length || rightIds.length !== question.rightItems.length) {
+    return question;
+  }
+  if (new Set(leftIds).size !== leftIds.length || new Set(rightIds).size !== rightIds.length) {
+    return question;
+  }
+
+  const seenLeftIds = new Set();
+  const usedRightIds = new Set();
+  const duplicatePairIndexes = [];
+  for (const [index, pair] of question.pairs.entries()) {
+    if (!isPlainObject(pair) || !leftIds.includes(pair.leftId) || !rightIds.includes(pair.rightId)) {
+      return question;
+    }
+    if (seenLeftIds.has(pair.leftId)) return question;
+    seenLeftIds.add(pair.leftId);
+    if (usedRightIds.has(pair.rightId)) {
+      duplicatePairIndexes.push(index);
+    } else {
+      usedRightIds.add(pair.rightId);
+    }
+  }
+  if (duplicatePairIndexes.length === 0) return question;
+
+  const unusedRightIds = rightIds.filter((id) => !usedRightIds.has(id));
+  if (unusedRightIds.length !== duplicatePairIndexes.length) return question;
+
+  const pairs = question.pairs.map((pair) => ({ ...pair }));
+  duplicatePairIndexes.forEach((pairIndex, replacementIndex) => {
+    pairs[pairIndex].rightId = unusedRightIds[replacementIndex];
+  });
+
+  return { ...question, pairs };
 }

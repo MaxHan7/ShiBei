@@ -8,6 +8,7 @@ import {
 } from "./ecdPlanning.js";
 import {
   MATCHING_DRAFT_OUTPUT_SCHEMA,
+  normalizeMatchingDraftOutput,
   validateMatchingDraftOutput
 } from "./matchingDraft.js";
 import {
@@ -214,6 +215,36 @@ test("rejects matching drafts with mismatched item and pair counts", () => {
   assert.equal(result.ok, false);
   assert.match(result.errors.join("\n"), /leftItems and rightItems must contain the same number of items/);
   assert.match(result.errors.join("\n"), /pairs must contain one pair for each left\/right item/);
+});
+
+test("normalizes matching drafts with mechanically duplicated right ids", () => {
+  const fixture = {
+    unitId: "unit-01",
+    questions: [matchingQuestionFixture()]
+  };
+  fixture.questions[0].pairs[2].rightId = "R2";
+
+  const invalidResult = validateMatchingDraftOutput(fixture, {
+    unitId: "unit-01",
+    plans: unitPracticePlanFixture().questionPlans,
+    sourceAnchorId: "anchor-unit-01"
+  });
+  assert.equal(invalidResult.ok, false);
+  assert.match(invalidResult.errors.join("\n"), /rightId must be used only once/);
+
+  const normalized = normalizeMatchingDraftOutput(fixture);
+  assert.deepEqual(
+    normalized.questions[0].pairs.map((pair) => pair.rightId),
+    ["R1", "R2", "R3", "R4"]
+  );
+  assert.deepEqual(
+    validateMatchingDraftOutput(normalized, {
+      unitId: "unit-01",
+      plans: unitPracticePlanFixture().questionPlans,
+      sourceAnchorId: "anchor-unit-01"
+    }),
+    { ok: true, errors: [] }
+  );
 });
 
 test("normalizes unit knowledge map taxonomy aliases before validation", () => {
