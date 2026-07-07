@@ -245,10 +245,14 @@ VIDEO_FRAME_DEDUP_WINDOW=4
 VIDEO_FRAME_GRID_ROWS=3
 VIDEO_FRAME_GRID_COLS=3
 VIDEO_FRAME_TIMEOUT_MS=90000
-VIDEO_VISUAL_PROVIDER=none
-VIDEO_VISUAL_MODEL=
+VIDEO_VISUAL_PROVIDER=qwen-vl
+VIDEO_VISUAL_MODEL=qwen3-vl-flash
+QWEN_API_KEY=<set-in-backend-env>
+QWEN_API_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 VIDEO_VISUAL_MAX_GRIDS=4
 ```
+
+第一版推荐视觉模型为 `qwen3-vl-flash`。它只负责把关键帧/九宫格解释成 `visualSegments`，不参与 V2 出题；如真实样本显示画面 OCR 或 UI 识别不足，再把 `VIDEO_VISUAL_MODEL` 升级为 `qwen3-vl-plus` 做兜底。为了避免成本和复杂度过早上升，第一版不默认使用 `qwen-vl-max` 或 `glm-5v-turbo`。
 
 生产要求：
 

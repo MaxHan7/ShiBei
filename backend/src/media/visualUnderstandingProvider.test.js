@@ -15,6 +15,19 @@ test("resolves disabled visual understanding provider names to none", () => {
   assert.equal(resolveVisualUnderstandingProviderName({ VIDEO_VISUAL_PROVIDER: "qwen-vl" }), "qwen-vl");
 });
 
+test("creates Qwen VL visual understanding provider", () => {
+  const provider = createVisualUnderstandingProvider({
+    env: {
+      VIDEO_VISUAL_PROVIDER: "qwen-vl",
+      QWEN_API_KEY: "test-key",
+      VIDEO_VISUAL_MODEL: "qwen3-vl-flash"
+    }
+  });
+
+  assert.equal(provider.name, "qwen-vl");
+  assert.equal(provider.model, "qwen3-vl-flash");
+});
+
 test("default no-op provider returns no visual segments", async () => {
   const result = await understandVideoVisuals({
     provider: createNoopVisualUnderstandingProvider(),

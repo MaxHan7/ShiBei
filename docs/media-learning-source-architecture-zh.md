@@ -138,7 +138,20 @@ type VideoFramePack = {
 }
 ```
 
-第一阶段可以只实现 `VIDEO_FRAME_PROVIDER=crv_style_ffmpeg` 和 `VIDEO_VISUAL_PROVIDER=none`，用于验证抽帧和九宫格稳定性。第二阶段再接入 Qwen-VL、Gemini 或其他多模态 provider，把 grid/frames 解释成 `visualSegments`。这保证 DeepSeek 继续只负责文本出题，视觉模型只负责把画面转成可引用文本。
+第一阶段可以只实现 `VIDEO_FRAME_PROVIDER=crv_style_ffmpeg` 和 `VIDEO_VISUAL_PROVIDER=none`，用于验证抽帧和九宫格稳定性。第二阶段接入 Qwen-VL，把 grid/frames 解释成 `visualSegments`。这保证 DeepSeek 继续只负责文本出题，视觉模型只负责把画面转成可引用文本。
+
+推荐的第一版视觉模型配置：
+
+```bash
+VIDEO_FRAME_PROVIDER=crv_style_ffmpeg
+VIDEO_VISUAL_PROVIDER=qwen-vl
+VIDEO_VISUAL_MODEL=qwen3-vl-flash
+QWEN_API_KEY=<set-in-backend-env>
+QWEN_API_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+VIDEO_VISUAL_MAX_GRIDS=4
+```
+
+`qwen3-vl-flash` 是默认性价比模型；如果真实视频样本中出现复杂 UI、小字 OCR 或关键画面理解不足，再将同一 provider 的 `VIDEO_VISUAL_MODEL` 提升为 `qwen3-vl-plus`。出题系统不读取图片，也不直接调用 Qwen；它只读取合并后的 `LearningSource.normalizedText`。
 
 ## 4. TikHub 取源方案
 

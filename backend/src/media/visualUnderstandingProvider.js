@@ -1,4 +1,5 @@
 import { createMediaExtractionError } from "./mediaErrors.js";
+import { createQwenVlVisualUnderstandingProvider } from "./qwenVlVisualUnderstandingProvider.js";
 
 const DISABLED_PROVIDER_NAMES = new Set(["", "none", "off", "disabled"]);
 
@@ -28,6 +29,9 @@ export function createVisualUnderstandingProvider({
 } = {}) {
   const providerName = resolveVisualUnderstandingProviderName(env);
   if (providerName === "none") return createNoopVisualUnderstandingProvider();
+  if (["qwen-vl", "qwen", "qwen3-vl"].includes(providerName)) {
+    return createQwenVlVisualUnderstandingProvider({ env });
+  }
 
   throw createMediaExtractionError(
     "unsupported_visual_understanding_provider",
