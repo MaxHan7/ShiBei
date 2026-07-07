@@ -175,7 +175,9 @@ export async function extractVideoLearningSource({
       metadata: {
         skipped: Boolean(visualUnderstanding.skipped),
         reason: visualUnderstanding.reason || "",
-        segmentCount: Array.isArray(visualUnderstanding.segments) ? visualUnderstanding.segments.length : 0
+        segmentCount: Array.isArray(visualUnderstanding.segments) ? visualUnderstanding.segments.length : 0,
+        model: visualUnderstanding.model || "",
+        usage: visualUnderstanding.usage || {}
       }
     });
     const learningSource = buildLearningSourceFromVideo({

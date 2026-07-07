@@ -69,9 +69,11 @@ function normalizeVisualUnderstandingResult(result, fallbackProvider) {
   const payload = result && typeof result === "object" ? result : {};
   return {
     provider: String(payload.provider || fallbackProvider || "unknown"),
+    model: String(payload.model || ""),
     skipped: Boolean(payload.skipped),
     reason: String(payload.reason || ""),
-    segments: normalizeVisualSegments(payload.segments)
+    segments: normalizeVisualSegments(payload.segments),
+    usage: normalizeUsage(payload.usage)
   };
 }
 
@@ -101,4 +103,13 @@ function cleanText(value) {
 function finiteNumber(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
+}
+
+function normalizeUsage(usage) {
+  if (!usage || typeof usage !== "object" || Array.isArray(usage)) return {};
+  return {
+    ...(Number.isFinite(Number(usage.prompt_tokens)) ? { prompt_tokens: Number(usage.prompt_tokens) } : {}),
+    ...(Number.isFinite(Number(usage.completion_tokens)) ? { completion_tokens: Number(usage.completion_tokens) } : {}),
+    ...(Number.isFinite(Number(usage.total_tokens)) ? { total_tokens: Number(usage.total_tokens) } : {})
+  };
 }

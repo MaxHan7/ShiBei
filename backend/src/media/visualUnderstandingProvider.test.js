@@ -48,6 +48,8 @@ test("normalizes visual provider segments into LearningSource-compatible shape",
       name: "mock-vision",
       understandVideo: async () => ({
         provider: "mock-vision",
+        model: "mock-vl",
+        usage: { prompt_tokens: "120", completion_tokens: 30, total_tokens: 150 },
         segments: [
           {
             startSeconds: "1.5",
@@ -62,6 +64,8 @@ test("normalizes visual provider segments into LearningSource-compatible shape",
   });
 
   assert.equal(result.provider, "mock-vision");
+  assert.equal(result.model, "mock-vl");
+  assert.deepEqual(result.usage, { prompt_tokens: 120, completion_tokens: 30, total_tokens: 150 });
   assert.equal(result.skipped, false);
   assert.equal(result.segments.length, 1);
   assert.equal(result.segments[0].id, "visual-001");

@@ -344,8 +344,10 @@ test("passes timestamped frame pack into visual understanding", async () => {
 });
 
 test("merges visual understanding segments when a provider is injected", async () => {
+  const recorder = createMediaUsageRecorder({ runId: "visual-usage-run" });
   const learningSource = await extractVideoLearningSource({
     sourceUrl: "https://v.douyin.com/abc/",
+    mediaUsageRecorder: recorder,
     provider: {
       fetchVideoSource: async () => ({
         provider: "tikhub",
@@ -375,6 +377,8 @@ test("merges visual understanding segments when a provider is injected", async (
       name: "mock-vision",
       understandVideo: async () => ({
         provider: "mock-vision",
+        model: "mock-vl",
+        usage: { prompt_tokens: 120, completion_tokens: 30, total_tokens: 150 },
         segments: [
           {
             id: "frame-1",
@@ -392,4 +396,10 @@ test("merges visual understanding segments when a provider is injected", async (
   assert.equal(learningSource.visualSegments.length, 1);
   assert.match(learningSource.normalizedText, /画面中的流程图/);
   assert.equal(learningSource.sourceSections.at(-1).sourceRole, "visual_summary");
+  assert.equal(learningSource.extractionMeta.mediaUsage.byStage.visual_understanding.metadata.model, "mock-vl");
+  assert.deepEqual(learningSource.extractionMeta.mediaUsage.byStage.visual_understanding.metadata.usage, {
+    prompt_tokens: 120,
+    completion_tokens: 30,
+    total_tokens: 150
+  });
 });
