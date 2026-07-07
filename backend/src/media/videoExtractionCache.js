@@ -1,0 +1,137 @@
+import { createHash } from "node:crypto";
+
+import { normalizeVideoSourceUrl } from "./videoPlatforms.js";
+
+export const VIDEO_SOURCE_CACHE_VERSION = "video-source-v1";
+export const VIDEO_LEARNING_SOURCE_CACHE_VERSION = "video-learning-source-v1";
+
+const DEFAULT_VIDEO_SOURCE_TTL_MS = readPositiveInt(
+  process.env.VIDEO_SOURCE_CACHE_TTL_MS,
+  7 * 24 * 60 * 60 * 1000
+);
+const DEFAULT_VIDEO_LEARNING_SOURCE_TTL_MS = readPositiveInt(
+  process.env.VIDEO_LEARNING_SOURCE_CACHE_TTL_MS,
+  30 * 24 * 60 * 60 * 1000
+);
+const DEFAULT_MAX_ENTRIES = readPositiveInt(process.env.VIDEO_EXTRACTION_CACHE_MAX_ENTRIES, 200);
+
+let sharedVideoSourceCache = null;
+let sharedLearningSourceCache = null;
+
+export function getSharedVideoSourceCache() {
+  if (!sharedVideoSourceCache) {
+    sharedVideoSourceCache = createInMemoryTtlCache({
+      ttlMs: DEFAULT_VIDEO_SOURCE_TTL_MS,
+      maxEntries: DEFAULT_MAX_ENTRIES
+    });
+  }
+  return sharedVideoSourceCache;
+}
+
+export function getSharedLearningSourceCache() {
+  if (!sharedLearningSourceCache) {
+    sharedLearningSourceCache = createInMemoryTtlCache({
+      ttlMs: DEFAULT_VIDEO_LEARNING_SOURCE_TTL_MS,
+      maxEntries: DEFAULT_MAX_ENTRIES
+    });
+  }
+  return sharedLearningSourceCache;
+}
+
+export function createInMemoryTtlCache({
+  ttlMs,
+  maxEntries = DEFAULT_MAX_ENTRIES,
+  now = () => Date.now()
+} = {}) {
+  const entries = new Map();
+
+  return {
+    async get(key) {
+      const entry = entries.get(key);
+      if (!entry) return null;
+      if (Number.isFinite(entry.expiresAt) && entry.expiresAt <= now()) {
+        entries.delete(key);
+        return null;
+      }
+      entries.delete(key);
+      entries.set(key, entry);
+      return cloneCacheValue(entry.value);
+    },
+    async set(key, value) {
+      if (!key || value == null) return;
+      entries.set(key, {
+        value: cloneCacheValue(value),
+        expiresAt: Number.isFinite(ttlMs) && ttlMs > 0 ? now() + ttlMs : null
+      });
+      while (entries.size > maxEntries) {
+        const oldestKey = entries.keys().next().value;
+        entries.delete(oldestKey);
+      }
+    },
+    size() {
+      return entries.size;
+    },
+    clear() {
+      entries.clear();
+    }
+  };
+}
+
+export function buildVideoSourceCacheKey({ sourceUrl, rawText = "" } = {}) {
+  return buildVersionedCacheKey({
+    prefix: "video-source",
+    version: VIDEO_SOURCE_CACHE_VERSION,
+    value: normalizeCacheInput(sourceUrl || rawText)
+  });
+}
+
+export function buildVideoLearningSourceCacheKey({
+  sourceUrl,
+  rawText = "",
+  extractionVersion = VIDEO_LEARNING_SOURCE_CACHE_VERSION
+} = {}) {
+  return buildVersionedCacheKey({
+    prefix: "video-learning-source",
+    version: extractionVersion,
+    value: normalizeCacheInput(sourceUrl || rawText)
+  });
+}
+
+export async function readCache(cache, key) {
+  if (!cache || !key || typeof cache.get !== "function") return null;
+  const value = await cache.get(key);
+  return value == null ? null : cloneCacheValue(value);
+}
+
+export async function writeCache(cache, key, value) {
+  if (!cache || !key || typeof cache.set !== "function") return;
+  await cache.set(key, cloneCacheValue(value));
+}
+
+export function cloneCacheValue(value) {
+  if (value == null) return value;
+  if (typeof structuredClone === "function") return structuredClone(value);
+  return JSON.parse(JSON.stringify(value));
+}
+
+function buildVersionedCacheKey({ prefix, version, value }) {
+  return `${prefix}:${version}:${hashValue(value)}`;
+}
+
+function normalizeCacheInput(value) {
+  const url = normalizeVideoSourceUrl(value);
+  url.hash = "";
+  url.protocol = url.protocol.toLowerCase();
+  url.hostname = url.hostname.toLowerCase();
+  url.searchParams.sort();
+  return url.href;
+}
+
+function hashValue(value) {
+  return createHash("sha256").update(String(value || "")).digest("hex").slice(0, 24);
+}
+
+function readPositiveInt(value, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : fallback;
+}

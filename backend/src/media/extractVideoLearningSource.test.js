@@ -3,6 +3,7 @@ import test from "node:test";
 
 import { extractVideoLearningSource } from "./extractVideoLearningSource.js";
 import { createMediaUsageRecorder } from "./mediaCost.js";
+import { createInMemoryTtlCache } from "./videoExtractionCache.js";
 
 test("extracts a video learning source through provider, media, audio, and ASR", async () => {
   const calls = [];
@@ -132,6 +133,115 @@ test("uses platform subtitles before falling back to ASR", async () => {
 
   assert.deepEqual(calls, ["download", "subtitle:zh-CN", "cleanup:1"]);
   assert.match(learningSource.normalizedText, /内容层级/);
+});
+
+test("caches TikHub video source responses without caching downstream extraction", async () => {
+  const calls = [];
+  const videoSourceCache = createInMemoryTtlCache({ ttlMs: 60_000 });
+  const options = {
+    sourceUrl: "https://v.douyin.com/cache-source/",
+    videoSourceCache,
+    learningSourceCache: null,
+    provider: {
+      fetchVideoSource: async () => {
+        calls.push("provider");
+        return {
+          provider: "tikhub",
+          platform: "douyin",
+          providerContentId: "douyin-cache-1",
+          title: "AI 产品调研",
+          description: "平台文案说明这条视频讲 AI 调研流程，强调先定义问题，再整理证据。",
+          account: "产品老张",
+          sourceUrl: "https://v.douyin.com/cache-source/",
+          mediaUrl: "https://media.example.com/video.mp4",
+          coverUrl: "https://media.example.com/cover.jpg",
+          durationSeconds: 60
+        };
+      }
+    },
+    downloadMedia: async () => {
+      calls.push("download");
+      return { path: "/tmp/video-dir/source-video", dir: "/tmp/video-dir" };
+    },
+    extractAudio: async () => {
+      calls.push("audio");
+      return { path: "/tmp/video-dir/audio.wav", dir: "/tmp/video-dir" };
+    },
+    transcribeAudio: async () => ({
+      provider: "mock_asr",
+      segments: [{
+        id: "seg-1",
+        startSeconds: 0,
+        endSeconds: 5,
+        text: "先明确用户问题，再整理主题，并检查每个主题有没有原始证据支撑。最后把主题映射到可以执行的产品实验，避免只停留在总结层面。这个流程要求团队把观察、证据、判断和下一步动作串起来。"
+      }]
+    }),
+    cleanup: async () => {}
+  };
+
+  await extractVideoLearningSource(options);
+  await extractVideoLearningSource(options);
+
+  assert.deepEqual(calls, ["provider", "download", "audio", "download", "audio"]);
+});
+
+test("caches full video learning sources so generation retries do not re-fetch media", async () => {
+  const calls = [];
+  const firstRecorder = createMediaUsageRecorder({ runId: "video-cache-run-1" });
+  const secondRecorder = createMediaUsageRecorder({ runId: "video-cache-run-2" });
+  const learningSourceCache = createInMemoryTtlCache({ ttlMs: 60_000 });
+  const options = {
+    sourceUrl: "https://v.douyin.com/cache-learning-source/",
+    videoSourceCache: createInMemoryTtlCache({ ttlMs: 60_000 }),
+    learningSourceCache,
+    provider: {
+      fetchVideoSource: async () => {
+        calls.push("provider");
+        return {
+          provider: "tikhub",
+          platform: "douyin",
+          providerContentId: "douyin-cache-2",
+          title: "AI 产品调研",
+          description: "平台文案说明这条视频讲 AI 调研流程，强调先定义问题，再整理证据。",
+          account: "产品老张",
+          sourceUrl: "https://v.douyin.com/cache-learning-source/",
+          mediaUrl: "https://media.example.com/video.mp4",
+          coverUrl: "https://media.example.com/cover.jpg",
+          durationSeconds: 60
+        };
+      }
+    },
+    downloadMedia: async () => {
+      calls.push("download");
+      return { path: "/tmp/video-dir/source-video", dir: "/tmp/video-dir" };
+    },
+    extractAudio: async () => {
+      calls.push("audio");
+      return { path: "/tmp/video-dir/audio.wav", dir: "/tmp/video-dir" };
+    },
+    transcribeAudio: async () => ({
+      provider: "mock_asr",
+      segments: [{
+        id: "seg-1",
+        startSeconds: 0,
+        endSeconds: 5,
+        text: "先明确用户问题，再整理主题，并检查每个主题有没有原始证据支撑。最后把主题映射到可以执行的产品实验，避免只停留在总结层面。这个流程要求团队把观察、证据、判断和下一步动作串起来。"
+      }]
+    }),
+    cleanup: async () => {}
+  };
+
+  const first = await extractVideoLearningSource({ ...options, mediaUsageRecorder: firstRecorder });
+  const second = await extractVideoLearningSource({ ...options, mediaUsageRecorder: secondRecorder });
+
+  assert.deepEqual(calls, ["provider", "download", "audio"]);
+  assert.equal(first.extractionMeta.cache.hit, false);
+  assert.equal(second.extractionMeta.cache.hit, true);
+  assert.equal(second.title, "AI 产品调研");
+  assert.equal(secondRecorder.calls.length, 1);
+  assert.equal(secondRecorder.calls.at(-1).stage, "video_learning_source_cache");
+  assert.equal(secondRecorder.calls.at(-1).metadata.cacheHit, true);
+  assert.equal(second.extractionMeta.mediaUsage.callCount, 1);
 });
 
 test("records media usage summary when a recorder is provided", async () => {
