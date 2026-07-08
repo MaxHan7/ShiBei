@@ -2,7 +2,7 @@
 
 日期：2026-07-07
 
-环境：`/Users/hanmingyu/Downloads/拾贝-test-feature-20260705`
+环境：`/Users/hanmingyu/Downloads/拾贝/拾贝-test-feature-20260705`
 
 分支：`codex/test-feature-env-20260705`
 
@@ -127,3 +127,52 @@ npm --prefix backend run check:video-source
 2. 增加同一 cache key 的 singleflight/lock，防止并发瞬间重复调用 TikHub。
 3. 在质量报告中展示 `cacheHit`、TikHub 实际调用次数、Qwen 视觉调用次数和估算成本。
 4. 用真实视频样本回放完整 V2 出题，确认这次连线题容错能让之前失败样本生成完成。
+
+## 2026-07-08 补充：视频 V2 质量 runner 与真实样本回归
+
+提交：
+
+- `326b1c2 chore: add video v2 quality runner`
+- `d368316 fix: preserve video content basis in v2 reports`
+
+### 本次新增
+
+- 新增 `backend/scripts/run-video-v2-quality-experiment.mjs`。
+- 该 runner 串起：
+  - TikHub 视频解析。
+  - 本地 ASR / 平台字幕。
+  - CRV-style 抽帧。
+  - Qwen-VL 视觉增强。
+  - V2 出题。
+  - HTML/JSON 质量报告。
+  - 媒体链路和出题模型成本汇总。
+- V2 deterministic source map 现在会优先保留视频提取后的 grouped source blocks，避免把每句字幕重新切成一个 source block。
+- V2 source 会保留 `contentBasis`，用于前端展示“已结合视频字幕和画面信息生成”或“本次主要基于视频字幕生成”；后端调试状态仍放在 media/debug 报告中，不直接暴露给用户。
+
+### 真实样本结果
+
+样本：抖音 `多Agent协作通信怎么设计`
+
+产物：
+
+- JSON：`docs/quality-runs/video-link/douyin-multi-agent-communication/runs/20260708-162425-20260708-douyin-multi-agent-communication-visual-runner.json`
+- HTML：`docs/quality-runs/video-link/douyin-multi-agent-communication/reports/20260708-162425-20260708-douyin-multi-agent-communication-visual-runner.html`
+- Matrix：`docs/quality-runs/video-link/provider-evaluation/provider-matrix-2026-07.md`
+
+结果摘要：
+
+- 状态：completed。
+- Source blocks：16。
+- Units：3。
+- Questions：11。
+- TikHub calls：1。
+- 媒体链路估算成本：USD 0.001422。
+- DeepSeek 出题实际成本：USD 0.005670。
+- Qwen-VL：成功，13 frames / 2 grids / 1 visual segment。
+- 诊断：1 条 warning，类型为 option tone cue；无运行重试、无结构失败。
+
+### 结论
+
+- “ASR/字幕主链路 + 视觉增强”策略成立：视觉成功时可以补充 source；视觉失败仍应降级到文本主链路。
+- TikHub 成本已被控制到单次真实跑 1 call；继续需要持久化缓存和并发 singleflight 来覆盖生产多实例场景。
+- 本次 runner 让后续视频样本回归可重复，不再需要手工拼成本报告。

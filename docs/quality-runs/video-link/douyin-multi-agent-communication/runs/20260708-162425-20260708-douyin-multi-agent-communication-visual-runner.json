@@ -1,0 +1,4459 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-07-08T16:25:22.918Z",
+  "slug": "douyin-multi-agent-communication",
+  "label": "20260708-douyin-multi-agent-communication-visual-runner",
+  "status": "completed",
+  "source": {
+    "title": "面试必考：多Agent协作通信怎么设计？ 面试被问到多Agent协作通信怎么设计，千万别说只是互相发消息！多Agent系统失败往往是因为交接时上下文断裂。真正懂行的架构设计核心在于三点：选对通信拓扑、定好消息契约、管好共享状态。掌握这三步，向面试官展现真正的工程思维。想系统学习Agent开发的同学可以查看橱窗哦！ \n#人工智能 #大模型面试 #Agent开发 #多智能体 #架构设计",
+    "account": "小哲讲大模型",
+    "url": "https://v.douyin.com/yXZKGqTAbKg/",
+    "type": "video_link",
+    "rawTextLength": 2417
+  },
+  "metrics": {
+    "unitCount": 3,
+    "questionCount": 11,
+    "multipleChoiceCount": 7,
+    "matchingCount": 4,
+    "sourceBlockCount": 16,
+    "issueCount": 0,
+    "diagnosticIssueCount": 1,
+    "runtimeFailedAttemptCount": 0,
+    "runtimeRetryAttemptCount": 0,
+    "modelCallCount": 14,
+    "promptTokenCount": 39496,
+    "completionTokenCount": 6711,
+    "totalTokenCount": 46207
+  },
+  "chapter": {
+    "schemaVersion": "v2_review_path_1",
+    "id": "douyin-multi-agent-communication",
+    "status": "completed",
+    "displayStatusText": "已生成",
+    "title": "多Agent协作通信设计",
+    "source": {
+      "type": "video_link",
+      "title": "面试必考：多Agent协作通信怎么设计？ 面试被问到多Agent协作通信怎么设计，千万别说只是互相发消息！多Agent系统失败往往是因为交接时上下文断裂。真正懂行的架构设计核心在于三点：选对通信拓扑、定好消息契约、管好共享状态。掌握这三步，向面试官展现真正的工程思维。想系统学习Agent开发的同学可以查看橱窗哦！ \n#人工智能 #大模型面试 #Agent开发 #多智能体 #架构设计",
+      "author": "小哲讲大模型",
+      "account": "小哲讲大模型",
+      "accountOrDomain": "小哲讲大模型",
+      "url": "https://v.douyin.com/yXZKGqTAbKg/",
+      "platform": "douyin",
+      "rawText": "平台文案：面试必考：多Agent协作通信怎么设计？ 面试被问到多Agent协作通信怎么设计，千万别说只是互相发消息！多Agent系统失败往往是因为交接时上下文断裂。真正懂行的架构设计核心在于三点：选对通信拓扑、定好消息契约、管好共享状态。掌握这三步，向面试官展现真正的工程思维。想系统学习Agent开发的同学可以查看橱窗哦！ \n#人工智能 #大模型面试 #Agent开发 #多智能体 #架构设计\n\n面试官问你多个Agent的协作，他们之间的通信你怎么设计，很多人一听就懵，通信不就是一个Agent的，把结果发给另一个Agent吗，有啥好设计的，你要真这么挡，面试官立马知道你没搭过多Agent的系统，因为有研究专门统计过，多Agent的系统失败，很大一部分根本不是单个Agent的不行，而是Agent的之间协调出了问题，信息传丢了 传歪了，交接的时候上下文断了，这道题考的，就是你会不会把通信\n\n当成一个要专门设计的架构问题，我是小哲 点赞收藏 加关注，我们马上开始，想系统学习Agent的开发的同学，可以查看出窗哦，先说这题在考什么，它表面问通信怎么设计，实际是在考你懂不懂多Agent的系统，真正的平静在哪，单个Agent的再强，一旦要多个协作，最容易崩的地方，就是他们之间的信息交换，Agent的之间的带宽其实很有限，你没法把一个Agent的脑子里，所有的上下文，原封不动搬给另一个\n\n只能通过消息来传，这中间就会丢信息，会有奇异，业界公认，交接点上的上下文断裂，是多Agent的最常见的失败原因，所以面试官想看的是，你知不知道通信不是随便发消息，而是要选对通信模式，订好消息结构，管住全局状态\n\n一句话给你总答案，多Agent通信的设计，核心就三件事，选对通信脱铺，订好消息契约，管好共享状态，通信脱铺决定谁跟谁说话，消息契约决定说的话长什么样，不能随便发一段自然语言，共享状态决定大家怎么看到，统一份真相，把这三件事订清楚，通信才不会乱\n\n先说通信脱铺，也就是谁跟谁通信，最主流最好控制的是，主管家执行者这种中心化模式，一个主Agent，居中调度，所有紫Agent只跟主Agent通信，紫Agent之间不直接对话，主Agent负责拆任务，分发，收集结果，汇总，这种模式的好处是通信路径清晰，全局状态有主Agent的统一维护，不容易乱，另一种是让Agent之间，直接互相传递，类似接理交接，谁处理完了就把活交给下一个\n\n这种更灵活，但也更容易在交接点上出问题，真实项目里除非你有很强的理由，一般优先选中心化的编排模式，因为它可控好调试好观测\n\n再说消息契约，这是最容易被忽略，但最关键的一环，Agent，之间千万别用大白话自由交流，一个Agent的发移大段自然语言，另一个Agent去理解，这中间的起义和信息丢失，是灾难性的，正确做法，是用结构化的消息格式，把每一次交互，该带的东西固定下来，比如这个子人物的目标是什么，期望的输出格式是什么，可以用哪些工具，边界在哪，上一步的结果是什么，你可以理解成，给Agent之间定一份接口协议\n\n大家按协议说话，而不是自由发挥，这样接收方拿到的信息是确定的，可解析的，交接的时候，上下文才不容易断，Anthrope做多Agent的研究系统，给子Agent的派活的时候，就是把目标，输出格式，工具，边界这几样都讲得清清楚楚，不留模糊空间\n\n第三件是共享状态，解决的是怎么让所有Agent，看到同一份真相，如果每个Agent，都只揣着自己那点信息，谁也不知道别人干到哪了，协作必然乱套，常见的做法是搞一块共享的，结构化的记忆区，像一块公共黑板，Agent把关键的进度，中间结论，状态都写到这上面，需要的时候去读，而不是靠一条条消息互相追问，这样做还有个好处，子Agent返回结果的时候\n\n不用把一大堆啰嗦的过程，原样传回来，只需要把精简的结论，写进共享状态，主Agent去读，Agent的上下文保持干净，这块共享状态，必须由编排者统一维护，保证全局仕途一致，这是防止信息错乱的关键，给你一个面试回答模板，第一句先点本质，多Agent最容易绷的不是单个Agent，而是他们之间的通信和交接，所以通信要专门设计\n\n第二句讲脱铺，优先用主管加执行者的中心化模式，子Agent只跟主Agent的通信，路径清晰好控制，第三句讲消息契约，Agent之间不能用大白话自由交流，要用结构化消息，把目标 输出格式 工具 边界，上一步结果都固定下来，减少奇异和上下文断裂\n\n第四句讲共享状态，用一块统一维护的共享记忆，做公共黑板，大家读写同一份真相，子Agent只回传经检结论，省贷宽又保上下文干净\n\n最后补一句，通信全程要可观测，每次交互都能追溯，这么讲下来，面试官就知道，你是真设计过多Agent的架构的，所以你看，多Agent通信这道题，考的不是发消息，而是你会不会选拓扑，订契约管状态，记住核心，中心化编排管住路径，结构化消息管住奇异，共享状态管住全局真相，交接点不断，协作才不散，其实大模型面试最难的\n\n不是被概念，而是每一道题，你都要知道面试官，真正想考什么，应该回答到什么深度，哪些地方会继续追问，所以我把Agent RAG MCP，多Agent，这些高频工程画面试题，全部整理成了一套系统课程，不是带你被prompt，而是带你建立，如果你最近准备，AI岗位面试，或者想转Agent的开发，可以去出窗看看\n\n三格画面聚焦防止信息错乱的关键：左为‘编排者(Orchestrator)’，强调统一维护；中为‘多Agent通信考点’，列出三个核心设计点——选拓扑、定契约、管状态；右为‘大模型工程化系统课程’界面，显示Agent/RAG/MCP/多Agent协作等关键词，并提示‘建立真正工程思维’及‘点击左下角查看’。底部文字总结：‘所以我把Agent、RAG、MCP、’，暗示课程内容涵盖这些模块。",
+      "cleanedText": "平台文案：面试必考：多Agent协作通信怎么设计？ 面试被问到多Agent协作通信怎么设计，千万别说只是互相发消息！多Agent系统失败往往是因为交接时上下文断裂。真正懂行的架构设计核心在于三点：选对通信拓扑、定好消息契约、管好共享状态。掌握这三步，向面试官展现真正的工程思维。想系统学习Agent开发的同学可以查看橱窗哦！ \n#人工智能 #大模型面试 #Agent开发 #多智能体 #架构设计\n\n面试官问你多个Agent的协作，他们之间的通信你怎么设计，很多人一听就懵，通信不就是一个Agent的，把结果发给另一个Agent吗，有啥好设计的，你要真这么挡，面试官立马知道你没搭过多Agent的系统，因为有研究专门统计过，多Agent的系统失败，很大一部分根本不是单个Agent的不行，而是Agent的之间协调出了问题，信息传丢了 传歪了，交接的时候上下文断了，这道题考的，就是你会不会把通信\n\n当成一个要专门设计的架构问题，我是小哲 点赞收藏 加关注，我们马上开始，想系统学习Agent的开发的同学，可以查看出窗哦，先说这题在考什么，它表面问通信怎么设计，实际是在考你懂不懂多Agent的系统，真正的平静在哪，单个Agent的再强，一旦要多个协作，最容易崩的地方，就是他们之间的信息交换，Agent的之间的带宽其实很有限，你没法把一个Agent的脑子里，所有的上下文，原封不动搬给另一个\n\n只能通过消息来传，这中间就会丢信息，会有奇异，业界公认，交接点上的上下文断裂，是多Agent的最常见的失败原因，所以面试官想看的是，你知不知道通信不是随便发消息，而是要选对通信模式，订好消息结构，管住全局状态\n\n一句话给你总答案，多Agent通信的设计，核心就三件事，选对通信脱铺，订好消息契约，管好共享状态，通信脱铺决定谁跟谁说话，消息契约决定说的话长什么样，不能随便发一段自然语言，共享状态决定大家怎么看到，统一份真相，把这三件事订清楚，通信才不会乱\n\n先说通信脱铺，也就是谁跟谁通信，最主流最好控制的是，主管家执行者这种中心化模式，一个主Agent，居中调度，所有紫Agent只跟主Agent通信，紫Agent之间不直接对话，主Agent负责拆任务，分发，收集结果，汇总，这种模式的好处是通信路径清晰，全局状态有主Agent的统一维护，不容易乱，另一种是让Agent之间，直接互相传递，类似接理交接，谁处理完了就把活交给下一个\n\n这种更灵活，但也更容易在交接点上出问题，真实项目里除非你有很强的理由，一般优先选中心化的编排模式，因为它可控好调试好观测\n\n再说消息契约，这是最容易被忽略，但最关键的一环，Agent，之间千万别用大白话自由交流，一个Agent的发移大段自然语言，另一个Agent去理解，这中间的起义和信息丢失，是灾难性的，正确做法，是用结构化的消息格式，把每一次交互，该带的东西固定下来，比如这个子人物的目标是什么，期望的输出格式是什么，可以用哪些工具，边界在哪，上一步的结果是什么，你可以理解成，给Agent之间定一份接口协议\n\n大家按协议说话，而不是自由发挥，这样接收方拿到的信息是确定的，可解析的，交接的时候，上下文才不容易断，Anthrope做多Agent的研究系统，给子Agent的派活的时候，就是把目标，输出格式，工具，边界这几样都讲得清清楚楚，不留模糊空间\n\n第三件是共享状态，解决的是怎么让所有Agent，看到同一份真相，如果每个Agent，都只揣着自己那点信息，谁也不知道别人干到哪了，协作必然乱套，常见的做法是搞一块共享的，结构化的记忆区，像一块公共黑板，Agent把关键的进度，中间结论，状态都写到这上面，需要的时候去读，而不是靠一条条消息互相追问，这样做还有个好处，子Agent返回结果的时候\n\n不用把一大堆啰嗦的过程，原样传回来，只需要把精简的结论，写进共享状态，主Agent去读，Agent的上下文保持干净，这块共享状态，必须由编排者统一维护，保证全局仕途一致，这是防止信息错乱的关键，给你一个面试回答模板，第一句先点本质，多Agent最容易绷的不是单个Agent，而是他们之间的通信和交接，所以通信要专门设计\n\n第二句讲脱铺，优先用主管加执行者的中心化模式，子Agent只跟主Agent的通信，路径清晰好控制，第三句讲消息契约，Agent之间不能用大白话自由交流，要用结构化消息，把目标 输出格式 工具 边界，上一步结果都固定下来，减少奇异和上下文断裂\n\n第四句讲共享状态，用一块统一维护的共享记忆，做公共黑板，大家读写同一份真相，子Agent只回传经检结论，省贷宽又保上下文干净\n\n最后补一句，通信全程要可观测，每次交互都能追溯，这么讲下来，面试官就知道，你是真设计过多Agent的架构的，所以你看，多Agent通信这道题，考的不是发消息，而是你会不会选拓扑，订契约管状态，记住核心，中心化编排管住路径，结构化消息管住奇异，共享状态管住全局真相，交接点不断，协作才不散，其实大模型面试最难的\n\n不是被概念，而是每一道题，你都要知道面试官，真正想考什么，应该回答到什么深度，哪些地方会继续追问，所以我把Agent RAG MCP，多Agent，这些高频工程画面试题，全部整理成了一套系统课程，不是带你被prompt，而是带你建立，如果你最近准备，AI岗位面试，或者想转Agent的开发，可以去出窗看看\n\n三格画面聚焦防止信息错乱的关键：左为‘编排者(Orchestrator)’，强调统一维护；中为‘多Agent通信考点’，列出三个核心设计点——选拓扑、定契约、管状态；右为‘大模型工程化系统课程’界面，显示Agent/RAG/MCP/多Agent协作等关键词，并提示‘建立真正工程思维’及‘点击左下角查看’。底部文字总结：‘所以我把Agent、RAG、MCP、’，暗示课程内容涵盖这些模块。",
+      "blocks": [
+        {
+          "id": "video-platform-description",
+          "type": "paragraph",
+          "text": "平台文案：面试必考：多Agent协作通信怎么设计？ 面试被问到多Agent协作通信怎么设计，千万别说只是互相发消息！多Agent系统失败往往是因为交接时上下文断裂。真正懂行的架构设计核心在于三点：选对通信拓扑、定好消息契约、管好共享状态。掌握这三步，向面试官展现真正的工程思维。想系统学习Agent开发的同学可以查看橱窗哦！ \n#人工智能 #大模型面试 #Agent开发 #多智能体 #架构设计",
+          "sourceRole": "platform_description"
+        },
+        {
+          "id": "video-transcript-001",
+          "type": "paragraph",
+          "text": "面试官问你多个Agent的协作，他们之间的通信你怎么设计，很多人一听就懵，通信不就是一个Agent的，把结果发给另一个Agent吗，有啥好设计的，你要真这么挡，面试官立马知道你没搭过多Agent的系统，因为有研究专门统计过，多Agent的系统失败，很大一部分根本不是单个Agent的不行，而是Agent的之间协调出了问题，信息传丢了 传歪了，交接的时候上下文断了，这道题考的，就是你会不会把通信",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 0,
+          "endSeconds": 24.8,
+          "segmentIds": [
+            "transcript-001",
+            "transcript-002",
+            "transcript-003",
+            "transcript-004",
+            "transcript-005",
+            "transcript-006",
+            "transcript-007",
+            "transcript-008",
+            "transcript-009",
+            "transcript-010",
+            "transcript-011",
+            "transcript-012",
+            "transcript-013",
+            "transcript-014",
+            "transcript-015",
+            "transcript-016"
+          ]
+        },
+        {
+          "id": "video-transcript-002",
+          "type": "paragraph",
+          "text": "当成一个要专门设计的架构问题，我是小哲 点赞收藏 加关注，我们马上开始，想系统学习Agent的开发的同学，可以查看出窗哦，先说这题在考什么，它表面问通信怎么设计，实际是在考你懂不懂多Agent的系统，真正的平静在哪，单个Agent的再强，一旦要多个协作，最容易崩的地方，就是他们之间的信息交换，Agent的之间的带宽其实很有限，你没法把一个Agent的脑子里，所有的上下文，原封不动搬给另一个",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 24.8,
+          "endSeconds": 49.8,
+          "segmentIds": [
+            "transcript-017",
+            "transcript-018",
+            "transcript-019",
+            "transcript-020",
+            "transcript-021",
+            "transcript-022",
+            "transcript-023",
+            "transcript-024",
+            "transcript-025",
+            "transcript-026",
+            "transcript-027",
+            "transcript-028",
+            "transcript-029",
+            "transcript-030",
+            "transcript-031",
+            "transcript-032",
+            "transcript-033"
+          ]
+        },
+        {
+          "id": "video-transcript-003",
+          "type": "paragraph",
+          "text": "只能通过消息来传，这中间就会丢信息，会有奇异，业界公认，交接点上的上下文断裂，是多Agent的最常见的失败原因，所以面试官想看的是，你知不知道通信不是随便发消息，而是要选对通信模式，订好消息结构，管住全局状态",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 49.8,
+          "endSeconds": 65.4,
+          "segmentIds": [
+            "transcript-034",
+            "transcript-035",
+            "transcript-036",
+            "transcript-037",
+            "transcript-038",
+            "transcript-039",
+            "transcript-040",
+            "transcript-041",
+            "transcript-042",
+            "transcript-043",
+            "transcript-044"
+          ]
+        },
+        {
+          "id": "video-transcript-004",
+          "type": "paragraph",
+          "text": "一句话给你总答案，多Agent通信的设计，核心就三件事，选对通信脱铺，订好消息契约，管好共享状态，通信脱铺决定谁跟谁说话，消息契约决定说的话长什么样，不能随便发一段自然语言，共享状态决定大家怎么看到，统一份真相，把这三件事订清楚，通信才不会乱",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 65.4,
+          "endSeconds": 84.7,
+          "segmentIds": [
+            "transcript-045",
+            "transcript-046",
+            "transcript-047",
+            "transcript-048",
+            "transcript-049",
+            "transcript-050",
+            "transcript-051",
+            "transcript-052",
+            "transcript-053",
+            "transcript-054",
+            "transcript-055",
+            "transcript-056",
+            "transcript-057"
+          ]
+        },
+        {
+          "id": "video-transcript-005",
+          "type": "paragraph",
+          "text": "先说通信脱铺，也就是谁跟谁通信，最主流最好控制的是，主管家执行者这种中心化模式，一个主Agent，居中调度，所有紫Agent只跟主Agent通信，紫Agent之间不直接对话，主Agent负责拆任务，分发，收集结果，汇总，这种模式的好处是通信路径清晰，全局状态有主Agent的统一维护，不容易乱，另一种是让Agent之间，直接互相传递，类似接理交接，谁处理完了就把活交给下一个",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 84.7,
+          "endSeconds": 109.9,
+          "segmentIds": [
+            "transcript-058",
+            "transcript-059",
+            "transcript-060",
+            "transcript-061",
+            "transcript-062",
+            "transcript-063",
+            "transcript-064",
+            "transcript-065",
+            "transcript-066",
+            "transcript-067",
+            "transcript-068",
+            "transcript-069",
+            "transcript-070",
+            "transcript-071",
+            "transcript-072",
+            "transcript-073",
+            "transcript-074",
+            "transcript-075",
+            "transcript-076"
+          ]
+        },
+        {
+          "id": "video-transcript-006",
+          "type": "paragraph",
+          "text": "这种更灵活，但也更容易在交接点上出问题，真实项目里除非你有很强的理由，一般优先选中心化的编排模式，因为它可控好调试好观测",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 109.9,
+          "endSeconds": 119.2,
+          "segmentIds": [
+            "transcript-077",
+            "transcript-078",
+            "transcript-079",
+            "transcript-080",
+            "transcript-081"
+          ]
+        },
+        {
+          "id": "video-transcript-007",
+          "type": "paragraph",
+          "text": "再说消息契约，这是最容易被忽略，但最关键的一环，Agent，之间千万别用大白话自由交流，一个Agent的发移大段自然语言，另一个Agent去理解，这中间的起义和信息丢失，是灾难性的，正确做法，是用结构化的消息格式，把每一次交互，该带的东西固定下来，比如这个子人物的目标是什么，期望的输出格式是什么，可以用哪些工具，边界在哪，上一步的结果是什么，你可以理解成，给Agent之间定一份接口协议",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 119.2,
+          "endSeconds": 144.5,
+          "segmentIds": [
+            "transcript-082",
+            "transcript-083",
+            "transcript-084",
+            "transcript-085",
+            "transcript-086",
+            "transcript-087",
+            "transcript-088",
+            "transcript-089",
+            "transcript-090",
+            "transcript-091",
+            "transcript-092",
+            "transcript-093",
+            "transcript-094",
+            "transcript-095",
+            "transcript-096",
+            "transcript-097",
+            "transcript-098",
+            "transcript-099",
+            "transcript-100",
+            "transcript-101"
+          ]
+        },
+        {
+          "id": "video-transcript-008",
+          "type": "paragraph",
+          "text": "大家按协议说话，而不是自由发挥，这样接收方拿到的信息是确定的，可解析的，交接的时候，上下文才不容易断，Anthrope做多Agent的研究系统，给子Agent的派活的时候，就是把目标，输出格式，工具，边界这几样都讲得清清楚楚，不留模糊空间",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 144.5,
+          "endSeconds": 160.2,
+          "segmentIds": [
+            "transcript-102",
+            "transcript-103",
+            "transcript-104",
+            "transcript-105",
+            "transcript-106",
+            "transcript-107",
+            "transcript-108",
+            "transcript-109",
+            "transcript-110",
+            "transcript-111",
+            "transcript-112",
+            "transcript-113",
+            "transcript-114"
+          ]
+        },
+        {
+          "id": "video-transcript-009",
+          "type": "paragraph",
+          "text": "第三件是共享状态，解决的是怎么让所有Agent，看到同一份真相，如果每个Agent，都只揣着自己那点信息，谁也不知道别人干到哪了，协作必然乱套，常见的做法是搞一块共享的，结构化的记忆区，像一块公共黑板，Agent把关键的进度，中间结论，状态都写到这上面，需要的时候去读，而不是靠一条条消息互相追问，这样做还有个好处，子Agent返回结果的时候",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 160.2,
+          "endSeconds": 184.4,
+          "segmentIds": [
+            "transcript-115",
+            "transcript-116",
+            "transcript-117",
+            "transcript-118",
+            "transcript-119",
+            "transcript-120",
+            "transcript-121",
+            "transcript-122",
+            "transcript-123",
+            "transcript-124",
+            "transcript-125",
+            "transcript-126",
+            "transcript-127",
+            "transcript-128",
+            "transcript-129",
+            "transcript-130",
+            "transcript-131"
+          ]
+        },
+        {
+          "id": "video-transcript-010",
+          "type": "paragraph",
+          "text": "不用把一大堆啰嗦的过程，原样传回来，只需要把精简的结论，写进共享状态，主Agent去读，Agent的上下文保持干净，这块共享状态，必须由编排者统一维护，保证全局仕途一致，这是防止信息错乱的关键，给你一个面试回答模板，第一句先点本质，多Agent最容易绷的不是单个Agent，而是他们之间的通信和交接，所以通信要专门设计",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 184.4,
+          "endSeconds": 209.5,
+          "segmentIds": [
+            "transcript-132",
+            "transcript-133",
+            "transcript-134",
+            "transcript-135",
+            "transcript-136",
+            "transcript-137",
+            "transcript-138",
+            "transcript-139",
+            "transcript-140",
+            "transcript-141",
+            "transcript-142",
+            "transcript-143",
+            "transcript-144",
+            "transcript-145",
+            "transcript-146"
+          ]
+        },
+        {
+          "id": "video-transcript-011",
+          "type": "paragraph",
+          "text": "第二句讲脱铺，优先用主管加执行者的中心化模式，子Agent只跟主Agent的通信，路径清晰好控制，第三句讲消息契约，Agent之间不能用大白话自由交流，要用结构化消息，把目标 输出格式 工具 边界，上一步结果都固定下来，减少奇异和上下文断裂",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 209.5,
+          "endSeconds": 227.4,
+          "segmentIds": [
+            "transcript-147",
+            "transcript-148",
+            "transcript-149",
+            "transcript-150",
+            "transcript-151",
+            "transcript-152",
+            "transcript-153",
+            "transcript-154",
+            "transcript-155",
+            "transcript-156"
+          ]
+        },
+        {
+          "id": "video-transcript-012",
+          "type": "paragraph",
+          "text": "第四句讲共享状态，用一块统一维护的共享记忆，做公共黑板，大家读写同一份真相，子Agent只回传经检结论，省贷宽又保上下文干净",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 227.4,
+          "endSeconds": 237.4,
+          "segmentIds": [
+            "transcript-157",
+            "transcript-158",
+            "transcript-159",
+            "transcript-160",
+            "transcript-161",
+            "transcript-162"
+          ]
+        },
+        {
+          "id": "video-transcript-013",
+          "type": "paragraph",
+          "text": "最后补一句，通信全程要可观测，每次交互都能追溯，这么讲下来，面试官就知道，你是真设计过多Agent的架构的，所以你看，多Agent通信这道题，考的不是发消息，而是你会不会选拓扑，订契约管状态，记住核心，中心化编排管住路径，结构化消息管住奇异，共享状态管住全局真相，交接点不断，协作才不散，其实大模型面试最难的",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 237.4,
+          "endSeconds": 262.3,
+          "segmentIds": [
+            "transcript-163",
+            "transcript-164",
+            "transcript-165",
+            "transcript-166",
+            "transcript-167",
+            "transcript-168",
+            "transcript-169",
+            "transcript-170",
+            "transcript-171",
+            "transcript-172",
+            "transcript-173",
+            "transcript-174",
+            "transcript-175",
+            "transcript-176",
+            "transcript-177",
+            "transcript-178",
+            "transcript-179",
+            "transcript-180"
+          ]
+        },
+        {
+          "id": "video-transcript-014",
+          "type": "paragraph",
+          "text": "不是被概念，而是每一道题，你都要知道面试官，真正想考什么，应该回答到什么深度，哪些地方会继续追问，所以我把Agent RAG MCP，多Agent，这些高频工程画面试题，全部整理成了一套系统课程，不是带你被prompt，而是带你建立，如果你最近准备，AI岗位面试，或者想转Agent的开发，可以去出窗看看",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 262.3,
+          "endSeconds": 283.5,
+          "segmentIds": [
+            "transcript-181",
+            "transcript-182",
+            "transcript-183",
+            "transcript-184",
+            "transcript-185",
+            "transcript-186",
+            "transcript-187",
+            "transcript-188",
+            "transcript-189",
+            "transcript-190",
+            "transcript-191",
+            "transcript-192",
+            "transcript-193",
+            "transcript-194",
+            "transcript-195",
+            "transcript-196",
+            "transcript-197",
+            "transcript-198"
+          ]
+        },
+        {
+          "id": "visual-001",
+          "type": "paragraph",
+          "text": "三格画面聚焦防止信息错乱的关键：左为‘编排者(Orchestrator)’，强调统一维护；中为‘多Agent通信考点’，列出三个核心设计点——选拓扑、定契约、管状态；右为‘大模型工程化系统课程’界面，显示Agent/RAG/MCP/多Agent协作等关键词，并提示‘建立真正工程思维’及‘点击左下角查看’。底部文字总结：‘所以我把Agent、RAG、MCP、’，暗示课程内容涵盖这些模块。",
+          "sourceRole": "visual_summary",
+          "startSeconds": 194.233,
+          "endSeconds": 272.333
+        }
+      ]
+    },
+    "summaryCard": {
+      "text": "多Agent系统失败常因交接时上下文断裂。核心设计三件事：选对通信拓扑、定好消息契约、管好共享状态。"
+    },
+    "units": [
+      {
+        "id": "unit-1",
+        "order": 1,
+        "title": "通信拓扑：中心化编排模式",
+        "nodeLabel": "中心化编排模式",
+        "shortSummary": "主管-执行者模式，子Agent只与主Agent通信，路径清晰可控。",
+        "detailSummary": "最主流且可控的通信拓扑是中心化编排模式，即主管-执行者模式。一个主Agent居中调度，所有子Agent只与主Agent通信，子Agent之间不直接对话。主Agent负责拆解任务、分发、收集结果和汇总。这种模式通信路径清晰，全局状态由主Agent统一维护，不易混乱，且可观测、易调试。真实项目中除非有强理由，一般优先选择此模式。",
+        "why": "理解中心化编排模式是设计可控多Agent系统的基础，面试中体现工程思维。",
+        "sourceAnchor": {
+          "id": "anchor-unit-1",
+          "blockIds": [
+            "video-transcript-005",
+            "video-transcript-006"
+          ]
+        },
+        "overview": {
+          "text": "多Agent协作的第一步是选对通信拓扑。中心化编排模式是最主流且可控的方案：一个主Agent居中调度，所有子Agent只与主Agent通信。这种模式路径清晰、全局状态统一，易于调试和观测。掌握它，你就掌握了多Agent系统设计的基石。"
+        },
+        "questions": [
+          {
+            "id": "q-unit-1-001",
+            "type": "multiple_choice",
+            "stem": "中心化编排模式中，子Agent之间如何通信？",
+            "options": [
+              {
+                "id": "A",
+                "text": "子Agent通过消息队列通信"
+              },
+              {
+                "id": "B",
+                "text": "子Agent之间可以直接通信"
+              },
+              {
+                "id": "C",
+                "text": "子Agent通过共享状态通信"
+              },
+              {
+                "id": "D",
+                "text": "子Agent只与主Agent通信"
+              }
+            ],
+            "correctOptionId": "D",
+            "explanation": "中心化模式中，子Agent只与主Agent通信，不直接对话，确保路径清晰可控。",
+            "sourceAnchorId": "anchor-unit-1"
+          },
+          {
+            "id": "q-unit-1-002",
+            "type": "matching",
+            "stem": "请匹配角色与其职责",
+            "leftItems": [
+              {
+                "id": "l1",
+                "text": "主Agent"
+              },
+              {
+                "id": "l2",
+                "text": "子Agent"
+              }
+            ],
+            "rightItems": [
+              {
+                "id": "r1",
+                "text": "拆解任务、分发、汇总"
+              },
+              {
+                "id": "r2",
+                "text": "执行分配的子任务"
+              }
+            ],
+            "pairs": [
+              {
+                "leftId": "l1",
+                "rightId": "r1"
+              },
+              {
+                "leftId": "l2",
+                "rightId": "r2"
+              }
+            ],
+            "explanation": "主Agent负责调度，子Agent只执行任务，不直接通信。",
+            "sourceAnchorId": "anchor-unit-1"
+          },
+          {
+            "id": "q-unit-1-003",
+            "type": "multiple_choice",
+            "stem": "相比去中心化模式，中心化编排的主要优势是什么？",
+            "options": [
+              {
+                "id": "A",
+                "text": "系统更灵活，适应性强"
+              },
+              {
+                "id": "B",
+                "text": "不需要主Agent，减少单点"
+              },
+              {
+                "id": "C",
+                "text": "子Agent之间可以自由通信"
+              },
+              {
+                "id": "D",
+                "text": "通信路径清晰，全局状态统一维护"
+              }
+            ],
+            "correctOptionId": "D",
+            "explanation": "中心化模式通信路径清晰、全局状态统一维护，比去中心化更可控可调试。",
+            "sourceAnchorId": "anchor-unit-1"
+          },
+          {
+            "id": "q-unit-1-004",
+            "type": "multiple_choice",
+            "stem": "真实项目中，选择通信拓扑时应优先考虑什么？",
+            "options": [
+              {
+                "id": "A",
+                "text": "根据Agent数量决定"
+              },
+              {
+                "id": "B",
+                "text": "选择性能最优的模式"
+              },
+              {
+                "id": "C",
+                "text": "优先选择去中心化模式"
+              },
+              {
+                "id": "D",
+                "text": "优先选择中心化编排模式"
+              }
+            ],
+            "correctOptionId": "D",
+            "explanation": "真实项目除非有强理由，一般优先选中心化编排，因其可控、好调试、好观测。",
+            "sourceAnchorId": "anchor-unit-1"
+          }
+        ],
+        "summary": {
+          "title": "单元完成",
+          "text": "中心化编排模式通过主管-执行者结构，让通信路径清晰可控，是工程实践中的首选方案。"
+        }
+      },
+      {
+        "id": "unit-2",
+        "order": 2,
+        "title": "消息契约：结构化消息格式",
+        "nodeLabel": "结构化消息契约",
+        "shortSummary": "Agent间用结构化消息固定目标、输出格式、工具、边界等，避免歧义。",
+        "detailSummary": "消息契约是多Agent通信中最易被忽略但最关键的一环。Agent之间绝不能使用自然语言自由交流，否则会导致歧义和信息丢失。正确做法是使用结构化消息格式，将每次交互的内容固定下来，包括子任务的目标、期望输出格式、可用工具、边界条件以及上一步结果等。这相当于给Agent之间定一份接口协议，接收方获得的信息确定且可解析，交接时上下文不易断裂。Anthropic的研",
+        "why": "结构化消息契约是防止上下文断裂的核心手段，体现对通信可靠性的深入理解。",
+        "sourceAnchor": {
+          "id": "anchor-unit-2",
+          "blockIds": [
+            "video-transcript-007",
+            "video-transcript-008"
+          ]
+        },
+        "overview": {
+          "text": "Agent之间通信不能靠自然语言自由发挥，否则歧义和上下文断裂在所难免。消息契约通过结构化格式固定目标、输出、工具和边界，相当于给Agent之间定了一份接口协议。学会设计它，你的多Agent系统才能可靠交接。"
+        },
+        "questions": [
+          {
+            "id": "q-unit-2-001",
+            "type": "multiple_choice",
+            "stem": "多Agent通信中，消息契约的核心作用是什么？",
+            "options": [
+              {
+                "id": "A",
+                "text": "用结构化格式固定交互内容，避免歧义"
+              },
+              {
+                "id": "B",
+                "text": "减少Agent之间的通信次数，提升效率"
+              },
+              {
+                "id": "C",
+                "text": "让Agent用自然语言自由交流，更灵活"
+              },
+              {
+                "id": "D",
+                "text": "统一Agent使用的编程语言和框架"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "消息契约用结构化格式固定交互内容，确保信息确定可解析，避免自然语言歧义导致上下文断裂。",
+            "sourceAnchorId": "anchor-unit-2"
+          },
+          {
+            "id": "q-unit-2-002",
+            "type": "matching",
+            "stem": "请匹配消息契约中的字段与其作用",
+            "leftItems": [
+              {
+                "id": "l1",
+                "text": "子任务目标"
+              },
+              {
+                "id": "l2",
+                "text": "期望输出格式"
+              },
+              {
+                "id": "l3",
+                "text": "可用工具"
+              },
+              {
+                "id": "l4",
+                "text": "边界条件"
+              }
+            ],
+            "rightItems": [
+              {
+                "id": "r1",
+                "text": "明确要完成什么"
+              },
+              {
+                "id": "r2",
+                "text": "规定返回数据结构"
+              },
+              {
+                "id": "r3",
+                "text": "限定可调用的资源"
+              },
+              {
+                "id": "r4",
+                "text": "划定操作范围"
+              }
+            ],
+            "pairs": [
+              {
+                "leftId": "l1",
+                "rightId": "r1"
+              },
+              {
+                "leftId": "l2",
+                "rightId": "r2"
+              },
+              {
+                "leftId": "l3",
+                "rightId": "r3"
+              },
+              {
+                "leftId": "l4",
+                "rightId": "r4"
+              }
+            ],
+            "explanation": "消息契约通过固定目标、输出格式、工具和边界，确保Agent间通信确定可解析。",
+            "sourceAnchorId": "anchor-unit-2"
+          },
+          {
+            "id": "q-unit-2-003",
+            "type": "multiple_choice",
+            "stem": "在简单任务场景中，Agent之间使用自然语言通信会怎样？",
+            "options": [
+              {
+                "id": "A",
+                "text": "简单场景下自然语言通信完全可行"
+              },
+              {
+                "id": "B",
+                "text": "自然语言通信比结构化更高效"
+              },
+              {
+                "id": "C",
+                "text": "自然语言通信可能导致歧义和信息丢失"
+              },
+              {
+                "id": "D",
+                "text": "简单场景只需少量通信，无需结构化"
+              }
+            ],
+            "correctOptionId": "C",
+            "explanation": "自然语言通信即使简单场景也可能产生歧义和信息丢失，结构化消息才能保证信息确定可解析。",
+            "sourceAnchorId": "anchor-unit-2"
+          }
+        ],
+        "summary": {
+          "title": "单元完成",
+          "text": "结构化消息契约是防止上下文断裂的核心手段，它让Agent间的每一次交互都确定且可解析。"
+        }
+      },
+      {
+        "id": "unit-3",
+        "order": 3,
+        "title": "共享状态：统一维护的公共黑板",
+        "nodeLabel": "共享状态管理",
+        "shortSummary": "通过共享结构化记忆区，所有Agent读写同一份真相，保持上下文干净。",
+        "detailSummary": "共享状态解决如何让所有Agent看到同一份真相的问题。常见做法是设置一块共享的结构化记忆区，类似公共黑板，Agent将关键进度、中间结论和状态写入其中，需要时读取，而非靠消息互相追问。子Agent返回结果时只需将精简结论写入共享状态，主Agent读取，从而保持Agent上下文干净。共享状态必须由编排者统一维护，保证全局视图一致，防止信息错乱。",
+        "why": "共享状态确保协作一致性，是防止信息错乱的关键设计，体现全局视角。",
+        "sourceAnchor": {
+          "id": "anchor-unit-3",
+          "blockIds": [
+            "video-transcript-009",
+            "video-transcript-010"
+          ]
+        },
+        "overview": {
+          "text": "多个Agent协作时，如何让它们看到同一份真相？共享状态管理通过公共黑板机制，让所有Agent读写统一的结构化记忆区，保持上下文干净。子Agent只需写入精简结论，主Agent统一维护全局视图。这是防止信息错乱的关键设计。"
+        },
+        "questions": [
+          {
+            "id": "q-unit-3-001",
+            "type": "multiple_choice",
+            "stem": "共享状态的主要作用是什么？",
+            "options": [
+              {
+                "id": "A",
+                "text": "让所有Agent看到同一份真相"
+              },
+              {
+                "id": "B",
+                "text": "让每个Agent维护自己的状态"
+              },
+              {
+                "id": "C",
+                "text": "替代Agent之间的消息传递"
+              },
+              {
+                "id": "D",
+                "text": "减少Agent数量以简化协作"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "共享状态是保持同一真相的结构化记忆区，而非替代消息传递，两者协同工作。",
+            "sourceAnchorId": "anchor-unit-3"
+          },
+          {
+            "id": "q-unit-3-002",
+            "type": "multiple_choice",
+            "stem": "在公共黑板模式中，Agent如何获取其他Agent的进度？",
+            "options": [
+              {
+                "id": "A",
+                "text": "从共享状态中读取写入的进度"
+              },
+              {
+                "id": "B",
+                "text": "通过消息逐一询问其他Agent"
+              },
+              {
+                "id": "C",
+                "text": "由编排者主动推送进度给所有Agent"
+              },
+              {
+                "id": "D",
+                "text": "直接读取其他Agent的私有状态"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "Agent将进度写入共享状态，其他Agent读取，而非直接访问私有状态或依赖消息追问。",
+            "sourceAnchorId": "anchor-unit-3"
+          },
+          {
+            "id": "q-unit-3-003",
+            "type": "matching",
+            "stem": "匹配共享状态与消息传递的适用时机",
+            "leftItems": [
+              {
+                "id": "l1",
+                "text": "共享状态"
+              },
+              {
+                "id": "l2",
+                "text": "消息传递"
+              }
+            ],
+            "rightItems": [
+              {
+                "id": "r1",
+                "text": "需要所有Agent看到同一份真相"
+              },
+              {
+                "id": "r2",
+                "text": "需要传递具体指令或结果"
+              }
+            ],
+            "pairs": [
+              {
+                "leftId": "l1",
+                "rightId": "r1"
+              },
+              {
+                "leftId": "l2",
+                "rightId": "r2"
+              }
+            ],
+            "explanation": "共享状态用于全局一致性，消息传递用于定向通信。",
+            "sourceAnchorId": "anchor-unit-3"
+          },
+          {
+            "id": "q-unit-3-004",
+            "type": "matching",
+            "stem": "匹配Agent角色与共享状态中的职责",
+            "leftItems": [
+              {
+                "id": "l1",
+                "text": "子Agent"
+              },
+              {
+                "id": "l2",
+                "text": "主Agent"
+              },
+              {
+                "id": "l3",
+                "text": "编排者"
+              }
+            ],
+            "rightItems": [
+              {
+                "id": "r1",
+                "text": "写入精简结论"
+              },
+              {
+                "id": "r2",
+                "text": "读取共享状态"
+              },
+              {
+                "id": "r3",
+                "text": "统一维护共享状态"
+              }
+            ],
+            "pairs": [
+              {
+                "leftId": "l1",
+                "rightId": "r1"
+              },
+              {
+                "leftId": "l2",
+                "rightId": "r2"
+              },
+              {
+                "leftId": "l3",
+                "rightId": "r3"
+              }
+            ],
+            "explanation": "子Agent写结论，主Agent读状态，编排者维护全局一致。",
+            "sourceAnchorId": "anchor-unit-3"
+          }
+        ],
+        "summary": {
+          "title": "单元完成",
+          "text": "共享状态由编排者统一维护，确保所有Agent基于同一份真相协作，是保持系统一致性的核心。"
+        }
+      }
+    ],
+    "chapterSummary": {
+      "title": "章节完成",
+      "statsText": "共 3 个核心知识点，11 道题目",
+      "encouragementText": "掌握拓扑、契约、状态三要素，你已具备设计可靠多Agent通信的工程思维，面试中脱颖而出！"
+    },
+    "generationMeta": {
+      "currentStage": "completed",
+      "sourceContextStats": {
+        "fullBlockCount": 16,
+        "unitKnowledgeMap": {
+          "mode": "plan_union_window",
+          "selectedBlockCount": 8,
+          "selectedBlockIds": [
+            "video-transcript-004",
+            "video-transcript-005",
+            "video-transcript-006",
+            "video-transcript-007",
+            "video-transcript-008",
+            "video-transcript-009",
+            "video-transcript-010",
+            "video-transcript-011"
+          ],
+          "fallbackUsed": false
+        },
+        "unitWindows": [
+          {
+            "unitId": "unit-1",
+            "anchorId": "anchor-unit-1",
+            "anchorBlockIds": [
+              "video-transcript-005",
+              "video-transcript-006"
+            ],
+            "selectedBlockCount": 4,
+            "selectedBlockIds": [
+              "video-transcript-004",
+              "video-transcript-005",
+              "video-transcript-006",
+              "video-transcript-007"
+            ],
+            "fallbackUsed": false
+          },
+          {
+            "unitId": "unit-2",
+            "anchorId": "anchor-unit-2",
+            "anchorBlockIds": [
+              "video-transcript-007",
+              "video-transcript-008"
+            ],
+            "selectedBlockCount": 4,
+            "selectedBlockIds": [
+              "video-transcript-006",
+              "video-transcript-007",
+              "video-transcript-008",
+              "video-transcript-009"
+            ],
+            "fallbackUsed": false
+          },
+          {
+            "unitId": "unit-3",
+            "anchorId": "anchor-unit-3",
+            "anchorBlockIds": [
+              "video-transcript-009",
+              "video-transcript-010"
+            ],
+            "selectedBlockCount": 4,
+            "selectedBlockIds": [
+              "video-transcript-008",
+              "video-transcript-009",
+              "video-transcript-010",
+              "video-transcript-011"
+            ],
+            "fallbackUsed": false
+          }
+        ]
+      },
+      "stageRuntime": {
+        "schemaVersion": "v2_stage_runtime_1",
+        "callCount": 14,
+        "attemptCount": 14,
+        "failedAttemptCount": 0,
+        "retryAttemptCount": 0,
+        "stages": [
+          {
+            "stage": "v2_reviewPathPlan",
+            "callCount": 1,
+            "successCallCount": 1,
+            "failedCallCount": 0,
+            "attemptCount": 1,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 7545,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_unitKnowledgeMap",
+            "callCount": 3,
+            "successCallCount": 3,
+            "failedCallCount": 0,
+            "attemptCount": 3,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 10630,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_taskBriefPlan",
+            "callCount": 3,
+            "successCallCount": 3,
+            "failedCallCount": 0,
+            "attemptCount": 3,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 9948,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_multipleChoiceDraftUnitBatch",
+            "callCount": 3,
+            "successCallCount": 3,
+            "failedCallCount": 0,
+            "attemptCount": 3,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 14998,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_matchingDraft",
+            "callCount": 3,
+            "successCallCount": 3,
+            "failedCallCount": 0,
+            "attemptCount": 3,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 9250,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_unitCopyBatch",
+            "callCount": 1,
+            "successCallCount": 1,
+            "failedCallCount": 0,
+            "attemptCount": 1,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 4571,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          }
+        ],
+        "attempts": [
+          {
+            "callId": "reviewPathPlan-1",
+            "stage": "v2_reviewPathPlan",
+            "modelStage": "reviewPathPlan",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 7545,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "unitKnowledgeMap-2",
+            "stage": "v2_unitKnowledgeMap",
+            "modelStage": "unitKnowledgeMap",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3677,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "unitKnowledgeMap-3",
+            "stage": "v2_unitKnowledgeMap",
+            "modelStage": "unitKnowledgeMap",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3624,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "unitKnowledgeMap-4",
+            "stage": "v2_unitKnowledgeMap",
+            "modelStage": "unitKnowledgeMap",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3329,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "taskBriefPlan-5",
+            "stage": "v2_taskBriefPlan",
+            "modelStage": "taskBriefPlan",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3290,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "taskBriefPlan-6",
+            "stage": "v2_taskBriefPlan",
+            "modelStage": "taskBriefPlan",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3164,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "taskBriefPlan-7",
+            "stage": "v2_taskBriefPlan",
+            "modelStage": "taskBriefPlan",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3494,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "multipleChoiceDraftUnitBatch-8",
+            "stage": "v2_multipleChoiceDraftUnitBatch",
+            "modelStage": "multipleChoiceDraftUnitBatch",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 6130,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "multipleChoiceDraftUnitBatch-9",
+            "stage": "v2_multipleChoiceDraftUnitBatch",
+            "modelStage": "multipleChoiceDraftUnitBatch",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 4975,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "multipleChoiceDraftUnitBatch-10",
+            "stage": "v2_multipleChoiceDraftUnitBatch",
+            "modelStage": "multipleChoiceDraftUnitBatch",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3893,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "matchingDraft-11",
+            "stage": "v2_matchingDraft",
+            "modelStage": "matchingDraft",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 2491,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "matchingDraft-12",
+            "stage": "v2_matchingDraft",
+            "modelStage": "matchingDraft",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 2924,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "matchingDraft-13",
+            "stage": "v2_matchingDraft",
+            "modelStage": "matchingDraft",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3835,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "unitCopyBatch-14",
+            "stage": "v2_unitCopyBatch",
+            "modelStage": "unitCopyBatch",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 4571,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          }
+        ]
+      },
+      "stages": [
+        {
+          "status": "sourceMap",
+          "displayStatusText": "正在提取正文",
+          "at": "2026-07-08T16:24:25.941Z"
+        },
+        {
+          "status": "reviewPathPlan",
+          "displayStatusText": "正在生成知识点",
+          "at": "2026-07-08T16:24:25.941Z"
+        },
+        {
+          "status": "unitKnowledgeMap",
+          "displayStatusText": "正在拆解知识点",
+          "at": "2026-07-08T16:24:25.941Z"
+        },
+        {
+          "status": "taskBriefPlan",
+          "displayStatusText": "正在规划练习",
+          "at": "2026-07-08T16:24:25.941Z"
+        },
+        {
+          "status": "multipleChoiceDraftUnitBatch",
+          "displayStatusText": "正在生成选择题",
+          "at": "2026-07-08T16:24:25.941Z"
+        },
+        {
+          "status": "matchingDraft",
+          "displayStatusText": "正在生成连线题",
+          "at": "2026-07-08T16:24:25.941Z"
+        },
+        {
+          "status": "unitCopyBatch",
+          "displayStatusText": "正在生成单元文案",
+          "at": "2026-07-08T16:24:25.941Z"
+        }
+      ],
+      "reviewPathPlan": {
+        "title": "多Agent协作通信设计",
+        "summaryCard": {
+          "text": "多Agent系统失败常因交接时上下文断裂。核心设计三件事：选对通信拓扑、定好消息契约、管好共享状态。"
+        },
+        "units": [
+          {
+            "id": "unit-1",
+            "order": 1,
+            "title": "通信拓扑：中心化编排模式",
+            "nodeLabel": "中心化编排模式",
+            "sourceAnchor": {
+              "id": "anchor-unit-1",
+              "blockIds": [
+                "video-transcript-005",
+                "video-transcript-006"
+              ]
+            }
+          },
+          {
+            "id": "unit-2",
+            "order": 2,
+            "title": "消息契约：结构化消息格式",
+            "nodeLabel": "结构化消息契约",
+            "sourceAnchor": {
+              "id": "anchor-unit-2",
+              "blockIds": [
+                "video-transcript-007",
+                "video-transcript-008"
+              ]
+            }
+          },
+          {
+            "id": "unit-3",
+            "order": 3,
+            "title": "共享状态：统一维护的公共黑板",
+            "nodeLabel": "共享状态管理",
+            "sourceAnchor": {
+              "id": "anchor-unit-3",
+              "blockIds": [
+                "video-transcript-009",
+                "video-transcript-010"
+              ]
+            }
+          }
+        ],
+        "chapterSummary": {
+          "encouragementText": "掌握拓扑、契约、状态三要素，你已具备设计可靠多Agent通信的工程思维，面试中脱颖而出！"
+        }
+      },
+      "unitKnowledgeMap": {
+        "units": [
+          {
+            "unitId": "unit-1",
+            "microKnowledgePoints": [
+              {
+                "microId": "micro-unit-1-001",
+                "title": "中心化编排模式定义",
+                "summary": "主管-执行者模式，子Agent只与主Agent通信",
+                "role": "definition",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "模式识别与定义"
+              },
+              {
+                "microId": "micro-unit-1-002",
+                "title": "主Agent职责",
+                "summary": "主Agent负责拆解任务、分发、收集结果和汇总",
+                "role": "process_step",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "职责分解与流程"
+              },
+              {
+                "microId": "micro-unit-1-003",
+                "title": "中心化模式优势",
+                "summary": "通信路径清晰，全局状态统一维护，不易混乱",
+                "role": "mechanism",
+                "assessmentValue": "medium",
+                "primaryEvidenceAngle": "优势分析与比较"
+              },
+              {
+                "microId": "micro-unit-1-004",
+                "title": "中心化 vs 去中心化",
+                "summary": "中心化可控可调试，去中心化灵活但易出问题",
+                "role": "boundary",
+                "assessmentValue": "medium",
+                "primaryEvidenceAngle": "模式对比与选择"
+              },
+              {
+                "microId": "micro-unit-1-005",
+                "title": "工程实践优先选择",
+                "summary": "真实项目除非有强理由，一般优先选中心化编排",
+                "role": "scenario_application",
+                "assessmentValue": "low",
+                "primaryEvidenceAngle": "工程决策原则"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-2",
+            "microKnowledgePoints": [
+              {
+                "microId": "micro-unit-2-001",
+                "title": "结构化消息契约定义",
+                "summary": "Agent间使用结构化消息格式固定交互内容，避免自然语言歧义",
+                "role": "definition",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "理解结构化消息契约概念"
+              },
+              {
+                "microId": "micro-unit-2-002",
+                "title": "消息契约包含的字段",
+                "summary": "目标、输出格式、工具、边界、上一步结果等固定字段",
+                "role": "model_layer",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "识别消息契约组成要素"
+              },
+              {
+                "microId": "micro-unit-2-003",
+                "title": "自然语言通信的弊端",
+                "summary": "自然语言自由交流导致歧义和信息丢失，是灾难性的",
+                "role": "misconception",
+                "assessmentValue": "medium",
+                "primaryEvidenceAngle": "对比自然语言与结构化通信"
+              },
+              {
+                "microId": "micro-unit-2-004",
+                "title": "消息契约的作用机制",
+                "summary": "接收方获得确定可解析信息，上下文不易断裂",
+                "role": "mechanism",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "理解消息契约如何保证通信可靠性"
+              },
+              {
+                "microId": "micro-unit-2-005",
+                "title": "Anthropic实践案例",
+                "summary": "Anthropic给子Agent派活时明确目标、输出格式、工具、边界",
+                "role": "example_case",
+                "assessmentValue": "medium",
+                "primaryEvidenceAngle": "引用Anthropic案例说明消"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-3",
+            "microKnowledgePoints": [
+              {
+                "microId": "micro-unit-3-001",
+                "title": "共享状态定义与作用",
+                "summary": "共享状态是Agent间保持同一真相的结构化记忆区",
+                "role": "definition",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "概念理解"
+              },
+              {
+                "microId": "micro-unit-3-002",
+                "title": "公共黑板模式",
+                "summary": "Agent将关键进度、中间结论写入共享状态，需要时读取",
+                "role": "mechanism",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "机制描述"
+              },
+              {
+                "microId": "micro-unit-3-003",
+                "title": "共享状态 vs 消息传递",
+                "summary": "共享状态避免Agent间互相追问，减少上下文断裂",
+                "role": "relationship",
+                "assessmentValue": "medium",
+                "primaryEvidenceAngle": "对比分析"
+              },
+              {
+                "microId": "micro-unit-3-004",
+                "title": "子Agent结果精简写入",
+                "summary": "子Agent只写精简结论，主Agent读取，保持上下文干净",
+                "role": "process_step",
+                "assessmentValue": "medium",
+                "primaryEvidenceAngle": "流程步骤"
+              },
+              {
+                "microId": "micro-unit-3-005",
+                "title": "编排者统一维护",
+                "summary": "共享状态由编排者统一维护，保证全局视图一致",
+                "role": "boundary",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "职责边界"
+              }
+            ]
+          }
+        ]
+      },
+      "taskBriefPlan": {
+        "units": [
+          {
+            "unitId": "unit-1",
+            "practiceGoals": [
+              {
+                "kind": "core_understanding",
+                "target": "理解中心化编排模式的定义和结构",
+                "commonMisconception": "误以为子Agent之间可以直接通信",
+                "microIds": [
+                  "micro-unit-1-001",
+                  "micro-unit-1-002"
+                ],
+                "id": "goal-unit-1-001",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "kind": "boundary_clarification",
+                "target": "区分中心化与去中心化模式的适用场景",
+                "commonMisconception": "认为去中心化总是更好",
+                "microIds": [
+                  "micro-unit-1-003",
+                  "micro-unit-1-004"
+                ],
+                "id": "goal-unit-1-002",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "kind": "scenario_application",
+                "target": "在工程实践中优先选择中心化编排",
+                "commonMisconception": "忽略可观测性和调试成本",
+                "microIds": [
+                  "micro-unit-1-005"
+                ],
+                "id": "goal-unit-1-003",
+                "sourceAnchorId": "anchor-unit-1"
+              }
+            ],
+            "questionPlans": [
+              {
+                "type": "multiple_choice",
+                "purpose": "light_understanding",
+                "goalIndex": 1,
+                "microIds": [
+                  "micro-unit-1-001"
+                ],
+                "id": "q-unit-1-001",
+                "practiceGoalId": "goal-unit-1-001",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "type": "matching",
+                "purpose": "role_responsibility_matching",
+                "goalIndex": 1,
+                "relationType": "responsibility",
+                "microIds": [
+                  "micro-unit-1-001",
+                  "micro-unit-1-002"
+                ],
+                "id": "q-unit-1-002",
+                "practiceGoalId": "goal-unit-1-001",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "type": "multiple_choice",
+                "purpose": "boundary_clarification",
+                "goalIndex": 2,
+                "microIds": [
+                  "micro-unit-1-003",
+                  "micro-unit-1-004"
+                ],
+                "id": "q-unit-1-003",
+                "practiceGoalId": "goal-unit-1-002",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "type": "multiple_choice",
+                "purpose": "scenario_application",
+                "goalIndex": 3,
+                "microIds": [
+                  "micro-unit-1-005"
+                ],
+                "id": "q-unit-1-004",
+                "practiceGoalId": "goal-unit-1-003",
+                "sourceAnchorId": "anchor-unit-1"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-2",
+            "practiceGoals": [
+              {
+                "kind": "core_understanding",
+                "target": "理解结构化消息契约的定义与作用",
+                "commonMisconception": "认为自然语言交流更灵活，忽略歧义风险",
+                "microIds": [
+                  "micro-unit-2-001",
+                  "micro-unit-2-004"
+                ],
+                "id": "goal-unit-2-001",
+                "sourceAnchorId": "anchor-unit-2"
+              },
+              {
+                "kind": "relationship_mapping",
+                "target": "掌握消息契约包含的字段及其意义",
+                "commonMisconception": "混淆字段与Agent内部状态",
+                "microIds": [
+                  "micro-unit-2-002"
+                ],
+                "id": "goal-unit-2-002",
+                "sourceAnchorId": "anchor-unit-2"
+              },
+              {
+                "kind": "scenario_application",
+                "target": "能识别自然语言通信的弊端并对比结构化通信",
+                "commonMisconception": "认为自然语言在简单场景下无问题",
+                "microIds": [
+                  "micro-unit-2-003",
+                  "micro-unit-2-005"
+                ],
+                "id": "goal-unit-2-003",
+                "sourceAnchorId": "anchor-unit-2"
+              }
+            ],
+            "questionPlans": [
+              {
+                "type": "multiple_choice",
+                "purpose": "light_understanding",
+                "goalIndex": 1,
+                "microIds": [
+                  "micro-unit-2-001",
+                  "micro-unit-2-004"
+                ],
+                "id": "q-unit-2-001",
+                "practiceGoalId": "goal-unit-2-001",
+                "sourceAnchorId": "anchor-unit-2"
+              },
+              {
+                "type": "matching",
+                "purpose": "layer_role_matching",
+                "goalIndex": 2,
+                "relationType": "responsibility",
+                "microIds": [
+                  "micro-unit-2-002"
+                ],
+                "id": "q-unit-2-002",
+                "practiceGoalId": "goal-unit-2-002",
+                "sourceAnchorId": "anchor-unit-2"
+              },
+              {
+                "type": "multiple_choice",
+                "purpose": "scenario_application",
+                "goalIndex": 3,
+                "microIds": [
+                  "micro-unit-2-003",
+                  "micro-unit-2-005"
+                ],
+                "id": "q-unit-2-003",
+                "practiceGoalId": "goal-unit-2-003",
+                "sourceAnchorId": "anchor-unit-2"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-3",
+            "practiceGoals": [
+              {
+                "kind": "core_understanding",
+                "target": "理解共享状态的定义与作用",
+                "commonMisconception": "误以为共享状态是消息传递的替代",
+                "microIds": [
+                  "micro-unit-3-001"
+                ],
+                "id": "goal-unit-3-001",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "kind": "scenario_application",
+                "target": "掌握公共黑板模式的读写机制",
+                "commonMisconception": "认为Agent直接读取其他Agent的私有状态",
+                "microIds": [
+                  "micro-unit-3-002"
+                ],
+                "id": "goal-unit-3-002",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "kind": "relationship_mapping",
+                "target": "区分共享状态与消息传递的适用场景",
+                "commonMisconception": "认为两者可以完全互换",
+                "microIds": [
+                  "micro-unit-3-003"
+                ],
+                "id": "goal-unit-3-003",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "kind": "boundary_clarification",
+                "target": "明确子Agent与主Agent在共享状态中的职责",
+                "commonMisconception": "子Agent应返回完整过程而非精简结论",
+                "microIds": [
+                  "micro-unit-3-004",
+                  "micro-unit-3-005"
+                ],
+                "id": "goal-unit-3-004",
+                "sourceAnchorId": "anchor-unit-3"
+              }
+            ],
+            "questionPlans": [
+              {
+                "type": "multiple_choice",
+                "purpose": "light_understanding",
+                "goalIndex": 1,
+                "microIds": [
+                  "micro-unit-3-001"
+                ],
+                "id": "q-unit-3-001",
+                "practiceGoalId": "goal-unit-3-001",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "type": "multiple_choice",
+                "purpose": "scenario_application",
+                "goalIndex": 2,
+                "microIds": [
+                  "micro-unit-3-002"
+                ],
+                "id": "q-unit-3-002",
+                "practiceGoalId": "goal-unit-3-002",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "type": "matching",
+                "purpose": "relationship_matching",
+                "goalIndex": 3,
+                "relationType": "usage_timing",
+                "microIds": [
+                  "micro-unit-3-003"
+                ],
+                "id": "q-unit-3-003",
+                "practiceGoalId": "goal-unit-3-003",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "type": "matching",
+                "purpose": "role_responsibility_matching",
+                "goalIndex": 4,
+                "relationType": "responsibility",
+                "microIds": [
+                  "micro-unit-3-004",
+                  "micro-unit-3-005"
+                ],
+                "id": "q-unit-3-004",
+                "practiceGoalId": "goal-unit-3-004",
+                "sourceAnchorId": "anchor-unit-3"
+              }
+            ]
+          }
+        ]
+      },
+      "multipleChoiceDraftBatch": {
+        "units": [
+          {
+            "unitId": "unit-1",
+            "questions": [
+              {
+                "id": "q-unit-1-001",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-1-001",
+                "stem": "中心化编排模式中，子Agent之间如何通信？",
+                "correctUnderstanding": "子Agent只与主Agent通信，不直接对话。",
+                "misconception": "误以为子Agent之间可以直接通信。",
+                "distractorRationale": "干扰项体现子Agent直接通信的错误理解。",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "子Agent之间可以直接通信"
+                  },
+                  {
+                    "id": "B",
+                    "text": "子Agent只与主Agent通信"
+                  },
+                  {
+                    "id": "C",
+                    "text": "子Agent通过共享状态通信"
+                  },
+                  {
+                    "id": "D",
+                    "text": "子Agent通过消息队列通信"
+                  }
+                ],
+                "correctOptionId": "B",
+                "explanation": "中心化模式中，子Agent只与主Agent通信，不直接对话，确保路径清晰可控。",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "id": "q-unit-1-003",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-1-002",
+                "stem": "相比去中心化模式，中心化编排的主要优势是什么？",
+                "correctUnderstanding": "通信路径清晰，全局状态统一维护，不易混乱。",
+                "misconception": "认为去中心化总是更好。",
+                "distractorRationale": "干扰项强调去中心化的灵活性，忽略可控性。",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "通信路径清晰，全局状态统一维护"
+                  },
+                  {
+                    "id": "B",
+                    "text": "子Agent之间可以自由通信"
+                  },
+                  {
+                    "id": "C",
+                    "text": "系统更灵活，适应性强"
+                  },
+                  {
+                    "id": "D",
+                    "text": "不需要主Agent，减少单点"
+                  }
+                ],
+                "correctOptionId": "A",
+                "explanation": "中心化模式通信路径清晰、全局状态统一维护，比去中心化更可控可调试。",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "id": "q-unit-1-004",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-1-003",
+                "stem": "真实项目中，选择通信拓扑时应优先考虑什么？",
+                "correctUnderstanding": "除非有强理由，一般优先选中心化编排。",
+                "misconception": "忽略可观测性和调试成本。",
+                "distractorRationale": "干扰项强调灵活性或性能，忽略可控性。",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "优先选择中心化编排模式"
+                  },
+                  {
+                    "id": "B",
+                    "text": "优先选择去中心化模式"
+                  },
+                  {
+                    "id": "C",
+                    "text": "根据Agent数量决定"
+                  },
+                  {
+                    "id": "D",
+                    "text": "选择性能最优的模式"
+                  }
+                ],
+                "correctOptionId": "A",
+                "explanation": "真实项目除非有强理由，一般优先选中心化编排，因其可控、好调试、好观测。",
+                "sourceAnchorId": "anchor-unit-1"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-2",
+            "questions": [
+              {
+                "id": "q-unit-2-001",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-2-001",
+                "stem": "多Agent通信中，消息契约的核心作用是什么？",
+                "correctUnderstanding": "消息契约通过结构化消息格式固定交互内容，确保信息确定可解析，避免歧义和上下文断裂。",
+                "misconception": "认为自然语言交流更灵活，忽略歧义风险。",
+                "distractorRationale": "干扰项利用对灵活性的偏好，混淆了灵活性与可靠性。",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "让Agent用自然语言自由交流，更灵活"
+                  },
+                  {
+                    "id": "B",
+                    "text": "用结构化格式固定交互内容，避免歧义"
+                  },
+                  {
+                    "id": "C",
+                    "text": "减少Agent之间的通信次数，提升效率"
+                  },
+                  {
+                    "id": "D",
+                    "text": "统一Agent使用的编程语言和框架"
+                  }
+                ],
+                "correctOptionId": "B",
+                "explanation": "消息契约用结构化格式固定交互内容，确保信息确定可解析，避免自然语言歧义导致上下文断裂。",
+                "sourceAnchorId": "anchor-unit-2"
+              },
+              {
+                "id": "q-unit-2-003",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-2-003",
+                "stem": "在简单任务场景中，Agent之间使用自然语言通信会怎样？",
+                "correctUnderstanding": "即使简单场景，自然语言也可能导致歧义和信息丢失，应使用结构化消息。",
+                "misconception": "认为自然语言在简单场景下无问题。",
+                "distractorRationale": "干扰项利用对简单场景的轻视，混淆了场景复杂度与通信可靠性。",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "简单场景下自然语言通信完全可行"
+                  },
+                  {
+                    "id": "B",
+                    "text": "自然语言通信可能导致歧义和信息丢失"
+                  },
+                  {
+                    "id": "C",
+                    "text": "简单场景只需少量通信，无需结构化"
+                  },
+                  {
+                    "id": "D",
+                    "text": "自然语言通信比结构化更高效"
+                  }
+                ],
+                "correctOptionId": "B",
+                "explanation": "自然语言通信即使简单场景也可能产生歧义和信息丢失，结构化消息才能保证信息确定可解析。",
+                "sourceAnchorId": "anchor-unit-2"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-3",
+            "questions": [
+              {
+                "id": "q-unit-3-001",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-3-001",
+                "stem": "共享状态的主要作用是什么？",
+                "correctUnderstanding": "共享状态让所有Agent看到同一份真相，保持上下文干净。",
+                "misconception": "误以为共享状态是消息传递的替代。",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "让所有Agent看到同一份真相"
+                  },
+                  {
+                    "id": "B",
+                    "text": "替代Agent之间的消息传递"
+                  },
+                  {
+                    "id": "C",
+                    "text": "让每个Agent维护自己的状态"
+                  },
+                  {
+                    "id": "D",
+                    "text": "减少Agent数量以简化协作"
+                  }
+                ],
+                "correctOptionId": "A",
+                "explanation": "共享状态是保持同一真相的结构化记忆区，而非替代消息传递，两者协同工作。",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "id": "q-unit-3-002",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-3-002",
+                "stem": "在公共黑板模式中，Agent如何获取其他Agent的进度？",
+                "correctUnderstanding": "Agent将关键进度写入共享状态，需要时读取。",
+                "misconception": "认为Agent直接读取其他Agent的私有状态。",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "直接读取其他Agent的私有状态"
+                  },
+                  {
+                    "id": "B",
+                    "text": "通过消息逐一询问其他Agent"
+                  },
+                  {
+                    "id": "C",
+                    "text": "从共享状态中读取写入的进度"
+                  },
+                  {
+                    "id": "D",
+                    "text": "由编排者主动推送进度给所有Agent"
+                  }
+                ],
+                "correctOptionId": "C",
+                "explanation": "Agent将进度写入共享状态，其他Agent读取，而非直接访问私有状态或依赖消息追问。",
+                "sourceAnchorId": "anchor-unit-3"
+              }
+            ]
+          }
+        ]
+      },
+      "matchingDraftBatch": {
+        "units": [
+          {
+            "unitId": "unit-1",
+            "questions": [
+              {
+                "id": "q-unit-1-002",
+                "type": "matching",
+                "practiceGoalId": "goal-unit-1-001",
+                "relationType": "responsibility",
+                "relationGoal": "匹配中心化编排模式中各角色的职责",
+                "stem": "请匹配角色与其职责",
+                "leftItems": [
+                  {
+                    "id": "l1",
+                    "text": "主Agent"
+                  },
+                  {
+                    "id": "l2",
+                    "text": "子Agent"
+                  }
+                ],
+                "rightItems": [
+                  {
+                    "id": "r1",
+                    "text": "拆解任务、分发、汇总"
+                  },
+                  {
+                    "id": "r2",
+                    "text": "执行分配的子任务"
+                  }
+                ],
+                "pairs": [
+                  {
+                    "leftId": "l1",
+                    "rightId": "r1"
+                  },
+                  {
+                    "leftId": "l2",
+                    "rightId": "r2"
+                  }
+                ],
+                "explanation": "主Agent负责调度，子Agent只执行任务，不直接通信。",
+                "sourceAnchorId": "anchor-unit-1"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-2",
+            "questions": [
+              {
+                "id": "q-unit-2-002",
+                "type": "matching",
+                "practiceGoalId": "goal-unit-2-002",
+                "relationType": "responsibility",
+                "relationGoal": "匹配消息契约中的字段与其作用",
+                "stem": "请匹配消息契约中的字段与其作用",
+                "leftItems": [
+                  {
+                    "id": "l1",
+                    "text": "子任务目标"
+                  },
+                  {
+                    "id": "l2",
+                    "text": "期望输出格式"
+                  },
+                  {
+                    "id": "l3",
+                    "text": "可用工具"
+                  },
+                  {
+                    "id": "l4",
+                    "text": "边界条件"
+                  }
+                ],
+                "rightItems": [
+                  {
+                    "id": "r1",
+                    "text": "明确要完成什么"
+                  },
+                  {
+                    "id": "r2",
+                    "text": "规定返回数据结构"
+                  },
+                  {
+                    "id": "r3",
+                    "text": "限定可调用的资源"
+                  },
+                  {
+                    "id": "r4",
+                    "text": "划定操作范围"
+                  }
+                ],
+                "pairs": [
+                  {
+                    "leftId": "l1",
+                    "rightId": "r1"
+                  },
+                  {
+                    "leftId": "l2",
+                    "rightId": "r2"
+                  },
+                  {
+                    "leftId": "l3",
+                    "rightId": "r3"
+                  },
+                  {
+                    "leftId": "l4",
+                    "rightId": "r4"
+                  }
+                ],
+                "explanation": "消息契约通过固定目标、输出格式、工具和边界，确保Agent间通信确定可解析。",
+                "sourceAnchorId": "anchor-unit-2"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-3",
+            "questions": [
+              {
+                "id": "q-unit-3-003",
+                "type": "matching",
+                "practiceGoalId": "goal-unit-3-003",
+                "relationType": "usage_timing",
+                "relationGoal": "区分共享状态与消息传递的适用场景",
+                "stem": "匹配共享状态与消息传递的适用时机",
+                "leftItems": [
+                  {
+                    "id": "l1",
+                    "text": "共享状态"
+                  },
+                  {
+                    "id": "l2",
+                    "text": "消息传递"
+                  }
+                ],
+                "rightItems": [
+                  {
+                    "id": "r1",
+                    "text": "需要所有Agent看到同一份真相"
+                  },
+                  {
+                    "id": "r2",
+                    "text": "需要传递具体指令或结果"
+                  }
+                ],
+                "pairs": [
+                  {
+                    "leftId": "l1",
+                    "rightId": "r1"
+                  },
+                  {
+                    "leftId": "l2",
+                    "rightId": "r2"
+                  }
+                ],
+                "explanation": "共享状态用于全局一致性，消息传递用于定向通信。",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "id": "q-unit-3-004",
+                "type": "matching",
+                "practiceGoalId": "goal-unit-3-004",
+                "relationType": "responsibility",
+                "relationGoal": "明确子Agent与主Agent在共享状态中的职责",
+                "stem": "匹配Agent角色与共享状态中的职责",
+                "leftItems": [
+                  {
+                    "id": "l1",
+                    "text": "子Agent"
+                  },
+                  {
+                    "id": "l2",
+                    "text": "主Agent"
+                  },
+                  {
+                    "id": "l3",
+                    "text": "编排者"
+                  }
+                ],
+                "rightItems": [
+                  {
+                    "id": "r1",
+                    "text": "写入精简结论"
+                  },
+                  {
+                    "id": "r2",
+                    "text": "读取共享状态"
+                  },
+                  {
+                    "id": "r3",
+                    "text": "统一维护共享状态"
+                  }
+                ],
+                "pairs": [
+                  {
+                    "leftId": "l1",
+                    "rightId": "r1"
+                  },
+                  {
+                    "leftId": "l2",
+                    "rightId": "r2"
+                  },
+                  {
+                    "leftId": "l3",
+                    "rightId": "r3"
+                  }
+                ],
+                "explanation": "子Agent写结论，主Agent读状态，编排者维护全局一致。",
+                "sourceAnchorId": "anchor-unit-3"
+              }
+            ]
+          }
+        ]
+      },
+      "unitCopyBatch": {
+        "units": [
+          {
+            "unitId": "unit-1",
+            "overview": {
+              "text": "多Agent协作的第一步是选对通信拓扑。中心化编排模式是最主流且可控的方案：一个主Agent居中调度，所有子Agent只与主Agent通信。这种模式路径清晰、全局状态统一，易于调试和观测。掌握它，你就掌握了多Agent系统设计的基石。"
+            },
+            "summary": {
+              "text": "中心化编排模式通过主管-执行者结构，让通信路径清晰可控，是工程实践中的首选方案。"
+            }
+          },
+          {
+            "unitId": "unit-2",
+            "overview": {
+              "text": "Agent之间通信不能靠自然语言自由发挥，否则歧义和上下文断裂在所难免。消息契约通过结构化格式固定目标、输出、工具和边界，相当于给Agent之间定了一份接口协议。学会设计它，你的多Agent系统才能可靠交接。"
+            },
+            "summary": {
+              "text": "结构化消息契约是防止上下文断裂的核心手段，它让Agent间的每一次交互都确定且可解析。"
+            }
+          },
+          {
+            "unitId": "unit-3",
+            "overview": {
+              "text": "多个Agent协作时，如何让它们看到同一份真相？共享状态管理通过公共黑板机制，让所有Agent读写统一的结构化记忆区，保持上下文干净。子Agent只需写入精简结论，主Agent统一维护全局视图。这是防止信息错乱的关键设计。"
+            },
+            "summary": {
+              "text": "共享状态由编排者统一维护，确保所有Agent基于同一份真相协作，是保持系统一致性的核心。"
+            }
+          }
+        ]
+      },
+      "unitPracticePlans": [
+        {
+          "unitId": "unit-1",
+          "practiceGoals": [
+            {
+              "kind": "core_understanding",
+              "target": "理解中心化编排模式的定义和结构",
+              "commonMisconception": "误以为子Agent之间可以直接通信",
+              "microIds": [
+                "micro-unit-1-001",
+                "micro-unit-1-002"
+              ],
+              "id": "goal-unit-1-001",
+              "sourceAnchorId": "anchor-unit-1"
+            },
+            {
+              "kind": "boundary_clarification",
+              "target": "区分中心化与去中心化模式的适用场景",
+              "commonMisconception": "认为去中心化总是更好",
+              "microIds": [
+                "micro-unit-1-003",
+                "micro-unit-1-004"
+              ],
+              "id": "goal-unit-1-002",
+              "sourceAnchorId": "anchor-unit-1"
+            },
+            {
+              "kind": "scenario_application",
+              "target": "在工程实践中优先选择中心化编排",
+              "commonMisconception": "忽略可观测性和调试成本",
+              "microIds": [
+                "micro-unit-1-005"
+              ],
+              "id": "goal-unit-1-003",
+              "sourceAnchorId": "anchor-unit-1"
+            }
+          ],
+          "questionPlans": [
+            {
+              "type": "multiple_choice",
+              "purpose": "light_understanding",
+              "goalIndex": 1,
+              "microIds": [
+                "micro-unit-1-001"
+              ],
+              "id": "q-unit-1-001",
+              "practiceGoalId": "goal-unit-1-001",
+              "sourceAnchorId": "anchor-unit-1"
+            },
+            {
+              "type": "matching",
+              "purpose": "role_responsibility_matching",
+              "goalIndex": 1,
+              "relationType": "responsibility",
+              "microIds": [
+                "micro-unit-1-001",
+                "micro-unit-1-002"
+              ],
+              "id": "q-unit-1-002",
+              "practiceGoalId": "goal-unit-1-001",
+              "sourceAnchorId": "anchor-unit-1"
+            },
+            {
+              "type": "multiple_choice",
+              "purpose": "boundary_clarification",
+              "goalIndex": 2,
+              "microIds": [
+                "micro-unit-1-003",
+                "micro-unit-1-004"
+              ],
+              "id": "q-unit-1-003",
+              "practiceGoalId": "goal-unit-1-002",
+              "sourceAnchorId": "anchor-unit-1"
+            },
+            {
+              "type": "multiple_choice",
+              "purpose": "scenario_application",
+              "goalIndex": 3,
+              "microIds": [
+                "micro-unit-1-005"
+              ],
+              "id": "q-unit-1-004",
+              "practiceGoalId": "goal-unit-1-003",
+              "sourceAnchorId": "anchor-unit-1"
+            }
+          ]
+        },
+        {
+          "unitId": "unit-2",
+          "practiceGoals": [
+            {
+              "kind": "core_understanding",
+              "target": "理解结构化消息契约的定义与作用",
+              "commonMisconception": "认为自然语言交流更灵活，忽略歧义风险",
+              "microIds": [
+                "micro-unit-2-001",
+                "micro-unit-2-004"
+              ],
+              "id": "goal-unit-2-001",
+              "sourceAnchorId": "anchor-unit-2"
+            },
+            {
+              "kind": "relationship_mapping",
+              "target": "掌握消息契约包含的字段及其意义",
+              "commonMisconception": "混淆字段与Agent内部状态",
+              "microIds": [
+                "micro-unit-2-002"
+              ],
+              "id": "goal-unit-2-002",
+              "sourceAnchorId": "anchor-unit-2"
+            },
+            {
+              "kind": "scenario_application",
+              "target": "能识别自然语言通信的弊端并对比结构化通信",
+              "commonMisconception": "认为自然语言在简单场景下无问题",
+              "microIds": [
+                "micro-unit-2-003",
+                "micro-unit-2-005"
+              ],
+              "id": "goal-unit-2-003",
+              "sourceAnchorId": "anchor-unit-2"
+            }
+          ],
+          "questionPlans": [
+            {
+              "type": "multiple_choice",
+              "purpose": "light_understanding",
+              "goalIndex": 1,
+              "microIds": [
+                "micro-unit-2-001",
+                "micro-unit-2-004"
+              ],
+              "id": "q-unit-2-001",
+              "practiceGoalId": "goal-unit-2-001",
+              "sourceAnchorId": "anchor-unit-2"
+            },
+            {
+              "type": "matching",
+              "purpose": "layer_role_matching",
+              "goalIndex": 2,
+              "relationType": "responsibility",
+              "microIds": [
+                "micro-unit-2-002"
+              ],
+              "id": "q-unit-2-002",
+              "practiceGoalId": "goal-unit-2-002",
+              "sourceAnchorId": "anchor-unit-2"
+            },
+            {
+              "type": "multiple_choice",
+              "purpose": "scenario_application",
+              "goalIndex": 3,
+              "microIds": [
+                "micro-unit-2-003",
+                "micro-unit-2-005"
+              ],
+              "id": "q-unit-2-003",
+              "practiceGoalId": "goal-unit-2-003",
+              "sourceAnchorId": "anchor-unit-2"
+            }
+          ]
+        },
+        {
+          "unitId": "unit-3",
+          "practiceGoals": [
+            {
+              "kind": "core_understanding",
+              "target": "理解共享状态的定义与作用",
+              "commonMisconception": "误以为共享状态是消息传递的替代",
+              "microIds": [
+                "micro-unit-3-001"
+              ],
+              "id": "goal-unit-3-001",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "kind": "scenario_application",
+              "target": "掌握公共黑板模式的读写机制",
+              "commonMisconception": "认为Agent直接读取其他Agent的私有状态",
+              "microIds": [
+                "micro-unit-3-002"
+              ],
+              "id": "goal-unit-3-002",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "kind": "relationship_mapping",
+              "target": "区分共享状态与消息传递的适用场景",
+              "commonMisconception": "认为两者可以完全互换",
+              "microIds": [
+                "micro-unit-3-003"
+              ],
+              "id": "goal-unit-3-003",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "kind": "boundary_clarification",
+              "target": "明确子Agent与主Agent在共享状态中的职责",
+              "commonMisconception": "子Agent应返回完整过程而非精简结论",
+              "microIds": [
+                "micro-unit-3-004",
+                "micro-unit-3-005"
+              ],
+              "id": "goal-unit-3-004",
+              "sourceAnchorId": "anchor-unit-3"
+            }
+          ],
+          "questionPlans": [
+            {
+              "type": "multiple_choice",
+              "purpose": "light_understanding",
+              "goalIndex": 1,
+              "microIds": [
+                "micro-unit-3-001"
+              ],
+              "id": "q-unit-3-001",
+              "practiceGoalId": "goal-unit-3-001",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "type": "multiple_choice",
+              "purpose": "scenario_application",
+              "goalIndex": 2,
+              "microIds": [
+                "micro-unit-3-002"
+              ],
+              "id": "q-unit-3-002",
+              "practiceGoalId": "goal-unit-3-002",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "type": "matching",
+              "purpose": "relationship_matching",
+              "goalIndex": 3,
+              "relationType": "usage_timing",
+              "microIds": [
+                "micro-unit-3-003"
+              ],
+              "id": "q-unit-3-003",
+              "practiceGoalId": "goal-unit-3-003",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "type": "matching",
+              "purpose": "role_responsibility_matching",
+              "goalIndex": 4,
+              "relationType": "responsibility",
+              "microIds": [
+                "micro-unit-3-004",
+                "micro-unit-3-005"
+              ],
+              "id": "q-unit-3-004",
+              "practiceGoalId": "goal-unit-3-004",
+              "sourceAnchorId": "anchor-unit-3"
+            }
+          ]
+        }
+      ],
+      "qualityJudge": {
+        "verdict": "skipped",
+        "issues": [],
+        "summary": "qualityJudge 默认停用；本轮只保留 deterministic guardrails 和 HTML 报告诊断。"
+      },
+      "qualityDiagnostics": [
+        {
+          "unitId": "unit-1",
+          "questionId": "q-unit-1-001",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionToneCue": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-1",
+          "questionId": "q-unit-1-002",
+          "questionType": "matching",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "not_applicable",
+            "matchingRelationValue": "pass",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-1",
+          "questionId": "q-unit-1-003",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionToneCue": "watch"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-1",
+          "questionId": "q-unit-1-004",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionToneCue": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-2",
+          "questionId": "q-unit-2-001",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionToneCue": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-2",
+          "questionId": "q-unit-2-002",
+          "questionType": "matching",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "not_applicable",
+            "matchingRelationValue": "pass",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-2",
+          "questionId": "q-unit-2-003",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionToneCue": "distractor_tone_cue"
+          },
+          "issues": [
+            {
+              "code": "v2_option_tone_cue",
+              "severity": "warning",
+              "message": "多个干扰项包含绝对化或否定化泄题词：完全、无需",
+              "targetId": "q-unit-2-003"
+            }
+          ]
+        },
+        {
+          "unitId": "unit-3",
+          "questionId": "q-unit-3-001",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionToneCue": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-3",
+          "questionId": "q-unit-3-002",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionToneCue": "watch"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-3",
+          "questionId": "q-unit-3-003",
+          "questionType": "matching",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "not_applicable",
+            "matchingRelationValue": "pass",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-3",
+          "questionId": "q-unit-3-004",
+          "questionType": "matching",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "not_applicable",
+            "matchingRelationValue": "pass",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass"
+          },
+          "issues": []
+        }
+      ],
+      "qualityGate": {
+        "mode": "deterministic_only",
+        "blocking": false,
+        "qualityJudgeEnabled": false,
+        "deterministicVerdict": "pass",
+        "deterministicIssueCount": 1,
+        "judgeVerdict": "skipped",
+        "judgeIssueCount": 0
+      },
+      "v2Progress": {
+        "jobId": "",
+        "chapterId": "douyin-multi-agent-communication",
+        "status": "completed",
+        "stage": "completed",
+        "stageGroup": "completed",
+        "displayText": "生成完成",
+        "progress": 1,
+        "userVisible": true,
+        "retryCount": 0,
+        "canRetry": false,
+        "updatedAt": "2026-07-08T16:24:25.941Z"
+      }
+    }
+  },
+  "unitKnowledgeMap": {
+    "units": [
+      {
+        "unitId": "unit-1",
+        "microKnowledgePoints": [
+          {
+            "microId": "micro-unit-1-001",
+            "title": "中心化编排模式定义",
+            "summary": "主管-执行者模式，子Agent只与主Agent通信",
+            "role": "definition",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "模式识别与定义"
+          },
+          {
+            "microId": "micro-unit-1-002",
+            "title": "主Agent职责",
+            "summary": "主Agent负责拆解任务、分发、收集结果和汇总",
+            "role": "process_step",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "职责分解与流程"
+          },
+          {
+            "microId": "micro-unit-1-003",
+            "title": "中心化模式优势",
+            "summary": "通信路径清晰，全局状态统一维护，不易混乱",
+            "role": "mechanism",
+            "assessmentValue": "medium",
+            "primaryEvidenceAngle": "优势分析与比较"
+          },
+          {
+            "microId": "micro-unit-1-004",
+            "title": "中心化 vs 去中心化",
+            "summary": "中心化可控可调试，去中心化灵活但易出问题",
+            "role": "boundary",
+            "assessmentValue": "medium",
+            "primaryEvidenceAngle": "模式对比与选择"
+          },
+          {
+            "microId": "micro-unit-1-005",
+            "title": "工程实践优先选择",
+            "summary": "真实项目除非有强理由，一般优先选中心化编排",
+            "role": "scenario_application",
+            "assessmentValue": "low",
+            "primaryEvidenceAngle": "工程决策原则"
+          }
+        ]
+      },
+      {
+        "unitId": "unit-2",
+        "microKnowledgePoints": [
+          {
+            "microId": "micro-unit-2-001",
+            "title": "结构化消息契约定义",
+            "summary": "Agent间使用结构化消息格式固定交互内容，避免自然语言歧义",
+            "role": "definition",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "理解结构化消息契约概念"
+          },
+          {
+            "microId": "micro-unit-2-002",
+            "title": "消息契约包含的字段",
+            "summary": "目标、输出格式、工具、边界、上一步结果等固定字段",
+            "role": "model_layer",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "识别消息契约组成要素"
+          },
+          {
+            "microId": "micro-unit-2-003",
+            "title": "自然语言通信的弊端",
+            "summary": "自然语言自由交流导致歧义和信息丢失，是灾难性的",
+            "role": "misconception",
+            "assessmentValue": "medium",
+            "primaryEvidenceAngle": "对比自然语言与结构化通信"
+          },
+          {
+            "microId": "micro-unit-2-004",
+            "title": "消息契约的作用机制",
+            "summary": "接收方获得确定可解析信息，上下文不易断裂",
+            "role": "mechanism",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "理解消息契约如何保证通信可靠性"
+          },
+          {
+            "microId": "micro-unit-2-005",
+            "title": "Anthropic实践案例",
+            "summary": "Anthropic给子Agent派活时明确目标、输出格式、工具、边界",
+            "role": "example_case",
+            "assessmentValue": "medium",
+            "primaryEvidenceAngle": "引用Anthropic案例说明消"
+          }
+        ]
+      },
+      {
+        "unitId": "unit-3",
+        "microKnowledgePoints": [
+          {
+            "microId": "micro-unit-3-001",
+            "title": "共享状态定义与作用",
+            "summary": "共享状态是Agent间保持同一真相的结构化记忆区",
+            "role": "definition",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "概念理解"
+          },
+          {
+            "microId": "micro-unit-3-002",
+            "title": "公共黑板模式",
+            "summary": "Agent将关键进度、中间结论写入共享状态，需要时读取",
+            "role": "mechanism",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "机制描述"
+          },
+          {
+            "microId": "micro-unit-3-003",
+            "title": "共享状态 vs 消息传递",
+            "summary": "共享状态避免Agent间互相追问，减少上下文断裂",
+            "role": "relationship",
+            "assessmentValue": "medium",
+            "primaryEvidenceAngle": "对比分析"
+          },
+          {
+            "microId": "micro-unit-3-004",
+            "title": "子Agent结果精简写入",
+            "summary": "子Agent只写精简结论，主Agent读取，保持上下文干净",
+            "role": "process_step",
+            "assessmentValue": "medium",
+            "primaryEvidenceAngle": "流程步骤"
+          },
+          {
+            "microId": "micro-unit-3-005",
+            "title": "编排者统一维护",
+            "summary": "共享状态由编排者统一维护，保证全局视图一致",
+            "role": "boundary",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "职责边界"
+          }
+        ]
+      }
+    ]
+  },
+  "ecdPlanning": null,
+  "sourceContextStats": {
+    "fullBlockCount": 16,
+    "unitKnowledgeMap": {
+      "mode": "plan_union_window",
+      "selectedBlockCount": 8,
+      "selectedBlockIds": [
+        "video-transcript-004",
+        "video-transcript-005",
+        "video-transcript-006",
+        "video-transcript-007",
+        "video-transcript-008",
+        "video-transcript-009",
+        "video-transcript-010",
+        "video-transcript-011"
+      ],
+      "fallbackUsed": false
+    },
+    "unitWindows": [
+      {
+        "unitId": "unit-1",
+        "anchorId": "anchor-unit-1",
+        "anchorBlockIds": [
+          "video-transcript-005",
+          "video-transcript-006"
+        ],
+        "selectedBlockCount": 4,
+        "selectedBlockIds": [
+          "video-transcript-004",
+          "video-transcript-005",
+          "video-transcript-006",
+          "video-transcript-007"
+        ],
+        "fallbackUsed": false
+      },
+      {
+        "unitId": "unit-2",
+        "anchorId": "anchor-unit-2",
+        "anchorBlockIds": [
+          "video-transcript-007",
+          "video-transcript-008"
+        ],
+        "selectedBlockCount": 4,
+        "selectedBlockIds": [
+          "video-transcript-006",
+          "video-transcript-007",
+          "video-transcript-008",
+          "video-transcript-009"
+        ],
+        "fallbackUsed": false
+      },
+      {
+        "unitId": "unit-3",
+        "anchorId": "anchor-unit-3",
+        "anchorBlockIds": [
+          "video-transcript-009",
+          "video-transcript-010"
+        ],
+        "selectedBlockCount": 4,
+        "selectedBlockIds": [
+          "video-transcript-008",
+          "video-transcript-009",
+          "video-transcript-010",
+          "video-transcript-011"
+        ],
+        "fallbackUsed": false
+      }
+    ]
+  },
+  "stageRuntime": {
+    "schemaVersion": "v2_stage_runtime_1",
+    "callCount": 14,
+    "attemptCount": 14,
+    "failedAttemptCount": 0,
+    "retryAttemptCount": 0,
+    "stages": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 7545,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "callCount": 3,
+        "successCallCount": 3,
+        "failedCallCount": 0,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 10630,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_taskBriefPlan",
+        "callCount": 3,
+        "successCallCount": 3,
+        "failedCallCount": 0,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 9948,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "callCount": 3,
+        "successCallCount": 3,
+        "failedCallCount": 0,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 14998,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_matchingDraft",
+        "callCount": 3,
+        "successCallCount": 3,
+        "failedCallCount": 0,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 9250,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitCopyBatch",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 4571,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      }
+    ],
+    "attempts": [
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 7545,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-2",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3677,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-3",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3624,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-4",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3329,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-5",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3290,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-6",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3164,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-7",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3494,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-8",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 6130,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-9",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 4975,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-10",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3893,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "matchingDraft-11",
+        "stage": "v2_matchingDraft",
+        "modelStage": "matchingDraft",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 2491,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "matchingDraft-12",
+        "stage": "v2_matchingDraft",
+        "modelStage": "matchingDraft",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 2924,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "matchingDraft-13",
+        "stage": "v2_matchingDraft",
+        "modelStage": "matchingDraft",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3835,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitCopyBatch-14",
+        "stage": "v2_unitCopyBatch",
+        "modelStage": "unitCopyBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 4571,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      }
+    ]
+  },
+  "architectureMetrics": {
+    "schemaVersion": "v2_architecture_metrics_1",
+    "total": {
+      "modelCallCount": 14,
+      "runtimeCallCount": 14,
+      "attemptCount": 14,
+      "retryAttemptCount": 0,
+      "failedAttemptCount": 0,
+      "promptTokens": 39496,
+      "completionTokens": 6711,
+      "totalTokens": 46207,
+      "promptCacheHitTokens": 12672,
+      "promptCacheMissTokens": 26824,
+      "durationMs": 56942
+    },
+    "stages": [
+      {
+        "stage": "v2_matchingDraft",
+        "modelCallCount": 3,
+        "promptTokens": 7645,
+        "completionTokens": 1187,
+        "totalTokens": 8832,
+        "promptCacheHitTokens": 2688,
+        "promptCacheMissTokens": 4957,
+        "estimatedOutputTokens": 0,
+        "runtimeCallCount": 3,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 9250,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelCallCount": 3,
+        "promptTokens": 9210,
+        "completionTokens": 1824,
+        "totalTokens": 11034,
+        "promptCacheHitTokens": 3456,
+        "promptCacheMissTokens": 5754,
+        "estimatedOutputTokens": 0,
+        "runtimeCallCount": 3,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 14998,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_reviewPathPlan",
+        "modelCallCount": 1,
+        "promptTokens": 5297,
+        "completionTokens": 802,
+        "totalTokens": 6099,
+        "promptCacheHitTokens": 1152,
+        "promptCacheMissTokens": 4145,
+        "estimatedOutputTokens": 0,
+        "runtimeCallCount": 1,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 7545,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_taskBriefPlan",
+        "modelCallCount": 3,
+        "promptTokens": 8328,
+        "completionTokens": 1307,
+        "totalTokens": 9635,
+        "promptCacheHitTokens": 3072,
+        "promptCacheMissTokens": 5256,
+        "estimatedOutputTokens": 0,
+        "runtimeCallCount": 3,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 9948,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitCopyBatch",
+        "modelCallCount": 1,
+        "promptTokens": 1850,
+        "completionTokens": 373,
+        "totalTokens": 2223,
+        "promptCacheHitTokens": 0,
+        "promptCacheMissTokens": 1850,
+        "estimatedOutputTokens": 0,
+        "runtimeCallCount": 1,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 4571,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "modelCallCount": 3,
+        "promptTokens": 7166,
+        "completionTokens": 1218,
+        "totalTokens": 8384,
+        "promptCacheHitTokens": 2304,
+        "promptCacheMissTokens": 4862,
+        "estimatedOutputTokens": 0,
+        "runtimeCallCount": 3,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 10630,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      }
+    ]
+  },
+  "qualityDiagnostics": [
+    {
+      "unitId": "unit-1",
+      "questionId": "q-unit-1-001",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionToneCue": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-1",
+      "questionId": "q-unit-1-002",
+      "questionType": "matching",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "not_applicable",
+        "matchingRelationValue": "pass",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-1",
+      "questionId": "q-unit-1-003",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionToneCue": "watch"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-1",
+      "questionId": "q-unit-1-004",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionToneCue": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-2",
+      "questionId": "q-unit-2-001",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionToneCue": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-2",
+      "questionId": "q-unit-2-002",
+      "questionType": "matching",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "not_applicable",
+        "matchingRelationValue": "pass",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-2",
+      "questionId": "q-unit-2-003",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionToneCue": "distractor_tone_cue"
+      },
+      "issues": [
+        {
+          "code": "v2_option_tone_cue",
+          "severity": "warning",
+          "message": "多个干扰项包含绝对化或否定化泄题词：完全、无需",
+          "targetId": "q-unit-2-003"
+        }
+      ]
+    },
+    {
+      "unitId": "unit-3",
+      "questionId": "q-unit-3-001",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionToneCue": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-3",
+      "questionId": "q-unit-3-002",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionToneCue": "watch"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-3",
+      "questionId": "q-unit-3-003",
+      "questionType": "matching",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "not_applicable",
+        "matchingRelationValue": "pass",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-3",
+      "questionId": "q-unit-3-004",
+      "questionType": "matching",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "not_applicable",
+        "matchingRelationValue": "pass",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass"
+      },
+      "issues": []
+    }
+  ],
+  "modelUsage": [
+    {
+      "index": 1,
+      "runId": "20260708-162425-20260708-douyin-multi-agent-communication-visual-runner",
+      "stage": "v2_reviewPathPlan",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 6092,
+        "cachedInputTokens": 0,
+        "uncachedInputTokens": 6092,
+        "outputTokens": 4000,
+        "totalTokens": 0,
+        "cost": 0.00197288,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 5297,
+        "cachedInputTokens": 1152,
+        "uncachedInputTokens": 4145,
+        "outputTokens": 802,
+        "totalTokens": 6099,
+        "cost": 0.000808086,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.001164794,
+        "costErrorRate": 144.14
+      },
+      "recordedAt": "2026-07-08T16:24:33.486Z"
+    },
+    {
+      "index": 2,
+      "runId": "20260708-162425-20260708-douyin-multi-agent-communication-visual-runner",
+      "stage": "v2_unitKnowledgeMap",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 2829,
+        "cachedInputTokens": 0,
+        "uncachedInputTokens": 2829,
+        "outputTokens": 1700,
+        "totalTokens": 0,
+        "cost": 0.00087206,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 2400,
+        "cachedInputTokens": 768,
+        "uncachedInputTokens": 1632,
+        "outputTokens": 403,
+        "totalTokens": 2803,
+        "cost": 0.00034347,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.00052859,
+        "costErrorRate": 153.9
+      },
+      "recordedAt": "2026-07-08T16:24:37.166Z"
+    },
+    {
+      "index": 3,
+      "runId": "20260708-162425-20260708-douyin-multi-agent-communication-visual-runner",
+      "stage": "v2_unitKnowledgeMap",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 2812,
+        "cachedInputTokens": 1099,
+        "uncachedInputTokens": 1713,
+        "outputTokens": 1700,
+        "totalTokens": 0,
+        "cost": 0.000718897,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 2373,
+        "cachedInputTokens": 768,
+        "uncachedInputTokens": 1605,
+        "outputTokens": 424,
+        "totalTokens": 2797,
+        "cost": 0.00034557,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000373327,
+        "costErrorRate": 108.03
+      },
+      "recordedAt": "2026-07-08T16:24:40.791Z"
+    },
+    {
+      "index": 4,
+      "runId": "20260708-162425-20260708-douyin-multi-agent-communication-visual-runner",
+      "stage": "v2_unitKnowledgeMap",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 2817,
+        "cachedInputTokens": 1099,
+        "uncachedInputTokens": 1718,
+        "outputTokens": 1700,
+        "totalTokens": 0,
+        "cost": 0.000719597,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 2393,
+        "cachedInputTokens": 768,
+        "uncachedInputTokens": 1625,
+        "outputTokens": 391,
+        "totalTokens": 2784,
+        "cost": 0.00033913,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000380467,
+        "costErrorRate": 112.19
+      },
+      "recordedAt": "2026-07-08T16:24:44.122Z"
+    },
+    {
+      "index": 5,
+      "runId": "20260708-162425-20260708-douyin-multi-agent-communication-visual-runner",
+      "stage": "v2_taskBriefPlan",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 3394,
+        "cachedInputTokens": 0,
+        "uncachedInputTokens": 3394,
+        "outputTokens": 3800,
+        "totalTokens": 0,
+        "cost": 0.00153916,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 2785,
+        "cachedInputTokens": 1024,
+        "uncachedInputTokens": 1761,
+        "outputTokens": 433,
+        "totalTokens": 3218,
+        "cost": 0.000370647,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.001168513,
+        "costErrorRate": 315.26
+      },
+      "recordedAt": "2026-07-08T16:24:47.414Z"
+    },
+    {
+      "index": 6,
+      "runId": "20260708-162425-20260708-douyin-multi-agent-communication-visual-runner",
+      "stage": "v2_taskBriefPlan",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 3409,
+        "cachedInputTokens": 1387,
+        "uncachedInputTokens": 2022,
+        "outputTokens": 3800,
+        "totalTokens": 0,
+        "cost": 0.001350964,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 2777,
+        "cachedInputTokens": 1024,
+        "uncachedInputTokens": 1753,
+        "outputTokens": 390,
+        "totalTokens": 3167,
+        "cost": 0.000357487,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000993477,
+        "costErrorRate": 277.91
+      },
+      "recordedAt": "2026-07-08T16:24:50.580Z"
+    },
+    {
+      "index": 7,
+      "runId": "20260708-162425-20260708-douyin-multi-agent-communication-visual-runner",
+      "stage": "v2_taskBriefPlan",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 3380,
+        "cachedInputTokens": 1387,
+        "uncachedInputTokens": 1993,
+        "outputTokens": 3800,
+        "totalTokens": 0,
+        "cost": 0.001346904,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 2766,
+        "cachedInputTokens": 1024,
+        "uncachedInputTokens": 1742,
+        "outputTokens": 484,
+        "totalTokens": 3250,
+        "cost": 0.000382267,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000964637,
+        "costErrorRate": 252.35
+      },
+      "recordedAt": "2026-07-08T16:24:54.064Z"
+    },
+    {
+      "index": 8,
+      "runId": "20260708-162425-20260708-douyin-multi-agent-communication-visual-runner",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 3707,
+        "cachedInputTokens": 0,
+        "uncachedInputTokens": 3707,
+        "outputTokens": 2400,
+        "totalTokens": 0,
+        "cost": 0.00119098,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 3204,
+        "cachedInputTokens": 1152,
+        "uncachedInputTokens": 2052,
+        "outputTokens": 763,
+        "totalTokens": 3967,
+        "cost": 0.000504146,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000686834,
+        "costErrorRate": 136.24
+      },
+      "recordedAt": "2026-07-08T16:25:00.207Z"
+    },
+    {
+      "index": 9,
+      "runId": "20260708-162425-20260708-douyin-multi-agent-communication-visual-runner",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 3553,
+        "cachedInputTokens": 1492,
+        "uncachedInputTokens": 2061,
+        "outputTokens": 2400,
+        "totalTokens": 0,
+        "cost": 0.000964718,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 3046,
+        "cachedInputTokens": 1152,
+        "uncachedInputTokens": 1894,
+        "outputTokens": 555,
+        "totalTokens": 3601,
+        "cost": 0.000423786,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000540932,
+        "costErrorRate": 127.64
+      },
+      "recordedAt": "2026-07-08T16:25:05.183Z"
+    },
+    {
+      "index": 10,
+      "runId": "20260708-162425-20260708-douyin-multi-agent-communication-visual-runner",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 3442,
+        "cachedInputTokens": 1492,
+        "uncachedInputTokens": 1950,
+        "outputTokens": 2400,
+        "totalTokens": 0,
+        "cost": 0.000949178,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 2960,
+        "cachedInputTokens": 1152,
+        "uncachedInputTokens": 1808,
+        "outputTokens": 506,
+        "totalTokens": 3466,
+        "cost": 0.000398026,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000551152,
+        "costErrorRate": 138.47
+      },
+      "recordedAt": "2026-07-08T16:25:09.078Z"
+    },
+    {
+      "index": 11,
+      "runId": "20260708-162425-20260708-douyin-multi-agent-communication-visual-runner",
+      "stage": "v2_matchingDraft",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 3031,
+        "cachedInputTokens": 0,
+        "uncachedInputTokens": 3031,
+        "outputTokens": 3200,
+        "totalTokens": 0,
+        "cost": 0.00132034,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 2505,
+        "cachedInputTokens": 896,
+        "uncachedInputTokens": 1609,
+        "outputTokens": 263,
+        "totalTokens": 2768,
+        "cost": 0.000301409,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.001018931,
+        "costErrorRate": 338.06
+      },
+      "recordedAt": "2026-07-08T16:25:11.569Z"
+    },
+    {
+      "index": 12,
+      "runId": "20260708-162425-20260708-douyin-multi-agent-communication-visual-runner",
+      "stage": "v2_matchingDraft",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 2989,
+        "cachedInputTokens": 1238,
+        "uncachedInputTokens": 1751,
+        "outputTokens": 3200,
+        "totalTokens": 0,
+        "cost": 0.001144606,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 2457,
+        "cachedInputTokens": 896,
+        "uncachedInputTokens": 1561,
+        "outputTokens": 355,
+        "totalTokens": 2812,
+        "cost": 0.000320449,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000824157,
+        "costErrorRate": 257.19
+      },
+      "recordedAt": "2026-07-08T16:25:14.495Z"
+    },
+    {
+      "index": 13,
+      "runId": "20260708-162425-20260708-douyin-multi-agent-communication-visual-runner",
+      "stage": "v2_matchingDraft",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 3231,
+        "cachedInputTokens": 1238,
+        "uncachedInputTokens": 1993,
+        "outputTokens": 3200,
+        "totalTokens": 0,
+        "cost": 0.001178486,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 2683,
+        "cachedInputTokens": 896,
+        "uncachedInputTokens": 1787,
+        "outputTokens": 569,
+        "totalTokens": 3252,
+        "cost": 0.000412009,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000766477,
+        "costErrorRate": 186.03
+      },
+      "recordedAt": "2026-07-08T16:25:18.331Z"
+    },
+    {
+      "index": 14,
+      "runId": "20260708-162425-20260708-douyin-multi-agent-communication-visual-runner",
+      "stage": "v2_unitCopyBatch",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 2105,
+        "cachedInputTokens": 0,
+        "uncachedInputTokens": 2105,
+        "outputTokens": 1400,
+        "totalTokens": 0,
+        "cost": 0.0006867,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 1850,
+        "cachedInputTokens": 0,
+        "uncachedInputTokens": 1850,
+        "outputTokens": 373,
+        "totalTokens": 2223,
+        "cost": 0.00036344,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.00032326,
+        "costErrorRate": 88.94
+      },
+      "recordedAt": "2026-07-08T16:25:22.905Z"
+    }
+  ],
+  "mediaUsage": {
+    "callCount": 6,
+    "byStage": {
+      "tikhub_fetch": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "tikhub",
+        "metadata": {
+          "platform": "douyin",
+          "providerContentId": "7659373546447195428",
+          "cacheHit": false,
+          "cacheKey": "video-source:video-source-v1:90e08024b6930e16c9371612"
+        }
+      },
+      "video_media_fetch": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "tikhub",
+        "metadata": {
+          "bytes": 7586810,
+          "contentType": "video/mp4"
+        }
+      },
+      "audio_extraction": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "ffmpeg",
+        "metadata": {
+          "format": "wav",
+          "sampleRate": 16000
+        }
+      },
+      "audio_transcription": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "local_whisper",
+        "metadata": {
+          "segmentCount": 198,
+          "source": "asr"
+        }
+      },
+      "video_frame_pack": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "crv_style_ffmpeg",
+        "metadata": {
+          "skipped": false,
+          "reason": "",
+          "frameCount": 13,
+          "gridCount": 2,
+          "timestampMode": "metadata"
+        }
+      },
+      "visual_understanding": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "qwen-vl",
+        "metadata": {
+          "skipped": false,
+          "status": "succeeded",
+          "reason": "",
+          "segmentCount": 1,
+          "model": "qwen3-vl-flash",
+          "usage": {
+            "prompt_tokens": 4929,
+            "completion_tokens": 439,
+            "total_tokens": 5368
+          }
+        }
+      }
+    },
+    "totalsByCurrency": {
+      "USD": {
+        "currency": "USD",
+        "callCount": 6,
+        "totalCost": 0
+      }
+    }
+  },
+  "mediaUsageRecords": [
+    {
+      "runId": "video-quality-1783527715597",
+      "stage": "tikhub_fetch",
+      "provider": "tikhub",
+      "cost": 0,
+      "currency": "USD",
+      "metadata": {
+        "platform": "douyin",
+        "providerContentId": "7659373546447195428",
+        "cacheHit": false,
+        "cacheKey": "video-source:video-source-v1:90e08024b6930e16c9371612"
+      },
+      "recordedAt": "2026-07-08T16:21:58.242Z"
+    },
+    {
+      "runId": "video-quality-1783527715597",
+      "stage": "video_media_fetch",
+      "provider": "tikhub",
+      "cost": 0,
+      "currency": "USD",
+      "metadata": {
+        "bytes": 7586810,
+        "contentType": "video/mp4"
+      },
+      "recordedAt": "2026-07-08T16:21:58.583Z"
+    },
+    {
+      "runId": "video-quality-1783527715597",
+      "stage": "audio_extraction",
+      "provider": "ffmpeg",
+      "cost": 0,
+      "currency": "USD",
+      "metadata": {
+        "format": "wav",
+        "sampleRate": 16000
+      },
+      "recordedAt": "2026-07-08T16:21:59.058Z"
+    },
+    {
+      "runId": "video-quality-1783527715597",
+      "stage": "audio_transcription",
+      "provider": "local_whisper",
+      "cost": 0,
+      "currency": "USD",
+      "metadata": {
+        "segmentCount": 198,
+        "source": "asr"
+      },
+      "recordedAt": "2026-07-08T16:23:50.661Z"
+    },
+    {
+      "runId": "video-quality-1783527715597",
+      "stage": "video_frame_pack",
+      "provider": "crv_style_ffmpeg",
+      "cost": 0,
+      "currency": "USD",
+      "metadata": {
+        "skipped": false,
+        "reason": "",
+        "frameCount": 13,
+        "gridCount": 2,
+        "timestampMode": "metadata"
+      },
+      "recordedAt": "2026-07-08T16:24:17.128Z"
+    },
+    {
+      "runId": "video-quality-1783527715597",
+      "stage": "visual_understanding",
+      "provider": "qwen-vl",
+      "cost": 0,
+      "currency": "USD",
+      "metadata": {
+        "skipped": false,
+        "status": "succeeded",
+        "reason": "",
+        "segmentCount": 1,
+        "model": "qwen3-vl-flash",
+        "usage": {
+          "prompt_tokens": 4929,
+          "completion_tokens": 439,
+          "total_tokens": 5368
+        }
+      },
+      "recordedAt": "2026-07-08T16:24:25.907Z"
+    }
+  ],
+  "modelCostSummary": {
+    "callCount": 14,
+    "currencies": [
+      "USD"
+    ],
+    "totalsByCurrency": {
+      "USD": {
+        "currency": "USD",
+        "callCount": 14,
+        "totalEstimatedCost": 0.01595547,
+        "totalActualCost": 0.005669922,
+        "costDelta": 0.010285548,
+        "costErrorRate": 181.41,
+        "actualCostPerQualifiedQuestion": 0.000515447
+      }
+    },
+    "byStage": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "currency": "USD",
+        "callCount": 1,
+        "estimatedCost": 0.00197288,
+        "actualCost": 0.000808086,
+        "costDelta": 0.001164794,
+        "costErrorRate": 144.14
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "currency": "USD",
+        "callCount": 3,
+        "estimatedCost": 0.002310554,
+        "actualCost": 0.00102817,
+        "costDelta": 0.001282384,
+        "costErrorRate": 124.72
+      },
+      {
+        "stage": "v2_taskBriefPlan",
+        "currency": "USD",
+        "callCount": 3,
+        "estimatedCost": 0.004237028,
+        "actualCost": 0.001110401,
+        "costDelta": 0.003126627,
+        "costErrorRate": 281.58
+      },
+      {
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "currency": "USD",
+        "callCount": 3,
+        "estimatedCost": 0.003104876,
+        "actualCost": 0.001325958,
+        "costDelta": 0.001778918,
+        "costErrorRate": 134.16
+      },
+      {
+        "stage": "v2_matchingDraft",
+        "currency": "USD",
+        "callCount": 3,
+        "estimatedCost": 0.003643432,
+        "actualCost": 0.001033867,
+        "costDelta": 0.002609565,
+        "costErrorRate": 252.41
+      },
+      {
+        "stage": "v2_unitCopyBatch",
+        "currency": "USD",
+        "callCount": 1,
+        "estimatedCost": 0.0006867,
+        "actualCost": 0.00036344,
+        "costDelta": 0.00032326,
+        "costErrorRate": 88.94
+      }
+    ],
+    "reportText": "调用次数：14\n\n阶段 | 模型 | 估算成本 | 实际成本 | 误差\n--- | --- | ---: | ---: | ---:\nv2_reviewPathPlan | deepseek-v4-flash | $0.001973 | $0.000808 | +144.14%\nv2_unitKnowledgeMap | deepseek-v4-flash | $0.000872 | $0.000343 | +153.90%\nv2_unitKnowledgeMap | deepseek-v4-flash | $0.000719 | $0.000346 | +108.03%\nv2_unitKnowledgeMap | deepseek-v4-flash | $0.000720 | $0.000339 | +112.19%\nv2_taskBriefPlan | deepseek-v4-flash | $0.001539 | $0.000371 | +315.26%\nv2_taskBriefPlan | deepseek-v4-flash | $0.001351 | $0.000357 | +277.91%\nv2_taskBriefPlan | deepseek-v4-flash | $0.001347 | $0.000382 | +252.35%\nv2_multipleChoiceDraftUnitBatch | deepseek-v4-flash | $0.001191 | $0.000504 | +136.24%\nv2_multipleChoiceDraftUnitBatch | deepseek-v4-flash | $0.000965 | $0.000424 | +127.64%\nv2_multipleChoiceDraftUnitBatch | deepseek-v4-flash | $0.000949 | $0.000398 | +138.47%\nv2_matchingDraft | deepseek-v4-flash | $0.001320 | $0.000301 | +338.06%\nv2_matchingDraft | deepseek-v4-flash | $0.001145 | $0.000320 | +257.19%\nv2_matchingDraft | deepseek-v4-flash | $0.001178 | $0.000412 | +186.03%\nv2_unitCopyBatch | deepseek-v4-flash | $0.000687 | $0.000363 | +88.94%\n\n合计（USD）：估算 $0.015955，实际 $0.005670，误差 +181.41%\n每道入池题实际成本（USD）：$0.000515"
+  },
+  "mediaCostSummary": {
+    "currency": "USD",
+    "totalActualCost": 0.00142205,
+    "byStage": {
+      "tikhub_fetch": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "tikhub",
+        "metadata": {
+          "platform": "douyin",
+          "providerContentId": "7659373546447195428",
+          "cacheHit": false,
+          "cacheKey": "video-source:video-source-v1:90e08024b6930e16c9371612"
+        },
+        "currency": "USD",
+        "actualCost": 0.001,
+        "costNote": "TikHub dashboard unit price from user: USD 0.001/call"
+      },
+      "video_media_fetch": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "tikhub",
+        "metadata": {
+          "bytes": 7586810,
+          "contentType": "video/mp4"
+        },
+        "currency": "USD",
+        "actualCost": 0,
+        "costNote": "local/no provider fee recorded"
+      },
+      "audio_extraction": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "ffmpeg",
+        "metadata": {
+          "format": "wav",
+          "sampleRate": 16000
+        },
+        "currency": "USD",
+        "actualCost": 0,
+        "costNote": "local/no provider fee recorded"
+      },
+      "audio_transcription": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "local_whisper",
+        "metadata": {
+          "segmentCount": 198,
+          "source": "asr"
+        },
+        "currency": "USD",
+        "actualCost": 0,
+        "costNote": "local/no provider fee recorded"
+      },
+      "video_frame_pack": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "crv_style_ffmpeg",
+        "metadata": {
+          "skipped": false,
+          "reason": "",
+          "frameCount": 13,
+          "gridCount": 2,
+          "timestampMode": "metadata"
+        },
+        "currency": "USD",
+        "actualCost": 0,
+        "costNote": "local/no provider fee recorded"
+      },
+      "visual_understanding": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "qwen-vl",
+        "metadata": {
+          "skipped": false,
+          "status": "succeeded",
+          "reason": "",
+          "segmentCount": 1,
+          "model": "qwen3-vl-flash",
+          "usage": {
+            "prompt_tokens": 4929,
+            "completion_tokens": 439,
+            "total_tokens": 5368
+          }
+        },
+        "currency": "USD",
+        "actualCost": 0.00042205,
+        "costNote": "qwen3-vl-flash estimate: USD 0.05/M input, USD 0.40/M output"
+      }
+    }
+  },
+  "progressEvents": [
+    {
+      "at": "2026-07-08T16:21:55.597Z",
+      "status": "stage_start",
+      "stage": "video_extraction",
+      "elapsedMs": 0
+    },
+    {
+      "at": "2026-07-08T16:24:25.939Z",
+      "status": "stage_done",
+      "stage": "video_extraction",
+      "elapsedMs": 150342,
+      "message": "blocks=16 text=2417"
+    },
+    {
+      "at": "2026-07-08T16:24:25.940Z",
+      "status": "run_start",
+      "stage": "quality:v2-video",
+      "elapsedMs": 150343,
+      "message": "label=20260708-douyin-multi-agent-communication-visual-runner slug=douyin-multi-agent-communication"
+    },
+    {
+      "at": "2026-07-08T16:24:25.941Z",
+      "status": "stage_start",
+      "stage": "reviewPathPlan",
+      "attempt": 1,
+      "elapsedMs": 150344
+    },
+    {
+      "at": "2026-07-08T16:24:33.487Z",
+      "status": "stage_done",
+      "stage": "reviewPathPlan",
+      "attempt": 1,
+      "elapsedMs": 157890,
+      "durationMs": 7546
+    },
+    {
+      "at": "2026-07-08T16:24:33.490Z",
+      "status": "stage_start",
+      "stage": "unitKnowledgeMap",
+      "attempt": 1,
+      "elapsedMs": 157893
+    },
+    {
+      "at": "2026-07-08T16:24:37.167Z",
+      "status": "stage_done",
+      "stage": "unitKnowledgeMap",
+      "attempt": 1,
+      "elapsedMs": 161570,
+      "durationMs": 3677
+    },
+    {
+      "at": "2026-07-08T16:24:37.169Z",
+      "status": "stage_start",
+      "stage": "unitKnowledgeMap",
+      "attempt": 2,
+      "elapsedMs": 161572
+    },
+    {
+      "at": "2026-07-08T16:24:40.793Z",
+      "status": "stage_done",
+      "stage": "unitKnowledgeMap",
+      "attempt": 2,
+      "elapsedMs": 165196,
+      "durationMs": 3624
+    },
+    {
+      "at": "2026-07-08T16:24:40.793Z",
+      "status": "stage_start",
+      "stage": "unitKnowledgeMap",
+      "attempt": 3,
+      "elapsedMs": 165196
+    },
+    {
+      "at": "2026-07-08T16:24:44.123Z",
+      "status": "stage_done",
+      "stage": "unitKnowledgeMap",
+      "attempt": 3,
+      "elapsedMs": 168526,
+      "durationMs": 3330
+    },
+    {
+      "at": "2026-07-08T16:24:44.124Z",
+      "status": "stage_start",
+      "stage": "taskBriefPlan",
+      "attempt": 1,
+      "elapsedMs": 168527
+    },
+    {
+      "at": "2026-07-08T16:24:47.414Z",
+      "status": "stage_done",
+      "stage": "taskBriefPlan",
+      "attempt": 1,
+      "elapsedMs": 171817,
+      "durationMs": 3290
+    },
+    {
+      "at": "2026-07-08T16:24:47.416Z",
+      "status": "stage_start",
+      "stage": "taskBriefPlan",
+      "attempt": 2,
+      "elapsedMs": 171819
+    },
+    {
+      "at": "2026-07-08T16:24:50.580Z",
+      "status": "stage_done",
+      "stage": "taskBriefPlan",
+      "attempt": 2,
+      "elapsedMs": 174983,
+      "durationMs": 3164
+    },
+    {
+      "at": "2026-07-08T16:24:50.581Z",
+      "status": "stage_start",
+      "stage": "taskBriefPlan",
+      "attempt": 3,
+      "elapsedMs": 174984
+    },
+    {
+      "at": "2026-07-08T16:24:54.075Z",
+      "status": "stage_done",
+      "stage": "taskBriefPlan",
+      "attempt": 3,
+      "elapsedMs": 178478,
+      "durationMs": 3494
+    },
+    {
+      "at": "2026-07-08T16:24:54.078Z",
+      "status": "stage_start",
+      "stage": "multipleChoiceDraftUnitBatch",
+      "attempt": 1,
+      "elapsedMs": 178481
+    },
+    {
+      "at": "2026-07-08T16:25:00.208Z",
+      "status": "stage_done",
+      "stage": "multipleChoiceDraftUnitBatch",
+      "attempt": 1,
+      "elapsedMs": 184611,
+      "durationMs": 6130
+    },
+    {
+      "at": "2026-07-08T16:25:00.209Z",
+      "status": "stage_start",
+      "stage": "multipleChoiceDraftUnitBatch",
+      "attempt": 2,
+      "elapsedMs": 184612
+    },
+    {
+      "at": "2026-07-08T16:25:05.184Z",
+      "status": "stage_done",
+      "stage": "multipleChoiceDraftUnitBatch",
+      "attempt": 2,
+      "elapsedMs": 189587,
+      "durationMs": 4975
+    },
+    {
+      "at": "2026-07-08T16:25:05.185Z",
+      "status": "stage_start",
+      "stage": "multipleChoiceDraftUnitBatch",
+      "attempt": 3,
+      "elapsedMs": 189588
+    },
+    {
+      "at": "2026-07-08T16:25:09.078Z",
+      "status": "stage_done",
+      "stage": "multipleChoiceDraftUnitBatch",
+      "attempt": 3,
+      "elapsedMs": 193481,
+      "durationMs": 3893
+    },
+    {
+      "at": "2026-07-08T16:25:09.079Z",
+      "status": "stage_start",
+      "stage": "matchingDraft",
+      "attempt": 1,
+      "elapsedMs": 193482
+    },
+    {
+      "at": "2026-07-08T16:25:11.570Z",
+      "status": "stage_done",
+      "stage": "matchingDraft",
+      "attempt": 1,
+      "elapsedMs": 195973,
+      "durationMs": 2491
+    },
+    {
+      "at": "2026-07-08T16:25:11.571Z",
+      "status": "stage_start",
+      "stage": "matchingDraft",
+      "attempt": 2,
+      "elapsedMs": 195974
+    },
+    {
+      "at": "2026-07-08T16:25:14.495Z",
+      "status": "stage_done",
+      "stage": "matchingDraft",
+      "attempt": 2,
+      "elapsedMs": 198898,
+      "durationMs": 2924
+    },
+    {
+      "at": "2026-07-08T16:25:14.496Z",
+      "status": "stage_start",
+      "stage": "matchingDraft",
+      "attempt": 3,
+      "elapsedMs": 198899
+    },
+    {
+      "at": "2026-07-08T16:25:18.331Z",
+      "status": "stage_done",
+      "stage": "matchingDraft",
+      "attempt": 3,
+      "elapsedMs": 202734,
+      "durationMs": 3835
+    },
+    {
+      "at": "2026-07-08T16:25:18.334Z",
+      "status": "stage_start",
+      "stage": "unitCopyBatch",
+      "attempt": 1,
+      "elapsedMs": 202737
+    },
+    {
+      "at": "2026-07-08T16:25:22.906Z",
+      "status": "stage_done",
+      "stage": "unitCopyBatch",
+      "attempt": 1,
+      "elapsedMs": 207309,
+      "durationMs": 4572
+    }
+  ],
+  "learningSourceSummary": {
+    "id": "video-source-7659373546447195428",
+    "platform": "douyin",
+    "title": "面试必考：多Agent协作通信怎么设计？ 面试被问到多Agent协作通信怎么设计，千万别说只是互相发消息！多Agent系统失败往往是因为交接时上下文断裂。真正懂行的架构设计核心在于三点：选对通信拓扑、定好消息契约、管好共享状态。掌握这三步，向面试官展现真正的工程思维。想系统学习Agent开发的同学可以查看橱窗哦！ \n#人工智能 #大模型面试 #Agent开发 #多智能体 #架构设计",
+    "normalizedTextLength": 2417,
+    "sectionCount": 16,
+    "contentBasis": null,
+    "visualUnderstanding": {
+      "status": "succeeded",
+      "provider": "qwen-vl",
+      "model": "qwen3-vl-flash",
+      "segmentCount": 1
+    }
+  },
+  "failure": null
+}

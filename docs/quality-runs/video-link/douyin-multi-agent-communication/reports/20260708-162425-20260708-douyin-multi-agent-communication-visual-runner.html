@@ -1,0 +1,1368 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>20260708-douyin-multi-agent-communication-visual-runner - V2 出题质量报告</title>
+  <style>
+    :root {
+      --bg: #f2f5cf;
+      --paper: #fdfaf2;
+      --ink: #44423d;
+      --muted: #807d73;
+      --line: #dde1ac;
+      --brand: #98a84e;
+      --soft: #f2f1da;
+      --danger: #ed765c;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    h1, h2, h3 {
+      line-height: 1.25;
+      margin: 0;
+    }
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 40px 0 16px;
+    }
+    h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(152, 163, 94, 0.18);
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      color: var(--brand);
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 14px 0;
+      background: rgba(253, 250, 242, 0.72);
+    }
+    .stem {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .options, .pairs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .option, .pair {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .correct {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .explanation {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+    .source {
+      margin-top: 12px;
+      border-left: 4px solid var(--line);
+      padding-left: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .source-block {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin: 8px 0;
+      background: rgba(255,255,255,0.45);
+    }
+    .source-block.highlight {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .failure {
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    details {
+      margin-top: 12px;
+    }
+    .diagnostic {
+      border-top: 1px dashed var(--line);
+      padding-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 6px;
+      text-align: right;
+      vertical-align: top;
+    }
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>V2 出题质量报告</h1>
+    <div class="meta">2026-07-08T16:25:22.918Z · 20260708-douyin-multi-agent-communication-visual-runner · completed</div>
+    
+    <section class="card">
+    <h2 style="margin-top:0">Architecture Metrics</h2>
+    <p class="meta">这一段是架构仪表盘：不改变生成链路，只量化每个 stage 的调用数、token、重试、失败类型和耗时，用来判断 token 爆炸来自 retry，还是来自 stage 本身过重。</p>
+    <div class="grid">
+      <div class="metric"><strong>14</strong>Model calls</div>
+      <div class="metric"><strong>46,207</strong>Total tokens</div>
+      <div class="metric"><strong>39,496</strong>Prompt tokens</div>
+      <div class="metric"><strong>6,711</strong>Completion tokens</div>
+      <div class="metric"><strong>0</strong>Retries</div>
+      <div class="metric"><strong>57s</strong>Duration</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Stage</th>
+          <th>Calls</th>
+          <th>Attempts</th>
+          <th>Retries</th>
+          <th>Failed attempts</th>
+          <th>Prompt</th>
+          <th>Completion</th>
+          <th>Total</th>
+          <th>Cache hit/miss</th>
+          <th>Duration</th>
+          <th>Error types</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>v2_matchingDraft</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>7,645</td>
+          <td>1,187</td>
+          <td>8,832</td>
+          <td>2,688 / 4,957</td>
+          <td>9s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_multipleChoiceDraftUnitBatch</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>9,210</td>
+          <td>1,824</td>
+          <td>11,034</td>
+          <td>3,456 / 5,754</td>
+          <td>15s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_reviewPathPlan</td>
+          <td>1</td>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td>5,297</td>
+          <td>802</td>
+          <td>6,099</td>
+          <td>1,152 / 4,145</td>
+          <td>8s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_taskBriefPlan</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>8,328</td>
+          <td>1,307</td>
+          <td>9,635</td>
+          <td>3,072 / 5,256</td>
+          <td>10s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_unitCopyBatch</td>
+          <td>1</td>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td>1,850</td>
+          <td>373</td>
+          <td>2,223</td>
+          <td>0 / 1,850</td>
+          <td>5s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_unitKnowledgeMap</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>7,166</td>
+          <td>1,218</td>
+          <td>8,384</td>
+          <td>2,304 / 4,862</td>
+          <td>11s</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">成本与调用明细</h2>
+    <div class="grid">
+      <div class="metric"><strong>USD 0.001422</strong>媒体链路估算成本</div>
+      <div class="metric"><strong>6</strong>媒体链路调用记录</div>
+      <div class="metric"><strong>USD 0.005670</strong>出题模型实际成本</div>
+      <div class="metric"><strong>USD 0.015955</strong>出题模型估算成本</div>
+      <div class="metric"><strong>14</strong>出题模型调用</div>
+    </div>
+    <h3>媒体/视频链路</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>stage</th>
+          <th>provider</th>
+          <th>calls</th>
+          <th>actual/estimated cost</th>
+          <th>note</th>
+          <th>metadata</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>tikhub_fetch</td>
+          <td>tikhub</td>
+          <td>1</td>
+          <td>USD 0.001000</td>
+          <td>TikHub dashboard unit price from user: USD 0.001/call</td>
+          <td><pre>{
+  &quot;platform&quot;: &quot;douyin&quot;,
+  &quot;providerContentId&quot;: &quot;7659373546447195428&quot;,
+  &quot;cacheHit&quot;: false,
+  &quot;cacheKey&quot;: &quot;video-source:video-source-v1:90e08024b6930e16c9371612&quot;
+}</pre></td>
+        </tr>
+<tr>
+          <td>video_media_fetch</td>
+          <td>tikhub</td>
+          <td>1</td>
+          <td>USD 0.000000</td>
+          <td>local/no provider fee recorded</td>
+          <td><pre>{
+  &quot;bytes&quot;: 7586810,
+  &quot;contentType&quot;: &quot;video/mp4&quot;
+}</pre></td>
+        </tr>
+<tr>
+          <td>audio_extraction</td>
+          <td>ffmpeg</td>
+          <td>1</td>
+          <td>USD 0.000000</td>
+          <td>local/no provider fee recorded</td>
+          <td><pre>{
+  &quot;format&quot;: &quot;wav&quot;,
+  &quot;sampleRate&quot;: 16000
+}</pre></td>
+        </tr>
+<tr>
+          <td>audio_transcription</td>
+          <td>local_whisper</td>
+          <td>1</td>
+          <td>USD 0.000000</td>
+          <td>local/no provider fee recorded</td>
+          <td><pre>{
+  &quot;segmentCount&quot;: 198,
+  &quot;source&quot;: &quot;asr&quot;
+}</pre></td>
+        </tr>
+<tr>
+          <td>video_frame_pack</td>
+          <td>crv_style_ffmpeg</td>
+          <td>1</td>
+          <td>USD 0.000000</td>
+          <td>local/no provider fee recorded</td>
+          <td><pre>{
+  &quot;skipped&quot;: false,
+  &quot;reason&quot;: &quot;&quot;,
+  &quot;frameCount&quot;: 13,
+  &quot;gridCount&quot;: 2,
+  &quot;timestampMode&quot;: &quot;metadata&quot;
+}</pre></td>
+        </tr>
+<tr>
+          <td>visual_understanding</td>
+          <td>qwen-vl</td>
+          <td>1</td>
+          <td>USD 0.000422</td>
+          <td>qwen3-vl-flash estimate: USD 0.05/M input, USD 0.40/M output</td>
+          <td><pre>{
+  &quot;skipped&quot;: false,
+  &quot;status&quot;: &quot;succeeded&quot;,
+  &quot;reason&quot;: &quot;&quot;,
+  &quot;segmentCount&quot;: 1,
+  &quot;model&quot;: &quot;qwen3-vl-flash&quot;,
+  &quot;usage&quot;: {
+    &quot;prompt_tokens&quot;: 4929,
+    &quot;completion_tokens&quot;: 439,
+    &quot;total_tokens&quot;: 5368
+  }
+}</pre></td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>出题模型调用成本</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>stage</th>
+          <th>provider</th>
+          <th>model</th>
+          <th>input</th>
+          <th>output</th>
+          <th>total</th>
+          <th>actual cost</th>
+          <th>estimated cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>v2_reviewPathPlan</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>5,297</td>
+          <td>802</td>
+          <td>6,099</td>
+          <td>USD 0.000808</td>
+          <td>USD 0.001973</td>
+        </tr>
+<tr>
+          <td>2</td>
+          <td>v2_unitKnowledgeMap</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>2,400</td>
+          <td>403</td>
+          <td>2,803</td>
+          <td>USD 0.000343</td>
+          <td>USD 0.000872</td>
+        </tr>
+<tr>
+          <td>3</td>
+          <td>v2_unitKnowledgeMap</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>2,373</td>
+          <td>424</td>
+          <td>2,797</td>
+          <td>USD 0.000346</td>
+          <td>USD 0.000719</td>
+        </tr>
+<tr>
+          <td>4</td>
+          <td>v2_unitKnowledgeMap</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>2,393</td>
+          <td>391</td>
+          <td>2,784</td>
+          <td>USD 0.000339</td>
+          <td>USD 0.000720</td>
+        </tr>
+<tr>
+          <td>5</td>
+          <td>v2_taskBriefPlan</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>2,785</td>
+          <td>433</td>
+          <td>3,218</td>
+          <td>USD 0.000371</td>
+          <td>USD 0.001539</td>
+        </tr>
+<tr>
+          <td>6</td>
+          <td>v2_taskBriefPlan</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>2,777</td>
+          <td>390</td>
+          <td>3,167</td>
+          <td>USD 0.000357</td>
+          <td>USD 0.001351</td>
+        </tr>
+<tr>
+          <td>7</td>
+          <td>v2_taskBriefPlan</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>2,766</td>
+          <td>484</td>
+          <td>3,250</td>
+          <td>USD 0.000382</td>
+          <td>USD 0.001347</td>
+        </tr>
+<tr>
+          <td>8</td>
+          <td>v2_multipleChoiceDraftUnitBatch</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>3,204</td>
+          <td>763</td>
+          <td>3,967</td>
+          <td>USD 0.000504</td>
+          <td>USD 0.001191</td>
+        </tr>
+<tr>
+          <td>9</td>
+          <td>v2_multipleChoiceDraftUnitBatch</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>3,046</td>
+          <td>555</td>
+          <td>3,601</td>
+          <td>USD 0.000424</td>
+          <td>USD 0.000965</td>
+        </tr>
+<tr>
+          <td>10</td>
+          <td>v2_multipleChoiceDraftUnitBatch</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>2,960</td>
+          <td>506</td>
+          <td>3,466</td>
+          <td>USD 0.000398</td>
+          <td>USD 0.000949</td>
+        </tr>
+<tr>
+          <td>11</td>
+          <td>v2_matchingDraft</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>2,505</td>
+          <td>263</td>
+          <td>2,768</td>
+          <td>USD 0.000301</td>
+          <td>USD 0.001320</td>
+        </tr>
+<tr>
+          <td>12</td>
+          <td>v2_matchingDraft</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>2,457</td>
+          <td>355</td>
+          <td>2,812</td>
+          <td>USD 0.000320</td>
+          <td>USD 0.001145</td>
+        </tr>
+<tr>
+          <td>13</td>
+          <td>v2_matchingDraft</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>2,683</td>
+          <td>569</td>
+          <td>3,252</td>
+          <td>USD 0.000412</td>
+          <td>USD 0.001178</td>
+        </tr>
+<tr>
+          <td>14</td>
+          <td>v2_unitCopyBatch</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>1,850</td>
+          <td>373</td>
+          <td>2,223</td>
+          <td>USD 0.000363</td>
+          <td>USD 0.000687</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">模型调用记录</h2>
+    
+      <div class="question">
+        <div><strong>#1 v2_reviewPathPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#2 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#3 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#4 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#5 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#6 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#7 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#8 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#9 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#10 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#11 v2_matchingDraft</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#12 v2_matchingDraft</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#13 v2_matchingDraft</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#14 v2_unitCopyBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">Stage Runtime Reliability</h2>
+    <p class="meta">这一段显示 structured-output runtime 的稳定性：每个 stage 调用了几次、重试了几次、失败类型是什么。它不是题目质量审查。</p>
+    <div class="grid">
+      <div class="metric"><strong>14</strong>Calls</div>
+      <div class="metric"><strong>14</strong>Attempts</div>
+      <div class="metric"><strong>0</strong>Failed attempts</div>
+      <div class="metric"><strong>0</strong>Retry attempts</div>
+    </div>
+    <div class="question">
+      <div><strong>v2_reviewPathPlan</strong></div>
+      <div class="meta">calls: 1 · success calls: 1 · failed calls: 0 · attempts: 1 · retries: 0 · failed attempts: 0 · duration: 7545ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_unitKnowledgeMap</strong></div>
+      <div class="meta">calls: 3 · success calls: 3 · failed calls: 0 · attempts: 3 · retries: 0 · failed attempts: 0 · duration: 10630ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_taskBriefPlan</strong></div>
+      <div class="meta">calls: 3 · success calls: 3 · failed calls: 0 · attempts: 3 · retries: 0 · failed attempts: 0 · duration: 9948ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_multipleChoiceDraftUnitBatch</strong></div>
+      <div class="meta">calls: 3 · success calls: 3 · failed calls: 0 · attempts: 3 · retries: 0 · failed attempts: 0 · duration: 14998ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_matchingDraft</strong></div>
+      <div class="meta">calls: 3 · success calls: 3 · failed calls: 0 · attempts: 3 · retries: 0 · failed attempts: 0 · duration: 9250ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_unitCopyBatch</strong></div>
+      <div class="meta">calls: 1 · success calls: 1 · failed calls: 0 · attempts: 1 · retries: 0 · failed attempts: 0 · duration: 4571ms</div>
+      
+      
+    </div>
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">Source Context Stats</h2>
+    <p class="meta">这一段显示实际传给下游阶段的 source window，用来检查是否还在把全文 blocks 塞给每个 unit。</p>
+    <div class="grid">
+      <div class="metric"><strong>16</strong>Full blocks</div>
+      <div class="metric"><strong>8</strong>Plan blocks</div>
+      <div class="metric"><strong>3</strong>Unit windows</div>
+    </div>
+    <p class="meta">unitKnowledgeMap: video-transcript-004, video-transcript-005, video-transcript-006, video-transcript-007, video-transcript-008, video-transcript-009, video-transcript-010, video-transcript-011</p>
+    <div class="question">
+      <strong>unit-1</strong>
+      <div class="meta">anchor: anchor-unit-1 · blocks: video-transcript-004, video-transcript-005, video-transcript-006, video-transcript-007</div>
+    </div>
+<div class="question">
+      <strong>unit-2</strong>
+      <div class="meta">anchor: anchor-unit-2 · blocks: video-transcript-006, video-transcript-007, video-transcript-008, video-transcript-009</div>
+    </div>
+<div class="question">
+      <strong>unit-3</strong>
+      <div class="meta">anchor: anchor-unit-3 · blocks: video-transcript-008, video-transcript-009, video-transcript-010, video-transcript-011</div>
+    </div>
+  </section>
+    <section class="card">
+      <h2 style="margin-top:0">文章与章节</h2>
+      <p><strong>多Agent协作通信设计</strong></p>
+      <p class="meta">小哲讲大模型 · <a href="https://v.douyin.com/yXZKGqTAbKg/">https://v.douyin.com/yXZKGqTAbKg/</a></p>
+      <p>多Agent系统失败常因交接时上下文断裂。核心设计三件事：选对通信拓扑、定好消息契约、管好共享状态。</p>
+      <div class="grid">
+        <div class="metric"><strong>3</strong>知识点</div>
+        <div class="metric"><strong>11</strong>题目</div>
+        <div class="metric"><strong>7</strong>选择题</div>
+        <div class="metric"><strong>4</strong>连线题</div>
+        <div class="metric"><strong>16</strong>Source blocks</div>
+        <div class="metric"><strong>0</strong>Issues</div>
+        <div class="metric"><strong>1</strong>Diagnostics</div>
+        <div class="metric"><strong>0</strong>Runtime failed attempts</div>
+        <div class="metric"><strong>0</strong>Runtime retries</div>
+      </div>
+    </section>
+    <section class="card">
+    <h2 style="margin-top:0">Micro Knowledge Map</h2>
+    <p class="meta">这一段是内部诊断信息：它只记录每个 unit 内部的小知识点 inventory，不负责选题型或控制题量。</p>
+    <div class="question">
+        <div class="stem">1. unit-1</div>
+        <details open>
+    <summary>Micro Knowledge Points</summary>
+    <ul>
+      <li>micro-unit-1-001 · high · definition：中心化编排模式定义 / 主管-执行者模式，子Agent只与主Agent通信 / angle: 模式识别与定义</li>
+<li>micro-unit-1-002 · high · process_step：主Agent职责 / 主Agent负责拆解任务、分发、收集结果和汇总 / angle: 职责分解与流程</li>
+<li>micro-unit-1-003 · medium · mechanism：中心化模式优势 / 通信路径清晰，全局状态统一维护，不易混乱 / angle: 优势分析与比较</li>
+<li>micro-unit-1-004 · medium · boundary：中心化 vs 去中心化 / 中心化可控可调试，去中心化灵活但易出问题 / angle: 模式对比与选择</li>
+<li>micro-unit-1-005 · low · scenario_application：工程实践优先选择 / 真实项目除非有强理由，一般优先选中心化编排 / angle: 工程决策原则</li>
+    </ul>
+  </details>
+      </div>
+<div class="question">
+        <div class="stem">2. unit-2</div>
+        <details open>
+    <summary>Micro Knowledge Points</summary>
+    <ul>
+      <li>micro-unit-2-001 · high · definition：结构化消息契约定义 / Agent间使用结构化消息格式固定交互内容，避免自然语言歧义 / angle: 理解结构化消息契约概念</li>
+<li>micro-unit-2-002 · high · model_layer：消息契约包含的字段 / 目标、输出格式、工具、边界、上一步结果等固定字段 / angle: 识别消息契约组成要素</li>
+<li>micro-unit-2-003 · medium · misconception：自然语言通信的弊端 / 自然语言自由交流导致歧义和信息丢失，是灾难性的 / angle: 对比自然语言与结构化通信</li>
+<li>micro-unit-2-004 · high · mechanism：消息契约的作用机制 / 接收方获得确定可解析信息，上下文不易断裂 / angle: 理解消息契约如何保证通信可靠性</li>
+<li>micro-unit-2-005 · medium · example_case：Anthropic实践案例 / Anthropic给子Agent派活时明确目标、输出格式、工具、边界 / angle: 引用Anthropic案例说明消</li>
+    </ul>
+  </details>
+      </div>
+<div class="question">
+        <div class="stem">3. unit-3</div>
+        <details open>
+    <summary>Micro Knowledge Points</summary>
+    <ul>
+      <li>micro-unit-3-001 · high · definition：共享状态定义与作用 / 共享状态是Agent间保持同一真相的结构化记忆区 / angle: 概念理解</li>
+<li>micro-unit-3-002 · high · mechanism：公共黑板模式 / Agent将关键进度、中间结论写入共享状态，需要时读取 / angle: 机制描述</li>
+<li>micro-unit-3-003 · medium · relationship：共享状态 vs 消息传递 / 共享状态避免Agent间互相追问，减少上下文断裂 / angle: 对比分析</li>
+<li>micro-unit-3-004 · medium · process_step：子Agent结果精简写入 / 子Agent只写精简结论，主Agent读取，保持上下文干净 / angle: 流程步骤</li>
+<li>micro-unit-3-005 · high · boundary：编排者统一维护 / 共享状态由编排者统一维护，保证全局视图一致 / angle: 职责边界</li>
+    </ul>
+  </details>
+      </div>
+  </section>
+    
+    <section class="card">
+    <h2 style="margin-top:0">1. 通信拓扑：中心化编排模式</h2>
+    <p><span class="tag">短版</span>主管-执行者模式，子Agent只与主Agent通信，路径清晰可控。</p>
+    <p><span class="tag">长版</span>最主流且可控的通信拓扑是中心化编排模式，即主管-执行者模式。一个主Agent居中调度，所有子Agent只与主Agent通信，子Agent之间不直接对话。主Agent负责拆解任务、分发、收集结果和汇总。这种模式通信路径清晰，全局状态由主Agent统一维护，不易混乱，且可观测、易调试。真实项目中除非有强理由，一般优先选择此模式。</p>
+    <p><span class="tag">概要页</span>多Agent协作的第一步是选对通信拓扑。中心化编排模式是最主流且可控的方案：一个主Agent居中调度，所有子Agent只与主Agent通信。这种模式路径清晰、全局状态统一，易于调试和观测。掌握它，你就掌握了多Agent系统设计的基石。</p>
+    <div class="source">
+      <strong>Source anchor: anchor-unit-1</strong>
+      <div class="source-block highlight">
+    <strong>video-transcript-005 · paragraph</strong>
+    <div>先说通信脱铺，也就是谁跟谁通信，最主流最好控制的是，主管家执行者这种中心化模式，一个主Agent，居中调度，所有紫Agent只跟主Agent通信，紫Agent之间不直接对话，主Agent负责拆任务，分发，收集结果，汇总，这种模式的好处是通信路径清晰，全局状态有主Agent的统一维护，不容易乱，另一种是让Agent之间，直接互相传递，类似接理交接，谁处理完了就...</div>
+    <details><summary>展开完整 source block</summary><pre>先说通信脱铺，也就是谁跟谁通信，最主流最好控制的是，主管家执行者这种中心化模式，一个主Agent，居中调度，所有紫Agent只跟主Agent通信，紫Agent之间不直接对话，主Agent负责拆任务，分发，收集结果，汇总，这种模式的好处是通信路径清晰，全局状态有主Agent的统一维护，不容易乱，另一种是让Agent之间，直接互相传递，类似接理交接，谁处理完了就把活交给下一个</pre></details>
+  </div>
+<div class="source-block highlight">
+    <strong>video-transcript-006 · paragraph</strong>
+    <div>这种更灵活，但也更容易在交接点上出问题，真实项目里除非你有很强的理由，一般优先选中心化的编排模式，因为它可控好调试好观测</div>
+    
+  </div>
+    </div>
+    <div class="question">
+    <div class="stem">1. 选择题 · 中心化编排模式中，子Agent之间如何通信？</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> 子Agent通过消息队列通信</div>
+<div class="option "><strong>B</strong> 子Agent之间可以直接通信</div>
+<div class="option "><strong>C</strong> 子Agent通过共享状态通信</div>
+<div class="option correct"><strong>D</strong> 子Agent只与主Agent通信</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>中心化模式中，子Agent只与主Agent通信，不直接对话，确保路径清晰可控。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-1</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">2. 连线题 · 请匹配角色与其职责</div>
+    <div class="pairs">
+      <div class="pair"><strong>l1 → r1</strong><br>主Agent<br><span class="meta">拆解任务、分发、汇总</span></div>
+<div class="pair"><strong>l2 → r2</strong><br>子Agent<br><span class="meta">执行分配的子任务</span></div>
+    </div>
+    <details>
+      <summary>左右选项原始列表</summary>
+      <pre>{
+  &quot;leftItems&quot;: [
+    {
+      &quot;id&quot;: &quot;l1&quot;,
+      &quot;text&quot;: &quot;主Agent&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l2&quot;,
+      &quot;text&quot;: &quot;子Agent&quot;
+    }
+  ],
+  &quot;rightItems&quot;: [
+    {
+      &quot;id&quot;: &quot;r1&quot;,
+      &quot;text&quot;: &quot;拆解任务、分发、汇总&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r2&quot;,
+      &quot;text&quot;: &quot;执行分配的子任务&quot;
+    }
+  ],
+  &quot;pairs&quot;: [
+    {
+      &quot;leftId&quot;: &quot;l1&quot;,
+      &quot;rightId&quot;: &quot;r1&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l2&quot;,
+      &quot;rightId&quot;: &quot;r2&quot;
+    }
+  ]
+}</pre>
+    </details>
+    <div class="explanation"><strong>解释：</strong>主Agent负责调度，子Agent只执行任务，不直接通信。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-1</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: not_applicable</div>
+    <div class="meta">matching relation value: pass</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">3. 选择题 · 相比去中心化模式，中心化编排的主要优势是什么？</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> 系统更灵活，适应性强</div>
+<div class="option "><strong>B</strong> 不需要主Agent，减少单点</div>
+<div class="option "><strong>C</strong> 子Agent之间可以自由通信</div>
+<div class="option correct"><strong>D</strong> 通信路径清晰，全局状态统一维护</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>中心化模式通信路径清晰、全局状态统一维护，比去中心化更可控可调试。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-1</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">4. 选择题 · 真实项目中，选择通信拓扑时应优先考虑什么？</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> 根据Agent数量决定</div>
+<div class="option "><strong>B</strong> 选择性能最优的模式</div>
+<div class="option "><strong>C</strong> 优先选择去中心化模式</div>
+<div class="option correct"><strong>D</strong> 优先选择中心化编排模式</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>真实项目除非有强理由，一般优先选中心化编排，因其可控、好调试、好观测。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-1</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+    <details>
+      <summary>单元总结</summary>
+      <p><strong>单元完成</strong></p>
+      <p>中心化编排模式通过主管-执行者结构，让通信路径清晰可控，是工程实践中的首选方案。</p>
+    </details>
+  </section>
+<section class="card">
+    <h2 style="margin-top:0">2. 消息契约：结构化消息格式</h2>
+    <p><span class="tag">短版</span>Agent间用结构化消息固定目标、输出格式、工具、边界等，避免歧义。</p>
+    <p><span class="tag">长版</span>消息契约是多Agent通信中最易被忽略但最关键的一环。Agent之间绝不能使用自然语言自由交流，否则会导致歧义和信息丢失。正确做法是使用结构化消息格式，将每次交互的内容固定下来，包括子任务的目标、期望输出格式、可用工具、边界条件以及上一步结果等。这相当于给Agent之间定一份接口协议，接收方获得的信息确定且可解析，交接时上下文不易断裂。Anthropic的研</p>
+    <p><span class="tag">概要页</span>Agent之间通信不能靠自然语言自由发挥，否则歧义和上下文断裂在所难免。消息契约通过结构化格式固定目标、输出、工具和边界，相当于给Agent之间定了一份接口协议。学会设计它，你的多Agent系统才能可靠交接。</p>
+    <div class="source">
+      <strong>Source anchor: anchor-unit-2</strong>
+      <div class="source-block highlight">
+    <strong>video-transcript-007 · paragraph</strong>
+    <div>再说消息契约，这是最容易被忽略，但最关键的一环，Agent，之间千万别用大白话自由交流，一个Agent的发移大段自然语言，另一个Agent去理解，这中间的起义和信息丢失，是灾难性的，正确做法，是用结构化的消息格式，把每一次交互，该带的东西固定下来，比如这个子人物的目标是什么，期望的输出格式是什么，可以用哪些工具，边界在哪，上一步的结果是什么，你可以理解成，给...</div>
+    <details><summary>展开完整 source block</summary><pre>再说消息契约，这是最容易被忽略，但最关键的一环，Agent，之间千万别用大白话自由交流，一个Agent的发移大段自然语言，另一个Agent去理解，这中间的起义和信息丢失，是灾难性的，正确做法，是用结构化的消息格式，把每一次交互，该带的东西固定下来，比如这个子人物的目标是什么，期望的输出格式是什么，可以用哪些工具，边界在哪，上一步的结果是什么，你可以理解成，给Agent之间定一份接口协议</pre></details>
+  </div>
+<div class="source-block highlight">
+    <strong>video-transcript-008 · paragraph</strong>
+    <div>大家按协议说话，而不是自由发挥，这样接收方拿到的信息是确定的，可解析的，交接的时候，上下文才不容易断，Anthrope做多Agent的研究系统，给子Agent的派活的时候，就是把目标，输出格式，工具，边界这几样都讲得清清楚楚，不留模糊空间</div>
+    
+  </div>
+    </div>
+    <div class="question">
+    <div class="stem">1. 选择题 · 多Agent通信中，消息契约的核心作用是什么？</div>
+    <div class="options">
+      <div class="option correct"><strong>A</strong> 用结构化格式固定交互内容，避免歧义</div>
+<div class="option "><strong>B</strong> 减少Agent之间的通信次数，提升效率</div>
+<div class="option "><strong>C</strong> 让Agent用自然语言自由交流，更灵活</div>
+<div class="option "><strong>D</strong> 统一Agent使用的编程语言和框架</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>消息契约用结构化格式固定交互内容，确保信息确定可解析，避免自然语言歧义导致上下文断裂。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-2</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">2. 连线题 · 请匹配消息契约中的字段与其作用</div>
+    <div class="pairs">
+      <div class="pair"><strong>l1 → r1</strong><br>子任务目标<br><span class="meta">明确要完成什么</span></div>
+<div class="pair"><strong>l2 → r2</strong><br>期望输出格式<br><span class="meta">规定返回数据结构</span></div>
+<div class="pair"><strong>l3 → r3</strong><br>可用工具<br><span class="meta">限定可调用的资源</span></div>
+<div class="pair"><strong>l4 → r4</strong><br>边界条件<br><span class="meta">划定操作范围</span></div>
+    </div>
+    <details>
+      <summary>左右选项原始列表</summary>
+      <pre>{
+  &quot;leftItems&quot;: [
+    {
+      &quot;id&quot;: &quot;l1&quot;,
+      &quot;text&quot;: &quot;子任务目标&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l2&quot;,
+      &quot;text&quot;: &quot;期望输出格式&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l3&quot;,
+      &quot;text&quot;: &quot;可用工具&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l4&quot;,
+      &quot;text&quot;: &quot;边界条件&quot;
+    }
+  ],
+  &quot;rightItems&quot;: [
+    {
+      &quot;id&quot;: &quot;r1&quot;,
+      &quot;text&quot;: &quot;明确要完成什么&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r2&quot;,
+      &quot;text&quot;: &quot;规定返回数据结构&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r3&quot;,
+      &quot;text&quot;: &quot;限定可调用的资源&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r4&quot;,
+      &quot;text&quot;: &quot;划定操作范围&quot;
+    }
+  ],
+  &quot;pairs&quot;: [
+    {
+      &quot;leftId&quot;: &quot;l1&quot;,
+      &quot;rightId&quot;: &quot;r1&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l2&quot;,
+      &quot;rightId&quot;: &quot;r2&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l3&quot;,
+      &quot;rightId&quot;: &quot;r3&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l4&quot;,
+      &quot;rightId&quot;: &quot;r4&quot;
+    }
+  ]
+}</pre>
+    </details>
+    <div class="explanation"><strong>解释：</strong>消息契约通过固定目标、输出格式、工具和边界，确保Agent间通信确定可解析。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-2</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: not_applicable</div>
+    <div class="meta">matching relation value: pass</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">3. 选择题 · 在简单任务场景中，Agent之间使用自然语言通信会怎样？</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> 简单场景下自然语言通信完全可行</div>
+<div class="option "><strong>B</strong> 自然语言通信比结构化更高效</div>
+<div class="option correct"><strong>C</strong> 自然语言通信可能导致歧义和信息丢失</div>
+<div class="option "><strong>D</strong> 简单场景只需少量通信，无需结构化</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>自然语言通信即使简单场景也可能产生歧义和信息丢失，结构化消息才能保证信息确定可解析。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-2</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>v2_option_tone_cue: 多个干扰项包含绝对化或否定化泄题词：完全、无需</pre>
+  </details>
+  </div>
+    <details>
+      <summary>单元总结</summary>
+      <p><strong>单元完成</strong></p>
+      <p>结构化消息契约是防止上下文断裂的核心手段，它让Agent间的每一次交互都确定且可解析。</p>
+    </details>
+  </section>
+<section class="card">
+    <h2 style="margin-top:0">3. 共享状态：统一维护的公共黑板</h2>
+    <p><span class="tag">短版</span>通过共享结构化记忆区，所有Agent读写同一份真相，保持上下文干净。</p>
+    <p><span class="tag">长版</span>共享状态解决如何让所有Agent看到同一份真相的问题。常见做法是设置一块共享的结构化记忆区，类似公共黑板，Agent将关键进度、中间结论和状态写入其中，需要时读取，而非靠消息互相追问。子Agent返回结果时只需将精简结论写入共享状态，主Agent读取，从而保持Agent上下文干净。共享状态必须由编排者统一维护，保证全局视图一致，防止信息错乱。</p>
+    <p><span class="tag">概要页</span>多个Agent协作时，如何让它们看到同一份真相？共享状态管理通过公共黑板机制，让所有Agent读写统一的结构化记忆区，保持上下文干净。子Agent只需写入精简结论，主Agent统一维护全局视图。这是防止信息错乱的关键设计。</p>
+    <div class="source">
+      <strong>Source anchor: anchor-unit-3</strong>
+      <div class="source-block highlight">
+    <strong>video-transcript-009 · paragraph</strong>
+    <div>第三件是共享状态，解决的是怎么让所有Agent，看到同一份真相，如果每个Agent，都只揣着自己那点信息，谁也不知道别人干到哪了，协作必然乱套，常见的做法是搞一块共享的，结构化的记忆区，像一块公共黑板，Agent把关键的进度，中间结论，状态都写到这上面，需要的时候去读，而不是靠一条条消息互相追问，这样做还有个好处，子Agent返回结果的时候</div>
+    
+  </div>
+<div class="source-block highlight">
+    <strong>video-transcript-010 · paragraph</strong>
+    <div>不用把一大堆啰嗦的过程，原样传回来，只需要把精简的结论，写进共享状态，主Agent去读，Agent的上下文保持干净，这块共享状态，必须由编排者统一维护，保证全局仕途一致，这是防止信息错乱的关键，给你一个面试回答模板，第一句先点本质，多Agent最容易绷的不是单个Agent，而是他们之间的通信和交接，所以通信要专门设计</div>
+    
+  </div>
+    </div>
+    <div class="question">
+    <div class="stem">1. 选择题 · 共享状态的主要作用是什么？</div>
+    <div class="options">
+      <div class="option correct"><strong>A</strong> 让所有Agent看到同一份真相</div>
+<div class="option "><strong>B</strong> 让每个Agent维护自己的状态</div>
+<div class="option "><strong>C</strong> 替代Agent之间的消息传递</div>
+<div class="option "><strong>D</strong> 减少Agent数量以简化协作</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>共享状态是保持同一真相的结构化记忆区，而非替代消息传递，两者协同工作。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-3</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">2. 选择题 · 在公共黑板模式中，Agent如何获取其他Agent的进度？</div>
+    <div class="options">
+      <div class="option correct"><strong>A</strong> 从共享状态中读取写入的进度</div>
+<div class="option "><strong>B</strong> 通过消息逐一询问其他Agent</div>
+<div class="option "><strong>C</strong> 由编排者主动推送进度给所有Agent</div>
+<div class="option "><strong>D</strong> 直接读取其他Agent的私有状态</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>Agent将进度写入共享状态，其他Agent读取，而非直接访问私有状态或依赖消息追问。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-3</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">3. 连线题 · 匹配共享状态与消息传递的适用时机</div>
+    <div class="pairs">
+      <div class="pair"><strong>l1 → r1</strong><br>共享状态<br><span class="meta">需要所有Agent看到同一份真相</span></div>
+<div class="pair"><strong>l2 → r2</strong><br>消息传递<br><span class="meta">需要传递具体指令或结果</span></div>
+    </div>
+    <details>
+      <summary>左右选项原始列表</summary>
+      <pre>{
+  &quot;leftItems&quot;: [
+    {
+      &quot;id&quot;: &quot;l1&quot;,
+      &quot;text&quot;: &quot;共享状态&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l2&quot;,
+      &quot;text&quot;: &quot;消息传递&quot;
+    }
+  ],
+  &quot;rightItems&quot;: [
+    {
+      &quot;id&quot;: &quot;r1&quot;,
+      &quot;text&quot;: &quot;需要所有Agent看到同一份真相&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r2&quot;,
+      &quot;text&quot;: &quot;需要传递具体指令或结果&quot;
+    }
+  ],
+  &quot;pairs&quot;: [
+    {
+      &quot;leftId&quot;: &quot;l1&quot;,
+      &quot;rightId&quot;: &quot;r1&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l2&quot;,
+      &quot;rightId&quot;: &quot;r2&quot;
+    }
+  ]
+}</pre>
+    </details>
+    <div class="explanation"><strong>解释：</strong>共享状态用于全局一致性，消息传递用于定向通信。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-3</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: not_applicable</div>
+    <div class="meta">matching relation value: pass</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">4. 连线题 · 匹配Agent角色与共享状态中的职责</div>
+    <div class="pairs">
+      <div class="pair"><strong>l1 → r1</strong><br>子Agent<br><span class="meta">写入精简结论</span></div>
+<div class="pair"><strong>l2 → r2</strong><br>主Agent<br><span class="meta">读取共享状态</span></div>
+<div class="pair"><strong>l3 → r3</strong><br>编排者<br><span class="meta">统一维护共享状态</span></div>
+    </div>
+    <details>
+      <summary>左右选项原始列表</summary>
+      <pre>{
+  &quot;leftItems&quot;: [
+    {
+      &quot;id&quot;: &quot;l1&quot;,
+      &quot;text&quot;: &quot;子Agent&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l2&quot;,
+      &quot;text&quot;: &quot;主Agent&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l3&quot;,
+      &quot;text&quot;: &quot;编排者&quot;
+    }
+  ],
+  &quot;rightItems&quot;: [
+    {
+      &quot;id&quot;: &quot;r1&quot;,
+      &quot;text&quot;: &quot;写入精简结论&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r2&quot;,
+      &quot;text&quot;: &quot;读取共享状态&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r3&quot;,
+      &quot;text&quot;: &quot;统一维护共享状态&quot;
+    }
+  ],
+  &quot;pairs&quot;: [
+    {
+      &quot;leftId&quot;: &quot;l1&quot;,
+      &quot;rightId&quot;: &quot;r1&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l2&quot;,
+      &quot;rightId&quot;: &quot;r2&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l3&quot;,
+      &quot;rightId&quot;: &quot;r3&quot;
+    }
+  ]
+}</pre>
+    </details>
+    <div class="explanation"><strong>解释：</strong>子Agent写结论，主Agent读状态，编排者维护全局一致。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-3</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: not_applicable</div>
+    <div class="meta">matching relation value: pass</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+    <details>
+      <summary>单元总结</summary>
+      <p><strong>单元完成</strong></p>
+      <p>共享状态由编排者统一维护，确保所有Agent基于同一份真相协作，是保持系统一致性的核心。</p>
+    </details>
+  </section>
+    <section class="card">
+      <h2 style="margin-top:0">章节总结</h2>
+      <p><span class="tag">章节完成</span>共 3 个核心知识点，11 道题目</p>
+      <p>掌握拓扑、契约、状态三要素，你已具备设计可靠多Agent通信的工程思维，面试中脱颖而出！</p>
+    </section>
+    <section class="card">
+      <h2 style="margin-top:0">完整来源块</h2>
+      <div class="source-block ">
+    <strong>video-platform-description · paragraph</strong>
+    <div>平台文案：面试必考：多Agent协作通信怎么设计？ 面试被问到多Agent协作通信怎么设计，千万别说只是互相发消息！多Agent系统失败往往是因为交接时上下文断裂。真正懂行的架构设计核心在于三点：选对通信拓扑、定好消息契约、管好共享状态。掌握这三步，向面试官展现真正的工程思维。想系统学习Agent开发的同学可以查看橱窗哦！ 
+#人工智能 #大模型面试 #Ag...</div>
+    <details><summary>展开完整 source block</summary><pre>平台文案：面试必考：多Agent协作通信怎么设计？ 面试被问到多Agent协作通信怎么设计，千万别说只是互相发消息！多Agent系统失败往往是因为交接时上下文断裂。真正懂行的架构设计核心在于三点：选对通信拓扑、定好消息契约、管好共享状态。掌握这三步，向面试官展现真正的工程思维。想系统学习Agent开发的同学可以查看橱窗哦！ 
+#人工智能 #大模型面试 #Agent开发 #多智能体 #架构设计</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-001 · paragraph</strong>
+    <div>面试官问你多个Agent的协作，他们之间的通信你怎么设计，很多人一听就懵，通信不就是一个Agent的，把结果发给另一个Agent吗，有啥好设计的，你要真这么挡，面试官立马知道你没搭过多Agent的系统，因为有研究专门统计过，多Agent的系统失败，很大一部分根本不是单个Agent的不行，而是Agent的之间协调出了问题，信息传丢了 传歪了，交接的时候上下文断...</div>
+    <details><summary>展开完整 source block</summary><pre>面试官问你多个Agent的协作，他们之间的通信你怎么设计，很多人一听就懵，通信不就是一个Agent的，把结果发给另一个Agent吗，有啥好设计的，你要真这么挡，面试官立马知道你没搭过多Agent的系统，因为有研究专门统计过，多Agent的系统失败，很大一部分根本不是单个Agent的不行，而是Agent的之间协调出了问题，信息传丢了 传歪了，交接的时候上下文断了，这道题考的，就是你会不会把通信</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-002 · paragraph</strong>
+    <div>当成一个要专门设计的架构问题，我是小哲 点赞收藏 加关注，我们马上开始，想系统学习Agent的开发的同学，可以查看出窗哦，先说这题在考什么，它表面问通信怎么设计，实际是在考你懂不懂多Agent的系统，真正的平静在哪，单个Agent的再强，一旦要多个协作，最容易崩的地方，就是他们之间的信息交换，Agent的之间的带宽其实很有限，你没法把一个Agent的脑子里，...</div>
+    <details><summary>展开完整 source block</summary><pre>当成一个要专门设计的架构问题，我是小哲 点赞收藏 加关注，我们马上开始，想系统学习Agent的开发的同学，可以查看出窗哦，先说这题在考什么，它表面问通信怎么设计，实际是在考你懂不懂多Agent的系统，真正的平静在哪，单个Agent的再强，一旦要多个协作，最容易崩的地方，就是他们之间的信息交换，Agent的之间的带宽其实很有限，你没法把一个Agent的脑子里，所有的上下文，原封不动搬给另一个</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-003 · paragraph</strong>
+    <div>只能通过消息来传，这中间就会丢信息，会有奇异，业界公认，交接点上的上下文断裂，是多Agent的最常见的失败原因，所以面试官想看的是，你知不知道通信不是随便发消息，而是要选对通信模式，订好消息结构，管住全局状态</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-004 · paragraph</strong>
+    <div>一句话给你总答案，多Agent通信的设计，核心就三件事，选对通信脱铺，订好消息契约，管好共享状态，通信脱铺决定谁跟谁说话，消息契约决定说的话长什么样，不能随便发一段自然语言，共享状态决定大家怎么看到，统一份真相，把这三件事订清楚，通信才不会乱</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-005 · paragraph</strong>
+    <div>先说通信脱铺，也就是谁跟谁通信，最主流最好控制的是，主管家执行者这种中心化模式，一个主Agent，居中调度，所有紫Agent只跟主Agent通信，紫Agent之间不直接对话，主Agent负责拆任务，分发，收集结果，汇总，这种模式的好处是通信路径清晰，全局状态有主Agent的统一维护，不容易乱，另一种是让Agent之间，直接互相传递，类似接理交接，谁处理完了就...</div>
+    <details><summary>展开完整 source block</summary><pre>先说通信脱铺，也就是谁跟谁通信，最主流最好控制的是，主管家执行者这种中心化模式，一个主Agent，居中调度，所有紫Agent只跟主Agent通信，紫Agent之间不直接对话，主Agent负责拆任务，分发，收集结果，汇总，这种模式的好处是通信路径清晰，全局状态有主Agent的统一维护，不容易乱，另一种是让Agent之间，直接互相传递，类似接理交接，谁处理完了就把活交给下一个</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-006 · paragraph</strong>
+    <div>这种更灵活，但也更容易在交接点上出问题，真实项目里除非你有很强的理由，一般优先选中心化的编排模式，因为它可控好调试好观测</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-007 · paragraph</strong>
+    <div>再说消息契约，这是最容易被忽略，但最关键的一环，Agent，之间千万别用大白话自由交流，一个Agent的发移大段自然语言，另一个Agent去理解，这中间的起义和信息丢失，是灾难性的，正确做法，是用结构化的消息格式，把每一次交互，该带的东西固定下来，比如这个子人物的目标是什么，期望的输出格式是什么，可以用哪些工具，边界在哪，上一步的结果是什么，你可以理解成，给...</div>
+    <details><summary>展开完整 source block</summary><pre>再说消息契约，这是最容易被忽略，但最关键的一环，Agent，之间千万别用大白话自由交流，一个Agent的发移大段自然语言，另一个Agent去理解，这中间的起义和信息丢失，是灾难性的，正确做法，是用结构化的消息格式，把每一次交互，该带的东西固定下来，比如这个子人物的目标是什么，期望的输出格式是什么，可以用哪些工具，边界在哪，上一步的结果是什么，你可以理解成，给Agent之间定一份接口协议</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-008 · paragraph</strong>
+    <div>大家按协议说话，而不是自由发挥，这样接收方拿到的信息是确定的，可解析的，交接的时候，上下文才不容易断，Anthrope做多Agent的研究系统，给子Agent的派活的时候，就是把目标，输出格式，工具，边界这几样都讲得清清楚楚，不留模糊空间</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-009 · paragraph</strong>
+    <div>第三件是共享状态，解决的是怎么让所有Agent，看到同一份真相，如果每个Agent，都只揣着自己那点信息，谁也不知道别人干到哪了，协作必然乱套，常见的做法是搞一块共享的，结构化的记忆区，像一块公共黑板，Agent把关键的进度，中间结论，状态都写到这上面，需要的时候去读，而不是靠一条条消息互相追问，这样做还有个好处，子Agent返回结果的时候</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-010 · paragraph</strong>
+    <div>不用把一大堆啰嗦的过程，原样传回来，只需要把精简的结论，写进共享状态，主Agent去读，Agent的上下文保持干净，这块共享状态，必须由编排者统一维护，保证全局仕途一致，这是防止信息错乱的关键，给你一个面试回答模板，第一句先点本质，多Agent最容易绷的不是单个Agent，而是他们之间的通信和交接，所以通信要专门设计</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-011 · paragraph</strong>
+    <div>第二句讲脱铺，优先用主管加执行者的中心化模式，子Agent只跟主Agent的通信，路径清晰好控制，第三句讲消息契约，Agent之间不能用大白话自由交流，要用结构化消息，把目标 输出格式 工具 边界，上一步结果都固定下来，减少奇异和上下文断裂</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-012 · paragraph</strong>
+    <div>第四句讲共享状态，用一块统一维护的共享记忆，做公共黑板，大家读写同一份真相，子Agent只回传经检结论，省贷宽又保上下文干净</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-013 · paragraph</strong>
+    <div>最后补一句，通信全程要可观测，每次交互都能追溯，这么讲下来，面试官就知道，你是真设计过多Agent的架构的，所以你看，多Agent通信这道题，考的不是发消息，而是你会不会选拓扑，订契约管状态，记住核心，中心化编排管住路径，结构化消息管住奇异，共享状态管住全局真相，交接点不断，协作才不散，其实大模型面试最难的</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-014 · paragraph</strong>
+    <div>不是被概念，而是每一道题，你都要知道面试官，真正想考什么，应该回答到什么深度，哪些地方会继续追问，所以我把Agent RAG MCP，多Agent，这些高频工程画面试题，全部整理成了一套系统课程，不是带你被prompt，而是带你建立，如果你最近准备，AI岗位面试，或者想转Agent的开发，可以去出窗看看</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>visual-001 · paragraph</strong>
+    <div>三格画面聚焦防止信息错乱的关键：左为‘编排者(Orchestrator)’，强调统一维护；中为‘多Agent通信考点’，列出三个核心设计点——选拓扑、定契约、管状态；右为‘大模型工程化系统课程’界面，显示Agent/RAG/MCP/多Agent协作等关键词，并提示‘建立真正工程思维’及‘点击左下角查看’。底部文字总结：‘所以我把Agent、RAG、MCP、’...</div>
+    <details><summary>展开完整 source block</summary><pre>三格画面聚焦防止信息错乱的关键：左为‘编排者(Orchestrator)’，强调统一维护；中为‘多Agent通信考点’，列出三个核心设计点——选拓扑、定契约、管状态；右为‘大模型工程化系统课程’界面，显示Agent/RAG/MCP/多Agent协作等关键词，并提示‘建立真正工程思维’及‘点击左下角查看’。底部文字总结：‘所以我把Agent、RAG、MCP、’，暗示课程内容涵盖这些模块。</pre></details>
+  </div>
+    </section>
+  </main>
+</body>
+</html>

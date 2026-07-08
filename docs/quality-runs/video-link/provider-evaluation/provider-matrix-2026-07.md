@@ -28,6 +28,12 @@
 | Run ID | Sample ID | Source success | Transcript provider | OCR provider | Visual provider | TikHub calls | Media cost USD | Model cost USD | Source blocks | Units | Questions | Diagnostics | Human note |
 | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
 | 待样本确认 | 待实测填入 | 待样本确认 | 待实测填入 | 待样本确认 | 待实测填入 | 0 | 0 | 0 | 0 | 0 | 0 | 待样本确认 | 待实测填入 |
+| 20260708-162425-visual-runner | douyin-speech-knowledge | yes | local_whisper | none | qwen-vl / qwen3-vl-flash | 1 | 0.001422 | 0.005670 | 16 | 3 | 11 | 1 warning: option tone cue | Qwen visual succeeded with 13 frames / 2 grids / 1 visual segment. No generation retries. Keep ASR/subtitle as primary path; visual remains enhancement. |
+
+## Recorded Artifacts
+
+- `douyin-speech-knowledge` visual runner JSON: `docs/quality-runs/video-link/douyin-multi-agent-communication/runs/20260708-162425-20260708-douyin-multi-agent-communication-visual-runner.json`
+- `douyin-speech-knowledge` visual runner HTML: `docs/quality-runs/video-link/douyin-multi-agent-communication/reports/20260708-162425-20260708-douyin-multi-agent-communication-visual-runner.html`
 
 ## Decision Rules
 
