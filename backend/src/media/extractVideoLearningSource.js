@@ -19,6 +19,7 @@ import {
   buildVideoExtractionSignature,
   buildVideoLearningSourceCacheKey,
   buildVideoSourceCacheKey,
+  deleteCache,
   getSharedLearningSourceCache,
   getSharedVideoSourceCache,
   readCache,
@@ -101,30 +102,48 @@ export async function extractVideoLearningSource({
 
   const videoSourceCacheKey = buildVideoSourceCacheKey({ sourceUrl: sourceInput });
   let video = await readCache(resolvedVideoSourceCache, videoSourceCacheKey);
-  const videoSourceCacheHit = Boolean(video);
+  let videoSourceCacheHit = Boolean(video);
   if (!video) {
     video = await provider.fetchVideoSource({ sourceUrl: sourceInput });
     await writeCache(resolvedVideoSourceCache, videoSourceCacheKey, video);
   }
-  recordMediaUsage(mediaUsageRecorder, {
-    stage: "tikhub_fetch",
-    provider: videoSourceCacheHit ? "cache:tikhub" : video.provider || "tikhub",
-    cost: 0,
-    metadata: {
-      platform: video.platform,
-      providerContentId: video.providerContentId || "",
-      cacheHit: videoSourceCacheHit,
-      cacheKey: videoSourceCacheKey
-    }
-  });
+  recordVideoSourceUsage(mediaUsageRecorder, { video, videoSourceCacheHit, videoSourceCacheKey });
   const tempFiles = [];
   try {
-    const mediaFile = await downloadMedia({ mediaUrl: video.mediaUrl });
+    let staleVideoSourceCache = false;
+    let mediaFile;
+    try {
+      mediaFile = await downloadMedia({ mediaUrl: video.mediaUrl });
+    } catch (error) {
+      if (!shouldRefreshCachedVideoSource({ error, videoSourceCacheHit })) throw error;
+      staleVideoSourceCache = true;
+      await deleteCache(resolvedVideoSourceCache, videoSourceCacheKey);
+      video = await provider.fetchVideoSource({ sourceUrl: sourceInput });
+      videoSourceCacheHit = false;
+      await writeCache(resolvedVideoSourceCache, videoSourceCacheKey, video);
+      recordVideoSourceUsage(mediaUsageRecorder, {
+        video,
+        videoSourceCacheHit,
+        videoSourceCacheKey,
+        metadata: {
+          staleVideoSourceCache: true,
+          refetchedProviderSource: true
+        }
+      });
+      mediaFile = await downloadMedia({ mediaUrl: video.mediaUrl });
+    }
     recordMediaUsage(mediaUsageRecorder, {
       stage: "video_media_fetch",
       provider: video.provider || "tikhub",
       cost: 0,
-      metadata: { bytes: mediaFile.bytes || 0, contentType: mediaFile.contentType || "" }
+      metadata: {
+        bytes: mediaFile.bytes || 0,
+        contentType: mediaFile.contentType || "",
+        ...(staleVideoSourceCache ? {
+          staleVideoSourceCache: true,
+          refetchedProviderSource: true
+        } : {})
+      }
     });
     tempFiles.push(mediaFile);
     let transcript = await fetchPlatformTranscript({ subtitles: video.subtitles });
@@ -327,8 +346,36 @@ function recordMediaUsage(mediaUsageRecorder, call) {
   return mediaUsageRecorder.record(call);
 }
 
+function recordVideoSourceUsage(mediaUsageRecorder, {
+  video,
+  videoSourceCacheHit,
+  videoSourceCacheKey,
+  metadata = {}
+}) {
+  return recordMediaUsage(mediaUsageRecorder, {
+    stage: "tikhub_fetch",
+    provider: videoSourceCacheHit ? "cache:tikhub" : video.provider || "tikhub",
+    cost: 0,
+    metadata: {
+      platform: video.platform,
+      providerContentId: video.providerContentId || "",
+      cacheHit: videoSourceCacheHit,
+      cacheKey: videoSourceCacheKey,
+      ...metadata
+    }
+  });
+}
+
 function shouldCacheLearningSource(learningSource) {
   return learningSource?.extractionMeta?.visualUnderstanding?.status !== "failed";
+}
+
+function shouldRefreshCachedVideoSource({ error, videoSourceCacheHit }) {
+  if (!videoSourceCacheHit) return false;
+  return error?.retryable === true && [
+    "video_media_unavailable",
+    "video_media_timeout"
+  ].includes(error?.mediaErrorType);
 }
 
 function resolveDefaultCache({ providedCache, defaultCache, enabled }) {

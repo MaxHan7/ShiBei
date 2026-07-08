@@ -59,3 +59,13 @@ test("expires in-memory cache entries after ttl", async () => {
   currentTime = 1_101;
   assert.equal(await cache.get("key-1"), null);
 });
+
+test("deletes in-memory cache entries", async () => {
+  const cache = createInMemoryTtlCache({ ttlMs: 60_000 });
+
+  await cache.set("key-1", { value: "cached" });
+  assert.equal(cache.size(), 1);
+  assert.equal(await cache.delete("key-1"), true);
+  assert.equal(cache.size(), 0);
+  assert.equal(await cache.get("key-1"), null);
+});

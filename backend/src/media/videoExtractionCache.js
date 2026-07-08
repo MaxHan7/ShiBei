@@ -68,6 +68,10 @@ export function createInMemoryTtlCache({
         entries.delete(oldestKey);
       }
     },
+    async delete(key) {
+      if (!key) return false;
+      return entries.delete(key);
+    },
     size() {
       return entries.size;
     },
@@ -123,6 +127,11 @@ export async function readCache(cache, key) {
 export async function writeCache(cache, key, value) {
   if (!cache || !key || typeof cache.set !== "function") return;
   await cache.set(key, cloneCacheValue(value));
+}
+
+export async function deleteCache(cache, key) {
+  if (!cache || !key || typeof cache.delete !== "function") return false;
+  return cache.delete(key);
 }
 
 export function cloneCacheValue(value) {

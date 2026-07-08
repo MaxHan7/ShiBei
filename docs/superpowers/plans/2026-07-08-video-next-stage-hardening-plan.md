@@ -112,15 +112,15 @@ git commit -m "fix: prevent stale video learning source cache reuse"
 - Modify: `backend/src/media/extractVideoLearningSource.js`
 - Test: `backend/src/media/extractVideoLearningSource.test.js`
 
-- [ ] **Step 1: Add optional cache delete support**
+- [x] **Step 1: Add optional cache delete support**
 
 Extend the cache interface with a `delete(key)` method for the in-memory implementation.
 
-- [ ] **Step 2: Retry source fetch once after cached media download failure**
+- [x] **Step 2: Retry source fetch once after cached media download failure**
 
 When video source came from cache and `downloadMedia` fails with a retryable `video_media_unavailable` or `video_media_timeout`, delete the video source cache entry, call TikHub once again, then retry download once.
 
-- [ ] **Step 3: Add media usage records**
+- [x] **Step 3: Add media usage records**
 
 Record a metadata flag such as:
 
@@ -131,7 +131,7 @@ Record a metadata flag such as:
 }
 ```
 
-- [ ] **Step 4: Add tests**
+- [x] **Step 4: Add tests**
 
 Cover:
 
@@ -140,7 +140,7 @@ Cover:
 - Second media URL downloads successfully.
 - Provider is not retried repeatedly after the one refresh attempt.
 
-- [ ] **Step 5: Run and commit**
+- [x] **Step 5: Run and commit**
 
 ```bash
 cd backend && node --test src/media/extractVideoLearningSource.test.js src/media/videoExtractionCache.test.js

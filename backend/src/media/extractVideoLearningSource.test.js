@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { extractVideoLearningSource } from "./extractVideoLearningSource.js";
+import { createMediaExtractionError } from "./mediaErrors.js";
 import { createMediaUsageRecorder } from "./mediaCost.js";
-import { createInMemoryTtlCache } from "./videoExtractionCache.js";
+import { buildVideoSourceCacheKey, createInMemoryTtlCache } from "./videoExtractionCache.js";
 
 test("extracts a video learning source through provider, media, audio, and ASR", async () => {
   const calls = [];
@@ -183,6 +184,153 @@ test("caches TikHub video source responses without caching downstream extraction
   await extractVideoLearningSource(options);
 
   assert.deepEqual(calls, ["provider", "download", "audio", "download", "audio"]);
+});
+
+test("refreshes cached TikHub source once when cached media URL is stale", async () => {
+  const calls = [];
+  const recorder = createMediaUsageRecorder({ runId: "stale-media-url-run" });
+  const videoSourceCache = createInMemoryTtlCache({ ttlMs: 60_000 });
+  const learningSourceCache = createInMemoryTtlCache({ ttlMs: 60_000 });
+  let providerCallCount = 0;
+  let downloadCallCount = 0;
+  const options = {
+    sourceUrl: "https://v.douyin.com/stale-media-url/",
+    videoSourceCache,
+    learningSourceCache,
+    mediaUsageRecorder: recorder,
+    provider: {
+      fetchVideoSource: async () => {
+        providerCallCount += 1;
+        calls.push(`provider:${providerCallCount}`);
+        return {
+          provider: "tikhub",
+          platform: "douyin",
+          providerContentId: "douyin-stale-media-url",
+          title: "AI 产品调研",
+          description: "平台文案说明这条视频讲 AI 调研流程，强调先定义问题，再整理证据。",
+          account: "产品老张",
+          sourceUrl: "https://v.douyin.com/stale-media-url/",
+          mediaUrl: `https://media.example.com/video-${providerCallCount}.mp4`,
+          durationSeconds: 60
+        };
+      }
+    },
+    downloadMedia: async ({ mediaUrl }) => {
+      downloadCallCount += 1;
+      calls.push(`download:${mediaUrl}`);
+      if (downloadCallCount === 2) {
+        throw createMediaExtractionError(
+          "video_media_unavailable",
+          "cached media URL expired",
+          { retryable: true }
+        );
+      }
+      return { path: "/tmp/video-dir/source-video", dir: "/tmp/video-dir" };
+    },
+    extractAudio: async () => {
+      calls.push("audio");
+      return { path: "/tmp/video-dir/audio.wav", dir: "/tmp/video-dir" };
+    },
+    transcribeAudio: async () => ({
+      provider: "mock_asr",
+      segments: [{
+        id: "seg-1",
+        startSeconds: 0,
+        endSeconds: 5,
+        text: "先明确用户问题，再整理主题，并检查每个主题有没有原始证据支撑。这个流程适合转成复习材料。"
+      }]
+    }),
+    cleanup: async () => {}
+  };
+
+  await extractVideoLearningSource(options);
+  await extractVideoLearningSource({
+    ...options,
+    learningSourceCache: null
+  });
+
+  assert.deepEqual(calls, [
+    "provider:1",
+    "download:https://media.example.com/video-1.mp4",
+    "audio",
+    "download:https://media.example.com/video-1.mp4",
+    "provider:2",
+    "download:https://media.example.com/video-2.mp4",
+    "audio"
+  ]);
+  assert.equal(providerCallCount, 2);
+  assert.equal(downloadCallCount, 3);
+  const tikhubFetches = recorder.calls.filter((call) => call.stage === "tikhub_fetch");
+  const mediaFetches = recorder.calls.filter((call) => call.stage === "video_media_fetch");
+  assert.equal(tikhubFetches.length, 3);
+  assert.equal(tikhubFetches.at(-1).metadata.staleVideoSourceCache, true);
+  assert.equal(tikhubFetches.at(-1).metadata.refetchedProviderSource, true);
+  assert.equal(mediaFetches.at(-1).metadata.staleVideoSourceCache, true);
+  assert.equal(mediaFetches.at(-1).metadata.refetchedProviderSource, true);
+});
+
+test("does not repeatedly refresh TikHub source when refreshed media URL also fails", async () => {
+  const videoSourceCache = createInMemoryTtlCache({ ttlMs: 60_000 });
+  await videoSourceCache.set(buildVideoSourceCacheKey({
+    sourceUrl: "https://v.douyin.com/repeated-stale-media-url/"
+  }), {
+    provider: "tikhub",
+    platform: "douyin",
+    providerContentId: "douyin-repeated-stale-media-url",
+    title: "AI 产品调研",
+    description: "平台文案说明这条视频讲 AI 调研流程，强调先定义问题，再整理证据。",
+    account: "产品老张",
+    sourceUrl: "https://v.douyin.com/repeated-stale-media-url/",
+    mediaUrl: "https://media.example.com/stale-video.mp4",
+    durationSeconds: 60
+  });
+  let providerCallCount = 0;
+  let downloadCallCount = 0;
+  const options = {
+    sourceUrl: "https://v.douyin.com/repeated-stale-media-url/",
+    videoSourceCache,
+    learningSourceCache: null,
+    provider: {
+      fetchVideoSource: async () => {
+        providerCallCount += 1;
+        return {
+          provider: "tikhub",
+          platform: "douyin",
+          providerContentId: "douyin-repeated-stale-media-url",
+          title: "AI 产品调研",
+          description: "平台文案说明这条视频讲 AI 调研流程，强调先定义问题，再整理证据。",
+          account: "产品老张",
+          sourceUrl: "https://v.douyin.com/repeated-stale-media-url/",
+          mediaUrl: `https://media.example.com/repeated-video-${providerCallCount}.mp4`,
+          durationSeconds: 60
+        };
+      }
+    },
+    downloadMedia: async () => {
+      downloadCallCount += 1;
+      throw createMediaExtractionError(
+        "video_media_unavailable",
+        "media URL unavailable",
+        { retryable: true }
+      );
+    },
+    extractAudio: async () => {
+      throw new Error("audio should not run");
+    },
+    transcribeAudio: async () => ({
+      provider: "mock_asr",
+      segments: []
+    }),
+    cleanup: async () => {}
+  };
+
+  await assert.rejects(
+    () => extractVideoLearningSource(options),
+    /media URL unavailable/
+  );
+
+  assert.equal(providerCallCount, 1);
+  assert.equal(downloadCallCount, 2);
 });
 
 test("caches full video learning sources so generation retries do not re-fetch media", async () => {
