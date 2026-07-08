@@ -1,7 +1,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { extractSourceContent } from "./extractSourceContent.js";
+import { extractSourceContent, isVideoUrl } from "./extractSourceContent.js";
+
+test("classifies universal video URLs before article extraction", () => {
+  assert.equal(isVideoUrl("https://www.youtube.com/watch?v=abc"), true);
+  assert.equal(isVideoUrl("https://youtu.be/abc"), true);
+  assert.equal(isVideoUrl("https://www.bilibili.com/video/BV1demo"), true);
+  assert.equal(isVideoUrl("https://b23.tv/abc"), true);
+  assert.equal(isVideoUrl("https://cdn.example.com/lesson.mp4"), true);
+  assert.equal(isVideoUrl("https://example.com/article/1"), false);
+});
 
 test("extracts video links into V2-compatible source content", async () => {
   const source = await extractSourceContent({

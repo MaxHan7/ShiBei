@@ -2,6 +2,9 @@ import { createMediaExtractionError } from "./mediaErrors.js";
 
 const DOUYIN_HOSTS = ["douyin.com", "v.douyin.com"];
 const XIAOHONGSHU_HOSTS = ["xiaohongshu.com", "xhslink.com"];
+const YOUTUBE_HOSTS = ["youtube.com", "youtu.be", "youtube-nocookie.com"];
+const BILIBILI_HOSTS = ["bilibili.com", "b23.tv"];
+const DIRECT_VIDEO_EXTENSIONS = [".mp4", ".mov", ".m4v", ".webm", ".m3u8"];
 
 export function normalizeVideoSourceUrl(value) {
   let url;
@@ -41,5 +44,22 @@ export function detectVideoPlatform(value) {
   if (XIAOHONGSHU_HOSTS.some((domain) => host === domain || host.endsWith(`.${domain}`))) {
     return "xiaohongshu";
   }
-  return "unknown";
+  if (YOUTUBE_HOSTS.some((domain) => host === domain || host.endsWith(`.${domain}`))) {
+    return "youtube";
+  }
+  if (BILIBILI_HOSTS.some((domain) => host === domain || host.endsWith(`.${domain}`))) {
+    return "bilibili";
+  }
+  if (DIRECT_VIDEO_EXTENSIONS.some((extension) => url.pathname.toLowerCase().endsWith(extension))) {
+    return "direct_video_file";
+  }
+  return "generic_web";
+}
+
+export function isTikHubPreferredPlatform(platform) {
+  return platform === "douyin" || platform === "xiaohongshu";
+}
+
+export function isYtDlpPreferredPlatform(platform) {
+  return ["youtube", "bilibili", "direct_video_file", "generic_web"].includes(platform);
 }

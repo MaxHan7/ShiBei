@@ -1,6 +1,10 @@
 import { createMediaExtractionError } from "./mediaErrors.js";
 import { normalizeSubtitleTracks } from "./platformSubtitles.js";
-import { detectVideoPlatform, normalizeVideoSourceUrl } from "./videoPlatforms.js";
+import {
+  detectVideoPlatform,
+  isTikHubPreferredPlatform,
+  normalizeVideoSourceUrl
+} from "./videoPlatforms.js";
 
 const DEFAULT_TIKHUB_BASE_URL = process.env.TIKHUB_BASE_URL || "https://api.tikhub.io";
 const DEFAULT_TIKHUB_TIMEOUT_MS = readPositiveInt(process.env.TIKHUB_TIMEOUT_MS, 30_000);
@@ -14,7 +18,7 @@ export async function fetchTikHubVideoSource({
 } = {}) {
   const url = normalizeVideoSourceUrl(sourceUrl);
   const platform = detectVideoPlatform(url.href);
-  if (platform === "unknown") {
+  if (!isTikHubPreferredPlatform(platform)) {
     throw createMediaExtractionError(
       "unsupported_video_platform",
       "当前优先支持抖音和小红书公开视频链接。",

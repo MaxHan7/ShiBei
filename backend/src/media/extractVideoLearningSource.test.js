@@ -60,6 +60,70 @@ test("extracts a video learning source through provider, media, audio, and ASR",
   assert.match(learningSource.normalizedText, /先明确用户问题/);
 });
 
+test("uses yt-dlp media downloader for universal video provider results", async () => {
+  const calls = [];
+  const learningSource = await extractVideoLearningSource({
+    sourceUrl: "https://www.youtube.com/watch?v=abc",
+    provider: {
+      name: "yt-dlp",
+      fetchVideoSource: async () => {
+        calls.push("provider");
+        return {
+          provider: "yt-dlp",
+          platform: "youtube",
+          providerContentId: "youtube-abc",
+          title: "多 Agent 通信设计",
+          description: "平台文案说明这条视频介绍多 Agent 通信的拓扑、协议和共享状态。",
+          account: "AI Teacher",
+          sourceUrl: "https://www.youtube.com/watch?v=abc",
+          mediaUrl: "https://www.youtube.com/watch?v=abc",
+          mediaDownload: {
+            provider: "yt-dlp",
+            sourceUrl: "https://www.youtube.com/watch?v=abc",
+            formatSelector: "bv*+ba/best"
+          }
+        };
+      }
+    },
+    downloadMedia: async () => {
+      calls.push("http-download");
+      return { path: "/tmp/video-dir/source-video", dir: "/tmp/video-dir" };
+    },
+    downloadYtDlpMedia: async ({ sourceUrl, formatSelector }) => {
+      calls.push(`yt-dlp-download:${sourceUrl}:${formatSelector}`);
+      return {
+        path: "/tmp/video-dir/source-video.mp4",
+        dir: "/tmp/video-dir",
+        bytes: 1024,
+        contentType: "video/mp4"
+      };
+    },
+    extractAudio: async () => {
+      calls.push("audio");
+      return { path: "/tmp/video-dir/audio.wav", dir: "/tmp/video-dir" };
+    },
+    transcribeAudio: async () => ({
+      provider: "mock_asr",
+      segments: [{
+        id: "seg-1",
+        startSeconds: 0,
+        endSeconds: 6,
+        text: "多 Agent 通信设计首先要定义拓扑结构，然后明确消息协议，最后决定共享状态和异常恢复机制。面试时要说明为什么选择这种协作方式，以及它如何降低系统耦合。"
+      }]
+    }),
+    cleanup: async (...files) => calls.push(`cleanup:${files.length}`)
+  });
+
+  assert.deepEqual(calls, [
+    "provider",
+    "yt-dlp-download:https://www.youtube.com/watch?v=abc:bv*+ba/best",
+    "audio",
+    "cleanup:2"
+  ]);
+  assert.equal(learningSource.platform, "youtube");
+  assert.match(learningSource.normalizedText, /消息协议/);
+});
+
 test("cleans temporary files when ASR fails", async () => {
   const calls = [];
   await assert.rejects(

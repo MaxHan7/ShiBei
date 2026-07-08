@@ -4,6 +4,13 @@ import { cleanupMediaTempFiles, downloadMediaToTempFile } from "./mediaFiles.js"
 import { extractAudioWithFfmpeg } from "./ffmpegAudio.js";
 import { createSpeechToTextProvider } from "./speechToTextProvider.js";
 import { fetchTikHubVideoSource } from "./tikhubVideoProvider.js";
+import { fetchYtDlpVideoSource } from "./ytDlpVideoProvider.js";
+import { downloadYtDlpMediaToTempFile } from "./ytDlpMediaDownloader.js";
+import {
+  detectVideoPlatform,
+  isTikHubPreferredPlatform,
+  isYtDlpPreferredPlatform
+} from "./videoPlatforms.js";
 import { buildLearningSourceFromVideo } from "./learningSource.js";
 import { summarizeMediaUsage } from "./mediaCost.js";
 import { fetchPlatformSubtitleTranscript } from "./platformSubtitles.js";
@@ -31,8 +38,9 @@ export async function extractVideoLearningSource({
   sourceUrl,
   rawText = "",
   sourceTitle = "",
-  provider = { fetchVideoSource: fetchTikHubVideoSource },
+  provider = null,
   downloadMedia = downloadMediaToTempFile,
+  downloadYtDlpMedia = downloadYtDlpMediaToTempFile,
   extractAudio = extractAudioWithFfmpeg,
   speechToTextProvider = createSpeechToTextProvider(),
   transcribeAudio = null,
@@ -48,17 +56,20 @@ export async function extractVideoLearningSource({
   learningSourceCache = undefined,
   extractionCacheVersion = VIDEO_LEARNING_SOURCE_CACHE_VERSION
 } = {}) {
+  const sourceInput = sourceUrl || rawText;
+  const activeProvider = provider || createVideoSourceProvider(sourceInput);
   const resolvedVideoSourceCache = resolveDefaultCache({
     providedCache: videoSourceCache,
     defaultCache: getSharedVideoSourceCache,
-    enabled: provider?.fetchVideoSource === fetchTikHubVideoSource
+    enabled: activeProvider?.fetchVideoSource === fetchTikHubVideoSource
   });
   const resolvedLearningSourceCache = resolveDefaultCache({
     providedCache: learningSourceCache,
     defaultCache: getSharedLearningSourceCache,
     enabled: isDefaultExtractionChain({
-      provider,
+      provider: activeProvider,
       downloadMedia,
+      downloadYtDlpMedia,
       extractAudio,
       transcribeAudio,
       fetchPlatformTranscript,
@@ -67,11 +78,11 @@ export async function extractVideoLearningSource({
       cleanup
     })
   });
-  const sourceInput = sourceUrl || rawText;
   const extractionSignature = buildVideoExtractionSignature({
     asrProvider: transcribeAudio ? "custom" : speechToTextProvider?.name || "custom",
     frameProvider: framePackProvider?.name || "custom",
     visualProvider: visualUnderstandingProvider?.name || "custom",
+    sourceProvider: activeProvider?.name || "custom",
     visualModel: visualUnderstandingProvider?.model || "",
     version: extractionCacheVersion
   });
@@ -104,7 +115,7 @@ export async function extractVideoLearningSource({
   let video = await readCache(resolvedVideoSourceCache, videoSourceCacheKey);
   let videoSourceCacheHit = Boolean(video);
   if (!video) {
-    video = await provider.fetchVideoSource({ sourceUrl: sourceInput });
+    video = await activeProvider.fetchVideoSource({ sourceUrl: sourceInput });
     await writeCache(resolvedVideoSourceCache, videoSourceCacheKey, video);
   }
   recordVideoSourceUsage(mediaUsageRecorder, { video, videoSourceCacheHit, videoSourceCacheKey });
@@ -113,12 +124,16 @@ export async function extractVideoLearningSource({
     let staleVideoSourceCache = false;
     let mediaFile;
     try {
-      mediaFile = await downloadMedia({ mediaUrl: video.mediaUrl });
+      mediaFile = await downloadVideoMedia({
+        video,
+        downloadMedia,
+        downloadYtDlpMedia
+      });
     } catch (error) {
       if (!shouldRefreshCachedVideoSource({ error, videoSourceCacheHit })) throw error;
       staleVideoSourceCache = true;
       await deleteCache(resolvedVideoSourceCache, videoSourceCacheKey);
-      video = await provider.fetchVideoSource({ sourceUrl: sourceInput });
+      video = await activeProvider.fetchVideoSource({ sourceUrl: sourceInput });
       videoSourceCacheHit = false;
       await writeCache(resolvedVideoSourceCache, videoSourceCacheKey, video);
       recordVideoSourceUsage(mediaUsageRecorder, {
@@ -130,11 +145,15 @@ export async function extractVideoLearningSource({
           refetchedProviderSource: true
         }
       });
-      mediaFile = await downloadMedia({ mediaUrl: video.mediaUrl });
+      mediaFile = await downloadVideoMedia({
+        video,
+        downloadMedia,
+        downloadYtDlpMedia
+      });
     }
     recordMediaUsage(mediaUsageRecorder, {
       stage: "video_media_fetch",
-      provider: video.provider || "tikhub",
+      provider: video.mediaDownload?.provider || video.provider || "unknown",
       cost: 0,
       metadata: {
         bytes: mediaFile.bytes || 0,
@@ -358,8 +377,8 @@ function recordVideoSourceUsage(mediaUsageRecorder, {
   metadata = {}
 }) {
   return recordMediaUsage(mediaUsageRecorder, {
-    stage: "tikhub_fetch",
-    provider: videoSourceCacheHit ? "cache:tikhub" : video.provider || "tikhub",
+    stage: video.provider === "tikhub" ? "tikhub_fetch" : "video_source_fetch",
+    provider: videoSourceCacheHit ? `cache:${video.provider || "video-source"}` : video.provider || "video-source",
     cost: 0,
     metadata: {
       platform: video.platform,
@@ -391,6 +410,7 @@ function resolveDefaultCache({ providedCache, defaultCache, enabled }) {
 function isDefaultExtractionChain({
   provider,
   downloadMedia,
+  downloadYtDlpMedia,
   extractAudio,
   transcribeAudio,
   fetchPlatformTranscript,
@@ -399,8 +419,9 @@ function isDefaultExtractionChain({
   cleanup
 }) {
   return (
-    provider?.fetchVideoSource === fetchTikHubVideoSource
+    [fetchTikHubVideoSource, fetchYtDlpVideoSource].includes(provider?.fetchVideoSource)
     && downloadMedia === downloadMediaToTempFile
+    && downloadYtDlpMedia === downloadYtDlpMediaToTempFile
     && extractAudio === extractAudioWithFfmpeg
     && transcribeAudio === null
     && fetchPlatformTranscript === fetchPlatformSubtitleTranscript
@@ -408,6 +429,40 @@ function isDefaultExtractionChain({
     && understandVisuals === understandVideoVisuals
     && cleanup === cleanupMediaTempFiles
   );
+}
+
+function createVideoSourceProvider(sourceInput) {
+  const platform = detectVideoPlatform(sourceInput);
+  if (isTikHubPreferredPlatform(platform)) {
+    return {
+      name: "tikhub",
+      fetchVideoSource: fetchTikHubVideoSource
+    };
+  }
+  if (isYtDlpPreferredPlatform(platform)) {
+    return {
+      name: "yt-dlp",
+      fetchVideoSource: fetchYtDlpVideoSource
+    };
+  }
+  return {
+    name: "yt-dlp",
+    fetchVideoSource: fetchYtDlpVideoSource
+  };
+}
+
+async function downloadVideoMedia({
+  video,
+  downloadMedia,
+  downloadYtDlpMedia
+}) {
+  if (video?.mediaDownload?.provider === "yt-dlp") {
+    return downloadYtDlpMedia({
+      sourceUrl: video.mediaDownload.sourceUrl || video.sourceUrl,
+      formatSelector: video.mediaDownload.formatSelector
+    });
+  }
+  return downloadMedia({ mediaUrl: video.mediaUrl });
 }
 
 function withCacheMeta(learningSource, cache) {

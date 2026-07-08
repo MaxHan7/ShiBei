@@ -66,15 +66,19 @@ export function isVideoUrl(value) {
     "bilibili.com",
     "www.bilibili.com",
     "m.bilibili.com",
+    "b23.tv",
     "youtube.com",
     "www.youtube.com",
+    "m.youtube.com",
     "youtu.be",
     "v.douyin.com",
     "douyin.com",
     "www.douyin.com",
     "xiaohongshu.com",
-    "www.xiaohongshu.com"
-  ].some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
+    "www.xiaohongshu.com",
+    "xhslink.com"
+  ].some((domain) => hostname === domain || hostname.endsWith(`.${domain}`))
+    || [".mp4", ".mov", ".m4v", ".webm", ".m3u8"].some((extension) => new URL(String(value).trim()).pathname.toLowerCase().endsWith(extension));
 }
 
 function normalizeUrl(value) {

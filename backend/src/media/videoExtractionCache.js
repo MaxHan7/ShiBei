@@ -103,6 +103,7 @@ export function buildVideoLearningSourceCacheKey({
 }
 
 export function buildVideoExtractionSignature({
+  sourceProvider = "",
   asrProvider = "",
   frameProvider = "",
   visualProvider = "",
@@ -111,6 +112,7 @@ export function buildVideoExtractionSignature({
 } = {}) {
   return [
     version,
+    `source:${String(sourceProvider || "default")}`,
     `asr:${String(asrProvider || "default")}`,
     `frame:${String(frameProvider || "none")}`,
     `visual:${String(visualProvider || "none")}`,

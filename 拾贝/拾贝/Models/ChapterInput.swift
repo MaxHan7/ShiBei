@@ -38,7 +38,7 @@ struct ChapterInput: Equatable {
             if isWechatArticleHost(host) {
                 sourceType = .wechatArticle
             } else {
-                sourceType = isVideoHost(host) ? .videoLink : .articleLink
+                sourceType = isVideoHost(host) || isDirectVideoFile(url) ? .videoLink : .articleLink
             }
             return ChapterInput(
                 sourceType: sourceType,
@@ -90,14 +90,23 @@ struct ChapterInput: Equatable {
     private static func isVideoHost(_ host: String) -> Bool {
         [
             "bilibili.com",
+            "b23.tv",
             "youtube.com",
+            "m.youtube.com",
             "youtu.be",
+            "youtube-nocookie.com",
             "douyin.com",
             "v.douyin.com",
-            "xiaohongshu.com"
+            "xiaohongshu.com",
+            "xhslink.com"
         ].contains { domain in
             host == domain || host.hasSuffix(".\(domain)")
         }
+    }
+
+    private static func isDirectVideoFile(_ url: URL) -> Bool {
+        let path = url.path.lowercased()
+        return [".mp4", ".mov", ".m4v", ".webm", ".m3u8"].contains { path.hasSuffix($0) }
     }
 
     private static func isWechatArticleHost(_ host: String) -> Bool {
