@@ -187,7 +187,12 @@ export async function extractVideoLearningSource({
         reason: framePack.reason || "",
         frameCount: Array.isArray(framePack.frames) ? framePack.frames.length : 0,
         gridCount: Array.isArray(framePack.grids) ? framePack.grids.length : 0,
-        timestampMode: framePack.debug?.timestampMode || ""
+        timestampMode: framePack.debug?.timestampMode || "",
+        ...(framePack.debug?.failureCode ? {
+          failureCode: framePack.debug.failureCode,
+          failureMessage: framePack.debug.failureMessage || "",
+          retryable: framePack.debug.retryable
+        } : {})
       }
     });
     const visualUnderstanding = await safelyUnderstandVideoVisuals({

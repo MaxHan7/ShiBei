@@ -97,7 +97,9 @@ export function createCrvStyleFramePackProvider({
         };
       } catch (error) {
         return skippedFramePack("video_frame_pack_failed", {
-          errorMessage: error?.message || String(error || "")
+          failureCode: "video_frame_pack_failed",
+          failureMessage: truncateDiagnosticMessage(error?.message || String(error || "")),
+          retryable: true
         });
       }
     }
@@ -386,6 +388,11 @@ function skippedFramePack(reason, debug = {}) {
     grids: [],
     debug
   };
+}
+
+function truncateDiagnosticMessage(message) {
+  const text = String(message || "").replace(/\s+/g, " ").trim();
+  return text.length > 240 ? `${text.slice(0, 237)}...` : text;
 }
 
 async function readFrameMetadata(framesDir, extraction) {

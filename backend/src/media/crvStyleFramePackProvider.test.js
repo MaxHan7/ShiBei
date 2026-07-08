@@ -52,6 +52,39 @@ test("creates timestamped frame pack from injected ffmpeg outputs", async () => 
   assert.match(calls[0].args.join(" "), /select=/);
 });
 
+test("returns structured diagnostics when frame pack creation fails", async () => {
+  const provider = createCrvStyleFramePackProvider({
+    probeVideo: async () => {
+      throw new Error("ffprobe failed because codec is unsupported and stderr contains details");
+    }
+  });
+
+  const result = await provider.createFramePack({
+    mediaFile: { path: "/tmp/source.mp4", dir: "/tmp" }
+  });
+
+  assert.equal(result.skipped, true);
+  assert.equal(result.reason, "video_frame_pack_failed");
+  assert.equal(result.debug.failureCode, "video_frame_pack_failed");
+  assert.equal(result.debug.retryable, true);
+  assert.match(result.debug.failureMessage, /ffprobe failed/);
+});
+
+test("truncates long frame pack failure diagnostics", async () => {
+  const provider = createCrvStyleFramePackProvider({
+    probeVideo: async () => {
+      throw new Error("x".repeat(400));
+    }
+  });
+
+  const result = await provider.createFramePack({
+    mediaFile: { path: "/tmp/source.mp4", dir: "/tmp" }
+  });
+
+  assert.equal(result.debug.failureMessage.length, 240);
+  assert.match(result.debug.failureMessage, /\.\.\.$/);
+});
+
 test("caps deduped frames across the full video", async () => {
   const frames = Array.from({ length: 6 }, (_, index) => ({
     id: `raw-${index + 1}`,

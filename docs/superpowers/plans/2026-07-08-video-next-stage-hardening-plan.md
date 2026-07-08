@@ -246,7 +246,7 @@ git commit -m "fix: reject oversized video downloads early"
 - Test: `backend/src/media/crvStyleFramePackProvider.test.js`
 - Test: `backend/src/media/extractVideoLearningSource.test.js`
 
-- [ ] **Step 1: Return structured frame failure diagnostics**
+- [x] **Step 1: Return structured frame failure diagnostics**
 
 Include fields:
 
@@ -258,15 +258,15 @@ debug: {
 }
 ```
 
-- [ ] **Step 2: Preserve diagnostics in media usage**
+- [x] **Step 2: Preserve diagnostics in media usage**
 
 Add `failureCode`, `retryable`, and a short redacted `failureMessage` to the `video_frame_pack` media usage metadata.
 
-- [ ] **Step 3: Add tests**
+- [x] **Step 3: Add tests**
 
 Cover ffmpeg failure becoming skipped frame pack with structured diagnostics, without exposing this in user-visible content basis.
 
-- [ ] **Step 4: Run and commit**
+- [x] **Step 4: Run and commit**
 
 ```bash
 cd backend && node --test src/media/crvStyleFramePackProvider.test.js src/media/extractVideoLearningSource.test.js

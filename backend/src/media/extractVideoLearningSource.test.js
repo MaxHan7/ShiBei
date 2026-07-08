@@ -523,6 +523,62 @@ test("records media usage summary when a recorder is provided", async () => {
   assert.equal(recorder.calls[5].metadata.skipped, true);
 });
 
+test("records structured frame pack failure diagnostics internally", async () => {
+  const recorder = createMediaUsageRecorder({ runId: "frame-pack-diagnostics-run" });
+  const learningSource = await extractVideoLearningSource({
+    sourceUrl: "https://v.douyin.com/frame-pack-diagnostics/",
+    mediaUsageRecorder: recorder,
+    provider: {
+      fetchVideoSource: async () => ({
+        provider: "tikhub",
+        platform: "douyin",
+        providerContentId: "douyin-frame-pack-diagnostics",
+        title: "AI 产品调研",
+        description: "平台文案说明这条视频讲 AI 调研流程，强调把画面证据和口播证据合并成学习材料。",
+        account: "产品老张",
+        sourceUrl: "https://v.douyin.com/frame-pack-diagnostics/",
+        mediaUrl: "https://media.example.com/video.mp4"
+      })
+    },
+    downloadMedia: async () => ({ path: "/tmp/video-dir/source-video", dir: "/tmp/video-dir" }),
+    extractAudio: async () => ({ path: "/tmp/video-dir/audio.wav", dir: "/tmp/video-dir" }),
+    transcribeAudio: async () => ({
+      provider: "mock_asr",
+      segments: [
+        {
+          id: "seg-1",
+          startSeconds: 0,
+          endSeconds: 8,
+          text: "先明确用户问题，再整理主题，并检查每个主题有没有原始证据支撑，最后映射到可执行实验。"
+        }
+      ]
+    }),
+    framePackProvider: {
+      name: "crv_style_ffmpeg",
+      createFramePack: async () => ({
+        provider: "crv_style_ffmpeg",
+        skipped: true,
+        reason: "video_frame_pack_failed",
+        frames: [],
+        grids: [],
+        debug: {
+          failureCode: "video_frame_pack_failed",
+          failureMessage: "ffmpeg exited with unsupported codec",
+          retryable: true
+        }
+      })
+    },
+    cleanup: async () => {}
+  });
+
+  const frameUsage = learningSource.extractionMeta.mediaUsage.byStage.video_frame_pack;
+  assert.equal(frameUsage.metadata.skipped, true);
+  assert.equal(frameUsage.metadata.failureCode, "video_frame_pack_failed");
+  assert.equal(frameUsage.metadata.failureMessage, "ffmpeg exited with unsupported codec");
+  assert.equal(frameUsage.metadata.retryable, true);
+  assert.equal(learningSource.extractionMeta.userVisibleContentBasis.basis, "audio_transcript");
+});
+
 test("passes timestamped frame pack into visual understanding", async () => {
   let receivedFramePack = null;
   const learningSource = await extractVideoLearningSource({
