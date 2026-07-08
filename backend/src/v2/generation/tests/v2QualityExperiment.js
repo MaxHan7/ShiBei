@@ -76,6 +76,12 @@ export function buildV2QualityReport({
   label,
   source,
   jobResult,
+  mediaUsage = null,
+  mediaUsageRecords = [],
+  modelCostSummary = null,
+  mediaCostSummary = null,
+  progressEvents = [],
+  learningSourceSummary = null,
   generatedAt = new Date().toISOString()
 }) {
   const chapter = jobResult?.chapter || null;
@@ -132,6 +138,12 @@ export function buildV2QualityReport({
     architectureMetrics,
     qualityDiagnostics,
     modelUsage,
+    mediaUsage,
+    mediaUsageRecords,
+    modelCostSummary,
+    mediaCostSummary,
+    progressEvents,
+    learningSourceSummary,
     failure: buildFailure(jobResult)
   };
 }
@@ -181,11 +193,11 @@ export function buildArchitectureMetrics({ modelUsage = [], stageRuntime = null 
       lastErrorMessage: ""
     };
     row.modelCallCount += 1;
-    row.promptTokens += tokenNumber(record?.usage?.prompt_tokens);
-    row.completionTokens += tokenNumber(record?.usage?.completion_tokens);
-    row.totalTokens += tokenNumber(record?.usage?.total_tokens);
-    row.promptCacheHitTokens += tokenNumber(record?.usage?.prompt_cache_hit_tokens);
-    row.promptCacheMissTokens += tokenNumber(record?.usage?.prompt_cache_miss_tokens);
+    row.promptTokens += tokenNumber(record?.usage?.prompt_tokens ?? record?.actual?.inputTokens);
+    row.completionTokens += tokenNumber(record?.usage?.completion_tokens ?? record?.actual?.outputTokens);
+    row.totalTokens += tokenNumber(record?.usage?.total_tokens ?? record?.actual?.totalTokens);
+    row.promptCacheHitTokens += tokenNumber(record?.usage?.prompt_cache_hit_tokens ?? record?.actual?.cachedInputTokens);
+    row.promptCacheMissTokens += tokenNumber(record?.usage?.prompt_cache_miss_tokens ?? record?.actual?.uncachedInputTokens);
     row.estimatedOutputTokens += tokenNumber(record?.estimatedOutputTokens);
     stageMap.set(key, row);
   }
@@ -437,6 +449,7 @@ export function renderV2QualityReportHtml(report) {
     <div class="meta">${escapeHtml(report.generatedAt)} · ${escapeHtml(report.label)} · ${escapeHtml(report.status)}</div>
     ${renderFailure(report.failure)}
     ${renderArchitectureMetrics(architectureMetrics)}
+    ${renderCostSummary(report)}
     ${renderModelUsage(report.modelUsage)}
     ${renderStageRuntime(report.stageRuntime)}
     ${renderSourceContextStats(report.sourceContextStats)}
@@ -769,6 +782,89 @@ function renderArchitectureMetrics(architectureMetrics) {
   </section>`;
 }
 
+function renderCostSummary(report) {
+  const modelCostSummary = report.modelCostSummary || null;
+  const mediaCostSummary = report.mediaCostSummary || null;
+  if (!modelCostSummary && !mediaCostSummary) return "";
+
+  const modelTotal = modelCostSummary?.totalsByCurrency?.USD || {};
+  return `<section class="card">
+    <h2 style="margin-top:0">成本与调用明细</h2>
+    <div class="grid">
+      ${metric("媒体链路估算成本", formatMoney(mediaCostSummary?.totalActualCost, mediaCostSummary?.currency))}
+      ${metric("媒体链路调用记录", report.mediaUsage?.callCount || report.mediaUsageRecords?.length || 0)}
+      ${metric("出题模型实际成本", formatMoney(modelTotal.totalActualCost, modelTotal.currency))}
+      ${metric("出题模型估算成本", formatMoney(modelTotal.totalEstimatedCost, modelTotal.currency))}
+      ${metric("出题模型调用", modelCostSummary?.callCount || report.modelUsage?.length || 0)}
+    </div>
+    ${renderMediaCostTable(mediaCostSummary)}
+    ${renderModelCostTable(report.modelUsage)}
+  </section>`;
+}
+
+function renderMediaCostTable(mediaCostSummary) {
+  const stages = Object.entries(mediaCostSummary?.byStage || {});
+  if (!stages.length) return "";
+  return `<h3>媒体/视频链路</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>stage</th>
+          <th>provider</th>
+          <th>calls</th>
+          <th>actual/estimated cost</th>
+          <th>note</th>
+          <th>metadata</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${stages.map(([stage, row]) => `<tr>
+          <td>${escapeHtml(stage)}</td>
+          <td>${escapeHtml(row.provider || "")}</td>
+          <td>${escapeHtml(row.callCount || 0)}</td>
+          <td>${escapeHtml(formatMoney(row.actualCost, row.currency))}</td>
+          <td>${escapeHtml(row.costNote || "")}</td>
+          <td><pre>${escapeHtml(JSON.stringify(row.metadata || {}, null, 2))}</pre></td>
+        </tr>`).join("\n")}
+      </tbody>
+    </table>`;
+}
+
+function renderModelCostTable(modelUsage) {
+  if (!Array.isArray(modelUsage) || modelUsage.length === 0) return "";
+  const rows = modelUsage.filter((record) => record && (record.actual || record.estimated || record.price));
+  if (rows.length === 0) return "";
+  return `<h3>出题模型调用成本</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>stage</th>
+          <th>provider</th>
+          <th>model</th>
+          <th>input</th>
+          <th>output</th>
+          <th>total</th>
+          <th>actual cost</th>
+          <th>estimated cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map((record, index) => `<tr>
+          <td>${escapeHtml(record.index || index + 1)}</td>
+          <td>${escapeHtml(record.stage || "")}</td>
+          <td>${escapeHtml(record.provider || "")}</td>
+          <td>${escapeHtml(record.model || "")}</td>
+          <td>${escapeHtml(formatNumber(record.actual?.inputTokens || record.estimated?.inputTokens || 0))}</td>
+          <td>${escapeHtml(formatNumber(record.actual?.outputTokens || record.estimated?.outputTokens || 0))}</td>
+          <td>${escapeHtml(formatNumber(record.actual?.totalTokens || record.estimated?.totalTokens || 0))}</td>
+          <td>${escapeHtml(formatMoney(record.actual?.cost, record.actual?.currency))}</td>
+          <td>${escapeHtml(formatMoney(record.estimated?.cost, record.estimated?.currency))}</td>
+        </tr>`).join("\n")}
+      </tbody>
+    </table>`;
+}
+
 function renderModelUsage(modelUsage) {
   if (!Array.isArray(modelUsage) || modelUsage.length === 0) return "";
   return `<section class="card">
@@ -813,6 +909,14 @@ function formatErrorTypes(errorTypes) {
 
 function formatNumber(value) {
   return Number(value || 0).toLocaleString("en-US");
+}
+
+function formatMoney(value, currency) {
+  if (!Number.isFinite(Number(value))) return "-";
+  const normalizedCurrency = currency || "";
+  const prefix = normalizedCurrency === "USD" ? "USD " : normalizedCurrency === "CNY" ? "CNY " : "";
+  const suffix = prefix || !normalizedCurrency ? "" : ` ${normalizedCurrency}`;
+  return `${prefix}${Number(value).toFixed(6)}${suffix}`;
 }
 
 function renderSourceContextStats(sourceContextStats) {

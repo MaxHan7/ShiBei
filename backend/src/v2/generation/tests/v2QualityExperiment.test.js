@@ -130,6 +130,64 @@ test("renders generation failures for quality review", () => {
   assert.match(html, /raw response preview/);
 });
 
+test("renders optional video and model cost summaries", () => {
+  const report = buildV2QualityReport({
+    slug: "video",
+    label: "video-run",
+    source: { sourceTitle: "视频样例", sourceUrl: "https://v.douyin.com/example/", rawText: "原文" },
+    jobResult: {
+      status: "completed",
+      chapter: chapterFixture(),
+      modelUsage: [
+        {
+          index: 1,
+          runId: "run-1",
+          provider: "deepseek",
+          model: "deepseek-v4-flash",
+          stage: "v2_reviewPathPlan",
+          estimated: { inputTokens: 1000, outputTokens: 400, totalTokens: 1400, cost: 0.000252, currency: "USD" },
+          actual: { inputTokens: 900, outputTokens: 300, totalTokens: 1200, cost: 0.00021, currency: "USD" }
+        }
+      ]
+    },
+    mediaUsage: { callCount: 2 },
+    modelCostSummary: {
+      callCount: 1,
+      totalsByCurrency: {
+        USD: {
+          currency: "USD",
+          totalActualCost: 0.00021,
+          totalEstimatedCost: 0.000252
+        }
+      }
+    },
+    mediaCostSummary: {
+      currency: "USD",
+      totalActualCost: 0.001,
+      byStage: {
+        tikhub_fetch: {
+          callCount: 1,
+          provider: "tikhub",
+          currency: "USD",
+          actualCost: 0.001,
+          costNote: "TikHub dashboard unit price from user: USD 0.001/call",
+          metadata: { cacheHit: false }
+        }
+      }
+    }
+  });
+
+  const html = renderV2QualityReportHtml(report);
+
+  assert.match(html, /成本与调用明细/);
+  assert.match(html, /媒体链路估算成本/);
+  assert.match(html, /USD 0\.001000/);
+  assert.match(html, /TikHub dashboard unit price/);
+  assert.match(html, /出题模型调用成本/);
+  assert.match(html, /v2_reviewPathPlan/);
+  assert.match(html, /USD 0\.000210/);
+});
+
 test("writes unique JSON and HTML artifacts", async () => {
   const tmpDir = await mkdtemp(path.join(os.tmpdir(), "v2-quality-"));
   try {

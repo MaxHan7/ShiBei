@@ -202,6 +202,49 @@ test("calls scoped MC unit batches with only current unit briefs and source cont
   assert.equal(reviewPath.units[0].summary.text, "你已经能区分 Hook 和单纯提示词。");
 });
 
+test("deterministic source map preserves pre-grouped video source blocks", async () => {
+  let capturedReviewPathPayload = null;
+  const article = {
+    id: "video-chapter-001",
+    title: "多 Agent 通信",
+    sourceType: "video_link",
+    sourceUrl: "https://v.douyin.com/example/",
+    sourceAccount: "小哲讲大模型",
+    rawText: "这一行不应该重新切成 source block。",
+    source: {
+      type: "video_link",
+      title: "多 Agent 通信",
+      account: "小哲讲大模型",
+      url: "https://v.douyin.com/example/",
+      platform: "douyin",
+      blocks: [
+        { id: "video-001", type: "transcript", text: "通信拓扑决定 Agent 之间怎么传递任务。", startMs: 0, endMs: 6000 },
+        { id: "video-002", type: "transcript", text: "消息契约负责规定字段、状态和失败处理。", startMs: 6000, endMs: 12000 }
+      ]
+    }
+  };
+  const promptCaller = async (stage, payload) => {
+    if (stage === "reviewPathPlan") {
+      capturedReviewPathPayload = payload;
+      throw new Error("stop_after_source_map");
+    }
+    return fixtureOutputForStage(stage, payload);
+  };
+
+  await assert.rejects(
+    runV2GenerationProgram(article, {
+      promptCaller,
+      now: "2026-07-08T00:00:00.000Z"
+    }),
+    /stop_after_source_map/
+  );
+
+  assert.deepEqual(capturedReviewPathPayload.blocks.map((block) => block.id), ["video-001", "video-002"]);
+  assert.equal(capturedReviewPathPayload.blocks[0].startMs, 0);
+  assert.equal(capturedReviewPathPayload.source.type, "video_link");
+  assert.equal(capturedReviewPathPayload.source.platform, "douyin");
+});
+
 function makeArticleFixture() {
   return {
     id: "chapter-fake-001",

@@ -1001,6 +1001,22 @@ function readOptionalBoolean(value) {
 }
 
 function buildDeterministicSourceMap(article) {
+  const existingBlocks = normalizeExistingSourceBlocks(article.source?.blocks || article.blocks);
+  if (existingBlocks.length > 0) {
+    return {
+      source: {
+        type: article.source?.type || article.sourceType || "article",
+        title: article.source?.title || article.title || article.sourceTitle || "",
+        author: article.source?.author || article.author || article.sourceAccount || "",
+        account: article.source?.account || article.sourceAccount || article.author || "",
+        accountOrDomain: article.source?.accountOrDomain || article.sourceAccount || article.author || "",
+        url: article.source?.url || article.url || article.sourceUrl || "",
+        ...(article.source?.platform ? { platform: article.source.platform } : {})
+      },
+      blocks: existingBlocks
+    };
+  }
+
   const rawText = String(article.cleanedText || article.rawText || "");
   const blocks = splitArticleIntoSourceBlocks(rawText);
   return {
@@ -1014,6 +1030,22 @@ function buildDeterministicSourceMap(article) {
     },
     blocks
   };
+}
+
+function normalizeExistingSourceBlocks(blocks) {
+  if (!Array.isArray(blocks)) return [];
+  return blocks
+    .map((block, index) => {
+      const text = String(block?.text || "").trim();
+      if (!text) return null;
+      return {
+        ...block,
+        id: String(block.id || `p-${String(index + 1).padStart(3, "0")}`),
+        type: String(block.type || inferSourceBlockType(text)),
+        text
+      };
+    })
+    .filter(Boolean);
 }
 
 function splitArticleIntoSourceBlocks(rawText) {
