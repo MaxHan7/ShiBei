@@ -23,6 +23,7 @@
 - Preserve Douyin/Xiaohongshu behavior and TikHub cost optimization.
 - Avoid binding the V2 question system to any platform-specific provider output.
 - Add first-pass frontend URL classification parity for YouTube, Bilibili, Xiaohongshu short links, and direct video files.
+- Enforce a first-release maximum video duration of 15 minutes (`VIDEO_MAX_DURATION_SECONDS`, default 900) before media download, ASR, visual understanding, or question generation.
 - Do not run real YouTube/Bilibili tests until the user provides links.
 
 ## P1/P2 Scope Captured From Review
@@ -79,6 +80,7 @@
 - [ ] Let `extractVideoLearningSource()` choose the provider from the URL when no provider is injected.
 - [ ] If `video.mediaDownload.provider === "yt-dlp"`, use the new downloader.
 - [ ] Continue to use HTTP download for TikHub media URLs.
+- [ ] Reject known video durations over 15 minutes before download; allow unknown durations to proceed under file-size and timeout guards.
 - [ ] Record media usage provider as `yt-dlp` or `tikhub`.
 - [ ] Commit: `feat: integrate universal video provider`
 

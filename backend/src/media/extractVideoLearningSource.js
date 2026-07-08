@@ -2,6 +2,7 @@ import { dirname } from "node:path";
 
 import { cleanupMediaTempFiles, downloadMediaToTempFile } from "./mediaFiles.js";
 import { extractAudioWithFfmpeg } from "./ffmpegAudio.js";
+import { createMediaExtractionError } from "./mediaErrors.js";
 import { createSpeechToTextProvider } from "./speechToTextProvider.js";
 import { fetchTikHubVideoSource } from "./tikhubVideoProvider.js";
 import { fetchYtDlpVideoSource } from "./ytDlpVideoProvider.js";
@@ -41,6 +42,7 @@ export async function extractVideoLearningSource({
   provider = null,
   downloadMedia = downloadMediaToTempFile,
   downloadYtDlpMedia = downloadYtDlpMediaToTempFile,
+  maxDurationSeconds = readPositiveInt(process.env.VIDEO_MAX_DURATION_SECONDS, 15 * 60),
   extractAudio = extractAudioWithFfmpeg,
   speechToTextProvider = createSpeechToTextProvider(),
   transcribeAudio = null,
@@ -116,7 +118,10 @@ export async function extractVideoLearningSource({
   let videoSourceCacheHit = Boolean(video);
   if (!video) {
     video = await activeProvider.fetchVideoSource({ sourceUrl: sourceInput });
+    enforceVideoDurationLimit(video, { maxDurationSeconds });
     await writeCache(resolvedVideoSourceCache, videoSourceCacheKey, video);
+  } else {
+    enforceVideoDurationLimit(video, { maxDurationSeconds });
   }
   recordVideoSourceUsage(mediaUsageRecorder, { video, videoSourceCacheHit, videoSourceCacheKey });
   const tempFiles = [];
@@ -134,6 +139,7 @@ export async function extractVideoLearningSource({
       staleVideoSourceCache = true;
       await deleteCache(resolvedVideoSourceCache, videoSourceCacheKey);
       video = await activeProvider.fetchVideoSource({ sourceUrl: sourceInput });
+      enforceVideoDurationLimit(video, { maxDurationSeconds });
       videoSourceCacheHit = false;
       await writeCache(resolvedVideoSourceCache, videoSourceCacheKey, video);
       recordVideoSourceUsage(mediaUsageRecorder, {
@@ -402,6 +408,21 @@ function shouldRefreshCachedVideoSource({ error, videoSourceCacheHit }) {
   ].includes(error?.mediaErrorType);
 }
 
+function enforceVideoDurationLimit(video, { maxDurationSeconds }) {
+  const durationSeconds = Number(video?.durationSeconds);
+  if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) return;
+  if (!Number.isFinite(maxDurationSeconds) || maxDurationSeconds <= 0) return;
+  if (durationSeconds <= maxDurationSeconds) return;
+  throw createMediaExtractionError(
+    "video_duration_too_long",
+    `视频时长超过 ${Math.round(maxDurationSeconds / 60)} 分钟，暂时无法生成复习内容。`,
+    {
+      retryable: false,
+      provider: video?.provider || ""
+    }
+  );
+}
+
 function resolveDefaultCache({ providedCache, defaultCache, enabled }) {
   if (providedCache !== undefined) return providedCache;
   return enabled ? defaultCache() : null;
@@ -473,4 +494,9 @@ function withCacheMeta(learningSource, cache) {
       cache
     }
   };
+}
+
+function readPositiveInt(value, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : fallback;
 }

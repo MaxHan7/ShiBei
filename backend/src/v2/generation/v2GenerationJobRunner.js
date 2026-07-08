@@ -403,6 +403,9 @@ function userFacingVideoExtractionFailure(message = "") {
   if (message.includes("过大")) {
     return "视频文件过大，暂时无法生成复习内容。";
   }
+  if (message.includes("超过") && message.includes("分钟")) {
+    return message;
+  }
   if (message.includes("无语音") || message.includes("没有识别到")) {
     return "这条视频没有识别到足够清晰的语音内容。";
   }

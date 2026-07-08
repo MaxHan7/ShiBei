@@ -124,6 +124,88 @@ test("uses yt-dlp media downloader for universal video provider results", async 
   assert.match(learningSource.normalizedText, /消息协议/);
 });
 
+test("rejects videos longer than the configured duration limit before download", async () => {
+  const calls = [];
+  await assert.rejects(
+    () => extractVideoLearningSource({
+      sourceUrl: "https://www.bilibili.com/video/BV1long",
+      maxDurationSeconds: 900,
+      provider: {
+        name: "yt-dlp",
+        fetchVideoSource: async () => {
+          calls.push("provider");
+          return {
+            provider: "yt-dlp",
+            platform: "bilibili",
+            title: "超长课程",
+            sourceUrl: "https://www.bilibili.com/video/BV1long",
+            mediaUrl: "https://www.bilibili.com/video/BV1long",
+            durationSeconds: 901,
+            mediaDownload: {
+              provider: "yt-dlp",
+              sourceUrl: "https://www.bilibili.com/video/BV1long"
+            }
+          };
+        }
+      },
+      downloadYtDlpMedia: async () => {
+        calls.push("yt-dlp-download");
+        return { path: "/tmp/video-dir/source-video.mp4", dir: "/tmp/video-dir" };
+      },
+      cleanup: async () => calls.push("cleanup")
+    }),
+    (error) => (
+      error.mediaErrorType === "video_duration_too_long"
+      && error.retryable === false
+      && /15 分钟/.test(error.message)
+    )
+  );
+  assert.deepEqual(calls, ["provider"]);
+});
+
+test("allows videos at the configured duration limit", async () => {
+  const learningSource = await extractVideoLearningSource({
+    sourceUrl: "https://www.bilibili.com/video/BV1limit",
+    maxDurationSeconds: 900,
+    provider: {
+      name: "yt-dlp",
+      fetchVideoSource: async () => ({
+        provider: "yt-dlp",
+        platform: "bilibili",
+        title: "十五分钟课程",
+        description: "平台文案说明这条视频介绍 Agent 的定义、工具调用和任务拆解。",
+        sourceUrl: "https://www.bilibili.com/video/BV1limit",
+        mediaUrl: "https://www.bilibili.com/video/BV1limit",
+        durationSeconds: 900,
+        mediaDownload: {
+          provider: "yt-dlp",
+          sourceUrl: "https://www.bilibili.com/video/BV1limit"
+        }
+      })
+    },
+    downloadYtDlpMedia: async () => ({
+      path: "/tmp/video-dir/source-video.mp4",
+      dir: "/tmp/video-dir",
+      bytes: 2048,
+      contentType: "video/mp4"
+    }),
+    extractAudio: async () => ({ path: "/tmp/video-dir/audio.wav", dir: "/tmp/video-dir" }),
+    transcribeAudio: async () => ({
+      provider: "mock_asr",
+      segments: [{
+        id: "seg-1",
+        startSeconds: 0,
+        endSeconds: 6,
+        text: "Agent 是能够理解目标并调用工具完成任务的系统。学习时要区分模型本身、工具调用、记忆状态和任务规划，并用具体流程解释它们如何协作。"
+      }]
+    }),
+    cleanup: async () => {}
+  });
+
+  assert.equal(learningSource.durationSeconds, 900);
+  assert.match(learningSource.normalizedText, /工具调用/);
+});
+
 test("cleans temporary files when ASR fails", async () => {
   const calls = [];
   await assert.rejects(
