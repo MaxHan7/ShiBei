@@ -1,0 +1,1214 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>20260708-bilibili-feynman-agent-user-entry-regression - V2 出题质量报告</title>
+  <style>
+    :root {
+      --bg: #f2f5cf;
+      --paper: #fdfaf2;
+      --ink: #44423d;
+      --muted: #807d73;
+      --line: #dde1ac;
+      --brand: #98a84e;
+      --soft: #f2f1da;
+      --danger: #ed765c;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    h1, h2, h3 {
+      line-height: 1.25;
+      margin: 0;
+    }
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 40px 0 16px;
+    }
+    h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(152, 163, 94, 0.18);
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      color: var(--brand);
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 14px 0;
+      background: rgba(253, 250, 242, 0.72);
+    }
+    .stem {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .options, .pairs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .option, .pair {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .correct {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .explanation {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+    .source {
+      margin-top: 12px;
+      border-left: 4px solid var(--line);
+      padding-left: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .source-block {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin: 8px 0;
+      background: rgba(255,255,255,0.45);
+    }
+    .source-block.highlight {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .failure {
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    details {
+      margin-top: 12px;
+    }
+    .diagnostic {
+      border-top: 1px dashed var(--line);
+      padding-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 6px;
+      text-align: right;
+      vertical-align: top;
+    }
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>V2 出题质量报告</h1>
+    <div class="meta">2026-07-08T19:14:49.505Z · 20260708-bilibili-feynman-agent-user-entry-regression · completed</div>
+    
+    <section class="card">
+    <h2 style="margin-top:0">Architecture Metrics</h2>
+    <p class="meta">这一段是架构仪表盘：不改变生成链路，只量化每个 stage 的调用数、token、重试、失败类型和耗时，用来判断 token 爆炸来自 retry，还是来自 stage 本身过重。</p>
+    <div class="grid">
+      <div class="metric"><strong>13</strong>Model calls</div>
+      <div class="metric"><strong>50,780</strong>Total tokens</div>
+      <div class="metric"><strong>44,412</strong>Prompt tokens</div>
+      <div class="metric"><strong>6,368</strong>Completion tokens</div>
+      <div class="metric"><strong>0</strong>Retries</div>
+      <div class="metric"><strong>60s</strong>Duration</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Stage</th>
+          <th>Calls</th>
+          <th>Attempts</th>
+          <th>Retries</th>
+          <th>Failed attempts</th>
+          <th>Prompt</th>
+          <th>Completion</th>
+          <th>Total</th>
+          <th>Cache hit/miss</th>
+          <th>Duration</th>
+          <th>Error types</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>v2_matchingDraft</td>
+          <td>2</td>
+          <td>2</td>
+          <td>0</td>
+          <td>0</td>
+          <td>6,398</td>
+          <td>778</td>
+          <td>7,176</td>
+          <td>1,792 / 4,606</td>
+          <td>8s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_multipleChoiceDraftUnitBatch</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>10,875</td>
+          <td>1,806</td>
+          <td>12,681</td>
+          <td>3,456 / 7,419</td>
+          <td>16s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_reviewPathPlan</td>
+          <td>1</td>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td>6,135</td>
+          <td>760</td>
+          <td>6,895</td>
+          <td>1,152 / 4,983</td>
+          <td>8s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_taskBriefPlan</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>10,456</td>
+          <td>1,189</td>
+          <td>11,645</td>
+          <td>2,816 / 7,640</td>
+          <td>10s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_unitCopyBatch</td>
+          <td>1</td>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td>1,667</td>
+          <td>313</td>
+          <td>1,980</td>
+          <td>384 / 1,283</td>
+          <td>5s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_unitKnowledgeMap</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>8,881</td>
+          <td>1,522</td>
+          <td>10,403</td>
+          <td>2,304 / 6,577</td>
+          <td>13s</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">成本与调用明细</h2>
+    <div class="grid">
+      <div class="metric"><strong>USD 0.000000</strong>媒体链路估算成本</div>
+      <div class="metric"><strong>6</strong>媒体链路调用记录</div>
+      <div class="metric"><strong>USD 0.006367</strong>出题模型实际成本</div>
+      <div class="metric"><strong>USD 0.016074</strong>出题模型估算成本</div>
+      <div class="metric"><strong>13</strong>出题模型调用</div>
+    </div>
+    <h3>媒体/视频链路</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>stage</th>
+          <th>provider</th>
+          <th>calls</th>
+          <th>actual/estimated cost</th>
+          <th>note</th>
+          <th>metadata</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>video_source_fetch</td>
+          <td>yt-dlp</td>
+          <td>1</td>
+          <td>USD 0.000000</td>
+          <td>local/no provider fee recorded</td>
+          <td><pre>{
+  &quot;platform&quot;: &quot;bilibili&quot;,
+  &quot;providerContentId&quot;: &quot;BV1hYGd63EnU&quot;,
+  &quot;cacheHit&quot;: false,
+  &quot;cacheKey&quot;: &quot;video-source:video-source-v1:ef4c8b0ff9cd0c1ed0f8f9a3&quot;
+}</pre></td>
+        </tr>
+<tr>
+          <td>video_media_fetch</td>
+          <td>yt-dlp</td>
+          <td>1</td>
+          <td>USD 0.000000</td>
+          <td>local/no provider fee recorded</td>
+          <td><pre>{
+  &quot;bytes&quot;: 28345001,
+  &quot;contentType&quot;: &quot;video/mp4&quot;
+}</pre></td>
+        </tr>
+<tr>
+          <td>audio_extraction</td>
+          <td>ffmpeg</td>
+          <td>1</td>
+          <td>USD 0.000000</td>
+          <td>local/no provider fee recorded</td>
+          <td><pre>{
+  &quot;format&quot;: &quot;wav&quot;,
+  &quot;sampleRate&quot;: 16000
+}</pre></td>
+        </tr>
+<tr>
+          <td>audio_transcription</td>
+          <td>local_whisper</td>
+          <td>1</td>
+          <td>USD 0.000000</td>
+          <td>local/no provider fee recorded</td>
+          <td><pre>{
+  &quot;segmentCount&quot;: 280,
+  &quot;source&quot;: &quot;asr&quot;
+}</pre></td>
+        </tr>
+<tr>
+          <td>video_frame_pack</td>
+          <td>crv_style_ffmpeg</td>
+          <td>1</td>
+          <td>USD 0.000000</td>
+          <td>local/no provider fee recorded</td>
+          <td><pre>{
+  &quot;skipped&quot;: false,
+  &quot;reason&quot;: &quot;&quot;,
+  &quot;frameCount&quot;: 30,
+  &quot;gridCount&quot;: 4,
+  &quot;timestampMode&quot;: &quot;metadata&quot;
+}</pre></td>
+        </tr>
+<tr>
+          <td>visual_understanding</td>
+          <td>qwen-vl</td>
+          <td>1</td>
+          <td>USD 0.000000</td>
+          <td>qwen3-vl-flash estimate: USD 0.05/M input, USD 0.40/M output</td>
+          <td><pre>{
+  &quot;skipped&quot;: true,
+  &quot;status&quot;: &quot;failed&quot;,
+  &quot;reason&quot;: &quot;visual_output_parse_failed&quot;,
+  &quot;segmentCount&quot;: 0,
+  &quot;model&quot;: &quot;&quot;,
+  &quot;usage&quot;: {},
+  &quot;failureCode&quot;: &quot;visual_output_parse_failed&quot;,
+  &quot;retryable&quot;: true
+}</pre></td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>出题模型调用成本</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>stage</th>
+          <th>provider</th>
+          <th>model</th>
+          <th>input</th>
+          <th>output</th>
+          <th>total</th>
+          <th>actual cost</th>
+          <th>estimated cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>v2_reviewPathPlan</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>6,135</td>
+          <td>760</td>
+          <td>6,895</td>
+          <td>USD 0.000914</td>
+          <td>USD 0.002117</td>
+        </tr>
+<tr>
+          <td>2</td>
+          <td>v2_unitKnowledgeMap</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>2,807</td>
+          <td>385</td>
+          <td>3,192</td>
+          <td>USD 0.000395</td>
+          <td>USD 0.000939</td>
+        </tr>
+<tr>
+          <td>3</td>
+          <td>v2_unitKnowledgeMap</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>3,253</td>
+          <td>641</td>
+          <td>3,894</td>
+          <td>USD 0.000530</td>
+          <td>USD 0.000864</td>
+        </tr>
+<tr>
+          <td>4</td>
+          <td>v2_unitKnowledgeMap</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>2,821</td>
+          <td>496</td>
+          <td>3,317</td>
+          <td>USD 0.000428</td>
+          <td>USD 0.000792</td>
+        </tr>
+<tr>
+          <td>5</td>
+          <td>v2_taskBriefPlan</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>3,212</td>
+          <td>372</td>
+          <td>3,584</td>
+          <td>USD 0.000431</td>
+          <td>USD 0.001611</td>
+        </tr>
+<tr>
+          <td>6</td>
+          <td>v2_taskBriefPlan</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>3,907</td>
+          <td>321</td>
+          <td>4,228</td>
+          <td>USD 0.000514</td>
+          <td>USD 0.001543</td>
+        </tr>
+<tr>
+          <td>7</td>
+          <td>v2_taskBriefPlan</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>3,337</td>
+          <td>496</td>
+          <td>3,833</td>
+          <td>USD 0.000466</td>
+          <td>USD 0.001443</td>
+        </tr>
+<tr>
+          <td>8</td>
+          <td>v2_multipleChoiceDraftUnitBatch</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>3,619</td>
+          <td>781</td>
+          <td>4,400</td>
+          <td>USD 0.000567</td>
+          <td>USD 0.001261</td>
+        </tr>
+<tr>
+          <td>9</td>
+          <td>v2_multipleChoiceDraftUnitBatch</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>3,624</td>
+          <td>318</td>
+          <td>3,942</td>
+          <td>USD 0.000438</td>
+          <td>USD 0.001071</td>
+        </tr>
+<tr>
+          <td>10</td>
+          <td>v2_multipleChoiceDraftUnitBatch</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>3,632</td>
+          <td>707</td>
+          <td>4,339</td>
+          <td>USD 0.000548</td>
+          <td>USD 0.001068</td>
+        </tr>
+<tr>
+          <td>11</td>
+          <td>v2_matchingDraft</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>3,450</td>
+          <td>415</td>
+          <td>3,865</td>
+          <td>USD 0.000476</td>
+          <td>USD 0.001481</td>
+        </tr>
+<tr>
+          <td>12</td>
+          <td>v2_matchingDraft</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>2,948</td>
+          <td>363</td>
+          <td>3,311</td>
+          <td>USD 0.000391</td>
+          <td>USD 0.001226</td>
+        </tr>
+<tr>
+          <td>13</td>
+          <td>v2_unitCopyBatch</td>
+          <td>deepseek</td>
+          <td>deepseek-v4-flash</td>
+          <td>1,667</td>
+          <td>313</td>
+          <td>1,980</td>
+          <td>USD 0.000268</td>
+          <td>USD 0.000659</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">模型调用记录</h2>
+    
+      <div class="question">
+        <div><strong>#1 v2_reviewPathPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#2 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#3 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#4 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#5 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#6 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#7 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#8 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#9 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#10 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#11 v2_matchingDraft</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#12 v2_matchingDraft</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#13 v2_unitCopyBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 0</div>
+        
+        
+        
+      </div>
+    
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">Stage Runtime Reliability</h2>
+    <p class="meta">这一段显示 structured-output runtime 的稳定性：每个 stage 调用了几次、重试了几次、失败类型是什么。它不是题目质量审查。</p>
+    <div class="grid">
+      <div class="metric"><strong>13</strong>Calls</div>
+      <div class="metric"><strong>13</strong>Attempts</div>
+      <div class="metric"><strong>0</strong>Failed attempts</div>
+      <div class="metric"><strong>0</strong>Retry attempts</div>
+    </div>
+    <div class="question">
+      <div><strong>v2_reviewPathPlan</strong></div>
+      <div class="meta">calls: 1 · success calls: 1 · failed calls: 0 · attempts: 1 · retries: 0 · failed attempts: 0 · duration: 7899ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_unitKnowledgeMap</strong></div>
+      <div class="meta">calls: 3 · success calls: 3 · failed calls: 0 · attempts: 3 · retries: 0 · failed attempts: 0 · duration: 13400ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_taskBriefPlan</strong></div>
+      <div class="meta">calls: 3 · success calls: 3 · failed calls: 0 · attempts: 3 · retries: 0 · failed attempts: 0 · duration: 9881ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_multipleChoiceDraftUnitBatch</strong></div>
+      <div class="meta">calls: 3 · success calls: 3 · failed calls: 0 · attempts: 3 · retries: 0 · failed attempts: 0 · duration: 16033ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_matchingDraft</strong></div>
+      <div class="meta">calls: 2 · success calls: 2 · failed calls: 0 · attempts: 2 · retries: 0 · failed attempts: 0 · duration: 7955ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_unitCopyBatch</strong></div>
+      <div class="meta">calls: 1 · success calls: 1 · failed calls: 0 · attempts: 1 · retries: 0 · failed attempts: 0 · duration: 4590ms</div>
+      
+      
+    </div>
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">Source Context Stats</h2>
+    <p class="meta">这一段显示实际传给下游阶段的 source window，用来检查是否还在把全文 blocks 塞给每个 unit。</p>
+    <div class="grid">
+      <div class="metric"><strong>18</strong>Full blocks</div>
+      <div class="metric"><strong>14</strong>Plan blocks</div>
+      <div class="metric"><strong>3</strong>Unit windows</div>
+    </div>
+    <p class="meta">unitKnowledgeMap: video-transcript-003, video-transcript-004, video-transcript-005, video-transcript-006, video-transcript-007, video-transcript-008, video-transcript-009, video-transcript-010, video-transcript-011, video-transcript-012, video-transcript-013, video-transcript-014, video-transcript-015, video-transcript-016</p>
+    <div class="question">
+      <strong>unit-1</strong>
+      <div class="meta">anchor: anchor-unit-1 · blocks: video-transcript-003, video-transcript-004, video-transcript-005, video-transcript-006, video-transcript-007</div>
+    </div>
+<div class="question">
+      <strong>unit-2</strong>
+      <div class="meta">anchor: anchor-unit-2 · blocks: video-transcript-007, video-transcript-008, video-transcript-009, video-transcript-010, video-transcript-011, video-transcript-012, video-transcript-013</div>
+    </div>
+<div class="question">
+      <strong>unit-3</strong>
+      <div class="meta">anchor: anchor-unit-3 · blocks: video-transcript-012, video-transcript-013, video-transcript-014, video-transcript-015, video-transcript-016</div>
+    </div>
+  </section>
+    <section class="card">
+      <h2 style="margin-top:0">文章与章节</h2>
+      <p><strong>5分钟搞懂Agent：从Workflow到智能体循环</strong></p>
+      <p class="meta">Ai林爻 · <a href="https://www.bilibili.com/video/BV1hYGd63EnU/?share_source=copy_web&amp;vd_source=8341f26e68aec96fa7a01c17680f509e">https://www.bilibili.com/video/BV1hYGd63EnU/?share_source=copy_web&amp;vd_source=8341f26e68aec96fa7a01c17680f509e</a></p>
+      <p>Agent不是工具链，而是能自主思考、行动、检查结果的数字员工。本文用实习生比喻拆解其五大组件，并揭示Agent Loop才是核心。</p>
+      <div class="grid">
+        <div class="metric"><strong>3</strong>知识点</div>
+        <div class="metric"><strong>8</strong>题目</div>
+        <div class="metric"><strong>7</strong>选择题</div>
+        <div class="metric"><strong>1</strong>连线题</div>
+        <div class="metric"><strong>18</strong>Source blocks</div>
+        <div class="metric"><strong>0</strong>Issues</div>
+        <div class="metric"><strong>1</strong>Diagnostics</div>
+        <div class="metric"><strong>0</strong>Runtime failed attempts</div>
+        <div class="metric"><strong>0</strong>Runtime retries</div>
+      </div>
+    </section>
+    <section class="card">
+    <h2 style="margin-top:0">Micro Knowledge Map</h2>
+    <p class="meta">这一段是内部诊断信息：它只记录每个 unit 内部的小知识点 inventory，不负责选题型或控制题量。</p>
+    <div class="question">
+        <div class="stem">1. unit-1</div>
+        <details open>
+    <summary>Micro Knowledge Points</summary>
+    <ul>
+      <li>micro-unit-1-001 · high · definition：Workflow定义 / Workflow是预设步骤，AI按固定路线执行 / angle: 概念理解与区分</li>
+<li>micro-unit-1-002 · high · definition：Agent定义 / Agent自主决策执行路径，非预设步骤 / angle: 概念理解与区分</li>
+<li>micro-unit-1-003 · high · boundary：Workflow与Agent核心区别 / Workflow人定步骤，Agent自定步骤 / angle: 对比区分</li>
+<li>micro-unit-1-004 · medium · example_case：Agent自主决策过程示例 / Agent面对任务时思考、尝试、询问的步骤 / angle: 过程理解</li>
+<li>micro-unit-1-005 · medium · misconception：Workflow复杂节点仍非Agent / 即使100个节点，只要人设计好就不是Agent / angle: 误区澄清</li>
+    </ul>
+  </details>
+      </div>
+<div class="question">
+        <div class="stem">2. unit-2</div>
+        <details open>
+    <summary>Micro Knowledge Points</summary>
+    <ul>
+      <li>micro-unit-2-001 · high · definition：LLM大脑：理解与规划核心 / LLM作为Agent的大脑，负责理解、分析任务和制定计划 / angle: 理解LLM在Agent中的核心作</li>
+<li>micro-unit-2-002 · high · definition：Prompt：岗位说明书 / Prompt规定Agent的职责、限制条件和回复风格 / angle: 理解Prompt对Agent行为</li>
+<li>micro-unit-2-003 · high · definition：Memory：短期记忆与上下文 / Memory记住上下文、分配任务和积累经验 / angle: 理解Memory对Agent连续</li>
+<li>micro-unit-2-004 · high · definition：Knowledge：外部知识库 / External Knowledge补充公司内部资料，如知识库、产品文档 / angle: 理解Knowledge如何扩展A</li>
+<li>micro-unit-2-005 · high · definition：Tools：操作软件的能力 / Tools让Agent操作电脑软件，如发邮件、做PPT / angle: 理解Tools如何让Agent从</li>
+<li>micro-unit-2-006 · high · model_layer：五大组件构成Agent基础 / LLM、Prompt、Memory、Knowledge、Tools共同构成Agent / angle: 理解五大组件整体框架</li>
+<li>micro-unit-2-007 · low · example_case：数字员工类比理解Agent / 将Agent类比为数字员工，有岗位职责和工具 / angle: 通过类比理解Agent概念</li>
+<li>micro-unit-2-008 · medium · misconception：Agent不等于五件套 / 有五大组件不一定就是Agent，关键在于自主工作能力 / angle: 区分Agent与普通程序</li>
+    </ul>
+  </details>
+      </div>
+<div class="question">
+        <div class="stem">3. unit-3</div>
+        <details open>
+    <summary>Micro Knowledge Points</summary>
+    <ul>
+      <li>micro-unit-3-001 · high · definition：Agent Loop定义 / Agent Loop是推理→行动→检查→迭代的自主循环过程 / angle: 理解自主循环概念</li>
+<li>micro-unit-3-002 · high · mechanism：ReAct框架 / ReAct是Reasoning+Acting的缩写，是Agent Loop的经典框架 / angle: 识别框架组成与作用</li>
+<li>micro-unit-3-003 · high · process_step：Agent Loop步骤 / Agent先思考任务，再行动，然后检查结果，满意输出，不满意继续循环 / angle: 描述循环各步骤</li>
+<li>micro-unit-3-004 · high · boundary：自我检查能力 / Agent会自己检查结果是否满意，而非直接输出，这是自主性的关键 / angle: 区分Agent与普通LLM</li>
+<li>micro-unit-3-005 · medium · scenario_application：Agent Loop应用场景 / Agent Loop使Agent能自主完成复杂任务，如搜索、整理数据、画图 / angle: 举例说明循环应用</li>
+<li>micro-unit-3-006 · medium · misconception：Agent Loop vs 组件数量 / 成为Agent的关键是自主循环能力，而非拥有五个组件 / angle: 纠正常见误解</li>
+    </ul>
+  </details>
+      </div>
+  </section>
+    
+    <section class="card">
+    <h2 style="margin-top:0">1. Workflow与Agent的本质区别</h2>
+    <p><span class="tag">短版</span>Workflow是预设步骤，Agent自主决策执行路径。</p>
+    <p><span class="tag">长版</span>Workflow由人提前设计好每一步，AI按固定路线执行，即使有100个节点也不叫Agent。Agent则像黑盒，自己思考、决定下一步行动，例如面对同一任务，Agent会尝试连接日历、会议工具，甚至主动询问用户，而非按固定流程走。</p>
+    <p><span class="tag">概要页</span>Workflow和Agent听起来很像，但本质不同。Workflow是预设好的固定步骤，而Agent能自主决策。理解这个区别，是掌握Agent概念的第一步。</p>
+    <div class="source">
+      <strong>Source anchor: anchor-unit-1</strong>
+      <div class="source-block highlight">
+    <strong>video-transcript-004 · paragraph</strong>
+    <div>最后将总结的摘药发送邮件，它是由多个步骤串起来的，那这个就叫做workflow，也就是工作流，那这里有一个很重要的点，就是哪怕他中间的节点再复杂，哪怕有100个节点，他也不叫Agent，因为整个这个执行过程是，人提前设计好的，那AI只是按照这个计定的路线去走，那Agent呢，Agent更像这样，输入然后经过一个黑盒，然后输出，区别就在于这个黑盒里边</div>
+    
+  </div>
+<div class="source-block highlight">
+    <strong>video-transcript-005 · paragraph</strong>
+    <div>怎么执行，不是我们决定的，而是Agent自己决定的，比如我还是问刚刚同样的问题，帮我把上一次会议机要总结一下，发到我的邮箱，那Agent会怎么做呢，他会先自己思考，他怎么思考，要拿到会议机要，我得先知道上一次会议什么时候，他就去尝试连接日曆，尝试获取我的行程，但是后来发现，他连接的日曆之后，找不到上一次会议是什么时候，他就继续想，那我试试连接总军会议呢，找到...</div>
+    <details><summary>展开完整 source block</summary><pre>怎么执行，不是我们决定的，而是Agent自己决定的，比如我还是问刚刚同样的问题，帮我把上一次会议机要总结一下，发到我的邮箱，那Agent会怎么做呢，他会先自己思考，他怎么思考，要拿到会议机要，我得先知道上一次会议什么时候，他就去尝试连接日曆，尝试获取我的行程，但是后来发现，他连接的日曆之后，找不到上一次会议是什么时候，他就继续想，那我试试连接总军会议呢，找到会议进入之后，他就继续想</pre></details>
+  </div>
+<div class="source-block highlight">
+    <strong>video-transcript-006 · paragraph</strong>
+    <div>接下来我要总结内容，因为我告诉他，我想要总结后的内容吗，于是他就调用大模型，去总结内容，总结完之后，他又会继续想，用户刚刚说要发邮箱，但是他没告诉我是哪个邮箱，我要不要先问一下，再执行，所以在整个过程中，他一直在思考，决定自己下一步要做什么，这就是Agent，那用一句话总结，他就是执行人规定好的步骤，那Agent，他就是自己决定，要执行什么步骤，那这是两者最...</div>
+    <details><summary>展开完整 source block</summary><pre>接下来我要总结内容，因为我告诉他，我想要总结后的内容吗，于是他就调用大模型，去总结内容，总结完之后，他又会继续想，用户刚刚说要发邮箱，但是他没告诉我是哪个邮箱，我要不要先问一下，再执行，所以在整个过程中，他一直在思考，决定自己下一步要做什么，这就是Agent，那用一句话总结，他就是执行人规定好的步骤，那Agent，他就是自己决定，要执行什么步骤，那这是两者最大的区别</pre></details>
+  </div>
+    </div>
+    <div class="question">
+    <div class="stem">1. 选择题 · Workflow与Agent的核心区别是什么？</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> Workflow步骤少，Agent步骤多</div>
+<div class="option correct"><strong>B</strong> Workflow步骤固定，Agent步骤由AI自主决定</div>
+<div class="option "><strong>C</strong> Workflow需要人工干预，Agent完全自动</div>
+<div class="option "><strong>D</strong> Workflow只能处理简单任务，Agent处理复杂任务</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>Workflow由人预设步骤，Agent自主决策路径；步骤多少或任务复杂度并非区分关键。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-1</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>v2_option_tone_cue: 多个干扰项包含绝对化或否定化泄题词：完全、只能</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">2. 选择题 · 以下哪项最能体现Agent的自主决策过程？</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> AI根据用户指令直接执行预设的邮件发送流程</div>
+<div class="option correct"><strong>B</strong> AI先尝试连接日历，失败后尝试会议工具，再询问用户</div>
+<div class="option "><strong>C</strong> AI将任务分解为多个子任务并依次执行</div>
+<div class="option "><strong>D</strong> AI按固定顺序调用日历、总结、发送邮件</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>Agent会自主思考、尝试不同路径并主动询问，而非按固定流程执行。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-1</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">3. 选择题 · 一个包含100个节点的自动化流程，是否属于Agent？</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> 是，因为自动化流程就是Agent</div>
+<div class="option "><strong>B</strong> 不是，因为节点超过一定数量才叫Agent</div>
+<div class="option correct"><strong>C</strong> 不是，因为步骤由人预设，非自主决策</div>
+<div class="option "><strong>D</strong> 是，因为节点多说明系统复杂</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>Agent的关键是自主决策，而非节点数量；预设步骤的流程即使复杂也不是Agent。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-1</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+    <details>
+      <summary>单元总结</summary>
+      <p><strong>单元完成</strong></p>
+      <p>现在你明白了：Workflow是预设路径，Agent是自主决策。别把复杂流程误当成智能体。</p>
+    </details>
+  </section>
+<section class="card">
+    <h2 style="margin-top:0">2. Agent的五大组件：数字员工类比</h2>
+    <p><span class="tag">短版</span>LLM大脑、Prompt岗位说明、Memory记忆、Knowledge知识库、Tools工具。</p>
+    <p><span class="tag">长版</span>将Agent想象成数字员工：LLM是大脑，负责理解与规划；Prompt是岗位说明书，规定职责与风格；Memory是短期记忆，记住上下文；Knowledge是外部知识库，补充公司内部资料；Tools是手脚，让Agent能操作软件、发邮件、做PPT等。这五部分共同构成Agent的基础能力。</p>
+    <p><span class="tag">概要页</span>Agent像一位数字员工，由五大组件构成：大脑、岗位说明、记忆、知识库和工具。了解它们，你就能设计出真正能干的智能体。</p>
+    <div class="source">
+      <strong>Source anchor: anchor-unit-2</strong>
+      <div class="source-block highlight">
+    <strong>video-transcript-008 · paragraph</strong>
+    <div>那么接下来，理解这个Agent的组成，可以把它想象成，在招聘一个实习生，那完整的Agent，大概是有五个部分的，第一个就是LLM大脑，像拆GPT TPC可逗包，这个大脑，他主要负责理解人化，分析任务制定计划，没有大脑，其他都没有意义，就像你在公司，布置了完美的办公环境，但是没有人坐在那里，是不可以的，第二个是，Prom的，就是我们说的提示，是不是，然后在这里...</div>
+    <details><summary>展开完整 source block</summary><pre>那么接下来，理解这个Agent的组成，可以把它想象成，在招聘一个实习生，那完整的Agent，大概是有五个部分的，第一个就是LLM大脑，像拆GPT TPC可逗包，这个大脑，他主要负责理解人化，分析任务制定计划，没有大脑，其他都没有意义，就像你在公司，布置了完美的办公环境，但是没有人坐在那里，是不可以的，第二个是，Prom的，就是我们说的提示，是不是，然后在这里，我们可以把它理解成</pre></details>
+  </div>
+<div class="source-block highlight">
+    <strong>video-transcript-009 · paragraph</strong>
+    <div>比如说你现在招这个实习生，他的岗位是客服，你招客服的时候，你总不会只说一个，你去做客服吧，你会去告诉他，他的职责是什么，他的职责是客服，他遇到问题怎么处理，比如说，他不能O打顾客，那他回复的风格是什么，比如说作为客服，他应该礼貌的回复顾客，那Prom他干的就是这个事，去规定Agent的职责，限制条件和回复的风格等等</div>
+    
+  </div>
+<div class="source-block highlight">
+    <strong>video-transcript-010 · paragraph</strong>
+    <div>第三个是Memory，也就是记忆，如果你招到这个实习生，他每个30秒，10亿一次，那肯定不行，所以Memory的作用就是记住上下文，分众任务，积累行业的经验</div>
+    
+  </div>
+<div class="source-block highlight">
+    <strong>video-transcript-011 · paragraph</strong>
+    <div>第四个 Knowledge，确认来说是External Knowledge，外部知识，你招到这个实习生，他有通用的知识，他在大学学的知识，但是他不一定知道公司的内部资料，所以你就需要将企业的知识库，产品文档，公司的规章制度等等给他</div>
+    
+  </div>
+<div class="source-block highlight">
+    <strong>video-transcript-012 · paragraph</strong>
+    <div>第五个Tools工具，这是最关键的一部分，当然工具不是我们的那个班手，它是你电脑手机里边，所有你可以操作的东西，比如说像File键，下定单，制作 Excel PPT等等，所有，简而言之，你让Agent拥有操作你电脑，各个软件的权限，那他就能代替你操作你的电脑，之所以是一个很关键的一步，是他让AI真的从会聊天，变成了会干活，那这些部分构成了Agent</div>
+    
+  </div>
+    </div>
+    <div class="question">
+    <div class="stem">1. 选择题 · 一个程序具备LLM、Prompt、Memory、Knowledge和Tools五个组件，它一定是Agent吗？</div>
+    <div class="options">
+      <div class="option correct"><strong>A</strong> 不一定是，关键看它能否自主推理和行动</div>
+<div class="option "><strong>B</strong> 不一定是，还需要有外部知识库才能算</div>
+<div class="option "><strong>C</strong> 一定是，只要组件齐全就能自主工作</div>
+<div class="option "><strong>D</strong> 一定是，因为五大组件是Agent的完整构成</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>Agent的核心是自主推理与行动的能力，拥有五大组件只是基础，但若没有自主循环，仍不算真正的Agent。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-2</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+    <details>
+      <summary>单元总结</summary>
+      <p><strong>单元完成</strong></p>
+      <p>五大组件是Agent的骨架：LLM大脑、Prompt岗位说明、Memory记忆、Knowledge知识库、Tools工具。记住这个框架，构建Agent不再抽象。</p>
+    </details>
+  </section>
+<section class="card">
+    <h2 style="margin-top:0">3. Agent Loop：自主推理与行动循环</h2>
+    <p><span class="tag">短版</span>Agent Loop是推理→行动→检查→迭代的自主循环。</p>
+    <p><span class="tag">长版</span>Agent Loop的核心是ReAct框架（Reasoning+Acting）。Agent先思考如何完成任务，然后采取行动（如搜索网页、整理数据、画图），之后自己检查结果是否满意，满意则输出，不满意则继续循环改进。这种自我检查与迭代能力，是Agent区别于普通LLM应用的关键。</p>
+    <p><span class="tag">概要页</span>Agent Loop是智能体的核心循环：推理→行动→检查→迭代。正是这种自我改进的能力，让Agent区别于普通应用。</p>
+    <div class="source">
+      <strong>Source anchor: anchor-unit-3</strong>
+      <div class="source-block highlight">
+    <strong>video-transcript-013 · paragraph</strong>
+    <div>当然这里有一个比较容易误解的点，是不是有了这五个东西，就一定叫Agent，不一定，因为Agent它最最重要的，不是它有没有这些这五个零件，而是它有没有自主工作的能力，这里就要提一个概念，Agent Loop是能体循环，Agent Loop最经典的一个框架，是React，注意这里的React，不是前端的React，这里的React是，Reagening和Act...</div>
+    <details><summary>展开完整 source block</summary><pre>当然这里有一个比较容易误解的点，是不是有了这五个东西，就一定叫Agent，不一定，因为Agent它最最重要的，不是它有没有这些这五个零件，而是它有没有自主工作的能力，这里就要提一个概念，Agent Loop是能体循环，Agent Loop最经典的一个框架，是React，注意这里的React，不是前端的React，这里的React是，Reagening和Acting的缩写，也就是推理它行动，什么意思呢</pre></details>
+  </div>
+<div class="source-block highlight">
+    <strong>video-transcript-014 · paragraph</strong>
+    <div>比如说你现在跟Deepseag说，帮我做一个进品分析，那Deepseag只是能给你一段文字，对不对，那Agent它会做什么事情呢，首先Agent它会自己打开网页，然后它会搜索一下，你的竞争对手是谁，请记得它会自己整理数据，然后它会把这些数据，会画一个图，行销的展示给你看，画完图之后，它自己会检查结果，检查这个给你生存的图，里面的内容是不是符合要求，检查结果满...</div>
+    <details><summary>展开完整 source block</summary><pre>比如说你现在跟Deepseag说，帮我做一个进品分析，那Deepseag只是能给你一段文字，对不对，那Agent它会做什么事情呢，首先Agent它会自己打开网页，然后它会搜索一下，你的竞争对手是谁，请记得它会自己整理数据，然后它会把这些数据，会画一个图，行销的展示给你看，画完图之后，它自己会检查结果，检查这个给你生存的图，里面的内容是不是符合要求，检查结果满意的话，它就给你输出</pre></details>
+  </div>
+<div class="source-block highlight">
+    <strong>video-transcript-015 · paragraph</strong>
+    <div>不满意的话，它就继续修改，这个过程就叫做Agent Loop，智能体循环，本质上其实就是思考，思考这件事怎么做，然后采取行动，行动完了，自己检查一下结果，检查一下自己做的这个结果，好不好，好了就输出，不好了就继续循环，很核心的点是，它会自己检查自己的结果，而不是无论结果好坏，都给你输出，那我们最后再总结一下，我就把Agent想象成数字员工</div>
+    
+  </div>
+    </div>
+    <div class="question">
+    <div class="stem">1. 选择题 · Agent Loop的核心过程是什么？</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> 推理→行动→直接输出结果</div>
+<div class="option "><strong>B</strong> 行动→推理→检查→输出</div>
+<div class="option "><strong>C</strong> 检查→推理→行动→输出</div>
+<div class="option correct"><strong>D</strong> 推理→行动→检查→迭代的自主循环</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>Agent Loop包含自我检查环节，不满意会继续迭代，而非简单顺序执行后直接输出。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-3</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">2. 连线题 · 请匹配Agent Loop中步骤与对应的动作</div>
+    <div class="pairs">
+      <div class="pair"><strong>l1 → r1</strong><br>推理<br><span class="meta">思考任务如何完成</span></div>
+<div class="pair"><strong>l2 → r2</strong><br>行动<br><span class="meta">搜索、整理数据、画图</span></div>
+<div class="pair"><strong>l3 → r3</strong><br>检查<br><span class="meta">评估结果是否满意</span></div>
+<div class="pair"><strong>l4 → r4</strong><br>迭代<br><span class="meta">不满意则继续循环改进</span></div>
+    </div>
+    <details>
+      <summary>左右选项原始列表</summary>
+      <pre>{
+  &quot;leftItems&quot;: [
+    {
+      &quot;id&quot;: &quot;l1&quot;,
+      &quot;text&quot;: &quot;推理&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l2&quot;,
+      &quot;text&quot;: &quot;行动&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l3&quot;,
+      &quot;text&quot;: &quot;检查&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l4&quot;,
+      &quot;text&quot;: &quot;迭代&quot;
+    }
+  ],
+  &quot;rightItems&quot;: [
+    {
+      &quot;id&quot;: &quot;r1&quot;,
+      &quot;text&quot;: &quot;思考任务如何完成&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r2&quot;,
+      &quot;text&quot;: &quot;搜索、整理数据、画图&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r3&quot;,
+      &quot;text&quot;: &quot;评估结果是否满意&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r4&quot;,
+      &quot;text&quot;: &quot;不满意则继续循环改进&quot;
+    }
+  ],
+  &quot;pairs&quot;: [
+    {
+      &quot;leftId&quot;: &quot;l1&quot;,
+      &quot;rightId&quot;: &quot;r1&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l2&quot;,
+      &quot;rightId&quot;: &quot;r2&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l3&quot;,
+      &quot;rightId&quot;: &quot;r3&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l4&quot;,
+      &quot;rightId&quot;: &quot;r4&quot;
+    }
+  ]
+}</pre>
+    </details>
+    <div class="explanation"><strong>解释：</strong>Agent Loop中，推理是思考如何做，行动是执行操作，检查是自我评估，迭代是循环改进。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-3</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: not_applicable</div>
+    <div class="meta">matching relation value: pass</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">3. 选择题 · 一个系统拥有五个组件就一定是Agent吗？</div>
+    <div class="options">
+      <div class="option correct"><strong>A</strong> 不一定，关键是有自主循环能力</div>
+<div class="option "><strong>B</strong> 是的，五个组件缺一不可</div>
+<div class="option "><strong>C</strong> 是的，五个组件是Agent的充分条件</div>
+<div class="option "><strong>D</strong> 不一定，还需要有大量训练数据</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>Agent的核心是自主循环能力，而非组件数量；拥有五个组件不一定就是Agent。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-3</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">4. 选择题 · 以下哪项最能体现Agent Loop在复杂任务中的应用？</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> Agent按固定流程执行简单计算</div>
+<div class="option "><strong>B</strong> Agent根据指令直接生成一段文字</div>
+<div class="option "><strong>C</strong> Agent仅执行一次搜索并返回结果</div>
+<div class="option correct"><strong>D</strong> Agent自主搜索数据、整理并画图，不满意则修改</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>Agent Loop通过推理、行动、检查、迭代，能自主完成复杂任务，而非仅简单执行。</div>
+    <div class="meta">sourceAnchorId: anchor-unit-3</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+    <details>
+      <summary>单元总结</summary>
+      <p><strong>单元完成</strong></p>
+      <p>Agent Loop让Agent能自主推理、行动并自我检查，不断迭代直到满意。这是智能体真正的灵魂。</p>
+    </details>
+  </section>
+    <section class="card">
+      <h2 style="margin-top:0">章节总结</h2>
+      <p><span class="tag">章节完成</span>共 3 个核心知识点，8 道题目</p>
+      <p>你已经掌握了Agent的核心概念：它不只是工具组合，而是能自主推理、行动、检查的数字员工。继续探索，你也能构建自己的智能体！</p>
+    </section>
+    <section class="card">
+      <h2 style="margin-top:0">完整来源块</h2>
+      <div class="source-block ">
+    <strong>video-platform-description · paragraph</strong>
+    <div>平台文案：最近在学习agent的相关原理以及搭建各种agent，免费申请了Mimo的Max计划，正在狠狠使用，后面还是计划多参加一些活动类似黑客松，菜也没关系，以赛代练进步最快。
+对了，这个视频看了杰夫老师的AI Agent视频，讲得非常通俗易懂，豁然开朗的感觉；另外还吸收了油管上两个创作者Mahesh Yadav和Liam Ottley的讲解，都是非常好的...</div>
+    <details><summary>展开完整 source block</summary><pre>平台文案：最近在学习agent的相关原理以及搭建各种agent，免费申请了Mimo的Max计划，正在狠狠使用，后面还是计划多参加一些活动类似黑客松，菜也没关系，以赛代练进步最快。
+对了，这个视频看了杰夫老师的AI Agent视频，讲得非常通俗易懂，豁然开朗的感觉；另外还吸收了油管上两个创作者Mahesh Yadav和Liam Ottley的讲解，都是非常好的学习素材。</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-001 · paragraph</strong>
+    <div>今天我们的任务就是要搞懂agent到底是什么，agent一般会翻译成智能体或者代理，那我们今天主要分享两个问题，第一个是LM Workflow和agent，他们到底有什么区别，第二是agent到底有什么构成，那第一部分我们再讲agent之前，先从LM开始，像Deepseak的GPT，他们本身都是基于LLM大原模型的聊天机器人，不理解的话，可以先把它认为成一个...</div>
+    <details><summary>展开完整 source block</summary><pre>今天我们的任务就是要搞懂agent到底是什么，agent一般会翻译成智能体或者代理，那我们今天主要分享两个问题，第一个是LM Workflow和agent，他们到底有什么区别，第二是agent到底有什么构成，那第一部分我们再讲agent之前，先从LM开始，像Deepseak的GPT，他们本身都是基于LLM大原模型的聊天机器人，不理解的话，可以先把它认为成一个百课全书</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-002 · paragraph</strong>
+    <div>像Deepseak这种基于LLM的聊天机器人，他们的工作流程其实非常简单，就是输入，输入经过大原模型然后输出，比如说我们在这里输入，给我一份会议机要模板，经过模型处理之后，他就会输出一份会议机要模板，就像我们和Deepseak对话一样，但如果我接着问我上一次会议是什么时候，比如说你问Deepseak他知道吗，他不知道，因为他没有你的个人信息，所以这时候我们就...</div>
+    <details><summary>展开完整 source block</summary><pre>像Deepseak这种基于LLM的聊天机器人，他们的工作流程其实非常简单，就是输入，输入经过大原模型然后输出，比如说我们在这里输入，给我一份会议机要模板，经过模型处理之后，他就会输出一份会议机要模板，就像我们和Deepseak对话一样，但如果我接着问我上一次会议是什么时候，比如说你问Deepseak他知道吗，他不知道，因为他没有你的个人信息，所以这时候我们就需要给他接工具，比如接一个日历工具，这样当我问我上一次会议是什么时候</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-003 · paragraph</strong>
+    <div>他就可以先去查日历，查日历之后给我输出答案，那如果我在进一步说，帮我把上一次会议机要总结一下，这时候发现原来的这个流程又不够用了，所以这个流程他可能会变成，首先要总结上一次会议机要，那就要先拿到上一次的会议记录，拿到上一次会议记录之后，紧接着是要用LM去做摘药，做完摘药之后，需要接入邮箱</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-004 · paragraph</strong>
+    <div>最后将总结的摘药发送邮件，它是由多个步骤串起来的，那这个就叫做workflow，也就是工作流，那这里有一个很重要的点，就是哪怕他中间的节点再复杂，哪怕有100个节点，他也不叫Agent，因为整个这个执行过程是，人提前设计好的，那AI只是按照这个计定的路线去走，那Agent呢，Agent更像这样，输入然后经过一个黑盒，然后输出，区别就在于这个黑盒里边</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-005 · paragraph</strong>
+    <div>怎么执行，不是我们决定的，而是Agent自己决定的，比如我还是问刚刚同样的问题，帮我把上一次会议机要总结一下，发到我的邮箱，那Agent会怎么做呢，他会先自己思考，他怎么思考，要拿到会议机要，我得先知道上一次会议什么时候，他就去尝试连接日曆，尝试获取我的行程，但是后来发现，他连接的日曆之后，找不到上一次会议是什么时候，他就继续想，那我试试连接总军会议呢，找到...</div>
+    <details><summary>展开完整 source block</summary><pre>怎么执行，不是我们决定的，而是Agent自己决定的，比如我还是问刚刚同样的问题，帮我把上一次会议机要总结一下，发到我的邮箱，那Agent会怎么做呢，他会先自己思考，他怎么思考，要拿到会议机要，我得先知道上一次会议什么时候，他就去尝试连接日曆，尝试获取我的行程，但是后来发现，他连接的日曆之后，找不到上一次会议是什么时候，他就继续想，那我试试连接总军会议呢，找到会议进入之后，他就继续想</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-006 · paragraph</strong>
+    <div>接下来我要总结内容，因为我告诉他，我想要总结后的内容吗，于是他就调用大模型，去总结内容，总结完之后，他又会继续想，用户刚刚说要发邮箱，但是他没告诉我是哪个邮箱，我要不要先问一下，再执行，所以在整个过程中，他一直在思考，决定自己下一步要做什么，这就是Agent，那用一句话总结，他就是执行人规定好的步骤，那Agent，他就是自己决定，要执行什么步骤，那这是两者最...</div>
+    <details><summary>展开完整 source block</summary><pre>接下来我要总结内容，因为我告诉他，我想要总结后的内容吗，于是他就调用大模型，去总结内容，总结完之后，他又会继续想，用户刚刚说要发邮箱，但是他没告诉我是哪个邮箱，我要不要先问一下，再执行，所以在整个过程中，他一直在思考，决定自己下一步要做什么，这就是Agent，那用一句话总结，他就是执行人规定好的步骤，那Agent，他就是自己决定，要执行什么步骤，那这是两者最大的区别</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-007 · paragraph</strong>
+    <div>接下来我们分享一下，Agent的构成，可以把Agent想象成，一个数字员工去理解，会比较简单，那就像一个公司，他会有不同的岗位职责，比如说有运营，有财务Agent，也是一个岗位，只不过他是数字岗位，那Agent，他不用请假24小时待命，成本也比真人低很多，所以现在很多公司，都对这种数字劳动力，非常感兴趣，而且构建Agent，这个技能也正在成为一个，非常重要的...</div>
+    <details><summary>展开完整 source block</summary><pre>接下来我们分享一下，Agent的构成，可以把Agent想象成，一个数字员工去理解，会比较简单，那就像一个公司，他会有不同的岗位职责，比如说有运营，有财务Agent，也是一个岗位，只不过他是数字岗位，那Agent，他不用请假24小时待命，成本也比真人低很多，所以现在很多公司，都对这种数字劳动力，非常感兴趣，而且构建Agent，这个技能也正在成为一个，非常重要的能力</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-008 · paragraph</strong>
+    <div>那么接下来，理解这个Agent的组成，可以把它想象成，在招聘一个实习生，那完整的Agent，大概是有五个部分的，第一个就是LLM大脑，像拆GPT TPC可逗包，这个大脑，他主要负责理解人化，分析任务制定计划，没有大脑，其他都没有意义，就像你在公司，布置了完美的办公环境，但是没有人坐在那里，是不可以的，第二个是，Prom的，就是我们说的提示，是不是，然后在这里...</div>
+    <details><summary>展开完整 source block</summary><pre>那么接下来，理解这个Agent的组成，可以把它想象成，在招聘一个实习生，那完整的Agent，大概是有五个部分的，第一个就是LLM大脑，像拆GPT TPC可逗包，这个大脑，他主要负责理解人化，分析任务制定计划，没有大脑，其他都没有意义，就像你在公司，布置了完美的办公环境，但是没有人坐在那里，是不可以的，第二个是，Prom的，就是我们说的提示，是不是，然后在这里，我们可以把它理解成</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-009 · paragraph</strong>
+    <div>比如说你现在招这个实习生，他的岗位是客服，你招客服的时候，你总不会只说一个，你去做客服吧，你会去告诉他，他的职责是什么，他的职责是客服，他遇到问题怎么处理，比如说，他不能O打顾客，那他回复的风格是什么，比如说作为客服，他应该礼貌的回复顾客，那Prom他干的就是这个事，去规定Agent的职责，限制条件和回复的风格等等</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-010 · paragraph</strong>
+    <div>第三个是Memory，也就是记忆，如果你招到这个实习生，他每个30秒，10亿一次，那肯定不行，所以Memory的作用就是记住上下文，分众任务，积累行业的经验</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-011 · paragraph</strong>
+    <div>第四个 Knowledge，确认来说是External Knowledge，外部知识，你招到这个实习生，他有通用的知识，他在大学学的知识，但是他不一定知道公司的内部资料，所以你就需要将企业的知识库，产品文档，公司的规章制度等等给他</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-012 · paragraph</strong>
+    <div>第五个Tools工具，这是最关键的一部分，当然工具不是我们的那个班手，它是你电脑手机里边，所有你可以操作的东西，比如说像File键，下定单，制作 Excel PPT等等，所有，简而言之，你让Agent拥有操作你电脑，各个软件的权限，那他就能代替你操作你的电脑，之所以是一个很关键的一步，是他让AI真的从会聊天，变成了会干活，那这些部分构成了Agent</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-013 · paragraph</strong>
+    <div>当然这里有一个比较容易误解的点，是不是有了这五个东西，就一定叫Agent，不一定，因为Agent它最最重要的，不是它有没有这些这五个零件，而是它有没有自主工作的能力，这里就要提一个概念，Agent Loop是能体循环，Agent Loop最经典的一个框架，是React，注意这里的React，不是前端的React，这里的React是，Reagening和Act...</div>
+    <details><summary>展开完整 source block</summary><pre>当然这里有一个比较容易误解的点，是不是有了这五个东西，就一定叫Agent，不一定，因为Agent它最最重要的，不是它有没有这些这五个零件，而是它有没有自主工作的能力，这里就要提一个概念，Agent Loop是能体循环，Agent Loop最经典的一个框架，是React，注意这里的React，不是前端的React，这里的React是，Reagening和Acting的缩写，也就是推理它行动，什么意思呢</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-014 · paragraph</strong>
+    <div>比如说你现在跟Deepseag说，帮我做一个进品分析，那Deepseag只是能给你一段文字，对不对，那Agent它会做什么事情呢，首先Agent它会自己打开网页，然后它会搜索一下，你的竞争对手是谁，请记得它会自己整理数据，然后它会把这些数据，会画一个图，行销的展示给你看，画完图之后，它自己会检查结果，检查这个给你生存的图，里面的内容是不是符合要求，检查结果满...</div>
+    <details><summary>展开完整 source block</summary><pre>比如说你现在跟Deepseag说，帮我做一个进品分析，那Deepseag只是能给你一段文字，对不对，那Agent它会做什么事情呢，首先Agent它会自己打开网页，然后它会搜索一下，你的竞争对手是谁，请记得它会自己整理数据，然后它会把这些数据，会画一个图，行销的展示给你看，画完图之后，它自己会检查结果，检查这个给你生存的图，里面的内容是不是符合要求，检查结果满意的话，它就给你输出</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-015 · paragraph</strong>
+    <div>不满意的话，它就继续修改，这个过程就叫做Agent Loop，智能体循环，本质上其实就是思考，思考这件事怎么做，然后采取行动，行动完了，自己检查一下结果，检查一下自己做的这个结果，好不好，好了就输出，不好了就继续循环，很核心的点是，它会自己检查自己的结果，而不是无论结果好坏，都给你输出，那我们最后再总结一下，我就把Agent想象成数字员工</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-016 · paragraph</strong>
+    <div>非常变于理解，然后Agent它首先就是要有，LM是它的大脑，Tools是它的手脚，Memory是记忆，Normly只是资料库，Prompt就是它的岗位说明书，但这认为它成为Agent的，不是组件数量，而是它能不能围绕目标，自主完成工作，会推理，会行动，会检查，不满意，还能继续迭代，循环 Loop，这才是Agent，这里关于Agent的组成部分，你可能在网上会...</div>
+    <details><summary>展开完整 source block</summary><pre>非常变于理解，然后Agent它首先就是要有，LM是它的大脑，Tools是它的手脚，Memory是记忆，Normly只是资料库，Prompt就是它的岗位说明书，但这认为它成为Agent的，不是组件数量，而是它能不能围绕目标，自主完成工作，会推理，会行动，会检查，不满意，还能继续迭代，循环 Loop，这才是Agent，这里关于Agent的组成部分，你可能在网上会看到</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>video-transcript-017 · paragraph</strong>
+    <div>很多个版本，目前也是Agent的高速发展的，一个阶段，目前没有一个全行业统一的，官方盖章的一个标准答案，所以你可能看到很多版本，不是因为谁对谁错，而是因为大家站的位置，不同角度不同，其数级工程团队，产品公司和普通用户，看待Agent的视角也都不同</div>
+    
+  </div>
+    </section>
+  </main>
+</body>
+</html>

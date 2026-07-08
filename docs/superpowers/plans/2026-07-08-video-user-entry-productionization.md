@@ -322,9 +322,9 @@ git commit -m "feat: show video source timestamps"
 
 **Files:**
 - Write outputs under `docs/quality-runs/video-link/`
-- Update: `docs/iteration-records/2026-07-07-video-generation-stability-cost.md`
+- Create: `docs/iteration-records/2026-07-08-video-user-entry-productionization.md`
 
-- [ ] **Step 1: Backend preflight tests**
+- [x] **Step 1: Backend preflight tests**
 
 Run unit tests and direct HTTP smoke tests for:
 
@@ -335,7 +335,7 @@ Run unit tests and direct HTTP smoke tests for:
 - known over-15-minute video if available through metadata;
 - `VIDEO_YTDLP_ENABLED=false` blocks Bilibili/YouTube.
 
-- [ ] **Step 2: Full video generation regression**
+- [x] **Step 2: Full video generation regression**
 
 Run the existing quality runner for the Bilibili sample and at least one short-video sample already used in this feature branch. Record:
 
@@ -346,7 +346,7 @@ Run the existing quality runner for the Bilibili sample and at least one short-v
 - DeepSeek/Qwen text-generation tokens if present;
 - HTML report path.
 
-- [ ] **Step 3: Commit result summaries only**
+- [x] **Step 3: Commit result summaries only**
 
 Commit compact JSON summaries, matrix updates, and selected HTML reports if they are useful for review. Do not commit raw media, temp frames, or large caches.
 
@@ -354,9 +354,9 @@ Commit compact JSON summaries, matrix updates, and selected HTML reports if they
 
 **Files:**
 - Update: `docs/superpowers/plans/2026-07-08-video-user-entry-productionization.md`
-- Update: `docs/iteration-records/2026-07-07-video-generation-stability-cost.md`
+- Create: `docs/iteration-records/2026-07-08-video-user-entry-productionization.md`
 
-- [ ] **Step 1: Review production readiness**
+- [x] **Step 1: Review production readiness**
 
 Check:
 
@@ -367,7 +367,7 @@ Check:
 - backend diagnostics remain separate from user-facing status;
 - cache/cost risks are still documented.
 
-- [ ] **Step 2: Write next-stage plan**
+- [x] **Step 2: Write next-stage plan**
 
 Capture remaining work:
 

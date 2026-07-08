@@ -1,0 +1,4289 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-07-08T19:14:49.505Z",
+  "slug": "bilibili-feynman-agent",
+  "label": "20260708-bilibili-feynman-agent-user-entry-regression",
+  "status": "completed",
+  "source": {
+    "title": "费曼学习法，5分钟搞懂Agent",
+    "account": "Ai林爻",
+    "url": "https://www.bilibili.com/video/BV1hYGd63EnU/?share_source=copy_web&vd_source=8341f26e68aec96fa7a01c17680f509e",
+    "type": "video_link",
+    "rawTextLength": 3076
+  },
+  "metrics": {
+    "unitCount": 3,
+    "questionCount": 8,
+    "multipleChoiceCount": 7,
+    "matchingCount": 1,
+    "sourceBlockCount": 18,
+    "issueCount": 0,
+    "diagnosticIssueCount": 1,
+    "runtimeFailedAttemptCount": 0,
+    "runtimeRetryAttemptCount": 0,
+    "modelCallCount": 13,
+    "promptTokenCount": 44412,
+    "completionTokenCount": 6368,
+    "totalTokenCount": 50780
+  },
+  "chapter": {
+    "schemaVersion": "v2_review_path_1",
+    "id": "bilibili-feynman-agent",
+    "status": "completed",
+    "displayStatusText": "已生成",
+    "title": "5分钟搞懂Agent：从Workflow到智能体循环",
+    "source": {
+      "type": "video_link",
+      "title": "费曼学习法，5分钟搞懂Agent",
+      "author": "Ai林爻",
+      "account": "Ai林爻",
+      "accountOrDomain": "Ai林爻",
+      "url": "https://www.bilibili.com/video/BV1hYGd63EnU/?share_source=copy_web&vd_source=8341f26e68aec96fa7a01c17680f509e",
+      "platform": "bilibili",
+      "contentBasis": {
+        "basis": "audio_transcript",
+        "message": "本次主要基于视频字幕生成"
+      },
+      "rawText": "平台文案：最近在学习agent的相关原理以及搭建各种agent，免费申请了Mimo的Max计划，正在狠狠使用，后面还是计划多参加一些活动类似黑客松，菜也没关系，以赛代练进步最快。\n对了，这个视频看了杰夫老师的AI Agent视频，讲得非常通俗易懂，豁然开朗的感觉；另外还吸收了油管上两个创作者Mahesh Yadav和Liam Ottley的讲解，都是非常好的学习素材。\n\n今天我们的任务就是要搞懂agent到底是什么，agent一般会翻译成智能体或者代理，那我们今天主要分享两个问题，第一个是LM Workflow和agent，他们到底有什么区别，第二是agent到底有什么构成，那第一部分我们再讲agent之前，先从LM开始，像Deepseak的GPT，他们本身都是基于LLM大原模型的聊天机器人，不理解的话，可以先把它认为成一个百课全书\n\n像Deepseak这种基于LLM的聊天机器人，他们的工作流程其实非常简单，就是输入，输入经过大原模型然后输出，比如说我们在这里输入，给我一份会议机要模板，经过模型处理之后，他就会输出一份会议机要模板，就像我们和Deepseak对话一样，但如果我接着问我上一次会议是什么时候，比如说你问Deepseak他知道吗，他不知道，因为他没有你的个人信息，所以这时候我们就需要给他接工具，比如接一个日历工具，这样当我问我上一次会议是什么时候\n\n他就可以先去查日历，查日历之后给我输出答案，那如果我在进一步说，帮我把上一次会议机要总结一下，这时候发现原来的这个流程又不够用了，所以这个流程他可能会变成，首先要总结上一次会议机要，那就要先拿到上一次的会议记录，拿到上一次会议记录之后，紧接着是要用LM去做摘药，做完摘药之后，需要接入邮箱\n\n最后将总结的摘药发送邮件，它是由多个步骤串起来的，那这个就叫做workflow，也就是工作流，那这里有一个很重要的点，就是哪怕他中间的节点再复杂，哪怕有100个节点，他也不叫Agent，因为整个这个执行过程是，人提前设计好的，那AI只是按照这个计定的路线去走，那Agent呢，Agent更像这样，输入然后经过一个黑盒，然后输出，区别就在于这个黑盒里边\n\n怎么执行，不是我们决定的，而是Agent自己决定的，比如我还是问刚刚同样的问题，帮我把上一次会议机要总结一下，发到我的邮箱，那Agent会怎么做呢，他会先自己思考，他怎么思考，要拿到会议机要，我得先知道上一次会议什么时候，他就去尝试连接日曆，尝试获取我的行程，但是后来发现，他连接的日曆之后，找不到上一次会议是什么时候，他就继续想，那我试试连接总军会议呢，找到会议进入之后，他就继续想\n\n接下来我要总结内容，因为我告诉他，我想要总结后的内容吗，于是他就调用大模型，去总结内容，总结完之后，他又会继续想，用户刚刚说要发邮箱，但是他没告诉我是哪个邮箱，我要不要先问一下，再执行，所以在整个过程中，他一直在思考，决定自己下一步要做什么，这就是Agent，那用一句话总结，他就是执行人规定好的步骤，那Agent，他就是自己决定，要执行什么步骤，那这是两者最大的区别\n\n接下来我们分享一下，Agent的构成，可以把Agent想象成，一个数字员工去理解，会比较简单，那就像一个公司，他会有不同的岗位职责，比如说有运营，有财务Agent，也是一个岗位，只不过他是数字岗位，那Agent，他不用请假24小时待命，成本也比真人低很多，所以现在很多公司，都对这种数字劳动力，非常感兴趣，而且构建Agent，这个技能也正在成为一个，非常重要的能力\n\n那么接下来，理解这个Agent的组成，可以把它想象成，在招聘一个实习生，那完整的Agent，大概是有五个部分的，第一个就是LLM大脑，像拆GPT TPC可逗包，这个大脑，他主要负责理解人化，分析任务制定计划，没有大脑，其他都没有意义，就像你在公司，布置了完美的办公环境，但是没有人坐在那里，是不可以的，第二个是，Prom的，就是我们说的提示，是不是，然后在这里，我们可以把它理解成\n\n比如说你现在招这个实习生，他的岗位是客服，你招客服的时候，你总不会只说一个，你去做客服吧，你会去告诉他，他的职责是什么，他的职责是客服，他遇到问题怎么处理，比如说，他不能O打顾客，那他回复的风格是什么，比如说作为客服，他应该礼貌的回复顾客，那Prom他干的就是这个事，去规定Agent的职责，限制条件和回复的风格等等\n\n第三个是Memory，也就是记忆，如果你招到这个实习生，他每个30秒，10亿一次，那肯定不行，所以Memory的作用就是记住上下文，分众任务，积累行业的经验\n\n第四个 Knowledge，确认来说是External Knowledge，外部知识，你招到这个实习生，他有通用的知识，他在大学学的知识，但是他不一定知道公司的内部资料，所以你就需要将企业的知识库，产品文档，公司的规章制度等等给他\n\n第五个Tools工具，这是最关键的一部分，当然工具不是我们的那个班手，它是你电脑手机里边，所有你可以操作的东西，比如说像File键，下定单，制作 Excel PPT等等，所有，简而言之，你让Agent拥有操作你电脑，各个软件的权限，那他就能代替你操作你的电脑，之所以是一个很关键的一步，是他让AI真的从会聊天，变成了会干活，那这些部分构成了Agent\n\n当然这里有一个比较容易误解的点，是不是有了这五个东西，就一定叫Agent，不一定，因为Agent它最最重要的，不是它有没有这些这五个零件，而是它有没有自主工作的能力，这里就要提一个概念，Agent Loop是能体循环，Agent Loop最经典的一个框架，是React，注意这里的React，不是前端的React，这里的React是，Reagening和Acting的缩写，也就是推理它行动，什么意思呢\n\n比如说你现在跟Deepseag说，帮我做一个进品分析，那Deepseag只是能给你一段文字，对不对，那Agent它会做什么事情呢，首先Agent它会自己打开网页，然后它会搜索一下，你的竞争对手是谁，请记得它会自己整理数据，然后它会把这些数据，会画一个图，行销的展示给你看，画完图之后，它自己会检查结果，检查这个给你生存的图，里面的内容是不是符合要求，检查结果满意的话，它就给你输出\n\n不满意的话，它就继续修改，这个过程就叫做Agent Loop，智能体循环，本质上其实就是思考，思考这件事怎么做，然后采取行动，行动完了，自己检查一下结果，检查一下自己做的这个结果，好不好，好了就输出，不好了就继续循环，很核心的点是，它会自己检查自己的结果，而不是无论结果好坏，都给你输出，那我们最后再总结一下，我就把Agent想象成数字员工\n\n非常变于理解，然后Agent它首先就是要有，LM是它的大脑，Tools是它的手脚，Memory是记忆，Normly只是资料库，Prompt就是它的岗位说明书，但这认为它成为Agent的，不是组件数量，而是它能不能围绕目标，自主完成工作，会推理，会行动，会检查，不满意，还能继续迭代，循环 Loop，这才是Agent，这里关于Agent的组成部分，你可能在网上会看到\n\n很多个版本，目前也是Agent的高速发展的，一个阶段，目前没有一个全行业统一的，官方盖章的一个标准答案，所以你可能看到很多版本，不是因为谁对谁错，而是因为大家站的位置，不同角度不同，其数级工程团队，产品公司和普通用户，看待Agent的视角也都不同",
+      "cleanedText": "平台文案：最近在学习agent的相关原理以及搭建各种agent，免费申请了Mimo的Max计划，正在狠狠使用，后面还是计划多参加一些活动类似黑客松，菜也没关系，以赛代练进步最快。\n对了，这个视频看了杰夫老师的AI Agent视频，讲得非常通俗易懂，豁然开朗的感觉；另外还吸收了油管上两个创作者Mahesh Yadav和Liam Ottley的讲解，都是非常好的学习素材。\n\n今天我们的任务就是要搞懂agent到底是什么，agent一般会翻译成智能体或者代理，那我们今天主要分享两个问题，第一个是LM Workflow和agent，他们到底有什么区别，第二是agent到底有什么构成，那第一部分我们再讲agent之前，先从LM开始，像Deepseak的GPT，他们本身都是基于LLM大原模型的聊天机器人，不理解的话，可以先把它认为成一个百课全书\n\n像Deepseak这种基于LLM的聊天机器人，他们的工作流程其实非常简单，就是输入，输入经过大原模型然后输出，比如说我们在这里输入，给我一份会议机要模板，经过模型处理之后，他就会输出一份会议机要模板，就像我们和Deepseak对话一样，但如果我接着问我上一次会议是什么时候，比如说你问Deepseak他知道吗，他不知道，因为他没有你的个人信息，所以这时候我们就需要给他接工具，比如接一个日历工具，这样当我问我上一次会议是什么时候\n\n他就可以先去查日历，查日历之后给我输出答案，那如果我在进一步说，帮我把上一次会议机要总结一下，这时候发现原来的这个流程又不够用了，所以这个流程他可能会变成，首先要总结上一次会议机要，那就要先拿到上一次的会议记录，拿到上一次会议记录之后，紧接着是要用LM去做摘药，做完摘药之后，需要接入邮箱\n\n最后将总结的摘药发送邮件，它是由多个步骤串起来的，那这个就叫做workflow，也就是工作流，那这里有一个很重要的点，就是哪怕他中间的节点再复杂，哪怕有100个节点，他也不叫Agent，因为整个这个执行过程是，人提前设计好的，那AI只是按照这个计定的路线去走，那Agent呢，Agent更像这样，输入然后经过一个黑盒，然后输出，区别就在于这个黑盒里边\n\n怎么执行，不是我们决定的，而是Agent自己决定的，比如我还是问刚刚同样的问题，帮我把上一次会议机要总结一下，发到我的邮箱，那Agent会怎么做呢，他会先自己思考，他怎么思考，要拿到会议机要，我得先知道上一次会议什么时候，他就去尝试连接日曆，尝试获取我的行程，但是后来发现，他连接的日曆之后，找不到上一次会议是什么时候，他就继续想，那我试试连接总军会议呢，找到会议进入之后，他就继续想\n\n接下来我要总结内容，因为我告诉他，我想要总结后的内容吗，于是他就调用大模型，去总结内容，总结完之后，他又会继续想，用户刚刚说要发邮箱，但是他没告诉我是哪个邮箱，我要不要先问一下，再执行，所以在整个过程中，他一直在思考，决定自己下一步要做什么，这就是Agent，那用一句话总结，他就是执行人规定好的步骤，那Agent，他就是自己决定，要执行什么步骤，那这是两者最大的区别\n\n接下来我们分享一下，Agent的构成，可以把Agent想象成，一个数字员工去理解，会比较简单，那就像一个公司，他会有不同的岗位职责，比如说有运营，有财务Agent，也是一个岗位，只不过他是数字岗位，那Agent，他不用请假24小时待命，成本也比真人低很多，所以现在很多公司，都对这种数字劳动力，非常感兴趣，而且构建Agent，这个技能也正在成为一个，非常重要的能力\n\n那么接下来，理解这个Agent的组成，可以把它想象成，在招聘一个实习生，那完整的Agent，大概是有五个部分的，第一个就是LLM大脑，像拆GPT TPC可逗包，这个大脑，他主要负责理解人化，分析任务制定计划，没有大脑，其他都没有意义，就像你在公司，布置了完美的办公环境，但是没有人坐在那里，是不可以的，第二个是，Prom的，就是我们说的提示，是不是，然后在这里，我们可以把它理解成\n\n比如说你现在招这个实习生，他的岗位是客服，你招客服的时候，你总不会只说一个，你去做客服吧，你会去告诉他，他的职责是什么，他的职责是客服，他遇到问题怎么处理，比如说，他不能O打顾客，那他回复的风格是什么，比如说作为客服，他应该礼貌的回复顾客，那Prom他干的就是这个事，去规定Agent的职责，限制条件和回复的风格等等\n\n第三个是Memory，也就是记忆，如果你招到这个实习生，他每个30秒，10亿一次，那肯定不行，所以Memory的作用就是记住上下文，分众任务，积累行业的经验\n\n第四个 Knowledge，确认来说是External Knowledge，外部知识，你招到这个实习生，他有通用的知识，他在大学学的知识，但是他不一定知道公司的内部资料，所以你就需要将企业的知识库，产品文档，公司的规章制度等等给他\n\n第五个Tools工具，这是最关键的一部分，当然工具不是我们的那个班手，它是你电脑手机里边，所有你可以操作的东西，比如说像File键，下定单，制作 Excel PPT等等，所有，简而言之，你让Agent拥有操作你电脑，各个软件的权限，那他就能代替你操作你的电脑，之所以是一个很关键的一步，是他让AI真的从会聊天，变成了会干活，那这些部分构成了Agent\n\n当然这里有一个比较容易误解的点，是不是有了这五个东西，就一定叫Agent，不一定，因为Agent它最最重要的，不是它有没有这些这五个零件，而是它有没有自主工作的能力，这里就要提一个概念，Agent Loop是能体循环，Agent Loop最经典的一个框架，是React，注意这里的React，不是前端的React，这里的React是，Reagening和Acting的缩写，也就是推理它行动，什么意思呢\n\n比如说你现在跟Deepseag说，帮我做一个进品分析，那Deepseag只是能给你一段文字，对不对，那Agent它会做什么事情呢，首先Agent它会自己打开网页，然后它会搜索一下，你的竞争对手是谁，请记得它会自己整理数据，然后它会把这些数据，会画一个图，行销的展示给你看，画完图之后，它自己会检查结果，检查这个给你生存的图，里面的内容是不是符合要求，检查结果满意的话，它就给你输出\n\n不满意的话，它就继续修改，这个过程就叫做Agent Loop，智能体循环，本质上其实就是思考，思考这件事怎么做，然后采取行动，行动完了，自己检查一下结果，检查一下自己做的这个结果，好不好，好了就输出，不好了就继续循环，很核心的点是，它会自己检查自己的结果，而不是无论结果好坏，都给你输出，那我们最后再总结一下，我就把Agent想象成数字员工\n\n非常变于理解，然后Agent它首先就是要有，LM是它的大脑，Tools是它的手脚，Memory是记忆，Normly只是资料库，Prompt就是它的岗位说明书，但这认为它成为Agent的，不是组件数量，而是它能不能围绕目标，自主完成工作，会推理，会行动，会检查，不满意，还能继续迭代，循环 Loop，这才是Agent，这里关于Agent的组成部分，你可能在网上会看到\n\n很多个版本，目前也是Agent的高速发展的，一个阶段，目前没有一个全行业统一的，官方盖章的一个标准答案，所以你可能看到很多版本，不是因为谁对谁错，而是因为大家站的位置，不同角度不同，其数级工程团队，产品公司和普通用户，看待Agent的视角也都不同",
+      "blocks": [
+        {
+          "id": "video-platform-description",
+          "type": "paragraph",
+          "text": "平台文案：最近在学习agent的相关原理以及搭建各种agent，免费申请了Mimo的Max计划，正在狠狠使用，后面还是计划多参加一些活动类似黑客松，菜也没关系，以赛代练进步最快。\n对了，这个视频看了杰夫老师的AI Agent视频，讲得非常通俗易懂，豁然开朗的感觉；另外还吸收了油管上两个创作者Mahesh Yadav和Liam Ottley的讲解，都是非常好的学习素材。",
+          "sourceRole": "platform_description"
+        },
+        {
+          "id": "video-transcript-001",
+          "type": "paragraph",
+          "text": "今天我们的任务就是要搞懂agent到底是什么，agent一般会翻译成智能体或者代理，那我们今天主要分享两个问题，第一个是LM Workflow和agent，他们到底有什么区别，第二是agent到底有什么构成，那第一部分我们再讲agent之前，先从LM开始，像Deepseak的GPT，他们本身都是基于LLM大原模型的聊天机器人，不理解的话，可以先把它认为成一个百课全书",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 0,
+          "endSeconds": 24.9,
+          "segmentIds": [
+            "transcript-001",
+            "transcript-002",
+            "transcript-003",
+            "transcript-004",
+            "transcript-005",
+            "transcript-006",
+            "transcript-007",
+            "transcript-008",
+            "transcript-009",
+            "transcript-010",
+            "transcript-011",
+            "transcript-012"
+          ]
+        },
+        {
+          "id": "video-transcript-002",
+          "type": "paragraph",
+          "text": "像Deepseak这种基于LLM的聊天机器人，他们的工作流程其实非常简单，就是输入，输入经过大原模型然后输出，比如说我们在这里输入，给我一份会议机要模板，经过模型处理之后，他就会输出一份会议机要模板，就像我们和Deepseak对话一样，但如果我接着问我上一次会议是什么时候，比如说你问Deepseak他知道吗，他不知道，因为他没有你的个人信息，所以这时候我们就需要给他接工具，比如接一个日历工具，这样当我问我上一次会议是什么时候",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 24.9,
+          "endSeconds": 50.1,
+          "segmentIds": [
+            "transcript-013",
+            "transcript-014",
+            "transcript-015",
+            "transcript-016",
+            "transcript-017",
+            "transcript-018",
+            "transcript-019",
+            "transcript-020",
+            "transcript-021",
+            "transcript-022",
+            "transcript-023",
+            "transcript-024",
+            "transcript-025",
+            "transcript-026",
+            "transcript-027",
+            "transcript-028"
+          ]
+        },
+        {
+          "id": "video-transcript-003",
+          "type": "paragraph",
+          "text": "他就可以先去查日历，查日历之后给我输出答案，那如果我在进一步说，帮我把上一次会议机要总结一下，这时候发现原来的这个流程又不够用了，所以这个流程他可能会变成，首先要总结上一次会议机要，那就要先拿到上一次的会议记录，拿到上一次会议记录之后，紧接着是要用LM去做摘药，做完摘药之后，需要接入邮箱",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 50.1,
+          "endSeconds": 71.5,
+          "segmentIds": [
+            "transcript-029",
+            "transcript-030",
+            "transcript-031",
+            "transcript-032",
+            "transcript-033",
+            "transcript-034",
+            "transcript-035",
+            "transcript-036",
+            "transcript-037",
+            "transcript-038",
+            "transcript-039",
+            "transcript-040"
+          ]
+        },
+        {
+          "id": "video-transcript-004",
+          "type": "paragraph",
+          "text": "最后将总结的摘药发送邮件，它是由多个步骤串起来的，那这个就叫做workflow，也就是工作流，那这里有一个很重要的点，就是哪怕他中间的节点再复杂，哪怕有100个节点，他也不叫Agent，因为整个这个执行过程是，人提前设计好的，那AI只是按照这个计定的路线去走，那Agent呢，Agent更像这样，输入然后经过一个黑盒，然后输出，区别就在于这个黑盒里边",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 71.5,
+          "endSeconds": 96.3,
+          "segmentIds": [
+            "transcript-041",
+            "transcript-042",
+            "transcript-043",
+            "transcript-044",
+            "transcript-045",
+            "transcript-046",
+            "transcript-047",
+            "transcript-048",
+            "transcript-049",
+            "transcript-050",
+            "transcript-051",
+            "transcript-052",
+            "transcript-053",
+            "transcript-054",
+            "transcript-055",
+            "transcript-056"
+          ]
+        },
+        {
+          "id": "video-transcript-005",
+          "type": "paragraph",
+          "text": "怎么执行，不是我们决定的，而是Agent自己决定的，比如我还是问刚刚同样的问题，帮我把上一次会议机要总结一下，发到我的邮箱，那Agent会怎么做呢，他会先自己思考，他怎么思考，要拿到会议机要，我得先知道上一次会议什么时候，他就去尝试连接日曆，尝试获取我的行程，但是后来发现，他连接的日曆之后，找不到上一次会议是什么时候，他就继续想，那我试试连接总军会议呢，找到会议进入之后，他就继续想",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 96.3,
+          "endSeconds": 120,
+          "segmentIds": [
+            "transcript-057",
+            "transcript-058",
+            "transcript-059",
+            "transcript-060",
+            "transcript-061",
+            "transcript-062",
+            "transcript-063",
+            "transcript-064",
+            "transcript-065",
+            "transcript-066",
+            "transcript-067",
+            "transcript-068",
+            "transcript-069",
+            "transcript-070",
+            "transcript-071",
+            "transcript-072",
+            "transcript-073",
+            "transcript-074",
+            "transcript-075",
+            "transcript-076"
+          ]
+        },
+        {
+          "id": "video-transcript-006",
+          "type": "paragraph",
+          "text": "接下来我要总结内容，因为我告诉他，我想要总结后的内容吗，于是他就调用大模型，去总结内容，总结完之后，他又会继续想，用户刚刚说要发邮箱，但是他没告诉我是哪个邮箱，我要不要先问一下，再执行，所以在整个过程中，他一直在思考，决定自己下一步要做什么，这就是Agent，那用一句话总结，他就是执行人规定好的步骤，那Agent，他就是自己决定，要执行什么步骤，那这是两者最大的区别",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 120,
+          "endSeconds": 144.5,
+          "segmentIds": [
+            "transcript-077",
+            "transcript-078",
+            "transcript-079",
+            "transcript-080",
+            "transcript-081",
+            "transcript-082",
+            "transcript-083",
+            "transcript-084",
+            "transcript-085",
+            "transcript-086",
+            "transcript-087",
+            "transcript-088",
+            "transcript-089",
+            "transcript-090",
+            "transcript-091",
+            "transcript-092",
+            "transcript-093",
+            "transcript-094",
+            "transcript-095",
+            "transcript-096",
+            "transcript-097"
+          ]
+        },
+        {
+          "id": "video-transcript-007",
+          "type": "paragraph",
+          "text": "接下来我们分享一下，Agent的构成，可以把Agent想象成，一个数字员工去理解，会比较简单，那就像一个公司，他会有不同的岗位职责，比如说有运营，有财务Agent，也是一个岗位，只不过他是数字岗位，那Agent，他不用请假24小时待命，成本也比真人低很多，所以现在很多公司，都对这种数字劳动力，非常感兴趣，而且构建Agent，这个技能也正在成为一个，非常重要的能力",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 144.5,
+          "endSeconds": 168.7,
+          "segmentIds": [
+            "transcript-098",
+            "transcript-099",
+            "transcript-100",
+            "transcript-101",
+            "transcript-102",
+            "transcript-103",
+            "transcript-104",
+            "transcript-105",
+            "transcript-106",
+            "transcript-107",
+            "transcript-108",
+            "transcript-109",
+            "transcript-110",
+            "transcript-111",
+            "transcript-112",
+            "transcript-113",
+            "transcript-114",
+            "transcript-115",
+            "transcript-116",
+            "transcript-117"
+          ]
+        },
+        {
+          "id": "video-transcript-008",
+          "type": "paragraph",
+          "text": "那么接下来，理解这个Agent的组成，可以把它想象成，在招聘一个实习生，那完整的Agent，大概是有五个部分的，第一个就是LLM大脑，像拆GPT TPC可逗包，这个大脑，他主要负责理解人化，分析任务制定计划，没有大脑，其他都没有意义，就像你在公司，布置了完美的办公环境，但是没有人坐在那里，是不可以的，第二个是，Prom的，就是我们说的提示，是不是，然后在这里，我们可以把它理解成",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 168.7,
+          "endSeconds": 192.8,
+          "segmentIds": [
+            "transcript-118",
+            "transcript-119",
+            "transcript-120",
+            "transcript-121",
+            "transcript-122",
+            "transcript-123",
+            "transcript-124",
+            "transcript-125",
+            "transcript-126",
+            "transcript-127",
+            "transcript-128",
+            "transcript-129",
+            "transcript-130",
+            "transcript-131",
+            "transcript-132",
+            "transcript-133",
+            "transcript-134",
+            "transcript-135",
+            "transcript-136",
+            "transcript-137",
+            "transcript-138",
+            "transcript-139",
+            "transcript-140"
+          ]
+        },
+        {
+          "id": "video-transcript-009",
+          "type": "paragraph",
+          "text": "比如说你现在招这个实习生，他的岗位是客服，你招客服的时候，你总不会只说一个，你去做客服吧，你会去告诉他，他的职责是什么，他的职责是客服，他遇到问题怎么处理，比如说，他不能O打顾客，那他回复的风格是什么，比如说作为客服，他应该礼貌的回复顾客，那Prom他干的就是这个事，去规定Agent的职责，限制条件和回复的风格等等",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 193.8,
+          "endSeconds": 214.7,
+          "segmentIds": [
+            "transcript-141",
+            "transcript-142",
+            "transcript-143",
+            "transcript-144",
+            "transcript-145",
+            "transcript-146",
+            "transcript-147",
+            "transcript-148",
+            "transcript-149",
+            "transcript-150",
+            "transcript-151",
+            "transcript-152",
+            "transcript-153",
+            "transcript-154",
+            "transcript-155",
+            "transcript-156",
+            "transcript-157"
+          ]
+        },
+        {
+          "id": "video-transcript-010",
+          "type": "paragraph",
+          "text": "第三个是Memory，也就是记忆，如果你招到这个实习生，他每个30秒，10亿一次，那肯定不行，所以Memory的作用就是记住上下文，分众任务，积累行业的经验",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 214.7,
+          "endSeconds": 224.5,
+          "segmentIds": [
+            "transcript-158",
+            "transcript-159",
+            "transcript-160",
+            "transcript-161",
+            "transcript-162",
+            "transcript-163",
+            "transcript-164",
+            "transcript-165",
+            "transcript-166"
+          ]
+        },
+        {
+          "id": "video-transcript-011",
+          "type": "paragraph",
+          "text": "第四个 Knowledge，确认来说是External Knowledge，外部知识，你招到这个实习生，他有通用的知识，他在大学学的知识，但是他不一定知道公司的内部资料，所以你就需要将企业的知识库，产品文档，公司的规章制度等等给他",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 224.5,
+          "endSeconds": 238.9,
+          "segmentIds": [
+            "transcript-167",
+            "transcript-168",
+            "transcript-169",
+            "transcript-170",
+            "transcript-171",
+            "transcript-172",
+            "transcript-173",
+            "transcript-174",
+            "transcript-175",
+            "transcript-176"
+          ]
+        },
+        {
+          "id": "video-transcript-012",
+          "type": "paragraph",
+          "text": "第五个Tools工具，这是最关键的一部分，当然工具不是我们的那个班手，它是你电脑手机里边，所有你可以操作的东西，比如说像File键，下定单，制作 Excel PPT等等，所有，简而言之，你让Agent拥有操作你电脑，各个软件的权限，那他就能代替你操作你的电脑，之所以是一个很关键的一步，是他让AI真的从会聊天，变成了会干活，那这些部分构成了Agent",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 238.9,
+          "endSeconds": 263.4,
+          "segmentIds": [
+            "transcript-177",
+            "transcript-178",
+            "transcript-179",
+            "transcript-180",
+            "transcript-181",
+            "transcript-182",
+            "transcript-183",
+            "transcript-184",
+            "transcript-185",
+            "transcript-186",
+            "transcript-187",
+            "transcript-188",
+            "transcript-189",
+            "transcript-190",
+            "transcript-191",
+            "transcript-192",
+            "transcript-193",
+            "transcript-194"
+          ]
+        },
+        {
+          "id": "video-transcript-013",
+          "type": "paragraph",
+          "text": "当然这里有一个比较容易误解的点，是不是有了这五个东西，就一定叫Agent，不一定，因为Agent它最最重要的，不是它有没有这些这五个零件，而是它有没有自主工作的能力，这里就要提一个概念，Agent Loop是能体循环，Agent Loop最经典的一个框架，是React，注意这里的React，不是前端的React，这里的React是，Reagening和Acting的缩写，也就是推理它行动，什么意思呢",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 263.4,
+          "endSeconds": 287.4,
+          "segmentIds": [
+            "transcript-195",
+            "transcript-196",
+            "transcript-197",
+            "transcript-198",
+            "transcript-199",
+            "transcript-200",
+            "transcript-201",
+            "transcript-202",
+            "transcript-203",
+            "transcript-204",
+            "transcript-205",
+            "transcript-206",
+            "transcript-207",
+            "transcript-208",
+            "transcript-209",
+            "transcript-210",
+            "transcript-211"
+          ]
+        },
+        {
+          "id": "video-transcript-014",
+          "type": "paragraph",
+          "text": "比如说你现在跟Deepseag说，帮我做一个进品分析，那Deepseag只是能给你一段文字，对不对，那Agent它会做什么事情呢，首先Agent它会自己打开网页，然后它会搜索一下，你的竞争对手是谁，请记得它会自己整理数据，然后它会把这些数据，会画一个图，行销的展示给你看，画完图之后，它自己会检查结果，检查这个给你生存的图，里面的内容是不是符合要求，检查结果满意的话，它就给你输出",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 287.4,
+          "endSeconds": 311.9,
+          "segmentIds": [
+            "transcript-212",
+            "transcript-213",
+            "transcript-214",
+            "transcript-215",
+            "transcript-216",
+            "transcript-217",
+            "transcript-218",
+            "transcript-219",
+            "transcript-220",
+            "transcript-221",
+            "transcript-222",
+            "transcript-223",
+            "transcript-224",
+            "transcript-225",
+            "transcript-226",
+            "transcript-227",
+            "transcript-228",
+            "transcript-229"
+          ]
+        },
+        {
+          "id": "video-transcript-015",
+          "type": "paragraph",
+          "text": "不满意的话，它就继续修改，这个过程就叫做Agent Loop，智能体循环，本质上其实就是思考，思考这件事怎么做，然后采取行动，行动完了，自己检查一下结果，检查一下自己做的这个结果，好不好，好了就输出，不好了就继续循环，很核心的点是，它会自己检查自己的结果，而不是无论结果好坏，都给你输出，那我们最后再总结一下，我就把Agent想象成数字员工",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 311.9,
+          "endSeconds": 336,
+          "segmentIds": [
+            "transcript-230",
+            "transcript-231",
+            "transcript-232",
+            "transcript-233",
+            "transcript-234",
+            "transcript-235",
+            "transcript-236",
+            "transcript-237",
+            "transcript-238",
+            "transcript-239",
+            "transcript-240",
+            "transcript-241",
+            "transcript-242",
+            "transcript-243",
+            "transcript-244",
+            "transcript-245",
+            "transcript-246",
+            "transcript-247",
+            "transcript-248"
+          ]
+        },
+        {
+          "id": "video-transcript-016",
+          "type": "paragraph",
+          "text": "非常变于理解，然后Agent它首先就是要有，LM是它的大脑，Tools是它的手脚，Memory是记忆，Normly只是资料库，Prompt就是它的岗位说明书，但这认为它成为Agent的，不是组件数量，而是它能不能围绕目标，自主完成工作，会推理，会行动，会检查，不满意，还能继续迭代，循环 Loop，这才是Agent，这里关于Agent的组成部分，你可能在网上会看到",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 336,
+          "endSeconds": 360,
+          "segmentIds": [
+            "transcript-249",
+            "transcript-250",
+            "transcript-251",
+            "transcript-252",
+            "transcript-253",
+            "transcript-254",
+            "transcript-255",
+            "transcript-256",
+            "transcript-257",
+            "transcript-258",
+            "transcript-259",
+            "transcript-260",
+            "transcript-261",
+            "transcript-262",
+            "transcript-263",
+            "transcript-264",
+            "transcript-265",
+            "transcript-266",
+            "transcript-267",
+            "transcript-268"
+          ]
+        },
+        {
+          "id": "video-transcript-017",
+          "type": "paragraph",
+          "text": "很多个版本，目前也是Agent的高速发展的，一个阶段，目前没有一个全行业统一的，官方盖章的一个标准答案，所以你可能看到很多版本，不是因为谁对谁错，而是因为大家站的位置，不同角度不同，其数级工程团队，产品公司和普通用户，看待Agent的视角也都不同",
+          "sourceRole": "audio_transcript",
+          "startSeconds": 360,
+          "endSeconds": 376,
+          "segmentIds": [
+            "transcript-269",
+            "transcript-270",
+            "transcript-271",
+            "transcript-272",
+            "transcript-273",
+            "transcript-274",
+            "transcript-275",
+            "transcript-276",
+            "transcript-277",
+            "transcript-278",
+            "transcript-279",
+            "transcript-280"
+          ]
+        }
+      ]
+    },
+    "summaryCard": {
+      "text": "Agent不是工具链，而是能自主思考、行动、检查结果的数字员工。本文用实习生比喻拆解其五大组件，并揭示Agent Loop才是核心。"
+    },
+    "units": [
+      {
+        "id": "unit-1",
+        "order": 1,
+        "title": "Workflow与Agent的本质区别",
+        "nodeLabel": "Workflow vs Agent",
+        "shortSummary": "Workflow是预设步骤，Agent自主决策执行路径。",
+        "detailSummary": "Workflow由人提前设计好每一步，AI按固定路线执行，即使有100个节点也不叫Agent。Agent则像黑盒，自己思考、决定下一步行动，例如面对同一任务，Agent会尝试连接日历、会议工具，甚至主动询问用户，而非按固定流程走。",
+        "why": "理解这个区别是掌握Agent概念的基础，避免将自动化流程误认为智能体。",
+        "sourceAnchor": {
+          "id": "anchor-unit-1",
+          "blockIds": [
+            "video-transcript-004",
+            "video-transcript-005",
+            "video-transcript-006"
+          ]
+        },
+        "overview": {
+          "text": "Workflow和Agent听起来很像，但本质不同。Workflow是预设好的固定步骤，而Agent能自主决策。理解这个区别，是掌握Agent概念的第一步。"
+        },
+        "questions": [
+          {
+            "id": "q-unit-1-001",
+            "type": "multiple_choice",
+            "stem": "Workflow与Agent的核心区别是什么？",
+            "options": [
+              {
+                "id": "A",
+                "text": "Workflow步骤少，Agent步骤多"
+              },
+              {
+                "id": "B",
+                "text": "Workflow步骤固定，Agent步骤由AI自主决定"
+              },
+              {
+                "id": "C",
+                "text": "Workflow需要人工干预，Agent完全自动"
+              },
+              {
+                "id": "D",
+                "text": "Workflow只能处理简单任务，Agent处理复杂任务"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "Workflow由人预设步骤，Agent自主决策路径；步骤多少或任务复杂度并非区分关键。",
+            "sourceAnchorId": "anchor-unit-1"
+          },
+          {
+            "id": "q-unit-1-002",
+            "type": "multiple_choice",
+            "stem": "以下哪项最能体现Agent的自主决策过程？",
+            "options": [
+              {
+                "id": "A",
+                "text": "AI根据用户指令直接执行预设的邮件发送流程"
+              },
+              {
+                "id": "B",
+                "text": "AI先尝试连接日历，失败后尝试会议工具，再询问用户"
+              },
+              {
+                "id": "C",
+                "text": "AI将任务分解为多个子任务并依次执行"
+              },
+              {
+                "id": "D",
+                "text": "AI按固定顺序调用日历、总结、发送邮件"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "Agent会自主思考、尝试不同路径并主动询问，而非按固定流程执行。",
+            "sourceAnchorId": "anchor-unit-1"
+          },
+          {
+            "id": "q-unit-1-003",
+            "type": "multiple_choice",
+            "stem": "一个包含100个节点的自动化流程，是否属于Agent？",
+            "options": [
+              {
+                "id": "A",
+                "text": "是，因为自动化流程就是Agent"
+              },
+              {
+                "id": "B",
+                "text": "不是，因为节点超过一定数量才叫Agent"
+              },
+              {
+                "id": "C",
+                "text": "不是，因为步骤由人预设，非自主决策"
+              },
+              {
+                "id": "D",
+                "text": "是，因为节点多说明系统复杂"
+              }
+            ],
+            "correctOptionId": "C",
+            "explanation": "Agent的关键是自主决策，而非节点数量；预设步骤的流程即使复杂也不是Agent。",
+            "sourceAnchorId": "anchor-unit-1"
+          }
+        ],
+        "summary": {
+          "title": "单元完成",
+          "text": "现在你明白了：Workflow是预设路径，Agent是自主决策。别把复杂流程误当成智能体。"
+        }
+      },
+      {
+        "id": "unit-2",
+        "order": 2,
+        "title": "Agent的五大组件：数字员工类比",
+        "nodeLabel": "五大组件",
+        "shortSummary": "LLM大脑、Prompt岗位说明、Memory记忆、Knowledge知识库、Tools工具。",
+        "detailSummary": "将Agent想象成数字员工：LLM是大脑，负责理解与规划；Prompt是岗位说明书，规定职责与风格；Memory是短期记忆，记住上下文；Knowledge是外部知识库，补充公司内部资料；Tools是手脚，让Agent能操作软件、发邮件、做PPT等。这五部分共同构成Agent的基础能力。",
+        "why": "五大组件是构建Agent的实操框架，理解它们才能设计出有效的智能体。",
+        "sourceAnchor": {
+          "id": "anchor-unit-2",
+          "blockIds": [
+            "video-transcript-008",
+            "video-transcript-009",
+            "video-transcript-010",
+            "video-transcript-011",
+            "video-transcript-012"
+          ]
+        },
+        "overview": {
+          "text": "Agent像一位数字员工，由五大组件构成：大脑、岗位说明、记忆、知识库和工具。了解它们，你就能设计出真正能干的智能体。"
+        },
+        "questions": [
+          {
+            "id": "q-unit-2-002",
+            "type": "multiple_choice",
+            "stem": "一个程序具备LLM、Prompt、Memory、Knowledge和Tools五个组件，它一定是Agent吗？",
+            "options": [
+              {
+                "id": "A",
+                "text": "不一定是，关键看它能否自主推理和行动"
+              },
+              {
+                "id": "B",
+                "text": "不一定是，还需要有外部知识库才能算"
+              },
+              {
+                "id": "C",
+                "text": "一定是，只要组件齐全就能自主工作"
+              },
+              {
+                "id": "D",
+                "text": "一定是，因为五大组件是Agent的完整构成"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "Agent的核心是自主推理与行动的能力，拥有五大组件只是基础，但若没有自主循环，仍不算真正的Agent。",
+            "sourceAnchorId": "anchor-unit-2"
+          }
+        ],
+        "summary": {
+          "title": "单元完成",
+          "text": "五大组件是Agent的骨架：LLM大脑、Prompt岗位说明、Memory记忆、Knowledge知识库、Tools工具。记住这个框架，构建Agent不再抽象。"
+        }
+      },
+      {
+        "id": "unit-3",
+        "order": 3,
+        "title": "Agent Loop：自主推理与行动循环",
+        "nodeLabel": "Agent Loop",
+        "shortSummary": "Agent Loop是推理→行动→检查→迭代的自主循环。",
+        "detailSummary": "Agent Loop的核心是ReAct框架（Reasoning+Acting）。Agent先思考如何完成任务，然后采取行动（如搜索网页、整理数据、画图），之后自己检查结果是否满意，满意则输出，不满意则继续循环改进。这种自我检查与迭代能力，是Agent区别于普通LLM应用的关键。",
+        "why": "Agent Loop定义了智能体的自主性本质，是判断一个系统是否为真正Agent的核心标准。",
+        "sourceAnchor": {
+          "id": "anchor-unit-3",
+          "blockIds": [
+            "video-transcript-013",
+            "video-transcript-014",
+            "video-transcript-015"
+          ]
+        },
+        "overview": {
+          "text": "Agent Loop是智能体的核心循环：推理→行动→检查→迭代。正是这种自我改进的能力，让Agent区别于普通应用。"
+        },
+        "questions": [
+          {
+            "id": "q-unit-3-001",
+            "type": "multiple_choice",
+            "stem": "Agent Loop的核心过程是什么？",
+            "options": [
+              {
+                "id": "A",
+                "text": "推理→行动→直接输出结果"
+              },
+              {
+                "id": "B",
+                "text": "行动→推理→检查→输出"
+              },
+              {
+                "id": "C",
+                "text": "检查→推理→行动→输出"
+              },
+              {
+                "id": "D",
+                "text": "推理→行动→检查→迭代的自主循环"
+              }
+            ],
+            "correctOptionId": "D",
+            "explanation": "Agent Loop包含自我检查环节，不满意会继续迭代，而非简单顺序执行后直接输出。",
+            "sourceAnchorId": "anchor-unit-3"
+          },
+          {
+            "id": "q-unit-3-002",
+            "type": "matching",
+            "stem": "请匹配Agent Loop中步骤与对应的动作",
+            "leftItems": [
+              {
+                "id": "l1",
+                "text": "推理"
+              },
+              {
+                "id": "l2",
+                "text": "行动"
+              },
+              {
+                "id": "l3",
+                "text": "检查"
+              },
+              {
+                "id": "l4",
+                "text": "迭代"
+              }
+            ],
+            "rightItems": [
+              {
+                "id": "r1",
+                "text": "思考任务如何完成"
+              },
+              {
+                "id": "r2",
+                "text": "搜索、整理数据、画图"
+              },
+              {
+                "id": "r3",
+                "text": "评估结果是否满意"
+              },
+              {
+                "id": "r4",
+                "text": "不满意则继续循环改进"
+              }
+            ],
+            "pairs": [
+              {
+                "leftId": "l1",
+                "rightId": "r1"
+              },
+              {
+                "leftId": "l2",
+                "rightId": "r2"
+              },
+              {
+                "leftId": "l3",
+                "rightId": "r3"
+              },
+              {
+                "leftId": "l4",
+                "rightId": "r4"
+              }
+            ],
+            "explanation": "Agent Loop中，推理是思考如何做，行动是执行操作，检查是自我评估，迭代是循环改进。",
+            "sourceAnchorId": "anchor-unit-3"
+          },
+          {
+            "id": "q-unit-3-003",
+            "type": "multiple_choice",
+            "stem": "一个系统拥有五个组件就一定是Agent吗？",
+            "options": [
+              {
+                "id": "A",
+                "text": "不一定，关键是有自主循环能力"
+              },
+              {
+                "id": "B",
+                "text": "是的，五个组件缺一不可"
+              },
+              {
+                "id": "C",
+                "text": "是的，五个组件是Agent的充分条件"
+              },
+              {
+                "id": "D",
+                "text": "不一定，还需要有大量训练数据"
+              }
+            ],
+            "correctOptionId": "A",
+            "explanation": "Agent的核心是自主循环能力，而非组件数量；拥有五个组件不一定就是Agent。",
+            "sourceAnchorId": "anchor-unit-3"
+          },
+          {
+            "id": "q-unit-3-004",
+            "type": "multiple_choice",
+            "stem": "以下哪项最能体现Agent Loop在复杂任务中的应用？",
+            "options": [
+              {
+                "id": "A",
+                "text": "Agent按固定流程执行简单计算"
+              },
+              {
+                "id": "B",
+                "text": "Agent根据指令直接生成一段文字"
+              },
+              {
+                "id": "C",
+                "text": "Agent仅执行一次搜索并返回结果"
+              },
+              {
+                "id": "D",
+                "text": "Agent自主搜索数据、整理并画图，不满意则修改"
+              }
+            ],
+            "correctOptionId": "D",
+            "explanation": "Agent Loop通过推理、行动、检查、迭代，能自主完成复杂任务，而非仅简单执行。",
+            "sourceAnchorId": "anchor-unit-3"
+          }
+        ],
+        "summary": {
+          "title": "单元完成",
+          "text": "Agent Loop让Agent能自主推理、行动并自我检查，不断迭代直到满意。这是智能体真正的灵魂。"
+        }
+      }
+    ],
+    "chapterSummary": {
+      "title": "章节完成",
+      "statsText": "共 3 个核心知识点，8 道题目",
+      "encouragementText": "你已经掌握了Agent的核心概念：它不只是工具组合，而是能自主推理、行动、检查的数字员工。继续探索，你也能构建自己的智能体！"
+    },
+    "generationMeta": {
+      "currentStage": "completed",
+      "sourceContextStats": {
+        "fullBlockCount": 18,
+        "unitKnowledgeMap": {
+          "mode": "plan_union_window",
+          "selectedBlockCount": 14,
+          "selectedBlockIds": [
+            "video-transcript-003",
+            "video-transcript-004",
+            "video-transcript-005",
+            "video-transcript-006",
+            "video-transcript-007",
+            "video-transcript-008",
+            "video-transcript-009",
+            "video-transcript-010",
+            "video-transcript-011",
+            "video-transcript-012",
+            "video-transcript-013",
+            "video-transcript-014",
+            "video-transcript-015",
+            "video-transcript-016"
+          ],
+          "fallbackUsed": false
+        },
+        "unitWindows": [
+          {
+            "unitId": "unit-1",
+            "anchorId": "anchor-unit-1",
+            "anchorBlockIds": [
+              "video-transcript-004",
+              "video-transcript-005",
+              "video-transcript-006"
+            ],
+            "selectedBlockCount": 5,
+            "selectedBlockIds": [
+              "video-transcript-003",
+              "video-transcript-004",
+              "video-transcript-005",
+              "video-transcript-006",
+              "video-transcript-007"
+            ],
+            "fallbackUsed": false
+          },
+          {
+            "unitId": "unit-2",
+            "anchorId": "anchor-unit-2",
+            "anchorBlockIds": [
+              "video-transcript-008",
+              "video-transcript-009",
+              "video-transcript-010",
+              "video-transcript-011",
+              "video-transcript-012"
+            ],
+            "selectedBlockCount": 7,
+            "selectedBlockIds": [
+              "video-transcript-007",
+              "video-transcript-008",
+              "video-transcript-009",
+              "video-transcript-010",
+              "video-transcript-011",
+              "video-transcript-012",
+              "video-transcript-013"
+            ],
+            "fallbackUsed": false
+          },
+          {
+            "unitId": "unit-3",
+            "anchorId": "anchor-unit-3",
+            "anchorBlockIds": [
+              "video-transcript-013",
+              "video-transcript-014",
+              "video-transcript-015"
+            ],
+            "selectedBlockCount": 5,
+            "selectedBlockIds": [
+              "video-transcript-012",
+              "video-transcript-013",
+              "video-transcript-014",
+              "video-transcript-015",
+              "video-transcript-016"
+            ],
+            "fallbackUsed": false
+          }
+        ]
+      },
+      "stageRuntime": {
+        "schemaVersion": "v2_stage_runtime_1",
+        "callCount": 13,
+        "attemptCount": 13,
+        "failedAttemptCount": 0,
+        "retryAttemptCount": 0,
+        "stages": [
+          {
+            "stage": "v2_reviewPathPlan",
+            "callCount": 1,
+            "successCallCount": 1,
+            "failedCallCount": 0,
+            "attemptCount": 1,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 7899,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_unitKnowledgeMap",
+            "callCount": 3,
+            "successCallCount": 3,
+            "failedCallCount": 0,
+            "attemptCount": 3,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 13400,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_taskBriefPlan",
+            "callCount": 3,
+            "successCallCount": 3,
+            "failedCallCount": 0,
+            "attemptCount": 3,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 9881,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_multipleChoiceDraftUnitBatch",
+            "callCount": 3,
+            "successCallCount": 3,
+            "failedCallCount": 0,
+            "attemptCount": 3,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 16033,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_matchingDraft",
+            "callCount": 2,
+            "successCallCount": 2,
+            "failedCallCount": 0,
+            "attemptCount": 2,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 7955,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_unitCopyBatch",
+            "callCount": 1,
+            "successCallCount": 1,
+            "failedCallCount": 0,
+            "attemptCount": 1,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 4590,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          }
+        ],
+        "attempts": [
+          {
+            "callId": "reviewPathPlan-1",
+            "stage": "v2_reviewPathPlan",
+            "modelStage": "reviewPathPlan",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 7899,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "unitKnowledgeMap-2",
+            "stage": "v2_unitKnowledgeMap",
+            "modelStage": "unitKnowledgeMap",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3770,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "unitKnowledgeMap-3",
+            "stage": "v2_unitKnowledgeMap",
+            "modelStage": "unitKnowledgeMap",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 5437,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "unitKnowledgeMap-4",
+            "stage": "v2_unitKnowledgeMap",
+            "modelStage": "unitKnowledgeMap",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 4193,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "taskBriefPlan-5",
+            "stage": "v2_taskBriefPlan",
+            "modelStage": "taskBriefPlan",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3177,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "taskBriefPlan-6",
+            "stage": "v2_taskBriefPlan",
+            "modelStage": "taskBriefPlan",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 2915,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "taskBriefPlan-7",
+            "stage": "v2_taskBriefPlan",
+            "modelStage": "taskBriefPlan",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3789,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "multipleChoiceDraftUnitBatch-8",
+            "stage": "v2_multipleChoiceDraftUnitBatch",
+            "modelStage": "multipleChoiceDraftUnitBatch",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 6464,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "multipleChoiceDraftUnitBatch-9",
+            "stage": "v2_multipleChoiceDraftUnitBatch",
+            "modelStage": "multipleChoiceDraftUnitBatch",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3553,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "multipleChoiceDraftUnitBatch-10",
+            "stage": "v2_multipleChoiceDraftUnitBatch",
+            "modelStage": "multipleChoiceDraftUnitBatch",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 6016,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "matchingDraft-11",
+            "stage": "v2_matchingDraft",
+            "modelStage": "matchingDraft",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3766,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "matchingDraft-12",
+            "stage": "v2_matchingDraft",
+            "modelStage": "matchingDraft",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 4189,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "unitCopyBatch-13",
+            "stage": "v2_unitCopyBatch",
+            "modelStage": "unitCopyBatch",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 4590,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          }
+        ]
+      },
+      "stages": [
+        {
+          "status": "sourceMap",
+          "displayStatusText": "正在提取正文",
+          "at": "2026-07-08T19:13:49.720Z"
+        },
+        {
+          "status": "reviewPathPlan",
+          "displayStatusText": "正在生成知识点",
+          "at": "2026-07-08T19:13:49.720Z"
+        },
+        {
+          "status": "unitKnowledgeMap",
+          "displayStatusText": "正在拆解知识点",
+          "at": "2026-07-08T19:13:49.720Z"
+        },
+        {
+          "status": "taskBriefPlan",
+          "displayStatusText": "正在规划练习",
+          "at": "2026-07-08T19:13:49.720Z"
+        },
+        {
+          "status": "multipleChoiceDraftUnitBatch",
+          "displayStatusText": "正在生成选择题",
+          "at": "2026-07-08T19:13:49.720Z"
+        },
+        {
+          "status": "matchingDraft",
+          "displayStatusText": "正在生成连线题",
+          "at": "2026-07-08T19:13:49.720Z"
+        },
+        {
+          "status": "unitCopyBatch",
+          "displayStatusText": "正在生成单元文案",
+          "at": "2026-07-08T19:13:49.720Z"
+        }
+      ],
+      "reviewPathPlan": {
+        "title": "5分钟搞懂Agent：从Workflow到智能体循环",
+        "summaryCard": {
+          "text": "Agent不是工具链，而是能自主思考、行动、检查结果的数字员工。本文用实习生比喻拆解其五大组件，并揭示Agent Loop才是核心。"
+        },
+        "units": [
+          {
+            "id": "unit-1",
+            "order": 1,
+            "title": "Workflow与Agent的本质区别",
+            "nodeLabel": "Workflow vs Agent",
+            "sourceAnchor": {
+              "id": "anchor-unit-1",
+              "blockIds": [
+                "video-transcript-004",
+                "video-transcript-005",
+                "video-transcript-006"
+              ]
+            }
+          },
+          {
+            "id": "unit-2",
+            "order": 2,
+            "title": "Agent的五大组件：数字员工类比",
+            "nodeLabel": "五大组件",
+            "sourceAnchor": {
+              "id": "anchor-unit-2",
+              "blockIds": [
+                "video-transcript-008",
+                "video-transcript-009",
+                "video-transcript-010",
+                "video-transcript-011",
+                "video-transcript-012"
+              ]
+            }
+          },
+          {
+            "id": "unit-3",
+            "order": 3,
+            "title": "Agent Loop：自主推理与行动循环",
+            "nodeLabel": "Agent Loop",
+            "sourceAnchor": {
+              "id": "anchor-unit-3",
+              "blockIds": [
+                "video-transcript-013",
+                "video-transcript-014",
+                "video-transcript-015"
+              ]
+            }
+          }
+        ],
+        "chapterSummary": {
+          "encouragementText": "你已经掌握了Agent的核心概念：它不只是工具组合，而是能自主推理、行动、检查的数字员工。继续探索，你也能构建自己的智能体！"
+        }
+      },
+      "unitKnowledgeMap": {
+        "units": [
+          {
+            "unitId": "unit-1",
+            "microKnowledgePoints": [
+              {
+                "microId": "micro-unit-1-001",
+                "title": "Workflow定义",
+                "summary": "Workflow是预设步骤，AI按固定路线执行",
+                "role": "definition",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "概念理解与区分"
+              },
+              {
+                "microId": "micro-unit-1-002",
+                "title": "Agent定义",
+                "summary": "Agent自主决策执行路径，非预设步骤",
+                "role": "definition",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "概念理解与区分"
+              },
+              {
+                "microId": "micro-unit-1-003",
+                "title": "Workflow与Agent核心区别",
+                "summary": "Workflow人定步骤，Agent自定步骤",
+                "role": "boundary",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "对比区分"
+              },
+              {
+                "microId": "micro-unit-1-004",
+                "title": "Agent自主决策过程示例",
+                "summary": "Agent面对任务时思考、尝试、询问的步骤",
+                "role": "example_case",
+                "assessmentValue": "medium",
+                "primaryEvidenceAngle": "过程理解"
+              },
+              {
+                "microId": "micro-unit-1-005",
+                "title": "Workflow复杂节点仍非Agent",
+                "summary": "即使100个节点，只要人设计好就不是Agent",
+                "role": "misconception",
+                "assessmentValue": "medium",
+                "primaryEvidenceAngle": "误区澄清"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-2",
+            "microKnowledgePoints": [
+              {
+                "microId": "micro-unit-2-001",
+                "title": "LLM大脑：理解与规划核心",
+                "summary": "LLM作为Agent的大脑，负责理解、分析任务和制定计划",
+                "role": "definition",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "理解LLM在Agent中的核心作"
+              },
+              {
+                "microId": "micro-unit-2-002",
+                "title": "Prompt：岗位说明书",
+                "summary": "Prompt规定Agent的职责、限制条件和回复风格",
+                "role": "definition",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "理解Prompt对Agent行为"
+              },
+              {
+                "microId": "micro-unit-2-003",
+                "title": "Memory：短期记忆与上下文",
+                "summary": "Memory记住上下文、分配任务和积累经验",
+                "role": "definition",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "理解Memory对Agent连续"
+              },
+              {
+                "microId": "micro-unit-2-004",
+                "title": "Knowledge：外部知识库",
+                "summary": "External Knowledge补充公司内部资料，如知识库、产品文档",
+                "role": "definition",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "理解Knowledge如何扩展A"
+              },
+              {
+                "microId": "micro-unit-2-005",
+                "title": "Tools：操作软件的能力",
+                "summary": "Tools让Agent操作电脑软件，如发邮件、做PPT",
+                "role": "definition",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "理解Tools如何让Agent从"
+              },
+              {
+                "microId": "micro-unit-2-006",
+                "title": "五大组件构成Agent基础",
+                "summary": "LLM、Prompt、Memory、Knowledge、Tools共同构成Agent",
+                "role": "model_layer",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "理解五大组件整体框架"
+              },
+              {
+                "microId": "micro-unit-2-007",
+                "title": "数字员工类比理解Agent",
+                "summary": "将Agent类比为数字员工，有岗位职责和工具",
+                "role": "example_case",
+                "assessmentValue": "low",
+                "primaryEvidenceAngle": "通过类比理解Agent概念"
+              },
+              {
+                "microId": "micro-unit-2-008",
+                "title": "Agent不等于五件套",
+                "summary": "有五大组件不一定就是Agent，关键在于自主工作能力",
+                "role": "misconception",
+                "assessmentValue": "medium",
+                "primaryEvidenceAngle": "区分Agent与普通程序"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-3",
+            "microKnowledgePoints": [
+              {
+                "microId": "micro-unit-3-001",
+                "title": "Agent Loop定义",
+                "summary": "Agent Loop是推理→行动→检查→迭代的自主循环过程",
+                "role": "definition",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "理解自主循环概念"
+              },
+              {
+                "microId": "micro-unit-3-002",
+                "title": "ReAct框架",
+                "summary": "ReAct是Reasoning+Acting的缩写，是Agent Loop的经典框架",
+                "role": "mechanism",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "识别框架组成与作用"
+              },
+              {
+                "microId": "micro-unit-3-003",
+                "title": "Agent Loop步骤",
+                "summary": "Agent先思考任务，再行动，然后检查结果，满意输出，不满意继续循环",
+                "role": "process_step",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "描述循环各步骤"
+              },
+              {
+                "microId": "micro-unit-3-004",
+                "title": "自我检查能力",
+                "summary": "Agent会自己检查结果是否满意，而非直接输出，这是自主性的关键",
+                "role": "boundary",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "区分Agent与普通LLM"
+              },
+              {
+                "microId": "micro-unit-3-005",
+                "title": "Agent Loop应用场景",
+                "summary": "Agent Loop使Agent能自主完成复杂任务，如搜索、整理数据、画图",
+                "role": "scenario_application",
+                "assessmentValue": "medium",
+                "primaryEvidenceAngle": "举例说明循环应用"
+              },
+              {
+                "microId": "micro-unit-3-006",
+                "title": "Agent Loop vs 组件数量",
+                "summary": "成为Agent的关键是自主循环能力，而非拥有五个组件",
+                "role": "misconception",
+                "assessmentValue": "medium",
+                "primaryEvidenceAngle": "纠正常见误解"
+              }
+            ]
+          }
+        ]
+      },
+      "taskBriefPlan": {
+        "units": [
+          {
+            "unitId": "unit-1",
+            "practiceGoals": [
+              {
+                "kind": "core_understanding",
+                "target": "理解Workflow是预设步骤，Agent自主决策",
+                "commonMisconception": "误以为复杂Workflow就是Agent",
+                "microIds": [
+                  "micro-unit-1-001",
+                  "micro-unit-1-002",
+                  "micro-unit-1-003"
+                ],
+                "id": "goal-unit-1-001",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "kind": "scenario_application",
+                "target": "能识别Agent自主决策过程",
+                "commonMisconception": "认为Agent只是自动化流程",
+                "microIds": [
+                  "micro-unit-1-004"
+                ],
+                "id": "goal-unit-1-002",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "kind": "boundary_clarification",
+                "target": "澄清复杂Workflow仍非Agent",
+                "commonMisconception": "认为节点多就是Agent",
+                "microIds": [
+                  "micro-unit-1-005"
+                ],
+                "id": "goal-unit-1-003",
+                "sourceAnchorId": "anchor-unit-1"
+              }
+            ],
+            "questionPlans": [
+              {
+                "type": "multiple_choice",
+                "purpose": "light_understanding",
+                "goalIndex": 1,
+                "microIds": [
+                  "micro-unit-1-001",
+                  "micro-unit-1-002",
+                  "micro-unit-1-003"
+                ],
+                "id": "q-unit-1-001",
+                "practiceGoalId": "goal-unit-1-001",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "type": "multiple_choice",
+                "purpose": "scenario_application",
+                "goalIndex": 2,
+                "microIds": [
+                  "micro-unit-1-004"
+                ],
+                "id": "q-unit-1-002",
+                "practiceGoalId": "goal-unit-1-002",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "type": "multiple_choice",
+                "purpose": "misconception_check",
+                "goalIndex": 3,
+                "microIds": [
+                  "micro-unit-1-005"
+                ],
+                "id": "q-unit-1-003",
+                "practiceGoalId": "goal-unit-1-003",
+                "sourceAnchorId": "anchor-unit-1"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-2",
+            "practiceGoals": [
+              {
+                "kind": "core_understanding",
+                "target": "理解Agent五大组件的核心作用",
+                "commonMisconception": "认为五大组件只是简单拼凑",
+                "microIds": [
+                  "micro-unit-2-001",
+                  "micro-unit-2-002",
+                  "micro-unit-2-003",
+                  "micro-unit-2-004",
+                  "micro-unit-2-005",
+                  "micro-unit-2-006"
+                ],
+                "id": "goal-unit-2-001",
+                "sourceAnchorId": "anchor-unit-2"
+              },
+              {
+                "kind": "boundary_clarification",
+                "target": "区分Agent与普通程序",
+                "commonMisconception": "认为有五大组件就是Agent",
+                "microIds": [
+                  "micro-unit-2-008"
+                ],
+                "id": "goal-unit-2-002",
+                "sourceAnchorId": "anchor-unit-2"
+              }
+            ],
+            "questionPlans": [
+              {
+                "type": "matching",
+                "purpose": "role_responsibility_matching",
+                "goalIndex": 1,
+                "relationType": "responsibility",
+                "microIds": [
+                  "micro-unit-2-001",
+                  "micro-unit-2-002",
+                  "micro-unit-2-003",
+                  "micro-unit-2-004",
+                  "micro-unit-2-005"
+                ],
+                "id": "q-unit-2-001",
+                "practiceGoalId": "goal-unit-2-001",
+                "sourceAnchorId": "anchor-unit-2"
+              },
+              {
+                "type": "multiple_choice",
+                "purpose": "misconception_check",
+                "goalIndex": 2,
+                "microIds": [
+                  "micro-unit-2-008"
+                ],
+                "id": "q-unit-2-002",
+                "practiceGoalId": "goal-unit-2-002",
+                "sourceAnchorId": "anchor-unit-2"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-3",
+            "practiceGoals": [
+              {
+                "kind": "core_understanding",
+                "target": "理解Agent Loop是推理→行动→检查→迭代的自主循环",
+                "commonMisconception": "认为Agent Loop只是简单的顺序执行",
+                "microIds": [
+                  "micro-unit-3-001",
+                  "micro-unit-3-003"
+                ],
+                "id": "goal-unit-3-001",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "kind": "relationship_mapping",
+                "target": "掌握ReAct框架中推理与行动的关系",
+                "commonMisconception": "将ReAct误解为前端框架",
+                "microIds": [
+                  "micro-unit-3-002"
+                ],
+                "id": "goal-unit-3-002",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "kind": "boundary_clarification",
+                "target": "区分Agent与普通LLM：自我检查是关键",
+                "commonMisconception": "认为拥有五个组件就是Agent",
+                "microIds": [
+                  "micro-unit-3-004",
+                  "micro-unit-3-006"
+                ],
+                "id": "goal-unit-3-003",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "kind": "scenario_application",
+                "target": "能举例说明Agent Loop在复杂任务中的应用",
+                "commonMisconception": "认为Agent Loop只适用于简单任务",
+                "microIds": [
+                  "micro-unit-3-005"
+                ],
+                "id": "goal-unit-3-004",
+                "sourceAnchorId": "anchor-unit-3"
+              }
+            ],
+            "questionPlans": [
+              {
+                "type": "multiple_choice",
+                "purpose": "light_understanding",
+                "goalIndex": 1,
+                "microIds": [
+                  "micro-unit-3-001"
+                ],
+                "id": "q-unit-3-001",
+                "practiceGoalId": "goal-unit-3-001",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "type": "matching",
+                "purpose": "step_purpose_matching",
+                "goalIndex": 2,
+                "relationType": "process_signal",
+                "microIds": [
+                  "micro-unit-3-002",
+                  "micro-unit-3-003"
+                ],
+                "id": "q-unit-3-002",
+                "practiceGoalId": "goal-unit-3-002",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "type": "multiple_choice",
+                "purpose": "boundary_check",
+                "goalIndex": 3,
+                "microIds": [
+                  "micro-unit-3-004",
+                  "micro-unit-3-006"
+                ],
+                "id": "q-unit-3-003",
+                "practiceGoalId": "goal-unit-3-003",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "type": "multiple_choice",
+                "purpose": "scenario_application",
+                "goalIndex": 4,
+                "microIds": [
+                  "micro-unit-3-005"
+                ],
+                "id": "q-unit-3-004",
+                "practiceGoalId": "goal-unit-3-004",
+                "sourceAnchorId": "anchor-unit-3"
+              }
+            ]
+          }
+        ]
+      },
+      "multipleChoiceDraftBatch": {
+        "units": [
+          {
+            "unitId": "unit-1",
+            "questions": [
+              {
+                "id": "q-unit-1-001",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-1-001",
+                "stem": "Workflow与Agent的核心区别是什么？",
+                "correctUnderstanding": "Workflow由人预设步骤，Agent自主决策执行路径。",
+                "misconception": "误以为复杂Workflow就是Agent。",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "Workflow步骤固定，Agent步骤由AI自主决定"
+                  },
+                  {
+                    "id": "B",
+                    "text": "Workflow步骤少，Agent步骤多"
+                  },
+                  {
+                    "id": "C",
+                    "text": "Workflow需要人工干预，Agent完全自动"
+                  },
+                  {
+                    "id": "D",
+                    "text": "Workflow只能处理简单任务，Agent处理复杂任务"
+                  }
+                ],
+                "correctOptionId": "A",
+                "explanation": "Workflow由人预设步骤，Agent自主决策路径；步骤多少或任务复杂度并非区分关键。",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "id": "q-unit-1-002",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-1-002",
+                "stem": "以下哪项最能体现Agent的自主决策过程？",
+                "correctUnderstanding": "Agent会思考、尝试不同方法并主动询问用户。",
+                "misconception": "认为Agent只是按预设流程自动化执行。",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "AI按固定顺序调用日历、总结、发送邮件"
+                  },
+                  {
+                    "id": "B",
+                    "text": "AI先尝试连接日历，失败后尝试会议工具，再询问用户"
+                  },
+                  {
+                    "id": "C",
+                    "text": "AI根据用户指令直接执行预设的邮件发送流程"
+                  },
+                  {
+                    "id": "D",
+                    "text": "AI将任务分解为多个子任务并依次执行"
+                  }
+                ],
+                "correctOptionId": "B",
+                "explanation": "Agent会自主思考、尝试不同路径并主动询问，而非按固定流程执行。",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "id": "q-unit-1-003",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-1-003",
+                "stem": "一个包含100个节点的自动化流程，是否属于Agent？",
+                "correctUnderstanding": "即使节点再多，只要步骤由人预设，就不是Agent。",
+                "misconception": "认为节点多就是Agent。",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "是，因为节点多说明系统复杂"
+                  },
+                  {
+                    "id": "B",
+                    "text": "是，因为自动化流程就是Agent"
+                  },
+                  {
+                    "id": "C",
+                    "text": "不是，因为步骤由人预设，非自主决策"
+                  },
+                  {
+                    "id": "D",
+                    "text": "不是，因为节点超过一定数量才叫Agent"
+                  }
+                ],
+                "correctOptionId": "C",
+                "explanation": "Agent的关键是自主决策，而非节点数量；预设步骤的流程即使复杂也不是Agent。",
+                "sourceAnchorId": "anchor-unit-1"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-2",
+            "questions": [
+              {
+                "id": "q-unit-2-002",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-2-002",
+                "stem": "一个程序具备LLM、Prompt、Memory、Knowledge和Tools五个组件，它一定是Agent吗？",
+                "correctUnderstanding": "Agent的核心是自主工作能力，而非仅仅拥有五大组件。",
+                "misconception": "认为有五大组件就是Agent。",
+                "distractorRationale": "干扰项围绕“拥有组件即Agent”的误区设计，混淆了组件与自主能力的区别。",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "一定是，因为五大组件是Agent的完整构成"
+                  },
+                  {
+                    "id": "B",
+                    "text": "不一定是，关键看它能否自主推理和行动"
+                  },
+                  {
+                    "id": "C",
+                    "text": "一定是，只要组件齐全就能自主工作"
+                  },
+                  {
+                    "id": "D",
+                    "text": "不一定是，还需要有外部知识库才能算"
+                  }
+                ],
+                "correctOptionId": "B",
+                "explanation": "Agent的核心是自主推理与行动的能力，拥有五大组件只是基础，但若没有自主循环，仍不算真正的Agent。",
+                "sourceAnchorId": "anchor-unit-2"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-3",
+            "questions": [
+              {
+                "id": "q-unit-3-001",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-3-001",
+                "stem": "Agent Loop的核心过程是什么？",
+                "correctUnderstanding": "Agent Loop是推理→行动→检查→迭代的自主循环过程。",
+                "misconception": "认为Agent Loop只是简单的顺序执行，没有自我检查环节。",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "推理→行动→检查→迭代的自主循环"
+                  },
+                  {
+                    "id": "B",
+                    "text": "推理→行动→直接输出结果"
+                  },
+                  {
+                    "id": "C",
+                    "text": "行动→推理→检查→输出"
+                  },
+                  {
+                    "id": "D",
+                    "text": "检查→推理→行动→输出"
+                  }
+                ],
+                "correctOptionId": "A",
+                "explanation": "Agent Loop包含自我检查环节，不满意会继续迭代，而非简单顺序执行后直接输出。",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "id": "q-unit-3-003",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-3-003",
+                "stem": "一个系统拥有五个组件就一定是Agent吗？",
+                "correctUnderstanding": "成为Agent的关键是具备自主循环能力，而非拥有五个组件。",
+                "misconception": "认为拥有五个组件就是Agent。",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "不一定，关键是有自主循环能力"
+                  },
+                  {
+                    "id": "B",
+                    "text": "是的，五个组件缺一不可"
+                  },
+                  {
+                    "id": "C",
+                    "text": "不一定，还需要有大量训练数据"
+                  },
+                  {
+                    "id": "D",
+                    "text": "是的，五个组件是Agent的充分条件"
+                  }
+                ],
+                "correctOptionId": "A",
+                "explanation": "Agent的核心是自主循环能力，而非组件数量；拥有五个组件不一定就是Agent。",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "id": "q-unit-3-004",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-3-004",
+                "stem": "以下哪项最能体现Agent Loop在复杂任务中的应用？",
+                "correctUnderstanding": "Agent Loop使Agent能自主完成搜索、整理数据、画图等复杂任务。",
+                "misconception": "认为Agent Loop只适用于简单任务。",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "Agent自主搜索数据、整理并画图，不满意则修改"
+                  },
+                  {
+                    "id": "B",
+                    "text": "Agent根据指令直接生成一段文字"
+                  },
+                  {
+                    "id": "C",
+                    "text": "Agent按固定流程执行简单计算"
+                  },
+                  {
+                    "id": "D",
+                    "text": "Agent仅执行一次搜索并返回结果"
+                  }
+                ],
+                "correctOptionId": "A",
+                "explanation": "Agent Loop通过推理、行动、检查、迭代，能自主完成复杂任务，而非仅简单执行。",
+                "sourceAnchorId": "anchor-unit-3"
+              }
+            ]
+          }
+        ]
+      },
+      "matchingDraftBatch": {
+        "units": [
+          {
+            "unitId": "unit-2",
+            "questions": [],
+            "droppedQuestions": [
+              {
+                "id": "q-unit-2-001",
+                "type": "matching",
+                "practiceGoalId": "goal-unit-2-001",
+                "relationType": "responsibility",
+                "relationGoal": "匹配Agent五大组件与其核心职责",
+                "stem": "请将Agent组件与其核心职责配对",
+                "leftItems": [
+                  {
+                    "id": "l1",
+                    "text": "LLM大脑"
+                  },
+                  {
+                    "id": "l2",
+                    "text": "Prompt提示"
+                  },
+                  {
+                    "id": "l3",
+                    "text": "Memory记忆"
+                  },
+                  {
+                    "id": "l4",
+                    "text": "Knowledge知识库"
+                  },
+                  {
+                    "id": "l5",
+                    "text": "Tools工具"
+                  }
+                ],
+                "rightItems": [
+                  {
+                    "id": "r1",
+                    "text": "理解分析任务并制定计划"
+                  },
+                  {
+                    "id": "r2",
+                    "text": "规定职责与回复风格"
+                  },
+                  {
+                    "id": "r3",
+                    "text": "记住上下文与任务状态"
+                  },
+                  {
+                    "id": "r4",
+                    "text": "补充公司内部资料"
+                  },
+                  {
+                    "id": "r5",
+                    "text": "操作软件执行具体动作"
+                  }
+                ],
+                "pairs": [
+                  {
+                    "leftId": "l1",
+                    "rightId": "r1"
+                  },
+                  {
+                    "leftId": "l2",
+                    "rightId": "r2"
+                  },
+                  {
+                    "leftId": "l3",
+                    "rightId": "r3"
+                  },
+                  {
+                    "leftId": "l4",
+                    "rightId": "r4"
+                  },
+                  {
+                    "leftId": "l5",
+                    "rightId": "r5"
+                  }
+                ],
+                "explanation": "LLM大脑负责理解与规划；Prompt规定职责风格；Memory记住上下文；Knowledge补充内部资料；Tools操作软件。",
+                "sourceAnchorId": "anchor-unit-2"
+              }
+            ],
+            "dropReason": "invalid_matching_draft",
+            "validationErrors": [
+              "matchingDraft.questions[0].leftItems must contain 2 to 4 items",
+              "matchingDraft.questions[0].rightItems must contain 2 to 4 items",
+              "matchingDraft.questions[0].pairs must contain 2 to 4 pairs"
+            ]
+          },
+          {
+            "unitId": "unit-3",
+            "questions": [
+              {
+                "id": "q-unit-3-002",
+                "type": "matching",
+                "practiceGoalId": "goal-unit-3-002",
+                "relationType": "process_signal",
+                "relationGoal": "匹配Agent Loop中每个步骤对应的目的或动作",
+                "stem": "请匹配Agent Loop中步骤与对应的动作",
+                "leftItems": [
+                  {
+                    "id": "l1",
+                    "text": "推理"
+                  },
+                  {
+                    "id": "l2",
+                    "text": "行动"
+                  },
+                  {
+                    "id": "l3",
+                    "text": "检查"
+                  },
+                  {
+                    "id": "l4",
+                    "text": "迭代"
+                  }
+                ],
+                "rightItems": [
+                  {
+                    "id": "r1",
+                    "text": "思考任务如何完成"
+                  },
+                  {
+                    "id": "r2",
+                    "text": "搜索、整理数据、画图"
+                  },
+                  {
+                    "id": "r3",
+                    "text": "评估结果是否满意"
+                  },
+                  {
+                    "id": "r4",
+                    "text": "不满意则继续循环改进"
+                  }
+                ],
+                "pairs": [
+                  {
+                    "leftId": "l1",
+                    "rightId": "r1"
+                  },
+                  {
+                    "leftId": "l2",
+                    "rightId": "r2"
+                  },
+                  {
+                    "leftId": "l3",
+                    "rightId": "r3"
+                  },
+                  {
+                    "leftId": "l4",
+                    "rightId": "r4"
+                  }
+                ],
+                "explanation": "Agent Loop中，推理是思考如何做，行动是执行操作，检查是自我评估，迭代是循环改进。",
+                "sourceAnchorId": "anchor-unit-3"
+              }
+            ]
+          }
+        ]
+      },
+      "unitCopyBatch": {
+        "units": [
+          {
+            "unitId": "unit-1",
+            "overview": {
+              "text": "Workflow和Agent听起来很像，但本质不同。Workflow是预设好的固定步骤，而Agent能自主决策。理解这个区别，是掌握Agent概念的第一步。"
+            },
+            "summary": {
+              "text": "现在你明白了：Workflow是预设路径，Agent是自主决策。别把复杂流程误当成智能体。"
+            }
+          },
+          {
+            "unitId": "unit-2",
+            "overview": {
+              "text": "Agent像一位数字员工，由五大组件构成：大脑、岗位说明、记忆、知识库和工具。了解它们，你就能设计出真正能干的智能体。"
+            },
+            "summary": {
+              "text": "五大组件是Agent的骨架：LLM大脑、Prompt岗位说明、Memory记忆、Knowledge知识库、Tools工具。记住这个框架，构建Agent不再抽象。"
+            }
+          },
+          {
+            "unitId": "unit-3",
+            "overview": {
+              "text": "Agent Loop是智能体的核心循环：推理→行动→检查→迭代。正是这种自我改进的能力，让Agent区别于普通应用。"
+            },
+            "summary": {
+              "text": "Agent Loop让Agent能自主推理、行动并自我检查，不断迭代直到满意。这是智能体真正的灵魂。"
+            }
+          }
+        ]
+      },
+      "unitPracticePlans": [
+        {
+          "unitId": "unit-1",
+          "practiceGoals": [
+            {
+              "kind": "core_understanding",
+              "target": "理解Workflow是预设步骤，Agent自主决策",
+              "commonMisconception": "误以为复杂Workflow就是Agent",
+              "microIds": [
+                "micro-unit-1-001",
+                "micro-unit-1-002",
+                "micro-unit-1-003"
+              ],
+              "id": "goal-unit-1-001",
+              "sourceAnchorId": "anchor-unit-1"
+            },
+            {
+              "kind": "scenario_application",
+              "target": "能识别Agent自主决策过程",
+              "commonMisconception": "认为Agent只是自动化流程",
+              "microIds": [
+                "micro-unit-1-004"
+              ],
+              "id": "goal-unit-1-002",
+              "sourceAnchorId": "anchor-unit-1"
+            },
+            {
+              "kind": "boundary_clarification",
+              "target": "澄清复杂Workflow仍非Agent",
+              "commonMisconception": "认为节点多就是Agent",
+              "microIds": [
+                "micro-unit-1-005"
+              ],
+              "id": "goal-unit-1-003",
+              "sourceAnchorId": "anchor-unit-1"
+            }
+          ],
+          "questionPlans": [
+            {
+              "type": "multiple_choice",
+              "purpose": "light_understanding",
+              "goalIndex": 1,
+              "microIds": [
+                "micro-unit-1-001",
+                "micro-unit-1-002",
+                "micro-unit-1-003"
+              ],
+              "id": "q-unit-1-001",
+              "practiceGoalId": "goal-unit-1-001",
+              "sourceAnchorId": "anchor-unit-1"
+            },
+            {
+              "type": "multiple_choice",
+              "purpose": "scenario_application",
+              "goalIndex": 2,
+              "microIds": [
+                "micro-unit-1-004"
+              ],
+              "id": "q-unit-1-002",
+              "practiceGoalId": "goal-unit-1-002",
+              "sourceAnchorId": "anchor-unit-1"
+            },
+            {
+              "type": "multiple_choice",
+              "purpose": "misconception_check",
+              "goalIndex": 3,
+              "microIds": [
+                "micro-unit-1-005"
+              ],
+              "id": "q-unit-1-003",
+              "practiceGoalId": "goal-unit-1-003",
+              "sourceAnchorId": "anchor-unit-1"
+            }
+          ]
+        },
+        {
+          "unitId": "unit-2",
+          "practiceGoals": [
+            {
+              "kind": "core_understanding",
+              "target": "理解Agent五大组件的核心作用",
+              "commonMisconception": "认为五大组件只是简单拼凑",
+              "microIds": [
+                "micro-unit-2-001",
+                "micro-unit-2-002",
+                "micro-unit-2-003",
+                "micro-unit-2-004",
+                "micro-unit-2-005",
+                "micro-unit-2-006"
+              ],
+              "id": "goal-unit-2-001",
+              "sourceAnchorId": "anchor-unit-2"
+            },
+            {
+              "kind": "boundary_clarification",
+              "target": "区分Agent与普通程序",
+              "commonMisconception": "认为有五大组件就是Agent",
+              "microIds": [
+                "micro-unit-2-008"
+              ],
+              "id": "goal-unit-2-002",
+              "sourceAnchorId": "anchor-unit-2"
+            }
+          ],
+          "questionPlans": [
+            {
+              "type": "matching",
+              "purpose": "role_responsibility_matching",
+              "goalIndex": 1,
+              "relationType": "responsibility",
+              "microIds": [
+                "micro-unit-2-001",
+                "micro-unit-2-002",
+                "micro-unit-2-003",
+                "micro-unit-2-004",
+                "micro-unit-2-005"
+              ],
+              "id": "q-unit-2-001",
+              "practiceGoalId": "goal-unit-2-001",
+              "sourceAnchorId": "anchor-unit-2"
+            },
+            {
+              "type": "multiple_choice",
+              "purpose": "misconception_check",
+              "goalIndex": 2,
+              "microIds": [
+                "micro-unit-2-008"
+              ],
+              "id": "q-unit-2-002",
+              "practiceGoalId": "goal-unit-2-002",
+              "sourceAnchorId": "anchor-unit-2"
+            }
+          ]
+        },
+        {
+          "unitId": "unit-3",
+          "practiceGoals": [
+            {
+              "kind": "core_understanding",
+              "target": "理解Agent Loop是推理→行动→检查→迭代的自主循环",
+              "commonMisconception": "认为Agent Loop只是简单的顺序执行",
+              "microIds": [
+                "micro-unit-3-001",
+                "micro-unit-3-003"
+              ],
+              "id": "goal-unit-3-001",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "kind": "relationship_mapping",
+              "target": "掌握ReAct框架中推理与行动的关系",
+              "commonMisconception": "将ReAct误解为前端框架",
+              "microIds": [
+                "micro-unit-3-002"
+              ],
+              "id": "goal-unit-3-002",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "kind": "boundary_clarification",
+              "target": "区分Agent与普通LLM：自我检查是关键",
+              "commonMisconception": "认为拥有五个组件就是Agent",
+              "microIds": [
+                "micro-unit-3-004",
+                "micro-unit-3-006"
+              ],
+              "id": "goal-unit-3-003",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "kind": "scenario_application",
+              "target": "能举例说明Agent Loop在复杂任务中的应用",
+              "commonMisconception": "认为Agent Loop只适用于简单任务",
+              "microIds": [
+                "micro-unit-3-005"
+              ],
+              "id": "goal-unit-3-004",
+              "sourceAnchorId": "anchor-unit-3"
+            }
+          ],
+          "questionPlans": [
+            {
+              "type": "multiple_choice",
+              "purpose": "light_understanding",
+              "goalIndex": 1,
+              "microIds": [
+                "micro-unit-3-001"
+              ],
+              "id": "q-unit-3-001",
+              "practiceGoalId": "goal-unit-3-001",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "type": "matching",
+              "purpose": "step_purpose_matching",
+              "goalIndex": 2,
+              "relationType": "process_signal",
+              "microIds": [
+                "micro-unit-3-002",
+                "micro-unit-3-003"
+              ],
+              "id": "q-unit-3-002",
+              "practiceGoalId": "goal-unit-3-002",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "type": "multiple_choice",
+              "purpose": "boundary_check",
+              "goalIndex": 3,
+              "microIds": [
+                "micro-unit-3-004",
+                "micro-unit-3-006"
+              ],
+              "id": "q-unit-3-003",
+              "practiceGoalId": "goal-unit-3-003",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "type": "multiple_choice",
+              "purpose": "scenario_application",
+              "goalIndex": 4,
+              "microIds": [
+                "micro-unit-3-005"
+              ],
+              "id": "q-unit-3-004",
+              "practiceGoalId": "goal-unit-3-004",
+              "sourceAnchorId": "anchor-unit-3"
+            }
+          ]
+        }
+      ],
+      "qualityJudge": {
+        "verdict": "skipped",
+        "issues": [],
+        "summary": "qualityJudge 默认停用；本轮只保留 deterministic guardrails 和 HTML 报告诊断。"
+      },
+      "qualityDiagnostics": [
+        {
+          "unitId": "unit-1",
+          "questionId": "q-unit-1-001",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionToneCue": "distractor_tone_cue"
+          },
+          "issues": [
+            {
+              "code": "v2_option_tone_cue",
+              "severity": "warning",
+              "message": "多个干扰项包含绝对化或否定化泄题词：完全、只能",
+              "targetId": "q-unit-1-001"
+            }
+          ]
+        },
+        {
+          "unitId": "unit-1",
+          "questionId": "q-unit-1-002",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionToneCue": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-1",
+          "questionId": "q-unit-1-003",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionToneCue": "watch"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-2",
+          "questionId": "q-unit-2-002",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionToneCue": "watch"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-3",
+          "questionId": "q-unit-3-001",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionToneCue": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-3",
+          "questionId": "q-unit-3-002",
+          "questionType": "matching",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "not_applicable",
+            "matchingRelationValue": "pass",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-3",
+          "questionId": "q-unit-3-003",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionToneCue": "watch"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-3",
+          "questionId": "q-unit-3-004",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionToneCue": "pass"
+          },
+          "issues": []
+        }
+      ],
+      "qualityGate": {
+        "mode": "deterministic_only",
+        "blocking": false,
+        "qualityJudgeEnabled": false,
+        "deterministicVerdict": "pass",
+        "deterministicIssueCount": 1,
+        "judgeVerdict": "skipped",
+        "judgeIssueCount": 0
+      },
+      "v2Progress": {
+        "jobId": "",
+        "chapterId": "bilibili-feynman-agent",
+        "status": "completed",
+        "stage": "completed",
+        "stageGroup": "completed",
+        "displayText": "生成完成",
+        "progress": 1,
+        "userVisible": true,
+        "retryCount": 0,
+        "canRetry": false,
+        "updatedAt": "2026-07-08T19:13:49.720Z"
+      }
+    }
+  },
+  "unitKnowledgeMap": {
+    "units": [
+      {
+        "unitId": "unit-1",
+        "microKnowledgePoints": [
+          {
+            "microId": "micro-unit-1-001",
+            "title": "Workflow定义",
+            "summary": "Workflow是预设步骤，AI按固定路线执行",
+            "role": "definition",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "概念理解与区分"
+          },
+          {
+            "microId": "micro-unit-1-002",
+            "title": "Agent定义",
+            "summary": "Agent自主决策执行路径，非预设步骤",
+            "role": "definition",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "概念理解与区分"
+          },
+          {
+            "microId": "micro-unit-1-003",
+            "title": "Workflow与Agent核心区别",
+            "summary": "Workflow人定步骤，Agent自定步骤",
+            "role": "boundary",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "对比区分"
+          },
+          {
+            "microId": "micro-unit-1-004",
+            "title": "Agent自主决策过程示例",
+            "summary": "Agent面对任务时思考、尝试、询问的步骤",
+            "role": "example_case",
+            "assessmentValue": "medium",
+            "primaryEvidenceAngle": "过程理解"
+          },
+          {
+            "microId": "micro-unit-1-005",
+            "title": "Workflow复杂节点仍非Agent",
+            "summary": "即使100个节点，只要人设计好就不是Agent",
+            "role": "misconception",
+            "assessmentValue": "medium",
+            "primaryEvidenceAngle": "误区澄清"
+          }
+        ]
+      },
+      {
+        "unitId": "unit-2",
+        "microKnowledgePoints": [
+          {
+            "microId": "micro-unit-2-001",
+            "title": "LLM大脑：理解与规划核心",
+            "summary": "LLM作为Agent的大脑，负责理解、分析任务和制定计划",
+            "role": "definition",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "理解LLM在Agent中的核心作"
+          },
+          {
+            "microId": "micro-unit-2-002",
+            "title": "Prompt：岗位说明书",
+            "summary": "Prompt规定Agent的职责、限制条件和回复风格",
+            "role": "definition",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "理解Prompt对Agent行为"
+          },
+          {
+            "microId": "micro-unit-2-003",
+            "title": "Memory：短期记忆与上下文",
+            "summary": "Memory记住上下文、分配任务和积累经验",
+            "role": "definition",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "理解Memory对Agent连续"
+          },
+          {
+            "microId": "micro-unit-2-004",
+            "title": "Knowledge：外部知识库",
+            "summary": "External Knowledge补充公司内部资料，如知识库、产品文档",
+            "role": "definition",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "理解Knowledge如何扩展A"
+          },
+          {
+            "microId": "micro-unit-2-005",
+            "title": "Tools：操作软件的能力",
+            "summary": "Tools让Agent操作电脑软件，如发邮件、做PPT",
+            "role": "definition",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "理解Tools如何让Agent从"
+          },
+          {
+            "microId": "micro-unit-2-006",
+            "title": "五大组件构成Agent基础",
+            "summary": "LLM、Prompt、Memory、Knowledge、Tools共同构成Agent",
+            "role": "model_layer",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "理解五大组件整体框架"
+          },
+          {
+            "microId": "micro-unit-2-007",
+            "title": "数字员工类比理解Agent",
+            "summary": "将Agent类比为数字员工，有岗位职责和工具",
+            "role": "example_case",
+            "assessmentValue": "low",
+            "primaryEvidenceAngle": "通过类比理解Agent概念"
+          },
+          {
+            "microId": "micro-unit-2-008",
+            "title": "Agent不等于五件套",
+            "summary": "有五大组件不一定就是Agent，关键在于自主工作能力",
+            "role": "misconception",
+            "assessmentValue": "medium",
+            "primaryEvidenceAngle": "区分Agent与普通程序"
+          }
+        ]
+      },
+      {
+        "unitId": "unit-3",
+        "microKnowledgePoints": [
+          {
+            "microId": "micro-unit-3-001",
+            "title": "Agent Loop定义",
+            "summary": "Agent Loop是推理→行动→检查→迭代的自主循环过程",
+            "role": "definition",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "理解自主循环概念"
+          },
+          {
+            "microId": "micro-unit-3-002",
+            "title": "ReAct框架",
+            "summary": "ReAct是Reasoning+Acting的缩写，是Agent Loop的经典框架",
+            "role": "mechanism",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "识别框架组成与作用"
+          },
+          {
+            "microId": "micro-unit-3-003",
+            "title": "Agent Loop步骤",
+            "summary": "Agent先思考任务，再行动，然后检查结果，满意输出，不满意继续循环",
+            "role": "process_step",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "描述循环各步骤"
+          },
+          {
+            "microId": "micro-unit-3-004",
+            "title": "自我检查能力",
+            "summary": "Agent会自己检查结果是否满意，而非直接输出，这是自主性的关键",
+            "role": "boundary",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "区分Agent与普通LLM"
+          },
+          {
+            "microId": "micro-unit-3-005",
+            "title": "Agent Loop应用场景",
+            "summary": "Agent Loop使Agent能自主完成复杂任务，如搜索、整理数据、画图",
+            "role": "scenario_application",
+            "assessmentValue": "medium",
+            "primaryEvidenceAngle": "举例说明循环应用"
+          },
+          {
+            "microId": "micro-unit-3-006",
+            "title": "Agent Loop vs 组件数量",
+            "summary": "成为Agent的关键是自主循环能力，而非拥有五个组件",
+            "role": "misconception",
+            "assessmentValue": "medium",
+            "primaryEvidenceAngle": "纠正常见误解"
+          }
+        ]
+      }
+    ]
+  },
+  "ecdPlanning": null,
+  "sourceContextStats": {
+    "fullBlockCount": 18,
+    "unitKnowledgeMap": {
+      "mode": "plan_union_window",
+      "selectedBlockCount": 14,
+      "selectedBlockIds": [
+        "video-transcript-003",
+        "video-transcript-004",
+        "video-transcript-005",
+        "video-transcript-006",
+        "video-transcript-007",
+        "video-transcript-008",
+        "video-transcript-009",
+        "video-transcript-010",
+        "video-transcript-011",
+        "video-transcript-012",
+        "video-transcript-013",
+        "video-transcript-014",
+        "video-transcript-015",
+        "video-transcript-016"
+      ],
+      "fallbackUsed": false
+    },
+    "unitWindows": [
+      {
+        "unitId": "unit-1",
+        "anchorId": "anchor-unit-1",
+        "anchorBlockIds": [
+          "video-transcript-004",
+          "video-transcript-005",
+          "video-transcript-006"
+        ],
+        "selectedBlockCount": 5,
+        "selectedBlockIds": [
+          "video-transcript-003",
+          "video-transcript-004",
+          "video-transcript-005",
+          "video-transcript-006",
+          "video-transcript-007"
+        ],
+        "fallbackUsed": false
+      },
+      {
+        "unitId": "unit-2",
+        "anchorId": "anchor-unit-2",
+        "anchorBlockIds": [
+          "video-transcript-008",
+          "video-transcript-009",
+          "video-transcript-010",
+          "video-transcript-011",
+          "video-transcript-012"
+        ],
+        "selectedBlockCount": 7,
+        "selectedBlockIds": [
+          "video-transcript-007",
+          "video-transcript-008",
+          "video-transcript-009",
+          "video-transcript-010",
+          "video-transcript-011",
+          "video-transcript-012",
+          "video-transcript-013"
+        ],
+        "fallbackUsed": false
+      },
+      {
+        "unitId": "unit-3",
+        "anchorId": "anchor-unit-3",
+        "anchorBlockIds": [
+          "video-transcript-013",
+          "video-transcript-014",
+          "video-transcript-015"
+        ],
+        "selectedBlockCount": 5,
+        "selectedBlockIds": [
+          "video-transcript-012",
+          "video-transcript-013",
+          "video-transcript-014",
+          "video-transcript-015",
+          "video-transcript-016"
+        ],
+        "fallbackUsed": false
+      }
+    ]
+  },
+  "stageRuntime": {
+    "schemaVersion": "v2_stage_runtime_1",
+    "callCount": 13,
+    "attemptCount": 13,
+    "failedAttemptCount": 0,
+    "retryAttemptCount": 0,
+    "stages": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 7899,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "callCount": 3,
+        "successCallCount": 3,
+        "failedCallCount": 0,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 13400,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_taskBriefPlan",
+        "callCount": 3,
+        "successCallCount": 3,
+        "failedCallCount": 0,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 9881,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "callCount": 3,
+        "successCallCount": 3,
+        "failedCallCount": 0,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 16033,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_matchingDraft",
+        "callCount": 2,
+        "successCallCount": 2,
+        "failedCallCount": 0,
+        "attemptCount": 2,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 7955,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitCopyBatch",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 4590,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      }
+    ],
+    "attempts": [
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 7899,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-2",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3770,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-3",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 5437,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-4",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 4193,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-5",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3177,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-6",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 2915,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-7",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3789,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-8",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 6464,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-9",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3553,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-10",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 6016,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "matchingDraft-11",
+        "stage": "v2_matchingDraft",
+        "modelStage": "matchingDraft",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3766,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "matchingDraft-12",
+        "stage": "v2_matchingDraft",
+        "modelStage": "matchingDraft",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 4189,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitCopyBatch-13",
+        "stage": "v2_unitCopyBatch",
+        "modelStage": "unitCopyBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 4590,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      }
+    ]
+  },
+  "architectureMetrics": {
+    "schemaVersion": "v2_architecture_metrics_1",
+    "total": {
+      "modelCallCount": 13,
+      "runtimeCallCount": 13,
+      "attemptCount": 13,
+      "retryAttemptCount": 0,
+      "failedAttemptCount": 0,
+      "promptTokens": 44412,
+      "completionTokens": 6368,
+      "totalTokens": 50780,
+      "promptCacheHitTokens": 11904,
+      "promptCacheMissTokens": 32508,
+      "durationMs": 59758
+    },
+    "stages": [
+      {
+        "stage": "v2_matchingDraft",
+        "modelCallCount": 2,
+        "promptTokens": 6398,
+        "completionTokens": 778,
+        "totalTokens": 7176,
+        "promptCacheHitTokens": 1792,
+        "promptCacheMissTokens": 4606,
+        "estimatedOutputTokens": 0,
+        "runtimeCallCount": 2,
+        "attemptCount": 2,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 7955,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelCallCount": 3,
+        "promptTokens": 10875,
+        "completionTokens": 1806,
+        "totalTokens": 12681,
+        "promptCacheHitTokens": 3456,
+        "promptCacheMissTokens": 7419,
+        "estimatedOutputTokens": 0,
+        "runtimeCallCount": 3,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 16033,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_reviewPathPlan",
+        "modelCallCount": 1,
+        "promptTokens": 6135,
+        "completionTokens": 760,
+        "totalTokens": 6895,
+        "promptCacheHitTokens": 1152,
+        "promptCacheMissTokens": 4983,
+        "estimatedOutputTokens": 0,
+        "runtimeCallCount": 1,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 7899,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_taskBriefPlan",
+        "modelCallCount": 3,
+        "promptTokens": 10456,
+        "completionTokens": 1189,
+        "totalTokens": 11645,
+        "promptCacheHitTokens": 2816,
+        "promptCacheMissTokens": 7640,
+        "estimatedOutputTokens": 0,
+        "runtimeCallCount": 3,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 9881,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitCopyBatch",
+        "modelCallCount": 1,
+        "promptTokens": 1667,
+        "completionTokens": 313,
+        "totalTokens": 1980,
+        "promptCacheHitTokens": 384,
+        "promptCacheMissTokens": 1283,
+        "estimatedOutputTokens": 0,
+        "runtimeCallCount": 1,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 4590,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "modelCallCount": 3,
+        "promptTokens": 8881,
+        "completionTokens": 1522,
+        "totalTokens": 10403,
+        "promptCacheHitTokens": 2304,
+        "promptCacheMissTokens": 6577,
+        "estimatedOutputTokens": 0,
+        "runtimeCallCount": 3,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 13400,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      }
+    ]
+  },
+  "qualityDiagnostics": [
+    {
+      "unitId": "unit-1",
+      "questionId": "q-unit-1-001",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionToneCue": "distractor_tone_cue"
+      },
+      "issues": [
+        {
+          "code": "v2_option_tone_cue",
+          "severity": "warning",
+          "message": "多个干扰项包含绝对化或否定化泄题词：完全、只能",
+          "targetId": "q-unit-1-001"
+        }
+      ]
+    },
+    {
+      "unitId": "unit-1",
+      "questionId": "q-unit-1-002",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionToneCue": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-1",
+      "questionId": "q-unit-1-003",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionToneCue": "watch"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-2",
+      "questionId": "q-unit-2-002",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionToneCue": "watch"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-3",
+      "questionId": "q-unit-3-001",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionToneCue": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-3",
+      "questionId": "q-unit-3-002",
+      "questionType": "matching",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "not_applicable",
+        "matchingRelationValue": "pass",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-3",
+      "questionId": "q-unit-3-003",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionToneCue": "watch"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-3",
+      "questionId": "q-unit-3-004",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionToneCue": "pass"
+      },
+      "issues": []
+    }
+  ],
+  "modelUsage": [
+    {
+      "index": 1,
+      "runId": "20260708-191349-20260708-bilibili-feynman-agent-user-entry-regression",
+      "stage": "v2_reviewPathPlan",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 7120,
+        "cachedInputTokens": 0,
+        "uncachedInputTokens": 7120,
+        "outputTokens": 4000,
+        "totalTokens": 0,
+        "cost": 0.0021168,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 6135,
+        "cachedInputTokens": 1152,
+        "uncachedInputTokens": 4983,
+        "outputTokens": 760,
+        "totalTokens": 6895,
+        "cost": 0.000913646,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.001203154,
+        "costErrorRate": 131.69
+      },
+      "recordedAt": "2026-07-08T19:13:57.619Z"
+    },
+    {
+      "index": 2,
+      "runId": "20260708-191349-20260708-bilibili-feynman-agent-user-entry-regression",
+      "stage": "v2_unitKnowledgeMap",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 3304,
+        "cachedInputTokens": 0,
+        "uncachedInputTokens": 3304,
+        "outputTokens": 1700,
+        "totalTokens": 0,
+        "cost": 0.00093856,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 2807,
+        "cachedInputTokens": 768,
+        "uncachedInputTokens": 2039,
+        "outputTokens": 385,
+        "totalTokens": 3192,
+        "cost": 0.00039541,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.00054315,
+        "costErrorRate": 137.36
+      },
+      "recordedAt": "2026-07-08T19:14:01.392Z"
+    },
+    {
+      "index": 3,
+      "runId": "20260708-191349-20260708-bilibili-feynman-agent-user-entry-regression",
+      "stage": "v2_unitKnowledgeMap",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 3854,
+        "cachedInputTokens": 1106,
+        "uncachedInputTokens": 2748,
+        "outputTokens": 1700,
+        "totalTokens": 0,
+        "cost": 0.000863817,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 3253,
+        "cachedInputTokens": 768,
+        "uncachedInputTokens": 2485,
+        "outputTokens": 641,
+        "totalTokens": 3894,
+        "cost": 0.00052953,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000334287,
+        "costErrorRate": 63.13
+      },
+      "recordedAt": "2026-07-08T19:14:06.831Z"
+    },
+    {
+      "index": 4,
+      "runId": "20260708-191349-20260708-bilibili-feynman-agent-user-entry-regression",
+      "stage": "v2_unitKnowledgeMap",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 3338,
+        "cachedInputTokens": 1106,
+        "uncachedInputTokens": 2232,
+        "outputTokens": 1700,
+        "totalTokens": 0,
+        "cost": 0.000791577,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 2821,
+        "cachedInputTokens": 768,
+        "uncachedInputTokens": 2053,
+        "outputTokens": 496,
+        "totalTokens": 3317,
+        "cost": 0.00042845,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000363127,
+        "costErrorRate": 84.75
+      },
+      "recordedAt": "2026-07-08T19:14:11.025Z"
+    },
+    {
+      "index": 5,
+      "runId": "20260708-191349-20260708-bilibili-feynman-agent-user-entry-regression",
+      "stage": "v2_taskBriefPlan",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 3910,
+        "cachedInputTokens": 0,
+        "uncachedInputTokens": 3910,
+        "outputTokens": 3800,
+        "totalTokens": 0,
+        "cost": 0.0016114,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 3212,
+        "cachedInputTokens": 896,
+        "uncachedInputTokens": 2316,
+        "outputTokens": 372,
+        "totalTokens": 3584,
+        "cost": 0.000430909,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.001180491,
+        "costErrorRate": 273.95
+      },
+      "recordedAt": "2026-07-08T19:14:14.202Z"
+    },
+    {
+      "index": 6,
+      "runId": "20260708-191349-20260708-bilibili-feynman-agent-user-entry-regression",
+      "stage": "v2_taskBriefPlan",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 4786,
+        "cachedInputTokens": 1394,
+        "uncachedInputTokens": 3392,
+        "outputTokens": 3800,
+        "totalTokens": 0,
+        "cost": 0.001542783,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 3907,
+        "cachedInputTokens": 896,
+        "uncachedInputTokens": 3011,
+        "outputTokens": 321,
+        "totalTokens": 4228,
+        "cost": 0.000513929,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.001028854,
+        "costErrorRate": 200.19
+      },
+      "recordedAt": "2026-07-08T19:14:17.120Z"
+    },
+    {
+      "index": 7,
+      "runId": "20260708-191349-20260708-bilibili-feynman-agent-user-entry-regression",
+      "stage": "v2_taskBriefPlan",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 4075,
+        "cachedInputTokens": 1394,
+        "uncachedInputTokens": 2681,
+        "outputTokens": 3800,
+        "totalTokens": 0,
+        "cost": 0.001443243,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 3337,
+        "cachedInputTokens": 1024,
+        "uncachedInputTokens": 2313,
+        "outputTokens": 496,
+        "totalTokens": 3833,
+        "cost": 0.000465567,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000977676,
+        "costErrorRate": 210
+      },
+      "recordedAt": "2026-07-08T19:14:20.909Z"
+    },
+    {
+      "index": 8,
+      "runId": "20260708-191349-20260708-bilibili-feynman-agent-user-entry-regression",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 4205,
+        "cachedInputTokens": 0,
+        "uncachedInputTokens": 4205,
+        "outputTokens": 2400,
+        "totalTokens": 0,
+        "cost": 0.0012607,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 3619,
+        "cachedInputTokens": 1152,
+        "uncachedInputTokens": 2467,
+        "outputTokens": 781,
+        "totalTokens": 4400,
+        "cost": 0.000567286,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000693414,
+        "costErrorRate": 122.23
+      },
+      "recordedAt": "2026-07-08T19:14:27.376Z"
+    },
+    {
+      "index": 9,
+      "runId": "20260708-191349-20260708-bilibili-feynman-agent-user-entry-regression",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 4263,
+        "cachedInputTokens": 1440,
+        "uncachedInputTokens": 2823,
+        "outputTokens": 2400,
+        "totalTokens": 0,
+        "cost": 0.001071252,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 3624,
+        "cachedInputTokens": 1152,
+        "uncachedInputTokens": 2472,
+        "outputTokens": 318,
+        "totalTokens": 3942,
+        "cost": 0.000438346,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000632906,
+        "costErrorRate": 144.39
+      },
+      "recordedAt": "2026-07-08T19:14:30.931Z"
+    },
+    {
+      "index": 10,
+      "runId": "20260708-191349-20260708-bilibili-feynman-agent-user-entry-regression",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 4242,
+        "cachedInputTokens": 1440,
+        "uncachedInputTokens": 2802,
+        "outputTokens": 2400,
+        "totalTokens": 0,
+        "cost": 0.001068312,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 3632,
+        "cachedInputTokens": 1152,
+        "uncachedInputTokens": 2480,
+        "outputTokens": 707,
+        "totalTokens": 4339,
+        "cost": 0.000548386,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000519926,
+        "costErrorRate": 94.81
+      },
+      "recordedAt": "2026-07-08T19:14:36.947Z"
+    },
+    {
+      "index": 11,
+      "runId": "20260708-191349-20260708-bilibili-feynman-agent-user-entry-regression",
+      "stage": "v2_matchingDraft",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 4176,
+        "cachedInputTokens": 0,
+        "uncachedInputTokens": 4176,
+        "outputTokens": 3200,
+        "totalTokens": 0,
+        "cost": 0.00148064,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 3450,
+        "cachedInputTokens": 896,
+        "uncachedInputTokens": 2554,
+        "outputTokens": 415,
+        "totalTokens": 3865,
+        "cost": 0.000476269,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.001004371,
+        "costErrorRate": 210.88
+      },
+      "recordedAt": "2026-07-08T19:14:40.713Z"
+    },
+    {
+      "index": 12,
+      "runId": "20260708-191349-20260708-bilibili-feynman-agent-user-entry-regression",
+      "stage": "v2_matchingDraft",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 3571,
+        "cachedInputTokens": 1238,
+        "uncachedInputTokens": 2333,
+        "outputTokens": 3200,
+        "totalTokens": 0,
+        "cost": 0.001226086,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 2948,
+        "cachedInputTokens": 896,
+        "uncachedInputTokens": 2052,
+        "outputTokens": 363,
+        "totalTokens": 3311,
+        "cost": 0.000391429,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000834657,
+        "costErrorRate": 213.23
+      },
+      "recordedAt": "2026-07-08T19:14:44.905Z"
+    },
+    {
+      "index": 13,
+      "runId": "20260708-191349-20260708-bilibili-feynman-agent-user-entry-regression",
+      "stage": "v2_unitCopyBatch",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "price": {
+        "inputPerMillion": 0.14,
+        "cachedInputPerMillion": 0.0028,
+        "outputPerMillion": 0.28,
+        "perCallFee": 0,
+        "currency": "USD",
+        "priceSourceUrl": "https://api-docs.deepseek.com/quick_start/pricing",
+        "checkedAt": "2026-07-06"
+      },
+      "estimated": {
+        "inputTokens": 1908,
+        "cachedInputTokens": 0,
+        "uncachedInputTokens": 1908,
+        "outputTokens": 1400,
+        "totalTokens": 0,
+        "cost": 0.00065912,
+        "currency": "USD"
+      },
+      "actual": {
+        "inputTokens": 1667,
+        "cachedInputTokens": 384,
+        "uncachedInputTokens": 1283,
+        "outputTokens": 313,
+        "totalTokens": 1980,
+        "cost": 0.000268335,
+        "currency": "USD"
+      },
+      "diff": {
+        "costDelta": 0.000390785,
+        "costErrorRate": 145.63
+      },
+      "recordedAt": "2026-07-08T19:14:49.497Z"
+    }
+  ],
+  "mediaUsage": {
+    "callCount": 6,
+    "byStage": {
+      "video_source_fetch": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "yt-dlp",
+        "metadata": {
+          "platform": "bilibili",
+          "providerContentId": "BV1hYGd63EnU",
+          "cacheHit": false,
+          "cacheKey": "video-source:video-source-v1:ef4c8b0ff9cd0c1ed0f8f9a3"
+        }
+      },
+      "video_media_fetch": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "yt-dlp",
+        "metadata": {
+          "bytes": 28345001,
+          "contentType": "video/mp4"
+        }
+      },
+      "audio_extraction": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "ffmpeg",
+        "metadata": {
+          "format": "wav",
+          "sampleRate": 16000
+        }
+      },
+      "audio_transcription": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "local_whisper",
+        "metadata": {
+          "segmentCount": 280,
+          "source": "asr"
+        }
+      },
+      "video_frame_pack": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "crv_style_ffmpeg",
+        "metadata": {
+          "skipped": false,
+          "reason": "",
+          "frameCount": 30,
+          "gridCount": 4,
+          "timestampMode": "metadata"
+        }
+      },
+      "visual_understanding": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "qwen-vl",
+        "metadata": {
+          "skipped": true,
+          "status": "failed",
+          "reason": "visual_output_parse_failed",
+          "segmentCount": 0,
+          "model": "",
+          "usage": {},
+          "failureCode": "visual_output_parse_failed",
+          "retryable": true
+        }
+      }
+    },
+    "totalsByCurrency": {
+      "USD": {
+        "currency": "USD",
+        "callCount": 6,
+        "totalCost": 0
+      }
+    }
+  },
+  "mediaUsageRecords": [
+    {
+      "runId": "video-quality-1783537808446",
+      "stage": "video_source_fetch",
+      "provider": "yt-dlp",
+      "cost": 0,
+      "currency": "USD",
+      "metadata": {
+        "platform": "bilibili",
+        "providerContentId": "BV1hYGd63EnU",
+        "cacheHit": false,
+        "cacheKey": "video-source:video-source-v1:ef4c8b0ff9cd0c1ed0f8f9a3"
+      },
+      "recordedAt": "2026-07-08T19:10:10.794Z"
+    },
+    {
+      "runId": "video-quality-1783537808446",
+      "stage": "video_media_fetch",
+      "provider": "yt-dlp",
+      "cost": 0,
+      "currency": "USD",
+      "metadata": {
+        "bytes": 28345001,
+        "contentType": "video/mp4"
+      },
+      "recordedAt": "2026-07-08T19:10:16.398Z"
+    },
+    {
+      "runId": "video-quality-1783537808446",
+      "stage": "audio_extraction",
+      "provider": "ffmpeg",
+      "cost": 0,
+      "currency": "USD",
+      "metadata": {
+        "format": "wav",
+        "sampleRate": 16000
+      },
+      "recordedAt": "2026-07-08T19:10:16.956Z"
+    },
+    {
+      "runId": "video-quality-1783537808446",
+      "stage": "audio_transcription",
+      "provider": "local_whisper",
+      "cost": 0,
+      "currency": "USD",
+      "metadata": {
+        "segmentCount": 280,
+        "source": "asr"
+      },
+      "recordedAt": "2026-07-08T19:12:19.992Z"
+    },
+    {
+      "runId": "video-quality-1783537808446",
+      "stage": "video_frame_pack",
+      "provider": "crv_style_ffmpeg",
+      "cost": 0,
+      "currency": "USD",
+      "metadata": {
+        "skipped": false,
+        "reason": "",
+        "frameCount": 30,
+        "gridCount": 4,
+        "timestampMode": "metadata"
+      },
+      "recordedAt": "2026-07-08T19:13:23.219Z"
+    },
+    {
+      "runId": "video-quality-1783537808446",
+      "stage": "visual_understanding",
+      "provider": "qwen-vl",
+      "cost": 0,
+      "currency": "USD",
+      "metadata": {
+        "skipped": true,
+        "status": "failed",
+        "reason": "visual_output_parse_failed",
+        "segmentCount": 0,
+        "model": "",
+        "usage": {},
+        "failureCode": "visual_output_parse_failed",
+        "retryable": true
+      },
+      "recordedAt": "2026-07-08T19:13:49.664Z"
+    }
+  ],
+  "modelCostSummary": {
+    "callCount": 13,
+    "currencies": [
+      "USD"
+    ],
+    "totalsByCurrency": {
+      "USD": {
+        "currency": "USD",
+        "callCount": 13,
+        "totalEstimatedCost": 0.01607429,
+        "totalActualCost": 0.006367492,
+        "costDelta": 0.009706798,
+        "costErrorRate": 152.44,
+        "actualCostPerQualifiedQuestion": 0.000795937
+      }
+    },
+    "byStage": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "currency": "USD",
+        "callCount": 1,
+        "estimatedCost": 0.0021168,
+        "actualCost": 0.000913646,
+        "costDelta": 0.001203154,
+        "costErrorRate": 131.69
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "currency": "USD",
+        "callCount": 3,
+        "estimatedCost": 0.002593954,
+        "actualCost": 0.00135339,
+        "costDelta": 0.001240564,
+        "costErrorRate": 91.66
+      },
+      {
+        "stage": "v2_taskBriefPlan",
+        "currency": "USD",
+        "callCount": 3,
+        "estimatedCost": 0.004597426,
+        "actualCost": 0.001410405,
+        "costDelta": 0.003187021,
+        "costErrorRate": 225.96
+      },
+      {
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "currency": "USD",
+        "callCount": 3,
+        "estimatedCost": 0.003400264,
+        "actualCost": 0.001554018,
+        "costDelta": 0.001846246,
+        "costErrorRate": 118.8
+      },
+      {
+        "stage": "v2_matchingDraft",
+        "currency": "USD",
+        "callCount": 2,
+        "estimatedCost": 0.002706726,
+        "actualCost": 0.000867698,
+        "costDelta": 0.001839028,
+        "costErrorRate": 211.94
+      },
+      {
+        "stage": "v2_unitCopyBatch",
+        "currency": "USD",
+        "callCount": 1,
+        "estimatedCost": 0.00065912,
+        "actualCost": 0.000268335,
+        "costDelta": 0.000390785,
+        "costErrorRate": 145.63
+      }
+    ],
+    "reportText": "调用次数：13\n\n阶段 | 模型 | 估算成本 | 实际成本 | 误差\n--- | --- | ---: | ---: | ---:\nv2_reviewPathPlan | deepseek-v4-flash | $0.002117 | $0.000914 | +131.69%\nv2_unitKnowledgeMap | deepseek-v4-flash | $0.000939 | $0.000395 | +137.36%\nv2_unitKnowledgeMap | deepseek-v4-flash | $0.000864 | $0.000530 | +63.13%\nv2_unitKnowledgeMap | deepseek-v4-flash | $0.000792 | $0.000428 | +84.75%\nv2_taskBriefPlan | deepseek-v4-flash | $0.001611 | $0.000431 | +273.95%\nv2_taskBriefPlan | deepseek-v4-flash | $0.001543 | $0.000514 | +200.19%\nv2_taskBriefPlan | deepseek-v4-flash | $0.001443 | $0.000466 | +210.00%\nv2_multipleChoiceDraftUnitBatch | deepseek-v4-flash | $0.001261 | $0.000567 | +122.23%\nv2_multipleChoiceDraftUnitBatch | deepseek-v4-flash | $0.001071 | $0.000438 | +144.39%\nv2_multipleChoiceDraftUnitBatch | deepseek-v4-flash | $0.001068 | $0.000548 | +94.81%\nv2_matchingDraft | deepseek-v4-flash | $0.001481 | $0.000476 | +210.88%\nv2_matchingDraft | deepseek-v4-flash | $0.001226 | $0.000391 | +213.23%\nv2_unitCopyBatch | deepseek-v4-flash | $0.000659 | $0.000268 | +145.63%\n\n合计（USD）：估算 $0.016074，实际 $0.006367，误差 +152.44%\n每道入池题实际成本（USD）：$0.000796"
+  },
+  "mediaCostSummary": {
+    "currency": "USD",
+    "totalActualCost": 0,
+    "byStage": {
+      "video_source_fetch": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "yt-dlp",
+        "metadata": {
+          "platform": "bilibili",
+          "providerContentId": "BV1hYGd63EnU",
+          "cacheHit": false,
+          "cacheKey": "video-source:video-source-v1:ef4c8b0ff9cd0c1ed0f8f9a3"
+        },
+        "currency": "USD",
+        "actualCost": 0,
+        "costNote": "local/no provider fee recorded"
+      },
+      "video_media_fetch": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "yt-dlp",
+        "metadata": {
+          "bytes": 28345001,
+          "contentType": "video/mp4"
+        },
+        "currency": "USD",
+        "actualCost": 0,
+        "costNote": "local/no provider fee recorded"
+      },
+      "audio_extraction": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "ffmpeg",
+        "metadata": {
+          "format": "wav",
+          "sampleRate": 16000
+        },
+        "currency": "USD",
+        "actualCost": 0,
+        "costNote": "local/no provider fee recorded"
+      },
+      "audio_transcription": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "local_whisper",
+        "metadata": {
+          "segmentCount": 280,
+          "source": "asr"
+        },
+        "currency": "USD",
+        "actualCost": 0,
+        "costNote": "local/no provider fee recorded"
+      },
+      "video_frame_pack": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "crv_style_ffmpeg",
+        "metadata": {
+          "skipped": false,
+          "reason": "",
+          "frameCount": 30,
+          "gridCount": 4,
+          "timestampMode": "metadata"
+        },
+        "currency": "USD",
+        "actualCost": 0,
+        "costNote": "local/no provider fee recorded"
+      },
+      "visual_understanding": {
+        "callCount": 1,
+        "totalCost": 0,
+        "provider": "qwen-vl",
+        "metadata": {
+          "skipped": true,
+          "status": "failed",
+          "reason": "visual_output_parse_failed",
+          "segmentCount": 0,
+          "model": "",
+          "usage": {},
+          "failureCode": "visual_output_parse_failed",
+          "retryable": true
+        },
+        "currency": "USD",
+        "actualCost": 0,
+        "costNote": "qwen3-vl-flash estimate: USD 0.05/M input, USD 0.40/M output"
+      }
+    }
+  },
+  "progressEvents": [
+    {
+      "at": "2026-07-08T19:10:08.446Z",
+      "status": "stage_start",
+      "stage": "video_extraction",
+      "elapsedMs": 0
+    },
+    {
+      "at": "2026-07-08T19:13:49.719Z",
+      "status": "stage_done",
+      "stage": "video_extraction",
+      "elapsedMs": 221273,
+      "message": "blocks=18 text=3076"
+    },
+    {
+      "at": "2026-07-08T19:13:49.720Z",
+      "status": "run_start",
+      "stage": "quality:v2-video",
+      "elapsedMs": 221274,
+      "message": "label=20260708-bilibili-feynman-agent-user-entry-regression slug=bilibili-feynman-agent"
+    },
+    {
+      "at": "2026-07-08T19:13:49.721Z",
+      "status": "stage_start",
+      "stage": "reviewPathPlan",
+      "attempt": 1,
+      "elapsedMs": 221275
+    },
+    {
+      "at": "2026-07-08T19:13:57.620Z",
+      "status": "stage_done",
+      "stage": "reviewPathPlan",
+      "attempt": 1,
+      "elapsedMs": 229174,
+      "durationMs": 7899
+    },
+    {
+      "at": "2026-07-08T19:13:57.623Z",
+      "status": "stage_start",
+      "stage": "unitKnowledgeMap",
+      "attempt": 1,
+      "elapsedMs": 229177
+    },
+    {
+      "at": "2026-07-08T19:14:01.393Z",
+      "status": "stage_done",
+      "stage": "unitKnowledgeMap",
+      "attempt": 1,
+      "elapsedMs": 232947,
+      "durationMs": 3770
+    },
+    {
+      "at": "2026-07-08T19:14:01.394Z",
+      "status": "stage_start",
+      "stage": "unitKnowledgeMap",
+      "attempt": 2,
+      "elapsedMs": 232948
+    },
+    {
+      "at": "2026-07-08T19:14:06.832Z",
+      "status": "stage_done",
+      "stage": "unitKnowledgeMap",
+      "attempt": 2,
+      "elapsedMs": 238385,
+      "durationMs": 5437
+    },
+    {
+      "at": "2026-07-08T19:14:06.832Z",
+      "status": "stage_start",
+      "stage": "unitKnowledgeMap",
+      "attempt": 3,
+      "elapsedMs": 238386
+    },
+    {
+      "at": "2026-07-08T19:14:11.025Z",
+      "status": "stage_done",
+      "stage": "unitKnowledgeMap",
+      "attempt": 3,
+      "elapsedMs": 242579,
+      "durationMs": 4193
+    },
+    {
+      "at": "2026-07-08T19:14:11.025Z",
+      "status": "stage_start",
+      "stage": "taskBriefPlan",
+      "attempt": 1,
+      "elapsedMs": 242579
+    },
+    {
+      "at": "2026-07-08T19:14:14.202Z",
+      "status": "stage_done",
+      "stage": "taskBriefPlan",
+      "attempt": 1,
+      "elapsedMs": 245756,
+      "durationMs": 3177
+    },
+    {
+      "at": "2026-07-08T19:14:14.205Z",
+      "status": "stage_start",
+      "stage": "taskBriefPlan",
+      "attempt": 2,
+      "elapsedMs": 245759
+    },
+    {
+      "at": "2026-07-08T19:14:17.120Z",
+      "status": "stage_done",
+      "stage": "taskBriefPlan",
+      "attempt": 2,
+      "elapsedMs": 248674,
+      "durationMs": 2915
+    },
+    {
+      "at": "2026-07-08T19:14:17.121Z",
+      "status": "stage_start",
+      "stage": "taskBriefPlan",
+      "attempt": 3,
+      "elapsedMs": 248675
+    },
+    {
+      "at": "2026-07-08T19:14:20.910Z",
+      "status": "stage_done",
+      "stage": "taskBriefPlan",
+      "attempt": 3,
+      "elapsedMs": 252464,
+      "durationMs": 3789
+    },
+    {
+      "at": "2026-07-08T19:14:20.913Z",
+      "status": "stage_start",
+      "stage": "multipleChoiceDraftUnitBatch",
+      "attempt": 1,
+      "elapsedMs": 252467
+    },
+    {
+      "at": "2026-07-08T19:14:27.377Z",
+      "status": "stage_done",
+      "stage": "multipleChoiceDraftUnitBatch",
+      "attempt": 1,
+      "elapsedMs": 258931,
+      "durationMs": 6464
+    },
+    {
+      "at": "2026-07-08T19:14:27.378Z",
+      "status": "stage_start",
+      "stage": "multipleChoiceDraftUnitBatch",
+      "attempt": 2,
+      "elapsedMs": 258932
+    },
+    {
+      "at": "2026-07-08T19:14:30.931Z",
+      "status": "stage_done",
+      "stage": "multipleChoiceDraftUnitBatch",
+      "attempt": 2,
+      "elapsedMs": 262485,
+      "durationMs": 3553
+    },
+    {
+      "at": "2026-07-08T19:14:30.931Z",
+      "status": "stage_start",
+      "stage": "multipleChoiceDraftUnitBatch",
+      "attempt": 3,
+      "elapsedMs": 262485
+    },
+    {
+      "at": "2026-07-08T19:14:36.947Z",
+      "status": "stage_done",
+      "stage": "multipleChoiceDraftUnitBatch",
+      "attempt": 3,
+      "elapsedMs": 268501,
+      "durationMs": 6016
+    },
+    {
+      "at": "2026-07-08T19:14:36.948Z",
+      "status": "stage_start",
+      "stage": "matchingDraft",
+      "attempt": 1,
+      "elapsedMs": 268502
+    },
+    {
+      "at": "2026-07-08T19:14:40.714Z",
+      "status": "stage_done",
+      "stage": "matchingDraft",
+      "attempt": 1,
+      "elapsedMs": 272268,
+      "durationMs": 3766
+    },
+    {
+      "at": "2026-07-08T19:14:40.716Z",
+      "status": "stage_start",
+      "stage": "matchingDraft",
+      "attempt": 2,
+      "elapsedMs": 272270
+    },
+    {
+      "at": "2026-07-08T19:14:44.905Z",
+      "status": "stage_done",
+      "stage": "matchingDraft",
+      "attempt": 2,
+      "elapsedMs": 276459,
+      "durationMs": 4189
+    },
+    {
+      "at": "2026-07-08T19:14:44.907Z",
+      "status": "stage_start",
+      "stage": "unitCopyBatch",
+      "attempt": 1,
+      "elapsedMs": 276461
+    },
+    {
+      "at": "2026-07-08T19:14:49.497Z",
+      "status": "stage_done",
+      "stage": "unitCopyBatch",
+      "attempt": 1,
+      "elapsedMs": 281051,
+      "durationMs": 4590
+    }
+  ],
+  "learningSourceSummary": {
+    "id": "video-source-BV1hYGd63EnU",
+    "platform": "bilibili",
+    "title": "费曼学习法，5分钟搞懂Agent",
+    "normalizedTextLength": 3076,
+    "sectionCount": 18,
+    "contentBasis": {
+      "basis": "audio_transcript",
+      "message": "本次主要基于视频字幕生成"
+    },
+    "visualUnderstanding": {
+      "status": "failed",
+      "provider": "qwen-vl",
+      "model": "",
+      "segmentCount": 0,
+      "failureCode": "visual_output_parse_failed",
+      "failureMessage": "no_json_object",
+      "retryable": true
+    },
+    "cache": {
+      "hit": false,
+      "key": "video-learning-source:video-learning-source-v2|source:yt-dlp|asr:local_whisper|frame:crv_style_ffmpeg|visual:qwen-vl|visualModel:qwen3-vl-flash:ef4c8b0ff9cd0c1ed0f8f9a3",
+      "version": "video-learning-source-v2",
+      "signature": "video-learning-source-v2|source:yt-dlp|asr:local_whisper|frame:crv_style_ffmpeg|visual:qwen-vl|visualModel:qwen3-vl-flash",
+      "stored": false
+    }
+  },
+  "failure": null
+}
