@@ -152,7 +152,7 @@ git commit -m "feat: add source preflight contract"
 - Modify: `backend/src/v2/generation/v2GenerationJobRunner.test.js`
 - Modify: `backend/src/media/extractVideoLearningSource.js`
 
-- [ ] **Step 1: Preserve media error type as client failure code**
+- [x] **Step 1: Preserve media error type as client failure code**
 
 For video extraction failures, expose:
 
@@ -163,7 +163,7 @@ sourceFailureCode: "failed_extract_video"
 
 Keep `generationProgress.failureCode` compatible with existing job-stage logic, but make the user-facing result stable enough for frontend copy.
 
-- [ ] **Step 2: Map video error codes to user messages**
+- [x] **Step 2: Map video error codes to user messages**
 
 Use exact code mapping before message substring matching:
 
@@ -176,7 +176,7 @@ video_private_or_deleted -> "这条视频无法公开访问。可以换一个公
 video_no_speech -> "这条视频没有识别到足够清晰的语音内容。"
 ```
 
-- [ ] **Step 3: Test**
+- [x] **Step 3: Test**
 
 Run:
 

@@ -291,6 +291,7 @@ function buildFailedV2Chapter({ job, existing, result, input }) {
       failedStage: result.failedStage || "",
       failureReason: result.failureReason || "",
       failureCode: result.generationProgress?.failureCode || "",
+      ...(result.sourceFailureCode ? { sourceFailureCode: result.sourceFailureCode } : {}),
       ...(result.mediaErrorType ? { mediaErrorType: result.mediaErrorType } : {}),
       ...(Array.isArray(result.errors) ? { errors: result.errors.slice(0, 12) } : {}),
       ...(Array.isArray(result.issues) ? { issues: result.issues.slice(0, 12) } : {}),
@@ -348,10 +349,13 @@ function buildSourceExtractionFailureResult(job = {}, error) {
   const message = error instanceof Error
     ? error.message
     : "原文提取失败，请检查链接后重试。";
-  const failureCode = error?.code || error?.status || "failed_extract_article";
-  const isVideoFailure = failureCode === "failed_extract_video";
+  const sourceFailureCode = error?.code || error?.status || "failed_extract_article";
+  const isVideoFailure = sourceFailureCode === "failed_extract_video";
+  const failureCode = isVideoFailure
+    ? String(error?.mediaErrorType || sourceFailureCode)
+    : sourceFailureCode;
   const userFacingMessage = isVideoFailure
-    ? userFacingVideoExtractionFailure(message)
+    ? userFacingVideoExtractionFailure(error, message)
     : userFacingSourceExtractionFailure(message);
   const retryable = Boolean(error?.retryable);
   return {
@@ -362,6 +366,7 @@ function buildSourceExtractionFailureResult(job = {}, error) {
     retryable,
     canRetry: retryable,
     retryDelayMs: retryable ? 30_000 : 0,
+    sourceFailureCode,
     ...(error?.mediaErrorType ? { mediaErrorType: error.mediaErrorType } : {}),
     generationProgress: buildV2GenerationProgress({
       jobId: job.id,
@@ -392,7 +397,11 @@ function userFacingSourceExtractionFailure(message = "") {
   return "原文提取失败，请检查链接后重试。";
 }
 
-function userFacingVideoExtractionFailure(message = "") {
+function userFacingVideoExtractionFailure(error, message = "") {
+  const code = String(error?.mediaErrorType || error?.code || "");
+  const exactMessage = userFacingVideoExtractionFailureByCode(code);
+  if (exactMessage) return exactMessage;
+
   const normalized = String(message || "").toLowerCase();
   if (normalized.includes("timeout") || message.includes("超时")) {
     return "视频内容提取超时，请稍后重试。";
@@ -413,6 +422,29 @@ function userFacingVideoExtractionFailure(message = "") {
     return "这条视频没有提取到足够的可复习内容。";
   }
   return "视频内容提取失败，请稍后重试或换一个公开视频链接。";
+}
+
+function userFacingVideoExtractionFailureByCode(code) {
+  switch (code) {
+    case "video_duration_too_long":
+      return "视频时长超过 15 分钟，暂时无法生成复习内容。";
+    case "unsupported_video_platform":
+      return "这个视频平台暂未支持。可以换一个已支持的视频链接。";
+    case "video_link_disabled":
+      return "视频链接生成功能暂未开放。";
+    case "video_ytdlp_disabled":
+      return "YouTube、B站和网页视频链接暂未开放。";
+    case "video_private_or_deleted":
+      return "这条视频无法公开访问。可以换一个公开视频链接。";
+    case "video_no_speech":
+      return "这条视频没有识别到足够清晰的语音内容。";
+    case "video_media_too_large":
+      return "视频文件过大，暂时无法生成复习内容。";
+    case "provider_config_missing":
+      return "视频取源环境暂未配置，暂时无法生成这个视频。";
+    default:
+      return "";
+  }
 }
 
 function shouldRetryQueuedV2Job(job = {}, result = {}) {

@@ -364,10 +364,56 @@ test("stores video extraction failures without calling the model", async () => {
   const failCall = calls.find((call) => call.name === "failGenerationJob");
 
   assert.equal(result.status, "failed_generation");
-  assert.equal(result.generationProgress.failureCode, "failed_extract_video");
+  assert.equal(result.generationProgress.failureCode, "video_private_or_deleted");
+  assert.equal(result.sourceFailureCode, "failed_extract_video");
+  assert.equal(result.failureReason, "这条视频无法公开访问。可以换一个公开视频链接。");
   assert.equal(failedChapter.displayStatusText, "视频内容提取失败");
+  assert.equal(failedChapter.generationMeta.failureCode, "video_private_or_deleted");
+  assert.equal(failedChapter.generationMeta.sourceFailureCode, "failed_extract_video");
   assert.equal(failedChapter.generationMeta.mediaErrorType, "video_private_or_deleted");
   assert.equal(failCall.fields.retry, false);
+  assert.equal(calls.some((call) => call.name === "runV2GenerationJob"), false);
+});
+
+test("stores overlong video failures with stable user-facing codes", async () => {
+  const calls = [];
+  const chapters = new Map([
+    ["chapter-1", {
+      id: "chapter-1",
+      title: "长视频",
+      status: "submitted",
+      generationMeta: {},
+      createdAt: "2026-07-05T00:00:00.000Z"
+    }]
+  ]);
+  const deps = mockDeps({
+    calls,
+    chapters,
+    extractSourceContent: async () => {
+      const error = new Error("视频时长超过 15 分钟，暂时无法生成复习内容。");
+      error.code = "failed_extract_video";
+      error.mediaErrorType = "video_duration_too_long";
+      error.retryable = false;
+      throw error;
+    },
+    runV2GenerationJob: async () => {
+      throw new Error("model should not be called");
+    }
+  });
+
+  const result = await runV2GenerationQueuedJob(baseJob({
+    sourceType: "video_link",
+    sourceUrl: "https://www.bilibili.com/video/BV1long/",
+    sourceTitle: "长视频"
+  }), deps);
+  const failedChapter = chapters.get("chapter-1");
+
+  assert.equal(result.status, "failed_generation");
+  assert.equal(result.generationProgress.failureCode, "video_duration_too_long");
+  assert.equal(result.sourceFailureCode, "failed_extract_video");
+  assert.equal(result.failureReason, "视频时长超过 15 分钟，暂时无法生成复习内容。");
+  assert.equal(failedChapter.generationMeta.failureCode, "video_duration_too_long");
+  assert.equal(failedChapter.generationMeta.mediaErrorType, "video_duration_too_long");
   assert.equal(calls.some((call) => call.name === "runV2GenerationJob"), false);
 });
 
