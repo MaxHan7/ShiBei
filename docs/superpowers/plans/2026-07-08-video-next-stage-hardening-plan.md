@@ -282,7 +282,7 @@ git commit -m "chore: record video frame pack diagnostics"
 - Create: `docs/quality-runs/video-link/provider-evaluation/provider-matrix-2026-07.md`
 - Modify: `docs/media-learning-source-architecture-zh.md`
 
-- [ ] **Step 1: Define sample set**
+- [x] **Step 1: Define sample set**
 
 Use at least five real samples:
 
@@ -292,7 +292,7 @@ Use at least five real samples:
 - Xiaohongshu video without usable platform subtitles.
 - Low-information or entertainment-like video expected to fail content threshold.
 
-- [ ] **Step 2: Define provider dimensions**
+- [x] **Step 2: Define provider dimensions**
 
 Evaluate:
 
@@ -306,7 +306,7 @@ Evaluate:
 - Model/TikHub cost.
 - Whether user-visible original source is readable.
 
-- [ ] **Step 3: Define candidate providers**
+- [x] **Step 3: Define candidate providers**
 
 Initial candidates:
 
@@ -317,11 +317,11 @@ Initial candidates:
 - Qwen VL current visual summary.
 - Optional Gemini video understanding as a benchmark, not first production default.
 
-- [ ] **Step 4: Update architecture doc**
+- [x] **Step 4: Update architecture doc**
 
 Record that ASR/OCR/VLM are replaceable provider families and should be chosen by real sample metrics, not by one-off demo success.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add docs/quality-runs/video-link/provider-evaluation/README.md docs/quality-runs/video-link/provider-evaluation/provider-matrix-2026-07.md docs/media-learning-source-architecture-zh.md

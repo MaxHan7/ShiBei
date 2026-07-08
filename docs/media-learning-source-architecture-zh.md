@@ -644,6 +644,8 @@ VIDEO_ASR_TIMEOUT_MS=180000
 - 直接视频理解模型 vs 分层理解方案。
 - 每分钟成本、每道入池题成本、人工质量评分。
 
+2026-07-08 补充：ASR、OCR 和视觉理解都应作为可替换 provider family 评估，而不是被写死成单一供应商。当前默认策略仍是“平台字幕/ASR 作为主证据，OCR/VLM 作为增强证据”。是否启用 Qwen ASR、Qwen-OCR、PaddleOCR、Qwen VL 或 Gemini video understanding，必须通过同一批抖音/小红书真实样本比较：取源成功率、转写/OCR 可读性、视觉摘要有效性、生成 unit 和题目质量、TikHub 调用次数、模型 token 和总成本。评测记录放在 `docs/quality-runs/video-link/provider-evaluation/`，结论只用于调整 provider 默认值，不改变 V2 出题系统与模型无关的输入合同。
+
 ## 13. 结论
 
 拾贝视频功能可以直接复用现有后端出题系统，但前提是先把视频转成 `LearningSource.normalizedText`。复用的是出题引擎的输入/输出合同和生成阶段，不是绑定某个模型供应商。
