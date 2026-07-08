@@ -403,3 +403,62 @@ test("merges visual understanding segments when a provider is injected", async (
     total_tokens: 150
   });
 });
+
+test("falls back to transcript-only source when visual understanding output is invalid", async () => {
+  const recorder = createMediaUsageRecorder({ runId: "visual-fallback-run" });
+  const learningSource = await extractVideoLearningSource({
+    sourceUrl: "https://v.douyin.com/abc/",
+    mediaUsageRecorder: recorder,
+    provider: {
+      fetchVideoSource: async () => ({
+        provider: "tikhub",
+        platform: "douyin",
+        providerContentId: "douyin-visual-fallback",
+        title: "多 Agent 通信",
+        description: "平台文案说明这条视频讲多 Agent 通信设计，核心是拓扑、契约和共享状态。",
+        account: "小哲讲大模型",
+        sourceUrl: "https://v.douyin.com/abc/",
+        mediaUrl: "https://media.example.com/video.mp4"
+      })
+    },
+    downloadMedia: async () => ({ path: "/tmp/video-dir/source-video", dir: "/tmp/video-dir" }),
+    extractAudio: async () => ({ path: "/tmp/video-dir/audio.wav", dir: "/tmp/video-dir" }),
+    transcribeAudio: async () => ({
+      provider: "mock_asr",
+      segments: [
+        {
+          id: "seg-1",
+          startSeconds: 0,
+          endSeconds: 8,
+          text: "多 Agent 通信设计要先选择通信拓扑，再定义结构化消息契约，最后维护共享状态。"
+        }
+      ]
+    }),
+    framePackProvider: {
+      name: "crv_style_ffmpeg",
+      createFramePack: async () => ({
+        provider: "crv_style_ffmpeg",
+        skipped: false,
+        frames: [{ id: "frame-0001", path: "/tmp/f.jpg", startSeconds: 0, endSeconds: 5, kept: true }],
+        grids: [{ id: "grid-0001", path: "/tmp/g.jpg", frameIds: ["frame-0001"], startSeconds: 0, endSeconds: 5 }],
+        debug: { keptFrameCount: 1, timestampMode: "metadata" }
+      })
+    },
+    understandVisuals: async () => {
+      throw new Error("no_json_object");
+    },
+    cleanup: async () => {}
+  });
+
+  assert.equal(learningSource.visualSegments.length, 0);
+  assert.match(learningSource.normalizedText, /多 Agent 通信设计/);
+  assert.equal(learningSource.extractionMeta.visualUnderstanding.status, "failed");
+  assert.equal(learningSource.extractionMeta.visualUnderstanding.failureCode, "visual_output_parse_failed");
+  assert.equal(learningSource.extractionMeta.visualUnderstanding.retryable, true);
+  assert.equal(learningSource.extractionMeta.userVisibleContentBasis.basis, "audio_transcript");
+  assert.equal(learningSource.extractionMeta.userVisibleContentBasis.message, "本次主要基于视频字幕生成");
+  assert.equal(
+    learningSource.extractionMeta.mediaUsage.byStage.visual_understanding.metadata.status,
+    "failed"
+  );
+});

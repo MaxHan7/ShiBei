@@ -84,6 +84,25 @@ test("preserves optional video source block metadata for clients", async () => {
   });
 });
 
+test("preserves abstract video content basis without backend diagnostics", async () => {
+  const [sample] = await loadGoldenReviewPaths();
+  const videoSample = structuredClone(sample);
+  videoSample.source.type = "video_link";
+  videoSample.source.contentBasis = {
+    basis: "audio_transcript",
+    message: "本次主要基于视频字幕生成",
+    provider: "qwen-vl",
+    failureCode: "visual_output_parse_failed"
+  };
+
+  const serialized = serializeReviewPathForClient(videoSample);
+
+  assert.deepEqual(serialized.chapter.contentBasis, {
+    basis: "audio_transcript",
+    message: "本次主要基于视频字幕生成"
+  });
+});
+
 test("joins matching pair ids to left and right display text", async () => {
   const [sample] = await loadGoldenReviewPaths();
   const serialized = serializeReviewPathForClient(sample);

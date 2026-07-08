@@ -16,7 +16,7 @@
 - Modify: `backend/src/media/extractVideoLearningSource.test.js`
 - Modify: `backend/src/media/learningSource.test.js`
 
-- [ ] **Step 1: Test visual failure fallback**
+- [x] **Step 1: Test visual failure fallback**
 
 Add a test where ASR succeeds but `understandVisuals` throws `no_json_object`. Assert:
 
@@ -27,7 +27,7 @@ Add a test where ASR succeeds but `understandVisuals` throws `no_json_object`. A
 - `learningSource.extractionMeta.userVisibleContentBasis.basis === "audio_transcript"`.
 - media usage records include `visual_understanding` with `metadata.status === "failed"`.
 
-- [ ] **Step 2: Test V2 source carries only user-facing basis**
+- [x] **Step 2: Test V2 source carries only user-facing basis**
 
 Build a V2 source from a LearningSource with `userVisibleContentBasis`. Assert:
 
@@ -41,7 +41,7 @@ Build a V2 source from a LearningSource with `userVisibleContentBasis`. Assert:
 - Modify: `backend/src/media/extractVideoLearningSource.js`
 - Modify: `backend/src/media/learningSource.js`
 
-- [ ] **Step 1: Add a safe visual wrapper**
+- [x] **Step 1: Add a safe visual wrapper**
 
 In `extractVideoLearningSource.js`, replace the direct `await understandVisuals(...)` call with a helper that:
 
@@ -51,7 +51,7 @@ In `extractVideoLearningSource.js`, replace the direct `await understandVisuals(
 - maps configured provider errors to their existing `error.code`;
 - does not catch frame extraction or ASR errors.
 
-- [ ] **Step 2: Record backend diagnostics and user-visible content basis**
+- [x] **Step 2: Record backend diagnostics and user-visible content basis**
 
 Attach to `learningSource.extractionMeta`:
 
@@ -72,7 +72,7 @@ userVisibleContentBasis: {
 
 The user-visible object must not include provider names, error codes, raw messages, or model names.
 
-- [ ] **Step 3: Pass user-visible basis to V2 source**
+- [x] **Step 3: Pass user-visible basis to V2 source**
 
 In `buildV2SourceFromLearningSource`, copy `learningSource.extractionMeta.userVisibleContentBasis` to `source.contentBasis`.
 
@@ -82,7 +82,7 @@ In `buildV2SourceFromLearningSource`, copy `learningSource.extractionMeta.userVi
 - Test: `backend/src/media/extractVideoLearningSource.test.js`
 - Test: `backend/src/media/learningSource.test.js`
 
-- [ ] **Step 1: Run focused tests**
+- [x] **Step 1: Run focused tests**
 
 ```bash
 cd backend
@@ -91,7 +91,7 @@ node --test src/media/extractVideoLearningSource.test.js src/media/learningSourc
 
 Expected: all focused tests pass.
 
-- [ ] **Step 2: Run video source check**
+- [x] **Step 2: Run video source check**
 
 ```bash
 cd backend
@@ -100,10 +100,10 @@ npm run check:video-source
 
 Expected: all video source checks pass.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
-git add backend/src/media/extractVideoLearningSource.js backend/src/media/extractVideoLearningSource.test.js backend/src/media/learningSource.js backend/src/media/learningSource.test.js docs/superpowers/plans/2026-07-08-video-visual-fallback-status.md
+git add backend/src/media/extractVideoLearningSource.js backend/src/media/extractVideoLearningSource.test.js backend/src/media/learningSource.js backend/src/media/learningSource.test.js backend/src/v2/serializers/reviewPathClientSerializer.js backend/src/v2/serializers/reviewPathClientSerializer.test.js docs/media-learning-source-architecture-zh.md docs/superpowers/plans/2026-07-08-video-visual-fallback-status.md
 git commit -m "feat: degrade video visual understanding failures"
 ```
 

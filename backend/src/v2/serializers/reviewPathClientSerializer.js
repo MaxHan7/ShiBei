@@ -20,6 +20,7 @@ export function serializeReviewPathForClient(
     reviewPath.source.blocks.map((block) => [block.id, block])
   );
   const sourceAnchors = serializeSourceAnchors(reviewPath, sourceBlocksById);
+  const contentBasis = serializeContentBasis(reviewPath.source.contentBasis);
   const unitIds = new Set(reviewPath.units.map((unit) => unit.id));
   const currentNodeID = currentUnitId === "start"
     ? "start"
@@ -40,6 +41,7 @@ export function serializeReviewPathForClient(
         reviewPath.source.account ??
         "",
       sourceURL: reviewPath.source.url ?? "",
+      ...(contentBasis ? { contentBasis } : {}),
       sourceBody: reviewPath.source.blocks.map(serializeSourceBlock),
       units: reviewPath.units.map((unit) =>
         serializeUnit(unit, sourceAnchors)
@@ -59,6 +61,14 @@ export function serializeReviewPathForClient(
     },
     sourceAnchors
   };
+}
+
+function serializeContentBasis(contentBasis) {
+  if (!contentBasis || typeof contentBasis !== "object") return null;
+  const basis = String(contentBasis.basis || "");
+  const message = String(contentBasis.message || "");
+  if (!["audio_visual", "audio_transcript"].includes(basis) || !message) return null;
+  return { basis, message };
 }
 
 function serializeSourceBlock(block) {

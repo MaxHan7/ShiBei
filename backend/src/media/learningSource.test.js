@@ -93,6 +93,45 @@ test("builds backward-compatible V2 source blocks with optional video metadata",
   assert.match(source.cleanedText, /增长案例文案/);
 });
 
+test("copies only user-facing video content basis into V2 source", () => {
+  const learningSource = buildLearningSourceFromVideo({
+    platform: "douyin",
+    title: "多 Agent 通信",
+    url: "https://v.douyin.com/agent/",
+    account: "小哲讲大模型",
+    description: "平台文案说明这条视频讲多 Agent 通信设计，核心是拓扑、契约和共享状态。",
+    transcriptSegments: [
+      {
+        id: "seg-1",
+        startSeconds: 0,
+        endSeconds: 8,
+        text: "多 Agent 通信设计要先选择通信拓扑，再定义结构化消息契约，最后维护共享状态。"
+      }
+    ],
+    media: { provider: "tikhub" }
+  });
+  learningSource.extractionMeta.visualUnderstanding = {
+    status: "failed",
+    provider: "qwen-vl",
+    failureCode: "visual_output_parse_failed",
+    failureMessage: "no_json_object"
+  };
+  learningSource.extractionMeta.userVisibleContentBasis = {
+    basis: "audio_transcript",
+    message: "本次主要基于视频字幕生成"
+  };
+
+  const source = buildV2SourceFromLearningSource(learningSource);
+
+  assert.deepEqual(source.contentBasis, {
+    basis: "audio_transcript",
+    message: "本次主要基于视频字幕生成"
+  });
+  assert.equal(source.contentBasis.provider, undefined);
+  assert.equal(source.contentBasis.failureCode, undefined);
+  assert.equal(source.contentBasis.failureMessage, undefined);
+});
+
 test("rejects video sources with too little learnable text", () => {
   assert.throws(
     () => buildLearningSourceFromVideo({

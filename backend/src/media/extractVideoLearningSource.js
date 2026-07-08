@@ -161,7 +161,8 @@ export async function extractVideoLearningSource({
         timestampMode: framePack.debug?.timestampMode || ""
       }
     });
-    const visualUnderstanding = await understandVisuals({
+    const visualUnderstanding = await safelyUnderstandVideoVisuals({
+      understandVisuals,
       provider: visualUnderstandingProvider,
       video,
       mediaFile,
@@ -174,10 +175,15 @@ export async function extractVideoLearningSource({
       cost: 0,
       metadata: {
         skipped: Boolean(visualUnderstanding.skipped),
+        status: visualUnderstanding.status,
         reason: visualUnderstanding.reason || "",
         segmentCount: Array.isArray(visualUnderstanding.segments) ? visualUnderstanding.segments.length : 0,
         model: visualUnderstanding.model || "",
-        usage: visualUnderstanding.usage || {}
+        usage: visualUnderstanding.usage || {},
+        ...(visualUnderstanding.diagnostics?.failureCode ? {
+          failureCode: visualUnderstanding.diagnostics.failureCode,
+          retryable: visualUnderstanding.diagnostics.retryable
+        } : {})
       }
     });
     const learningSource = buildLearningSourceFromVideo({
@@ -197,6 +203,8 @@ export async function extractVideoLearningSource({
       },
       now
     });
+    learningSource.extractionMeta.visualUnderstanding = buildVisualUnderstandingMeta(visualUnderstanding);
+    learningSource.extractionMeta.userVisibleContentBasis = buildUserVisibleContentBasis(visualUnderstanding);
     if (mediaUsageRecorder?.calls) {
       learningSource.extractionMeta.mediaUsage = summarizeMediaUsage(mediaUsageRecorder.calls);
     }
@@ -209,6 +217,95 @@ export async function extractVideoLearningSource({
   } finally {
     await cleanup(...tempFiles);
   }
+}
+
+async function safelyUnderstandVideoVisuals({
+  understandVisuals,
+  provider,
+  video,
+  mediaFile,
+  transcriptSegments,
+  framePack
+}) {
+  try {
+    const result = await understandVisuals({
+      provider,
+      video,
+      mediaFile,
+      transcriptSegments,
+      framePack
+    });
+    return {
+      ...result,
+      status: result?.skipped ? "skipped" : "succeeded"
+    };
+  } catch (error) {
+    const failureCode = classifyVisualUnderstandingFailure(error);
+    return {
+      provider: error?.provider || provider?.name || "unknown",
+      model: "",
+      skipped: true,
+      status: "failed",
+      reason: failureCode,
+      segments: [],
+      usage: {},
+      diagnostics: {
+        status: "failed",
+        failureCode,
+        failureMessage: String(error?.message || "visual understanding failed"),
+        provider: error?.provider || provider?.name || "unknown",
+        retryable: error?.retryable !== undefined ? Boolean(error.retryable) : isRetryableVisualFailure(failureCode)
+      }
+    };
+  }
+}
+
+function buildVisualUnderstandingMeta(visualUnderstanding = {}) {
+  const diagnostics = visualUnderstanding.diagnostics || {};
+  return {
+    status: visualUnderstanding.status || (visualUnderstanding.skipped ? "skipped" : "succeeded"),
+    provider: visualUnderstanding.provider || "",
+    model: visualUnderstanding.model || "",
+    segmentCount: Array.isArray(visualUnderstanding.segments) ? visualUnderstanding.segments.length : 0,
+    ...(diagnostics.failureCode ? { failureCode: diagnostics.failureCode } : {}),
+    ...(diagnostics.failureMessage ? { failureMessage: diagnostics.failureMessage } : {}),
+    ...(diagnostics.retryable !== undefined ? { retryable: Boolean(diagnostics.retryable) } : {})
+  };
+}
+
+function buildUserVisibleContentBasis(visualUnderstanding = {}) {
+  const hasVisualEvidence = visualUnderstanding.status === "succeeded"
+    && Array.isArray(visualUnderstanding.segments)
+    && visualUnderstanding.segments.length > 0;
+
+  return hasVisualEvidence
+    ? {
+      basis: "audio_visual",
+      message: "已结合视频字幕和画面信息生成"
+    }
+    : {
+      basis: "audio_transcript",
+      message: "本次主要基于视频字幕生成"
+    };
+}
+
+function classifyVisualUnderstandingFailure(error) {
+  const code = String(error?.code || error?.mediaErrorType || "");
+  const message = String(error?.message || "");
+  if (
+    code === "no_json_object"
+    || message === "no_json_object"
+    || /JSON|parse|Unexpected token|no_json_object/i.test(message)
+  ) {
+    return "visual_output_parse_failed";
+  }
+  return code || "visual_understanding_failed";
+}
+
+function isRetryableVisualFailure(failureCode) {
+  return failureCode !== "visual_provider_missing_api_key"
+    && failureCode !== "unsupported_visual_understanding_provider"
+    && failureCode !== "invalid_visual_understanding_provider";
 }
 
 function recordMediaUsage(mediaUsageRecorder, call) {

@@ -76,6 +76,7 @@ export function buildV2SourceFromLearningSource(learningSource) {
     ...(Number.isFinite(section.endSeconds) ? { endSeconds: section.endSeconds } : {}),
     ...(Array.isArray(section.segmentIds) && section.segmentIds.length ? { segmentIds: section.segmentIds } : {})
   }));
+  const contentBasis = buildContentBasis(learningSource);
 
   return {
     type: "video_link",
@@ -91,6 +92,7 @@ export function buildV2SourceFromLearningSource(learningSource) {
     cleanedText: learningSource.normalizedText,
     durationSeconds: learningSource.durationSeconds,
     media: learningSource.media,
+    ...(contentBasis ? { contentBasis } : {}),
     blocks
   };
 }
@@ -248,6 +250,15 @@ function cleanText(value) {
 function finiteNumber(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
+}
+
+function buildContentBasis(learningSource) {
+  const basis = learningSource?.extractionMeta?.userVisibleContentBasis;
+  if (!basis || typeof basis !== "object") return null;
+  const safeBasis = String(basis.basis || "");
+  const message = String(basis.message || "");
+  if (!["audio_visual", "audio_transcript"].includes(safeBasis) || !message) return null;
+  return { basis: safeBasis, message };
 }
 
 function secondsBetween(start, end) {

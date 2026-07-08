@@ -291,6 +291,8 @@ type MediaStageRecord = {
 
 2026-07-08 补充：ASR 的原始 `transcriptSegments` 继续逐句保留，但面向 V2 source blocks 和用户“查看原文”的 `sourceSections` 不再一条字幕一个 block。后端会用确定性规则把连续字幕聚合成约 15-30 秒、120-260 字左右的可读 transcript block，并保留 `startSeconds`、`endSeconds` 和内部 `segmentIds`，避免用户看到碎片化字幕流。
 
+2026-07-08 补充：视频视觉理解是增强层，不作为第一版主链路阻断条件。ASR 成功但视觉模型超时、返回格式不可解析或缺少视觉结果时，后端应继续生成 transcript-only LearningSource，并在 `extractionMeta.visualUnderstanding` 记录内部诊断状态、供应商、失败码和可重试性。前端/客户端只读取抽象的 `contentBasis` / `userVisibleContentBasis`，例如“本次主要基于视频字幕生成”或“已结合视频字幕和画面信息生成”，不展示模型名、provider 错误、JSON parse 失败等内部细节。
+
 ## 6. 与现有后端的对接判断
 
 现有出题系统可以复用，原因是 V2 生成管线的业务输入主要是：
