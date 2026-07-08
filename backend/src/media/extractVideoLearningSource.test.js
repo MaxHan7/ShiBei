@@ -124,6 +124,60 @@ test("uses yt-dlp media downloader for universal video provider results", async 
   assert.match(learningSource.normalizedText, /消息协议/);
 });
 
+test("rejects video links when the backend feature flag is disabled", async () => {
+  const restoreEnv = setEnvForTest({ VIDEO_LINK_ENABLED: "false" });
+  try {
+    await assert.rejects(
+      () => extractVideoLearningSource({
+        sourceUrl: "https://www.bilibili.com/video/BV1disabled"
+      }),
+      (error) => (
+        error.mediaErrorType === "video_link_disabled"
+        && error.retryable === false
+        && /暂未开放/.test(error.message)
+      )
+    );
+  } finally {
+    restoreEnv();
+  }
+});
+
+test("rejects yt-dlp platforms when the yt-dlp feature flag is disabled", async () => {
+  const restoreEnv = setEnvForTest({ VIDEO_YTDLP_ENABLED: "off" });
+  try {
+    await assert.rejects(
+      () => extractVideoLearningSource({
+        sourceUrl: "https://www.youtube.com/watch?v=disabled"
+      }),
+      (error) => (
+        error.mediaErrorType === "video_ytdlp_disabled"
+        && error.retryable === false
+        && /B站/.test(error.message)
+      )
+    );
+  } finally {
+    restoreEnv();
+  }
+});
+
+test("rejects video platforms outside the configured allowlist", async () => {
+  const restoreEnv = setEnvForTest({ VIDEO_PLATFORM_ALLOWLIST: "douyin,xiaohongshu" });
+  try {
+    await assert.rejects(
+      () => extractVideoLearningSource({
+        sourceUrl: "https://www.bilibili.com/video/BV1blocked"
+      }),
+      (error) => (
+        error.mediaErrorType === "unsupported_video_platform"
+        && error.retryable === false
+        && error.provider === "bilibili"
+      )
+    );
+  } finally {
+    restoreEnv();
+  }
+});
+
 test("rejects videos longer than the configured duration limit before download", async () => {
   const calls = [];
   await assert.rejects(
@@ -205,6 +259,20 @@ test("allows videos at the configured duration limit", async () => {
   assert.equal(learningSource.durationSeconds, 900);
   assert.match(learningSource.normalizedText, /工具调用/);
 });
+
+function setEnvForTest(values) {
+  const previous = new Map();
+  for (const key of Object.keys(values)) {
+    previous.set(key, process.env[key]);
+    process.env[key] = values[key];
+  }
+  return () => {
+    for (const [key, value] of previous.entries()) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  };
+}
 
 test("cleans temporary files when ASR fails", async () => {
   const calls = [];

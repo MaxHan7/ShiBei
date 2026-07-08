@@ -454,6 +454,7 @@ function isDefaultExtractionChain({
 
 function createVideoSourceProvider(sourceInput) {
   const platform = detectVideoPlatform(sourceInput);
+  enforceVideoPlatformGate(platform);
   if (isTikHubPreferredPlatform(platform)) {
     return {
       name: "tikhub",
@@ -470,6 +471,33 @@ function createVideoSourceProvider(sourceInput) {
     name: "yt-dlp",
     fetchVideoSource: fetchYtDlpVideoSource
   };
+}
+
+function enforceVideoPlatformGate(platform) {
+  if (!readBooleanFlag(process.env.VIDEO_LINK_ENABLED, true)) {
+    throw createMediaExtractionError(
+      "video_link_disabled",
+      "视频链接生成功能暂未开放。",
+      { retryable: false }
+    );
+  }
+
+  const allowlist = readPlatformAllowlist(process.env.VIDEO_PLATFORM_ALLOWLIST);
+  if (allowlist.size > 0 && !allowlist.has(platform)) {
+    throw createMediaExtractionError(
+      "unsupported_video_platform",
+      "这个视频平台暂未开放。可以换一个已支持的视频链接。",
+      { retryable: false, provider: platform || "unknown" }
+    );
+  }
+
+  if (isYtDlpPreferredPlatform(platform) && !readBooleanFlag(process.env.VIDEO_YTDLP_ENABLED, true)) {
+    throw createMediaExtractionError(
+      "video_ytdlp_disabled",
+      "YouTube、B站和网页视频链接暂未开放。",
+      { retryable: false, provider: "yt-dlp" }
+    );
+  }
 }
 
 async function downloadVideoMedia({
@@ -499,4 +527,18 @@ function withCacheMeta(learningSource, cache) {
 function readPositiveInt(value, fallback) {
   const number = Number(value);
   return Number.isFinite(number) && number > 0 ? number : fallback;
+}
+
+function readBooleanFlag(value, fallback) {
+  if (value === undefined || value === null || value === "") return fallback;
+  return !["0", "false", "off", "disabled", "no"].includes(String(value).trim().toLowerCase());
+}
+
+function readPlatformAllowlist(value) {
+  return new Set(
+    String(value || "")
+      .split(",")
+      .map((item) => item.trim().toLowerCase())
+      .filter(Boolean)
+  );
 }

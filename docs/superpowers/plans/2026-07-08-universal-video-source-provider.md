@@ -29,7 +29,7 @@
 ## P1/P2 Scope Captured From Review
 
 - Add production preflight for `TIKHUB_API_KEY`, `yt-dlp`, `ffmpeg`, ASR runtime, and optional Qwen visual model.
-- Add feature flags: `VIDEO_LINK_ENABLED`, `VIDEO_YTDLP_ENABLED`, and platform allowlist.
+- Add feature flags: `VIDEO_LINK_ENABLED`, `VIDEO_YTDLP_ENABLED`, and platform allowlist. Implemented as backend extraction gates with `VIDEO_PLATFORM_ALLOWLIST`.
 - Persist media/model usage cost from production jobs, not only quality runners.
 - Replace in-memory video extraction cache with DB/Redis cache and same-URL singleflight.
 - Extend iOS V2 models and source page to display `contentBasis`, `sourceRole`, and timestamps.
@@ -100,3 +100,9 @@ Before any real external test, ask the user for:
 - whether to allow temporary `yt-dlp` network calls in the test environment.
 
 The first real test report must include: provider used, metadata success, media download success, ASR source, visual status, token usage, runtime, and final HTML report path.
+
+## Production Gate Addendum
+
+- `VIDEO_LINK_ENABLED=false` disables all video-link generation at the backend extraction boundary.
+- `VIDEO_YTDLP_ENABLED=false` keeps TikHub-backed Douyin/Xiaohongshu available while disabling YouTube, Bilibili, direct video files, and generic web video extraction.
+- `VIDEO_PLATFORM_ALLOWLIST=douyin,xiaohongshu,bilibili,youtube` restricts extraction to listed detected platforms. Leave unset in feature testing to allow all currently supported platforms.
