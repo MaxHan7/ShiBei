@@ -91,6 +91,7 @@ import {
 } from "./security/requestGuards.js";
 import { buildVersionInfo } from "./versionInfo.js";
 import { AppleAuthError, verifyAppleIdentityToken } from "./appleAuth.js";
+import { buildSourceCapabilities, preflightSourceInput } from "./sources/sourcePreflight.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const projectRoot = resolve(__dirname, "..", "..");
@@ -243,6 +244,16 @@ async function handleCreateV2Chapter(req, res) {
     chapter: serializeChapterForClient(result.chapter),
     message: result.generationProgress?.displayText || "已收到文章，准备生成"
   });
+}
+
+async function handleSourcePreflight(req, res) {
+  const body = await readBody(req);
+  const result = await preflightSourceInput({
+    rawInput: body.input || body.sourceUrl || body.rawText,
+    sourceType: body.sourceType,
+    fetchMetadata: body.fetchMetadata !== false
+  });
+  sendJson(res, result.ok ? 200 : 422, result);
 }
 
 async function handleAppleAuth(req, res) {
@@ -2129,6 +2140,16 @@ const server = createServer(async (req, res) => {
 
   if (req.method === "GET" && req.url === "/api/version") {
     sendJson(res, 200, await buildVersionInfo({ startedAt }));
+    return;
+  }
+
+  if (req.method === "GET" && req.url === "/api/source/capabilities") {
+    sendJson(res, 200, buildSourceCapabilities());
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/api/sources/preflight") {
+    await handleSourcePreflight(req, res);
     return;
   }
 

@@ -12,4 +12,9 @@ test("service health exposes production-critical V2 capabilities", () => {
   assert.equal(capabilities.favoriteQuestions, true);
   assert.equal(capabilities.notifications, true);
   assert.equal(capabilities.sourceAnchors, true);
+  assert.equal(capabilities.sources.sourceTypes.text.enabled, true);
+  assert.equal(capabilities.sources.sourceTypes.video_link.enabled, true);
+  assert.equal(capabilities.sources.sourceTypes.video_link.maxDurationSeconds, 900);
+  assert.equal(capabilities.sources.sourceTypes.video_link.platforms.douyin.provider, "tikhub");
+  assert.equal(capabilities.sources.sourceTypes.video_link.platforms.bilibili.provider, "yt-dlp");
 });

@@ -1,3 +1,5 @@
+import { buildSourceCapabilities } from "./sources/sourcePreflight.js";
+
 export const SERVICE_CAPABILITIES = Object.freeze({
   legacyChapterGeneration: true,
   v2ChapterGeneration: true,
@@ -8,5 +10,8 @@ export const SERVICE_CAPABILITIES = Object.freeze({
 });
 
 export function buildServiceCapabilities() {
-  return { ...SERVICE_CAPABILITIES };
+  return {
+    ...SERVICE_CAPABILITIES,
+    sources: buildSourceCapabilities()
+  };
 }

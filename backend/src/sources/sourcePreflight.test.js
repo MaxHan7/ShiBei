@@ -1,0 +1,132 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import {
+  buildSourceCapabilities,
+  preflightSourceInput
+} from "./sourcePreflight.js";
+
+test("preflights valid Bilibili video without metadata", async () => {
+  const result = await preflightSourceInput({
+    rawInput: "https://www.bilibili.com/video/BV1hYGd63EnU/",
+    env: {}
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.sourceType, "video_link");
+  assert.equal(result.platform, "bilibili");
+  assert.equal(result.platformLabel, "B站");
+  assert.equal(result.provider, "yt-dlp");
+  assert.equal(result.canGenerate, true);
+});
+
+test("preflights metadata and blocks overlong video", async () => {
+  const result = await preflightSourceInput({
+    rawInput: "https://www.bilibili.com/video/BV1overlong/",
+    fetchMetadata: true,
+    env: { VIDEO_MAX_DURATION_SECONDS: "900" },
+    fetchYtDlp: async () => ({
+      title: "长视频",
+      durationSeconds: 901
+    })
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.canGenerate, false);
+  assert.equal(result.reasonCode, "video_duration_too_long");
+  assert.equal(result.title, "长视频");
+  assert.equal(result.durationSeconds, 901);
+  assert.match(result.userMessage, /15 分钟/);
+});
+
+test("preflights metadata and returns readable duration", async () => {
+  const result = await preflightSourceInput({
+    rawInput: "https://youtu.be/demo",
+    fetchMetadata: true,
+    env: {},
+    fetchYtDlp: async () => ({
+      title: "短视频",
+      durationSeconds: 305
+    })
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.canGenerate, true);
+  assert.equal(result.platform, "youtube");
+  assert.equal(result.title, "短视频");
+  assert.equal(result.durationSeconds, 305);
+  assert.match(result.userMessage, /5 分 5 秒/);
+});
+
+test("blocks all videos when video links are disabled", async () => {
+  const result = await preflightSourceInput({
+    rawInput: "https://v.douyin.com/demo/",
+    env: { VIDEO_LINK_ENABLED: "false" }
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.reasonCode, "video_link_disabled");
+});
+
+test("blocks yt-dlp platforms when universal video provider is disabled", async () => {
+  const result = await preflightSourceInput({
+    rawInput: "https://www.youtube.com/watch?v=demo",
+    env: { VIDEO_YTDLP_ENABLED: "off" }
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.platform, "youtube");
+  assert.equal(result.reasonCode, "video_ytdlp_disabled");
+});
+
+test("blocks platforms outside allowlist", async () => {
+  const result = await preflightSourceInput({
+    rawInput: "https://www.bilibili.com/video/BV1demo/",
+    env: { VIDEO_PLATFORM_ALLOWLIST: "douyin,xiaohongshu" }
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.platform, "bilibili");
+  assert.equal(result.reasonCode, "unsupported_video_platform");
+});
+
+test("classifies article and text inputs", async () => {
+  const article = await preflightSourceInput({
+    rawInput: "https://example.com/article/1",
+    env: {}
+  });
+  assert.equal(article.ok, true);
+  assert.equal(article.sourceType, "article_link");
+
+  const text = await preflightSourceInput({
+    rawInput: "这是一段足够长的正文内容，可以直接进入生成链路。",
+    env: {}
+  });
+  assert.equal(text.ok, true);
+  assert.equal(text.sourceType, "text");
+});
+
+test("returns invalid URL feedback for malformed link-like input", async () => {
+  const result = await preflightSourceInput({
+    rawInput: "https://",
+    env: {}
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.reasonCode, "invalid_url");
+});
+
+test("source capabilities reflect video flags and duration limit", () => {
+  const capabilities = buildSourceCapabilities({
+    env: {
+      VIDEO_MAX_DURATION_SECONDS: "600",
+      VIDEO_YTDLP_ENABLED: "false",
+      VIDEO_PLATFORM_ALLOWLIST: "douyin,bilibili"
+    }
+  });
+
+  assert.equal(capabilities.sourceTypes.video_link.maxDurationSeconds, 600);
+  assert.equal(capabilities.sourceTypes.video_link.platforms.douyin.enabled, true);
+  assert.equal(capabilities.sourceTypes.video_link.platforms.bilibili.enabled, false);
+  assert.equal(capabilities.sourceTypes.video_link.platforms.xiaohongshu.enabled, false);
+});
