@@ -25,6 +25,12 @@ export async function downloadMediaToTempFile({
       });
     }
     const contentType = response.headers?.get?.("content-type") || response.headers?.get?.("Content-Type") || "";
+    const contentLength = readContentLength(response.headers);
+    if (Number.isFinite(contentLength) && contentLength > maxBytes) {
+      throw createMediaExtractionError("video_media_too_large", "视频文件过大，暂时无法生成复习内容。", {
+        retryable: false
+      });
+    }
     const buffer = Buffer.from(await response.arrayBuffer());
     if (buffer.byteLength > maxBytes) {
       throw createMediaExtractionError("video_media_too_large", "视频文件过大，暂时无法生成复习内容。", {
@@ -60,4 +66,10 @@ export async function cleanupMediaTempFiles(...files) {
 function readPositiveInt(value, fallback) {
   const number = Number(value);
   return Number.isFinite(number) && number > 0 ? number : fallback;
+}
+
+function readContentLength(headers) {
+  const value = headers?.get?.("content-length") || headers?.get?.("Content-Length") || "";
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? number : null;
 }

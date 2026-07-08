@@ -38,3 +38,27 @@ test("rejects media larger than configured max bytes", async () => {
     /视频文件过大/
   );
 });
+
+test("rejects oversized content-length before reading media body", async () => {
+  let arrayBufferCalled = false;
+  await assert.rejects(
+    () => downloadMediaToTempFile({
+      mediaUrl: "https://media.example.com/video.mp4",
+      maxBytes: 4,
+      fetchImpl: async () => ({
+        ok: true,
+        status: 200,
+        headers: new Map([
+          ["content-type", "video/mp4"],
+          ["content-length", "9"]
+        ]),
+        arrayBuffer: async () => {
+          arrayBufferCalled = true;
+          return Buffer.from("too-large");
+        }
+      })
+    }),
+    /视频文件过大/
+  );
+  assert.equal(arrayBufferCalled, false);
+});

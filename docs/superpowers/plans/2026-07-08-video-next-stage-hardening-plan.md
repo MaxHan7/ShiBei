@@ -213,15 +213,15 @@ git commit -m "fix: preserve visual model usage metrics"
 - Modify: `backend/src/media/mediaFiles.js`
 - Test: `backend/src/media/mediaFiles.test.js`
 
-- [ ] **Step 1: Reject known oversized files before reading body**
+- [x] **Step 1: Reject known oversized files before reading body**
 
 Read `content-length`. If it is greater than `maxBytes`, throw `video_media_too_large` before `response.arrayBuffer()`.
 
-- [ ] **Step 2: Add streaming download follow-up note**
+- [x] **Step 2: Add streaming download follow-up note**
 
 If the codebase is still using `arrayBuffer`, document that streaming download is the next hardening step for higher concurrency.
 
-- [ ] **Step 3: Add tests**
+- [x] **Step 3: Add tests**
 
 Cover:
 
@@ -229,7 +229,7 @@ Cover:
 - Missing `content-length` still falls back to post-read size check.
 - Timeout behavior remains unchanged.
 
-- [ ] **Step 4: Run and commit**
+- [x] **Step 4: Run and commit**
 
 ```bash
 cd backend && node --test src/media/mediaFiles.test.js
