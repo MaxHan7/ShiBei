@@ -217,6 +217,10 @@ test("deterministic source map preserves pre-grouped video source blocks", async
       account: "小哲讲大模型",
       url: "https://v.douyin.com/example/",
       platform: "douyin",
+      contentBasis: {
+        basis: "audio_visual",
+        message: "已结合视频字幕和画面信息生成"
+      },
       blocks: [
         { id: "video-001", type: "transcript", text: "通信拓扑决定 Agent 之间怎么传递任务。", startMs: 0, endMs: 6000 },
         { id: "video-002", type: "transcript", text: "消息契约负责规定字段、状态和失败处理。", startMs: 6000, endMs: 12000 }
@@ -243,6 +247,10 @@ test("deterministic source map preserves pre-grouped video source blocks", async
   assert.equal(capturedReviewPathPayload.blocks[0].startMs, 0);
   assert.equal(capturedReviewPathPayload.source.type, "video_link");
   assert.equal(capturedReviewPathPayload.source.platform, "douyin");
+  assert.deepEqual(capturedReviewPathPayload.source.contentBasis, {
+    basis: "audio_visual",
+    message: "已结合视频字幕和画面信息生成"
+  });
 });
 
 function makeArticleFixture() {

@@ -299,7 +299,7 @@ function summarizeLearningSource(learningSource) {
     title: learningSource.title,
     normalizedTextLength: String(learningSource.normalizedText || "").length,
     sectionCount: Array.isArray(learningSource.sourceSections) ? learningSource.sourceSections.length : 0,
-    contentBasis: learningSource.extractionMeta?.contentBasis || null,
+    contentBasis: learningSource.extractionMeta?.userVisibleContentBasis || null,
     visualUnderstanding: learningSource.extractionMeta?.visualUnderstanding || null
   };
 }

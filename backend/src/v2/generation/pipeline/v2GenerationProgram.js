@@ -1011,7 +1011,8 @@ function buildDeterministicSourceMap(article) {
         account: article.source?.account || article.sourceAccount || article.author || "",
         accountOrDomain: article.source?.accountOrDomain || article.sourceAccount || article.author || "",
         url: article.source?.url || article.url || article.sourceUrl || "",
-        ...(article.source?.platform ? { platform: article.source.platform } : {})
+        ...(article.source?.platform ? { platform: article.source.platform } : {}),
+        ...(article.source?.contentBasis ? { contentBasis: article.source.contentBasis } : {})
       },
       blocks: existingBlocks
     };
