@@ -289,6 +289,8 @@ type MediaStageRecord = {
 
 `normalizedText` 是当前 V2 出题引擎的主要输入。`sourceSections` 是后续视频时间点回看的基础。
 
+2026-07-08 补充：ASR 的原始 `transcriptSegments` 继续逐句保留，但面向 V2 source blocks 和用户“查看原文”的 `sourceSections` 不再一条字幕一个 block。后端会用确定性规则把连续字幕聚合成约 15-30 秒、120-260 字左右的可读 transcript block，并保留 `startSeconds`、`endSeconds` 和内部 `segmentIds`，避免用户看到碎片化字幕流。
+
 ## 6. 与现有后端的对接判断
 
 现有出题系统可以复用，原因是 V2 生成管线的业务输入主要是：

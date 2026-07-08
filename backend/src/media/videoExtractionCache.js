@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { normalizeVideoSourceUrl } from "./videoPlatforms.js";
 
 export const VIDEO_SOURCE_CACHE_VERSION = "video-source-v1";
-export const VIDEO_LEARNING_SOURCE_CACHE_VERSION = "video-learning-source-v1";
+export const VIDEO_LEARNING_SOURCE_CACHE_VERSION = "video-learning-source-v2";
 
 const DEFAULT_VIDEO_SOURCE_TTL_MS = readPositiveInt(
   process.env.VIDEO_SOURCE_CACHE_TTL_MS,

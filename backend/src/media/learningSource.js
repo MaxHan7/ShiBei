@@ -1,6 +1,12 @@
 import { createMediaExtractionError } from "./mediaErrors.js";
 
 const MIN_NORMALIZED_TEXT_LENGTH = 80;
+const TRANSCRIPT_TARGET_SECONDS = 24;
+const TRANSCRIPT_TARGET_CHARS = 220;
+const TRANSCRIPT_MAX_SECONDS = 32;
+const TRANSCRIPT_MAX_CHARS = 280;
+const TRANSCRIPT_PAUSE_BREAK_SECONDS = 2.5;
+const TRANSCRIPT_TOPIC_START_PATTERN = /^(先说|再说|第三|第四|第五|最后|总结|一句话|接下来|然后说|再来看)/;
 
 export function buildLearningSourceFromVideo({
   platform = "unknown",
@@ -67,7 +73,8 @@ export function buildV2SourceFromLearningSource(learningSource) {
     text: section.text,
     sourceRole: section.sourceRole,
     ...(Number.isFinite(section.startSeconds) ? { startSeconds: section.startSeconds } : {}),
-    ...(Number.isFinite(section.endSeconds) ? { endSeconds: section.endSeconds } : {})
+    ...(Number.isFinite(section.endSeconds) ? { endSeconds: section.endSeconds } : {}),
+    ...(Array.isArray(section.segmentIds) && section.segmentIds.length ? { segmentIds: section.segmentIds } : {})
   }));
 
   return {
@@ -99,13 +106,100 @@ function descriptionToSections(description) {
 }
 
 function transcriptToSections(segments) {
-  return segments.map((segment, index) => ({
-    id: segment.id || `video-transcript-${String(index + 1).padStart(3, "0")}`,
+  const groups = groupTranscriptSegments(segments);
+  return groups.map((group, index) => ({
+    id: `video-transcript-${String(index + 1).padStart(3, "0")}`,
     sourceRole: "audio_transcript",
-    startSeconds: segment.startSeconds,
-    endSeconds: segment.endSeconds,
-    text: segment.text
+    startSeconds: group.startSeconds,
+    endSeconds: group.endSeconds,
+    text: joinTranscriptTexts(group.segments.map((segment) => segment.text)),
+    segmentIds: group.segments.map((segment) => segment.id).filter(Boolean)
   }));
+}
+
+function groupTranscriptSegments(segments) {
+  const groups = [];
+  let current = [];
+
+  for (const segment of segments) {
+    if (!segment?.text) continue;
+
+    if (current.length > 0 && shouldBreakBeforeSegment(current, segment)) {
+      groups.push(buildTranscriptGroup(current));
+      current = [];
+    }
+
+    current.push(segment);
+
+    if (shouldBreakAfterCurrentGroup(current)) {
+      groups.push(buildTranscriptGroup(current));
+      current = [];
+    }
+  }
+
+  if (current.length > 0) {
+    groups.push(buildTranscriptGroup(current));
+  }
+
+  return groups;
+}
+
+function shouldBreakBeforeSegment(current, nextSegment) {
+  const last = current.at(-1);
+  const currentGroup = buildTranscriptGroup(current);
+  const nextText = cleanText(nextSegment.text);
+  const combinedLength = currentGroup.textLength + nextText.length;
+  const combinedEnd = finiteNumber(nextSegment.endSeconds) ?? currentGroup.endSeconds;
+  const combinedDuration = secondsBetween(currentGroup.startSeconds, combinedEnd);
+  const pause = secondsBetween(last?.endSeconds, nextSegment.startSeconds);
+
+  return (
+    pause >= TRANSCRIPT_PAUSE_BREAK_SECONDS ||
+    (TRANSCRIPT_TOPIC_START_PATTERN.test(nextText) && currentGroup.durationSeconds >= 8) ||
+    combinedLength > TRANSCRIPT_MAX_CHARS ||
+    combinedDuration > TRANSCRIPT_MAX_SECONDS
+  );
+}
+
+function shouldBreakAfterCurrentGroup(current) {
+  const group = buildTranscriptGroup(current);
+  return (
+    group.durationSeconds >= TRANSCRIPT_TARGET_SECONDS ||
+    group.textLength >= TRANSCRIPT_TARGET_CHARS
+  );
+}
+
+function buildTranscriptGroup(segments) {
+  const first = segments[0] || {};
+  const last = segments.at(-1) || {};
+  const startSeconds = finiteNumber(first.startSeconds);
+  const endSeconds = finiteNumber(last.endSeconds);
+  const text = joinTranscriptTexts(segments.map((segment) => segment.text));
+
+  return {
+    startSeconds,
+    endSeconds,
+    durationSeconds: secondsBetween(startSeconds, endSeconds),
+    textLength: text.length,
+    segments
+  };
+}
+
+function joinTranscriptTexts(texts) {
+  return texts
+    .map(cleanText)
+    .filter(Boolean)
+    .reduce((joined, text) => {
+      if (!joined) return text;
+      return `${joined}${joinerForTranscriptText(joined, text)}${text}`;
+    }, "");
+}
+
+function joinerForTranscriptText(previous, next) {
+  if (/[。！？!?；;：:]$/.test(previous)) return "";
+  if (/^[，。！？!?；;：:、]/.test(next)) return "";
+  if (/[A-Za-z0-9]$/.test(previous) && /^[A-Za-z0-9]/.test(next)) return " ";
+  return "，";
 }
 
 function visualToSections(segments) {
@@ -154,6 +248,13 @@ function cleanText(value) {
 function finiteNumber(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
+}
+
+function secondsBetween(start, end) {
+  const startNumber = Number(start);
+  const endNumber = Number(end);
+  if (!Number.isFinite(startNumber) || !Number.isFinite(endNumber)) return 0;
+  return Math.max(0, endNumber - startNumber);
 }
 
 function platformLabel(platform) {

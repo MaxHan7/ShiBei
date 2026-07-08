@@ -23,7 +23,51 @@ test("merges platform description and transcript into normalized text", () => {
   assert.equal(learningSource.sourceType, "video_link");
   assert.match(learningSource.normalizedText, /平台文案/);
   assert.match(learningSource.normalizedText, /第一步先明确用户问题/);
-  assert.equal(learningSource.sourceSections.length, 3);
+  assert.equal(learningSource.sourceSections.length, 2);
+});
+
+test("groups short transcript segments into readable timestamped source sections", () => {
+  const transcriptSegments = [
+    { id: "seg-1", startSeconds: 0, endSeconds: 3, text: "面试官问你多个 Agent 的协作" },
+    { id: "seg-2", startSeconds: 3, endSeconds: 6, text: "他们之间的通信你怎么设计" },
+    { id: "seg-3", startSeconds: 6, endSeconds: 9, text: "很多人一听就懵" },
+    { id: "seg-4", startSeconds: 9, endSeconds: 12, text: "通信不就是一个 Agent 把结果发给另一个 Agent 吗" },
+    { id: "seg-5", startSeconds: 12, endSeconds: 15, text: "有啥好设计的" },
+    { id: "seg-6", startSeconds: 15, endSeconds: 18, text: "你要真这么答" },
+    { id: "seg-7", startSeconds: 18, endSeconds: 21, text: "面试官立马知道你没搭过多 Agent 的系统" },
+    { id: "seg-8", startSeconds: 21, endSeconds: 24, text: "因为多 Agent 系统失败往往不是单个 Agent 不行" },
+    { id: "seg-9", startSeconds: 24, endSeconds: 27, text: "而是 Agent 之间协调出了问题" },
+    { id: "seg-10", startSeconds: 27, endSeconds: 30, text: "信息传丢了传歪了交接的时候上下文断了" }
+  ];
+
+  const learningSource = buildLearningSourceFromVideo({
+    platform: "douyin",
+    title: "多 Agent 通信",
+    url: "https://v.douyin.com/agent/",
+    transcriptSegments,
+    media: { provider: "tikhub", providerContentId: "agent-video" }
+  });
+  const transcriptSections = learningSource.sourceSections.filter((section) =>
+    section.sourceRole === "audio_transcript"
+  );
+
+  assert.equal(learningSource.transcriptSegments.length, transcriptSegments.length);
+  assert.equal(transcriptSections.length, 2);
+  assert.equal(transcriptSections[0].startSeconds, 0);
+  assert.equal(transcriptSections[0].endSeconds, 24);
+  assert.deepEqual(transcriptSections[0].segmentIds, [
+    "seg-1",
+    "seg-2",
+    "seg-3",
+    "seg-4",
+    "seg-5",
+    "seg-6",
+    "seg-7",
+    "seg-8"
+  ]);
+  assert.match(transcriptSections[0].text, /面试官问你多个 Agent 的协作，他们之间的通信你怎么设计/);
+  assert.equal(transcriptSections[1].startSeconds, 24);
+  assert.equal(transcriptSections[1].endSeconds, 30);
 });
 
 test("builds backward-compatible V2 source blocks with optional video metadata", () => {

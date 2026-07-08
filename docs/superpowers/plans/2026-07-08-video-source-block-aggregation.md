@@ -1,6 +1,6 @@
 # Video Source Block Aggregation Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Make video "view source" pages readable by grouping short ASR subtitle segments into stable, timestamped transcript blocks before they enter the V2 source block contract.
 
@@ -15,7 +15,7 @@
 **Files:**
 - Modify: `backend/src/media/learningSource.test.js`
 
-- [ ] **Step 1: Add a test proving consecutive subtitles become readable transcript blocks**
+- [x] **Step 1: Add a test proving consecutive subtitles become readable transcript blocks**
 
 Add a test that builds a video LearningSource from 8-10 short ASR segments. Assert that:
 
@@ -24,7 +24,7 @@ Add a test that builds a video LearningSource from 8-10 short ASR segments. Asse
 - The first transcript section keeps the first segment start time and last included end time.
 - The transcript text is joined into one readable paragraph.
 
-- [ ] **Step 2: Run the focused test**
+- [x] **Step 2: Run the focused test**
 
 Run:
 
@@ -39,8 +39,9 @@ Expected: the new test fails before implementation because every transcript segm
 
 **Files:**
 - Modify: `backend/src/media/learningSource.js`
+- Modify: `backend/src/media/videoExtractionCache.js`
 
-- [ ] **Step 1: Replace one-segment-one-section transcript mapping**
+- [x] **Step 1: Replace one-segment-one-section transcript mapping**
 
 Change `transcriptToSections(segments)` so it accumulates adjacent subtitle segments into transcript blocks.
 
@@ -53,9 +54,13 @@ Rules:
 - Preserve `sourceRole: "audio_transcript"`, `startSeconds`, and `endSeconds`.
 - Include `segmentIds` for future precise timestamp lookup, but do not require clients to read it.
 
-- [ ] **Step 2: Keep V2 source blocks backward-compatible**
+- [x] **Step 2: Keep V2 source blocks backward-compatible**
 
 Update `buildV2SourceFromLearningSource` to pass through `segmentIds` only when present. Existing clients can ignore it; existing `id/type/text/sourceRole/startSeconds/endSeconds` remain unchanged.
+
+- [x] **Step 3: Bump the LearningSource cache version**
+
+Update `VIDEO_LEARNING_SOURCE_CACHE_VERSION` from `video-learning-source-v1` to `video-learning-source-v2` so old cached one-subtitle-per-block sources are not reused after deployment.
 
 ### Task 3: Verify and Commit
 
@@ -64,7 +69,7 @@ Update `buildV2SourceFromLearningSource` to pass through `segmentIds` only when 
 - Test: `backend/src/sources/extractSourceContent.video.test.js`
 - Test: `backend/src/v2/generation/v2GenerationJobRunner.test.js`
 
-- [ ] **Step 1: Run focused media tests**
+- [x] **Step 1: Run focused media tests**
 
 ```bash
 cd backend
@@ -73,7 +78,7 @@ node --test src/media/learningSource.test.js src/sources/extractSourceContent.vi
 
 Expected: all tests pass.
 
-- [ ] **Step 2: Run the video source check**
+- [x] **Step 2: Run the video source check**
 
 ```bash
 cd backend
@@ -82,10 +87,10 @@ npm run check:video-source
 
 Expected: all video source checks pass.
 
-- [ ] **Step 3: Commit implementation**
+- [x] **Step 3: Commit implementation**
 
 ```bash
-git add backend/src/media/learningSource.js backend/src/media/learningSource.test.js docs/superpowers/plans/2026-07-08-video-source-block-aggregation.md
+git add backend/src/media/learningSource.js backend/src/media/learningSource.test.js backend/src/media/videoExtractionCache.js docs/superpowers/plans/2026-07-08-video-source-block-aggregation.md
 git commit -m "feat: group video transcript source blocks"
 ```
 
