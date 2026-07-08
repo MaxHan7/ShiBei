@@ -84,7 +84,7 @@ export function createQwenVlVisualUnderstandingProvider({
         skipped: false,
         reason: "",
         segments,
-        usage: payload?.usage || {}
+        usage: normalizeQwenUsage(payload?.usage)
       };
     }
   };
@@ -243,6 +243,25 @@ function normalizeQwenVisualSegments(parsed, evidenceItems) {
       };
     })
     .filter((segment) => segment.text);
+}
+
+function normalizeQwenUsage(usage) {
+  if (!usage || typeof usage !== "object" || Array.isArray(usage)) return {};
+  const inputTokens = finiteNumber(usage.input_tokens);
+  const outputTokens = finiteNumber(usage.output_tokens);
+  const promptTokens = finiteNumber(usage.prompt_tokens) ?? inputTokens;
+  const completionTokens = finiteNumber(usage.completion_tokens) ?? outputTokens;
+  const totalTokens = finiteNumber(usage.total_tokens)
+    ?? (Number.isFinite(promptTokens) && Number.isFinite(completionTokens)
+      ? promptTokens + completionTokens
+      : null);
+  return {
+    ...(Number.isFinite(promptTokens) ? { prompt_tokens: promptTokens } : {}),
+    ...(Number.isFinite(completionTokens) ? { completion_tokens: completionTokens } : {}),
+    ...(Number.isFinite(totalTokens) ? { total_tokens: totalTokens } : {}),
+    ...(Number.isFinite(inputTokens) ? { input_tokens: inputTokens } : {}),
+    ...(Number.isFinite(outputTokens) ? { output_tokens: outputTokens } : {})
+  };
 }
 
 function findEvidence(items, evidenceId) {

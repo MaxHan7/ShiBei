@@ -29,7 +29,7 @@ test("calls Qwen VL with frame grids and normalizes visual segments", async () =
               })
             }
           }],
-          usage: { input_tokens: 100, output_tokens: 20 }
+          usage: { input_tokens: 100, output_tokens: 20, total_tokens: 120 }
         })
       };
     }
@@ -60,6 +60,13 @@ test("calls Qwen VL with frame grids and normalizes visual segments", async () =
   assert.equal(result.segments[0].startSeconds, 0);
   assert.equal(result.segments[0].endSeconds, 9);
   assert.match(result.segments[0].text, /Figma Motion/);
+  assert.deepEqual(result.usage, {
+    prompt_tokens: 100,
+    completion_tokens: 20,
+    total_tokens: 120,
+    input_tokens: 100,
+    output_tokens: 20
+  });
 });
 
 test("skips Qwen VL when frame pack is empty", async () => {

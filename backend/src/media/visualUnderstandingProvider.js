@@ -107,9 +107,27 @@ function finiteNumber(value) {
 
 function normalizeUsage(usage) {
   if (!usage || typeof usage !== "object" || Array.isArray(usage)) return {};
+  const promptTokens = firstFiniteNumber(usage.prompt_tokens, usage.input_tokens);
+  const completionTokens = firstFiniteNumber(usage.completion_tokens, usage.output_tokens);
+  const totalTokens = firstFiniteNumber(
+    usage.total_tokens,
+    Number.isFinite(promptTokens) && Number.isFinite(completionTokens)
+      ? promptTokens + completionTokens
+      : null
+  );
   return {
-    ...(Number.isFinite(Number(usage.prompt_tokens)) ? { prompt_tokens: Number(usage.prompt_tokens) } : {}),
-    ...(Number.isFinite(Number(usage.completion_tokens)) ? { completion_tokens: Number(usage.completion_tokens) } : {}),
-    ...(Number.isFinite(Number(usage.total_tokens)) ? { total_tokens: Number(usage.total_tokens) } : {})
+    ...(Number.isFinite(promptTokens) ? { prompt_tokens: promptTokens } : {}),
+    ...(Number.isFinite(completionTokens) ? { completion_tokens: completionTokens } : {}),
+    ...(Number.isFinite(totalTokens) ? { total_tokens: totalTokens } : {}),
+    ...(Number.isFinite(Number(usage.input_tokens)) ? { input_tokens: Number(usage.input_tokens) } : {}),
+    ...(Number.isFinite(Number(usage.output_tokens)) ? { output_tokens: Number(usage.output_tokens) } : {})
   };
+}
+
+function firstFiniteNumber(...values) {
+  for (const value of values) {
+    const number = Number(value);
+    if (Number.isFinite(number)) return number;
+  }
+  return null;
 }

@@ -158,7 +158,7 @@ git commit -m "fix: refresh stale video media source cache"
 - Test: `backend/src/media/qwenVlVisualUnderstandingProvider.test.js`
 - Test: `backend/src/media/mediaCost.test.js`
 
-- [ ] **Step 1: Preserve Qwen-style usage fields**
+- [x] **Step 1: Preserve Qwen-style usage fields**
 
 Normalize both forms:
 
@@ -174,11 +174,11 @@ Normalize both forms:
 
 Map `input_tokens` to `prompt_tokens` and `output_tokens` to `completion_tokens` when the OpenAI-compatible fields are absent.
 
-- [ ] **Step 2: Add visual model pricing placeholder config**
+- [x] **Step 2: Add visual model pricing placeholder config**
 
 Keep pricing optional. Do not hard-code a production price unless verified. The report should still show token counts when price is unknown.
 
-- [ ] **Step 3: Add tests**
+- [x] **Step 3: Add tests**
 
 Cover Qwen payload:
 
@@ -198,7 +198,7 @@ Expected normalized usage:
 }
 ```
 
-- [ ] **Step 4: Run and commit**
+- [x] **Step 4: Run and commit**
 
 ```bash
 cd backend && node --test src/media/qwenVlVisualUnderstandingProvider.test.js src/media/mediaCost.test.js

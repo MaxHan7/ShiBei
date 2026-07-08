@@ -73,6 +73,28 @@ test("normalizes visual provider segments into LearningSource-compatible shape",
   assert.equal(result.segments[0].confidence, 0.8);
 });
 
+test("normalizes Qwen-style visual usage while preserving provider fields", async () => {
+  const result = await understandVideoVisuals({
+    provider: {
+      name: "mock-vision",
+      understandVideo: async () => ({
+        provider: "mock-vision",
+        model: "mock-vl",
+        usage: { input_tokens: "100", output_tokens: 20, total_tokens: 120 },
+        segments: []
+      })
+    }
+  });
+
+  assert.deepEqual(result.usage, {
+    prompt_tokens: 100,
+    completion_tokens: 20,
+    total_tokens: 120,
+    input_tokens: 100,
+    output_tokens: 20
+  });
+});
+
 test("forwards frame pack to concrete visual provider", async () => {
   let received = null;
   const result = await understandVideoVisuals({
