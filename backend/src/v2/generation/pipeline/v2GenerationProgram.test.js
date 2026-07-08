@@ -49,6 +49,23 @@ test("repairs mechanically duplicated matching right ids before validation", asy
   );
 });
 
+test("drops invalid matching drafts when multiple choice questions can carry the unit", async () => {
+  const promptCaller = async (stage, payload) => {
+    if (stage === "matchingDraft") return matchingDraftWithSinglePair(payload.unit.id);
+    return fixtureOutputForStage(stage, payload);
+  };
+
+  const reviewPath = await runV2GenerationProgram(makeArticleFixture(), {
+    promptCaller,
+    now: "2026-06-21T00:00:00.000Z"
+  });
+
+  const questions = reviewPath.units.flatMap((unit) => unit.questions);
+  assert.equal(questions.some((question) => question.type === "matching"), false);
+  assert.ok(questions.some((question) => question.type === "multiple_choice"));
+  assert.equal(reviewPath.generationMeta.matchingDraftBatch.units[0].dropReason, "invalid_matching_draft");
+});
+
 test("normalizes V2 multiple choice answer positions without changing option meaning", () => {
   const questions = Array.from({ length: 6 }, (_, index) => ({
     id: `q-${index + 1}`,
@@ -376,6 +393,33 @@ function matchingDraftWithDuplicateRightId(unitId) {
           { leftId: "l3", rightId: "r2" }
         ],
         explanation: "Hook 通过规则、上下文和验证把动作变成可控流程。",
+        sourceAnchorId: "anchor-unit-01"
+      }
+    ]
+  };
+}
+
+function matchingDraftWithSinglePair(unitId) {
+  return {
+    unitId,
+    questions: [
+      {
+        id: "q-002",
+        type: "matching",
+        practiceGoalId: "goal-02",
+        relationType: "responsibility",
+        relationGoal: "识别 Agent 结构中唯一被提到的职责关系。",
+        stem: "把 Agent 结构中的元素与职责连起来。",
+        leftItems: [
+          { id: "l1", text: "工具调用" }
+        ],
+        rightItems: [
+          { id: "r1", text: "执行外部动作" }
+        ],
+        pairs: [
+          { leftId: "l1", rightId: "r1" }
+        ],
+        explanation: "模型只返回了单组关系，不足以形成有效连线题。",
         sourceAnchorId: "anchor-unit-01"
       }
     ]

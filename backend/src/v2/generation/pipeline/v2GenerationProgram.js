@@ -246,36 +246,16 @@ export async function runV2GenerationProgram(
           unitIndex: input.unit.order,
           unitTitle: input.unit.title
         });
-        return (
-        callAndValidate(
+        return callMatchingDraftWithFallback({
           activePromptCaller,
-          "matchingDraft",
-          {
-            article,
-            source: input.sourceContext.source,
-            blocks: input.sourceContext.blocks,
-            sourceContextNote: input.sourceContext.sourceContextNote,
-            unit: input.unit,
-            practicePlan: input.practicePlan
-          },
-          (output) =>
-            validateMatchingDraftOutput(output, {
-              unitId: input.unit.id,
-              plans: input.practicePlan.questionPlans,
-              sourceAnchorId: input.unit.sourceAnchor?.id
-            }),
-          {
-            normalize: (output) =>
-              normalizeMatchingDraftOutput(
-                normalizeDraftQuestionIds(
-                  output,
-                  input.practicePlan.questionPlans,
-                  "matching"
-                )
-              )
-          }
-        )
-        );
+          article,
+          source: input.sourceContext.source,
+          blocks: input.sourceContext.blocks,
+          sourceContextNote: input.sourceContext.sourceContextNote,
+          unit: input.unit,
+          practicePlan: input.practicePlan,
+          allowDropInvalidMatching: hasMultipleChoicePlans(input.sourcePracticePlan)
+        });
       }
     )
   };
@@ -523,6 +503,7 @@ function buildTypedDraftInputs(unitDraftInputs, type) {
       const practiceGoalIds = new Set(questionPlans.map((questionPlan) => questionPlan.practiceGoalId));
       return {
         ...input,
+        sourcePracticePlan: input.practicePlan,
         practicePlan: {
           ...input.practicePlan,
           practiceGoals: (input.practicePlan?.practiceGoals || []).filter((goal) => practiceGoalIds.has(goal.id)),
@@ -705,29 +686,17 @@ async function generateUnitReviewContent({
     : { unitId: plannedUnit.id, questions: [] };
   const matchingPlans = resolvedPracticePlan.questionPlans.filter((questionPlan) => questionPlan.type === "matching");
   const matchingDraft = matchingPlans.length > 0
-    ? await callAndValidate(
+    ? await callMatchingDraftWithFallback({
         activePromptCaller,
-        "matchingDraft",
-        {
-          article,
-          source: unitSourceContext.source,
-          blocks: unitSourceContext.blocks,
-          sourceContextNote: unitSourceContext.sourceContextNote,
-          unit: plannedUnit,
-          practicePlan: resolvedPracticePlan,
-          ecdContext
-        },
-        (output) =>
-          validateMatchingDraftOutput(output, {
-            unitId: plannedUnit.id,
-            plans: resolvedPracticePlan.questionPlans,
-            sourceAnchorId: plannedUnit.sourceAnchor.id
-          }),
-        {
-          normalize: (output) =>
-            normalizeDraftQuestionIds(output, resolvedPracticePlan.questionPlans, "matching")
-        }
-      )
+        article,
+        source: unitSourceContext.source,
+        blocks: unitSourceContext.blocks,
+        sourceContextNote: unitSourceContext.sourceContextNote,
+        unit: plannedUnit,
+        practicePlan: resolvedPracticePlan,
+        ecdContext,
+        allowDropInvalidMatching: multipleChoicePlans.length > 0
+      })
     : { unitId: plannedUnit.id, questions: [] };
   const questions = sortQuestionsByPlan(
     [
@@ -1077,15 +1046,77 @@ async function callAndValidate(promptCaller, stage, payload, validator, { normal
   const validation = validator(output);
 
   if (!validation.ok) {
-    const error = new Error(
-      `${stage} output failed validation:\n${validation.errors.join("\n")}`
-    );
-    error.stage = stage;
-    error.errors = validation.errors;
-    throw error;
+    throwStageValidationError(stage, validation.errors);
   }
 
   return output;
+}
+
+async function callMatchingDraftWithFallback({
+  activePromptCaller,
+  article,
+  source,
+  blocks,
+  sourceContextNote,
+  unit,
+  practicePlan,
+  ecdContext = undefined,
+  allowDropInvalidMatching = false
+}) {
+  const rawOutput = await activePromptCaller("matchingDraft", {
+    article,
+    source,
+    blocks,
+    sourceContextNote,
+    unit,
+    practicePlan,
+    ...(ecdContext !== undefined ? { ecdContext } : {})
+  });
+  const output = normalizeMatchingDraftOutput(
+    normalizeDraftQuestionIds(rawOutput, practicePlan.questionPlans, "matching")
+  );
+  const validation = validateMatchingDraftOutput(output, {
+    unitId: unit.id,
+    plans: practicePlan.questionPlans,
+    sourceAnchorId: unit.sourceAnchor?.id
+  });
+
+  if (validation.ok) return output;
+
+  if (allowDropInvalidMatching && isRecoverableMatchingDraftValidation(validation.errors)) {
+    return {
+      unitId: unit.id,
+      questions: [],
+      droppedQuestions: Array.isArray(output?.questions) ? output.questions : [],
+      dropReason: "invalid_matching_draft",
+      validationErrors: validation.errors
+    };
+  }
+
+  throwStageValidationError("matchingDraft", validation.errors);
+}
+
+function throwStageValidationError(stage, errors) {
+  const error = new Error(
+    `${stage} output failed validation:\n${errors.join("\n")}`
+  );
+  error.stage = stage;
+  error.errors = errors;
+  throw error;
+}
+
+function isRecoverableMatchingDraftValidation(errors = []) {
+  if (!Array.isArray(errors) || errors.length === 0) return false;
+  return errors.every((error) => {
+    const message = String(error || "");
+    return (
+      /leftItems must contain 2 to 4 items/.test(message)
+      || /rightItems must contain 2 to 4 items/.test(message)
+      || /pairs must contain 2 to 4 pairs/.test(message)
+      || /leftItems and rightItems must contain the same number of items/.test(message)
+      || /pairs must contain one pair for each left\/right item/.test(message)
+    );
+  });
 }
 
 function normalizeDraftQuestionIds(output, questionPlans, questionType) {
@@ -1122,6 +1153,10 @@ function normalizeDraftQuestionIds(output, questionPlans, questionType) {
       ...normalizeDraftQuestionIdentity(question, plans, plansById, index)
     }))
   };
+}
+
+function hasMultipleChoicePlans(practicePlan) {
+  return (practicePlan?.questionPlans || []).some((plan) => plan.type === "multiple_choice");
 }
 
 function normalizeDraftQuestionIdentity(question, plans, plansById, index) {
