@@ -24,6 +24,8 @@ The next risks are mostly operational:
 - Video download loads the whole media file into memory before enforcing the size limit.
 - Frame-pack failure diagnostics are currently too thin for production debugging.
 - Real sample coverage is still too small.
+- Real Bilibili testing showed process-local cache is not enough for repeated quality runs: restarting the runner repeated media download, ASR, frame extraction, and Qwen visual understanding for the same link and extraction settings.
+- Real Bilibili testing also exposed invalid matching drafts: a model can still return 1 pair or 5 pairs even though the V2 contract allows only 2-4. This should be handled as a recoverable question-draft issue when the unit still has other valid questions.
 
 ## Provider Stability Notes
 
@@ -357,6 +359,65 @@ Record:
 Default should stay no-visual or light visual unless visual-enhanced runs clearly improve source coverage and question quality.
 
 - [ ] **Step 5: Commit results**
+
+## Task 8: Persistent Quality-Run Video Cache
+
+**Files:**
+- Modify: `backend/src/media/videoExtractionCache.js`
+- Modify: `backend/src/media/videoExtractionCache.test.js`
+- Modify: `backend/scripts/run-video-v2-quality-experiment.mjs`
+
+- [x] **Step 1: Add file-backed TTL cache**
+
+Add `createFileTtlCache({ dir, ttlMs, maxEntries })` with the same `get`, `set`, `delete`, `size`, and `clear` methods as the in-memory cache.
+
+- [x] **Step 2: Persist quality-run source and learning-source caches**
+
+Use `QUALITY_VIDEO_CACHE_DIR` when provided; otherwise default to `<quality-output-root>/.cache`. Pass file caches into `extractVideoLearningSource()` from the quality runner.
+
+- [x] **Step 3: Expose cache metadata in reports**
+
+Add `learningSourceSummary.cache` so report JSON can show whether the media extraction result came from cache.
+
+- [x] **Step 4: Add tests**
+
+Cover file cache persistence across cache instances, TTL expiry, and max-entry pruning.
+
+- [x] **Step 5: Run and commit**
+
+```bash
+cd backend && node --test src/media/videoExtractionCache.test.js
+cd backend && npm run check:video-source
+git add backend/src/media/videoExtractionCache.js backend/src/media/videoExtractionCache.test.js backend/scripts/run-video-v2-quality-experiment.mjs docs/superpowers/plans/2026-07-08-video-next-stage-hardening-plan.md
+git commit -m "fix: persist video quality run cache"
+```
+
+## Task 9: Matching Draft Resilience
+
+**Files:**
+- Modify: `backend/src/v2/generation/pipeline/v2GenerationProgram.js`
+- Modify: `backend/src/v2/generation/pipeline/v2GenerationProgram.test.js`
+
+- [x] **Step 1: Add recoverable matching fallback**
+
+When `matchingDraft` fails only because item/pair counts are outside the 2-4 contract, drop the invalid matching question if the same unit has multiple-choice questions.
+
+- [x] **Step 2: Keep serious structural failures blocking**
+
+Do not swallow wrong ids, wrong source anchors, missing question arrays, or units that would be left with no questions.
+
+- [x] **Step 3: Add tests**
+
+Cover a single-pair matching draft being dropped while the unit remains valid through multiple-choice questions.
+
+- [x] **Step 4: Run and commit**
+
+```bash
+cd backend && node --test src/v2/generation/pipeline/v2GenerationProgram.test.js
+cd backend && npm run check:v2
+git add backend/src/v2/generation/pipeline/v2GenerationProgram.js backend/src/v2/generation/pipeline/v2GenerationProgram.test.js
+git commit -m "fix: tolerate invalid matching drafts with fallback questions"
+```
 
 Commit only compact JSON summaries, matrix docs, and selected HTML reports. Do not commit raw video files or temp frames.
 

@@ -1,4 +1,6 @@
 import { createHash } from "node:crypto";
+import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 
 import { normalizeVideoSourceUrl } from "./videoPlatforms.js";
 
@@ -77,6 +79,69 @@ export function createInMemoryTtlCache({
     },
     clear() {
       entries.clear();
+    }
+  };
+}
+
+export function createFileTtlCache({
+  dir,
+  ttlMs,
+  maxEntries = DEFAULT_MAX_ENTRIES,
+  now = () => Date.now()
+} = {}) {
+  if (!dir) throw new Error("createFileTtlCache requires dir");
+
+  return {
+    async get(key) {
+      if (!key) return null;
+      const filePath = cacheFilePath(dir, key);
+      let entry;
+      try {
+        entry = JSON.parse(await readFile(filePath, "utf8"));
+      } catch (error) {
+        if (error?.code === "ENOENT") return null;
+        await rm(filePath, { force: true });
+        return null;
+      }
+      if (entry?.key !== key) return null;
+      if (Number.isFinite(entry.expiresAt) && entry.expiresAt <= now()) {
+        await rm(filePath, { force: true });
+        return null;
+      }
+      await writeCacheFile(filePath, entry);
+      return cloneCacheValue(entry.value);
+    },
+    async set(key, value) {
+      if (!key || value == null) return;
+      await mkdir(dir, { recursive: true });
+      await writeCacheFile(cacheFilePath(dir, key), {
+        key,
+        value: cloneCacheValue(value),
+        expiresAt: Number.isFinite(ttlMs) && ttlMs > 0 ? now() + ttlMs : null
+      });
+      await enforceFileCacheLimit(dir, maxEntries);
+    },
+    async delete(key) {
+      if (!key) return false;
+      const filePath = cacheFilePath(dir, key);
+      try {
+        await rm(filePath, { force: false });
+        return true;
+      } catch (error) {
+        if (error?.code === "ENOENT") return false;
+        throw error;
+      }
+    },
+    async size() {
+      try {
+        return (await readdir(dir)).filter((name) => name.endsWith(".json")).length;
+      } catch (error) {
+        if (error?.code === "ENOENT") return 0;
+        throw error;
+      }
+    },
+    async clear() {
+      await rm(dir, { recursive: true, force: true });
     }
   };
 }
@@ -162,4 +227,36 @@ function hashValue(value) {
 function readPositiveInt(value, fallback) {
   const number = Number(value);
   return Number.isFinite(number) && number > 0 ? number : fallback;
+}
+
+function cacheFilePath(dir, key) {
+  return join(dir, `${hashValue(key)}.json`);
+}
+
+async function writeCacheFile(filePath, entry) {
+  await mkdir(dirname(filePath), { recursive: true });
+  await writeFile(filePath, `${JSON.stringify(entry)}\n`);
+}
+
+async function enforceFileCacheLimit(dir, maxEntries) {
+  if (!Number.isInteger(maxEntries) || maxEntries <= 0) return;
+  let names;
+  try {
+    names = (await readdir(dir)).filter((name) => name.endsWith(".json"));
+  } catch (error) {
+    if (error?.code === "ENOENT") return;
+    throw error;
+  }
+  if (names.length <= maxEntries) return;
+  const files = await Promise.all(names.map(async (name) => {
+    const filePath = join(dir, name);
+    const stats = await stat(filePath);
+    return { filePath, mtimeMs: stats.mtimeMs };
+  }));
+  await Promise.all(
+    files
+      .sort((a, b) => a.mtimeMs - b.mtimeMs)
+      .slice(0, Math.max(0, files.length - maxEntries))
+      .map((file) => rm(file.filePath, { force: true }))
+  );
 }

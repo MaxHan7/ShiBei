@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { summarizeModelUsage, createModelUsageRecorder } from "../src/generation/modelCost.js";
 import { createMediaUsageRecorder, summarizeMediaUsage } from "../src/media/mediaCost.js";
 import { extractVideoLearningSource } from "../src/media/extractVideoLearningSource.js";
+import { createFileTtlCache } from "../src/media/videoExtractionCache.js";
 import { buildV2SourceFromLearningSource } from "../src/media/learningSource.js";
 import { createV2ModelPromptCaller } from "../src/v2/generation/modelPromptCaller.js";
 import { runV2GenerationJob } from "../src/v2/generation/runV2GenerationJob.js";
@@ -38,6 +39,23 @@ async function main() {
       || path.join(repoRoot, "docs", "quality-runs", "video-link")
   );
   const label = args.label || process.env.QUALITY_EXPERIMENT_LABEL?.trim() || "video-v2-quality";
+  const cacheRoot = path.resolve(
+    args.cacheRoot
+      || process.env.QUALITY_VIDEO_CACHE_DIR?.trim()
+      || path.join(outputRoot, ".cache")
+  );
+  const cacheTtlMs = readOptionalPositiveInt(process.env.QUALITY_VIDEO_CACHE_TTL_MS) ?? 30 * 24 * 60 * 60 * 1000;
+  const cacheMaxEntries = readOptionalPositiveInt(process.env.QUALITY_VIDEO_CACHE_MAX_ENTRIES) ?? 200;
+  const videoSourceCache = createFileTtlCache({
+    dir: path.join(cacheRoot, "video-source"),
+    ttlMs: cacheTtlMs,
+    maxEntries: cacheMaxEntries
+  });
+  const learningSourceCache = createFileTtlCache({
+    dir: path.join(cacheRoot, "learning-source"),
+    ttlMs: cacheTtlMs,
+    maxEntries: cacheMaxEntries
+  });
   const mediaUsageRecords = [];
   const mediaUsageRecorder = createMediaUsageRecorder({ runId: `video-quality-${Date.now()}`, calls: mediaUsageRecords });
   const progressEvents = [];
@@ -48,7 +66,12 @@ async function main() {
     stage: "video_extraction",
     elapsedMs: 0
   });
-  const learningSource = await extractVideoLearningSource({ sourceUrl, mediaUsageRecorder });
+  const learningSource = await extractVideoLearningSource({
+    sourceUrl,
+    mediaUsageRecorder,
+    videoSourceCache,
+    learningSourceCache
+  });
   const source = buildV2SourceFromLearningSource(learningSource);
   logProgress(progressEvents, {
     status: "stage_done",
@@ -300,7 +323,8 @@ function summarizeLearningSource(learningSource) {
     normalizedTextLength: String(learningSource.normalizedText || "").length,
     sectionCount: Array.isArray(learningSource.sourceSections) ? learningSource.sourceSections.length : 0,
     contentBasis: learningSource.extractionMeta?.userVisibleContentBasis || null,
-    visualUnderstanding: learningSource.extractionMeta?.visualUnderstanding || null
+    visualUnderstanding: learningSource.extractionMeta?.visualUnderstanding || null,
+    cache: learningSource.extractionMeta?.cache || null
   };
 }
 
@@ -340,6 +364,7 @@ function parseArgs(argv) {
     else if (arg === "--slug") args.slug = argv[++index] || "";
     else if (arg === "--label") args.label = argv[++index] || "";
     else if (arg === "--output-root") args.outputRoot = argv[++index] || "";
+    else if (arg === "--cache-root") args.cacheRoot = argv[++index] || "";
   }
   return args;
 }
