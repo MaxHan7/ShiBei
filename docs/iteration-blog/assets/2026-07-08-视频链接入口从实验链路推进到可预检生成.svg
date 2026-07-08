@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <rect x="92" y="82" width="1016" height="596" rx="42" fill="#fff" stroke="#fbf3e4" stroke-width="3"/>
+  <text x="150" y="154" fill="#e09859" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24" font-weight="800">产品体验与质量验证</text>
+  <text x="150" y="220" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="44" font-weight="900">视频链接入口从实验链路推进到可预检生成</text>
+  <rect x="150" y="286" width="420" height="250" rx="28" fill="#fffaf4" stroke="#eadfcd"/>
+  <text x="188" y="346" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="800">问题</text>
+  <text x="188" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">拾贝要把长内容转成可复习、可理解、可迁移的知识，但视频链接在今天之前仍像</text>
+  <text x="188" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">后端实验能力：用户粘贴链接后才可能在生成阶段发现平台未开、视频过长、元数</text>
+  <text x="188" y="462" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">据不可取或只能基于字幕生成。这会把失败延迟到高成本生成链路，也让用户无法</text>
+  <text x="188" y="496" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">判断当前材料是否适合生成复习内容。因此今天的核心问题是：如何让视频链接在</text>
+  <rect x="630" y="286" width="420" height="250" rx="28" fill="#fffaf4" stroke="#eadfcd"/>
+  <text x="668" y="346" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="800">效果</text>
+  <text x="668" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">今天的结果是视频链接入口已经具备生产化最小闭环：客户端可在提交前判断链接是否</text>
+  <text x="668" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">能生成，后端仍以同一套能力与失败码兜底，真实 B站与抖音样本均完成 V2 复</text>
+  <text x="668" y="462" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">习内容生成。验证证据包括 sourcePreflight/serviceCa</text>
+  <text x="668" y="496" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">pabilities 测试、video-source 142 项检查、iOS</text>
+  <text x="150" y="612" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">2026-07-08</text>
+</svg>

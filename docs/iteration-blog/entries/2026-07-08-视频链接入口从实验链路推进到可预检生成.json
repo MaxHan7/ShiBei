@@ -1,0 +1,47 @@
+{
+  "date": "2026-07-08",
+  "title": "视频链接入口从实验链路推进到可预检生成",
+  "phase": "产品体验与质量验证",
+  "problem": "拾贝要把长内容转成可复习、可理解、可迁移的知识，但视频链接在今天之前仍像后端实验能力：用户粘贴链接后才可能在生成阶段发现平台未开、视频过长、元数据不可取或只能基于字幕生成。这会把失败延迟到高成本生成链路，也让用户无法判断当前材料是否适合生成复习内容。因此今天的核心问题是：如何让视频链接在进入生成前就暴露平台、时长、可生成状态和稳定失败原因，同时保持后端抽取链路仍是最终事实来源。",
+  "changes": [
+    "后端新增 source capabilities 与 /api/sources/preflight 契约，把文本、文章链接、公众号文章和 video_link 的能力边界统一返回给客户端，并用 video_link_disabled、video_ytdlp_disabled、video_duration_too_long 等稳定 reasonCode 替代临时错误文案。",
+    "视频抽取链路扩展为 TikHub 与 yt-dlp 双 provider：抖音/小红书继续走 TikHub，B站、YouTube、直链和通用网页视频走 yt-dlp，并在下载、ASR、抽帧、视觉理解之前先执行 15 分钟时长上限和 feature flag/allowlist 门禁。",
+    "iOS V2 粘贴入口接入后端 preflight：用户输入视频 URL 后可以看到平台、标题、时长和可生成状态；不支持、过长或功能关闭时在提交前禁用生成，减少排队后失败。",
+    "复习来源页补齐 video source block 的时间戳、sourceRole 和 contentBasis 展示，让用户知道题目主要基于字幕，还是结合了字幕与画面信息，降低对视觉理解是否参与的误判。",
+    "质量验证从代码测试推进到真实样本回归：Bilibili Feynman Agent 样本生成 3 个单元 8 道题，Douyin 多 Agent 通信样本生成 5 个单元 18 道题，并记录 provider 调用、token、成本、source blocks 和视觉降级状态。"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/2026-07-08-视频链接入口从实验链路推进到可预检生成.svg",
+      "caption": "2026-07-08 迭代摘要"
+    }
+  ],
+  "result": "今天的结果是视频链接入口已经具备生产化最小闭环：客户端可在提交前判断链接是否能生成，后端仍以同一套能力与失败码兜底，真实 B站与抖音样本均完成 V2 复习内容生成。验证证据包括 sourcePreflight/serviceCapabilities 测试、video-source 142 项检查、iOS production guard、iOS Debug build，以及两份真实 quality run 报告。仍然存在的限制是 Qwen 视觉理解在 B站样本中出现 JSON 解析失败并正确降级为 transcript-only，因此当前产品口径应继续把字幕/ASR 作为主链路，把画面理解作为可用时增强。",
+  "next": "下一步应把视频入口从可用闭环推进到可发布门禁：为 /api/sources/preflight 增加与 iOS input 字段一致的集成快照测试，补齐 ready/blocked/invalid/loading 的 iOS UI 覆盖，并加入 provider readiness、按用户维度的 rate/cost guard 与视觉理解成功率监控。",
+  "commits": [
+    "c743eb3",
+    "d61075b",
+    "33d7e62",
+    "6fad5aa",
+    "7368b44",
+    "5395fad",
+    "7fbc9bd",
+    "44e8b12",
+    "c922067",
+    "2cde157",
+    "e9dde8b",
+    "d368316",
+    "326b1c2",
+    "836273e",
+    "a4b38ef",
+    "98ee3a9",
+    "9a41409",
+    "d58d0b9",
+    "80af290",
+    "c8c9b72",
+    "8ebb9a3",
+    "22a6bde",
+    "2bd23d5",
+    "6a6818e"
+  ]
+}
