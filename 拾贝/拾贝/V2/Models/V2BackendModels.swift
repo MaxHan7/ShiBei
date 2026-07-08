@@ -345,12 +345,21 @@ struct V2BackendSource: Decodable, Equatable {
     let rawInput: String?
     let extractedText: String?
     let blocks: [V2BackendSourceBlock]?
+    let contentBasis: V2BackendSourceContentBasis?
 }
 
 struct V2BackendSourceBlock: Decodable, Equatable {
     let id: String
     let type: String?
     let text: String
+    let sourceRole: String?
+    let startSeconds: Double?
+    let endSeconds: Double?
+}
+
+struct V2BackendSourceContentBasis: Decodable, Equatable {
+    let basis: String?
+    let message: String?
 }
 
 struct V2BackendSummaryCard: Decodable, Equatable {
@@ -466,6 +475,7 @@ extension V2BackendChapter {
             sourceAuthor: sourceDisplayAuthor,
             sourceURL: source?.url ?? "",
             sourceBody: sourceBlocks,
+            contentBasis: source?.contentBasis?.toReviewContentBasis(),
             units: units.enumerated().map { index, unit in
                 unit.toReviewUnitData(index: index, sourceBlocks: sourceBlocks)
             }
@@ -491,7 +501,10 @@ extension V2BackendChapter {
                 V2SourceArticleBlock(
                     id: block.id,
                     kind: block.kind,
-                    text: block.text
+                    text: block.text,
+                    sourceRole: block.sourceRole,
+                    startSeconds: block.startSeconds,
+                    endSeconds: block.endSeconds
                 )
             }
         }
@@ -509,6 +522,15 @@ extension V2BackendChapter {
                 text: text
             )
         }
+    }
+}
+
+private extension V2BackendSourceContentBasis {
+    func toReviewContentBasis() -> V2SourceContentBasis? {
+        guard let basis, let message, !basis.isEmpty, !message.isEmpty else {
+            return nil
+        }
+        return V2SourceContentBasis(basis: basis, message: message)
     }
 }
 

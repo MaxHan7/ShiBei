@@ -900,6 +900,7 @@ function normalizeChapterSource(chapter, chapterId) {
   const extractedText = toStringValue(source.extractedText || source.cleanedText || chapter.extractedText || rawInput);
   const author = toStringValue(source.author || source.publisher || source.accountOrDomain || source.account || chapter.sourceAccount || chapter.source_account_or_platform || "");
   const accountOrDomain = toStringValue(source.accountOrDomain || source.account || source.author || source.publisher || chapter.sourceAccount || chapter.source_account_or_platform || "");
+  const contentBasis = normalizeSourceContentBasis(source.contentBasis);
   return {
     type,
     title: toStringValue(source.title || chapter.sourceTitle || chapter.title || (type === "text" ? "粘贴文字" : "未命名来源")),
@@ -910,6 +911,7 @@ function normalizeChapterSource(chapter, chapterId) {
     durationSeconds: Number.isFinite(Number(source.durationSeconds || chapter.durationSeconds))
       ? Number(source.durationSeconds || chapter.durationSeconds)
       : null,
+    ...(contentBasis ? { contentBasis } : {}),
     media: normalizeSourceMedia(source.media),
     rawInput,
     extractedText,
@@ -919,6 +921,14 @@ function normalizeChapterSource(chapter, chapterId) {
     rawText: rawInput,
     cleanedText: extractedText
   };
+}
+
+function normalizeSourceContentBasis(contentBasis) {
+  if (!contentBasis || typeof contentBasis !== "object" || Array.isArray(contentBasis)) return null;
+  const basis = toStringValue(contentBasis.basis);
+  const message = toStringValue(contentBasis.message);
+  if (!["audio_visual", "audio_transcript"].includes(basis) || !message) return null;
+  return { basis, message };
 }
 
 function normalizeSourceType(type) {

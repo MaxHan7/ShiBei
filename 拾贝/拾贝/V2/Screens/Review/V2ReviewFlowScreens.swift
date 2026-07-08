@@ -960,7 +960,8 @@ struct V2SourceArticleView: View {
                     VStack(alignment: .leading, spacing: 26) {
                         V2SourceArticleHeader(
                             title: chapter.title,
-                            author: chapter.sourceAuthor
+                            author: chapter.sourceAuthor,
+                            contentBasis: chapter.contentBasis
                         )
 
                         V2SourceArticleBody(
@@ -1007,9 +1008,10 @@ struct V2SourceArticleView: View {
 private struct V2SourceArticleHeader: View {
     let title: String
     let author: String
+    let contentBasis: V2SourceContentBasis?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 18) {
             Text(title)
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(V2Color.topTitle)
@@ -1017,13 +1019,41 @@ private struct V2SourceArticleHeader: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
 
-            V2ChapterDetailHeroInfoChip(
-                title: author,
-                iconName: "V2ChapterDetailSummaryActionIcon"
-            )
-            .fixedSize(horizontal: true, vertical: false)
+            VStack(alignment: .leading, spacing: 10) {
+                V2ChapterDetailHeroInfoChip(
+                    title: author,
+                    iconName: "V2ChapterDetailSummaryActionIcon"
+                )
+                .fixedSize(horizontal: true, vertical: false)
+
+                if let contentBasis {
+                    V2SourceContentBasisChip(message: contentBasis.message)
+                }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
+    }
+}
+
+private struct V2SourceContentBasisChip: View {
+    let message: String
+
+    var body: some View {
+        Text(message)
+            .font(V2Typography.captionEmphasis)
+            .foregroundStyle(V2Color.textSecondary)
+            .lineLimit(1)
+            .truncationMode(.tail)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(V2Color.feedbackCorrectFill)
+                    .overlay(
+                        Capsule(style: .continuous)
+                            .stroke(V2Color.borderSoftGreen, lineWidth: 1)
+                    )
+            )
     }
 }
 
@@ -1079,6 +1109,23 @@ private struct V2SourceArticleBlockView: View {
 
     @ViewBuilder
     private var blockContent: some View {
+        VStack(alignment: .leading, spacing: block.videoMetadataText == nil ? 0 : 7) {
+            if let metadataText = block.videoMetadataText {
+                Text(metadataText)
+                    .font(V2Typography.captionEmphasis)
+                    .foregroundStyle(V2Color.textMuted)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+            }
+
+            blockText
+        }
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+    }
+
+    @ViewBuilder
+    private var blockText: some View {
         switch block.kind {
         case .heading:
             Text(block.text)
@@ -1108,6 +1155,51 @@ private struct V2SourceArticleBlockView: View {
                         .frame(width: 3)
                 }
         }
+    }
+}
+
+private extension V2SourceArticleBlock {
+    var videoMetadataText: String? {
+        let timestamp = timestampText
+        let role = sourceRoleLabel
+        if let timestamp, let role {
+            return "\(timestamp) · \(role)"
+        }
+        return timestamp ?? role
+    }
+
+    private var timestampText: String? {
+        guard let startSeconds else {
+            return nil
+        }
+        let start = formatTimestamp(startSeconds)
+        if let endSeconds, endSeconds > startSeconds {
+            return "\(start)-\(formatTimestamp(endSeconds))"
+        }
+        return start
+    }
+
+    private var sourceRoleLabel: String? {
+        guard let sourceRole, !sourceRole.isEmpty else {
+            return nil
+        }
+        switch sourceRole {
+        case "transcript", "subtitle", "asr":
+            return "字幕"
+        case "visual", "screen", "frame":
+            return "画面"
+        case "description", "caption":
+            return "文案"
+        default:
+            return nil
+        }
+    }
+
+    private func formatTimestamp(_ seconds: Double) -> String {
+        let rounded = max(Int(seconds.rounded()), 0)
+        let minutes = rounded / 60
+        let remainingSeconds = rounded % 60
+        return String(format: "%02d:%02d", minutes, remainingSeconds)
     }
 }
 
@@ -1695,7 +1787,8 @@ struct V2RecommendedArticleDetailView: View {
                             VStack(spacing: 19) {
                                 V2SourceArticleHeader(
                                     title: chapter.sourceTitle.isEmpty ? article.title : chapter.sourceTitle,
-                                    author: chapter.sourceAuthor
+                                    author: chapter.sourceAuthor,
+                                    contentBasis: chapter.contentBasis
                                 )
 
                                 V2SourceArticleBody(

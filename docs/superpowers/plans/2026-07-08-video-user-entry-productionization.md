@@ -265,11 +265,12 @@ git commit -m "feat: preflight source links before generation"
 ## Task 4: iOS Video Source Reading Surface
 
 **Files:**
+- Modify: `backend/src/server.js`
 - Modify: `拾贝/拾贝/V2/Models/V2BackendModels.swift`
 - Modify: `拾贝/拾贝/V2/Models/V2ReviewFlowModels.swift`
 - Modify: `拾贝/拾贝/V2/Screens/Review/V2ReviewFlowScreens.swift`
 
-- [ ] **Step 1: Decode video metadata**
+- [x] **Step 1: Decode video metadata**
 
 Extend source block models with:
 
@@ -285,7 +286,7 @@ Extend chapter review data with:
 let contentBasis: V2SourceContentBasis?
 ```
 
-- [ ] **Step 2: Render timestamped blocks**
+- [x] **Step 2: Render timestamped blocks**
 
 For video blocks, render a small metadata row:
 
@@ -299,18 +300,18 @@ Use user-facing labels:
 - `visual` -> `画面`
 - `description` -> `文案`
 
-- [ ] **Step 3: Render content basis**
+- [x] **Step 3: Render content basis**
 
 If present, show one quiet chip near the source header:
 
 - `已结合视频字幕和画面信息生成`
 - `本次主要基于视频字幕生成`
 
-- [ ] **Step 4: Keep article source unchanged**
+- [x] **Step 4: Keep article source unchanged**
 
 Article blocks without timestamp/sourceRole render exactly as before.
 
-- [ ] **Step 5: Build/test and commit**
+- [x] **Step 5: Build/test and commit**
 
 ```bash
 git add 拾贝/拾贝/V2/Models/V2BackendModels.swift 拾贝/拾贝/V2/Models/V2ReviewFlowModels.swift 拾贝/拾贝/V2/Screens/Review/V2ReviewFlowScreens.swift

@@ -114,7 +114,33 @@ struct V2ReviewChapterData {
     let sourceAuthor: String
     let sourceURL: String
     let sourceBody: [V2SourceArticleBlock]
+    let contentBasis: V2SourceContentBasis?
     let units: [V2ReviewUnitData]
+
+    init(
+        title: String,
+        overview: String,
+        sourceTitle: String,
+        sourceAuthor: String,
+        sourceURL: String,
+        sourceBody: [V2SourceArticleBlock],
+        contentBasis: V2SourceContentBasis? = nil,
+        units: [V2ReviewUnitData]
+    ) {
+        self.title = title
+        self.overview = overview
+        self.sourceTitle = sourceTitle
+        self.sourceAuthor = sourceAuthor
+        self.sourceURL = sourceURL
+        self.sourceBody = sourceBody
+        self.contentBasis = contentBasis
+        self.units = units
+    }
+}
+
+struct V2SourceContentBasis: Equatable {
+    let basis: String
+    let message: String
 }
 
 struct V2SourceArticleBlock: Identifiable, Equatable {
@@ -127,6 +153,25 @@ struct V2SourceArticleBlock: Identifiable, Equatable {
     let id: String
     let kind: Kind
     let text: String
+    let sourceRole: String?
+    let startSeconds: Double?
+    let endSeconds: Double?
+
+    init(
+        id: String,
+        kind: Kind,
+        text: String,
+        sourceRole: String? = nil,
+        startSeconds: Double? = nil,
+        endSeconds: Double? = nil
+    ) {
+        self.id = id
+        self.kind = kind
+        self.text = text
+        self.sourceRole = sourceRole
+        self.startSeconds = startSeconds
+        self.endSeconds = endSeconds
+    }
 }
 
 struct V2ReviewUnitData: Identifiable, Equatable {
