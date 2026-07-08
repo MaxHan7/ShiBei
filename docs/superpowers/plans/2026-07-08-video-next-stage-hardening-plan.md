@@ -51,7 +51,7 @@ For this product, the most stable first-release stance remains:
 - Test: `backend/src/media/videoExtractionCache.test.js`
 - Test: `backend/src/media/extractVideoLearningSource.test.js`
 
-- [ ] **Step 1: Add cache signature input**
+- [x] **Step 1: Add cache signature input**
 
 Add a helper that builds a stable extraction signature from provider configuration:
 
@@ -73,15 +73,15 @@ export function buildVideoExtractionSignature({
 }
 ```
 
-- [ ] **Step 2: Use the signature in `buildVideoLearningSourceCacheKey`**
+- [x] **Step 2: Use the signature in `buildVideoLearningSourceCacheKey`**
 
 Change the cache key to include the signature value so switching visual model/provider does not reuse stale results.
 
-- [ ] **Step 3: Avoid long-lived full-cache writes for retryable visual failures**
+- [x] **Step 3: Avoid long-lived full-cache writes for retryable visual failures**
 
 In `extractVideoLearningSource`, when `learningSource.extractionMeta.visualUnderstanding.status === "failed"` and `retryable === true`, either skip the full `LearningSource` cache write or write it with a short TTL cache option if the cache implementation supports TTL override.
 
-- [ ] **Step 4: Add tests**
+- [x] **Step 4: Add tests**
 
 Cover:
 
@@ -89,7 +89,7 @@ Cover:
 - Retryable visual failure still returns transcript-only source but does not poison the long-lived full cache.
 - Non-visual transcript-only provider disabled state can still cache normally.
 
-- [ ] **Step 5: Run and commit**
+- [x] **Step 5: Run and commit**
 
 Run:
 

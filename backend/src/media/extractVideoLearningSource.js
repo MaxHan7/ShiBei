@@ -16,6 +16,7 @@ import {
   understandVideoVisuals
 } from "./visualUnderstandingProvider.js";
 import {
+  buildVideoExtractionSignature,
   buildVideoLearningSourceCacheKey,
   buildVideoSourceCacheKey,
   getSharedLearningSourceCache,
@@ -66,9 +67,17 @@ export async function extractVideoLearningSource({
     })
   });
   const sourceInput = sourceUrl || rawText;
+  const extractionSignature = buildVideoExtractionSignature({
+    asrProvider: transcribeAudio ? "custom" : speechToTextProvider?.name || "custom",
+    frameProvider: framePackProvider?.name || "custom",
+    visualProvider: visualUnderstandingProvider?.name || "custom",
+    visualModel: visualUnderstandingProvider?.model || "",
+    version: extractionCacheVersion
+  });
   const learningSourceCacheKey = buildVideoLearningSourceCacheKey({
     sourceUrl: sourceInput,
-    extractionVersion: extractionCacheVersion
+    extractionVersion: extractionCacheVersion,
+    extractionSignature
   });
   const cachedLearningSource = await readCache(resolvedLearningSourceCache, learningSourceCacheKey);
   if (cachedLearningSource) {
@@ -81,7 +90,8 @@ export async function extractVideoLearningSource({
     const cachedResult = withCacheMeta(cachedLearningSource, {
       hit: true,
       key: learningSourceCacheKey,
-      version: extractionCacheVersion
+      version: extractionCacheVersion,
+      signature: extractionSignature
     });
     if (mediaUsageRecorder?.calls) {
       cachedResult.extractionMeta.mediaUsage = summarizeMediaUsage(mediaUsageRecorder.calls);
@@ -208,11 +218,15 @@ export async function extractVideoLearningSource({
     if (mediaUsageRecorder?.calls) {
       learningSource.extractionMeta.mediaUsage = summarizeMediaUsage(mediaUsageRecorder.calls);
     }
-    await writeCache(resolvedLearningSourceCache, learningSourceCacheKey, learningSource);
+    if (shouldCacheLearningSource(learningSource)) {
+      await writeCache(resolvedLearningSourceCache, learningSourceCacheKey, learningSource);
+    }
     return withCacheMeta(learningSource, {
       hit: false,
       key: learningSourceCacheKey,
-      version: extractionCacheVersion
+      version: extractionCacheVersion,
+      signature: extractionSignature,
+      stored: shouldCacheLearningSource(learningSource)
     });
   } finally {
     await cleanup(...tempFiles);
@@ -311,6 +325,10 @@ function isRetryableVisualFailure(failureCode) {
 function recordMediaUsage(mediaUsageRecorder, call) {
   if (!mediaUsageRecorder || typeof mediaUsageRecorder.record !== "function") return null;
   return mediaUsageRecorder.record(call);
+}
+
+function shouldCacheLearningSource(learningSource) {
+  return learningSource?.extractionMeta?.visualUnderstanding?.status !== "failed";
 }
 
 function resolveDefaultCache({ providedCache, defaultCache, enabled }) {

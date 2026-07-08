@@ -88,13 +88,30 @@ export function buildVideoSourceCacheKey({ sourceUrl, rawText = "" } = {}) {
 export function buildVideoLearningSourceCacheKey({
   sourceUrl,
   rawText = "",
-  extractionVersion = VIDEO_LEARNING_SOURCE_CACHE_VERSION
+  extractionVersion = VIDEO_LEARNING_SOURCE_CACHE_VERSION,
+  extractionSignature = ""
 } = {}) {
   return buildVersionedCacheKey({
     prefix: "video-learning-source",
-    version: extractionVersion,
+    version: extractionSignature || extractionVersion,
     value: normalizeCacheInput(sourceUrl || rawText)
   });
+}
+
+export function buildVideoExtractionSignature({
+  asrProvider = "",
+  frameProvider = "",
+  visualProvider = "",
+  visualModel = "",
+  version = VIDEO_LEARNING_SOURCE_CACHE_VERSION
+} = {}) {
+  return [
+    version,
+    `asr:${String(asrProvider || "default")}`,
+    `frame:${String(frameProvider || "none")}`,
+    `visual:${String(visualProvider || "none")}`,
+    `visualModel:${String(visualModel || "none")}`
+  ].join("|");
 }
 
 export async function readCache(cache, key) {

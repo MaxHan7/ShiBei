@@ -244,6 +244,91 @@ test("caches full video learning sources so generation retries do not re-fetch m
   assert.equal(second.extractionMeta.mediaUsage.callCount, 1);
 });
 
+test("does not cache transcript-only fallback when visual understanding fails", async () => {
+  const calls = [];
+  let visualCallCount = 0;
+  const learningSourceCache = createInMemoryTtlCache({ ttlMs: 60_000 });
+  const options = {
+    sourceUrl: "https://v.douyin.com/visual-cache-fallback/",
+    videoSourceCache: null,
+    learningSourceCache,
+    provider: {
+      fetchVideoSource: async () => {
+        calls.push("provider");
+        return {
+          provider: "tikhub",
+          platform: "douyin",
+          providerContentId: "douyin-visual-cache-fallback",
+          title: "多 Agent 通信",
+          description: "平台文案说明这条视频讲多 Agent 通信设计，核心是拓扑、契约和共享状态。",
+          account: "小哲讲大模型",
+          sourceUrl: "https://v.douyin.com/visual-cache-fallback/",
+          mediaUrl: "https://media.example.com/video.mp4",
+          durationSeconds: 60
+        };
+      }
+    },
+    downloadMedia: async () => {
+      calls.push("download");
+      return { path: "/tmp/video-dir/source-video", dir: "/tmp/video-dir" };
+    },
+    extractAudio: async () => {
+      calls.push("audio");
+      return { path: "/tmp/video-dir/audio.wav", dir: "/tmp/video-dir" };
+    },
+    transcribeAudio: async () => ({
+      provider: "mock_asr",
+      segments: [{
+        id: "seg-1",
+        startSeconds: 0,
+        endSeconds: 8,
+        text: "多 Agent 通信设计要先选择通信拓扑，再定义结构化消息契约，最后维护共享状态。"
+      }]
+    }),
+    framePackProvider: {
+      name: "crv_style_ffmpeg",
+      createFramePack: async () => ({
+        provider: "crv_style_ffmpeg",
+        skipped: false,
+        frames: [{ id: "frame-0001", path: "/tmp/f.jpg", startSeconds: 0, endSeconds: 5, kept: true }],
+        grids: [{ id: "grid-0001", path: "/tmp/g.jpg", frameIds: ["frame-0001"], startSeconds: 0, endSeconds: 5 }]
+      })
+    },
+    visualUnderstandingProvider: {
+      name: "mock-vision",
+      model: "mock-vl"
+    },
+    understandVisuals: async () => {
+      visualCallCount += 1;
+      if (visualCallCount === 1) throw new Error("no_json_object");
+      return {
+        provider: "mock-vision",
+        model: "mock-vl",
+        segments: [{
+          id: "visual-001",
+          startSeconds: 0,
+          endSeconds: 5,
+          text: "画面展示三个 Agent 通过共享状态进行协作通信。"
+        }]
+      };
+    },
+    cleanup: async () => {}
+  };
+
+  const first = await extractVideoLearningSource(options);
+  const second = await extractVideoLearningSource(options);
+
+  assert.equal(first.extractionMeta.cache.hit, false);
+  assert.equal(first.extractionMeta.cache.stored, false);
+  assert.equal(first.extractionMeta.visualUnderstanding.status, "failed");
+  assert.equal(second.extractionMeta.cache.hit, false);
+  assert.equal(second.extractionMeta.cache.stored, true);
+  assert.equal(second.extractionMeta.visualUnderstanding.status, "succeeded");
+  assert.equal(second.visualSegments.length, 1);
+  assert.equal(visualCallCount, 2);
+  assert.deepEqual(calls, ["provider", "download", "audio", "provider", "download", "audio"]);
+});
+
 test("records media usage summary when a recorder is provided", async () => {
   const recorder = createMediaUsageRecorder({ runId: "run-1" });
   const learningSource = await extractVideoLearningSource({
