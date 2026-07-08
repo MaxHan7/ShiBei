@@ -265,9 +265,30 @@ struct V2GeneratingChapterDetailView: View {
 struct V2UploadView: View {
     @Binding var selectedTab: V2HomeTab
     let isSubmittingGeneration: Bool
+    let preflightSource: (String) async throws -> SourcePreflightResponse
     let onGenerate: (String) -> Void
     @State private var sourceText = ""
     @State private var validationMessage = ""
+    @State private var preflightState = V2UploadPreflightState.idle
+    @State private var preflightTask: Task<Void, Never>?
+
+    private var trimmedSourceText: String {
+        sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var canStartGeneration: Bool {
+        guard !isSubmittingGeneration, !trimmedSourceText.isEmpty else {
+            return false
+        }
+        let parsed = ChapterInput.parse(trimmedSourceText)
+        guard parsed.validationError == nil else {
+            return false
+        }
+        if parsed.sourceUrl?.isEmpty == false {
+            return preflightState.canGenerate(for: trimmedSourceText)
+        }
+        return parsed.canSubmit
+    }
 
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "上传") {
@@ -285,18 +306,17 @@ struct V2UploadView: View {
                     V2UploadMascotInputGroup(urlText: $sourceText)
                         .padding(.top, V2UploadPageMetrics.groupTopPadding)
 
-                    Text("播客与视频功能即将上线")
-                        .font(V2Typography.label)
-                        .foregroundStyle(V2Color.primaryAction)
+                    V2UploadPreflightPanel(state: preflightState, input: trimmedSourceText)
 
                     V2PrimaryActionButton(
                         title: isSubmittingGeneration ? "正在提交" : "开始生成",
-                        tone: isSubmittingGeneration ? .disabled : .normal
+                        tone: canStartGeneration ? .normal : .disabled
                     ) {
-                        guard !isSubmittingGeneration else {
+                        guard canStartGeneration else {
+                            handleBlockedGenerateTap()
                             return
                         }
-                        let trimmed = sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let trimmed = trimmedSourceText
                         guard !trimmed.isEmpty else {
                             validationMessage = "请先粘贴文章链接或正文"
                             return
@@ -314,7 +334,244 @@ struct V2UploadView: View {
                 }
             }
             .frame(minHeight: V2UploadPageMetrics.contentHeight, alignment: .top)
+            .onChange(of: sourceText) { newValue in
+                schedulePreflight(for: newValue)
+            }
+            .onDisappear {
+                preflightTask?.cancel()
+            }
         }
+    }
+
+    private func schedulePreflight(for value: String) {
+        preflightTask?.cancel()
+        validationMessage = ""
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            preflightState = .idle
+            return
+        }
+
+        let parsed = ChapterInput.parse(trimmed)
+        guard parsed.validationError == nil else {
+            preflightState = .failed(input: trimmed, message: "这不是有效的链接。请粘贴 http 或 https 开头的链接。")
+            return
+        }
+        guard parsed.sourceUrl?.isEmpty == false else {
+            preflightState = .idle
+            return
+        }
+
+        preflightState = .checking(input: trimmed)
+        preflightTask = Task {
+            try? await Task.sleep(nanoseconds: 350_000_000)
+            guard !Task.isCancelled else {
+                return
+            }
+            do {
+                let response = try await preflightSource(trimmed)
+                await MainActor.run {
+                    guard trimmedSourceText == trimmed else {
+                        return
+                    }
+                    preflightState = response.canGenerate
+                        ? .ready(input: trimmed, response: response)
+                        : .blocked(input: trimmed, response: response)
+                }
+            } catch {
+                await MainActor.run {
+                    guard trimmedSourceText == trimmed else {
+                        return
+                    }
+                    preflightState = .failed(input: trimmed, message: "暂时无法读取链接信息，请稍后重试。")
+                }
+            }
+        }
+    }
+
+    private func handleBlockedGenerateTap() {
+        let trimmed = trimmedSourceText
+        guard !trimmed.isEmpty else {
+            validationMessage = "请先粘贴文章链接或正文"
+            return
+        }
+
+        let parsed = ChapterInput.parse(trimmed)
+        if parsed.validationError != nil {
+            validationMessage = "这不是有效的链接。请粘贴 http 或 https 开头的链接。"
+            return
+        }
+        if parsed.sourceUrl?.isEmpty == false {
+            switch preflightState {
+            case .blocked(let input, let response) where input == trimmed:
+                validationMessage = response.userMessage
+            case .failed(let input, let message) where input == trimmed:
+                validationMessage = message
+            case .checking:
+                validationMessage = "正在读取链接信息，请稍等"
+            default:
+                validationMessage = "请等待链接识别完成"
+                schedulePreflight(for: trimmed)
+            }
+            return
+        }
+
+        validationMessage = "正文太短，至少需要 24 个字"
+    }
+}
+
+private enum V2UploadPreflightState: Equatable {
+    case idle
+    case checking(input: String)
+    case ready(input: String, response: SourcePreflightResponse)
+    case blocked(input: String, response: SourcePreflightResponse)
+    case failed(input: String, message: String)
+
+    func canGenerate(for input: String) -> Bool {
+        if case .ready(let checkedInput, let response) = self {
+            return checkedInput == input && response.canGenerate
+        }
+        return false
+    }
+}
+
+private struct V2UploadPreflightPanel: View {
+    let state: V2UploadPreflightState
+    let input: String
+
+    var body: some View {
+        Group {
+            switch state {
+            case .idle:
+                Color.clear
+                    .frame(height: V2UploadPreflightPanelMetrics.minHeight)
+            case .checking(let checkedInput) where checkedInput == input:
+                V2UploadPreflightStatusCard(
+                    tone: .checking,
+                    title: "正在读取链接信息",
+                    detail: "识别平台、标题和视频时长"
+                )
+            case .ready(let checkedInput, let response) where checkedInput == input:
+                V2UploadPreflightStatusCard(
+                    tone: .ready,
+                    title: sourceTitle(response),
+                    detail: sourceDetail(response)
+                )
+            case .blocked(let checkedInput, let response) where checkedInput == input:
+                V2UploadPreflightStatusCard(
+                    tone: .blocked,
+                    title: response.platformLabel ?? "暂不支持",
+                    detail: response.userMessage
+                )
+            case .failed(let checkedInput, let message) where checkedInput == input:
+                V2UploadPreflightStatusCard(
+                    tone: .blocked,
+                    title: "链接读取失败",
+                    detail: message
+                )
+            default:
+                Color.clear
+                    .frame(height: V2UploadPreflightPanelMetrics.minHeight)
+            }
+        }
+    }
+
+    private func sourceTitle(_ response: SourcePreflightResponse) -> String {
+        let title = (response.title ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return title.isEmpty ? (response.platformLabel ?? "已识别链接") : title
+    }
+
+    private func sourceDetail(_ response: SourcePreflightResponse) -> String {
+        let platform = response.platformLabel ?? sourceTypeLabel(response.sourceType)
+        if let durationSeconds = response.durationSeconds, durationSeconds > 0 {
+            return "\(platform) · \(formatDuration(durationSeconds))"
+        }
+        return response.userMessage
+    }
+
+    private func sourceTypeLabel(_ sourceType: String) -> String {
+        switch sourceType {
+        case "video_link": return "视频"
+        case "wechat_article": return "公众号文章"
+        case "article_link": return "网页文章"
+        default: return "学习内容"
+        }
+    }
+
+    private func formatDuration(_ seconds: Double) -> String {
+        let rounded = max(Int(seconds.rounded()), 0)
+        let minutes = rounded / 60
+        let remainingSeconds = rounded % 60
+        if minutes <= 0 {
+            return "\(remainingSeconds) 秒"
+        }
+        if remainingSeconds == 0 {
+            return "\(minutes) 分钟"
+        }
+        return "\(minutes) 分 \(remainingSeconds) 秒"
+    }
+}
+
+private struct V2UploadPreflightStatusCard: View {
+    enum Tone {
+        case checking
+        case ready
+        case blocked
+
+        var accent: Color {
+            switch self {
+            case .checking: V2Color.primaryAction
+            case .ready: V2Color.primary
+            case .blocked: V2Color.feedbackWrongBorder
+            }
+        }
+    }
+
+    let tone: Tone
+    let title: String
+    let detail: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: V2UploadPreflightPanelMetrics.contentSpacing) {
+            Circle()
+                .fill(tone.accent)
+                .frame(
+                    width: V2UploadPreflightPanelMetrics.dotSize,
+                    height: V2UploadPreflightPanelMetrics.dotSize
+                )
+                .padding(.top, V2UploadPreflightPanelMetrics.dotTopPadding)
+
+            VStack(alignment: .leading, spacing: V2UploadPreflightPanelMetrics.textSpacing) {
+                Text(title)
+                    .font(V2Typography.label)
+                    .foregroundStyle(V2Color.topTitle)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+
+                Text(detail)
+                    .font(V2Typography.labelRegular)
+                    .foregroundStyle(V2Color.textSecondary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, V2UploadPreflightPanelMetrics.horizontalPadding)
+        .padding(.vertical, V2UploadPreflightPanelMetrics.verticalPadding)
+        .frame(
+            maxWidth: V2Layout.contentMaxWidth,
+            minHeight: V2UploadPreflightPanelMetrics.minHeight,
+            alignment: .leading
+        )
+        .background(
+            RoundedRectangle(cornerRadius: V2UploadPreflightPanelMetrics.radius, style: .continuous)
+                .fill(V2Color.surfaceCream)
+                .overlay(
+                    RoundedRectangle(cornerRadius: V2UploadPreflightPanelMetrics.radius, style: .continuous)
+                        .stroke(tone.accent.opacity(0.32), lineWidth: 1)
+                )
+        )
     }
 }
 
@@ -384,7 +641,7 @@ private struct V2UploadLinkInputCard: View {
                     )
 
                 TextField(text: $urlText) {
-                    Text("粘贴文章链接")
+                    Text("粘贴文章或视频链接")
                         .font(V2UploadInputCardMetrics.placeholderFont)
                         .foregroundStyle(V2UploadInputCardMetrics.placeholderColor)
                 }
@@ -455,8 +712,19 @@ private struct V2UploadBackgroundDecorations: View {
 
 private enum V2UploadPageMetrics {
     static let groupTopPadding: CGFloat = 28
-    static let verticalSpacing: CGFloat = 22
-    static let contentHeight: CGFloat = 520
+    static let verticalSpacing: CGFloat = 18
+    static let contentHeight: CGFloat = 580
+}
+
+private enum V2UploadPreflightPanelMetrics {
+    static let minHeight: CGFloat = 68
+    static let horizontalPadding: CGFloat = 16
+    static let verticalPadding: CGFloat = 12
+    static let radius: CGFloat = 15
+    static let contentSpacing: CGFloat = 10
+    static let textSpacing: CGFloat = 5
+    static let dotSize: CGFloat = 8
+    static let dotTopPadding: CGFloat = 6
 }
 
 private enum V2Keyboard {

@@ -8,6 +8,26 @@ struct V2CreateChapterRequest: Encodable {
     let rawText: String?
 }
 
+struct SourcePreflightRequest: Encodable {
+    let input: String
+    let fetchMetadata: Bool
+}
+
+struct SourcePreflightResponse: Decodable, Equatable {
+    let ok: Bool
+    let inputKind: String
+    let sourceType: String
+    let platform: String?
+    let platformLabel: String?
+    let provider: String?
+    let canGenerate: Bool
+    let title: String?
+    let durationSeconds: Double?
+    let maxDurationSeconds: Double?
+    let reasonCode: String?
+    let userMessage: String
+}
+
 struct V2CreateChapterResponse: Decodable {
     let status: String
     let chapter: V2BackendChapter

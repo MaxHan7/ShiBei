@@ -199,7 +199,7 @@ git commit -m "fix: expose stable video failure codes"
 - Modify: `拾贝/拾贝/V2/Screens/Tabs/V2TabScreens.swift`
 - Modify: `拾贝/拾贝/Models/ChapterInput.swift`
 
-- [ ] **Step 1: Add Swift DTOs**
+- [x] **Step 1: Add Swift DTOs**
 
 Add decodable models:
 
@@ -220,7 +220,7 @@ struct SourcePreflightResponse: Decodable, Equatable {
 }
 ```
 
-- [ ] **Step 2: Add API call**
+- [x] **Step 2: Add API call**
 
 Add:
 
@@ -230,7 +230,7 @@ func preflightSource(input: String, fetchMetadata: Bool = true) async throws -> 
 
 Use `POST /api/sources/preflight`.
 
-- [ ] **Step 3: Add upload state machine**
+- [x] **Step 3: Add upload state machine**
 
 Use states:
 
@@ -240,7 +240,7 @@ Use states:
 - blocked(preflight)
 - failed(message)
 
-- [ ] **Step 4: Update upload UI**
+- [x] **Step 4: Update upload UI**
 
 When the user pastes a URL:
 
@@ -251,7 +251,7 @@ When the user pastes a URL:
 
 Do not show backend diagnostics, provider errors, or model names.
 
-- [ ] **Step 5: Test/build**
+- [x] **Step 5: Test/build**
 
 Run the iOS compile check available in this repo. If no lightweight compile command is available, run the existing production/static check and report the limitation.
 

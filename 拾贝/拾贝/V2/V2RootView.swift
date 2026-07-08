@@ -197,6 +197,9 @@ struct V2RootView: View {
             V2UploadView(
                 selectedTab: $selectedTab,
                 isSubmittingGeneration: generationState.isSubmitting,
+                preflightSource: { input in
+                    try await apiClient.preflightSource(input: input)
+                },
                 onGenerate: startV2Generation
             )
         case .discover:
