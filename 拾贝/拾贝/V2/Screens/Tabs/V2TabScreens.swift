@@ -713,7 +713,7 @@ private struct V2UploadBackgroundDecorations: View {
 
 private enum V2UploadPageMetrics {
     static let groupTopPadding: CGFloat = 28
-    static let verticalSpacing: CGFloat = V2Spacing.lg
+    static let verticalSpacing: CGFloat = V2Spacing.xl
     static let contentHeight: CGFloat = 600
 }
 
