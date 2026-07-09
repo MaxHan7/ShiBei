@@ -266,6 +266,7 @@ struct V2UploadView: View {
     @Binding var selectedTab: V2HomeTab
     let isSubmittingGeneration: Bool
     let preflightSource: (String) async throws -> SourcePreflightResponse
+    let preflightSourceWithMetadata: (String) async throws -> SourcePreflightResponse
     let onGenerate: (String) -> Void
     @State private var sourceText = ""
     @State private var validationMessage = ""
@@ -309,7 +310,7 @@ struct V2UploadView: View {
                     V2UploadPreflightPanel(state: preflightState, input: trimmedSourceText)
 
                     V2PrimaryActionButton(
-                        title: isSubmittingGeneration ? "正在提交" : "开始生成",
+                        title: primaryActionTitle,
                         tone: canStartGeneration ? .normal : .disabled
                     ) {
                         guard canStartGeneration else {
@@ -322,7 +323,9 @@ struct V2UploadView: View {
                             return
                         }
                         validationMessage = ""
-                        onGenerate(trimmed)
+                        Task {
+                            await validateMetadataThenGenerate(trimmed)
+                        }
                     }
 
                     if !validationMessage.isEmpty {
@@ -341,6 +344,16 @@ struct V2UploadView: View {
                 preflightTask?.cancel()
             }
         }
+    }
+
+    private var primaryActionTitle: String {
+        if isSubmittingGeneration {
+            return "正在提交"
+        }
+        if case .checkingMetadata(let input) = preflightState, input == trimmedSourceText {
+            return "正在确认"
+        }
+        return "开始生成"
     }
 
     private func schedulePreflight(for value: String) {
@@ -409,6 +422,8 @@ struct V2UploadView: View {
                 validationMessage = message
             case .checking:
                 validationMessage = "正在读取链接信息，请稍等"
+            case .checkingMetadata:
+                validationMessage = "正在确认视频信息，请稍等"
             default:
                 validationMessage = "请等待链接识别完成"
                 schedulePreflight(for: trimmed)
@@ -418,11 +433,43 @@ struct V2UploadView: View {
 
         validationMessage = "正文太短，至少需要 24 个字"
     }
+
+    @MainActor
+    private func validateMetadataThenGenerate(_ input: String) async {
+        let parsed = ChapterInput.parse(input)
+        guard parsed.sourceType == .videoLink else {
+            onGenerate(input)
+            return
+        }
+
+        preflightTask?.cancel()
+        preflightState = .checkingMetadata(input: input)
+        do {
+            let response = try await preflightSourceWithMetadata(input)
+            guard trimmedSourceText == input else {
+                return
+            }
+            if response.canGenerate {
+                preflightState = .ready(input: input, response: response)
+                onGenerate(input)
+            } else {
+                preflightState = .blocked(input: input, response: response)
+                validationMessage = response.userMessage
+            }
+        } catch {
+            guard trimmedSourceText == input else {
+                return
+            }
+            preflightState = .failed(input: input, message: "暂时无法读取视频信息，请稍后重试。")
+            validationMessage = "暂时无法读取视频信息，请稍后重试。"
+        }
+    }
 }
 
 private enum V2UploadPreflightState: Equatable {
     case idle
     case checking(input: String)
+    case checkingMetadata(input: String)
     case ready(input: String, response: SourcePreflightResponse)
     case blocked(input: String, response: SourcePreflightResponse)
     case failed(input: String, message: String)
@@ -449,7 +496,13 @@ private struct V2UploadPreflightPanel: View {
                 V2UploadPreflightStatusCard(
                     tone: .checking,
                     title: "正在读取链接信息",
-                    detail: "识别平台、标题和视频时长"
+                    detail: "识别平台和链接类型"
+                )
+            case .checkingMetadata(let checkedInput) where checkedInput == input:
+                V2UploadPreflightStatusCard(
+                    tone: .checking,
+                    title: "正在确认视频信息",
+                    detail: "检查标题和时长"
                 )
             case .ready(let checkedInput, let response) where checkedInput == input:
                 V2UploadPreflightStatusCard(

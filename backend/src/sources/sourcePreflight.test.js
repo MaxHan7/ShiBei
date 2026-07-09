@@ -41,6 +41,24 @@ test("cheap preflight does not fetch paid TikHub metadata", async () => {
   assert.equal(tikhubCalls, 0);
 });
 
+test("metadata preflight fetches TikHub only when explicitly requested", async () => {
+  let tikhubCalls = 0;
+  const result = await preflightSourceInput({
+    rawInput: "https://v.douyin.com/demo/",
+    fetchMetadata: true,
+    env: {},
+    fetchTikHub: async () => {
+      tikhubCalls += 1;
+      return { title: "短视频", durationSeconds: 88 };
+    }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.title, "短视频");
+  assert.equal(result.durationSeconds, 88);
+  assert.equal(tikhubCalls, 1);
+});
+
 test("preflights metadata and blocks overlong video", async () => {
   const result = await preflightSourceInput({
     rawInput: "https://www.bilibili.com/video/BV1overlong/",

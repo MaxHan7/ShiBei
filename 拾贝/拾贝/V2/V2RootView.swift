@@ -200,6 +200,9 @@ struct V2RootView: View {
                 preflightSource: { input in
                     try await apiClient.preflightSource(input: input, fetchMetadata: false)
                 },
+                preflightSourceWithMetadata: { input in
+                    try await apiClient.preflightSource(input: input, fetchMetadata: true)
+                },
                 onGenerate: startV2Generation
             )
         case .discover:
