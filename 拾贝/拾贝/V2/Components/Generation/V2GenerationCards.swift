@@ -300,7 +300,7 @@ struct V2GenerationStartedDialog: View {
                 .offset(x: V2GenerationStartedDialogMetrics.mascotX, y: V2GenerationStartedDialogMetrics.mascotY)
                 .allowsHitTesting(false)
 
-            Text(verbatim: "章节正在生成中，\n完成后会通知你")
+            Text(verbatim: "生成完成后\n会通知你")
                 .font(.system(size: 16, weight: .regular))
                 .foregroundStyle(V2Color.topTitle)
                 .lineSpacing(8)
@@ -328,7 +328,7 @@ struct V2GenerationStartedDialog: View {
         }
         .frame(width: V2GenerationStartedDialogMetrics.dialogWidth, height: V2GenerationStartedDialogMetrics.dialogHeight)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("章节正在生成中，完成后会通知你")
+        .accessibilityLabel("生成完成后会通知你")
     }
 }
 
