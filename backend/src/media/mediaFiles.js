@@ -1,4 +1,6 @@
 import { randomUUID } from "node:crypto";
+import { once } from "node:events";
+import { createWriteStream } from "node:fs";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -17,6 +19,7 @@ export async function downloadMediaToTempFile({
 } = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  let dir = null;
   try {
     const response = await fetchImpl(mediaUrl, { signal: controller.signal, redirect: "follow" });
     if (!response.ok) {
@@ -32,18 +35,15 @@ export async function downloadMediaToTempFile({
         retryable: false
       });
     }
-    const buffer = Buffer.from(await response.arrayBuffer());
-    if (buffer.byteLength > maxBytes) {
-      throw createMediaExtractionError("video_media_too_large", "视频文件过大，暂时无法生成复习内容。", {
-        retryable: false
-      });
-    }
-    const dir = join(tmpdir(), `shibei-video-${randomUUID()}`);
+    dir = join(tmpdir(), `shibei-video-${randomUUID()}`);
     await mkdir(dir, { recursive: true });
     const path = join(dir, "source-video");
-    await writeFile(path, buffer);
-    return { path, dir, bytes: buffer.byteLength, contentType, sourceUrl: mediaUrl };
+    const bytes = await writeResponseBodyToFile(response, path, { maxBytes });
+    return { path, dir, bytes, contentType, sourceUrl: mediaUrl };
   } catch (error) {
+    if (dir) {
+      await rm(dir, { recursive: true, force: true }).catch(() => {});
+    }
     if (error?.name === "AbortError") {
       throw createMediaExtractionError("video_media_timeout", "读取视频内容超时，请稍后重试。", {
         retryable: true
@@ -62,6 +62,50 @@ export async function downloadMediaToTempFile({
 export async function cleanupMediaTempFiles(...files) {
   const dirs = files.flat().map((file) => file?.dir).filter(Boolean);
   await Promise.all([...new Set(dirs)].map((dir) => rm(dir, { recursive: true, force: true }).catch(() => {})));
+}
+
+async function writeResponseBodyToFile(response, path, { maxBytes }) {
+  if (!response.body?.getReader) {
+    const buffer = Buffer.from(await response.arrayBuffer());
+    if (buffer.byteLength > maxBytes) {
+      throw createMediaExtractionError("video_media_too_large", "视频文件过大，暂时无法生成复习内容。", {
+        retryable: false
+      });
+    }
+    await writeFile(path, buffer);
+    return buffer.byteLength;
+  }
+
+  const reader = response.body.getReader();
+  const stream = createWriteStream(path);
+  let bytes = 0;
+  let finished = false;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = Buffer.from(value);
+      bytes += chunk.byteLength;
+      if (bytes > maxBytes) {
+        await reader.cancel?.().catch(() => {});
+        throw createMediaExtractionError("video_media_too_large", "视频文件过大，暂时无法生成复习内容。", {
+          retryable: false
+        });
+      }
+      if (!stream.write(chunk)) {
+        await once(stream, "drain");
+      }
+    }
+    stream.end();
+    await once(stream, "finish");
+    finished = true;
+    return bytes;
+  } finally {
+    reader.releaseLock?.();
+    if (!finished) {
+      stream.destroy();
+    }
+  }
 }
 
 function readPositiveInt(value, fallback) {

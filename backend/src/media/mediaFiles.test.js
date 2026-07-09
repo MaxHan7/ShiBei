@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
+import { ReadableStream } from "node:stream/web";
 import test from "node:test";
 
 import { cleanupMediaTempFiles, downloadMediaToTempFile } from "./mediaFiles.js";
@@ -61,4 +62,28 @@ test("rejects oversized content-length before reading media body", async () => {
     /视频文件过大/
   );
   assert.equal(arrayBufferCalled, false);
+});
+
+test("aborts streamed media when body exceeds max bytes without content-length", async () => {
+  const body = new ReadableStream({
+    start(controller) {
+      controller.enqueue(Buffer.from("too-"));
+      controller.enqueue(Buffer.from("large"));
+      controller.close();
+    }
+  });
+
+  await assert.rejects(
+    () => downloadMediaToTempFile({
+      mediaUrl: "https://media.example.com/video.mp4",
+      maxBytes: 4,
+      fetchImpl: async () => ({
+        ok: true,
+        status: 200,
+        headers: new Map([["content-type", "video/mp4"]]),
+        body
+      })
+    }),
+    /视频文件过大/
+  );
 });
