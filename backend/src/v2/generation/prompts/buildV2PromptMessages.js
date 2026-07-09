@@ -24,6 +24,7 @@ function multipleChoiceVisibleTextLimits() {
     "- 这些上限是生成时的显示约束，不是 schema 硬失败条件；如果确实需要保留关键区分点，可以略微超出，但不要写成长段阅读材料。",
     "- stem 尽量不超过 60 个中文字；场景题只保留一个关键冲突或判断点。",
     "- options[].text 尽量不超过 28 个中文字；每个选项最多承担一个判断点，不写成解释句。",
+    "- 如果正确项需要更多信息才能准确，优先压缩正确项或补足干扰项的信息量，避免正确项因为更长、更完整而显眼。",
     "- explanation 尽量不超过 60 个中文字；只写一句纠偏反馈。"
   ];
 }
@@ -31,10 +32,11 @@ function multipleChoiceVisibleTextLimits() {
 function multipleChoiceOptionToneRules() {
   return [
     "选项语气平衡规则：",
-    "- 干扰项要像真实但错误的理解，不要靠语气词暴露错误。",
+    "- 四个选项应像同一组可竞争答案：四个选项的语气、长度和抽象层级要相近，并尽量保持细节量和语法结构平行。",
+    "- 干扰项要像真实但错误的理解，错在边界、条件、因果、对象或适用场景，也可以错在时机，不要靠语气词暴露错误。",
     "- 避免让错误选项集中出现“完全、一定、所有、任何、只能、不需要、无关、替代一切、百分百”等绝对化或否定化表达。",
-    "- 只有原文确实在考边界时才使用强限定词；否则四个选项的语气、长度和抽象层级要相近。",
-    "- 错误选项应错在边界、条件、因果、对象或适用场景，而不是错在一眼可排除的极端措辞。"
+    "- 只有原文确实在考边界时才使用强限定词；否则不要让强限定词只出现在干扰项里。",
+    "- 不要让正确项成为唯一完整、温和、专业的标准答案，也不要让干扰项像短口号或明显反话。"
   ];
 }
 
@@ -64,7 +66,7 @@ function buildQuestionDraftBatchMessages({ article, source, units }) {
       "- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。",
       "- 生成每道题时按这个内部顺序执行：先确认 questionPlan 的考察目标，再确认正确理解，再确认 commonMisconception 或容易混淆点，最后生成 1 个正确选项与 3 个干扰项。",
       "- 至少一个干扰项必须承载真实常见误区或混淆点，不能只是明显错误、无关事实或为了凑数。",
-      "- 4 个选项只能有一个正确答案；正确选项不能明显更长。",
+      "- 4 个选项只能有一个正确答案；正确选项不能明显更长、更完整或更像标准答案。",
       "- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。",
       "- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。",
       ...multipleChoiceOptionToneRules(),
@@ -104,7 +106,7 @@ function buildMultipleChoiceDraftBatchMessages({ article, source, units }) {
       "- 题干要自足，不写“根据本文/根据文章/文中提到/上述/以下哪”。",
       "- 生成每道题时按这个内部顺序执行：先确认 questionPlan 的考察目标，再确认正确理解，再确认 commonMisconception 或容易混淆点，最后生成 1 个正确选项与 3 个干扰项。",
       "- 至少一个干扰项必须承载真实常见误区或混淆点，不能只是明显错误、无关事实或为了凑数。",
-      "- 4 个选项只能有一个正确答案；正确选项不能明显更长。",
+      "- 4 个选项只能有一个正确答案；正确选项不能明显更长、更完整或更像标准答案。",
       "- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。",
       "- 选项尽量短，考理解、边界、误区或场景迁移，不做阅读理解复述。",
       "- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。",
@@ -150,7 +152,7 @@ function buildMultipleChoiceDraftUnitBatchMessages({
       "- 不要输出完整 ECD JSON，不要输出推理链、候选矩阵或批注。",
       "选择题规则：",
       "- 题干要自足，像一个理解判断任务，不写“根据本文/根据文章/文中提到/上述/以下哪”。",
-      "- 4 个选项只能有一个正确答案；正确选项不能明显更长。",
+      "- 4 个选项只能有一个正确答案；正确选项不能明显更长、更完整或更像标准答案。",
       "- 选项应适合小屏阅读：优先短句，但不能为了变短牺牲关键区分点。",
       "- correctUnderstanding 写正确理解，misconception 写本题主要误区。",
       "- explanation 是用户答后看到的一句纠偏反馈：把 correctUnderstanding 和 misconception 融合成一句短解释，帮助用户形成正确理解并避开容易混淆的点。",
@@ -499,7 +501,7 @@ function buildMultipleChoiceDraftMessages({ article, source, blocks, sourceConte
       "- 优先正向提问，不写没必要的“哪一项不是/最不应该”。",
       "- 选择题必须 4 个选项，只有一个正确答案。",
       "- 至少一个干扰项承载真实常见误区或混淆点，不能明显凑数。",
-      "- 正确选项不能明显更长、更像标准答案。",
+      "- 正确选项不能明显更长、更完整或更像标准答案。",
       "- explanation 要短、明确，适合底部反馈浮窗；不要写“正确选项A/B/C/D”。",
       "- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。",
       ...multipleChoiceOptionToneRules(),
