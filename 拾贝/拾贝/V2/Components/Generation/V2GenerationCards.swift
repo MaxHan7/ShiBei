@@ -53,7 +53,9 @@ struct V2GeneratingChapterDetailCard: View {
 
                 Spacer(minLength: V2GenerationStatusCardMetrics.headerMinimumGap)
 
-                V2GeneratingSourceLinkChip(accent: accentColor, action: onSource)
+                if isCompleted {
+                    V2GeneratingSourceLinkChip(accent: accentColor, action: onSource)
+                }
             }
             .frame(
                 width: V2GenerationStatusCardMetrics.contentWidth,

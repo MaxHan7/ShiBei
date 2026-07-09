@@ -1304,7 +1304,12 @@ struct V2RootView: View {
     }
 
     private var canOpenGeneratedChapterFromGenerationDetail: Bool {
-        recommendedArticleGenerationSimulation == nil && backendChapter?.toReviewChapterData() != nil
+        guard recommendedArticleGenerationSimulation == nil,
+              let chapter = backendChapter,
+              isCompletedGenerationChapter(chapter) else {
+            return false
+        }
+        return chapter.toReviewChapterData() != nil
     }
 
     private var isActiveGenerationFailed: Bool {
@@ -1524,7 +1529,7 @@ struct V2RootView: View {
                     let chapter = try await apiClient.fetchV2Chapter(id: chapterID)
                     await MainActor.run {
                         let shouldActivateGeneratedChapter = isShowingGenerationDetail
-                            && !isFailedGenerationStatus(chapter.status)
+                            && isCompletedGenerationChapter(chapter)
                             && chapter.toReviewChapterData() != nil
                         applyBackendChapter(chapter, activateForReview: shouldActivateGeneratedChapter)
                     }
@@ -1685,7 +1690,7 @@ struct V2RootView: View {
             v2ReviewSession = session
             hydrateLocalQuestionStates(from: session)
         }
-        if chapter.progress?.status == "completed" || chapter.status == "completed" {
+        if isCompletedGenerationChapter(chapter) {
             generationState.showsChapterCard = recommendedArticleGenerationSimulation != nil
             generationState.finishSubmitting()
             generationState.clearError()
@@ -1708,13 +1713,17 @@ struct V2RootView: View {
         status == "completed" || isFailedGenerationStatus(status)
     }
 
+    private func isCompletedGenerationChapter(_ chapter: V2BackendChapter) -> Bool {
+        chapter.status == "completed" || chapter.progress?.status == "completed"
+    }
+
     private func isFailedGenerationStatus(_ status: String) -> Bool {
         status == "failed_generation" || status == "failed_input" || status == "failed_questions" || status == "failed"
     }
 
     private func routeCompletedGenerationIfNeeded(_ chapter: V2BackendChapter) {
         guard isShowingGenerationDetail,
-              !isFailedGenerationStatus(chapter.status),
+              isCompletedGenerationChapter(chapter),
               chapter.toReviewChapterData() != nil else {
             return
         }
@@ -2004,6 +2013,11 @@ struct V2RootView: View {
     }
 
     private func openSource() {
+        if case .generatingChapterDetail = routeStore.current,
+           !canOpenGeneratedChapterFromGenerationDetail {
+            return
+        }
+
         guard canOpenActiveSource else {
             return
         }
