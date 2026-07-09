@@ -51,6 +51,18 @@ function matchingVisibleTextLimits() {
   ];
 }
 
+function matchingRelationQualityRules() {
+  return [
+    "连线关系质量规则：",
+    "- matching 必须考关系理解，不做术语-定义、名词-解释、概念-描述这类机械配对。",
+    "- leftItems 放关系对象、角色、步骤、信号、场景或判断对象；rightItems 放对应的职责、目的、条件、边界、效果、检查维度或下一步动作。",
+    "- rightItems 不要写成“定义、描述、解释、特征、概念、案例”这类泛标签，也不要只写一个抽象名词。",
+    "- relationType=responsibility 时，右侧写职责或负责的动作；boundary 时，右侧写边界条件或区分标准；usage_timing 时，右侧写触发时机或适用条件。",
+    "- relationType=scenario_effect 时，右侧写场景带来的效果；verification_dimension 时，右侧写检查维度或达标依据；process_signal 时，右侧写信号对应的动作、目的或下一步。",
+    "- 用户完成匹配后，应能说明“为什么这样对应”，而不是只背出某个词是什么意思。"
+  ];
+}
+
 function buildQuestionDraftBatchMessages({ article, source, units }) {
   return {
     system: baseSystem(),
@@ -244,6 +256,7 @@ function buildMatchingDraftBatchMessages({ article, source, units }) {
       "- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。",
       "- 左右项应适合小屏卡片阅读：短、清楚、可比较，但不能为了变短丢掉区分点。",
       "- explanation 是答后的一句纠偏反馈：说明这组对应关系的核心理解，并指出容易混淆的关系边界；不逐项解析每一对。",
+      ...matchingRelationQualityRules(),
       ...matchingVisibleTextLimits(),
       "source 使用规则：",
       "- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。",
@@ -590,6 +603,7 @@ function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote
       "- 如果 selected task 是 matching，应尽量实现它的关系目的，并从当前 unit 的同级证据中补足 4 组。",
       "- explanation 要短、明确，适合底部反馈浮窗。",
       "- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。",
+      ...matchingRelationQualityRules(),
       ...matchingVisibleTextLimits(),
       "",
       `当前 unit:\n${JSON.stringify(unit, null, 2)}`,
