@@ -1,6 +1,6 @@
 # 拾贝 V2 生产替换部署 Runbook
 
-更新时间：2026-06-26
+更新时间：2026-07-09
 
 这份 runbook 用于把 V2-capable root backend 部署到当前同一个 Railway production service，并在通过 gate 后继续手机/正式包验收。它不是 UI/Prompt 设计文档；它只回答上线操作时“该先看什么、点什么、跑什么、失败时停在哪里”。
 
@@ -110,6 +110,23 @@ npm run check:production-deploy-inputs -- \
 - `APNS_BUNDLE_ID=com.maxhan.shibei`
 - `APNS_ENV=production`
 
+视频链接能力新增必配变量：
+
+- `TIKHUB_API_KEY`：抖音/小红书视频取源。只确认存在，不记录值。
+- `QWEN_API_KEY` 或 `DASHSCOPE_API_KEY`：Qwen VL 视觉增强。只确认存在，不记录值。
+- `RUNTIME_READINESS_TOKEN`：仅用于部署检查访问 `/api/source/runtime-readiness`，不能暴露给客户端。
+
+视频能力的产品默认值由代码集中维护，除非产品策略变化，不建议在 Railway 手动覆盖：
+
+- `VIDEO_MAX_DURATION_SECONDS=900`
+- `VIDEO_LINK_ENABLED=1`
+- `VIDEO_YTDLP_ENABLED=1`
+- `VIDEO_ASR_PROVIDER=local_whisper`
+- `VIDEO_FRAME_PROVIDER=crv_style_ffmpeg`
+- `VIDEO_VISUAL_PROVIDER=qwen-vl`
+
+如果必须临时关闭视频能力，优先设置 `VIDEO_LINK_ENABLED=0`，并在 deployment intent 中记录原因和恢复条件。不要通过删除 provider key 来“临时关闭”，否则 readiness 结果会变成配置缺失，难以区分策略关闭和环境损坏。
+
 ### 3. 本地候选代码检查
 
 候选 PR/commit 应先看到 GitHub Actions `V2 Production Readiness` 通过。该 CI 会跑：
@@ -132,14 +149,17 @@ CI 通过后，再在本地或 release 机器上跑以下人工确认项：
 git status --short
 npm --prefix backend run gate:routes
 npm --prefix backend run check
+RUNTIME_READINESS_TOKEN=<token> npm --prefix backend run gate:production -- --require-video 1
 npm run check:ios-production
-xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic/platform=iOS Simulator' -configuration Debug build
-xcodebuild -project 拾贝/拾贝.xcodeproj -scheme 拾贝 -destination 'generic/platform=iOS' -configuration Release build
+xcodebuild -project 拾贝/拾贝.xcodeproj -scheme Recallo -destination 'generic/platform=iOS Simulator' -configuration Debug build
+xcodebuild -project 拾贝/拾贝.xcodeproj -scheme Recallo -destination 'generic/platform=iOS' -configuration Release build
 ```
 
 如果任何一项失败，停止上线。
 
 `gate:routes` 是无网络、无副作用的本地路由契约检查。它用于确认当前 root backend 代码仍暴露 V2 App 上线需要的章节生成、复习 session、收藏、通知、推送和 source anchor 路由；它不能替代部署后的 `gate:production`。
+
+`gate:production -- --require-video 1` 会额外检查视频 capability、YouTube/B站 preflight、15 分钟限制和 runtime readiness。runtime readiness HTTP 入口需要 `RUNTIME_READINESS_TOKEN`，没有 token 时线上接口应返回 404，这是预期的安全行为。
 
 注意：generic Release build 只能证明代码能编译，不能证明 TestFlight/App Store 签名正确。创建 release candidate archive/export 后，还必须检查实际签名产物：
 
