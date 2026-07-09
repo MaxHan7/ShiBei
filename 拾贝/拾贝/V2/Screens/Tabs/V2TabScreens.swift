@@ -360,7 +360,7 @@ struct V2UploadView: View {
         if isSubmittingGeneration {
             return "正在提交"
         }
-        if case .checkingMetadata(let input) = preflightState, input == trimmedSourceText {
+        if case .checkingMetadata(let input) = preflightState, input == preflightInputKey {
             return "正在确认"
         }
         return "开始生成"
