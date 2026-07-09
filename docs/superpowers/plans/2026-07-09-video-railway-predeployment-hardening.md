@@ -6,25 +6,29 @@
 
 **Architecture:** Keep the video feature behind backend capability/feature flags, make Railway runtime dependencies explicit, and add a deploy-time readiness gate that proves source preflight and media runtimes are present before iOS beta users receive the new client. Deployment should be branch/commit-explicit: do not rely on the local `master` branch, and do not deploy unpushed local-only commits by accident.
 
-**Tech Stack:** Railway Nixpacks, Node.js 20 ESM backend, SwiftUI iOS client, Python `yt-dlp`/`faster-whisper`, ffmpeg/ffprobe, TikHub, Qwen VL, DeepSeek.
+**Tech Stack:** Railway Railpack, Node.js 20 ESM backend, SwiftUI iOS client, Python `yt-dlp`/`faster-whisper`, ffmpeg/ffprobe, TikHub, Qwen VL, DeepSeek.
 
 ---
 
 ## Current Findings
 
 - Local candidate branch: `codex/test-feature-env-20260705`.
-- Current local candidate HEAD at review time: `3b0d4ce docs: add iteration log for 2026-07-08`.
+- Current local candidate HEAD at review time: `81602cd docs: plan video railway predeployment hardening`.
 - `origin/master..HEAD` contains the video feature commits and related App Store/account commits.
 - `HEAD..origin/master` is empty, so the candidate branch contains current remote master content.
 - No remote branch contains the current HEAD, so Railway cannot be running this code yet.
 - Local `master` is stale and diverged; do not deploy from local `master`.
+- Railway CLI is installed and linked to project `拾贝`, environment `production`, service `ShiBei`.
+- Production Railway service `ShiBei` is connected to GitHub repo `MaxHan7/ShiBei`, branch `master`, and currently uses Railpack V3.
+- Railway currently has the required secret/model-selection variable keys: `DATABASE_URL`, `DEEPSEEK_API_KEY`, `TIKHUB_API_KEY`, `QWEN_API_KEY`, `AI_PROVIDER`, `DEEPSEEK_MODEL`, and APNS keys.
+- Railway does not currently have `VIDEO_*` override variables. This is acceptable after this plan is corrected: product defaults must live in code, and `VIDEO_*` variables are optional operational overrides, not manual prerequisites.
 - Production Railway currently does not expose:
   - `GET /api/source/capabilities`
   - `POST /api/sources/preflight`
   This confirms production has not deployed the video preflight contract.
 - Production `/api/health` currently has Railway deployment metadata but empty git commit/branch fields.
-- Current `railway.json` uses Nixpacks with `npm run build`; the build does not install `backend/requirements-video-asr.txt` or system `ffmpeg`.
-- This machine does not have the Railway CLI installed, so local verification cannot safely list Railway variable names. Railway variables must be confirmed in the Railway console unless a Railway CLI/app tool is added later.
+- Current `railway.json` still declares Nixpacks, but Railway reports the live service build system as Railpack V3. The deployment hardening should therefore use Railpack-compatible configuration rather than a Nixpacks-only plan.
+- Current build does not explicitly install `backend/requirements-video-asr.txt` or system `ffmpeg`; this is still the main backend deployment blocker.
 
 ## Manual Versus Agent-Owned Work
 
@@ -38,54 +42,48 @@ Agent-owned work:
 
 Manual user/Railway console work:
 
-- Add missing secrets in Railway without committing values.
-- Confirm which Railway service/branch is connected for deploy.
+- No new manual secret work is required at this checkpoint; `TIKHUB_API_KEY` and `QWEN_API_KEY` are already present.
+- Before deployment, re-confirm that the selected service is still `ShiBei` on branch `master`, or intentionally switch it to the pushed beta branch.
 - Trigger or approve deployment to the chosen Railway environment.
 - Build/distribute the iOS beta after backend smoke passes.
 
 ## Required Railway Variables
 
-Already likely configured but must be re-confirmed:
+Already configured in Railway at review time:
 
 ```text
 DATABASE_URL=yes
 DEEPSEEK_API_KEY=yes
+TIKHUB_API_KEY=yes
+QWEN_API_KEY=yes
 AI_PROVIDER=deepseek
 DEEPSEEK_MODEL=deepseek-v4-flash
 APNS env for com.maxhan.shibei=yes
 ```
 
-New or video-specific variables to add/confirm:
+Video product defaults should be defined in code, not manually required in Railway:
 
 ```text
-VIDEO_LINK_ENABLED=1
-VIDEO_YTDLP_ENABLED=1
 VIDEO_MAX_DURATION_SECONDS=900
 VIDEO_PLATFORM_ALLOWLIST=douyin,xiaohongshu,youtube,bilibili,direct_video_file,generic_web
-
-TIKHUB_API_KEY=<set in Railway console>
 TIKHUB_UNIT_COST_USD=0.001
-
 VIDEO_ASR_PROVIDER=local_whisper
 LOCAL_WHISPER_MODEL=small
 LOCAL_WHISPER_DEVICE=auto
 LOCAL_WHISPER_COMPUTE_TYPE=int8
 LOCAL_WHISPER_LANGUAGE=zh
 VIDEO_ASR_TIMEOUT_MS=180000
-
 VIDEO_FRAME_PROVIDER=crv_style_ffmpeg
 VIDEO_VISUAL_PROVIDER=qwen-vl
-QWEN_API_KEY=<set in Railway console>
 VIDEO_VISUAL_MODEL=qwen3-vl-flash
 VIDEO_VISUAL_TIMEOUT_MS=90000
-
 VIDEO_MEDIA_MAX_BYTES=157286400
 VIDEO_MEDIA_FETCH_TIMEOUT_MS=60000
 YT_DLP_INFO_TIMEOUT_MS=45000
 YT_DLP_DOWNLOAD_TIMEOUT_MS=180000
 ```
 
-Only set these if the runtime paths are not on `PATH`:
+These `VIDEO_*`, `LOCAL_WHISPER_*`, `YT_DLP_*`, and path variables may remain available as optional Railway overrides or kill switches, but they should not be required for the normal production path. Only set path overrides if the runtime paths are not on `PATH`:
 
 ```text
 FFMPEG_PATH=/usr/bin/ffmpeg
@@ -98,7 +96,7 @@ PYTHON_PATH=/opt/venv/bin/python
 1. Prepare and commit Railway runtime/readiness hardening.
 2. Push the candidate branch to GitHub.
 3. Create a PR or explicitly deploy the pushed branch to a Railway beta/staging service.
-4. Add/confirm Railway variables in the selected environment.
+4. Confirm Railway secrets/model-selection variables are still present.
 5. Deploy backend.
 6. Run backend smoke:
    - `/api/health`
@@ -107,43 +105,99 @@ PYTHON_PATH=/opt/venv/bin/python
    - one real short-video generation
 7. Build and distribute iOS beta only after backend smoke passes.
 
-## Task 1: Railway Runtime Configuration
+## Task 1: Railpack Runtime Configuration And Product Defaults
 
 **Files:**
-- Create: `nixpacks.toml`
+- Create: `railpack.json`
+- Create: `backend/src/media/videoDefaults.js`
+- Modify: `backend/src/sources/sourcePreflight.js`
+- Modify: `backend/src/media/speechToTextProvider.js`
+- Modify: `backend/src/media/videoFramePackProvider.js`
+- Modify: `backend/src/media/visualUnderstandingProvider.js`
 - Modify: `.gitignore`
 - Test: local syntax checks and `npm run check` subset
 
-- [ ] **Step 1: Create a Nixpacks config**
+- [ ] **Step 1: Create a Railpack config**
 
-Create `nixpacks.toml` at the repository root:
+Create `railpack.json` at the repository root:
 
-```toml
-[phases.setup]
-nixPkgs = ["nodejs_20", "python311", "ffmpeg"]
-
-[phases.install]
-cmds = [
-  "npm --prefix backend install",
-  "python3 -m venv /opt/venv",
-  "/opt/venv/bin/pip install --upgrade pip",
-  "/opt/venv/bin/pip install -r backend/requirements-video-asr.txt"
-]
-
-[phases.build]
-cmds = ["npm --prefix backend run build"]
-
-[start]
-cmd = "npm start"
-
-[variables]
-PYTHON_PATH = "/opt/venv/bin/python"
-LOCAL_WHISPER_PYTHON = "/opt/venv/bin/python"
-FFMPEG_PATH = "ffmpeg"
-FFPROBE_PATH = "ffprobe"
+```json
+{
+  "$schema": "https://schema.railpack.com",
+  "packages": {
+    "apt": ["ffmpeg", "python3", "python3-venv", "python3-pip"]
+  },
+  "steps": {
+    "install-video-runtime": {
+      "commands": [
+        "python3 -m venv /opt/venv",
+        "/opt/venv/bin/pip install --upgrade pip",
+        "/opt/venv/bin/pip install -r backend/requirements-video-asr.txt"
+      ]
+    }
+  },
+  "deploy": {
+    "variables": {
+      "PYTHON_PATH": "/opt/venv/bin/python",
+      "LOCAL_WHISPER_PYTHON": "/opt/venv/bin/python"
+    }
+  }
+}
 ```
 
-- [ ] **Step 2: Ignore local virtualenv artifacts**
+If Railpack rejects this schema during deploy, use Railway's supported package variables instead:
+
+```text
+RAILPACK_PACKAGES=python3 python3-venv python3-pip ffmpeg
+RAILPACK_DEPLOY_APT_PACKAGES=ffmpeg
+```
+
+- [ ] **Step 2: Add centralized video defaults**
+
+Create `backend/src/media/videoDefaults.js`:
+
+```js
+export const VIDEO_DEFAULTS = Object.freeze({
+  maxDurationSeconds: 15 * 60,
+  platformAllowlist: ["douyin", "xiaohongshu", "youtube", "bilibili", "direct_video_file", "generic_web"],
+  asrProvider: "local_whisper",
+  localWhisperModel: "small",
+  localWhisperDevice: "auto",
+  localWhisperComputeType: "int8",
+  localWhisperLanguage: "zh",
+  frameProvider: "crv_style_ffmpeg",
+  visualProvider: "qwen-vl",
+  visualModel: "qwen3-vl-flash",
+  mediaMaxBytes: 150 * 1024 * 1024,
+  tikhubUnitCostUsd: 0.001
+});
+```
+
+- [ ] **Step 3: Wire defaults into provider resolvers**
+
+Update provider resolvers so env values override `VIDEO_DEFAULTS`, but production works without manual `VIDEO_*` variables:
+
+```js
+// sourcePreflight.js
+const DEFAULT_MAX_VIDEO_DURATION_SECONDS = VIDEO_DEFAULTS.maxDurationSeconds;
+```
+
+```js
+// speechToTextProvider.js
+const explicitProvider = String(env.VIDEO_ASR_PROVIDER || VIDEO_DEFAULTS.asrProvider).trim().toLowerCase();
+```
+
+```js
+// videoFramePackProvider.js
+const provider = String(env.VIDEO_FRAME_PROVIDER || VIDEO_DEFAULTS.frameProvider).trim().toLowerCase();
+```
+
+```js
+// visualUnderstandingProvider.js
+const provider = String(env.VIDEO_VISUAL_PROVIDER || VIDEO_DEFAULTS.visualProvider).trim().toLowerCase();
+```
+
+- [ ] **Step 4: Ignore local virtualenv artifacts**
 
 Modify `.gitignore` to include:
 
@@ -152,7 +206,7 @@ Modify `.gitignore` to include:
 .cache/video-models/
 ```
 
-- [ ] **Step 3: Verify local config files**
+- [ ] **Step 5: Verify local config files**
 
 Run:
 
@@ -165,11 +219,11 @@ node --check backend/src/media/ffmpegAudio.js
 
 Expected: all commands exit 0.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add nixpacks.toml .gitignore
-git commit -m "chore: configure railway video runtime"
+git add railpack.json backend/src/media/videoDefaults.js backend/src/sources/sourcePreflight.js backend/src/media/speechToTextProvider.js backend/src/media/videoFramePackProvider.js backend/src/media/visualUnderstandingProvider.js .gitignore
+git commit -m "chore: configure railway video runtime defaults"
 ```
 
 ## Task 2: Backend Video Readiness Contract
@@ -518,7 +572,7 @@ git add backend/scripts/production-readiness-gate.mjs
 git commit -m "chore: gate production video readiness"
 ```
 
-## Task 4: Deployment Input Guard And Manual Checklist
+## Task 4: Deployment Input Guard And Config Checklist
 
 **Files:**
 - Modify: `tools/production-deploy-inputs-guard.mjs`
@@ -533,17 +587,19 @@ Modify `tools/production-deploy-inputs-guard.mjs` `secretLabels` so it includes:
 "`QWEN_API_KEY` or `DASHSCOPE_API_KEY` when visual enabled"
 ```
 
-- [ ] **Step 2: Add required video runtime fields**
+- [ ] **Step 2: Add required video config fields**
 
 In `checkRequiredFields`, add:
 
 ```js
-["Video feature flag", "video_feature_flag"],
+["Video config source", "video_config_source"],
 ["Video runtime strategy", "video_runtime_strategy"],
 ["Video ASR provider", "video_asr_provider"],
 ["Video visual provider", "video_visual_provider"],
 ["Video max duration seconds", "video_max_duration_seconds"]
 ```
+
+These fields document the expected defaults and runtime strategy. They do not require manually setting `VIDEO_*` variables in Railway.
 
 - [ ] **Step 3: Create deployment inputs template**
 
@@ -596,11 +652,11 @@ Create `docs/production-readiness-evidence/video-railway-deploy-inputs.template.
 
 ## Video Runtime
 
-- Video feature flag: VIDEO_LINK_ENABLED=1
-- Video runtime strategy: Nixpacks Python venv + ffmpeg package
-- Video ASR provider: local_whisper
-- Video visual provider: qwen-vl
-- Video max duration seconds: 900
+- Video config source: code defaults with optional Railway override
+- Video runtime strategy: Railpack Python venv + ffmpeg package
+- Video ASR provider: default `local_whisper`
+- Video visual provider: default `qwen-vl`
+- Video max duration seconds: default `900`
 ```
 
 - [ ] **Step 4: Verify guard with copied sample**
@@ -651,14 +707,16 @@ Create `docs/video-railway-beta-deploy-runbook-zh.md` with:
 
 ## Railway 手动变量
 
-不要把 secret 写入 Git。只在 Railway 控制台设置：
+不要把 secret 写入 Git。Railway 当前已经确认存在：
 
 - `TIKHUB_API_KEY`
 - `QWEN_API_KEY`
-- `DEEPSEEK_API_KEY` 如果不存在
-- `DATABASE_URL` 如果不存在
+- `DEEPSEEK_API_KEY`
+- `DATABASE_URL`
+- `AI_PROVIDER`
+- `DEEPSEEK_MODEL`
 
-非 secret 视频变量可以按计划文档中的 `Required Railway Variables` 配置。
+正常内测路径不需要手动配置 `VIDEO_*`。这些变量只保留为可选的生产 override 或 kill switch。
 
 ## 部署后 smoke
 
@@ -704,9 +762,9 @@ git push origin codex/test-feature-env-20260705
 
 Expected: GitHub has the candidate branch. `git branch -r --contains HEAD` includes `origin/codex/test-feature-env-20260705`.
 
-- [ ] **Step 2: User confirms Railway variables**
+- [ ] **Step 2: Confirm Railway variables**
 
-Manual Railway console checklist:
+Railway CLI/console checklist:
 
 ```text
 DATABASE_URL=yes
@@ -715,13 +773,9 @@ AI_PROVIDER=deepseek
 DEEPSEEK_MODEL=deepseek-v4-flash
 TIKHUB_API_KEY=yes
 QWEN_API_KEY=yes
-VIDEO_LINK_ENABLED=1
-VIDEO_YTDLP_ENABLED=1
-VIDEO_MAX_DURATION_SECONDS=900
-VIDEO_ASR_PROVIDER=local_whisper
-VIDEO_FRAME_PROVIDER=crv_style_ffmpeg
-VIDEO_VISUAL_PROVIDER=qwen-vl
 ```
+
+Do not require `VIDEO_*` variables for the normal beta path. Product defaults come from code. Add `VIDEO_*` variables only when intentionally overriding defaults or temporarily disabling a subsystem.
 
 - [ ] **Step 3: Deploy backend to Railway**
 
@@ -796,4 +850,4 @@ git commit -m "docs: record video railway readiness"
 - Spec coverage: The plan covers branch risk documentation, Railway runtime dependencies, manual Railway variables, backend readiness, deployment order, and iOS beta sequencing.
 - Placeholder scan: No `TBD`, `TODO`, or unspecified implementation steps remain. Secret values are intentionally represented as `<set in Railway console>` and must not be committed.
 - Type consistency: The readiness object consistently uses `enabled`, `canRunVideoGeneration`, `providers`, and `checks`.
-- Remaining unknown: Actual Railway variable presence cannot be verified from this machine because Railway CLI is not installed and no Railway MCP tool is available in this session.
+- Remaining unknown: Railpack video runtime package syntax must be verified by a Railway build because local Railway CLI can inspect the project but does not execute the remote build image locally.
