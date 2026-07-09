@@ -48,6 +48,7 @@ struct V2MaterialsView: View {
     @Binding var selectedTab: V2HomeTab
     let usesMockData: Bool
     let backendChapters: [V2BackendChapter]
+    let completedChapterIDs: Set<String>
     let generatedChapterCount: Int
     let showsGeneratingChapterCard: Bool
     let generatingChapterTitle: String
@@ -108,7 +109,7 @@ struct V2MaterialsView: View {
                     } label: {
                         V2ChapterCard(
                             title: chapter.title,
-                            status: chapter.v2ListStatus,
+                            status: listStatus(for: chapter),
                             source: chapter.sourceLabel,
                             knowledgeCount: chapter.units?.count ?? 0,
                             questionCount: chapter.questionCount,
@@ -161,6 +162,10 @@ struct V2MaterialsView: View {
             }
         }
     }
+
+    private func listStatus(for chapter: V2BackendChapter) -> V2ChapterReviewStatus {
+        chapter.v2ListStatus(hasCompletedReviewOnce: completedChapterIDs.contains(chapter.id) || chapter.hasCompletedV2ReviewOnce)
+    }
 }
 
 private enum V2MaterialsMascotMetrics {
@@ -179,14 +184,14 @@ private extension V2BackendChapter {
         status == "failed_generation" || status == "failed_input" || status == "failed_questions" || progress?.status == "failed"
     }
 
-    var v2ListStatus: V2ChapterReviewStatus {
+    func v2ListStatus(hasCompletedReviewOnce: Bool = false) -> V2ChapterReviewStatus {
         if isV2GenerationFailed {
             return .failed
         }
         if isV2GenerationPending {
             return .generating
         }
-        if v2ReviewSession?.completedAt != nil {
+        if hasCompletedReviewOnce || hasCompletedV2ReviewOnce {
             return .completed
         }
         if v2ReviewSession != nil {

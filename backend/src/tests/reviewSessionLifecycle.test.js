@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { recordSessionAttempt, serializeChapterForClient, startOrResumeReviewSession } from "../server.js";
+import {
+  recordSessionAttempt,
+  serializeChapterForClient,
+  startOrResumeReviewSession,
+  startOrResumeV2ReviewSession
+} from "../server.js";
 
 function reviewableChapter(overrides = {}) {
   return {
@@ -16,6 +21,57 @@ function reviewableChapter(overrides = {}) {
       { id: "q-2", knowledgePointId: "kp-2" }
     ],
     masteredPoints: 2,
+    ...overrides
+  };
+}
+
+function v2ReviewableChapter(overrides = {}) {
+  return {
+    schemaVersion: "v2_review_path_1",
+    id: "v2-chapter-test",
+    status: "completed",
+    title: "V2 Chapter",
+    source: {
+      blocks: [
+        { id: "source-1", type: "paragraph", text: "A source block for V2 review." }
+      ]
+    },
+    summaryCard: { text: "Chapter summary." },
+    units: [
+      {
+        id: "unit-1",
+        order: 0,
+        title: "Unit 1",
+        nodeLabel: "1",
+        shortSummary: "Short unit summary.",
+        detailSummary: "Detailed unit summary.",
+        sourceAnchor: { id: "anchor-1", blockIds: ["source-1"] },
+        overview: { text: "Unit overview." },
+        questions: [
+          {
+            id: "question-1",
+            type: "multiple_choice",
+            stem: "Which option is correct?",
+            explanation: "Option A is correct.",
+            sourceAnchorId: "anchor-1",
+            options: [
+              { id: "a", text: "A" },
+              { id: "b", text: "B" },
+              { id: "c", text: "C" },
+              { id: "d", text: "D" }
+            ],
+            correctOptionId: "a"
+          }
+        ],
+        summary: { title: "Unit done", text: "You finished this unit." }
+      }
+    ],
+    chapterSummary: {
+      title: "Chapter done",
+      statsText: "1 unit",
+      encouragementText: "Nice work."
+    },
+    generationMeta: { currentStage: "completed" },
     ...overrides
   };
 }
@@ -49,6 +105,34 @@ test("starts a new review session after the previous one is completed", () => {
   assert.deepEqual(session.masteredThisRoundPointIds, []);
   assert.equal(session.queue.length, 2);
   assert.equal(chapter.masteredPoints, 2);
+});
+
+test("keeps V2 review completion marker when replay starts a new session", () => {
+  const completedAt = "2026-06-19T00:10:00.000Z";
+  const chapter = v2ReviewableChapter({
+    v2ReviewSession: {
+      id: "v2-session-old",
+      chapterId: "v2-chapter-test",
+      status: "completed",
+      currentCard: { type: "chapter_summary", chapterId: "v2-chapter-test" },
+      questionStates: {},
+      completedStepIds: ["chapter_overview"],
+      needsReviewQuestionIds: [],
+      sourceRoute: null,
+      createdAt: "2026-06-19T00:00:00.000Z",
+      updatedAt: completedAt,
+      completedAt
+    }
+  });
+
+  const session = startOrResumeV2ReviewSession(chapter);
+  const serialized = serializeChapterForClient(chapter);
+
+  assert.equal(session.status, "active");
+  assert.notEqual(session.id, "v2-session-old");
+  assert.equal(session.completedAt, null);
+  assert.equal(chapter.v2ReviewCompletedAt, completedAt);
+  assert.equal(serialized.v2ReviewCompletedAt, completedAt);
 });
 
 test("resumes an active review session without replacing it", () => {

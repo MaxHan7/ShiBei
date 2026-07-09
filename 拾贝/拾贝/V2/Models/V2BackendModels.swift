@@ -211,6 +211,7 @@ struct V2BackendChapter: Decodable, Equatable {
     let chapterSummary: V2BackendChapterSummary?
     let generationProgress: V2BackendGenerationProgress?
     let v2ReviewSession: V2BackendReviewSession?
+    let v2ReviewCompletedAt: String?
 }
 
 extension V2BackendChapter: Identifiable {}
@@ -229,8 +230,17 @@ extension V2BackendChapter {
             units: units,
             chapterSummary: chapterSummary,
             generationProgress: generationProgress,
-            v2ReviewSession: reviewSession
+            v2ReviewSession: reviewSession,
+            v2ReviewCompletedAt: v2ReviewCompletedAt
         )
+    }
+
+    var hasCompletedV2ReviewOnce: Bool {
+        if let completedAt = v2ReviewCompletedAt?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !completedAt.isEmpty {
+            return true
+        }
+        return v2ReviewSession?.completedAt != nil
     }
 }
 

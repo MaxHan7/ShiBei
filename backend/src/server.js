@@ -1268,6 +1268,13 @@ function ensureChapterRecord(chapter) {
     ),
     reviewSession: chapter.reviewSession ? normalizeReviewSession(chapter.reviewSession, baseChapter) : null,
     v2ReviewSession: chapter.v2ReviewSession || chapter.v2_review_session || null,
+    v2ReviewCompletedAt: toStringValue(
+      chapter.v2ReviewCompletedAt ||
+      chapter.v2_review_completed_at ||
+      chapter.v2ReviewSession?.completedAt ||
+      chapter.v2_review_session?.completedAt ||
+      ""
+    ),
     masteredPoints: toIntegerValue(chapter.masteredPoints, 0),
     removedQuestionIds: Array.isArray(chapter.removedQuestionIds) ? chapter.removedQuestionIds.map((id) => toStringValue(id)).filter(Boolean) : [],
     downgradedQuestionIds: Array.isArray(chapter.downgradedQuestionIds) ? chapter.downgradedQuestionIds.map((id) => toStringValue(id)).filter(Boolean) : [],
@@ -2003,6 +2010,7 @@ function startOrResumeV2ReviewSession(chapter) {
   const existingSession = chapter.v2ReviewSession
     ? normalizeReviewSessionV2(chapter, chapter.v2ReviewSession)
     : null;
+  rememberV2ReviewCompletion(chapter, existingSession);
 
   chapter.v2ReviewSession = existingSession?.status === "active"
     ? existingSession
@@ -2022,8 +2030,15 @@ function applyV2ReviewSessionMutation(chapter, mutator) {
     ? normalizeReviewSessionV2(chapter, chapter.v2ReviewSession)
     : createReviewSessionV2(chapter);
   chapter.v2ReviewSession = mutator(currentSession);
+  rememberV2ReviewCompletion(chapter, chapter.v2ReviewSession);
   chapter.updatedAt = new Date().toISOString();
   return chapter.v2ReviewSession;
+}
+
+function rememberV2ReviewCompletion(chapter, session) {
+  const completedAt = toStringValue(session?.completedAt || "");
+  if (!completedAt) return;
+  chapter.v2ReviewCompletedAt = toStringValue(chapter.v2ReviewCompletedAt || "") || completedAt;
 }
 
 function serializeV2ReviewSessionResponse(chapter, reviewSession) {
@@ -2462,6 +2477,7 @@ const server = createServer(async (req, res) => {
       const currentSession = chapter.v2ReviewSession
         ? normalizeReviewSessionV2(chapter, chapter.v2ReviewSession)
         : createReviewSessionV2(chapter);
+      rememberV2ReviewCompletion(chapter, currentSession);
       const reviewSession = startReplayFromUnitV2(chapter, currentSession, {
         unitId: body?.unitId
       });

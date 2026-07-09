@@ -31,6 +31,8 @@ struct V2RootView: View {
     private var usesMockData = false
     @AppStorage("v2.activeLearningChapterID")
     private var activeLearningChapterID = ""
+    @AppStorage("v2.completedReviewChapterIDs")
+    private var completedReviewChapterIDsStorage = ""
 
     @State private var selectedTab: V2HomeTab = .learning
     @State private var routeStore = V2RouteStore()
@@ -184,6 +186,7 @@ struct V2RootView: View {
                 selectedTab: $selectedTab,
                 usesMockData: usesFixtures,
                 backendChapters: backendChapters,
+                completedChapterIDs: completedReviewChapterIDs,
                 generatedChapterCount: generatedChapterCount,
                 showsGeneratingChapterCard: generationState.showsChapterCard,
                 generatingChapterTitle: backendChapter?.title ?? "正在生成新的章节",
@@ -1650,6 +1653,7 @@ struct V2RootView: View {
                 recommendedArticles = recommendedResponse.articles
             }
             let chapters = try await apiClient.fetchV2Chapters()
+            rememberCompletedReviews(in: chapters)
             backendChapters = chapters
             guard let latestChapter = chapters.first else {
                 return
@@ -1665,6 +1669,7 @@ struct V2RootView: View {
     }
 
     private func applyBackendChapter(_ chapter: V2BackendChapter, activateForReview: Bool = false) {
+        rememberCompletedReviewIfNeeded(chapter)
         let previousChapterID = backendChapter?.id
         backendChapter = chapter
         upsertBackendChapter(chapter)
@@ -1702,6 +1707,50 @@ struct V2RootView: View {
         } else {
             backendChapters.insert(chapter, at: 0)
         }
+    }
+
+    private var completedReviewChapterIDs: Set<String> {
+        Set(
+            completedReviewChapterIDsStorage
+                .split(separator: "\n")
+                .map(String.init)
+                .filter { !$0.isEmpty }
+        )
+    }
+
+    private func rememberCompletedReviews(in chapters: [V2BackendChapter]) {
+        for chapter in chapters {
+            rememberCompletedReviewIfNeeded(chapter)
+        }
+    }
+
+    private func rememberCompletedReviewIfNeeded(_ chapter: V2BackendChapter) {
+        guard chapter.hasCompletedV2ReviewOnce else {
+            return
+        }
+        rememberCompletedReview(chapterID: chapter.id)
+    }
+
+    private func rememberCompletedReview(chapterID: String) {
+        guard !chapterID.isEmpty else {
+            return
+        }
+        var ids = completedReviewChapterIDs
+        guard ids.insert(chapterID).inserted else {
+            return
+        }
+        completedReviewChapterIDsStorage = ids.sorted().joined(separator: "\n")
+    }
+
+    private func forgetCompletedReview(chapterID: String) {
+        guard !chapterID.isEmpty else {
+            return
+        }
+        var ids = completedReviewChapterIDs
+        guard ids.remove(chapterID) != nil else {
+            return
+        }
+        completedReviewChapterIDsStorage = ids.sorted().joined(separator: "\n")
     }
 
     private func isTerminalGenerationStatus(_ status: String) -> Bool {
@@ -1742,6 +1791,7 @@ struct V2RootView: View {
             backendChapters.removeAll { $0.id == chapterID }
             backendNotifications.removeAll { $0.chapterId == chapterID }
             backendFavoriteQuestions.removeAll { $0.chapterId == chapterID }
+            forgetCompletedReview(chapterID: chapterID)
             if activeLearningChapterID == chapterID {
                 activeLearningChapterID = ""
             }
