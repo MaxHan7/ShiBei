@@ -64,6 +64,9 @@ test("renders a readable V2 quality HTML report with questions and source anchor
   assert.doesNotMatch(html, /Evidence Needs/);
   assert.match(html, /质量诊断/);
   assert.match(html, /distractor value: pass/);
+  assert.match(html, /option length ratio: 1\.1/);
+  assert.match(html, /option length range: 3/);
+  assert.match(html, /option cue hits: B:完全、B:不需要/);
   assert.match(html, /matching relation value: pass/);
   assert.match(html, /Source Context Stats/);
   assert.match(html, /unitKnowledgeMap: b1, b2/);
@@ -391,7 +394,15 @@ function chapterFixture() {
             distractorValue: "pass",
             matchingRelationValue: "not_applicable",
             explanationUiFit: "pass",
-            sourceAnchorPrecision: "pass"
+            sourceAnchorPrecision: "pass",
+            optionQuality: {
+              correctToMedianDistractorRatio: 1.1,
+              lengthRange: 3,
+              cueHits: [
+                { optionId: "B", term: "完全", isCorrect: false },
+                { optionId: "B", term: "不需要", isCorrect: false }
+              ]
+            }
           },
           issues: []
         },

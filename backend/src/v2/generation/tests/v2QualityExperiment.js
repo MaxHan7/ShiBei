@@ -1013,11 +1013,26 @@ function renderQuestionDiagnostic(diagnostic) {
     <summary>质量诊断</summary>
     <div class="meta">forbidden phrase: ${escapeHtml(formatCheckValue(checks.forbiddenPhrase))}</div>
     <div class="meta">distractor value: ${escapeHtml(checks.distractorValue || "not_applicable")}</div>
+    ${renderOptionQualityDiagnostic(checks.optionQuality)}
     <div class="meta">matching relation value: ${escapeHtml(checks.matchingRelationValue || "not_applicable")}</div>
     <div class="meta">explanation UI fit: ${escapeHtml(checks.explanationUiFit || "unknown")}</div>
     <div class="meta">source anchor precision: ${escapeHtml(checks.sourceAnchorPrecision || "unknown")}</div>
     <pre>${escapeHtml(issueText)}</pre>
   </details>`;
+}
+
+function renderOptionQualityDiagnostic(optionQuality) {
+  if (!optionQuality || typeof optionQuality !== "object") return "";
+  const cueText = optionQuality.cueHits?.length
+    ? optionQuality.cueHits
+      .map((hit) => `${hit.optionId}${hit.isCorrect ? "*" : ""}:${hit.term}`)
+      .join("、")
+    : "pass";
+  return [
+    `<div class="meta">option length ratio: ${escapeHtml(optionQuality.correctToMedianDistractorRatio ?? "n/a")}</div>`,
+    `<div class="meta">option length range: ${escapeHtml(optionQuality.lengthRange ?? "n/a")}</div>`,
+    `<div class="meta">option cue hits: ${escapeHtml(cueText)}</div>`
+  ].join("\n");
 }
 
 function formatCheckValue(value) {

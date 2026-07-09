@@ -85,7 +85,9 @@ function analyzeQuestion(question, unit, anchorIds) {
     distractorValue: "not_applicable",
     matchingRelationValue: "not_applicable",
     explanationUiFit: "pass",
-    sourceAnchorPrecision: "pass"
+    sourceAnchorPrecision: "pass",
+    optionLengthBalance: "not_applicable",
+    optionQuality: null
   };
   const issues = [];
 
@@ -130,6 +132,10 @@ function analyzeQuestion(question, unit, anchorIds) {
   }
 
   if (question.type === "multiple_choice") {
+    const optionQuality = analyzeOptionQuality(question);
+    checks.optionQuality = optionQuality;
+    checks.optionLengthBalance = optionQuality.lengthBalance;
+
     const distractorCheck = analyzeDistractors(question);
     checks.distractorValue = distractorCheck.status;
     if (distractorCheck.issue) issues.push(distractorCheck.issue);
@@ -198,6 +204,53 @@ function analyzeDistractors(question) {
   return { status: "pass" };
 }
 
+function analyzeOptionQuality(question) {
+  const options = Array.isArray(question.options) ? question.options : [];
+  const correctOptionId = String(question.correctOptionId || "");
+  const correct = options.find((option) => option.id === correctOptionId);
+  const distractors = options.filter((option) => option.id !== correctOptionId);
+  const optionLengths = Object.fromEntries(
+    options.map((option) => [option.id, countVisibleChars(option.text)])
+  );
+  const lengths = Object.values(optionLengths);
+  const distractorLengths = distractors.map((option) => countVisibleChars(option.text));
+  const correctLength = correct ? countVisibleChars(correct.text) : 0;
+  const medianDistractorLength = median(distractorLengths);
+  const correctToMedianDistractorRatio = medianDistractorLength
+    ? roundToTwoDecimals(correctLength / medianDistractorLength)
+    : null;
+  const cueHits = options.flatMap((option) =>
+    cueTermsInText(option.text).map((term) => ({
+      optionId: option.id,
+      term,
+      isCorrect: option.id === correctOptionId
+    }))
+  );
+  const correctCueTerms = unique(
+    cueHits.filter((hit) => hit.isCorrect).map((hit) => hit.term)
+  );
+  const distractorCueTerms = unique(
+    cueHits.filter((hit) => !hit.isCorrect).map((hit) => hit.term)
+  );
+
+  return {
+    optionCount: options.length,
+    correctOptionId,
+    optionLengths,
+    correctLength,
+    distractorLengths,
+    medianDistractorLength,
+    correctToMedianDistractorRatio,
+    shortestOptionLength: lengths.length ? Math.min(...lengths) : 0,
+    longestOptionLength: lengths.length ? Math.max(...lengths) : 0,
+    lengthRange: lengths.length ? Math.max(...lengths) - Math.min(...lengths) : 0,
+    lengthBalance: optionLengthBalance({ correctLength, medianDistractorLength }),
+    cueHits,
+    correctCueTerms,
+    distractorCueTerms
+  };
+}
+
 function analyzeOptionToneCues(question) {
   const options = Array.isArray(question.options) ? question.options : [];
   const correct = options.find((option) => option.id === question.correctOptionId);
@@ -232,9 +285,32 @@ function analyzeOptionToneCues(question) {
   return { status: "pass" };
 }
 
+function optionLengthBalance({ correctLength, medianDistractorLength }) {
+  if (!medianDistractorLength) return "invalid_options";
+  if (correctLength >= 24 && correctLength > medianDistractorLength * 1.8) {
+    return "correct_option_too_obvious";
+  }
+  if (correctLength >= 18 && correctLength > medianDistractorLength * 1.35) {
+    return "watch_correct_option_longer";
+  }
+  return "pass";
+}
+
 function cueTermsInText(value = "") {
   const text = String(value || "");
   return OPTION_TONE_CUE_TERMS.filter((term) => text.includes(term));
+}
+
+function median(values) {
+  const sorted = values
+    .filter((value) => Number.isFinite(value))
+    .sort((left, right) => left - right);
+  if (!sorted.length) return 0;
+  return sorted[Math.floor(sorted.length / 2)];
+}
+
+function roundToTwoDecimals(value) {
+  return Math.round(value * 100) / 100;
 }
 
 function unique(values) {
