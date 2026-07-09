@@ -1,18 +1,21 @@
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { mkdir, readdir, stat } from "node:fs/promises";
+import { mkdir, readdir, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { createMediaExtractionError } from "./mediaErrors.js";
+import { VIDEO_DEFAULTS } from "./videoDefaults.js";
 
 const DEFAULT_TIMEOUT_MS = readPositiveInt(process.env.YT_DLP_DOWNLOAD_TIMEOUT_MS, 180_000);
 const DEFAULT_FORMAT_SELECTOR = process.env.YT_DLP_FORMAT_SELECTOR || "bv*+ba/best";
+const DEFAULT_MAX_BYTES = readPositiveInt(process.env.VIDEO_MEDIA_MAX_BYTES, VIDEO_DEFAULTS.mediaMaxBytes);
 
 export async function downloadYtDlpMediaToTempFile({
   sourceUrl,
   pythonPath = process.env.YT_DLP_PYTHON || process.env.PYTHON_PATH || "python3",
   formatSelector = DEFAULT_FORMAT_SELECTOR,
+  maxBytes = DEFAULT_MAX_BYTES,
   timeoutMs = DEFAULT_TIMEOUT_MS,
   spawnImpl = spawn,
   tmpRoot = tmpdir()
@@ -24,23 +27,34 @@ export async function downloadYtDlpMediaToTempFile({
     });
   }
   const dir = join(tmpRoot, `shibei-ytdlp-${randomUUID()}`);
-  await mkdir(dir, { recursive: true });
-  await runYtDlpDownload({
-    sourceUrl,
-    pythonPath,
-    formatSelector,
-    timeoutMs,
-    outputTemplate: join(dir, "source-video.%(ext)s"),
-    spawnImpl
-  });
-  const file = await findDownloadedMediaFile(dir);
-  return {
-    path: file.path,
-    dir,
-    bytes: file.bytes,
-    contentType: contentTypeForPath(file.path),
-    sourceUrl
-  };
+  try {
+    await mkdir(dir, { recursive: true });
+    await runYtDlpDownload({
+      sourceUrl,
+      pythonPath,
+      formatSelector,
+      timeoutMs,
+      outputTemplate: join(dir, "source-video.%(ext)s"),
+      spawnImpl
+    });
+    const file = await findDownloadedMediaFile(dir);
+    if (file.bytes > maxBytes) {
+      throw createMediaExtractionError("video_media_too_large", "视频文件过大，暂时无法生成复习内容。", {
+        retryable: false,
+        provider: "yt-dlp"
+      });
+    }
+    return {
+      path: file.path,
+      dir,
+      bytes: file.bytes,
+      contentType: contentTypeForPath(file.path),
+      sourceUrl
+    };
+  } catch (error) {
+    await rm(dir, { recursive: true, force: true }).catch(() => {});
+    throw error;
+  }
 }
 
 function runYtDlpDownload({

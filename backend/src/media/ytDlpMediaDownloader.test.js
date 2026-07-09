@@ -40,7 +40,18 @@ test("classifies missing yt-dlp downloader runtime as provider config failure", 
   );
 });
 
-function createDownloadMockSpawn({ calls = [], stderr = "", exitCode = 0 } = {}) {
+test("rejects yt-dlp output larger than max bytes", async () => {
+  await assert.rejects(
+    () => downloadYtDlpMediaToTempFile({
+      sourceUrl: "https://www.youtube.com/watch?v=abc",
+      maxBytes: 4,
+      spawnImpl: createDownloadMockSpawn({ output: "too-large" })
+    }),
+    (error) => error.mediaErrorType === "video_media_too_large" && error.retryable === false
+  );
+});
+
+function createDownloadMockSpawn({ calls = [], stderr = "", exitCode = 0, output = "fake-video" } = {}) {
   return (command, args) => {
     calls.push({ command, args });
     const child = new EventEmitter();
@@ -51,7 +62,7 @@ function createDownloadMockSpawn({ calls = [], stderr = "", exitCode = 0 } = {})
       const outputIndex = args.indexOf("-o");
       const outputTemplate = outputIndex >= 0 ? args[outputIndex + 1] : "";
       if (!stderr && outputTemplate) {
-        await writeFile(outputTemplate.replace("%(ext)s", "mp4"), "fake-video");
+        await writeFile(outputTemplate.replace("%(ext)s", "mp4"), output);
       }
       if (stderr) child.stderr.write(stderr);
       child.stdout.end();

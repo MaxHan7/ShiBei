@@ -44,6 +44,7 @@ export async function extractVideoLearningSource({
   downloadMedia = downloadMediaToTempFile,
   downloadYtDlpMedia = downloadYtDlpMediaToTempFile,
   maxDurationSeconds = readPositiveInt(process.env.VIDEO_MAX_DURATION_SECONDS, VIDEO_DEFAULTS.maxDurationSeconds),
+  mediaMaxBytes = readPositiveInt(process.env.VIDEO_MEDIA_MAX_BYTES, VIDEO_DEFAULTS.mediaMaxBytes),
   extractAudio = extractAudioWithFfmpeg,
   speechToTextProvider = createSpeechToTextProvider(),
   transcribeAudio = null,
@@ -133,7 +134,8 @@ export async function extractVideoLearningSource({
       mediaFile = await downloadVideoMedia({
         video,
         downloadMedia,
-        downloadYtDlpMedia
+        downloadYtDlpMedia,
+        mediaMaxBytes
       });
     } catch (error) {
       if (!shouldRefreshCachedVideoSource({ error, videoSourceCacheHit })) throw error;
@@ -155,7 +157,8 @@ export async function extractVideoLearningSource({
       mediaFile = await downloadVideoMedia({
         video,
         downloadMedia,
-        downloadYtDlpMedia
+        downloadYtDlpMedia,
+        mediaMaxBytes
       });
     }
     recordMediaUsage(mediaUsageRecorder, {
@@ -504,15 +507,17 @@ function enforceVideoPlatformGate(platform) {
 async function downloadVideoMedia({
   video,
   downloadMedia,
-  downloadYtDlpMedia
+  downloadYtDlpMedia,
+  mediaMaxBytes
 }) {
   if (video?.mediaDownload?.provider === "yt-dlp") {
     return downloadYtDlpMedia({
       sourceUrl: video.mediaDownload.sourceUrl || video.sourceUrl,
-      formatSelector: video.mediaDownload.formatSelector
+      formatSelector: video.mediaDownload.formatSelector,
+      maxBytes: mediaMaxBytes
     });
   }
-  return downloadMedia({ mediaUrl: video.mediaUrl });
+  return downloadMedia({ mediaUrl: video.mediaUrl, maxBytes: mediaMaxBytes });
 }
 
 function withCacheMeta(learningSource, cache) {
