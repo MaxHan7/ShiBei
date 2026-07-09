@@ -304,10 +304,12 @@ struct V2UploadView: View {
                     }
 
                 VStack(spacing: V2UploadPageMetrics.verticalSpacing) {
-                    V2UploadMascotInputGroup(urlText: $sourceText)
+                    V2UploadMascotInputGroup(
+                        urlText: $sourceText,
+                        preflightState: preflightState,
+                        input: trimmedSourceText
+                    )
                         .padding(.top, V2UploadPageMetrics.groupTopPadding)
-
-                    V2UploadPreflightPanel(state: preflightState, input: trimmedSourceText)
 
                     V2PrimaryActionButton(
                         title: primaryActionTitle,
@@ -480,69 +482,82 @@ private enum V2UploadPreflightState: Equatable {
         }
         return false
     }
-}
 
-private struct V2UploadPreflightPanel: View {
-    let state: V2UploadPreflightState
-    let input: String
-
-    var body: some View {
-        Group {
-            switch state {
-            case .idle:
-                Color.clear
-                    .frame(height: V2UploadPreflightPanelMetrics.minHeight)
-            case .checking(let checkedInput) where checkedInput == input:
-                V2UploadPreflightStatusCard(
-                    tone: .checking,
-                    title: "正在读取链接信息",
-                    detail: "识别平台和链接类型"
-                )
-            case .checkingMetadata(let checkedInput) where checkedInput == input:
-                V2UploadPreflightStatusCard(
-                    tone: .checking,
-                    title: "正在确认视频信息",
-                    detail: "检查标题和时长"
-                )
-            case .ready(let checkedInput, let response) where checkedInput == input:
-                V2UploadPreflightStatusCard(
-                    tone: .ready,
-                    title: sourceTitle(response),
-                    detail: sourceDetail(response)
-                )
-            case .blocked(let checkedInput, let response) where checkedInput == input:
-                V2UploadPreflightStatusCard(
-                    tone: .blocked,
-                    title: response.platformLabel ?? "暂不支持",
-                    detail: response.userMessage
-                )
-            case .failed(let checkedInput, let message) where checkedInput == input:
-                V2UploadPreflightStatusCard(
-                    tone: .blocked,
-                    title: "链接读取失败",
-                    detail: message
-                )
-            default:
-                Color.clear
-                    .frame(height: V2UploadPreflightPanelMetrics.minHeight)
-            }
+    func feedback(for input: String) -> V2UploadPreflightFeedback? {
+        switch self {
+        case .idle:
+            return nil
+        case .checking(let checkedInput) where checkedInput == input:
+            return V2UploadPreflightFeedback(
+                tone: .checking,
+                title: "正在读取链接信息",
+                detail: "识别平台和内容类型"
+            )
+        case .checkingMetadata(let checkedInput) where checkedInput == input:
+            return V2UploadPreflightFeedback(
+                tone: .checking,
+                title: "正在确认视频信息",
+                detail: "检查标题和时长"
+            )
+        case .ready(let checkedInput, let response) where checkedInput == input:
+            return V2UploadPreflightFeedback(
+                tone: .ready,
+                title: Self.sourceTitle(response),
+                detail: Self.sourceDetail(response)
+            )
+        case .blocked(let checkedInput, let response) where checkedInput == input:
+            return V2UploadPreflightFeedback(
+                tone: .blocked,
+                title: response.platformLabel ?? "暂不支持",
+                detail: response.userMessage
+            )
+        case .failed(let checkedInput, let message) where checkedInput == input:
+            return V2UploadPreflightFeedback(
+                tone: .blocked,
+                title: "链接读取失败",
+                detail: message
+            )
+        default:
+            return nil
         }
     }
 
-    private func sourceTitle(_ response: SourcePreflightResponse) -> String {
+    private static func sourceTitle(_ response: SourcePreflightResponse) -> String {
         let title = (response.title ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        return title.isEmpty ? (response.platformLabel ?? "已识别链接") : title
+        if !title.isEmpty {
+            return title
+        }
+        switch response.sourceType {
+        case "video_link":
+            let platformLabel = response.platformLabel ?? "视频"
+            return platformLabel.contains("视频") ? platformLabel : "\(platformLabel)视频"
+        case "wechat_article":
+            return "公众号文章"
+        case "article_link":
+            return "网页文章"
+        default:
+            return response.platformLabel ?? "已识别链接"
+        }
     }
 
-    private func sourceDetail(_ response: SourcePreflightResponse) -> String {
-        let platform = response.platformLabel ?? sourceTypeLabel(response.sourceType)
+    private static func sourceDetail(_ response: SourcePreflightResponse) -> String {
         if let durationSeconds = response.durationSeconds, durationSeconds > 0 {
+            let platform = response.platformLabel ?? sourceTypeLabel(response.sourceType)
             return "\(platform) · \(formatDuration(durationSeconds))"
         }
-        return response.userMessage
+        switch response.sourceType {
+        case "video_link":
+            return "将生成视频学习内容"
+        case "wechat_article":
+            return "将生成公众号文章学习内容"
+        case "article_link":
+            return "将生成网页文章学习内容"
+        default:
+            return response.userMessage
+        }
     }
 
-    private func sourceTypeLabel(_ sourceType: String) -> String {
+    private static func sourceTypeLabel(_ sourceType: String) -> String {
         switch sourceType {
         case "video_link": return "视频"
         case "wechat_article": return "公众号文章"
@@ -551,7 +566,7 @@ private struct V2UploadPreflightPanel: View {
         }
     }
 
-    private func formatDuration(_ seconds: Double) -> String {
+    private static func formatDuration(_ seconds: Double) -> String {
         let rounded = max(Int(seconds.rounded()), 0)
         let minutes = rounded / 60
         let remainingSeconds = rounded % 60
@@ -565,29 +580,33 @@ private struct V2UploadPreflightPanel: View {
     }
 }
 
-private struct V2UploadPreflightStatusCard: View {
-    enum Tone {
-        case checking
-        case ready
-        case blocked
-
-        var accent: Color {
-            switch self {
-            case .checking: V2Color.primaryAction
-            case .ready: V2Color.primary
-            case .blocked: V2Color.feedbackWrongBorder
-            }
-        }
-    }
-
-    let tone: Tone
+private struct V2UploadPreflightFeedback: Equatable {
+    let tone: V2UploadPreflightTone
     let title: String
     let detail: String
+}
+
+private enum V2UploadPreflightTone {
+    case checking
+    case ready
+    case blocked
+
+    var accent: Color {
+        switch self {
+        case .checking: V2Color.primaryAction
+        case .ready: V2Color.primary
+        case .blocked: V2Color.feedbackWrongBorder
+        }
+    }
+}
+
+private struct V2UploadPreflightStatusRow: View {
+    let feedback: V2UploadPreflightFeedback
 
     var body: some View {
         HStack(alignment: .top, spacing: V2UploadPreflightPanelMetrics.contentSpacing) {
             Circle()
-                .fill(tone.accent)
+                .fill(feedback.tone.accent)
                 .frame(
                     width: V2UploadPreflightPanelMetrics.dotSize,
                     height: V2UploadPreflightPanelMetrics.dotSize
@@ -595,13 +614,13 @@ private struct V2UploadPreflightStatusCard: View {
                 .padding(.top, V2UploadPreflightPanelMetrics.dotTopPadding)
 
             VStack(alignment: .leading, spacing: V2UploadPreflightPanelMetrics.textSpacing) {
-                Text(title)
+                Text(feedback.title)
                     .font(V2Typography.label)
                     .foregroundStyle(V2Color.topTitle)
                     .lineLimit(1)
                     .truncationMode(.tail)
 
-                Text(detail)
+                Text(feedback.detail)
                     .font(V2Typography.labelRegular)
                     .foregroundStyle(V2Color.textSecondary)
                     .lineLimit(2)
@@ -613,7 +632,7 @@ private struct V2UploadPreflightStatusCard: View {
         .padding(.horizontal, V2UploadPreflightPanelMetrics.horizontalPadding)
         .padding(.vertical, V2UploadPreflightPanelMetrics.verticalPadding)
         .frame(
-            maxWidth: V2Layout.contentMaxWidth,
+            maxWidth: .infinity,
             minHeight: V2UploadPreflightPanelMetrics.minHeight,
             alignment: .leading
         )
@@ -622,7 +641,7 @@ private struct V2UploadPreflightStatusCard: View {
                 .fill(V2Color.surfaceCream)
                 .overlay(
                     RoundedRectangle(cornerRadius: V2UploadPreflightPanelMetrics.radius, style: .continuous)
-                        .stroke(tone.accent.opacity(0.32), lineWidth: 1)
+                        .stroke(feedback.tone.accent.opacity(0.32), lineWidth: 1)
                 )
         )
     }
@@ -630,6 +649,20 @@ private struct V2UploadPreflightStatusCard: View {
 
 private struct V2UploadMascotInputGroup: View {
     @Binding var urlText: String
+    let preflightState: V2UploadPreflightState
+    let input: String
+
+    private var feedback: V2UploadPreflightFeedback? {
+        preflightState.feedback(for: input)
+    }
+
+    private var cardHeight: CGFloat {
+        V2UploadInputCardMetrics.cardHeight(hasFeedback: feedback != nil)
+    }
+
+    private var groupHeight: CGFloat {
+        V2UploadMascotInputMetrics.groupHeight(cardHeight: cardHeight)
+    }
 
     var body: some View {
         GeometryReader { proxy in
@@ -647,11 +680,11 @@ private struct V2UploadMascotInputGroup: View {
                     )
                     .zIndex(0)
 
-                V2UploadLinkInputCard(urlText: $urlText)
-                    .frame(width: width, height: V2UploadInputCardMetrics.cardHeight)
+                V2UploadLinkInputCard(urlText: $urlText, feedback: feedback)
+                    .frame(width: width, height: cardHeight)
                     .position(
                         x: width / 2,
-                        y: V2UploadMascotInputMetrics.cardCenterY
+                        y: V2UploadMascotInputMetrics.cardCenterY(cardHeight: cardHeight)
                     )
                     .zIndex(1)
 
@@ -666,15 +699,16 @@ private struct V2UploadMascotInputGroup: View {
                     )
                     .zIndex(2)
             }
-            .frame(width: width, height: V2UploadMascotInputMetrics.groupHeight)
+            .frame(width: width, height: groupHeight)
             .frame(maxWidth: .infinity)
         }
-        .frame(height: V2UploadMascotInputMetrics.groupHeight)
+        .frame(height: groupHeight)
     }
 }
 
 private struct V2UploadLinkInputCard: View {
     @Binding var urlText: String
+    let feedback: V2UploadPreflightFeedback?
     @FocusState private var isURLFieldFocused: Bool
 
     var body: some View {
@@ -721,15 +755,21 @@ private struct V2UploadLinkInputCard: View {
                             .stroke(V2Color.borderSoftGreen.opacity(0.8), lineWidth: 1)
                     )
             )
+
+            if let feedback {
+                V2UploadPreflightStatusRow(feedback: feedback)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
         }
         .padding(V2UploadInputCardMetrics.outerPadding)
         .frame(maxWidth: .infinity)
-        .frame(height: V2UploadInputCardMetrics.cardHeight)
+        .frame(height: V2UploadInputCardMetrics.cardHeight(hasFeedback: feedback != nil))
         .background(
             RoundedRectangle(cornerRadius: V2UploadInputCardMetrics.cardRadius, style: .continuous)
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
         )
+        .animation(.easeInOut(duration: 0.18), value: feedback)
     }
 }
 
@@ -765,17 +805,17 @@ private struct V2UploadBackgroundDecorations: View {
 
 private enum V2UploadPageMetrics {
     static let groupTopPadding: CGFloat = 28
-    static let verticalSpacing: CGFloat = 18
-    static let contentHeight: CGFloat = 580
+    static let verticalSpacing: CGFloat = 16
+    static let contentHeight: CGFloat = 640
 }
 
 private enum V2UploadPreflightPanelMetrics {
-    static let minHeight: CGFloat = 68
-    static let horizontalPadding: CGFloat = 16
-    static let verticalPadding: CGFloat = 12
-    static let radius: CGFloat = 15
+    static let minHeight: CGFloat = 54
+    static let horizontalPadding: CGFloat = 12
+    static let verticalPadding: CGFloat = 9
+    static let radius: CGFloat = 13
     static let contentSpacing: CGFloat = 10
-    static let textSpacing: CGFloat = 5
+    static let textSpacing: CGFloat = 4
     static let dotSize: CGFloat = 8
     static let dotTopPadding: CGFloat = 6
 }
@@ -790,16 +830,24 @@ private enum V2UploadMascotInputMetrics {
     static let maxWidth: CGFloat = 321
     static let backWidth: CGFloat = 94
     static let frontWidth: CGFloat = 69
-    static let groupHeight: CGFloat = 230
+    static let cardTop: CGFloat = 82
     static let backCenterXRatio: CGFloat = 0.808
     static let backCenterY: CGFloat = 84
     static let frontCenterXRatio: CGFloat = 0.796
     static let frontCenterY: CGFloat = 85
-    static let cardCenterY: CGFloat = 156
+
+    static func groupHeight(cardHeight: CGFloat) -> CGFloat {
+        cardTop + cardHeight
+    }
+
+    static func cardCenterY(cardHeight: CGFloat) -> CGFloat {
+        cardTop + cardHeight / 2
+    }
 }
 
 private enum V2UploadInputCardMetrics {
-    static let cardHeight: CGFloat = 148
+    static let baseCardHeight: CGFloat = 148
+    static let expandedCardHeight: CGFloat = 214
     static let outerPadding: CGFloat = 18
     static let cardRadius: CGFloat = 20
     static let titleFont = Font.system(size: 16, weight: .regular)
@@ -814,6 +862,10 @@ private enum V2UploadInputCardMetrics {
     static let placeholderColor = Color(hex: 0xB7B7B7)
     static let inputTextColor = V2Color.topTitle
     static let fieldFill = Color(hex: 0xFFFBF6)
+
+    static func cardHeight(hasFeedback: Bool) -> CGFloat {
+        hasFeedback ? expandedCardHeight : baseCardHeight
+    }
 }
 
 struct V2DiscoverView: View {
