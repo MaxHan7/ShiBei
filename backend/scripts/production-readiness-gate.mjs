@@ -124,7 +124,11 @@ async function runVideoReadinessChecks({ baseUrl, checks, health }) {
   }
 
   try {
-    videoRuntime = await fetchJson(`${baseUrl}/api/source/runtime-readiness`, 12_000);
+    videoRuntime = await fetchJson(`${baseUrl}/api/source/runtime-readiness`, 12_000, {
+      headers: {
+        "x-runtime-readiness-token": process.env.RUNTIME_READINESS_TOKEN || ""
+      }
+    });
     checks.push(check("video_runtime_ready", videoRuntime?.ok === true, "video runtime readiness must pass"));
     for (const [name, result] of Object.entries(videoRuntime?.checks || {})) {
       checks.push(check(`video_runtime_${name}`, result?.ok === true, result?.detail || `${name} must be ready`));

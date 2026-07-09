@@ -7,6 +7,8 @@ import { resolveVideoFramePackProviderName } from "./videoFramePackProvider.js";
 import { resolveVisualUnderstandingProviderName } from "./visualUnderstandingProvider.js";
 
 const DEFAULT_COMMAND_TIMEOUT_MS = 5_000;
+let cachedReadiness = null;
+let cachedReadinessAt = 0;
 
 export async function buildVideoRuntimeReadiness({
   env = process.env,
@@ -79,6 +81,21 @@ export async function buildVideoRuntimeReadiness({
     },
     checks
   };
+}
+
+export async function buildMemoizedVideoRuntimeReadiness({
+  env = process.env,
+  runCommand = runCommandCheck,
+  nowMs = Date.now(),
+  ttlMs = 60_000
+} = {}) {
+  if (cachedReadiness && nowMs - cachedReadinessAt < ttlMs) {
+    return { ...cachedReadiness, cached: true };
+  }
+  const readiness = await buildVideoRuntimeReadiness({ env, runCommand });
+  cachedReadiness = readiness;
+  cachedReadinessAt = nowMs;
+  return { ...readiness, cached: false };
 }
 
 function staticCheck(ok, passDetail, failDetail) {

@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { buildVideoRuntimeReadiness } from "./videoRuntimeReadiness.js";
+import {
+  buildMemoizedVideoRuntimeReadiness,
+  buildVideoRuntimeReadiness
+} from "./videoRuntimeReadiness.js";
 
 test("reports video runtime ready with configured production defaults", async () => {
   const commands = [];
@@ -66,4 +69,30 @@ test("flags duration override that drifts from product limit", async () => {
   assert.equal(readiness.ok, false);
   assert.equal(readiness.checks.maxDurationSeconds.ok, false);
   assert.equal(readiness.resolved.maxDurationSeconds, 1200);
+});
+
+test("memoized readiness avoids repeated command checks within ttl", async () => {
+  let commandCount = 0;
+  const first = await buildMemoizedVideoRuntimeReadiness({
+    env: { TIKHUB_API_KEY: "secret-tikhub", QWEN_API_KEY: "secret-qwen" },
+    nowMs: 1000,
+    ttlMs: 60_000,
+    runCommand: async () => {
+      commandCount += 1;
+      return { ok: true, skipped: false, detail: "ok" };
+    }
+  });
+  const second = await buildMemoizedVideoRuntimeReadiness({
+    env: { TIKHUB_API_KEY: "secret-tikhub", QWEN_API_KEY: "secret-qwen" },
+    nowMs: 2000,
+    ttlMs: 60_000,
+    runCommand: async () => {
+      commandCount += 1;
+      return { ok: true, skipped: false, detail: "ok" };
+    }
+  });
+
+  assert.equal(first.cached, false);
+  assert.equal(second.cached, true);
+  assert.equal(commandCount, 5);
 });

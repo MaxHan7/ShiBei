@@ -92,7 +92,7 @@ import {
 import { buildVersionInfo } from "./versionInfo.js";
 import { AppleAuthError, verifyAppleIdentityToken } from "./appleAuth.js";
 import { buildSourceCapabilities, preflightSourceInput } from "./sources/sourcePreflight.js";
-import { buildVideoRuntimeReadiness } from "./media/videoRuntimeReadiness.js";
+import { buildMemoizedVideoRuntimeReadiness } from "./media/videoRuntimeReadiness.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const projectRoot = resolve(__dirname, "..", "..");
@@ -2160,7 +2160,13 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && req.url === "/api/source/runtime-readiness") {
-    sendJson(res, 200, await buildVideoRuntimeReadiness());
+    const expectedToken = process.env.RUNTIME_READINESS_TOKEN || "";
+    const actualToken = req.headers["x-runtime-readiness-token"] || "";
+    if (!expectedToken || actualToken !== expectedToken) {
+      sendJson(res, 404, { errorCode: "not_found", message: "Not found" });
+      return;
+    }
+    sendJson(res, 200, await buildMemoizedVideoRuntimeReadiness());
     return;
   }
 
