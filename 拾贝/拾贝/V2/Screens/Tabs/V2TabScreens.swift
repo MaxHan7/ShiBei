@@ -489,44 +489,35 @@ private enum V2UploadPreflightState: Equatable {
             return nil
         case .checking(let checkedInput) where checkedInput == input:
             return V2UploadPreflightFeedback(
-                tone: .checking,
-                title: "正在读取链接信息",
-                detail: "识别平台和内容类型"
+                message: "正在识别内容类型",
+                isError: false
             )
         case .checkingMetadata(let checkedInput) where checkedInput == input:
             return V2UploadPreflightFeedback(
-                tone: .checking,
-                title: "正在确认视频信息",
-                detail: "检查标题和时长"
+                message: "正在确认视频标题和时长",
+                isError: false
             )
         case .ready(let checkedInput, let response) where checkedInput == input:
             return V2UploadPreflightFeedback(
-                tone: .ready,
-                title: Self.sourceTitle(response),
-                detail: Self.sourceDetail(response)
+                message: "将根据\(Self.sourceBasisLabel(response))生成学习内容",
+                isError: false
             )
         case .blocked(let checkedInput, let response) where checkedInput == input:
             return V2UploadPreflightFeedback(
-                tone: .blocked,
-                title: response.platformLabel ?? "暂不支持",
-                detail: response.userMessage
+                message: response.userMessage,
+                isError: true
             )
         case .failed(let checkedInput, let message) where checkedInput == input:
             return V2UploadPreflightFeedback(
-                tone: .blocked,
-                title: "链接读取失败",
-                detail: message
+                message: message,
+                isError: true
             )
         default:
             return nil
         }
     }
 
-    private static func sourceTitle(_ response: SourcePreflightResponse) -> String {
-        let title = (response.title ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        if !title.isEmpty {
-            return title
-        }
+    private static func sourceBasisLabel(_ response: SourcePreflightResponse) -> String {
         switch response.sourceType {
         case "video_link":
             let platformLabel = response.platformLabel ?? "视频"
@@ -536,114 +527,30 @@ private enum V2UploadPreflightState: Equatable {
         case "article_link":
             return "网页文章"
         default:
-            return response.platformLabel ?? "已识别链接"
+            return response.platformLabel ?? "当前链接"
         }
-    }
-
-    private static func sourceDetail(_ response: SourcePreflightResponse) -> String {
-        if let durationSeconds = response.durationSeconds, durationSeconds > 0 {
-            let platform = response.platformLabel ?? sourceTypeLabel(response.sourceType)
-            return "\(platform) · \(formatDuration(durationSeconds))"
-        }
-        switch response.sourceType {
-        case "video_link":
-            return "将生成视频学习内容"
-        case "wechat_article":
-            return "将生成公众号文章学习内容"
-        case "article_link":
-            return "将生成网页文章学习内容"
-        default:
-            return response.userMessage
-        }
-    }
-
-    private static func sourceTypeLabel(_ sourceType: String) -> String {
-        switch sourceType {
-        case "video_link": return "视频"
-        case "wechat_article": return "公众号文章"
-        case "article_link": return "网页文章"
-        default: return "学习内容"
-        }
-    }
-
-    private static func formatDuration(_ seconds: Double) -> String {
-        let rounded = max(Int(seconds.rounded()), 0)
-        let minutes = rounded / 60
-        let remainingSeconds = rounded % 60
-        if minutes <= 0 {
-            return "\(remainingSeconds) 秒"
-        }
-        if remainingSeconds == 0 {
-            return "\(minutes) 分钟"
-        }
-        return "\(minutes) 分 \(remainingSeconds) 秒"
     }
 }
 
 private struct V2UploadPreflightFeedback: Equatable {
-    let tone: V2UploadPreflightTone
-    let title: String
-    let detail: String
-}
-
-private enum V2UploadPreflightTone {
-    case checking
-    case ready
-    case blocked
-
-    var accent: Color {
-        switch self {
-        case .checking: V2Color.primaryAction
-        case .ready: V2Color.primary
-        case .blocked: V2Color.feedbackWrongBorder
-        }
-    }
+    let message: String
+    let isError: Bool
 }
 
 private struct V2UploadPreflightStatusRow: View {
     let feedback: V2UploadPreflightFeedback
 
     var body: some View {
-        HStack(alignment: .top, spacing: V2UploadPreflightPanelMetrics.contentSpacing) {
-            Circle()
-                .fill(feedback.tone.accent)
-                .frame(
-                    width: V2UploadPreflightPanelMetrics.dotSize,
-                    height: V2UploadPreflightPanelMetrics.dotSize
-                )
-                .padding(.top, V2UploadPreflightPanelMetrics.dotTopPadding)
-
-            VStack(alignment: .leading, spacing: V2UploadPreflightPanelMetrics.textSpacing) {
-                Text(feedback.title)
-                    .font(V2Typography.label)
-                    .foregroundStyle(V2Color.topTitle)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-
-                Text(feedback.detail)
-                    .font(V2Typography.labelRegular)
-                    .foregroundStyle(V2Color.textSecondary)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, V2UploadPreflightPanelMetrics.horizontalPadding)
-        .padding(.vertical, V2UploadPreflightPanelMetrics.verticalPadding)
-        .frame(
-            maxWidth: .infinity,
-            minHeight: V2UploadPreflightPanelMetrics.minHeight,
-            alignment: .leading
-        )
-        .background(
-            RoundedRectangle(cornerRadius: V2UploadPreflightPanelMetrics.radius, style: .continuous)
-                .fill(V2Color.surfaceCream)
-                .overlay(
-                    RoundedRectangle(cornerRadius: V2UploadPreflightPanelMetrics.radius, style: .continuous)
-                        .stroke(feedback.tone.accent.opacity(0.32), lineWidth: 1)
-                )
-        )
+        Text(feedback.message)
+            .font(V2UploadInputCardMetrics.feedbackFont)
+            .foregroundStyle(feedback.isError ? V2Color.feedbackWrongBorder : V2Color.textSecondary)
+            .lineLimit(1)
+            .truncationMode(.tail)
+            .frame(
+                maxWidth: .infinity,
+                alignment: .leading
+            )
+            .padding(.horizontal, V2UploadInputCardMetrics.feedbackHorizontalPadding)
     }
 }
 
@@ -806,18 +713,7 @@ private struct V2UploadBackgroundDecorations: View {
 private enum V2UploadPageMetrics {
     static let groupTopPadding: CGFloat = 28
     static let verticalSpacing: CGFloat = 16
-    static let contentHeight: CGFloat = 640
-}
-
-private enum V2UploadPreflightPanelMetrics {
-    static let minHeight: CGFloat = 54
-    static let horizontalPadding: CGFloat = 12
-    static let verticalPadding: CGFloat = 9
-    static let radius: CGFloat = 13
-    static let contentSpacing: CGFloat = 10
-    static let textSpacing: CGFloat = 4
-    static let dotSize: CGFloat = 8
-    static let dotTopPadding: CGFloat = 6
+    static let contentHeight: CGFloat = 600
 }
 
 private enum V2Keyboard {
@@ -847,7 +743,7 @@ private enum V2UploadMascotInputMetrics {
 
 private enum V2UploadInputCardMetrics {
     static let baseCardHeight: CGFloat = 148
-    static let expandedCardHeight: CGFloat = 214
+    static let expandedCardHeight: CGFloat = 178
     static let outerPadding: CGFloat = 18
     static let cardRadius: CGFloat = 20
     static let titleFont = Font.system(size: 16, weight: .regular)
@@ -862,6 +758,8 @@ private enum V2UploadInputCardMetrics {
     static let placeholderColor = Color(hex: 0xB7B7B7)
     static let inputTextColor = V2Color.topTitle
     static let fieldFill = Color(hex: 0xFFFBF6)
+    static let feedbackFont = V2Typography.labelRegular
+    static let feedbackHorizontalPadding: CGFloat = fieldHorizontalPadding
 
     static func cardHeight(hasFeedback: Bool) -> CGFloat {
         hasFeedback ? expandedCardHeight : baseCardHeight
