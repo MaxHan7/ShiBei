@@ -1463,11 +1463,6 @@ struct V2RootView: View {
             return
         }
 
-        guard hasAcceptedAIProcessingConsent else {
-            pendingAIProcessingConsentSourceText = V2PendingAIProcessingConsentSourceText(value: trimmed)
-            return
-        }
-
         startV2GenerationAfterConsent(sourceText: trimmed)
     }
 
