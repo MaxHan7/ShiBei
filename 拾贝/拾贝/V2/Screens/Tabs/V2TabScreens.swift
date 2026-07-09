@@ -406,7 +406,7 @@ struct V2UploadView: View {
                     guard preflightInputKey == sourceUrl else {
                         return
                     }
-                    preflightState = .failed(input: sourceUrl, message: "暂时无法读取链接信息，请稍后重试。")
+                    preflightState = .failed(input: sourceUrl, message: "识别不到链接信息")
                 }
             }
         }

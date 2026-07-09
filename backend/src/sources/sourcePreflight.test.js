@@ -41,6 +41,21 @@ test("cheap preflight does not fetch paid TikHub metadata", async () => {
   assert.equal(tikhubCalls, 0);
 });
 
+test("preflights Xiaohongshu share text by extracting its URL", async () => {
+  const result = await preflightSourceInput({
+    rawInput: "98 【Agent Skill过多？4招提升命中 - 小哲讲大模型 | 小红书 - 你的生活兴趣社区】 😆 CzNutypu7EuXU05 😆 https://www.xiaohongshu.com/discovery/item/6a1a977b00000000360194ee?source=webshare&xhsshare=pc_web&xsec_token=ABTAH-AAksyoinRIIxRW83BYFC98M4RM8oSLYoaBdwwec=&xsec_source=pc_share",
+    fetchMetadata: false,
+    env: {}
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.sourceType, "video_link");
+  assert.equal(result.platform, "xiaohongshu");
+  assert.equal(result.platformLabel, "小红书");
+  assert.equal(result.provider, "tikhub");
+  assert.equal(result.canGenerate, true);
+});
+
 test("metadata preflight fetches TikHub only when explicitly requested", async () => {
   let tikhubCalls = 0;
   const result = await preflightSourceInput({

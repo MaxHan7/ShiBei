@@ -319,12 +319,19 @@ function userMessageForMetadataFailure(error) {
 }
 
 function parseHttpUrl(input) {
+  const urlInput = firstHttpUrlString(input) || input;
   try {
-    const url = normalizeVideoSourceUrl(input);
+    const url = normalizeVideoSourceUrl(urlInput);
     return url;
   } catch {
     return null;
   }
+}
+
+function firstHttpUrlString(input) {
+  const match = String(input || "").match(/https?:\/\/\S+/i);
+  if (!match) return "";
+  return match[0].replace(/[.,;:!?，。；：！？)\]}）】》」』"']+$/u, "");
 }
 
 function normalizeSourceType(sourceType) {
