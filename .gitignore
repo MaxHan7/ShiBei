@@ -10,6 +10,8 @@ backend/.env.*
 !experiments/shibei-v2/backend/.env.example
 .tmp/
 .venv-dspy/
+.venv-video-asr/
+.cache/video-models/
 __pycache__/
 *.pyc
 .superpowers/

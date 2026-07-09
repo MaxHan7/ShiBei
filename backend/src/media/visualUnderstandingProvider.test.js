@@ -9,7 +9,8 @@ import {
 } from "./visualUnderstandingProvider.js";
 
 test("resolves disabled visual understanding provider names to none", () => {
-  assert.equal(resolveVisualUnderstandingProviderName({}), "none");
+  assert.equal(resolveVisualUnderstandingProviderName({}), "qwen-vl");
+  assert.equal(resolveVisualUnderstandingProviderName({ VIDEO_VISUAL_PROVIDER: "none" }), "none");
   assert.equal(resolveVisualUnderstandingProviderName({ VIDEO_VISUAL_PROVIDER: "off" }), "none");
   assert.equal(resolveVisualUnderstandingProviderName({ VIDEO_VISUAL_PROVIDER: "disabled" }), "none");
   assert.equal(resolveVisualUnderstandingProviderName({ VIDEO_VISUAL_PROVIDER: "qwen-vl" }), "qwen-vl");
@@ -28,7 +29,7 @@ test("creates Qwen VL visual understanding provider", () => {
   assert.equal(provider.model, "qwen3-vl-flash");
 });
 
-test("default no-op provider returns no visual segments", async () => {
+test("explicit no-op provider returns no visual segments", async () => {
   const result = await understandVideoVisuals({
     provider: createNoopVisualUnderstandingProvider(),
     video: { platform: "douyin" },

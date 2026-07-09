@@ -5,6 +5,8 @@ import { extractVideoLearningSource } from "./extractVideoLearningSource.js";
 import { createMediaExtractionError } from "./mediaErrors.js";
 import { createMediaUsageRecorder } from "./mediaCost.js";
 import { buildVideoSourceCacheKey, createInMemoryTtlCache } from "./videoExtractionCache.js";
+import { createNoopVideoFramePackProvider } from "./videoFramePackProvider.js";
+import { createNoopVisualUnderstandingProvider } from "./visualUnderstandingProvider.js";
 
 test("extracts a video learning source through provider, media, audio, and ASR", async () => {
   const calls = [];
@@ -391,6 +393,8 @@ test("caches TikHub video source responses without caching downstream extraction
         text: "先明确用户问题，再整理主题，并检查每个主题有没有原始证据支撑。最后把主题映射到可以执行的产品实验，避免只停留在总结层面。这个流程要求团队把观察、证据、判断和下一步动作串起来。"
       }]
     }),
+    framePackProvider: createNoopVideoFramePackProvider(),
+    visualUnderstandingProvider: createNoopVisualUnderstandingProvider(),
     cleanup: async () => {}
   };
 
@@ -590,6 +594,8 @@ test("caches full video learning sources so generation retries do not re-fetch m
         text: "先明确用户问题，再整理主题，并检查每个主题有没有原始证据支撑。最后把主题映射到可以执行的产品实验，避免只停留在总结层面。这个流程要求团队把观察、证据、判断和下一步动作串起来。"
       }]
     }),
+    framePackProvider: createNoopVideoFramePackProvider(),
+    visualUnderstandingProvider: createNoopVisualUnderstandingProvider(),
     cleanup: async () => {}
   };
 
@@ -721,6 +727,8 @@ test("records media usage summary when a recorder is provided", async () => {
         }
       ]
     }),
+    framePackProvider: createNoopVideoFramePackProvider(),
+    visualUnderstandingProvider: createNoopVisualUnderstandingProvider(),
     cleanup: async () => {}
   });
 

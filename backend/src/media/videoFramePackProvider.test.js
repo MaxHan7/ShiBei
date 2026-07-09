@@ -9,7 +9,8 @@ import {
 } from "./videoFramePackProvider.js";
 
 test("resolves disabled frame pack provider names", () => {
-  assert.equal(resolveVideoFramePackProviderName({}), "none");
+  assert.equal(resolveVideoFramePackProviderName({}), "crv_style_ffmpeg");
+  assert.equal(resolveVideoFramePackProviderName({ VIDEO_FRAME_PROVIDER: "none" }), "none");
   assert.equal(resolveVideoFramePackProviderName({ VIDEO_FRAME_PROVIDER: "off" }), "none");
   assert.equal(resolveVideoFramePackProviderName({ VIDEO_FRAME_PROVIDER: "disabled" }), "none");
 });
@@ -19,7 +20,7 @@ test("resolves crv style provider name", () => {
 });
 
 test("noop frame provider returns skipped frame pack", async () => {
-  const provider = createNoopVideoFramePackProvider();
+  const provider = createVideoFramePackProvider({ env: { VIDEO_FRAME_PROVIDER: "none" } });
   const result = await provider.createFramePack({ mediaFile: { path: "/tmp/video.mp4" } });
 
   assert.equal(result.provider, "none");

@@ -8,6 +8,8 @@ import { fileURLToPath } from "node:url";
 const args = parseArgs(process.argv.slice(2));
 const baseUrl = args["base-url"] || "https://shibei-production.up.railway.app";
 const shouldRunSmoke = args.smoke === "1";
+const shouldRequireVideo = args["require-video"] === "1";
+const videoPreflightUrl = args["video-preflight-url"] || "https://www.bilibili.com/video/BV1hYGd63EnU/";
 const bundleId = args["bundle-id"] || "com.maxhan.shibei";
 const isProduction = args.production === "1" || new URL(baseUrl).hostname === "shibei-production.up.railway.app";
 const requiredCapabilities = [
@@ -20,6 +22,9 @@ const requiredCapabilities = [
 
 const checks = [];
 let health = null;
+let sourceCapabilities = null;
+let videoRuntime = null;
+let videoPreflight = null;
 let smokeResult = { status: "skipped", detail: shouldRunSmoke ? "waiting_for_readiness_gate" : "not_requested" };
 
 try {
@@ -43,7 +48,11 @@ try {
   checks.push(check("backend_health", false, `${baseUrl}/api/health failed: ${error.message}`));
 }
 
-printReport({ baseUrl, health, checks, shouldRunSmoke, isProduction });
+if (shouldRequireVideo) {
+  await runVideoReadinessChecks({ baseUrl, checks, health });
+}
+
+printReport({ baseUrl, health, checks, shouldRunSmoke, shouldRequireVideo, isProduction });
 
 const failed = checks.filter((item) => !item.ok);
 if (failed.length > 0) {
@@ -90,11 +99,63 @@ function check(name, ok, detail) {
   return { name, ok: Boolean(ok), detail };
 }
 
-function printReport({ baseUrl, health, checks, shouldRunSmoke, isProduction }) {
+async function runVideoReadinessChecks({ baseUrl, checks, health }) {
+  const healthVideo = health?.capabilities?.sources?.sourceTypes?.video_link;
+  checks.push(check(
+    "video_health_capability",
+    healthVideo?.enabled === true,
+    "health.capabilities.sources.sourceTypes.video_link.enabled must be true"
+  ));
+  checks.push(check(
+    "video_health_duration_limit",
+    healthVideo?.maxDurationSeconds === 900,
+    "health.capabilities.sources.sourceTypes.video_link.maxDurationSeconds must be 900"
+  ));
+
+  try {
+    sourceCapabilities = await fetchJson(`${baseUrl}/api/source/capabilities`, 8_000);
+    const videoLink = sourceCapabilities?.sourceTypes?.video_link;
+    checks.push(check("source_capabilities_video", videoLink?.enabled === true, "source capabilities must expose video_link.enabled"));
+    checks.push(check("source_capabilities_youtube", videoLink?.platforms?.youtube?.enabled === true, "YouTube must be enabled"));
+    checks.push(check("source_capabilities_bilibili", videoLink?.platforms?.bilibili?.enabled === true, "Bilibili must be enabled"));
+    checks.push(check("source_capabilities_duration_limit", videoLink?.maxDurationSeconds === 900, "video max duration must be 900 seconds"));
+  } catch (error) {
+    checks.push(check("source_capabilities_video", false, `/api/source/capabilities failed: ${error.message}`));
+  }
+
+  try {
+    videoRuntime = await fetchJson(`${baseUrl}/api/source/runtime-readiness`, 12_000);
+    checks.push(check("video_runtime_ready", videoRuntime?.ok === true, "video runtime readiness must pass"));
+    for (const [name, result] of Object.entries(videoRuntime?.checks || {})) {
+      checks.push(check(`video_runtime_${name}`, result?.ok === true, result?.detail || `${name} must be ready`));
+    }
+  } catch (error) {
+    checks.push(check("video_runtime_ready", false, `/api/source/runtime-readiness failed: ${error.message}`));
+  }
+
+  try {
+    videoPreflight = await fetchJson(`${baseUrl}/api/sources/preflight`, 12_000, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        sourceType: "video_link",
+        input: videoPreflightUrl,
+        fetchMetadata: false
+      })
+    });
+    checks.push(check("video_preflight_ok", videoPreflight?.ok === true, "video preflight must accept a supported Bilibili link without metadata fetch"));
+    checks.push(check("video_preflight_platform", videoPreflight?.platform === "bilibili", "video preflight must classify Bilibili"));
+  } catch (error) {
+    checks.push(check("video_preflight_ok", false, `/api/sources/preflight failed: ${error.message}`));
+  }
+}
+
+function printReport({ baseUrl, health, checks, shouldRunSmoke, shouldRequireVideo, isProduction }) {
   console.log("# Shibei V2 Production Readiness Gate");
   console.log(`baseUrl=${baseUrl}`);
   console.log(`productionMode=${isProduction ? "true" : "false"}`);
   console.log(`smoke=${shouldRunSmoke ? "enabled" : "disabled"}`);
+  console.log(`video=${shouldRequireVideo ? "required" : "not_required"}`);
   if (health?.queue) {
     console.log(`queue=queued:${health.queue.queued ?? "?"} running:${health.queue.running ?? "?"} failed:${health.queue.failed ?? "?"} completed:${health.queue.completed ?? "?"}`);
   }
@@ -104,11 +165,11 @@ function printReport({ baseUrl, health, checks, shouldRunSmoke, isProduction }) 
   }
 }
 
-async function fetchJson(url, timeoutMs) {
+async function fetchJson(url, timeoutMs, options = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const response = await fetch(url, { signal: controller.signal });
+    const response = await fetch(url, { ...options, signal: controller.signal });
     const text = await response.text();
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${text.slice(0, 200)}`);
@@ -183,6 +244,9 @@ function buildEvidence({ baseUrl, health, checks, shouldRunSmoke, isProduction, 
         }
       : null,
     capabilities: health?.capabilities ?? null,
+    sourceCapabilities,
+    videoRuntime,
+    videoPreflight,
     apns: health?.apns
       ? {
           configured: health.apns.configured ?? null,

@@ -31,7 +31,7 @@ if (inputsPath && existsSync(inputsPath)) {
   markdown = readFileSync(inputsPath, "utf8");
   checks.push(check(
     "not_template_file",
-    !/deployment-inputs\.template\.md$/i.test(inputsPath),
+    !/deploy-inputs\.template\.md$/i.test(inputsPath) && !/deployment-inputs\.template\.md$/i.test(inputsPath),
     "copy the template to a dated completed note before running this guard"
   ));
   checks.push(check(
@@ -74,6 +74,11 @@ function checkRequiredFields(text) {
     ["Connected branch", "connected_branch"],
     ["Autodeploy state", "autodeploy_state"],
     ["Current production deployment id", "current_production_deployment_id"],
+    ["Video config source", "video_config_source"],
+    ["Video runtime strategy", "video_runtime_strategy"],
+    ["Video ASR provider", "video_asr_provider"],
+    ["Video visual provider", "video_visual_provider"],
+    ["Video max duration seconds", "video_max_duration_seconds"],
     ["Rollback method", "rollback_method"],
     ["Rollback command or console path", "rollback_command_or_console_path"],
     ["Rollback owner", "rollback_owner"],
@@ -173,7 +178,9 @@ function checkRequiredSecretPresence(text) {
     "`DEEPSEEK_API_KEY` or `OPENAI_API_KEY`",
     "`AI_PROVIDER`",
     "model env (`DEEPSEEK_MODEL` or `OPENAI_MODEL`)",
-    "APNS env set for production bundle"
+    "APNS env set for production bundle",
+    "`TIKHUB_API_KEY` when video enabled",
+    "`QWEN_API_KEY` or `DASHSCOPE_API_KEY` when visual enabled"
   ];
   for (const label of secretLabels) {
     checks.push(check(

@@ -1,8 +1,6 @@
-# V2 Production Deploy Inputs Template
+# V2 Production Deploy Inputs
 
-Copy this file to a dated private handoff note before deployment, or use it as the checklist while filling the `V2 Production Railway Deploy` workflow. Do not record secrets, model keys, database URLs, APNS private keys, Railway tokens, or private user content.
-
-This template is not accepted as final release evidence. The deploy workflow writes the formal `deployment-intent.md` artifact after the real inputs are provided.
+Copy this file to a dated private handoff note before deployment. Do not record secrets, model keys, database URLs, APNS private keys, Railway tokens, or private user content.
 
 ## Candidate
 
@@ -16,7 +14,7 @@ This template is not accepted as final release evidence. The deploy workflow wri
 
 - Production base URL: `https://shibei-production.up.railway.app`
 - Railway project:
-- Railway environment:
+- Railway environment: production
 - Railway service name:
 - Railway service id:
 - Connected branch:
@@ -34,27 +32,23 @@ This template is not accepted as final release evidence. The deploy workflow wri
 
 - Current production deployment id:
 - Current production backend commit if known:
-- Rollback method: Railway rollback / deploy old commit / other
-- Rollback command or console path:
+- Rollback method: Railway rollback to previous deployment
+- Rollback command or console path: Railway Console > Deployments > previous deployment > Redeploy
 - Rollback owner:
 
 ## Data Strategy
 
-- Data strategy: preserve-data / reset-data
-- Data reset confirmation: reset-old-test-data / n/a
-- Old production data status: test data only / real user data / unknown
+- Data strategy: preserve-data
+- Data reset confirmation: n/a
+- Old production data status: existing beta data
 - Old data export reference:
 - Old data export created/verified at:
-
-Use `reset-data` only for the current V2 first production test if old production test data can be deleted and V2 starts from an empty database. This is not the long-term production strategy.
-
-Use `preserve-data` for real users or anytime old production data must survive. In that mode, the backup/restore fields below are required.
 
 ## Preserve-Data Backup
 
 - Backup/snapshot reference:
 - Backup created/verified at:
-- Restore method:
+- Restore method: Railway Postgres restore from selected backup/snapshot
 - Restore owner:
 - Restore rehearsal status:
 

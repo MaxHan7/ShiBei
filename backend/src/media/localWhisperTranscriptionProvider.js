@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { createMediaExtractionError } from "./mediaErrors.js";
 import { normalizeTranscriptionPayload } from "./transcriptionResult.js";
+import { VIDEO_DEFAULTS } from "./videoDefaults.js";
 
 const DEFAULT_TIMEOUT_MS = readPositiveInt(process.env.VIDEO_ASR_TIMEOUT_MS, 180_000);
 const CURRENT_DIR = dirname(fileURLToPath(import.meta.url));
@@ -13,10 +14,10 @@ export async function transcribeAudioWithLocalWhisper({
   audioPath,
   pythonPath = process.env.LOCAL_WHISPER_PYTHON || process.env.PYTHON_PATH || "python3",
   scriptPath = process.env.LOCAL_WHISPER_SCRIPT || DEFAULT_SCRIPT_PATH,
-  model = process.env.LOCAL_WHISPER_MODEL || "small",
-  device = process.env.LOCAL_WHISPER_DEVICE || "auto",
-  computeType = process.env.LOCAL_WHISPER_COMPUTE_TYPE || "int8",
-  language = process.env.LOCAL_WHISPER_LANGUAGE || "zh",
+  model = process.env.LOCAL_WHISPER_MODEL || VIDEO_DEFAULTS.localWhisperModel,
+  device = process.env.LOCAL_WHISPER_DEVICE || VIDEO_DEFAULTS.localWhisperDevice,
+  computeType = process.env.LOCAL_WHISPER_COMPUTE_TYPE || VIDEO_DEFAULTS.localWhisperComputeType,
+  language = process.env.LOCAL_WHISPER_LANGUAGE || VIDEO_DEFAULTS.localWhisperLanguage,
   timeoutMs = DEFAULT_TIMEOUT_MS,
   spawnImpl = spawn
 } = {}) {

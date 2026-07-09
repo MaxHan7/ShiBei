@@ -23,6 +23,7 @@ import {
   createVisualUnderstandingProvider,
   understandVideoVisuals
 } from "./visualUnderstandingProvider.js";
+import { VIDEO_DEFAULTS } from "./videoDefaults.js";
 import {
   buildVideoExtractionSignature,
   buildVideoLearningSourceCacheKey,
@@ -42,7 +43,7 @@ export async function extractVideoLearningSource({
   provider = null,
   downloadMedia = downloadMediaToTempFile,
   downloadYtDlpMedia = downloadYtDlpMediaToTempFile,
-  maxDurationSeconds = readPositiveInt(process.env.VIDEO_MAX_DURATION_SECONDS, 15 * 60),
+  maxDurationSeconds = readPositiveInt(process.env.VIDEO_MAX_DURATION_SECONDS, VIDEO_DEFAULTS.maxDurationSeconds),
   extractAudio = extractAudioWithFfmpeg,
   speechToTextProvider = createSpeechToTextProvider(),
   transcribeAudio = null,
@@ -482,7 +483,7 @@ function enforceVideoPlatformGate(platform) {
     );
   }
 
-  const allowlist = readPlatformAllowlist(process.env.VIDEO_PLATFORM_ALLOWLIST);
+  const allowlist = readPlatformAllowlist(process.env.VIDEO_PLATFORM_ALLOWLIST, VIDEO_DEFAULTS.platformAllowlist);
   if (allowlist.size > 0 && !allowlist.has(platform)) {
     throw createMediaExtractionError(
       "unsupported_video_platform",
@@ -534,7 +535,8 @@ function readBooleanFlag(value, fallback) {
   return !["0", "false", "off", "disabled", "no"].includes(String(value).trim().toLowerCase());
 }
 
-function readPlatformAllowlist(value) {
+function readPlatformAllowlist(value, fallback = []) {
+  if (value === undefined || value === null || value === "") return new Set(fallback);
   return new Set(
     String(value || "")
       .split(",")

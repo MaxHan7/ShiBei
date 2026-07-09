@@ -6,9 +6,9 @@ import {
   resolveSpeechToTextProviderName
 } from "./speechToTextProvider.js";
 
-test("resolves ASR provider from explicit env, then OpenAI key, then local whisper", () => {
+test("resolves ASR provider from explicit env, then local whisper default", () => {
   assert.equal(resolveSpeechToTextProviderName({ VIDEO_ASR_PROVIDER: "local_whisper", OPENAI_API_KEY: "key" }), "local_whisper");
-  assert.equal(resolveSpeechToTextProviderName({ OPENAI_API_KEY: "key" }), "openai");
+  assert.equal(resolveSpeechToTextProviderName({ OPENAI_API_KEY: "key" }), "local_whisper");
   assert.equal(resolveSpeechToTextProviderName({}), "local_whisper");
 });
 

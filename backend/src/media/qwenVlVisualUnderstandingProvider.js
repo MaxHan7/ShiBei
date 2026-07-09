@@ -3,9 +3,10 @@ import { extname } from "node:path";
 
 import { parseModelJson } from "../generation/openaiClient.js";
 import { createMediaExtractionError } from "./mediaErrors.js";
+import { VIDEO_DEFAULTS } from "./videoDefaults.js";
 
 const DEFAULT_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1";
-const DEFAULT_MODEL = "qwen3-vl-flash";
+const DEFAULT_MODEL = VIDEO_DEFAULTS.visualModel;
 const DEFAULT_TIMEOUT_MS = readPositiveInt(process.env.VIDEO_VISUAL_TIMEOUT_MS, 90_000);
 const DEFAULT_MAX_GRIDS = readPositiveInt(process.env.VIDEO_VISUAL_MAX_GRIDS, 4);
 const DEFAULT_MAX_FRAMES = readPositiveInt(process.env.VIDEO_VISUAL_MAX_FRAMES, 12);

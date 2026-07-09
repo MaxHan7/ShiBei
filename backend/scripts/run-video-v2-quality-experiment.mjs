@@ -9,6 +9,7 @@ import { createMediaUsageRecorder, summarizeMediaUsage } from "../src/media/medi
 import { extractVideoLearningSource } from "../src/media/extractVideoLearningSource.js";
 import { createFileTtlCache } from "../src/media/videoExtractionCache.js";
 import { buildV2SourceFromLearningSource } from "../src/media/learningSource.js";
+import { VIDEO_DEFAULTS } from "../src/media/videoDefaults.js";
 import { createV2ModelPromptCaller } from "../src/v2/generation/modelPromptCaller.js";
 import { runV2GenerationJob } from "../src/v2/generation/runV2GenerationJob.js";
 import {
@@ -270,7 +271,7 @@ function withExperimentTimeout(promise, {
 }
 
 function buildMediaCostSummary(mediaUsage) {
-  const tikhubUnitCost = readOptionalPositiveNumber(process.env.TIKHUB_UNIT_COST_USD) ?? 0.001;
+  const tikhubUnitCost = readOptionalPositiveNumber(process.env.TIKHUB_UNIT_COST_USD) ?? VIDEO_DEFAULTS.tikhubUnitCostUsd;
   const byStage = {};
   let totalActualCost = 0;
 

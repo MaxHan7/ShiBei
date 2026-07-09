@@ -1,10 +1,11 @@
 import { createMediaExtractionError } from "./mediaErrors.js";
 import { createQwenVlVisualUnderstandingProvider } from "./qwenVlVisualUnderstandingProvider.js";
+import { VIDEO_DEFAULTS } from "./videoDefaults.js";
 
 const DISABLED_PROVIDER_NAMES = new Set(["", "none", "off", "disabled"]);
 
 export function resolveVisualUnderstandingProviderName(env = process.env) {
-  const provider = String(env.VIDEO_VISUAL_PROVIDER || "none").trim().toLowerCase();
+  const provider = String(env.VIDEO_VISUAL_PROVIDER || VIDEO_DEFAULTS.visualProvider).trim().toLowerCase();
   return DISABLED_PROVIDER_NAMES.has(provider) ? "none" : provider;
 }
 

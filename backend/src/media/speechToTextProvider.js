@@ -1,12 +1,12 @@
 import { createMediaExtractionError } from "./mediaErrors.js";
 import { transcribeAudioWithLocalWhisper } from "./localWhisperTranscriptionProvider.js";
 import { transcribeAudioWithOpenAI } from "./openAITranscriptionProvider.js";
+import { VIDEO_DEFAULTS } from "./videoDefaults.js";
 
 export function resolveSpeechToTextProviderName(env = process.env) {
   const explicitProvider = String(env.VIDEO_ASR_PROVIDER || "").trim().toLowerCase();
   if (explicitProvider) return explicitProvider;
-  if (env.OPENAI_API_KEY) return "openai";
-  return "local_whisper";
+  return VIDEO_DEFAULTS.asrProvider;
 }
 
 export function createSpeechToTextProvider({

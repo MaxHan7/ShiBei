@@ -30,6 +30,31 @@
 - Current `railway.json` still declares Nixpacks, but Railway reports the live service build system as Railpack V3. The deployment hardening should therefore use Railpack-compatible configuration rather than a Nixpacks-only plan.
 - Current build does not explicitly install `backend/requirements-video-asr.txt` or system `ffmpeg`; this is still the main backend deployment blocker.
 
+## Execution Update 2026-07-09
+
+Completed locally on branch `codex/test-feature-env-20260705`; not pushed and not deployed:
+
+- Added `railpack.json` and changed `railway.json` to `RAILPACK`.
+- Added code-owned video defaults in `backend/src/media/videoDefaults.js`.
+- Wired defaults into source preflight, media fetch, ASR, frame-pack, visual-understanding, and quality-run cost estimation.
+- Kept `VIDEO_*`, `LOCAL_WHISPER_*`, `YT_DLP_*`, and provider path values as optional overrides rather than mandatory Railway variables.
+- Added `GET /api/source/runtime-readiness` with sanitized runtime checks for TikHub/Qwen key presence, ffmpeg, ffprobe, Python, yt-dlp, and faster-whisper.
+- Extended `backend/scripts/production-readiness-gate.mjs --require-video 1` to check health video capability, source capabilities, runtime readiness, and a no-metadata Bilibili preflight.
+- Extended deployment input guard/templates so video runtime strategy and video secret presence must be explicitly confirmed without recording secret values.
+- Verification passed:
+  - `npm --prefix backend run check:video-source`
+  - `node --check backend/src/server.js`
+  - `node --check backend/scripts/production-readiness-gate.mjs`
+  - `node --check tools/production-deploy-inputs-guard.mjs`
+  - `node --check backend/src/media/videoRuntimeReadiness.js`
+
+Remaining before production/user beta:
+
+- Commit the local hardening checkpoint.
+- Push only after user approval.
+- Deploy only after user approval.
+- After deploy, run `backend/scripts/production-readiness-gate.mjs --require-video 1` against Railway and then run one real short-video generation smoke.
+
 ## Manual Versus Agent-Owned Work
 
 Agent-owned work:

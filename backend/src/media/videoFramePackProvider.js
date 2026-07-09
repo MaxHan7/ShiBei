@@ -1,10 +1,11 @@
 import { createMediaExtractionError } from "./mediaErrors.js";
 import { createCrvStyleFramePackProvider } from "./crvStyleFramePackProvider.js";
+import { VIDEO_DEFAULTS } from "./videoDefaults.js";
 
 const DISABLED_PROVIDER_NAMES = new Set(["", "none", "off", "disabled"]);
 
 export function resolveVideoFramePackProviderName(env = process.env) {
-  const provider = String(env.VIDEO_FRAME_PROVIDER || "none").trim().toLowerCase();
+  const provider = String(env.VIDEO_FRAME_PROVIDER || VIDEO_DEFAULTS.frameProvider).trim().toLowerCase();
   return DISABLED_PROVIDER_NAMES.has(provider) ? "none" : provider;
 }
 

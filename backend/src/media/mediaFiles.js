@@ -4,9 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { createMediaExtractionError } from "./mediaErrors.js";
+import { VIDEO_DEFAULTS } from "./videoDefaults.js";
 
-const DEFAULT_MAX_BYTES = readPositiveInt(process.env.VIDEO_MEDIA_MAX_BYTES, 150 * 1024 * 1024);
-const DEFAULT_TIMEOUT_MS = readPositiveInt(process.env.VIDEO_MEDIA_FETCH_TIMEOUT_MS, 60_000);
+const DEFAULT_MAX_BYTES = readPositiveInt(process.env.VIDEO_MEDIA_MAX_BYTES, VIDEO_DEFAULTS.mediaMaxBytes);
+const DEFAULT_TIMEOUT_MS = readPositiveInt(process.env.VIDEO_MEDIA_FETCH_TIMEOUT_MS, VIDEO_DEFAULTS.mediaFetchTimeoutMs);
 
 export async function downloadMediaToTempFile({
   mediaUrl,

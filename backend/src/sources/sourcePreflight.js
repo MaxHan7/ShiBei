@@ -6,8 +6,7 @@ import {
   isYtDlpPreferredPlatform,
   normalizeVideoSourceUrl
 } from "../media/videoPlatforms.js";
-
-const DEFAULT_MAX_VIDEO_DURATION_SECONDS = 15 * 60;
+import { VIDEO_DEFAULTS } from "../media/videoDefaults.js";
 
 const PLATFORM_LABELS = Object.freeze({
   douyin: "抖音",
@@ -22,8 +21,8 @@ const PLATFORM_LABELS = Object.freeze({
 export function buildSourceCapabilities({ env = process.env } = {}) {
   const videoEnabled = readBooleanFlag(env.VIDEO_LINK_ENABLED, true);
   const ytDlpEnabled = readBooleanFlag(env.VIDEO_YTDLP_ENABLED, true);
-  const allowlist = readPlatformAllowlist(env.VIDEO_PLATFORM_ALLOWLIST);
-  const maxDurationSeconds = readPositiveInt(env.VIDEO_MAX_DURATION_SECONDS, DEFAULT_MAX_VIDEO_DURATION_SECONDS);
+  const allowlist = readPlatformAllowlist(env.VIDEO_PLATFORM_ALLOWLIST, VIDEO_DEFAULTS.platformAllowlist);
+  const maxDurationSeconds = readPositiveInt(env.VIDEO_MAX_DURATION_SECONDS, VIDEO_DEFAULTS.maxDurationSeconds);
   const platforms = Object.fromEntries(
     ["douyin", "xiaohongshu", "youtube", "bilibili", "direct_video_file", "generic_web"].map((platform) => [
       platform,
@@ -60,7 +59,7 @@ export async function preflightSourceInput({
   fetchYtDlp = fetchYtDlpVideoSource
 } = {}) {
   const input = String(rawInput || "").trim();
-  const maxDurationSeconds = readPositiveInt(env.VIDEO_MAX_DURATION_SECONDS, DEFAULT_MAX_VIDEO_DURATION_SECONDS);
+  const maxDurationSeconds = readPositiveInt(env.VIDEO_MAX_DURATION_SECONDS, VIDEO_DEFAULTS.maxDurationSeconds);
   if (!input) {
     return blockedPreflight({
       inputKind: "empty",
@@ -201,7 +200,7 @@ function evaluateVideoPlatformGate(platform, { env = process.env } = {}) {
     };
   }
 
-  const allowlist = readPlatformAllowlist(env.VIDEO_PLATFORM_ALLOWLIST);
+  const allowlist = readPlatformAllowlist(env.VIDEO_PLATFORM_ALLOWLIST, VIDEO_DEFAULTS.platformAllowlist);
   if (allowlist.size > 0 && !allowlist.has(platform)) {
     return {
       enabled: false,
@@ -241,7 +240,7 @@ function readyPreflight({
   provider = null,
   title = "",
   durationSeconds = null,
-  maxDurationSeconds = readPositiveInt(process.env.VIDEO_MAX_DURATION_SECONDS, DEFAULT_MAX_VIDEO_DURATION_SECONDS)
+  maxDurationSeconds = readPositiveInt(process.env.VIDEO_MAX_DURATION_SECONDS, VIDEO_DEFAULTS.maxDurationSeconds)
 }) {
   return {
     ok: true,
@@ -267,7 +266,7 @@ function blockedPreflight({
   provider = null,
   title = "",
   durationSeconds = null,
-  maxDurationSeconds = readPositiveInt(process.env.VIDEO_MAX_DURATION_SECONDS, DEFAULT_MAX_VIDEO_DURATION_SECONDS),
+  maxDurationSeconds = readPositiveInt(process.env.VIDEO_MAX_DURATION_SECONDS, VIDEO_DEFAULTS.maxDurationSeconds),
   reasonCode,
   userMessage
 }) {
@@ -374,7 +373,8 @@ function readBooleanFlag(value, fallback = true) {
   return !["0", "false", "off", "no"].includes(String(value).trim().toLowerCase());
 }
 
-function readPlatformAllowlist(value) {
+function readPlatformAllowlist(value, fallback = []) {
+  if (value === undefined || value === null || value === "") return new Set(fallback);
   return new Set(
     String(value || "")
       .split(",")
