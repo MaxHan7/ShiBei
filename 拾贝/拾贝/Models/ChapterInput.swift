@@ -29,7 +29,8 @@ struct ChapterInput: Equatable {
 
     static func parse(_ value: String) -> ChapterInput {
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
-        if let url = URL(string: trimmed),
+        if let urlString = firstHTTPURLString(in: trimmed),
+           let url = URL(string: urlString),
            let scheme = url.scheme?.lowercased(),
            scheme == "http" || scheme == "https",
            let host = url.host?.lowercased(),
@@ -43,7 +44,7 @@ struct ChapterInput: Equatable {
             return ChapterInput(
                 sourceType: sourceType,
                 rawText: nil,
-                sourceUrl: trimmed,
+                sourceUrl: urlString,
                 sourceTitle: nil,
                 validationError: nil
             )
@@ -59,6 +60,19 @@ struct ChapterInput: Equatable {
         }
         return ChapterInput(sourceType: .text, rawText: trimmed, sourceUrl: nil, sourceTitle: nil)
     }
+
+    private static func firstHTTPURLString(in value: String) -> String? {
+        guard let matchRange = value.range(
+            of: #"https?://\S+"#,
+            options: [.regularExpression, .caseInsensitive]
+        ) else {
+            return nil
+        }
+
+        return String(value[matchRange]).trimmingCharacters(in: trailingURLPunctuation)
+    }
+
+    private static let trailingURLPunctuation = CharacterSet(charactersIn: ".,;:!?，。；：！？)]}）】》」』\"'")
 
     private static func looksLikeInvalidLink(_ value: String) -> Bool {
         guard !value.isEmpty else {

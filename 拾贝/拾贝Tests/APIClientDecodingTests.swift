@@ -126,12 +126,29 @@ final class APIClientDecodingTests: XCTestCase {
         XCTAssertFalse(input.canSubmit)
     }
 
-    func testTreatsMixedTextAndURLChapterInputAsText() {
+    func testParsesMixedTextAndURLChapterInputAsLink() {
         let input = ChapterInput.parse("请学习这篇文章 https://example.com/article")
 
-        XCTAssertEqual(input.sourceType, .text)
-        XCTAssertEqual(input.rawText, "请学习这篇文章 https://example.com/article")
-        XCTAssertNil(input.sourceUrl)
+        XCTAssertEqual(input.sourceType, .articleLink)
+        XCTAssertNil(input.rawText)
+        XCTAssertEqual(input.sourceUrl, "https://example.com/article")
+        XCTAssertNil(input.validationError)
+    }
+
+    func testParsesSharedXiaohongshuTextAsVideoLink() {
+        let input = ChapterInput.parse("98 【Agent Skill过多？4招提升命中 - 小哲讲大模型 / 小红书 - 你的生活兴趣社区】 😆 CzNutypu7EuXU05 😆 https://www.xiaohongshu.com/discovery/item/6a1a977b00000000360194ee?source=webshare&xhsshare=pc_web&xsec_token=ABTAH-AAksyoinRIIxRW83BYFC98M4RM8oSLYoaBdwwec=&xsec_source=pc_share")
+
+        XCTAssertEqual(input.sourceType, .videoLink)
+        XCTAssertNil(input.rawText)
+        XCTAssertEqual(input.sourceUrl, "https://www.xiaohongshu.com/discovery/item/6a1a977b00000000360194ee?source=webshare&xhsshare=pc_web&xsec_token=ABTAH-AAksyoinRIIxRW83BYFC98M4RM8oSLYoaBdwwec=&xsec_source=pc_share")
+        XCTAssertNil(input.validationError)
+    }
+
+    func testTrimsTrailingPunctuationFromSharedURL() {
+        let input = ChapterInput.parse("请看这个链接（https://www.bilibili.com/video/BV1hYGd63EnU/）")
+
+        XCTAssertEqual(input.sourceType, .videoLink)
+        XCTAssertEqual(input.sourceUrl, "https://www.bilibili.com/video/BV1hYGd63EnU/")
         XCTAssertNil(input.validationError)
     }
 

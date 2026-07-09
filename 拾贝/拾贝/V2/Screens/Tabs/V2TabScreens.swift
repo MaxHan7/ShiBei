@@ -277,16 +277,24 @@ struct V2UploadView: View {
         sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    private var parsedSourceInput: ChapterInput {
+        ChapterInput.parse(trimmedSourceText)
+    }
+
+    private var preflightInputKey: String {
+        parsedSourceInput.sourceUrl ?? trimmedSourceText
+    }
+
     private var canStartGeneration: Bool {
         guard !isSubmittingGeneration, !trimmedSourceText.isEmpty else {
             return false
         }
-        let parsed = ChapterInput.parse(trimmedSourceText)
+        let parsed = parsedSourceInput
         guard parsed.validationError == nil else {
             return false
         }
-        if parsed.sourceUrl?.isEmpty == false {
-            return preflightState.canGenerate(for: trimmedSourceText)
+        if let sourceUrl = parsed.sourceUrl, !sourceUrl.isEmpty {
+            return preflightState.canGenerate(for: sourceUrl)
         }
         return parsed.canSubmit
     }
@@ -307,7 +315,7 @@ struct V2UploadView: View {
                     V2UploadMascotInputGroup(
                         urlText: $sourceText,
                         preflightState: preflightState,
-                        input: trimmedSourceText
+                        input: preflightInputKey
                     )
                         .padding(.top, V2UploadPageMetrics.groupTopPadding)
 
@@ -372,33 +380,33 @@ struct V2UploadView: View {
             preflightState = .failed(input: trimmed, message: "这不是有效的链接。请粘贴 http 或 https 开头的链接。")
             return
         }
-        guard parsed.sourceUrl?.isEmpty == false else {
+        guard let sourceUrl = parsed.sourceUrl, !sourceUrl.isEmpty else {
             preflightState = .idle
             return
         }
 
-        preflightState = .checking(input: trimmed)
+        preflightState = .checking(input: sourceUrl)
         preflightTask = Task {
             try? await Task.sleep(nanoseconds: 350_000_000)
             guard !Task.isCancelled else {
                 return
             }
             do {
-                let response = try await preflightSource(trimmed)
+                let response = try await preflightSource(sourceUrl)
                 await MainActor.run {
-                    guard trimmedSourceText == trimmed else {
+                    guard preflightInputKey == sourceUrl else {
                         return
                     }
                     preflightState = response.canGenerate
-                        ? .ready(input: trimmed, response: response)
-                        : .blocked(input: trimmed, response: response)
+                        ? .ready(input: sourceUrl, response: response)
+                        : .blocked(input: sourceUrl, response: response)
                 }
             } catch {
                 await MainActor.run {
-                    guard trimmedSourceText == trimmed else {
+                    guard preflightInputKey == sourceUrl else {
                         return
                     }
-                    preflightState = .failed(input: trimmed, message: "暂时无法读取链接信息，请稍后重试。")
+                    preflightState = .failed(input: sourceUrl, message: "暂时无法读取链接信息，请稍后重试。")
                 }
             }
         }
@@ -416,11 +424,11 @@ struct V2UploadView: View {
             validationMessage = "这不是有效的链接。请粘贴 http 或 https 开头的链接。"
             return
         }
-        if parsed.sourceUrl?.isEmpty == false {
+        if let sourceUrl = parsed.sourceUrl, !sourceUrl.isEmpty {
             switch preflightState {
-            case .blocked(let input, let response) where input == trimmed:
+            case .blocked(let input, let response) where input == sourceUrl:
                 validationMessage = response.userMessage
-            case .failed(let input, let message) where input == trimmed:
+            case .failed(let input, let message) where input == sourceUrl:
                 validationMessage = message
             case .checking:
                 validationMessage = "正在读取链接信息，请稍等"
@@ -439,30 +447,30 @@ struct V2UploadView: View {
     @MainActor
     private func validateMetadataThenGenerate(_ input: String) async {
         let parsed = ChapterInput.parse(input)
-        guard parsed.sourceType == .videoLink else {
+        guard parsed.sourceType == .videoLink, let sourceUrl = parsed.sourceUrl else {
             onGenerate(input)
             return
         }
 
         preflightTask?.cancel()
-        preflightState = .checkingMetadata(input: input)
+        preflightState = .checkingMetadata(input: sourceUrl)
         do {
-            let response = try await preflightSourceWithMetadata(input)
-            guard trimmedSourceText == input else {
+            let response = try await preflightSourceWithMetadata(sourceUrl)
+            guard preflightInputKey == sourceUrl else {
                 return
             }
             if response.canGenerate {
-                preflightState = .ready(input: input, response: response)
+                preflightState = .ready(input: sourceUrl, response: response)
                 onGenerate(input)
             } else {
-                preflightState = .blocked(input: input, response: response)
+                preflightState = .blocked(input: sourceUrl, response: response)
                 validationMessage = response.userMessage
             }
         } catch {
-            guard trimmedSourceText == input else {
+            guard preflightInputKey == sourceUrl else {
                 return
             }
-            preflightState = .failed(input: input, message: "暂时无法读取视频信息，请稍后重试。")
+            preflightState = .failed(input: sourceUrl, message: "暂时无法读取视频信息，请稍后重试。")
             validationMessage = "暂时无法读取视频信息，请稍后重试。"
         }
     }
