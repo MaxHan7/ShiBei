@@ -110,7 +110,7 @@ struct APIClient {
         return try await send("/api/v2/chapters", method: "POST", body: request, acceptsFailureBody: false)
     }
 
-    func preflightSource(input: String, fetchMetadata: Bool = true) async throws -> SourcePreflightResponse {
+    func preflightSource(input: String, fetchMetadata: Bool = false) async throws -> SourcePreflightResponse {
         let request = SourcePreflightRequest(
             input: input.trimmingCharacters(in: .whitespacesAndNewlines),
             fetchMetadata: fetchMetadata

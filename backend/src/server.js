@@ -252,7 +252,7 @@ async function handleSourcePreflight(req, res) {
   const result = await preflightSourceInput({
     rawInput: body.input || body.sourceUrl || body.rawText,
     sourceType: body.sourceType,
-    fetchMetadata: body.fetchMetadata !== false
+    fetchMetadata: body.fetchMetadata === true
   });
   sendJson(res, result.ok ? 200 : 422, result);
 }

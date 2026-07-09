@@ -198,7 +198,7 @@ struct V2RootView: View {
                 selectedTab: $selectedTab,
                 isSubmittingGeneration: generationState.isSubmitting,
                 preflightSource: { input in
-                    try await apiClient.preflightSource(input: input)
+                    try await apiClient.preflightSource(input: input, fetchMetadata: false)
                 },
                 onGenerate: startV2Generation
             )

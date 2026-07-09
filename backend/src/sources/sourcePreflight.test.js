@@ -20,6 +20,27 @@ test("preflights valid Bilibili video without metadata", async () => {
   assert.equal(result.canGenerate, true);
 });
 
+test("cheap preflight does not fetch paid TikHub metadata", async () => {
+  let tikhubCalls = 0;
+  const result = await preflightSourceInput({
+    rawInput: "https://v.douyin.com/demo/",
+    fetchMetadata: false,
+    env: {},
+    fetchTikHub: async () => {
+      tikhubCalls += 1;
+      return { title: "paid", durationSeconds: 60 };
+    }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.sourceType, "video_link");
+  assert.equal(result.platform, "douyin");
+  assert.equal(result.provider, "tikhub");
+  assert.equal(result.title, "");
+  assert.equal(result.durationSeconds, null);
+  assert.equal(tikhubCalls, 0);
+});
+
 test("preflights metadata and blocks overlong video", async () => {
   const result = await preflightSourceInput({
     rawInput: "https://www.bilibili.com/video/BV1overlong/",
