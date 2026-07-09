@@ -543,13 +543,14 @@ private struct V2UploadPreflightStatusRow: View {
     var body: some View {
         Text(feedback.message)
             .font(V2UploadInputCardMetrics.feedbackFont)
-            .foregroundStyle(feedback.isError ? V2Color.feedbackWrongBorder : V2Color.textSecondary)
+            .foregroundStyle(feedback.isError ? V2Color.feedbackWrongBorder : V2UploadInputCardMetrics.feedbackColor)
             .lineLimit(1)
             .truncationMode(.tail)
             .frame(
                 maxWidth: .infinity,
-                alignment: .leading
+                alignment: .center
             )
+            .multilineTextAlignment(.center)
             .padding(.horizontal, V2UploadInputCardMetrics.feedbackHorizontalPadding)
     }
 }
@@ -712,7 +713,7 @@ private struct V2UploadBackgroundDecorations: View {
 
 private enum V2UploadPageMetrics {
     static let groupTopPadding: CGFloat = 28
-    static let verticalSpacing: CGFloat = 16
+    static let verticalSpacing: CGFloat = V2Spacing.lg
     static let contentHeight: CGFloat = 600
 }
 
@@ -758,7 +759,8 @@ private enum V2UploadInputCardMetrics {
     static let placeholderColor = Color(hex: 0xB7B7B7)
     static let inputTextColor = V2Color.topTitle
     static let fieldFill = Color(hex: 0xFFFBF6)
-    static let feedbackFont = V2Typography.labelRegular
+    static let feedbackFont = V2Typography.micro
+    static let feedbackColor = V2Color.primary
     static let feedbackHorizontalPadding: CGFloat = fieldHorizontalPadding
 
     static func cardHeight(hasFeedback: Bool) -> CGFloat {
