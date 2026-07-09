@@ -12,7 +12,7 @@ enum V2ActionButtonTone {
         case .wrong:
             V2Color.feedbackWrongBorder
         case .disabled:
-            V2Color.primaryAction.opacity(0.5)
+            Color(hex: 0xC6CD92)
         }
     }
 }
