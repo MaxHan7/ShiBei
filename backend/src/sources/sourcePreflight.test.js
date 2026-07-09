@@ -129,6 +129,21 @@ test("blocks platforms outside allowlist", async () => {
   assert.equal(result.reasonCode, "unsupported_video_platform");
 });
 
+test("explicit video source type treats unknown web URL as generic web video", async () => {
+  const result = await preflightSourceInput({
+    rawInput: "https://example.com/watch/123",
+    sourceType: "video_link",
+    fetchMetadata: false,
+    env: {}
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.sourceType, "video_link");
+  assert.equal(result.platform, "generic_web");
+  assert.equal(result.platformLabel, "网页视频");
+  assert.equal(result.provider, "yt-dlp");
+});
+
 test("classifies article and text inputs", async () => {
   const article = await preflightSourceInput({
     rawInput: "https://example.com/article/1",
