@@ -25,7 +25,9 @@ test("runs the V2 pyramid stages in stable order", async () => {
     "taskBriefPlan",
     "taskBriefPlan",
     "multipleChoiceDraftUnitBatch",
+    "multipleChoiceOptionSetUnitBatch",
     "multipleChoiceDraftUnitBatch",
+    "multipleChoiceOptionSetUnitBatch",
     "matchingDraft",
     "unitCopyBatch"
   ]);
@@ -300,27 +302,36 @@ function fixtureOutputForStage(stage, payload) {
           misconception: isSecondUnit
             ? "验证规则只是补充说明。"
             : "Hook 只是把提示词写得更长。",
-          distractorRationale: "干扰项覆盖提示词、模型、人工检查或说明文字的误解。",
-          options: isSecondUnit
-            ? [
-                { id: "a", text: "补充说明文字" },
-                { id: "b", text: "让流程结果可复查" },
-                { id: "c", text: "替代所有上下文" },
-                { id: "d", text: "加长提示词" }
-              ]
-            : [
-                { id: "a", text: "更长的提示词模板" },
-                { id: "b", text: "关键动作前后的流程控制器" },
-                { id: "c", text: "模型自动记住所有规则" },
-                { id: "d", text: "人工复查清单" }
-              ],
-          correctOptionId: "b",
           explanation: isSecondUnit
             ? "验证规则的价值是让流程输出能被稳定检查。"
             : "Hook 的价值在关键动作前后稳定触发规则、上下文和验证。",
           sourceAnchorId: isSecondUnit ? "anchor-unit-02" : "anchor-unit-01"
         }
       ]
+    };
+  }
+  if (stage === "multipleChoiceOptionSetUnitBatch") {
+    const isSecondUnit = payload.unit.id === "unit-02";
+    return {
+      unitId: payload.unit.id,
+      optionSets: payload.questionCores.map((question) => ({
+        questionId: question.id,
+        distractorRationale: "干扰项覆盖提示词、模型、人工检查或说明文字的误解。",
+        options: isSecondUnit
+          ? [
+              { id: "a", text: "补充说明文字" },
+              { id: "b", text: "让流程结果可复查" },
+              { id: "c", text: "替代所有上下文" },
+              { id: "d", text: "加长提示词" }
+            ]
+          : [
+              { id: "a", text: "更长的提示词模板" },
+              { id: "b", text: "关键动作前后的流程控制器" },
+              { id: "c", text: "模型自动记住所有规则" },
+              { id: "d", text: "人工复查清单" }
+            ],
+        correctOptionId: "b"
+      }))
     };
   }
   if (stage === "matchingDraft") {

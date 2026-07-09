@@ -7,6 +7,7 @@ export function buildV2PromptMessages(stage, payload) {
   if (stage === "questionDraftBatch") return buildQuestionDraftBatchMessages(payload);
   if (stage === "multipleChoiceDraftBatch") return buildMultipleChoiceDraftBatchMessages(payload);
   if (stage === "multipleChoiceDraftUnitBatch") return buildMultipleChoiceDraftUnitBatchMessages(payload);
+  if (stage === "multipleChoiceOptionSetUnitBatch") return buildMultipleChoiceOptionSetUnitBatchMessages(payload);
   if (stage === "matchingDraftBatch") return buildMatchingDraftBatchMessages(payload);
   if (stage === "unitCopyBatch") return buildUnitCopyBatchMessages(payload);
   if (stage === "unitPracticePlan") return buildUnitPracticePlanMessages(payload);
@@ -136,8 +137,8 @@ function buildMultipleChoiceDraftUnitBatchMessages({
     system: baseSystem(),
     user: [
       "阶段：multipleChoiceDraftUnitBatch。",
-      "短角色：你在这一阶段扮演选择题任务生成器；目标是把 questionBrief 中的掌握证据和常见误区转成一题可作答的选择题。",
-      "任务：只为当前 unit 生成选择题小批次；不要生成其他 unit 的题。",
+      "短角色：你在这一阶段扮演选择题核心任务生成器；目标是把 questionBrief 中的掌握证据和常见误区转成题干、正确理解、主要误区和一句解释。",
+      "任务：只为当前 unit 生成选择题核心草稿；不要生成选项，不要生成 correctOptionId，也不要生成其他 unit 的题。",
       "输入边界：",
       "- 当前调用只包含一个 unit、这个 unit 的 multiple_choice questionBriefs、以及这个 unit 的 sourceContext。",
       "- 不要重做知识点规划；每个 questionBrief 生成一题。",
@@ -152,13 +153,14 @@ function buildMultipleChoiceDraftUnitBatchMessages({
       "- 不要输出完整 ECD JSON，不要输出推理链、候选矩阵或批注。",
       "选择题规则：",
       "- 题干要自足，像一个理解判断任务，不写“根据本文/根据文章/文中提到/上述/以下哪”。",
-      "- 4 个选项只能有一个正确答案；正确选项不能明显更长、更完整或更像标准答案。",
-      "- 选项应适合小屏阅读：优先短句，但不能为了变短牺牲关键区分点。",
+      "- 本阶段只产出题目核心字段：id、type、practiceGoalId、stem、correctUnderstanding、misconception、explanation、sourceAnchorId。",
+      "- 不要输出 options、correctOptionId 或 distractorRationale；这些由后续 multipleChoiceOptionSetUnitBatch 生成。",
       "- correctUnderstanding 写正确理解，misconception 写本题主要误区。",
       "- explanation 是用户答后看到的一句纠偏反馈：把 correctUnderstanding 和 misconception 融合成一句短解释，帮助用户形成正确理解并避开容易混淆的点。",
       "- explanation 不写逐项解析，不写“正确选项A/B/C/D”。",
-      ...multipleChoiceOptionToneRules(),
-      ...multipleChoiceVisibleTextLimits(),
+      "移动端显示上限：",
+      "- stem 尽量不超过 60 个中文字；场景题只保留一个关键冲突或判断点。",
+      "- explanation 尽量不超过 60 个中文字；只写一句纠偏反馈。",
       "source 使用规则：",
       "- 只能引用当前 sourceContext.blocks，不要使用整章全文或其他 unit 的 source blocks。",
       "- sourceAnchorId 必须等于 questionBrief.sourceAnchorId。",
@@ -171,6 +173,51 @@ function buildMultipleChoiceDraftUnitBatchMessages({
       "",
       `sourceContext:\n${JSON.stringify(sourceContext || {}, null, 2)}`,
       ""
+    ].join("\n")
+  };
+}
+
+function buildMultipleChoiceOptionSetUnitBatchMessages({
+  article,
+  source,
+  unit,
+  questionBriefs,
+  questionCores,
+  sourceContext
+}) {
+  return {
+    system: baseSystem(),
+    user: [
+      "阶段：multipleChoiceOptionSetUnitBatch。",
+      "短角色：你在这一阶段扮演选择题选项组生成器；目标是只为已经确定的题目核心生成 1 个正确选项和 3 个高可信干扰项。",
+      "任务边界：",
+      "- 不要改写 questionCores 中的 stem、correctUnderstanding、misconception、explanation 或 sourceAnchorId。",
+      "- 每个 questionCore 生成一个 optionSets[] 对象，questionId 必须等于 questionCore.id。",
+      "- 每题只输出 options、correctOptionId 和 distractorRationale；不要输出完整题目，不要新增题目。",
+      "选项设计方式：",
+      "- 正确选项必须表达 questionCore.correctUnderstanding，并能直接回答 questionCore.stem。",
+      "- 干扰项必须围绕 questionCore.misconception、questionBrief.practiceGoal.commonMisconception、evidence.microSummaries 和 evidence.evidenceAngles 生成。",
+      "- 至少一个干扰项必须承载真实常见误区或混淆点，不能只是明显错误、无关事实或为了凑数。",
+      "- 4 个选项只能有一个正确答案；正确选项不能明显更长、更完整或更像标准答案。",
+      "- 如果 questionBrief 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。",
+      "- distractorRationale 用一句话说明这组选项主要覆盖的误区类型，供内部诊断使用。",
+      ...multipleChoiceOptionToneRules(),
+      ...multipleChoiceVisibleTextLimits(),
+      "source 使用规则：",
+      "- 只能引用当前 sourceContext.blocks，不要使用整章全文或其他 unit 的 source blocks。",
+      "- 不要引入 sourceContext 之外的新事实。",
+      "",
+      `source:\n${JSON.stringify(source || {}, null, 2)}`,
+      "",
+      `unit:\n${JSON.stringify(unit || {}, null, 2)}`,
+      "",
+      `questionBriefs:\n${JSON.stringify(questionBriefs || [], null, 2)}`,
+      "",
+      `questionCores:\n${JSON.stringify(questionCores || [], null, 2)}`,
+      "",
+      `sourceContext:\n${JSON.stringify(sourceContext || {}, null, 2)}`,
+      "",
+      renderArticleMeta(article)
     ].join("\n")
   };
 }

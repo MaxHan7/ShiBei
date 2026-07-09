@@ -119,6 +119,7 @@ test("task briefs drive downstream practice plans and suppress model-invented ma
   assert.equal(stages.includes("matchingDraft"), false);
   assert.equal(stages.includes("questionDraftBatch"), false);
   assert.equal(stages.includes("multipleChoiceDraftUnitBatch"), true);
+  assert.equal(stages.includes("multipleChoiceOptionSetUnitBatch"), true);
   assert.equal(stages.includes("matchingDraftBatch"), false);
   assert.deepEqual(
     reviewPath.generationMeta.unitPracticePlans[0].questionPlans.map((plan) => `${plan.id}:${plan.type}`),
@@ -389,6 +390,7 @@ test("skips multipleChoiceDraftUnitBatch when task brief selects only matching",
   assert.equal(stages.includes("matchingDraft"), true);
   assert.equal(stages.includes("questionDraftBatch"), false);
   assert.equal(stages.includes("multipleChoiceDraftUnitBatch"), false);
+  assert.equal(stages.includes("multipleChoiceOptionSetUnitBatch"), false);
   assert.equal(stages.includes("matchingDraftBatch"), false);
   assert.deepEqual(
     reviewPath.units[0].questions.map((question) => `${question.id}:${question.type}`),
@@ -411,6 +413,7 @@ test("skips matchingDraft when task brief does not select matching", async () =>
     "unitKnowledgeMap",
     "taskBriefPlan",
     "multipleChoiceDraftUnitBatch",
+    "multipleChoiceOptionSetUnitBatch",
     "unitCopyBatch"
   ]);
   assert.deepEqual(
@@ -582,15 +585,15 @@ test("keeps generated questions when deterministic guardrails find forbidden phr
 test("reports option tone cues without blocking generated questions", async () => {
   const reviewPath = await generateReviewPathV2(ARTICLE_INPUT, {
     promptCaller: async (stage, payload) => {
-      if (stage === "multipleChoiceDraftUnitBatch") {
+      if (stage === "multipleChoiceOptionSetUnitBatch") {
         const draft = await happyPathPromptCaller(stage, payload);
-        draft.questions[0].options = [
+        draft.optionSets[0].options = [
           { id: "A", text: "关键动作前后的固定流程" },
           { id: "B", text: "完全不需要流程约束" },
           { id: "C", text: "只能让提示词承担所有提醒" },
           { id: "D", text: "把规则沉淀成协作材料" }
         ];
-        draft.questions[0].correctOptionId = "A";
+        draft.optionSets[0].correctOptionId = "A";
         return draft;
       }
       return happyPathPromptCaller(stage, payload);
@@ -743,7 +746,7 @@ async function happyPathPromptCaller(stage, payload, { matching = true } = {}) {
     return {
       unitId: payload.unit.id,
       questions: payload.questionBriefs.map((brief, index) =>
-        multipleChoiceQuestionForPlan(
+        multipleChoiceQuestionCoreForPlan(
           payload.unit,
           {
             id: brief.questionPlanId,
@@ -753,6 +756,15 @@ async function happyPathPromptCaller(stage, payload, { matching = true } = {}) {
           },
           index
         )
+      )
+    };
+  }
+
+  if (stage === "multipleChoiceOptionSetUnitBatch") {
+    return {
+      unitId: payload.unit.id,
+      optionSets: payload.questionCores.map((question, index) =>
+        multipleChoiceOptionSetForQuestion(question, index)
       )
     };
   }
@@ -828,6 +840,38 @@ function multipleChoiceQuestionForPlan(unit, plan, index = 0) {
     correctOptionId: "A",
     explanation: "Hook 的重点是稳定触发流程，而不是让模型自己记住。",
     sourceAnchorId: unit.sourceAnchor.id
+  };
+}
+
+function multipleChoiceQuestionCoreForPlan(unit, plan, index = 0) {
+  const {
+    options: _options,
+    correctOptionId: _correctOptionId,
+    distractorRationale: _distractorRationale,
+    ...coreQuestion
+  } = multipleChoiceQuestionForPlan(unit, plan, index);
+  return coreQuestion;
+}
+
+function multipleChoiceOptionSetForQuestion(question, index = 0) {
+  const options = index === 0
+    ? [
+        { id: "A", text: "关键动作前后的固定流程" },
+        { id: "B", text: "让提示词承担所有提醒" },
+        { id: "C", text: "每次都依赖人工复查" },
+        { id: "D", text: "只把文章内容做成摘要" }
+      ]
+    : [
+        { id: "A", text: "把规则沉淀成固定流程" },
+        { id: "B", text: "继续依赖临时提示" },
+        { id: "C", text: "只在最后人工复查" },
+        { id: "D", text: "把内容改写成摘要" }
+      ];
+  return {
+    questionId: question.id,
+    options,
+    correctOptionId: "A",
+    distractorRationale: "干扰项覆盖把约束交给提示词、人工复查或摘要的误区。"
   };
 }
 

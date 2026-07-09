@@ -279,7 +279,7 @@ test("multipleChoiceDraftBatch prompt only generates planned multiple choice que
   assert.match(messages.user, /unitDraftInputs/);
 });
 
-test("multipleChoiceDraftUnitBatch prompt turns current unit briefs into evidence-based choices", () => {
+test("multipleChoiceDraftUnitBatch prompt turns current unit briefs into evidence-based question cores", () => {
   const messages = buildV2PromptMessages("multipleChoiceDraftUnitBatch", {
     article: ARTICLE,
     source: { type: "article", title: ARTICLE.title },
@@ -306,23 +306,71 @@ test("multipleChoiceDraftUnitBatch prompt turns current unit briefs into evidenc
   });
 
   assert.match(messages.user, /multipleChoiceDraftUnitBatch/);
-  assert.match(messages.user, /选择题任务生成器/);
+  assert.match(messages.user, /选择题核心任务生成器/);
   assert.match(messages.user, /掌握证据和常见误区/);
+  assert.match(messages.user, /不要生成选项，不要生成 correctOptionId/);
   assert.match(messages.user, /写题前先确认/);
   assert.match(messages.user, /定义理解、边界判断、误区识别、结构理解，还是场景迁移/);
-  assert.match(messages.user, /表面合理/);
-  assert.match(messages.user, /混淆边界、因果、适用条件、结构关系或场景迁移/);
   assert.match(messages.user, /像一个理解判断任务/);
-  assert.match(messages.user, /不能为了变短牺牲关键区分点/);
+  assert.match(messages.user, /本阶段只产出题目核心字段/);
   assert.match(messages.user, /把 correctUnderstanding 和 misconception 融合成一句短解释/);
   assert.match(messages.user, /不写逐项解析/);
-  assert.match(messages.user, /选项语气平衡规则/);
-  assert.match(messages.user, /错在边界、条件、因果、对象或适用场景/);
+  assert.doesNotMatch(messages.user, /选项语气平衡规则/);
+  assert.doesNotMatch(messages.user, /options\[\]\.text 尽量不超过 28 个中文字/);
   assert.match(messages.user, /stem 尽量不超过 60 个中文字/);
-  assert.match(messages.user, /options\[\]\.text 尽量不超过 28 个中文字/);
   assert.match(messages.user, /explanation 尽量不超过 60 个中文字/);
-  assert.match(messages.user, /不是 schema 硬失败条件/);
   assert.doesNotMatch(messages.user, /移动端复习题设计者|世界顶级|请按 ECD 思考/);
+});
+
+test("multipleChoiceOptionSetUnitBatch prompt generates balanced options for fixed question cores", () => {
+  const messages = buildV2PromptMessages("multipleChoiceOptionSetUnitBatch", {
+    article: ARTICLE,
+    source: { type: "article", title: ARTICLE.title },
+    unit: unitFixture(),
+    questionBriefs: [
+      {
+        questionPlanId: "q-001",
+        sourceAnchorId: "anchor-unit-01",
+        purpose: "boundary_clarification",
+        practiceGoal: {
+          id: "goal-001",
+          target: "用户能区分 Hook 的流程控制价值。",
+          commonMisconception: "把 Hook 当成普通提示词。"
+        },
+        evidence: {
+          microSummaries: ["Hook 在关键动作前后稳定触发规则和验证。"],
+          evidenceAngles: ["boundary_discrimination", "misconception_detection"]
+        }
+      }
+    ],
+    questionCores: [
+      {
+        id: "q-001",
+        type: "multiple_choice",
+        practiceGoalId: "goal-001",
+        stem: "Hook 更接近哪种机制？",
+        correctUnderstanding: "Hook 是关键动作前后的固定流程约束。",
+        misconception: "把 Hook 当成更长提示词。",
+        explanation: "Hook 的重点是稳定触发流程，而不是让模型自己记住。",
+        sourceAnchorId: "anchor-unit-01"
+      }
+    ],
+    sourceContext: {
+      blocks: [{ id: "p-001", type: "paragraph", text: "Hook 是流程控制器。" }],
+      sourceContextNote: { mode: "unit_window", unitId: "unit-01" }
+    }
+  });
+
+  assert.match(messages.user, /multipleChoiceOptionSetUnitBatch/);
+  assert.match(messages.user, /选择题选项组生成器/);
+  assert.match(messages.user, /不要改写 questionCores/);
+  assert.match(messages.user, /每个 questionCore 生成一个 optionSets\[\] 对象/);
+  assert.match(messages.user, /只输出 options、correctOptionId 和 distractorRationale/);
+  assert.match(messages.user, /选项语气平衡规则/);
+  assert.match(messages.user, /不要靠语气词暴露错误/);
+  assert.match(messages.user, /四个选项的语气、长度和抽象层级要相近/);
+  assert.match(messages.user, /options\[\]\.text 尽量不超过 28 个中文字/);
+  assert.match(messages.user, /questionCores/);
 });
 
 test("matchingDraftBatch prompt only generates planned matching questions", () => {

@@ -26,6 +26,10 @@ import {
   MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_PROMPT_SCHEMA_NAME
 } from "./prompts/multipleChoiceDraftUnitBatch.js";
 import {
+  MULTIPLE_CHOICE_OPTION_SET_UNIT_BATCH_OUTPUT_SCHEMA,
+  MULTIPLE_CHOICE_OPTION_SET_UNIT_BATCH_PROMPT_SCHEMA_NAME
+} from "./prompts/multipleChoiceOptionSetUnitBatch.js";
+import {
   QUALITY_JUDGE_OUTPUT_SCHEMA,
   QUALITY_JUDGE_PROMPT_SCHEMA_NAME
 } from "./prompts/qualityJudge.js";
@@ -101,7 +105,12 @@ const STAGE_SCHEMAS = {
   multipleChoiceDraftUnitBatch: {
     schemaName: MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_PROMPT_SCHEMA_NAME,
     schema: MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_OUTPUT_SCHEMA,
-    estimatedOutputTokens: 2400
+    estimatedOutputTokens: 1800
+  },
+  multipleChoiceOptionSetUnitBatch: {
+    schemaName: MULTIPLE_CHOICE_OPTION_SET_UNIT_BATCH_PROMPT_SCHEMA_NAME,
+    schema: MULTIPLE_CHOICE_OPTION_SET_UNIT_BATCH_OUTPUT_SCHEMA,
+    estimatedOutputTokens: 1600
   },
   matchingDraftBatch: {
     schemaName: MATCHING_DRAFT_BATCH_PROMPT_SCHEMA_NAME,

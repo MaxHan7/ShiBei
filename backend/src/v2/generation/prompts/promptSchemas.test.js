@@ -28,6 +28,10 @@ import {
   validateMultipleChoiceDraftUnitBatchOutput
 } from "./multipleChoiceDraftUnitBatch.js";
 import {
+  MULTIPLE_CHOICE_OPTION_SET_UNIT_BATCH_OUTPUT_SCHEMA,
+  validateMultipleChoiceOptionSetUnitBatchOutput
+} from "./multipleChoiceOptionSetUnitBatch.js";
+import {
   QUALITY_JUDGE_OUTPUT_SCHEMA,
   validateQualityJudgeOutput
 } from "./qualityJudge.js";
@@ -77,6 +81,7 @@ test("exports stable prompt schema names for the V2 generation pipeline", () => 
   assert.equal(QUESTION_DRAFT_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_question_draft_batch");
   assert.equal(MULTIPLE_CHOICE_DRAFT_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_multiple_choice_draft_batch");
   assert.equal(MULTIPLE_CHOICE_DRAFT_UNIT_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_multiple_choice_draft_unit_batch");
+  assert.equal(MULTIPLE_CHOICE_OPTION_SET_UNIT_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_multiple_choice_option_set_unit_batch");
   assert.equal(MATCHING_DRAFT_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_matching_draft_batch");
   assert.equal(UNIT_COPY_BATCH_OUTPUT_SCHEMA.name, "shibei_v2_unit_copy_batch");
   assert.equal(REVIEW_PATH_PLAN_OUTPUT_SCHEMA.name, "shibei_v2_review_path_plan");
@@ -141,7 +146,7 @@ test("validates scoped multiple choice unit batches", () => {
   const result = validateMultipleChoiceDraftUnitBatchOutput(
     {
       unitId: "unit-01",
-      questions: [multipleChoiceQuestionFixture()]
+      questions: [multipleChoiceCoreQuestionFixture()]
     },
     {
       unitId: "unit-01",
@@ -151,6 +156,42 @@ test("validates scoped multiple choice unit batches", () => {
   );
 
   assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("validates scoped multiple choice option set unit batches", () => {
+  const result = validateMultipleChoiceOptionSetUnitBatchOutput(
+    {
+      unitId: "unit-01",
+      optionSets: [multipleChoiceOptionSetFixture()]
+    },
+    {
+      unitId: "unit-01",
+      questionCoreIds: new Set(["q-001"])
+    }
+  );
+
+  assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("rejects option sets that do not reference generated question cores", () => {
+  const result = validateMultipleChoiceOptionSetUnitBatchOutput(
+    {
+      unitId: "unit-01",
+      optionSets: [
+        {
+          ...multipleChoiceOptionSetFixture(),
+          questionId: "q-made-up"
+        }
+      ]
+    },
+    {
+      unitId: "unit-01",
+      questionCoreIds: new Set(["q-001"])
+    }
+  );
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /questionId must match a generated multiple choice question id/);
 });
 
 test("validates matching draft batches by unit practice plans", () => {
@@ -991,6 +1032,25 @@ function multipleChoiceQuestionFixture() {
     correctOptionId: "A",
     explanation: "Hook 的重点是稳定执行，而不是模型自觉记住。",
     sourceAnchorId: "anchor-unit-01"
+  };
+}
+
+function multipleChoiceCoreQuestionFixture() {
+  const {
+    options: _options,
+    correctOptionId: _correctOptionId,
+    ...core
+  } = multipleChoiceQuestionFixture();
+  return core;
+}
+
+function multipleChoiceOptionSetFixture() {
+  const question = multipleChoiceQuestionFixture();
+  return {
+    questionId: question.id,
+    options: question.options,
+    correctOptionId: question.correctOptionId,
+    distractorRationale: "干扰项覆盖把 Hook 误解成提示词、摘要或普通操作。"
   };
 }
 

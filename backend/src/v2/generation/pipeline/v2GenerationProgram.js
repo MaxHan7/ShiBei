@@ -15,6 +15,7 @@ import {
 } from "../prompts/reviewPathPlan.js";
 import { validateSourceMapOutput } from "../prompts/sourceMap.js";
 import { validateMultipleChoiceDraftUnitBatchOutput } from "../prompts/multipleChoiceDraftUnitBatch.js";
+import { validateMultipleChoiceOptionSetUnitBatchOutput } from "../prompts/multipleChoiceOptionSetUnitBatch.js";
 import {
   getTaskBriefForUnit,
   normalizeTaskBriefPlanOutput,
@@ -56,6 +57,7 @@ export const V2_GENERATION_STAGES = [
   "unitKnowledgeMap",
   "taskBriefPlan",
   "multipleChoiceDraftUnitBatch",
+  "multipleChoiceOptionSetUnitBatch",
   "matchingDraft",
   "unitCopyBatch",
   "qualityJudge"
@@ -208,7 +210,7 @@ export async function runV2GenerationProgram(
           unitIndex: input.unit.order,
           unitTitle: input.unit.title
         });
-        return callAndValidate(
+        const coreDraft = await callAndValidate(
           activePromptCaller,
           "multipleChoiceDraftUnitBatch",
           {
@@ -233,6 +235,29 @@ export async function runV2GenerationProgram(
               )
           }
         );
+        const questionCoreIds = new Set((coreDraft.questions || []).map((question) => question.id));
+        await emitStageProgress("multipleChoiceOptionSetUnitBatch", {
+          unitIndex: input.unit.order,
+          unitTitle: input.unit.title
+        });
+        const optionSetDraft = await callAndValidate(
+          activePromptCaller,
+          "multipleChoiceOptionSetUnitBatch",
+          {
+            article,
+            source: sourceMap.source,
+            unit: input.unit,
+            questionBriefs,
+            questionCores: coreDraft.questions,
+            sourceContext: input.sourceContext
+          },
+          (output) =>
+            validateMultipleChoiceOptionSetUnitBatchOutput(output, {
+              unitId: input.unit.id,
+              questionCoreIds
+            })
+        );
+        return mergeMultipleChoiceCoreAndOptionSets(coreDraft, optionSetDraft);
       }
     )
   };
@@ -331,6 +356,7 @@ export async function runV2GenerationProgram(
             unitKnowledgeMap,
             taskBriefPlan,
             multipleChoiceDraftBatch,
+            multipleChoiceOptionSetBatch: extractMultipleChoiceOptionSetBatch(multipleChoiceDraftBatch),
             matchingDraftBatch,
             unitCopyBatch,
             unitPracticePlans
@@ -567,6 +593,38 @@ function mergeTypedQuestionDrafts({
       ];
     })
   );
+}
+
+function mergeMultipleChoiceCoreAndOptionSets(coreDraft, optionSetDraft) {
+  const optionSetsByQuestionId = new Map(
+    (optionSetDraft.optionSets || []).map((optionSet) => [optionSet.questionId, optionSet])
+  );
+  return {
+    unitId: coreDraft.unitId,
+    questions: (coreDraft.questions || []).map((question) => {
+      const optionSet = optionSetsByQuestionId.get(question.id);
+      return {
+        ...question,
+        options: optionSet?.options || [],
+        correctOptionId: optionSet?.correctOptionId || "",
+        distractorRationale: optionSet?.distractorRationale || ""
+      };
+    })
+  };
+}
+
+function extractMultipleChoiceOptionSetBatch(multipleChoiceDraftBatch) {
+  return {
+    units: (multipleChoiceDraftBatch?.units || []).map((unitDraft) => ({
+      unitId: unitDraft.unitId,
+      optionSets: (unitDraft.questions || []).map((question) => ({
+        questionId: question.id,
+        options: question.options,
+        correctOptionId: question.correctOptionId,
+        distractorRationale: question.distractorRationale
+      }))
+    }))
+  };
 }
 
 function buildGeneratedUnitFromBatches({
@@ -1281,6 +1339,7 @@ function stageDisplayText(stage) {
     taskBriefPlan: "正在规划练习",
     questionDraftBatch: "正在生成题目",
     multipleChoiceDraftUnitBatch: "正在生成选择题",
+    multipleChoiceOptionSetUnitBatch: "正在生成选择题",
     matchingDraftBatch: "正在生成连线题",
     unitCopyBatch: "正在生成单元文案",
     multipleChoiceDraft: "正在生成选择题",
