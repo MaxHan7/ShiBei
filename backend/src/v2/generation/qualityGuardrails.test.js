@@ -63,6 +63,88 @@ test("marks correct option length imbalance in diagnostics without adding a new 
   );
 });
 
+test("records standardized matching quality diagnostics for weak term-definition pairs", () => {
+  const reviewPath = reviewPathWithQuestion({
+    type: "matching",
+    stem: "把下面概念和解释匹配起来。",
+    relationType: "responsibility",
+    relationGoal: "识别几个术语的定义。",
+    leftItems: [
+      { id: "L1", text: "LLM" },
+      { id: "L2", text: "Prompt" },
+      { id: "L3", text: "Memory" }
+    ],
+    rightItems: [
+      { id: "R1", text: "定义" },
+      { id: "R2", text: "解释" },
+      { id: "R3", text: "特征" }
+    ],
+    pairs: [
+      { leftId: "L1", rightId: "R1" },
+      { leftId: "L2", rightId: "R2" },
+      { leftId: "L3", rightId: "R3" }
+    ],
+    explanation: "这些都是概念解释。",
+    options: undefined,
+    correctOptionId: undefined
+  });
+
+  const result = runV2QualityGuardrails(reviewPath);
+  const diagnostic = result.diagnostics[0];
+
+  assert.equal(diagnostic.checks.matchingRelationValue, "weak_relation");
+  assert.equal(diagnostic.checks.matchingQuality.status, "weak_relation");
+  assert.equal(diagnostic.checks.matchingQuality.pairCount, 3);
+  assert.equal(diagnostic.checks.matchingQuality.weakStem, true);
+  assert.equal(diagnostic.checks.matchingQuality.genericRightItemCount, 3);
+  assert.equal(diagnostic.checks.matchingQuality.shortRightItemCount, 3);
+  assert.deepEqual(diagnostic.checks.matchingQuality.genericRightTexts, ["定义", "解释", "特征"]);
+  assert.deepEqual(diagnostic.checks.matchingQuality.rightItemLengths, {
+    R1: 2,
+    R2: 2,
+    R3: 2
+  });
+  assert.equal(result.issues.find((issue) => issue.code === "v2_weak_matching_relation")?.severity, "error");
+});
+
+test("passes relation-value matching while recording quality diagnostics", () => {
+  const reviewPath = reviewPathWithQuestion({
+    type: "matching",
+    stem: "把 Agent 组件和它在循环中的职责连起来。",
+    relationType: "responsibility",
+    relationGoal: "区分 Agent 组件在任务循环里的职责。",
+    leftItems: [
+      { id: "L1", text: "LLM 大脑" },
+      { id: "L2", text: "Memory" },
+      { id: "L3", text: "Tools" }
+    ],
+    rightItems: [
+      { id: "R1", text: "负责理解任务并制定计划" },
+      { id: "R2", text: "保存上下文供下一步判断" },
+      { id: "R3", text: "执行搜索或制图等外部行动" }
+    ],
+    pairs: [
+      { leftId: "L1", rightId: "R1" },
+      { leftId: "L2", rightId: "R2" },
+      { leftId: "L3", rightId: "R3" }
+    ],
+    explanation: "这组关系考的是组件在 Agent 循环中的职责边界。",
+    options: undefined,
+    correctOptionId: undefined
+  });
+
+  const result = runV2QualityGuardrails(reviewPath);
+  const diagnostic = result.diagnostics[0];
+
+  assert.equal(diagnostic.checks.matchingRelationValue, "pass");
+  assert.equal(diagnostic.checks.matchingQuality.status, "pass");
+  assert.equal(diagnostic.checks.matchingQuality.pairCount, 3);
+  assert.equal(diagnostic.checks.matchingQuality.genericRightItemCount, 0);
+  assert.ok(diagnostic.checks.matchingQuality.relationSignalHits.includes("负责"));
+  assert.ok(diagnostic.checks.matchingQuality.relationSignalHits.includes("执行"));
+  assert.equal(result.issues.some((issue) => issue.code === "v2_weak_matching_relation"), false);
+});
+
 function reviewPathWithQuestion(questionOverrides) {
   return {
     units: [

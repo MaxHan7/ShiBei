@@ -68,6 +68,10 @@ test("renders a readable V2 quality HTML report with questions and source anchor
   assert.match(html, /option length range: 3/);
   assert.match(html, /option cue hits: B:完全、B:不需要/);
   assert.match(html, /matching relation value: pass/);
+  assert.match(html, /matching pair count: 4/);
+  assert.match(html, /matching weak stem: no/);
+  assert.match(html, /matching generic right items: 0 \(pass\)/);
+  assert.match(html, /matching relation signals: 触发、执行、判断/);
   assert.match(html, /Source Context Stats/);
   assert.match(html, /unitKnowledgeMap: b1, b2/);
   assert.match(html, /Stage Runtime Reliability/);
@@ -414,6 +418,21 @@ function chapterFixture() {
             forbiddenPhrase: [],
             distractorValue: "not_applicable",
             matchingRelationValue: "pass",
+            matchingQuality: {
+              status: "pass",
+              relationType: "process_signal",
+              relationGoalLength: 18,
+              pairCount: 4,
+              leftItemCount: 4,
+              rightItemCount: 4,
+              leftItemLengths: { L1: 4, L2: 7, L3: 7, L4: 8 },
+              rightItemLengths: { R1: 3, R2: 4, R3: 4, R4: 4 },
+              weakStem: false,
+              genericRightItemCount: 0,
+              shortRightItemCount: 4,
+              genericRightTexts: [],
+              relationSignalHits: ["触发", "执行", "判断"]
+            },
             explanationUiFit: "pass",
             sourceAnchorPrecision: "pass"
           },

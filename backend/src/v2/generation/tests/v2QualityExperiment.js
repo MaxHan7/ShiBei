@@ -1015,6 +1015,7 @@ function renderQuestionDiagnostic(diagnostic) {
     <div class="meta">distractor value: ${escapeHtml(checks.distractorValue || "not_applicable")}</div>
     ${renderOptionQualityDiagnostic(checks.optionQuality)}
     <div class="meta">matching relation value: ${escapeHtml(checks.matchingRelationValue || "not_applicable")}</div>
+    ${renderMatchingQualityDiagnostic(checks.matchingQuality)}
     <div class="meta">explanation UI fit: ${escapeHtml(checks.explanationUiFit || "unknown")}</div>
     <div class="meta">source anchor precision: ${escapeHtml(checks.sourceAnchorPrecision || "unknown")}</div>
     <pre>${escapeHtml(issueText)}</pre>
@@ -1032,6 +1033,22 @@ function renderOptionQualityDiagnostic(optionQuality) {
     `<div class="meta">option length ratio: ${escapeHtml(optionQuality.correctToMedianDistractorRatio ?? "n/a")}</div>`,
     `<div class="meta">option length range: ${escapeHtml(optionQuality.lengthRange ?? "n/a")}</div>`,
     `<div class="meta">option cue hits: ${escapeHtml(cueText)}</div>`
+  ].join("\n");
+}
+
+function renderMatchingQualityDiagnostic(matchingQuality) {
+  if (!matchingQuality || typeof matchingQuality !== "object") return "";
+  const genericText = matchingQuality.genericRightTexts?.length
+    ? matchingQuality.genericRightTexts.join("、")
+    : "pass";
+  const signalText = matchingQuality.relationSignalHits?.length
+    ? matchingQuality.relationSignalHits.join("、")
+    : "none";
+  return [
+    `<div class="meta">matching pair count: ${escapeHtml(matchingQuality.pairCount ?? "n/a")}</div>`,
+    `<div class="meta">matching weak stem: ${escapeHtml(matchingQuality.weakStem ? "yes" : "no")}</div>`,
+    `<div class="meta">matching generic right items: ${escapeHtml(matchingQuality.genericRightItemCount ?? 0)} (${escapeHtml(genericText)})</div>`,
+    `<div class="meta">matching relation signals: ${escapeHtml(signalText)}</div>`
   ].join("\n");
 }
 

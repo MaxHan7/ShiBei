@@ -56,6 +56,38 @@ const GENERIC_RIGHT_TEXT_PATTERNS = [
   /概念$/,
   /案例$/
 ];
+const MATCHING_RELATION_SIGNAL_TERMS = [
+  "负责",
+  "作用",
+  "目的",
+  "用于",
+  "用来",
+  "触发",
+  "验证",
+  "检查",
+  "边界",
+  "条件",
+  "时机",
+  "场景",
+  "影响",
+  "导致",
+  "输出",
+  "下一步",
+  "行动",
+  "信号",
+  "判断",
+  "依据",
+  "限制",
+  "区分",
+  "可复查",
+  "执行",
+  "调用",
+  "生成",
+  "搜索",
+  "分析",
+  "制定",
+  "更新"
+];
 
 export function runV2QualityGuardrails(reviewPath) {
   const issues = [];
@@ -84,6 +116,7 @@ function analyzeQuestion(question, unit, anchorIds) {
     forbiddenPhrase: [],
     distractorValue: "not_applicable",
     matchingRelationValue: "not_applicable",
+    matchingQuality: null,
     explanationUiFit: "pass",
     sourceAnchorPrecision: "pass",
     optionLengthBalance: "not_applicable",
@@ -148,6 +181,7 @@ function analyzeQuestion(question, unit, anchorIds) {
   if (question.type === "matching") {
     const matchingCheck = analyzeMatchingRelation(question);
     checks.matchingRelationValue = matchingCheck.status;
+    checks.matchingQuality = matchingCheck.quality;
     if (matchingCheck.issue) issues.push(matchingCheck.issue);
   }
 
@@ -318,17 +352,12 @@ function unique(values) {
 }
 
 function analyzeMatchingRelation(question) {
-  const stem = question.stem || "";
-  const rightItems = Array.isArray(question.rightItems) ? question.rightItems : [];
-  const weakStem = WEAK_MATCHING_STEM_PATTERNS.some((pattern) => pattern.test(stem));
-  const genericRightItems = rightItems.filter((item) =>
-    countVisibleChars(item.text) <= SHORT_GENERIC_MATCHING_TEXT_MAX ||
-    GENERIC_RIGHT_TEXT_PATTERNS.some((pattern) => pattern.test(item.text || ""))
-  );
+  const quality = analyzeMatchingQuality(question);
 
-  if (weakStem || genericRightItems.length >= 3) {
+  if (quality.status === "weak_relation") {
     return {
-      status: "weak_relation",
+      status: quality.status,
+      quality,
       issue: issue({
         code: "v2_weak_matching_relation",
         severity: "error",
@@ -338,7 +367,59 @@ function analyzeMatchingRelation(question) {
     };
   }
 
-  return { status: "pass" };
+  return {
+    status: quality.status,
+    quality
+  };
+}
+
+function analyzeMatchingQuality(question) {
+  const stem = question.stem || "";
+  const leftItems = Array.isArray(question.leftItems) ? question.leftItems : [];
+  const rightItems = Array.isArray(question.rightItems) ? question.rightItems : [];
+  const weakStem = WEAK_MATCHING_STEM_PATTERNS.some((pattern) => pattern.test(stem));
+  const genericRightItems = rightItems.filter((item) =>
+    countVisibleChars(item.text) <= SHORT_GENERIC_MATCHING_TEXT_MAX ||
+    GENERIC_RIGHT_TEXT_PATTERNS.some((pattern) => pattern.test(item.text || ""))
+  );
+  const relationSignalHits = unique(
+    [...rightItems, ...leftItems, { text: question.relationGoal }, { text: question.explanation }]
+      .flatMap((item) => relationSignalsInText(item.text))
+  );
+  const leftItemLengths = Object.fromEntries(
+    leftItems.map((item) => [item.id, countVisibleChars(item.text)])
+  );
+  const rightItemLengths = Object.fromEntries(
+    rightItems.map((item) => [item.id, countVisibleChars(item.text)])
+  );
+  const shortRightItems = rightItems.filter((item) =>
+    countVisibleChars(item.text) <= SHORT_GENERIC_MATCHING_TEXT_MAX
+  );
+  const genericRightTexts = genericRightItems.map((item) => item.text);
+  const status = weakStem || (genericRightItems.length >= 3 && relationSignalHits.length < 2)
+    ? "weak_relation"
+    : "pass";
+
+  return {
+    status,
+    relationType: question.relationType || "",
+    relationGoalLength: countVisibleChars(question.relationGoal),
+    pairCount: Array.isArray(question.pairs) ? question.pairs.length : 0,
+    leftItemCount: leftItems.length,
+    rightItemCount: rightItems.length,
+    leftItemLengths,
+    rightItemLengths,
+    weakStem,
+    genericRightItemCount: genericRightItems.length,
+    shortRightItemCount: shortRightItems.length,
+    genericRightTexts,
+    relationSignalHits
+  };
+}
+
+function relationSignalsInText(value = "") {
+  const text = String(value || "");
+  return MATCHING_RELATION_SIGNAL_TERMS.filter((term) => text.includes(term));
 }
 
 function issue({ code, severity, message, targetId }) {
