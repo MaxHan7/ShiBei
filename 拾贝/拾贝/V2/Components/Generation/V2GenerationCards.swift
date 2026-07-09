@@ -314,7 +314,7 @@ struct V2GenerationStartedDialog: View {
                 .offset(x: V2GenerationStartedDialogMetrics.messageX, y: V2GenerationStartedDialogMetrics.messageY)
 
             Button(action: onAcknowledge) {
-                Text(verbatim: "知道了")
+                Text(verbatim: "好的")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(V2Color.primaryAction)
                     .frame(
