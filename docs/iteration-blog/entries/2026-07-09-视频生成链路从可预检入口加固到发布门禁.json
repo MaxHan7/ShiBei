@@ -1,0 +1,51 @@
+{
+  "date": "2026-07-09",
+  "title": "视频生成链路从可预检入口加固到发布门禁",
+  "phase": "发布准备与质量加固",
+  "problem": "拾贝的视频链接入口在 7 月 8 日已经能让用户粘贴链接并看到可生成状态，但这还不足以支撑发布：如果粘贴阶段就触发付费 metadata 调用、长视频下载没有统一字节上限、runtime readiness 暴露为普通接口，或生成中途关闭来源反馈，用户会在高成本链路里遇到不可解释的失败，后端也可能被资源消耗拖垮。今天的核心问题是：如何把视频链接从一个可预检的体验闭环，推进成可部署、可控成本、可解释降级、并能保护复习进度语义的生产链路。",
+  "changes": [
+    "视频后端运行时新增 videoRuntimeReadiness 与生产 gate，把 ffmpeg、ffprobe、Python、yt-dlp、faster-whisper、TikHub/Qwen key 和 15 分钟默认上限统一纳入部署前检查；公开接口需要 RUNTIME_READINESS_TOKEN，不再让普通请求触发昂贵环境探测。",
+    "视频媒体下载链路补齐资源上限：TikHub 下载改为流式写入并边下载边统计 VIDEO_MEDIA_MAX_BYTES，yt-dlp 下载完成后在进入 ffmpeg、ASR、抽帧前再次校验文件大小，避免超长或超大视频把生成链路拖入不可控成本。",
+    "视频入口策略从自动预检付费 metadata 调用改为用户点击生成后再确认必要 metadata：粘贴和编辑阶段只做便宜平台识别，生成前拦截超过 15 分钟的视频，同时在 UI 中展示标题、平台、时长和确认状态。",
+    "iOS 上传页和生成反馈围绕视频场景收口：source type 放回输入卡片内部，辅助文案层级和禁用按钮状态更稳定；长视频生成时来源面板保持关闭，用户看到的是持续生成反馈而不是可误操作的来源编辑状态。",
+    "复习完成态增加 replay 保护：后端 review session 返回 completedAt，iOS 在重新练习已完成章节时保留完成徽章，避免临时练习把主线复习进度显示成未完成。",
+    "文档沉淀视频生产化标准，明确 ASR/VSR 文本主链路 + 视觉增强的产品口径、TikHub 只在明确生成且缓存未命中时调用、普通网页视频暂不作为用户显式入口开放，并把 Railway 部署输入模板纳入发布准备。"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/2026-07-09-视频生成链路从可预检入口加固到发布门禁.svg",
+      "caption": "2026-07-09 迭代摘要"
+    }
+  ],
+  "result": "今天的结果是视频链接生成从体验可用推进到发布前可控：部署 gate 能检查关键运行时和 provider 配置，下载链路具备时长与字节双重保护，用户侧的 metadata 确认发生在明确生成动作之后，长耗时生成反馈不会被来源编辑打断。验证依据包括 backend video runtime readiness、mediaFiles、yt-dlp downloader、sourcePreflight、reviewSessionLifecycle 等测试扩展，以及文档记录的 npm --prefix backend run check:video-source 与 iOS Debug build。仍未完成的是远端 Railway 部署、真实 provider readiness token 配置和线上成本/降级率监控。",
+  "next": "下一步应把这套发布门禁接到真实部署流程：在 Railway 环境配置 RUNTIME_READINESS_TOKEN 与视频 provider key，跑一次带 --require-video 的 production gate，并用一条 B站/YouTube 与一条抖音样本验证 metadata 确认、下载上限、字幕主链路和视觉降级提示是否与今天的产品口径一致。",
+  "commits": [
+    "fae15fe",
+    "a6dc97d",
+    "d2f698b",
+    "9f75d4f",
+    "f626aab",
+    "81a8610",
+    "c0db6d0",
+    "74d884b",
+    "0ea9491",
+    "d9f8673",
+    "d495c7f",
+    "d44b4ec",
+    "66a303e",
+    "1dcd9a7",
+    "9da9d30",
+    "4bff3a1",
+    "f645ece",
+    "cf29e39",
+    "b72b7ae",
+    "ef5d4b4",
+    "a70b0aa",
+    "290f18a",
+    "35f1e88",
+    "7f1aec4",
+    "ffd10e5",
+    "eb0fdc8",
+    "81602cd"
+  ]
+}
