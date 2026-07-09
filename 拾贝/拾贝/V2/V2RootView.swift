@@ -1513,7 +1513,9 @@ struct V2RootView: View {
     private func startGenerationPolling(chapterID: String) {
         generationPollingTask?.cancel()
         generationPollingTask = Task {
-            for _ in 0..<240 {
+            let pollingIntervals: [UInt64] = Array(repeating: 1_250_000_000, count: 240)
+                + Array(repeating: 5_000_000_000, count: 120)
+            for interval in pollingIntervals {
                 if Task.isCancelled {
                     return
                 }
@@ -1540,10 +1542,12 @@ struct V2RootView: View {
                     }
                 }
 
-                try? await Task.sleep(nanoseconds: 1_250_000_000)
+                try? await Task.sleep(nanoseconds: interval)
             }
             await MainActor.run {
                 generationPollingTask = nil
+                generationState.showsChapterCard = true
+                generationState.errorText = "视频还在处理中，可以稍后回到材料页查看结果。"
             }
         }
     }
