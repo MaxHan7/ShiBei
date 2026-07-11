@@ -134,16 +134,20 @@ test("unitKnowledgeMap prompt isolates micro knowledge discovery from task assem
   assert.match(messages.user, /unit_window/);
   assert.match(messages.user, /本阶段不生成题目、不选择题型、不做 selectedTasks/);
   assert.match(messages.user, /本次输入可能只包含一个 unit/);
-  assert.match(messages.user, /确认最值得考察的价值角度/);
-  assert.match(messages.user, /不是完整拆解 unit/);
-  assert.match(messages.user, /每个 unit 优先保留 1 个最强价值角度/);
-  assert.match(messages.user, /最多保留 2 个/);
-  assert.match(messages.user, /理解本质、判断场景、区分边界、避免误用、迁移应用或关系理解/);
+  assert.match(messages.user, /识别多个有学习价值的高质量考察点/);
+  assert.match(messages.user, /reviewPathPlan 已经负责筛掉低价值 unit/);
+  assert.match(messages.user, /本阶段不再压缩 unit 数量/);
+  assert.match(messages.user, /不是低价值细节清单/);
+  assert.match(messages.user, /定义、本质、边界、模型层级、机制、流程步骤、场景应用、常见误区/);
   assert.match(messages.user, /改善用户理解、判断、行动或避免误解/);
   assert.match(messages.user, /如果多个表述服务于同一个学习点，合并为一个 micro/);
+  assert.match(messages.user, /micro 数量由当前核心 unit 的知识密度和可观察考察价值自然决定/);
+  assert.match(messages.user, /不用固定为 1 个/);
   assert.match(messages.user, /assessmentValue 描述该角度是否值得占用用户注意力/);
   assert.match(messages.user, /high：缺少它会明显削弱用户对内容主线的理解、判断、行动或避错能力/);
-  assert.match(messages.user, /medium：对主线有补充价值/);
+  assert.match(messages.user, /medium：能补充重要角度、边界、误区或应用/);
+  assert.match(messages.user, /要保留整体结构、关键层级作用、层级关系或边界中有考察价值的点/);
+  assert.match(messages.user, /能形成 matching 或场景判断的关系小点/);
   assert.match(messages.user, /title 是短标题/);
   assert.match(messages.user, /summary 是知识索引句/);
   assert.match(messages.user, /最多 48 字符/);
@@ -151,7 +155,7 @@ test("unitKnowledgeMap prompt isolates micro knowledge discovery from task assem
   assert.match(messages.user, /最多 16 字符/);
   assert.match(messages.user, /不要输出 sourceAnchorId 或 sourceSupport/);
   assert.match(messages.user, /microKnowledgePoints/);
-  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐|每个 unit 必须|至少.*micro|至少.*definition|至少.*boundary|4-7|完整发现|最小的有意义|不要为了控制题量|micro 数量由当前 unit 的知识密度决定/);
+  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐|每个 unit 必须|至少.*micro|至少.*definition|至少.*boundary|4-7|完整发现|最小的有意义|不要为了控制题量|每个 unit 优先保留 1 个最强价值角度|最多保留 2 个/);
 });
 
 test("unitKnowledgeMap retry prompt switches to compact index mode", () => {
@@ -175,7 +179,7 @@ test("unitKnowledgeMap retry prompt switches to compact index mode", () => {
   });
 
   assert.match(messages.user, /重试压缩模式/);
-  assert.match(messages.user, /保持同样的高价值角度选择/);
+  assert.match(messages.user, /保持同样的核心考察点覆盖/);
   assert.match(messages.user, /summary 优先控制在 32 个中文字以内/);
   assert.match(messages.user, /primaryEvidenceAngle 控制在 12 个中文字以内/);
 });
@@ -212,18 +216,17 @@ test("taskBriefPlan prompt embeds ECD as thinking method without heavy ECD JSON"
   assert.match(messages.user, /不要引用其他 unit/);
   assert.match(messages.user, /不要输出 practiceGoal\.id、questionPlan\.id、practiceGoalId 或 sourceAnchorId/);
   assert.match(messages.user, /goalIndex 是 1-based 数字/);
-  assert.match(messages.user, /unitKnowledgeMap\.microKnowledgePoints 是上游选择出的高价值考察角度/);
-  assert.match(messages.user, /只选择最值得占用用户注意力的考察角度/);
-  assert.match(messages.user, /不要为了覆盖所有 high \/ medium microKnowledgePoint 而出题/);
-  assert.match(messages.user, /每个 unit 通常只生成 1 个核心 questionPlan/);
-  assert.match(messages.user, /最多生成 2 个/);
-  assert.match(messages.user, /被跳过的角度不是失败/);
-  assert.match(messages.user, /理解本质、判断场景、区分边界、避免误用、迁移应用或关系理解/);
-  assert.match(messages.user, /如果最强 value angle 是清晰的结构、流程、角色、条件、特征或判断依据/);
+  assert.match(messages.user, /unitKnowledgeMap\.microKnowledgePoints 是已筛出的核心 unit 内部的高价值考察点/);
+  assert.match(messages.user, /对每个 high microKnowledgePoint 都要形成 practiceGoal 或 questionPlan/);
+  assert.match(messages.user, /medium 如果有独立掌握证据，也应优先覆盖/);
+  assert.match(messages.user, /数量由高价值考察点、掌握证据和题型适配自然决定/);
+  assert.match(messages.user, /不要为了减少题量漏掉同一核心 unit 中独立的高价值角度/);
+  assert.match(messages.user, /题型服务于具体考察角度/);
+  assert.match(messages.user, /如果 microKnowledgePoints 中存在清晰的结构、流程、角色、条件、特征或判断依据/);
   assert.match(messages.user, /至少 2 个稳定对应关系/);
   assert.match(messages.user, /如果只有 1 个关系点，用 multiple_choice/);
   assert.match(messages.user, /matching 不是机械名词释义/);
-  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐|每个 unit 必须.*题|至少.*questionPlans|不要为了增加体量重复|每个 high \/ medium microKnowledgePoint 都要被某个 practiceGoal 或 questionPlan 覆盖|模型层级 -> 对应作用|流程步骤 -> 目的|角色 -> 职责/);
+  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐|每个 unit 必须.*题|至少.*questionPlans|不要为了增加体量重复|每个 unit 通常只生成 1 个核心 questionPlan|最多生成 2 个|只有当第二个角度/);
 });
 
 test("questionDraftBatch prompt generates all planned questions without ECD JSON", () => {
@@ -515,21 +518,22 @@ test("ecdPlanning prompt asks for internal ECD reasoning and compact task planni
   assert.match(messages.user, /compact task model/);
   assert.match(messages.user, /内部按 ECD 推理/);
   assert.match(messages.user, /unitKnowledgeMap\.microKnowledgePoints/);
-  assert.match(messages.user, /不是覆盖清单/);
-  assert.match(messages.user, /选择最能提供掌握证据的少数任务/);
-  assert.match(messages.user, /high \/ medium/);
-  assert.match(messages.user, /只有最强角度进入 selectedTasks/);
+  assert.match(messages.user, /不要在本阶段重新压缩它/);
+  assert.match(messages.user, /不是再做一次只留最强角度的筛选/);
+  assert.match(messages.user, /assessmentValue 为 high/);
+  assert.match(messages.user, /medium 如果有独立观察价值/);
   assert.match(messages.user, /assessableTargets/);
   assert.match(messages.user, /selectedTasks/);
   assert.match(messages.user, /targetIds/);
   assert.match(messages.user, /microIds/);
   assert.match(messages.user, /evidenceGoal/);
-  assert.match(messages.user, /required 代表高价值候选，不代表必须出题覆盖/);
-  assert.match(messages.user, /跳过低增益 target 是 lean 设计的一部分/);
-  assert.match(messages.user, /注意力收益和掌握证据价值/);
+  assert.match(messages.user, /required 代表本轮必须覆盖/);
+  assert.match(messages.user, /必须覆盖所有 coverageRequirement=required/);
+  assert.match(messages.user, /evidence value 和掌握证据组合自然决定/);
   assert.match(messages.user, /至少 2 个稳定对应关系/);
   assert.match(messages.user, /否则使用 multiple_choice/);
-  assert.match(messages.user, /跳过未进入 selectedTasks 的 target/);
+  assert.match(messages.user, /多个同等重要的小目标/);
+  assert.match(messages.user, /让 selectedTasks 呈现这些互补角度/);
   assert.match(messages.user, /不要输出 skippedEvidence、learningClaims、evidenceNeeds、taskPlan 或 articleUnderstanding/);
   assert.match(messages.user, /本阶段不生成用户可见题目/);
   assert.match(messages.user, /模型层级 -> 对应作用/);
