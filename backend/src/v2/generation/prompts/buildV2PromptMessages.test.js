@@ -220,6 +220,8 @@ test("taskBriefPlan prompt embeds ECD as thinking method without heavy ECD JSON"
   assert.match(messages.user, /被跳过的角度不是失败/);
   assert.match(messages.user, /理解本质、判断场景、区分边界、避免误用、迁移应用或关系理解/);
   assert.match(messages.user, /如果最强 value angle 是清晰的结构、流程、角色、条件、特征或判断依据/);
+  assert.match(messages.user, /至少 2 个稳定对应关系/);
+  assert.match(messages.user, /如果只有 1 个关系点，用 multiple_choice/);
   assert.match(messages.user, /matching 不是机械名词释义/);
   assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐|每个 unit 必须.*题|至少.*questionPlans|不要为了增加体量重复|每个 high \/ medium microKnowledgePoint 都要被某个 practiceGoal 或 questionPlan 覆盖|模型层级 -> 对应作用|流程步骤 -> 目的|角色 -> 职责/);
 });
@@ -285,6 +287,7 @@ test("multipleChoiceDraftBatch prompt only generates planned multiple choice que
   assert.match(messages.user, /选项语气平衡规则/);
   assert.match(messages.user, /不要靠语气词暴露错误/);
   assert.match(messages.user, /完全、一定、所有、任何、只能、不需要、无关、替代一切、百分百/);
+  assert.match(messages.user, /不能退化成单词、术语或短标签/);
   assert.match(messages.user, /stem 尽量不超过 60 个中文字/);
   assert.match(messages.user, /options\[\]\.text 尽量不超过 28 个中文字/);
   assert.match(messages.user, /不是 schema 硬失败条件/);
@@ -381,6 +384,7 @@ test("multipleChoiceOptionSetUnitBatch prompt generates balanced options for fix
   assert.match(messages.user, /选项语气平衡规则/);
   assert.match(messages.user, /不要靠语气词暴露错误/);
   assert.match(messages.user, /四个选项的语气、长度和抽象层级要相近/);
+  assert.match(messages.user, /不能退化成单词、术语或短标签/);
   assert.match(messages.user, /options\[\]\.text 尽量不超过 28 个中文字/);
   assert.match(messages.user, /questionCores/);
 });
@@ -523,6 +527,8 @@ test("ecdPlanning prompt asks for internal ECD reasoning and compact task planni
   assert.match(messages.user, /required 代表高价值候选，不代表必须出题覆盖/);
   assert.match(messages.user, /跳过低增益 target 是 lean 设计的一部分/);
   assert.match(messages.user, /注意力收益和掌握证据价值/);
+  assert.match(messages.user, /至少 2 个稳定对应关系/);
+  assert.match(messages.user, /否则使用 multiple_choice/);
   assert.match(messages.user, /跳过未进入 selectedTasks 的 target/);
   assert.match(messages.user, /不要输出 skippedEvidence、learningClaims、evidenceNeeds、taskPlan 或 articleUnderstanding/);
   assert.match(messages.user, /本阶段不生成用户可见题目/);
@@ -548,6 +554,7 @@ test("multipleChoiceDraft prompt requires misconception-first distractors", () =
   assert.match(messages.user, /正确选项不能明显更长/);
   assert.match(messages.user, /选项语气平衡规则/);
   assert.match(messages.user, /四个选项的语气、长度和抽象层级要相近/);
+  assert.match(messages.user, /不能退化成单词、术语或短标签/);
   assert.match(messages.user, /不要写“正确选项A\/B\/C\/D”/);
   assert.match(messages.user, /options\[\]\.text 尽量不超过 28 个中文字/);
 });
