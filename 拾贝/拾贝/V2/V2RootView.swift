@@ -16,7 +16,7 @@ private enum V2NotificationRouteTarget {
 }
 
 private enum V2ReviewFlowFeatureFlags {
-    static let skipsUnitSummaryScreen = true
+    static let skipsUnitSummaryScreen = false
 }
 
 private struct V2PendingAIProcessingConsentSourceText: Identifiable {
