@@ -986,5 +986,36 @@ window.iterationEntries = [
       "eb0fdc8",
       "81602cd"
     ]
+  },
+  {
+    "date": "2026-07-11",
+    "title": "Lean 生成把题量控制转成注意力预算",
+    "phase": "出题质量验证",
+    "problem": "详细版生成链路能覆盖更多材料，却容易把用户注意力分散到背景、普通例子、局部事实和同一知识点的重复角度上；这会削弱拾贝把长内容转成可复习知识的核心目标。今天的问题是：能否在不破坏字段契约和题目质量门禁的前提下，让 V2 先识别内容主线，再只保留少数真正值得复习的高价值 unit、micro 和 questionPlan。",
+    "changes": [
+      "reviewPathPlan：把 unit 选择标准从来源覆盖和独立学习对象，收口为服务内容主线、改善理解/判断/行动/避错、值得占用用户注意力的关键节点。",
+      "unitKnowledgeMap：把 microKnowledgePoints 从完整拆解清单改成 unit 内 2-3 个高价值考察角度，避免为了可出题而保留低价值细节。",
+      "taskBriefPlan 与 ECD planning：把题目计划从覆盖所有 high/medium micro 调整为每个 unit 通常 2-3 个 questionPlan，并限制题目不得打包相邻 unit 内容。",
+      "matching 与选择题护栏：补充至少 2 个稳定对应关系才允许 matching、选择项不能退化成单词短标签的规则，用真实样本暴露的 contract failure 和弱干扰项问题反推准入条件。",
+      "V2RootView 复习入口：当天尝试跳过 unit summary 以减少流程摩擦，随后恢复单元摘要页，说明 lean 方向优先落在生成质量而不是压缩复习解释上下文。"
+    ],
+    "screenshots": [
+      {
+        "src": "assets/2026-07-11-lean-生成把题量控制转成注意力预算.svg",
+        "caption": "2026-07-11 迭代摘要"
+      }
+    ],
+    "result": "真实 B 站样本《费曼学习法，5分钟搞懂 Agent》从详细版 3 个 unit / 8 题压缩到 lean 版 3 个 unit / 3 题，最终 run completed，issueCount 为 0，diagnosticIssueCount 从 1 降为 0，completion token 从 6368 降到 2808，DeepSeek 实际成本从 USD 0.006367492 降到 USD 0.004937088。自动检查中 prompt focused test 19/19 pass，V2 check 225/225 pass。当前证据仍只覆盖单个视频样本，尚不能代表文章、清单型内容和结构型材料。",
+    "next": "用至少三类材料继续验证 lean 策略：高密度教程、观点型文章、结构清单内容；重点观察每个 unit 1-3 题是否会漏掉必要迁移角度，以及 matching 准入是否过度抑制结构关系题。",
+    "commits": [
+      "e76b705",
+      "68f35f6",
+      "e2dc743",
+      "0355b16",
+      "d711aaa",
+      "25cd54c",
+      "6e6b432",
+      "aafb34c"
+    ]
   }
 ];
