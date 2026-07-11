@@ -141,8 +141,8 @@ test("unitKnowledgeMap prompt isolates micro knowledge discovery from task assem
   assert.match(messages.user, /定义、本质、边界、模型层级、机制、流程步骤、场景应用、常见误区/);
   assert.match(messages.user, /改善用户理解、判断、行动或避免误解/);
   assert.match(messages.user, /如果多个表述服务于同一个学习点，合并为一个 micro/);
-  assert.match(messages.user, /micro 数量由当前核心 unit 的知识密度和可观察考察价值自然决定/);
-  assert.match(messages.user, /不用固定为 1 个/);
+  assert.match(messages.user, /每个核心 unit 通常保留 2-3 个 micro/);
+  assert.match(messages.user, /不可合并的独立高价值角度才超过/);
   assert.match(messages.user, /assessmentValue 描述该角度是否值得占用用户注意力/);
   assert.match(messages.user, /high：缺少它会明显削弱用户对内容主线的理解、判断、行动或避错能力/);
   assert.match(messages.user, /medium：能补充重要角度、边界、误区或应用/);
@@ -219,8 +219,10 @@ test("taskBriefPlan prompt embeds ECD as thinking method without heavy ECD JSON"
   assert.match(messages.user, /unitKnowledgeMap\.microKnowledgePoints 是已筛出的核心 unit 内部的高价值考察点/);
   assert.match(messages.user, /对每个 high microKnowledgePoint 都要形成 practiceGoal 或 questionPlan/);
   assert.match(messages.user, /medium 如果有独立掌握证据，也应优先覆盖/);
-  assert.match(messages.user, /数量由高价值考察点、掌握证据和题型适配自然决定/);
+  assert.match(messages.user, /每个 unit 通常生成 2-3 个 questionPlan/);
+  assert.match(messages.user, /不可合并的独立高价值角度时才超过/);
   assert.match(messages.user, /不要为了减少题量漏掉同一核心 unit 中独立的高价值角度/);
+  assert.match(messages.user, /不要把相邻 unit 的内容打包进当前 unit 题目/);
   assert.match(messages.user, /题型服务于具体考察角度/);
   assert.match(messages.user, /如果 microKnowledgePoints 中存在清晰的结构、流程、角色、条件、特征或判断依据/);
   assert.match(messages.user, /至少 2 个稳定对应关系/);
@@ -529,7 +531,9 @@ test("ecdPlanning prompt asks for internal ECD reasoning and compact task planni
   assert.match(messages.user, /evidenceGoal/);
   assert.match(messages.user, /required 代表本轮必须覆盖/);
   assert.match(messages.user, /必须覆盖所有 coverageRequirement=required/);
-  assert.match(messages.user, /evidence value 和掌握证据组合自然决定/);
+  assert.match(messages.user, /每个 unit 通常选择 2-3 个 selectedTasks/);
+  assert.match(messages.user, /不可合并的独立高价值角度才超过/);
+  assert.match(messages.user, /不要把相邻 unit 的内容打包进当前 unit selectedTasks/);
   assert.match(messages.user, /至少 2 个稳定对应关系/);
   assert.match(messages.user, /否则使用 multiple_choice/);
   assert.match(messages.user, /多个同等重要的小目标/);
