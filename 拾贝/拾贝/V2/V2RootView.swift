@@ -15,6 +15,10 @@ private enum V2NotificationRouteTarget {
     case failure
 }
 
+private enum V2ReviewFlowFeatureFlags {
+    static let skipsUnitSummaryScreen = true
+}
+
 private struct V2PendingAIProcessingConsentSourceText: Identifiable {
     let id = UUID()
     let value: String
@@ -522,7 +526,7 @@ struct V2RootView: View {
                 await openBackendLearningPathNode(node)
             }
         } else if node.id == v2ReviewSession?.currentCard.unitId,
-                  let currentRoute = route(for: v2ReviewSession?.currentCard) {
+                  let currentRoute = visibleRoute(for: v2ReviewSession?.currentCard) {
             resetToRoute(currentRoute, tab: .learning)
         } else {
             resetToRoute(unitOverviewRoute(unitID: node.id), tab: .learning)
@@ -711,7 +715,7 @@ struct V2RootView: View {
 
     private func openFirstQuestion(in unitID: String) {
         guard let questionID = firstQuestionID(in: unitID) else {
-            replaceRoute(unitSummaryRoute(unitID: unitID))
+            replaceRoute(routeAfterUnitCompletion(unitID: unitID))
             return
         }
         replaceRoute(questionRoute(unitID: unitID, questionID: questionID))
@@ -751,6 +755,11 @@ struct V2RootView: View {
             applyV2ReviewSessionResponse(response)
             selectedTab = .learning
             routeStore.clearStack()
+            if unitSummaryUnitID(response.reviewSession?.displayCard) != nil,
+               V2ReviewFlowFeatureFlags.skipsUnitSummaryScreen {
+                await finishBackendPracticeAndReturnHome()
+                return
+            }
             replaceRoute(route(for: response.reviewSession?.displayCard) ?? unitOverviewRoute(unitID: unitID))
         } catch {
             generationState.errorText = error.localizedDescription
@@ -774,7 +783,13 @@ struct V2RootView: View {
             applyV2ReviewSessionResponse(response)
             selectedTab = .learning
             routeStore.clearStack()
-            replaceRoute(route(for: response.reviewSession?.currentCard) ?? unitOverviewRoute(unitID: unitID))
+            let fallback = unitOverviewRoute(unitID: unitID)
+            let targetRoute = await routeSkippingUnitSummaryIfNeeded(
+                for: response.reviewSession?.currentCard,
+                sessionID: response.reviewSession?.id,
+                fallback: fallback
+            )
+            replaceRoute(targetRoute)
         } catch {
             generationState.errorText = error.localizedDescription
             resetToRoute(unitOverviewRoute(unitID: unitID), tab: .learning)
@@ -785,7 +800,7 @@ struct V2RootView: View {
         if usesBackendReviewChapter, reviewEntryMode.isTemporaryPractice {
             let fallback: V2AppRoute = firstQuestionID(in: unitID)
                 .map { questionRoute(unitID: unitID, questionID: $0) }
-                ?? unitSummaryRoute(unitID: unitID)
+                ?? routeAfterUnitCompletion(unitID: unitID)
             Task {
                 await advanceBackendPracticeAndRoute(fallback: fallback)
             }
@@ -799,7 +814,7 @@ struct V2RootView: View {
 
         let fallback: V2AppRoute = firstQuestionID(in: unitID)
             .map { questionRoute(unitID: unitID, questionID: $0) }
-            ?? unitSummaryRoute(unitID: unitID)
+            ?? routeAfterUnitCompletion(unitID: unitID)
 
         Task {
             await advanceBackendReviewAndRoute(fallback: fallback)
@@ -830,7 +845,7 @@ struct V2RootView: View {
         if let nextQuestion = nextQuestion(after: questionID, in: unitID) {
             replaceRoute(questionRoute(unitID: unitID, questionID: nextQuestion.id))
         } else {
-            replaceRoute(unitSummaryRoute(unitID: unitID))
+            replaceRoute(routeAfterUnitCompletion(unitID: unitID))
         }
     }
 
@@ -1009,6 +1024,13 @@ struct V2RootView: View {
             return unitOverviewRoute(unitID: nextUnit.id)
         }
         return chapterSummaryRoute()
+    }
+
+    private func routeAfterUnitCompletion(unitID: String) -> V2AppRoute {
+        guard V2ReviewFlowFeatureFlags.skipsUnitSummaryScreen else {
+            return unitSummaryRoute(unitID: unitID)
+        }
+        return routeAfterUnitSummary(unitID: unitID)
     }
 
     private func completeChapterReviewAndReturnHome() {
@@ -2196,7 +2218,13 @@ struct V2RootView: View {
             applyV2ReviewSessionResponse(response)
             selectedTab = .learning
             routeStore.clearStack()
-            replaceRoute(route(for: response.reviewSession?.displayCard) ?? unitOverviewRoute(unitID: activeFirstUnitID, chapterID: chapterID))
+            let fallback = unitOverviewRoute(unitID: activeFirstUnitID, chapterID: chapterID)
+            let targetRoute = await routeSkippingUnitSummaryIfNeeded(
+                for: response.reviewSession?.displayCard,
+                sessionID: response.reviewSession?.id,
+                fallback: fallback
+            )
+            replaceRoute(targetRoute)
         } catch {
             generationState.errorText = error.localizedDescription
             openFirstUnit()
@@ -2216,7 +2244,13 @@ struct V2RootView: View {
             applyV2ReviewSessionResponse(response)
             selectedTab = .learning
             routeStore.clearStack()
-            replaceRoute(route(for: response.reviewSession?.displayCard) ?? unitOverviewRoute(unitID: fallbackUnitID, chapterID: chapterID))
+            let fallback = unitOverviewRoute(unitID: fallbackUnitID, chapterID: chapterID)
+            let targetRoute = await routeSkippingUnitSummaryIfNeeded(
+                for: response.reviewSession?.displayCard,
+                sessionID: response.reviewSession?.id,
+                fallback: fallback
+            )
+            replaceRoute(targetRoute)
         } catch {
             generationState.errorText = error.localizedDescription
             resetToRoute(unitOverviewRoute(unitID: fallbackUnitID, chapterID: chapterID), tab: .learning)
@@ -2236,7 +2270,13 @@ struct V2RootView: View {
             applyV2ReviewSessionResponse(response)
             selectedTab = .learning
             routeStore.clearStack()
-            replaceRoute(route(for: response.reviewSession?.displayCard) ?? unitOverviewRoute(unitID: unitID, chapterID: chapterID))
+            let fallback = unitOverviewRoute(unitID: unitID, chapterID: chapterID)
+            let targetRoute = await routeSkippingUnitSummaryIfNeeded(
+                for: response.reviewSession?.displayCard,
+                sessionID: response.reviewSession?.id,
+                fallback: fallback
+            )
+            replaceRoute(targetRoute)
         } catch {
             generationState.errorText = error.localizedDescription
             resetToRoute(unitOverviewRoute(unitID: unitID, chapterID: chapterID), tab: .learning)
@@ -2262,7 +2302,12 @@ struct V2RootView: View {
                 return
             }
 
-            routeToReviewCard(route(for: response.reviewSession?.displayCard) ?? fallback)
+            let targetRoute = await routeSkippingUnitSummaryIfNeeded(
+                for: response.reviewSession?.displayCard,
+                sessionID: response.reviewSession?.id,
+                fallback: fallback
+            )
+            routeToReviewCard(targetRoute)
         } catch {
             generationState.errorText = error.localizedDescription
             routeToReviewCard(fallback)
@@ -2279,6 +2324,11 @@ struct V2RootView: View {
 
             let response = try await apiClient.advanceV2PracticeSession(sessionId: session.id)
             applyV2ReviewSessionResponse(response)
+            if unitSummaryUnitID(response.reviewSession?.displayCard) != nil,
+               V2ReviewFlowFeatureFlags.skipsUnitSummaryScreen {
+                await finishBackendPracticeAndReturnHome()
+                return
+            }
             routeToReviewCard(route(for: response.reviewSession?.displayCard) ?? fallback)
         } catch {
             generationState.errorText = error.localizedDescription
@@ -2366,7 +2416,12 @@ struct V2RootView: View {
                 let advanceResponse = try await apiClient.advanceV2ReviewSession(sessionId: updatedSession.id)
                 applyV2ReviewSessionResponse(advanceResponse)
                 questionInteractionStates.removeValue(forKey: questionStateKey(unitID: unitID, questionID: questionID))
-                routeToReviewCard(route(for: advanceResponse.reviewSession?.displayCard) ?? localRouteAfterQuestion(unitID: unitID, questionID: questionID))
+                let targetRoute = await routeSkippingUnitSummaryIfNeeded(
+                    for: advanceResponse.reviewSession?.displayCard,
+                    sessionID: advanceResponse.reviewSession?.id,
+                    fallback: localRouteAfterQuestion(unitID: unitID, questionID: questionID)
+                )
+                routeToReviewCard(targetRoute)
                 return
             }
         } catch {
@@ -2403,6 +2458,11 @@ struct V2RootView: View {
             let advanceResponse = try await apiClient.advanceV2PracticeSession(sessionId: session.id)
             applyV2ReviewSessionResponse(advanceResponse)
             questionInteractionStates.removeValue(forKey: questionStateKey(unitID: unitID, questionID: questionID))
+            if unitSummaryUnitID(advanceResponse.reviewSession?.displayCard) != nil,
+               V2ReviewFlowFeatureFlags.skipsUnitSummaryScreen {
+                await finishBackendPracticeAndReturnHome()
+                return
+            }
             routeToReviewCard(route(for: advanceResponse.reviewSession?.displayCard) ?? localRouteAfterQuestion(unitID: unitID, questionID: questionID))
             return
         } catch {
@@ -2421,7 +2481,46 @@ struct V2RootView: View {
         if let nextQuestion = nextQuestion(after: questionID, in: unitID) {
             return questionRoute(unitID: unitID, questionID: nextQuestion.id)
         }
-        return unitSummaryRoute(unitID: unitID)
+        return routeAfterUnitCompletion(unitID: unitID)
+    }
+
+    @MainActor
+    private func routeSkippingUnitSummaryIfNeeded(
+        for card: V2BackendReviewCard?,
+        sessionID: String?,
+        fallback: V2AppRoute
+    ) async -> V2AppRoute {
+        guard V2ReviewFlowFeatureFlags.skipsUnitSummaryScreen,
+              let unitID = unitSummaryUnitID(card) else {
+            return route(for: card) ?? fallback
+        }
+
+        let localFallback = routeAfterUnitSummary(unitID: unitID)
+        guard let sessionID else {
+            return localFallback
+        }
+
+        do {
+            let response = try await apiClient.advanceV2ReviewSession(sessionId: sessionID)
+            applyV2ReviewSessionResponse(response)
+
+            if unitSummaryUnitID(response.reviewSession?.displayCard) != nil {
+                return localFallback
+            }
+            return route(for: response.reviewSession?.displayCard) ?? localFallback
+        } catch {
+            generationState.errorText = error.localizedDescription
+            return localFallback
+        }
+    }
+
+    private func unitSummaryUnitID(_ card: V2BackendReviewCard?) -> String? {
+        guard card?.type == "unit_summary",
+              let unitID = card?.unitId,
+              activeUnit(chapterID: resolvedChapterID(card?.chapterId), id: unitID) != nil else {
+            return nil
+        }
+        return unitID
     }
 
     @MainActor
@@ -2522,6 +2621,14 @@ struct V2RootView: View {
         default:
             return nil
         }
+    }
+
+    private func visibleRoute(for card: V2BackendReviewCard?) -> V2AppRoute? {
+        if V2ReviewFlowFeatureFlags.skipsUnitSummaryScreen,
+           let unitID = unitSummaryUnitID(card) {
+            return routeAfterUnitSummary(unitID: unitID)
+        }
+        return route(for: card)
     }
 
     private func backendAnswerPayload(
