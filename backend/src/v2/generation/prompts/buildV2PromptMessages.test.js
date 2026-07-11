@@ -212,11 +212,16 @@ test("taskBriefPlan prompt embeds ECD as thinking method without heavy ECD JSON"
   assert.match(messages.user, /不要引用其他 unit/);
   assert.match(messages.user, /不要输出 practiceGoal\.id、questionPlan\.id、practiceGoalId 或 sourceAnchorId/);
   assert.match(messages.user, /goalIndex 是 1-based 数字/);
-  assert.match(messages.user, /每个 high \/ medium microKnowledgePoint 都要被某个 practiceGoal 或 questionPlan 覆盖/);
-  assert.match(messages.user, /一个 unit 可以有多个题目计划，数量由掌握证据和考察角度自然决定/);
-  assert.match(messages.user, /如果 microKnowledgePoints 中存在清晰的结构、流程、角色、条件、特征或判断依据等对应关系/);
+  assert.match(messages.user, /unitKnowledgeMap\.microKnowledgePoints 是上游选择出的高价值考察角度/);
+  assert.match(messages.user, /只选择最值得占用用户注意力的考察角度/);
+  assert.match(messages.user, /不要为了覆盖所有 high \/ medium microKnowledgePoint 而出题/);
+  assert.match(messages.user, /每个 unit 通常只生成 1 个核心 questionPlan/);
+  assert.match(messages.user, /最多生成 2 个/);
+  assert.match(messages.user, /被跳过的角度不是失败/);
+  assert.match(messages.user, /理解本质、判断场景、区分边界、避免误用、迁移应用或关系理解/);
+  assert.match(messages.user, /如果最强 value angle 是清晰的结构、流程、角色、条件、特征或判断依据/);
   assert.match(messages.user, /matching 不是机械名词释义/);
-  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐|每个 unit 必须.*题|至少.*questionPlans|不要为了增加体量重复|模型层级 -> 对应作用|流程步骤 -> 目的|角色 -> 职责/);
+  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐|每个 unit 必须.*题|至少.*questionPlans|不要为了增加体量重复|每个 high \/ medium microKnowledgePoint 都要被某个 practiceGoal 或 questionPlan 覆盖|模型层级 -> 对应作用|流程步骤 -> 目的|角色 -> 职责/);
 });
 
 test("questionDraftBatch prompt generates all planned questions without ECD JSON", () => {
@@ -506,15 +511,19 @@ test("ecdPlanning prompt asks for internal ECD reasoning and compact task planni
   assert.match(messages.user, /compact task model/);
   assert.match(messages.user, /内部按 ECD 推理/);
   assert.match(messages.user, /unitKnowledgeMap\.microKnowledgePoints/);
-  assert.match(messages.user, /不要在本阶段重新压缩/);
-  assert.match(messages.user, /high 或 medium/);
+  assert.match(messages.user, /不是覆盖清单/);
+  assert.match(messages.user, /选择最能提供掌握证据的少数任务/);
+  assert.match(messages.user, /high \/ medium/);
+  assert.match(messages.user, /只有最强角度进入 selectedTasks/);
   assert.match(messages.user, /assessableTargets/);
   assert.match(messages.user, /selectedTasks/);
   assert.match(messages.user, /targetIds/);
   assert.match(messages.user, /microIds/);
   assert.match(messages.user, /evidenceGoal/);
-  assert.match(messages.user, /掌握证据组合/);
-  assert.match(messages.user, /required 的 assessableTargets/);
+  assert.match(messages.user, /required 代表高价值候选，不代表必须出题覆盖/);
+  assert.match(messages.user, /跳过低增益 target 是 lean 设计的一部分/);
+  assert.match(messages.user, /注意力收益和掌握证据价值/);
+  assert.match(messages.user, /跳过未进入 selectedTasks 的 target/);
   assert.match(messages.user, /不要输出 skippedEvidence、learningClaims、evidenceNeeds、taskPlan 或 articleUnderstanding/);
   assert.match(messages.user, /本阶段不生成用户可见题目/);
   assert.match(messages.user, /模型层级 -> 对应作用/);
