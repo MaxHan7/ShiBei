@@ -134,13 +134,16 @@ test("unitKnowledgeMap prompt isolates micro knowledge discovery from task assem
   assert.match(messages.user, /unit_window/);
   assert.match(messages.user, /本阶段不生成题目、不选择题型、不做 selectedTasks/);
   assert.match(messages.user, /本次输入可能只包含一个 unit/);
-  assert.match(messages.user, /有学习价值的子知识点/);
-  assert.match(messages.user, /值得用户单独理解的子知识点/);
-  assert.match(messages.user, /对理解该 unit 核心有帮助/);
+  assert.match(messages.user, /确认最值得考察的价值角度/);
+  assert.match(messages.user, /不是完整拆解 unit/);
+  assert.match(messages.user, /每个 unit 优先保留 1 个最强价值角度/);
+  assert.match(messages.user, /最多保留 2 个/);
+  assert.match(messages.user, /理解本质、判断场景、区分边界、避免误用、迁移应用或关系理解/);
+  assert.match(messages.user, /改善用户理解、判断、行动或避免误解/);
   assert.match(messages.user, /如果多个表述服务于同一个学习点，合并为一个 micro/);
-  assert.match(messages.user, /micro 数量由当前 unit 的知识密度决定/);
-  assert.match(messages.user, /assessmentValue 只描述这个小点的考察价值，不表达题目数量/);
-  assert.match(messages.user, /high：缺少它会导致用户无法掌握该 unit 的核心/);
+  assert.match(messages.user, /assessmentValue 描述该角度是否值得占用用户注意力/);
+  assert.match(messages.user, /high：缺少它会明显削弱用户对内容主线的理解、判断、行动或避错能力/);
+  assert.match(messages.user, /medium：对主线有补充价值/);
   assert.match(messages.user, /title 是短标题/);
   assert.match(messages.user, /summary 是知识索引句/);
   assert.match(messages.user, /最多 48 字符/);
@@ -148,7 +151,7 @@ test("unitKnowledgeMap prompt isolates micro knowledge discovery from task assem
   assert.match(messages.user, /最多 16 字符/);
   assert.match(messages.user, /不要输出 sourceAnchorId 或 sourceSupport/);
   assert.match(messages.user, /microKnowledgePoints/);
-  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐|每个 unit 必须|至少.*micro|至少.*definition|至少.*boundary|4-7|完整发现|最小的有意义|不要为了控制题量/);
+  assert.doesNotMatch(messages.user, /DMC|游戏化|心流|享乐|每个 unit 必须|至少.*micro|至少.*definition|至少.*boundary|4-7|完整发现|最小的有意义|不要为了控制题量|micro 数量由当前 unit 的知识密度决定/);
 });
 
 test("unitKnowledgeMap retry prompt switches to compact index mode", () => {
@@ -172,7 +175,7 @@ test("unitKnowledgeMap retry prompt switches to compact index mode", () => {
   });
 
   assert.match(messages.user, /重试压缩模式/);
-  assert.match(messages.user, /保持同样的核心覆盖/);
+  assert.match(messages.user, /保持同样的高价值角度选择/);
   assert.match(messages.user, /summary 优先控制在 32 个中文字以内/);
   assert.match(messages.user, /primaryEvidenceAngle 控制在 12 个中文字以内/);
 });
