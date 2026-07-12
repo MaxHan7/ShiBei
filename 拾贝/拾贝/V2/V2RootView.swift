@@ -1326,14 +1326,17 @@ struct V2RootView: View {
         if let sourceLabel = backendChapter?.sourceLabel {
             return sourceLabel
         }
-        if let pendingChapter = backendChapters.first {
+        if !generationState.pendingOriginalSourceURLString.isEmpty {
+            return V2BackendChapter.sourceLabel(
+                type: nil,
+                platform: nil,
+                url: generationState.pendingOriginalSourceURLString
+            )
+        }
+        if let pendingChapter = backendChapters.first(where: { !isCompletedGenerationChapter($0) }) {
             return pendingChapter.sourceLabel
         }
-        return V2BackendChapter.sourceLabel(
-            type: nil,
-            platform: nil,
-            url: generationState.pendingOriginalSourceURLString
-        )
+        return V2BackendChapter.sourceLabel(type: nil, platform: nil, url: nil)
     }
 
     private var activeGenerationProgress: Double {

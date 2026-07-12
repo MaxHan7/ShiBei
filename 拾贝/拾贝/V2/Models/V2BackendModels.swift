@@ -477,10 +477,11 @@ extension V2BackendChapter {
     }
 
     var sourceLabel: String {
-        Self.sourceLabel(
+        let sourceURL = Self.firstNonEmpty(source?.url, source?.rawInput)
+        return Self.sourceLabel(
             type: source?.type,
             platform: source?.platform,
-            url: source?.url ?? source?.rawInput
+            url: sourceURL
         )
     }
 
@@ -503,7 +504,7 @@ extension V2BackendChapter {
     }
 
     private var isWechatSource: Bool {
-        Self.isWechatSource(type: source?.type, url: source?.url ?? source?.rawInput)
+        Self.isWechatSource(type: source?.type, url: Self.firstNonEmpty(source?.url, source?.rawInput))
     }
 
     private static func isWechatSource(type: String?, url: String?) -> Bool {
@@ -538,7 +539,24 @@ extension V2BackendChapter {
 
     private static func normalizedVideoPlatform(_ platform: String?) -> String? {
         let value = platform?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
-        return value.isEmpty ? nil : value
+        switch value {
+        case "":
+            return nil
+        case "douyin", "抖音":
+            return "douyin"
+        case "xiaohongshu", "xhs", "redbook", "red_book", "小红书":
+            return "xiaohongshu"
+        case "youtube", "yt", "youtu.be":
+            return "youtube"
+        case "bilibili", "bili", "b站", "哔哩哔哩":
+            return "bilibili"
+        case "direct_video_file", "video_file":
+            return "direct_video_file"
+        case "generic_web", "web_video":
+            return "generic_web"
+        default:
+            return value
+        }
     }
 
     private static func inferredVideoPlatform(from url: String?) -> String? {
@@ -549,7 +567,7 @@ extension V2BackendChapter {
         if host == "v.douyin.com" || host.hasSuffix(".douyin.com") || host == "douyin.com" {
             return "douyin"
         }
-        if host == "xiaohongshu.com" || host.hasSuffix(".xiaohongshu.com") {
+        if host == "xiaohongshu.com" || host.hasSuffix(".xiaohongshu.com") || host == "xhslink.com" || host.hasSuffix(".xhslink.com") {
             return "xiaohongshu"
         }
         if host == "youtu.be" || host == "youtube.com" || host.hasSuffix(".youtube.com") {
@@ -571,11 +589,34 @@ extension V2BackendChapter {
 
     private static func host(from url: String?) -> String? {
         guard let rawURL = url?.trimmingCharacters(in: .whitespacesAndNewlines),
-              !rawURL.isEmpty,
-              let host = URL(string: rawURL)?.host?.lowercased() else {
+              !rawURL.isEmpty else {
             return nil
         }
-        return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+        if let host = URL(string: rawURL)?.host?.lowercased() {
+            return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+        }
+        if let firstURL = firstHTTPURLString(in: rawURL),
+           let host = URL(string: firstURL)?.host?.lowercased() {
+            return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+        }
+        return nil
+    }
+
+    private static func firstHTTPURLString(in value: String) -> String? {
+        guard let matchRange = value.range(
+            of: #"https?://\S+"#,
+            options: [.regularExpression, .caseInsensitive]
+        ) else {
+            return nil
+        }
+
+        return String(value[matchRange]).trimmingCharacters(in: CharacterSet(charactersIn: ".,;:!?，。；：！？)]}）】》」』\"'"))
+    }
+
+    private static func firstNonEmpty(_ values: String?...) -> String? {
+        values.first { value in
+            value?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+        } ?? nil
     }
 
     func toReviewChapterData() -> V2ReviewChapterData? {

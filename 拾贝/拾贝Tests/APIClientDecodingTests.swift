@@ -374,6 +374,50 @@ final class APIClientDecodingTests: XCTestCase {
         )
     }
 
+    func testV2SourceLabelNormalizesVideoPlatformAlias() {
+        XCTAssertEqual(
+            V2BackendChapter.sourceLabel(
+                type: "video_link",
+                platform: "xhs",
+                url: nil
+            ),
+            "小红书视频"
+        )
+        XCTAssertEqual(
+            V2BackendChapter.sourceLabel(
+                type: "video_link",
+                platform: "bili",
+                url: nil
+            ),
+            "B站视频"
+        )
+    }
+
+    func testV2SourceLabelInfersVideoPlatformFromRawInputWhenURLIsEmpty() {
+        let chapter = V2BackendChapter(
+            schemaVersion: "v2_review_path_1",
+            id: "chapter-xiaohongshu",
+            title: "Agent Skill过多？4招提升命中",
+            status: "submitted",
+            displayStatusText: nil,
+            failureReason: nil,
+            source: V2BackendSource(
+                type: "video_link",
+                title: "Agent Skill过多？4招提升命中",
+                platform: nil,
+                url: "",
+                rawInput: "98 【Agent Skill过多？4招提升命中 - 小哲讲大模型 | 小红书】 https://www.xiaohongshu.com/discovery/item/6a1a977b00000000360194ee"
+            ),
+            summaryCard: nil,
+            units: nil,
+            chapterSummary: nil,
+            generationProgress: nil,
+            v2ReviewSession: nil
+        )
+
+        XCTAssertEqual(chapter.sourceLabel, "小红书视频")
+    }
+
     func testEncodesVideoLinkChapterCreateRequestShape() throws {
         let input = ChapterInput.parse("https://www.youtube.com/watch?v=abc123")
         let data = try JSONEncoder().encode(ChapterCreateRequest(input: input))
