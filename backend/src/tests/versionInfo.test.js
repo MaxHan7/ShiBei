@@ -58,3 +58,86 @@ test("builds deploy version info with git and recommended catalog fingerprint", 
   assert.deepEqual(version.recommendedCatalog.articleIds, ["article-001"]);
   assert.equal(version.recommendedCatalog.articleCount, 1);
 });
+
+test("prefers explicit ShiBei deploy git variables for CLI deployments", async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), "recallo-version-info-"));
+  const preparedChapterPath = join(tempDir, "prepared.json");
+  const coverPath = join(tempDir, "cover.png");
+  const catalogPath = join(tempDir, "recommended-articles.json");
+
+  await writeFile(coverPath, "png");
+  await writeFile(preparedChapterPath, JSON.stringify({ id: "prepared", units: [] }));
+  await writeFile(
+    catalogPath,
+    JSON.stringify({
+      schemaVersion: "test_catalog_1",
+      filters: [{ id: "AI", title: "AI" }],
+      articles: [{
+        id: "article-001",
+        title: "测试文章",
+        source: "测试来源",
+        sourceUrl: "https://example.test/article",
+        sourceAuthor: "作者",
+        tags: ["AI"],
+        description: "描述",
+        coverImagePath: coverPath,
+        preparedChapterPath
+      }]
+    })
+  );
+
+  const version = await buildVersionInfo({
+    catalogPath,
+    env: {
+      SHIBEI_DEPLOY_GIT_COMMIT_SHA: "deploy-sha-001",
+      SHIBEI_DEPLOY_GIT_BRANCH: "codex/lean-high-value-generation-20260711"
+    },
+    readGitInfo: async () => ({
+      commit: "fallback-sha",
+      branch: "fallback-branch"
+    })
+  });
+
+  assert.equal(version.git.commit, "deploy-sha-001");
+  assert.equal(version.git.branch, "codex/lean-high-value-generation-20260711");
+});
+
+test("falls back to local git metadata when platform git variables are missing", async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), "recallo-version-info-"));
+  const preparedChapterPath = join(tempDir, "prepared.json");
+  const coverPath = join(tempDir, "cover.png");
+  const catalogPath = join(tempDir, "recommended-articles.json");
+
+  await writeFile(coverPath, "png");
+  await writeFile(preparedChapterPath, JSON.stringify({ id: "prepared", units: [] }));
+  await writeFile(
+    catalogPath,
+    JSON.stringify({
+      schemaVersion: "test_catalog_1",
+      filters: [{ id: "AI", title: "AI" }],
+      articles: [{
+        id: "article-001",
+        title: "测试文章",
+        source: "测试来源",
+        sourceUrl: "https://example.test/article",
+        sourceAuthor: "作者",
+        tags: ["AI"],
+        description: "描述",
+        coverImagePath: coverPath,
+        preparedChapterPath
+      }]
+    })
+  );
+
+  const version = await buildVersionInfo({
+    catalogPath,
+    env: {},
+    readGitInfo: async () => ({
+      commit: "local-git-sha",
+      branch: "local-git-branch"
+    })
+  });
+
+  assert.equal(version.git.commit, "local-git-sha");
+  assert.equal(version.git.branch, "local-git-branch");
+});

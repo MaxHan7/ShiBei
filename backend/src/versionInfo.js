@@ -1,6 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
+import { execFile } from "node:child_process";
 import { dirname, resolve } from "node:path";
+import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 
 import {
@@ -10,31 +12,46 @@ import {
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_RECOMMENDED_CATALOG_PATH = resolve(__dirname, "../content/recommended-articles.json");
+const execFileAsync = promisify(execFile);
 
 export async function buildVersionInfo({
   startedAt = "",
   env = process.env,
-  catalogPath = env.SHIBEI_RECOMMENDED_ARTICLES_PATH || DEFAULT_RECOMMENDED_CATALOG_PATH
+  catalogPath = env.SHIBEI_RECOMMENDED_ARTICLES_PATH || DEFAULT_RECOMMENDED_CATALOG_PATH,
+  readGitInfo = readLocalGitInfo
 } = {}) {
   const recommendedCatalog = await buildRecommendedCatalogVersion({ catalogPath });
+  const envGitCommit = firstPresent(
+    env.SHIBEI_DEPLOY_GIT_COMMIT_SHA,
+    env.SHIBEI_GIT_COMMIT_SHA,
+    env.SOURCE_VERSION,
+    env.COMMIT_SHA,
+    env.RAILWAY_GIT_COMMIT_SHA,
+    env.GIT_COMMIT_SHA,
+    env.GITHUB_SHA,
+    env.VERCEL_GIT_COMMIT_SHA
+  );
+  const envGitBranch = firstPresent(
+    env.SHIBEI_DEPLOY_GIT_BRANCH,
+    env.SHIBEI_GIT_BRANCH,
+    env.SOURCE_BRANCH,
+    env.BRANCH_NAME,
+    env.RAILWAY_GIT_BRANCH,
+    env.GIT_BRANCH,
+    env.GITHUB_REF_NAME,
+    env.VERCEL_GIT_COMMIT_REF
+  );
+  const fallbackGit = envGitCommit && envGitBranch
+    ? { commit: "", branch: "" }
+    : await safeReadGitInfo(readGitInfo);
 
   return {
     service: "recallo-api",
     startedAt,
     nodeEnv: env.NODE_ENV || "",
     git: {
-      commit: firstPresent(
-        env.RAILWAY_GIT_COMMIT_SHA,
-        env.GIT_COMMIT_SHA,
-        env.GITHUB_SHA,
-        env.VERCEL_GIT_COMMIT_SHA
-      ),
-      branch: firstPresent(
-        env.RAILWAY_GIT_BRANCH,
-        env.GIT_BRANCH,
-        env.GITHUB_REF_NAME,
-        env.VERCEL_GIT_COMMIT_REF
-      )
+      commit: firstPresent(envGitCommit, fallbackGit.commit),
+      branch: firstPresent(envGitBranch, fallbackGit.branch)
     },
     railway: {
       environment: env.RAILWAY_ENVIRONMENT_NAME || "",
@@ -63,4 +80,32 @@ export async function buildRecommendedCatalogVersion({ catalogPath = DEFAULT_REC
 
 function firstPresent(...values) {
   return values.find((value) => typeof value === "string" && value.trim()) || "";
+}
+
+async function safeReadGitInfo(readGitInfo) {
+  try {
+    return await readGitInfo();
+  } catch {
+    return { commit: "", branch: "" };
+  }
+}
+
+async function readLocalGitInfo() {
+  const [commit, branch] = await Promise.all([
+    readGitValue(["rev-parse", "HEAD"]),
+    readGitValue(["branch", "--show-current"])
+  ]);
+  return { commit, branch };
+}
+
+async function readGitValue(args) {
+  try {
+    const { stdout } = await execFileAsync("git", args, {
+      cwd: resolve(__dirname, "../.."),
+      timeout: 2_000
+    });
+    return stdout.trim();
+  } catch {
+    return "";
+  }
 }
