@@ -349,6 +349,7 @@ struct V2BackendSource: Decodable, Equatable {
     let author: String?
     let account: String?
     let accountOrDomain: String?
+    let platform: String?
     let url: String?
     let rawText: String?
     let cleanedText: String?
@@ -356,6 +357,36 @@ struct V2BackendSource: Decodable, Equatable {
     let extractedText: String?
     let blocks: [V2BackendSourceBlock]?
     let contentBasis: V2BackendSourceContentBasis?
+
+    init(
+        type: String? = nil,
+        title: String? = nil,
+        author: String? = nil,
+        account: String? = nil,
+        accountOrDomain: String? = nil,
+        platform: String? = nil,
+        url: String? = nil,
+        rawText: String? = nil,
+        cleanedText: String? = nil,
+        rawInput: String? = nil,
+        extractedText: String? = nil,
+        blocks: [V2BackendSourceBlock]? = nil,
+        contentBasis: V2BackendSourceContentBasis? = nil
+    ) {
+        self.type = type
+        self.title = title
+        self.author = author
+        self.account = account
+        self.accountOrDomain = accountOrDomain
+        self.platform = platform
+        self.url = url
+        self.rawText = rawText
+        self.cleanedText = cleanedText
+        self.rawInput = rawInput
+        self.extractedText = extractedText
+        self.blocks = blocks
+        self.contentBasis = contentBasis
+    }
 }
 
 struct V2BackendSourceBlock: Decodable, Equatable {
@@ -446,30 +477,105 @@ extension V2BackendChapter {
     }
 
     var sourceLabel: String {
-        if isWechatSource {
+        Self.sourceLabel(
+            type: source?.type,
+            platform: source?.platform,
+            url: source?.url ?? source?.rawInput
+        )
+    }
+
+    static func sourceLabel(type: String?, platform: String?, url: String?) -> String {
+        if isWechatSource(type: type, url: url) {
             return "微信公众号"
         }
 
-        switch source?.type {
-        case "article_link":
-            return "网页文章"
-        case "video_link":
-            return "视频"
-        default:
-            return "粘贴文字"
+        let normalizedType = type?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let normalizedPlatform = normalizedVideoPlatform(platform) ?? inferredVideoPlatform(from: url)
+        if normalizedType == "video_link" || normalizedPlatform != nil {
+            return videoSourceLabel(for: normalizedPlatform)
         }
+
+        if normalizedType == "article_link" || isHTTPURL(url) {
+            return "网页文章"
+        }
+
+        return "粘贴文字"
     }
 
     private var isWechatSource: Bool {
-        if source?.type == "wechat_article" {
+        Self.isWechatSource(type: source?.type, url: source?.url ?? source?.rawInput)
+    }
+
+    private static func isWechatSource(type: String?, url: String?) -> Bool {
+        if type == "wechat_article" {
             return true
         }
 
-        guard let rawURL = source?.url ?? source?.rawInput,
-              let host = URL(string: rawURL)?.host?.lowercased() else {
+        guard let host = host(from: url) else {
             return false
         }
         return host == "mp.weixin.qq.com"
+    }
+
+    private static func videoSourceLabel(for platform: String?) -> String {
+        switch platform {
+        case "douyin":
+            return "抖音视频"
+        case "xiaohongshu":
+            return "小红书视频"
+        case "youtube":
+            return "YouTube视频"
+        case "bilibili":
+            return "B站视频"
+        case "direct_video_file":
+            return "视频文件"
+        case "generic_web":
+            return "网页视频"
+        default:
+            return "视频"
+        }
+    }
+
+    private static func normalizedVideoPlatform(_ platform: String?) -> String? {
+        let value = platform?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+        return value.isEmpty ? nil : value
+    }
+
+    private static func inferredVideoPlatform(from url: String?) -> String? {
+        guard let host = host(from: url) else {
+            return nil
+        }
+
+        if host == "v.douyin.com" || host.hasSuffix(".douyin.com") || host == "douyin.com" {
+            return "douyin"
+        }
+        if host == "xiaohongshu.com" || host.hasSuffix(".xiaohongshu.com") {
+            return "xiaohongshu"
+        }
+        if host == "youtu.be" || host == "youtube.com" || host.hasSuffix(".youtube.com") {
+            return "youtube"
+        }
+        if host == "b23.tv" || host == "bilibili.com" || host.hasSuffix(".bilibili.com") {
+            return "bilibili"
+        }
+
+        return nil
+    }
+
+    private static func isHTTPURL(_ url: String?) -> Bool {
+        guard let url, let scheme = URL(string: url)?.scheme?.lowercased() else {
+            return false
+        }
+        return scheme == "http" || scheme == "https"
+    }
+
+    private static func host(from url: String?) -> String? {
+        guard let rawURL = url?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !rawURL.isEmpty,
+              let host = URL(string: rawURL)?.host?.lowercased() else {
+            return nil
+        }
+        return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
     }
 
     func toReviewChapterData() -> V2ReviewChapterData? {

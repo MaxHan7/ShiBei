@@ -195,6 +195,7 @@ struct V2RootView: View {
                 showsGeneratingChapterCard: generationState.showsChapterCard,
                 generatingChapterTitle: backendChapter?.title ?? "正在生成新的章节",
                 generatingChapterStatus: isActiveGenerationFailed ? .failed : .generating,
+                generatingChapterSource: generatingChapterSourceLabel,
                 generatingProgressText: generationDisplayText,
                 generatedChapter: backendReviewChapter,
                 openGeneratingChapter: openGeneratingChapter(id:),
@@ -1321,6 +1322,20 @@ struct V2RootView: View {
         return backendChapter?.progress?.displayTextOrFallback ?? "正在提交生成任务..."
     }
 
+    private var generatingChapterSourceLabel: String {
+        if let sourceLabel = backendChapter?.sourceLabel {
+            return sourceLabel
+        }
+        if let pendingChapter = backendChapters.first {
+            return pendingChapter.sourceLabel
+        }
+        return V2BackendChapter.sourceLabel(
+            type: nil,
+            platform: nil,
+            url: generationState.pendingOriginalSourceURLString
+        )
+    }
+
     private var activeGenerationProgress: Double {
         if let simulation = recommendedArticleGenerationSimulation {
             return simulation.progress
@@ -1503,7 +1518,7 @@ struct V2RootView: View {
         backendReviewChapter = nil
         v2ReviewSession = nil
         questionInteractionStates.removeAll()
-        let originalSourceURLString = URL(string: trimmed)?.scheme?.hasPrefix("http") == true ? trimmed : ""
+        let originalSourceURLString = ChapterInput.parse(trimmed).sourceUrl ?? ""
         generationState.prepareForSubmission(originalSourceURLString: originalSourceURLString)
         generationPollingTask?.cancel()
         let clientRequestId = "ios-v2-\(UUID().uuidString)"

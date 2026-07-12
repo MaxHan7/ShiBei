@@ -53,6 +53,7 @@ struct V2MaterialsView: View {
     let showsGeneratingChapterCard: Bool
     let generatingChapterTitle: String
     let generatingChapterStatus: V2ChapterReviewStatus
+    let generatingChapterSource: String
     let generatingProgressText: String
     let generatedChapter: V2ReviewChapterData?
     let openGeneratingChapter: (String?) -> Void
@@ -89,7 +90,7 @@ struct V2MaterialsView: View {
                         V2ChapterCard(
                             title: generatingChapterTitle,
                             status: generatingChapterStatus,
-                            source: "网页文章",
+                            source: generatingChapterSource,
                             knowledgeCount: 0,
                             questionCount: 0,
                             generationProgressText: generatingProgressText

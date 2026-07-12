@@ -331,6 +331,49 @@ final class APIClientDecodingTests: XCTestCase {
         XCTAssertEqual(chapter.sourceLabel, "微信公众号")
     }
 
+    func testV2SourceLabelUsesVideoPlatform() {
+        let chapter = V2BackendChapter(
+            schemaVersion: "v2_review_path_1",
+            id: "chapter-douyin",
+            title: "Figma Motion",
+            status: "submitted",
+            displayStatusText: nil,
+            failureReason: nil,
+            source: V2BackendSource(
+                type: "video_link",
+                title: "Figma Motion",
+                platform: "douyin",
+                url: "https://v.douyin.com/GCUGoeTuTxk/"
+            ),
+            summaryCard: nil,
+            units: nil,
+            chapterSummary: nil,
+            generationProgress: nil,
+            v2ReviewSession: nil
+        )
+
+        XCTAssertEqual(chapter.sourceLabel, "抖音视频")
+    }
+
+    func testV2SourceLabelInfersVideoPlatformFromPendingURL() {
+        XCTAssertEqual(
+            V2BackendChapter.sourceLabel(
+                type: "video_link",
+                platform: nil,
+                url: "https://www.xiaohongshu.com/discovery/item/6a1a977b00000000360194ee"
+            ),
+            "小红书视频"
+        )
+        XCTAssertEqual(
+            V2BackendChapter.sourceLabel(
+                type: nil,
+                platform: nil,
+                url: "https://www.bilibili.com/video/BV1hYGd63EnU/"
+            ),
+            "B站视频"
+        )
+    }
+
     func testEncodesVideoLinkChapterCreateRequestShape() throws {
         let input = ChapterInput.parse("https://www.youtube.com/watch?v=abc123")
         let data = try JSONEncoder().encode(ChapterCreateRequest(input: input))
