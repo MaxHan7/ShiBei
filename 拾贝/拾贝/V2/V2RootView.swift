@@ -1477,24 +1477,17 @@ struct V2RootView: View {
     }
 
     private func progressIndex(unitID: String, questionID: String? = nil) -> (current: Int, total: Int) {
-        guard let activeChapter else {
+        guard let unit = activeChapter?.units.first(where: { $0.id == unitID }) else {
             return (1, 1)
         }
-        let total = activeChapter.units.reduce(0) { $0 + $1.questions.count }
-        var current = 1
 
-        for unit in activeChapter.units {
-            if unit.id == unitID {
-                if let questionID,
-                   let questionIndex = unit.questions.firstIndex(where: { $0.id == questionID }) {
-                    current += questionIndex
-                }
-                return (current, max(total, 1))
-            }
-            current += unit.questions.count
+        let total = max(unit.questions.count, 1)
+        guard let questionID,
+              let questionIndex = unit.questions.firstIndex(where: { $0.id == questionID }) else {
+            return (1, total)
         }
 
-        return (current, max(total, 1))
+        return (min(questionIndex + 1, total), total)
     }
 
     private func startV2Generation(sourceText: String) {

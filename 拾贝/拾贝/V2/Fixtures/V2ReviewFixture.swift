@@ -195,20 +195,16 @@ enum V2ReviewFixture {
     }
 
     static func progressIndex(unitID: String, questionID: String? = nil) -> (current: Int, total: Int) {
-        let total = chapter.units.reduce(0) { $0 + $1.questions.count }
-        var current = 1
-
-        for unit in chapter.units {
-            if unit.id == unitID {
-                if let questionID,
-                   let questionIndex = unit.questions.firstIndex(where: { $0.id == questionID }) {
-                    current += questionIndex
-                }
-                return (current, max(total, 1))
-            }
-            current += unit.questions.count
+        guard let unit = chapter.units.first(where: { $0.id == unitID }) else {
+            return (1, 1)
         }
 
-        return (current, max(total, 1))
+        let total = max(unit.questions.count, 1)
+        guard let questionID,
+              let questionIndex = unit.questions.firstIndex(where: { $0.id == questionID }) else {
+            return (1, total)
+        }
+
+        return (min(questionIndex + 1, total), total)
     }
 }
