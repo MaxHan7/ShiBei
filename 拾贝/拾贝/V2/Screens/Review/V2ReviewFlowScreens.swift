@@ -339,6 +339,9 @@ struct V2MatchingQuestionView: View {
                 matchingGrid
                     .offset(y: V2MatchingPageMetrics.gridY)
 
+                sourceButton
+                    .offset(y: V2MatchingPageMetrics.sourceY(for: question.matchingPairs))
+
                 Image("V2BgDecoSmallPlantCluster")
                     .resizable()
                     .renderingMode(.original)
@@ -435,6 +438,19 @@ struct V2MatchingQuestionView: View {
                 width: V2MatchingPageMetrics.mascotWidth,
                 height: V2MatchingPageMetrics.mascotHeight
             )
+    }
+
+    private var sourceButton: some View {
+        Button(action: onSource) {
+            Text(L10n.string("source.view_original", language: appLanguage))
+                .font(.system(size: 14, weight: .regular, design: .default))
+                .tracking(-0.24)
+                .foregroundStyle(Color(hex: 0x737946).opacity(0.55))
+                .frame(height: V2MatchingPageMetrics.sourceHeight)
+        }
+        .buttonStyle(.plain)
+        .frame(width: V2MatchingPageMetrics.sourceWidth)
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 
     private var matchingGrid: some View {
@@ -551,6 +567,9 @@ private enum V2MatchingPageMetrics {
     static let gridY: CGFloat = 155
     static let rowSpacing: CGFloat = 16
     static let columnSpacing: CGFloat = 17
+    static let sourceTopGap: CGFloat = 24
+    static let sourceHeight: CGFloat = 26
+    static let sourceWidth: CGFloat = 100
     static let optionCardHorizontalPadding: CGFloat = 14
     static let optionCardOneLineHeight: CGFloat = 72
     static let optionCardTwoLineHeight: CGFloat = 92
@@ -565,6 +584,15 @@ private enum V2MatchingPageMetrics {
     static let mascotTop: CGFloat = mascotBottom - mascotHeight
     static let mascotCardOverlap: CGFloat = V2Layout.contentMaxWidth + mascotWidth - mascotRightEdge
     static let contentHeight: CGFloat = 760
+
+    static func sourceY(for pairs: [V2MatchingPairData]) -> CGFloat {
+        gridY + gridHeight(for: pairs) + sourceTopGap
+    }
+
+    static func gridHeight(for pairs: [V2MatchingPairData]) -> CGFloat {
+        let rows = CGFloat(max(pairs.count, 1))
+        return rows * optionCardHeight(for: pairs) + max(0, rows - 1) * rowSpacing
+    }
 
     static func optionCardHeight(for pairs: [V2MatchingPairData]) -> CGFloat {
         let maxEstimatedLines = pairs

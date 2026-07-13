@@ -9,14 +9,6 @@ struct V2TabScaffold<Content: View>: View {
         GeometryReader { geometry in
             let bottomNavScale = min(1, geometry.size.width / V2BottomNavPlacement.visualSize.width)
             let contentWidth = V2Layout.contentWidth(for: geometry.size.width)
-            let scrollViewportHeight = max(
-                240,
-                geometry.size.height
-                    - V2Layout.topChromeReservedHeight
-                    - V2BottomNavPlacement.scaledHeight(scale: bottomNavScale)
-                    - V2BottomNavPlacement.bottomPadding
-                    - geometry.safeAreaInsets.bottom
-            )
 
             ZStack(alignment: .top) {
                 V2Color.pageGreenBackground
@@ -34,10 +26,11 @@ struct V2TabScaffold<Content: View>: View {
                         content()
                             .v2PageColumn()
                             .padding(.top, 28)
-                            .padding(.bottom, V2BottomNavPlacement.scrollClearance)
+                            .padding(.bottom, V2BottomNavPlacement.reservedScrollBottomPadding(
+                                scale: bottomNavScale,
+                                safeAreaBottom: geometry.safeAreaInsets.bottom
+                            ))
                     }
-                    .frame(height: scrollViewportHeight)
-                    .clipped()
                 }
             }
             .safeAreaInset(edge: .bottom, spacing: 0) {
