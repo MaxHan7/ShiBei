@@ -17,7 +17,7 @@ struct V2HomeView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let bottomNavScale = min(1, geometry.size.width / 357)
+            let bottomNavScale = min(1, geometry.size.width / V2BottomNavPlacement.visualSize.width)
             let pathViewport = V2HomePathViewportMetrics(
                 screenHeight: geometry.size.height,
                 bottomNavScale: bottomNavScale,
@@ -60,7 +60,10 @@ struct V2HomeView: View {
 
                     V2BottomNavigationBar(selectedTab: $selectedTab)
                         .scaleEffect(bottomNavScale, anchor: .bottom)
-                        .frame(width: 357 * bottomNavScale, height: 94 * bottomNavScale)
+                        .frame(
+                            width: V2BottomNavPlacement.visualSize.width * bottomNavScale,
+                            height: V2BottomNavPlacement.scaledHeight(scale: bottomNavScale)
+                        )
                         .padding(.bottom, V2BottomNavPlacement.bottomPadding)
                 }
                 .zIndex(20)
@@ -424,7 +427,7 @@ private struct V2HomePathViewportMetrics {
         let bannerTopGap: CGFloat = 30
         let bannerHeight: CGFloat = 88
         let visibleGapBelowBanner: CGFloat = 0
-        let bottomNavigationHeight = 94 * bottomNavScale
+        let bottomNavigationHeight = V2BottomNavPlacement.scaledHeight(scale: bottomNavScale)
         let bottomNavigationBottomPadding = V2BottomNavPlacement.bottomPadding
         let bottomSafeGap: CGFloat = 0
 

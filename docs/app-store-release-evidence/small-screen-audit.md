@@ -66,3 +66,11 @@ Branch: codex/lean-high-value-generation-20260711
 - Updated upload text-change handling to the modern iOS `onChange` signature to keep the build warning-free.
 - Compile verification: `build_sim` passed with no warnings after this change.
 - Device matrix visual verification: pending final simulator pass.
+
+### 2026-07-13: Bottom navigation clearance standardization
+
+- Bottom navigation design size now lives in `V2BottomNavPlacement` instead of repeated `357 x 94` values.
+- Tab scaffold scroll views reserve bottom space from the actual scaled navigation height plus safe area and clearance.
+- Home learning path viewport now uses the same scaled navigation height as the rendered bottom navigation.
+- Compile verification: `build_sim` passed with no warnings after this change.
+- Device matrix visual verification: pending final simulator pass.

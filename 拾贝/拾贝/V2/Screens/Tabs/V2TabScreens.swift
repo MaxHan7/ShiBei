@@ -7,7 +7,7 @@ struct V2TabScaffold<Content: View>: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let bottomNavScale = min(1, geometry.size.width / 357)
+            let bottomNavScale = min(1, geometry.size.width / V2BottomNavPlacement.visualSize.width)
 
             ZStack(alignment: .top) {
                 V2Color.pageGreenBackground
@@ -25,7 +25,13 @@ struct V2TabScaffold<Content: View>: View {
                         content()
                             .v2PageColumn()
                             .padding(.top, 28)
-                            .padding(.bottom, 128)
+                            .padding(
+                                .bottom,
+                                V2BottomNavPlacement.reservedScrollBottomPadding(
+                                    scale: bottomNavScale,
+                                    safeAreaBottom: geometry.safeAreaInsets.bottom
+                                )
+                            )
                     }
                 }
 
@@ -34,7 +40,10 @@ struct V2TabScaffold<Content: View>: View {
 
                     V2BottomNavigationBar(selectedTab: $selectedTab)
                         .scaleEffect(bottomNavScale, anchor: .bottom)
-                        .frame(width: 357 * bottomNavScale, height: 94 * bottomNavScale)
+                        .frame(
+                            width: V2BottomNavPlacement.visualSize.width * bottomNavScale,
+                            height: V2BottomNavPlacement.scaledHeight(scale: bottomNavScale)
+                        )
                         .padding(.bottom, V2BottomNavPlacement.bottomPadding)
                 }
                 .zIndex(20)

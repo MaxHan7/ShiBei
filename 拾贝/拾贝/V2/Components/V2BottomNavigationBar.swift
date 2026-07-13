@@ -43,10 +43,20 @@ struct V2BottomNavigationBar: View {
 
 enum V2BottomNavPlacement {
     static let bottomPadding: CGFloat = 12
+    static let visualSize = CGSize(width: 357, height: 94)
+    static let scrollClearance: CGFloat = 22
+
+    static func scaledHeight(scale: CGFloat) -> CGFloat {
+        visualSize.height * scale
+    }
+
+    static func reservedScrollBottomPadding(scale: CGFloat, safeAreaBottom: CGFloat) -> CGFloat {
+        scaledHeight(scale: scale) + bottomPadding + safeAreaBottom + scrollClearance
+    }
 }
 
 private enum V2BottomNavMetrics {
-    static let designSize = CGSize(width: 357, height: 94)
+    static let designSize = V2BottomNavPlacement.visualSize
     static let capsuleSize = CGSize(width: 349, height: 86)
     static let capsuleRadius: CGFloat = 29
     static let capsuleCenter = CGPoint(x: designSize.width / 2, y: capsuleSize.height / 2)
