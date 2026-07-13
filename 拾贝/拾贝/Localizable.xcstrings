@@ -2808,6 +2808,23 @@
         }
       }
     },
+    "discover.filter.accessibility": {
+      "comment": "Accessibility label for a recommended article filter chip. The placeholder is the filter title.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "筛选：%@"
+          }
+        }
+      }
+    },
     "discover.hero.subtitle": {
       "localizations": {
         "en": {

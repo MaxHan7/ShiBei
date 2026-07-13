@@ -659,7 +659,7 @@ struct V2RootView: View {
             } catch {
                 await MainActor.run {
                     loadingRecommendedArticleIDs.remove(articleID)
-                    generationState.errorText = error.localizedDescription
+                    generationState.errorText = userFacingErrorMessage(error)
                 }
             }
         }
@@ -697,7 +697,7 @@ struct V2RootView: View {
                         recommendedArticleSimulationTask?.cancel()
                         recommendedArticleSimulationTask = nil
                     }
-                    generationState.errorText = error.localizedDescription
+                    generationState.errorText = userFacingErrorMessage(error)
                 }
             }
         }
@@ -764,7 +764,7 @@ struct V2RootView: View {
             }
             replaceRoute(route(for: response.reviewSession?.displayCard) ?? unitOverviewRoute(unitID: unitID))
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
             resetToRoute(unitOverviewRoute(unitID: unitID), tab: .learning)
         }
     }
@@ -793,7 +793,7 @@ struct V2RootView: View {
             )
             replaceRoute(targetRoute)
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
             resetToRoute(unitOverviewRoute(unitID: unitID), tab: .learning)
         }
     }
@@ -1132,7 +1132,7 @@ struct V2RootView: View {
 
     private var activeHomeData: V2HomeData {
         if usesFixtures {
-            return V2HomeFixture.home
+            return V2HomeFixture.home(language: appLanguage)
         }
         guard let activeLearningReviewChapter,
               let activeLearningBackendChapter else {
@@ -1545,7 +1545,7 @@ struct V2RootView: View {
                 startGenerationPolling(chapterID: response.chapter.id)
             } catch {
                 await MainActor.run {
-                    generationState.markError(error.localizedDescription)
+                    generationState.markError(userFacingErrorMessage(error))
                 }
             }
         }
@@ -1579,7 +1579,7 @@ struct V2RootView: View {
                     }
                 } catch {
                     await MainActor.run {
-                        generationState.errorText = error.localizedDescription
+                        generationState.errorText = userFacingErrorMessage(error)
                     }
                 }
 
@@ -1677,9 +1677,44 @@ struct V2RootView: View {
         await loadLatestBackendChapterIfNeeded()
     }
 
-    private func userFacingErrorMessage(_ error: Error, fallback: String) -> String {
+    private func userFacingErrorMessage(
+        _ error: Error,
+        fallback: String? = nil
+    ) -> String {
+        if case APIClientError.decoding = error {
+            return L10n.string("error.decode_failed", language: appLanguage)
+        }
+        if case APIClientError.httpStatus(let statusCode) = error {
+            if statusCode == 404 {
+                return L10n.string("error.not_found", language: appLanguage)
+            }
+            if statusCode == 422 {
+                return L10n.string("error.unprocessable", language: appLanguage)
+            }
+            if statusCode >= 500 {
+                return L10n.string("error.server_busy", language: appLanguage)
+            }
+            return L10n.string("error.generic_failed", language: appLanguage)
+        }
+        if case APIClientError.invalidResponse = error {
+            return L10n.string("error.invalid_response", language: appLanguage)
+        }
+        if case APIClientError.serverMessage(let message) = error {
+            let trimmed = message.trimmingCharacters(in: .whitespacesAndNewlines)
+            return trimmed.isEmpty
+                ? (fallback ?? L10n.string("error.generic_failed", language: appLanguage))
+                : trimmed
+        }
+
+        let nsError = error as NSError
+        if nsError.domain == NSURLErrorDomain {
+            return L10n.string("error.network_failed", language: appLanguage)
+        }
+
         let message = error.localizedDescription.trimmingCharacters(in: .whitespacesAndNewlines)
-        return message.isEmpty ? fallback : message
+        return message.isEmpty
+            ? (fallback ?? L10n.string("error.generic_failed", language: appLanguage))
+            : message
     }
 
     @MainActor
@@ -1708,7 +1743,7 @@ struct V2RootView: View {
                 startGenerationPolling(chapterID: latestChapter.id)
             }
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
         }
     }
 
@@ -1850,7 +1885,7 @@ struct V2RootView: View {
             generationState.resetAfterDelete()
             resetToHome(tab: .materials)
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
         }
     }
 
@@ -2004,7 +2039,7 @@ struct V2RootView: View {
             )
         } catch {
             await MainActor.run {
-                generationState.errorText = error.localizedDescription
+                generationState.errorText = userFacingErrorMessage(error)
             }
         }
     }
@@ -2082,7 +2117,7 @@ struct V2RootView: View {
                 backendNotifications[index] = updated
             }
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
         }
     }
 
@@ -2096,7 +2131,7 @@ struct V2RootView: View {
             }
         } catch {
             await MainActor.run {
-                generationState.errorText = error.localizedDescription
+                generationState.errorText = userFacingErrorMessage(error)
             }
         }
     }
@@ -2248,7 +2283,7 @@ struct V2RootView: View {
             )
             replaceRoute(targetRoute)
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
             openFirstUnit()
         }
     }
@@ -2274,7 +2309,7 @@ struct V2RootView: View {
             )
             replaceRoute(targetRoute)
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
             resetToRoute(unitOverviewRoute(unitID: fallbackUnitID, chapterID: chapterID), tab: .learning)
         }
     }
@@ -2300,7 +2335,7 @@ struct V2RootView: View {
             )
             replaceRoute(targetRoute)
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
             resetToRoute(unitOverviewRoute(unitID: unitID, chapterID: chapterID), tab: .learning)
         }
     }
@@ -2331,7 +2366,7 @@ struct V2RootView: View {
             )
             routeToReviewCard(targetRoute)
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
             routeToReviewCard(fallback)
         }
     }
@@ -2353,7 +2388,7 @@ struct V2RootView: View {
             }
             routeToReviewCard(route(for: response.reviewSession?.displayCard) ?? fallback)
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
             routeToReviewCard(fallback)
         }
     }
@@ -2368,7 +2403,7 @@ struct V2RootView: View {
             let response = try await apiClient.finishV2PracticeSession(sessionId: session.id)
             applyV2ReviewSessionResponse(response)
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
         }
         reviewEntryMode = .mainline
         resetToHome(tab: .learning)
@@ -2404,7 +2439,7 @@ struct V2RootView: View {
                 }
             } catch {
                 await MainActor.run {
-                    generationState.errorText = error.localizedDescription
+                    generationState.errorText = userFacingErrorMessage(error)
                 }
             }
         }
@@ -2447,7 +2482,7 @@ struct V2RootView: View {
                 return
             }
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
         }
 
         advanceLocalAfterQuestion(unitID: unitID, questionID: questionID)
@@ -2488,7 +2523,7 @@ struct V2RootView: View {
             routeToReviewCard(route(for: advanceResponse.reviewSession?.displayCard) ?? localRouteAfterQuestion(unitID: unitID, questionID: questionID))
             return
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
         }
 
         advanceLocalAfterQuestion(unitID: unitID, questionID: questionID)
@@ -2531,7 +2566,7 @@ struct V2RootView: View {
             }
             return route(for: response.reviewSession?.displayCard) ?? localFallback
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
             return localFallback
         }
     }
@@ -2807,7 +2842,7 @@ struct V2RootView: View {
                 } catch {
                     await MainActor.run {
                         backendFavoriteQuestions = previous
-                        generationState.errorText = error.localizedDescription
+                        generationState.errorText = userFacingErrorMessage(error)
                     }
                 }
             }
@@ -2823,7 +2858,7 @@ struct V2RootView: View {
                 } catch {
                     await MainActor.run {
                         backendFavoriteQuestions = previous
-                        generationState.errorText = error.localizedDescription
+                        generationState.errorText = userFacingErrorMessage(error)
                     }
                 }
             }
@@ -2873,7 +2908,7 @@ struct V2RootView: View {
             let response = try await apiClient.openV2SourceFromReview(sessionId: session.id, sourceAnchorId: sourceAnchorId)
             applyV2ReviewSessionResponse(response)
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
         }
     }
 
@@ -2887,7 +2922,7 @@ struct V2RootView: View {
             let response = try await apiClient.returnFromV2SourceToReview(sessionId: session.id)
             applyV2ReviewSessionResponse(response)
         } catch {
-            generationState.errorText = error.localizedDescription
+            generationState.errorText = userFacingErrorMessage(error)
         }
     }
 }

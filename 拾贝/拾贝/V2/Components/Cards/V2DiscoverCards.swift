@@ -25,6 +25,7 @@ struct V2DiscoverFilterBar: View {
     let filters: [V2RecommendedArticleFilter]
     let selectedFilterID: String
     let onSelect: (V2RecommendedArticleFilter) -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -39,7 +40,7 @@ struct V2DiscoverFilterBar: View {
                         )
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("筛选：\(filter.title)")
+                    .accessibilityLabel(L10n.format("discover.filter.accessibility", language: appLanguage, filter.title))
                     .accessibilityAddTraits(selectedFilterID == filter.id ? .isSelected : [])
                 }
             }
