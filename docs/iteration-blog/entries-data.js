@@ -1017,5 +1017,65 @@ window.iterationEntries = [
       "6e6b432",
       "aafb34c"
     ]
+  },
+  {
+    "date": "2026-07-13",
+    "title": "生成语言贯通让英文用户获得同语种复习内容",
+    "phase": "国际化与出题质量验证",
+    "problem": "拾贝的界面语言可以切到英文后，生成内容仍可能沿用默认中文：这会让英文用户在上传英文材料后得到跨语种题目、解释和单元总结，破坏把长内容转成可理解、可复习知识的闭环。今天的问题是把 interfaceLanguage 与 generationLanguage 明确拆开，并验证语言偏好能从 App 请求稳定传到后端 prompt，而不是只停留在前端翻译。",
+    "changes": [
+      "iOS V2 生成请求：在创建章节时随当前语言发送 generationLanguage，使上传链接或文本后的异步生成任务带有明确输出语种。",
+      "后端队列与幂等键：新增 generationLanguage 标准化逻辑，把 en/zh-Hans 写入 pending chapter、queue payload 和 idempotency key，避免同一来源在中英文生成之间误复用任务。",
+      "V2 生成运行时与 prompt：把 generationLanguage 传入 reviewPath、unitKnowledgeMap、题目草稿、选项、连线和单元总结等阶段，并要求用户可见 JSON 字段使用目标语言，source quote 保持原文。",
+      "英文移动端显示预算：为英文题干、选项、连线项、解释和 summary 增加字符/词数目标，降低英文模式在 iPhone 卡片上溢出的风险。",
+      "前端双语支撑面：主路径上传、生成、复习、章节详情、Profile 设置和失败状态完成本地化硬化，XcodeBuildMCP build_sim 通过；视觉自动化仍受本地 Simulator/SpringBoard 启动拒绝阻塞。",
+      "英文质量实验：新增 QUALITY_GENERATION_LANGUAGE 入口并跑 English agent workflow store 样本，结果暴露 unitKnowledgeMap 对缺失 micro summary 过于脆弱，已在当前工作区补上 summary fallback 和 schema 回归测试但尚未提交。"
+    ],
+    "screenshots": [
+      {
+        "src": "assets/2026-07-13-生成语言贯通让英文用户获得同语种复习内容.svg",
+        "caption": "2026-07-13 迭代摘要"
+      }
+    ],
+    "result": "今天已完成从 App 到后端 prompt 的生成语言主链路，相关提交覆盖语言标准化、队列持久化、运行时传递、prompt 合约和 iOS 请求字段；前端主路径英文 chrome 可构建。质量验证显示英文样本两次 failed_generation：第一次 4 次模型调用、issueCount=1，归一化后 6 次模型调用、issueCount=2，问题集中在 unitKnowledgeMap 缺失 summary 等契约边界，因此生成语种能力已打通但英文真实样本尚未达到可发布质量。",
+    "next": "明天优先提交并验证 unitKnowledgeMap summary fallback，随后重跑 English agent workflow store 样本，要求至少完成一次 English generation run 且检查题干、选项、解释、unit summary 均为英文、source quote 不被翻译。",
+    "commits": [
+      "09cb290",
+      "9b50de0",
+      "c348d59",
+      "ff681f0",
+      "6988613",
+      "3e50831",
+      "ecb3680",
+      "f352f73",
+      "80c2091",
+      "af23cc4",
+      "49a8a6d",
+      "5d27ea6",
+      "0206fcd",
+      "fee28c5",
+      "307f8bb",
+      "03f6d60",
+      "d02cf23",
+      "3b84edf",
+      "e559575",
+      "4b8da40",
+      "7483629",
+      "bfbceef",
+      "001f7be",
+      "4d55733",
+      "8379bf9",
+      "f228470",
+      "ed0318d",
+      "c7fa5cd",
+      "8ca136a",
+      "963d07c",
+      "ac5e575",
+      "2ffb7bb",
+      "86ea683",
+      "9ac0d65",
+      "1028ad6",
+      "644c872"
+    ]
   }
 ];
