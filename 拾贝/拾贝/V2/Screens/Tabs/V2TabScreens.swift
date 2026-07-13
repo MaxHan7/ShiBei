@@ -444,6 +444,7 @@ struct V2UploadView: View {
                     preflightState = response.canGenerate
                         ? .ready(input: sourceUrl, response: response)
                         : .blocked(input: sourceUrl, response: response)
+                    V2Keyboard.dismiss()
                 }
             } catch {
                 await MainActor.run {
@@ -695,6 +696,7 @@ private struct V2UploadLinkInputCard: View {
                     .font(V2UploadInputCardMetrics.placeholderFont)
                     .foregroundStyle(V2UploadInputCardMetrics.inputTextColor)
                     .textInputAutocapitalization(.never)
+                    .textContentType(.URL)
                     .autocorrectionDisabled()
                     .keyboardType(.URL)
                     .submitLabel(.done)

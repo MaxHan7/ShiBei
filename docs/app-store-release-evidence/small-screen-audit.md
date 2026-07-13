@@ -7,7 +7,7 @@ Branch: codex/lean-high-value-generation-20260711
 
 | Device | Runtime | Status | Notes |
 | --- | --- | --- | --- |
-| iPhone SE (3rd generation) | iOS 26 simulator | Pending | P0 smallest modern review target for short-height failures. |
+| iPhone SE (3rd generation) | iOS 26 simulator | In progress | Home/upload/materials/discover/notes/generating detail checked; URL feedback overlay issue fixed and retested. |
 | iPhone 13 mini | iOS 26 simulator | Pending | P0 narrow modern safe-area target. |
 | iPhone 17 | iOS 26 simulator | Pending | P1 standard current iPhone baseline. |
 | iPhone 17 Pro Max | iOS 26 simulator | Pending | P1 large screen regression target. |
@@ -74,3 +74,11 @@ Branch: codex/lean-high-value-generation-20260711
 - Home learning path viewport now uses the same scaled navigation height as the rendered bottom navigation.
 - Compile verification: `build_sim` passed with no warnings after this change.
 - Device matrix visual verification: pending final simulator pass.
+
+### 2026-07-13: iPhone SE upload recognition feedback
+
+- Visual verification found the system URL candidate overlay could cover the source-type feedback row after typing a video link.
+- Upload URL input now declares URL text content type in addition to URL keyboard/autocorrection settings.
+- The upload screen now dismisses keyboard/candidate UI once link preflight reaches ready or blocked state.
+- SE retest confirmed the row `将根据小红书视频生成学习内容` remains visible with the start button and bottom navigation.
+- Compile verification: `build_sim` and SE `build_run_sim` passed with no warnings after this change.
