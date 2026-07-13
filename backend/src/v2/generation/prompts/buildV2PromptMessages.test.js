@@ -40,6 +40,8 @@ test("English prompt contract applies output language without translating source
   assert.match(messages.user, /所有用户可见 JSON 字段必须使用 English/);
   assert.match(messages.user, /source quote \/ source block text must preserve original wording/);
   assert.match(messages.user, /Stable ids, enum values, sourceAnchorId, type, relationType/);
+  assert.match(messages.user, /title 必须是完整短语/);
+  assert.match(messages.user, /不要复制并截断长原文标题/);
 });
 
 test("English multiple-choice prompts use stricter visible text budgets", () => {

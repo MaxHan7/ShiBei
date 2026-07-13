@@ -215,7 +215,10 @@ function normalizeMicroKnowledgePoint(micro) {
     ...(micro.role !== normalizedRole ? { rawRole: micro.role } : {}),
     ...(micro.assessmentValue !== normalizedAssessmentValue ? { rawAssessmentValue: micro.assessmentValue } : {}),
     title: trimToMaxLength(micro.title, UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.microTitle),
-    summary: trimToMaxLength(micro.summary, UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.microSummary),
+    summary: trimToMaxLength(
+      normalizeMicroSummary(micro),
+      UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.microSummary
+    ),
     role: normalizedRole,
     assessmentValue: normalizedAssessmentValue,
     primaryEvidenceAngle: trimToMaxLength(
@@ -223,6 +226,13 @@ function normalizeMicroKnowledgePoint(micro) {
       UNIT_KNOWLEDGE_MAP_TEXT_LIMITS.primaryEvidenceAngle
     )
   };
+}
+
+function normalizeMicroSummary(micro) {
+  if (isNonEmptyString(micro.summary)) return micro.summary;
+  if (isNonEmptyString(micro.title)) return micro.title;
+  if (isNonEmptyString(micro.primaryEvidenceAngle)) return micro.primaryEvidenceAngle;
+  return micro.microId || "";
 }
 
 function trimToMaxLength(value, maxLength) {

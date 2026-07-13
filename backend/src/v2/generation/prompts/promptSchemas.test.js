@@ -313,6 +313,22 @@ test("normalizes unit knowledge map taxonomy aliases before validation", () => {
   }), { ok: true, errors: [] });
 });
 
+test("normalizes missing unit knowledge map summary from compact title", () => {
+  const fixture = unitKnowledgeMapFixture();
+  delete fixture.units[0].microKnowledgePoints[1].summary;
+
+  const normalized = normalizeUnitKnowledgeMapOutput(fixture);
+
+  assert.equal(
+    normalized.units[0].microKnowledgePoints[1].summary,
+    fixture.units[0].microKnowledgePoints[1].title
+  );
+  assert.deepEqual(validateUnitKnowledgeMapOutput(normalized, {
+    unitIds: new Set(["unit-01"]),
+    sourceAnchorIds: new Set(["anchor-unit-01"])
+  }), { ok: true, errors: [] });
+});
+
 test("rejects unit knowledge maps that omit planned units", () => {
   const result = validateUnitKnowledgeMapOutput({ units: [] }, {
     unitIds: new Set(["unit-01"]),
@@ -418,6 +434,34 @@ test("normalizes overlong review path mobile copy before validation", () => {
   assert.equal(Array.from(normalized.units[0].detailSummary).length, 180);
   assert.equal(Array.from(normalized.units[0].why).length, 96);
   assert.equal(Array.from(normalized.chapterSummary.encouragementText).length, 96);
+});
+
+test("normalizes overlong English review path copy at word boundaries", () => {
+  const fixture = reviewPathPlanFixture();
+  fixture.chapterSummary.encouragementText = "You've got it: improvised agent loops should move to a reusable Workflow Store matters for safety.";
+
+  const normalized = normalizeReviewPathPlanOutput(fixture);
+
+  assert.ok(normalized.chapterSummary.encouragementText.length <= 96);
+  assert.equal(normalized.chapterSummary.encouragementText.endsWith("safet"), false);
+  assert.match(normalized.chapterSummary.encouragementText, /\.$/);
+  assert.deepEqual(validateReviewPathPlanOutput(normalized, {
+    sourceBlockIds: new Set(["p-001", "p-002"])
+  }), { ok: true, errors: [] });
+});
+
+test("normalizes overlong English review path copy at clause boundaries", () => {
+  const fixture = reviewPathPlanFixture();
+  fixture.chapterSummary.encouragementText = "You've grasped the key insight: robust AI agents need hardened, reusable workflows, not improvised loops.";
+
+  const normalized = normalizeReviewPathPlanOutput(fixture);
+
+  assert.ok(normalized.chapterSummary.encouragementText.length <= 96);
+  assert.equal(normalized.chapterSummary.encouragementText.endsWith("not"), false);
+  assert.match(normalized.chapterSummary.encouragementText, /workflows\.$/);
+  assert.deepEqual(validateReviewPathPlanOutput(normalized, {
+    sourceBlockIds: new Set(["p-001", "p-002"])
+  }), { ok: true, errors: [] });
 });
 
 test("rejects review path plans that point anchors at missing source blocks", () => {
@@ -634,6 +678,43 @@ test("hydrates compact task brief plans before validation", () => {
   });
 
   assert.deepEqual(result, { ok: true, errors: [] });
+});
+
+test("normalizes overlong compact task brief goal copy before validation", () => {
+  const compact = {
+    units: [
+      {
+        unitId: "unit-01",
+        practiceGoals: [
+          {
+            kind: "core_understanding",
+            target: "Understand how long-form natural language goals can exceed compact mobile copy budgets if not normalized",
+            commonMisconception: "Assuming the workflow store automatically guarantees every delegated AI action is safe without explicit checks",
+            microIds: ["micro-unit-01-001"]
+          }
+        ],
+        questionPlans: [
+          {
+            type: "multiple_choice",
+            purpose: "definition_grasp",
+            goalIndex: 1,
+            microIds: ["micro-unit-01-001"]
+          }
+        ]
+      }
+    ]
+  };
+
+  const normalized = normalizeTaskBriefPlanOutput(compact, {
+    sourceAnchorByUnit: new Map([["unit-01", "anchor-unit-01"]])
+  });
+
+  assert.ok(normalized.units[0].practiceGoals[0].target.length <= 80);
+  assert.ok(normalized.units[0].practiceGoals[0].commonMisconception.length <= 48);
+  assert.deepEqual(validateTaskBriefPlanOutput(normalized, {
+    unitIds: new Set(["unit-01"]),
+    sourceAnchorByUnit: new Map([["unit-01", "anchor-unit-01"]])
+  }), { ok: true, errors: [] });
 });
 
 test("validates batched task brief plans across planned units", () => {

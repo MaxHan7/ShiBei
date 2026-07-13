@@ -164,7 +164,9 @@ export function normalizeReviewPathPlanOutput(output) {
     summaryCard: isPlainObject(output.summaryCard)
       ? {
           ...output.summaryCard,
-          text: truncateText(output.summaryCard.text, REVIEW_PATH_TEXT_LIMITS.summaryCardText)
+          text: truncateText(output.summaryCard.text, REVIEW_PATH_TEXT_LIMITS.summaryCardText, {
+            completeSentence: true
+          })
         }
       : output.summaryCard,
     units: Array.isArray(output.units)
@@ -175,7 +177,8 @@ export function normalizeReviewPathPlanOutput(output) {
           ...output.chapterSummary,
           encouragementText: truncateText(
             output.chapterSummary.encouragementText,
-            REVIEW_PATH_TEXT_LIMITS.encouragementText
+            REVIEW_PATH_TEXT_LIMITS.encouragementText,
+            { completeSentence: true }
           )
         }
       : output.chapterSummary
@@ -188,17 +191,59 @@ function normalizeReviewPathPlanUnit(unit) {
     ...unit,
     title: truncateText(unit.title, REVIEW_PATH_TEXT_LIMITS.unitTitle),
     nodeLabel: truncateText(unit.nodeLabel, REVIEW_PATH_TEXT_LIMITS.nodeLabel),
-    shortSummary: truncateText(unit.shortSummary, REVIEW_PATH_TEXT_LIMITS.shortSummary),
-    detailSummary: truncateText(unit.detailSummary, REVIEW_PATH_TEXT_LIMITS.detailSummary),
-    why: truncateText(unit.why, REVIEW_PATH_TEXT_LIMITS.why)
+    shortSummary: truncateText(unit.shortSummary, REVIEW_PATH_TEXT_LIMITS.shortSummary, {
+      completeSentence: true
+    }),
+    detailSummary: truncateText(unit.detailSummary, REVIEW_PATH_TEXT_LIMITS.detailSummary, {
+      completeSentence: true
+    }),
+    why: truncateText(unit.why, REVIEW_PATH_TEXT_LIMITS.why, { completeSentence: true })
   };
 }
 
-function truncateText(value, maxLength) {
+function truncateText(value, maxLength, { completeSentence = false } = {}) {
   if (!isNonEmptyString(value)) return value;
-  const chars = Array.from(value.trim());
+  const text = value.trim();
+  const chars = Array.from(text);
   if (chars.length <= maxLength) return value.trim();
-  return chars.slice(0, maxLength).join("").trim();
+  const truncated = chars.slice(0, maxLength).join("").trim();
+  if (!/\s/.test(text)) return truncated;
+  const minBoundaryLength = Math.floor(maxLength * 0.6);
+
+  if (completeSentence) {
+    const sentenceBoundary = findLastBoundary(truncated, /[.!?]/g, minBoundaryLength);
+    if (sentenceBoundary) return sentenceBoundary;
+
+    const clauseBoundary = findLastBoundary(truncated, /[,;:]/g, minBoundaryLength);
+    if (clauseBoundary) return clauseBoundary.replace(/[,;:]+$/, ".");
+  }
+
+  const lastSpaceIndex = truncated.search(/\s+\S*$/);
+  if (lastSpaceIndex > 0) {
+    const wordBoundary = truncated.slice(0, lastSpaceIndex).trim();
+    if (wordBoundary.length >= minBoundaryLength) {
+      if (
+        completeSentence &&
+        /[.!?]$/.test(text) &&
+        !/[.!?]$/.test(wordBoundary) &&
+        wordBoundary.length + 1 <= maxLength
+      ) {
+        return `${wordBoundary}.`;
+      }
+      return wordBoundary;
+    }
+  }
+  return truncated;
+}
+
+function findLastBoundary(text, pattern, minLength) {
+  let match;
+  let boundary = "";
+  while ((match = pattern.exec(text)) !== null) {
+    const candidate = text.slice(0, match.index + match[0].length).trim();
+    if (candidate.length >= minLength) boundary = candidate;
+  }
+  return boundary;
 }
 
 function validatePlannedSourceAnchor(sourceAnchor, { path, sourceBlockIds, errors }) {

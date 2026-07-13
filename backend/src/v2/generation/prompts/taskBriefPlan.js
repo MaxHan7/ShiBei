@@ -122,6 +122,8 @@ function hydratePracticeGoal(goal, { unitId, index, sourceAnchorId }) {
   return {
     ...goal,
     id: isNonEmptyString(goal.id) ? goal.id : `goal-${unitId}-${String(index + 1).padStart(3, "0")}`,
+    target: trimToMaxLength(goal.target, 80),
+    commonMisconception: trimToMaxLength(goal.commonMisconception, 48),
     sourceAnchorId: isNonEmptyString(goal.sourceAnchorId) ? goal.sourceAnchorId : sourceAnchorId
   };
 }
@@ -223,4 +225,10 @@ function validateMaxLength(value, maxLength, path, errors) {
   if (typeof value === "string" && value.length > maxLength) {
     errors.push(`${path} must be at most ${maxLength} characters`);
   }
+}
+
+function trimToMaxLength(value, maxLength) {
+  if (typeof value !== "string") return value;
+  const trimmed = value.trim();
+  return trimmed.length > maxLength ? trimmed.slice(0, maxLength) : trimmed;
 }

@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { extractSourceContent, isLikelyUrl } from "../../../sources/extractSourceContent.js";
+import { normalizeGenerationLanguage } from "../generationLanguage.js";
 import { createV2ModelPromptCaller } from "../modelPromptCaller.js";
 import { runV2GenerationJob } from "../runV2GenerationJob.js";
 import {
@@ -42,7 +43,8 @@ async function main() {
     sourceUrl: source.sourceUrl || "",
     sourceAccount: source.sourceAccount || "",
     rawText: source.rawText,
-    cleanedText: source.rawText
+    cleanedText: source.rawText,
+    generationLanguage: normalizeGenerationLanguage(process.env.QUALITY_GENERATION_LANGUAGE)
   };
   const modelUsageRecords = [];
   const modelUsageRecorder = {
