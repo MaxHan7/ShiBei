@@ -4,6 +4,7 @@ struct V2QuestionOptionCard: View {
     let letter: String
     let title: String
     let state: V2QuestionOptionState
+    var width: CGFloat = Metrics.width
     let action: () -> Void
 
     private enum Metrics {
@@ -35,7 +36,7 @@ struct V2QuestionOptionCard: View {
             }
             .padding(.horizontal, Metrics.horizontalPadding)
             .padding(.vertical, Metrics.verticalPadding)
-            .frame(width: Metrics.width, alignment: .leading)
+            .frame(width: width, alignment: .leading)
             .frame(minHeight: Metrics.minHeight, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 15, style: .continuous)
@@ -133,9 +134,9 @@ struct V2MultipleChoiceQuestionCard: View {
     let selectedIndex: Int?
     let onSelect: (Int) -> Void
     let onSource: () -> Void
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     private enum Metrics {
-        static let width: CGFloat = 321
         static let topPadding: CGFloat = 25
         static let horizontalPadding: CGFloat = 27
         static let bottomPadding: CGFloat = 27
@@ -149,6 +150,9 @@ struct V2MultipleChoiceQuestionCard: View {
     }
 
     var body: some View {
+        let width = contentWidth
+        let optionWidth = width - Metrics.horizontalPadding * 2
+
         VStack(alignment: .leading, spacing: 0) {
             Text(question.prompt)
                 .font(.system(size: 18, weight: .semibold, design: .default))
@@ -166,7 +170,8 @@ struct V2MultipleChoiceQuestionCard: View {
                     V2QuestionOptionCard(
                         letter: optionLetter(for: index),
                         title: question.options[index],
-                        state: optionState(for: index)
+                        state: optionState(for: index),
+                        width: optionWidth
                     ) {
                         guard selectedIndex == nil else { return }
                         onSelect(index)
@@ -190,7 +195,7 @@ struct V2MultipleChoiceQuestionCard: View {
         .padding(.top, Metrics.topPadding)
         .padding(.horizontal, Metrics.horizontalPadding)
         .padding(.bottom, Metrics.bottomPadding)
-        .frame(width: Metrics.width, alignment: .topLeading)
+        .frame(width: width, alignment: .topLeading)
         .background(
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(Color(hex: 0xFFFCF4))

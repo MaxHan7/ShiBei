@@ -155,6 +155,7 @@ struct V2MultipleChoiceQuestionView: View {
     var onFavoriteChange: (Bool) -> Void = { _ in }
     var onAnswerReady: () -> Void = {}
     let onContinue: () -> Void
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
         V2FlowScreen(
@@ -234,9 +235,9 @@ struct V2MultipleChoiceQuestionView: View {
 
     private func multipleChoiceMascot(isInteractive: Bool) -> some View {
         GeometryReader { geometry in
-            let contentLeft = (geometry.size.width - V2Layout.contentMaxWidth) / 2
+            let contentLeft = (geometry.size.width - contentWidth) / 2
             let mascotLeft = contentLeft
-                + V2Layout.contentMaxWidth
+                + contentWidth
                 - V2MultipleChoicePageMetrics.mascotCardOverlap
 
             Group {
@@ -310,6 +311,7 @@ struct V2MatchingQuestionView: View {
     var onFavoriteChange: (Bool) -> Void = { _ in }
     var onAnswerReady: () -> Void = {}
     let onContinue: () -> Void
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
         V2FlowScreen(
@@ -388,9 +390,9 @@ struct V2MatchingQuestionView: View {
 
     private func matchingMascot(isInteractive: Bool) -> some View {
         GeometryReader { geometry in
-            let contentLeft = (geometry.size.width - V2Layout.contentMaxWidth) / 2
+            let contentLeft = (geometry.size.width - contentWidth) / 2
             let mascotLeft = contentLeft
-                + V2Layout.contentMaxWidth
+                + contentWidth
                 - V2MatchingPageMetrics.mascotCardOverlap
 
             Group {
@@ -433,6 +435,7 @@ struct V2MatchingQuestionView: View {
 
     private var matchingGrid: some View {
         let cardHeight = V2MatchingPageMetrics.optionCardHeight(for: question.matchingPairs)
+        let optionCardWidth = (contentWidth - V2MatchingPageMetrics.columnSpacing) / 2
 
         return HStack(alignment: .top, spacing: V2MatchingPageMetrics.columnSpacing) {
             VStack(spacing: V2MatchingPageMetrics.rowSpacing) {
@@ -440,7 +443,7 @@ struct V2MatchingQuestionView: View {
                     V2MatchingOptionCard(
                         title: pair.left,
                         state: state(for: pair.id, side: .left),
-                        width: V2MatchingPageMetrics.optionCardWidth,
+                        width: optionCardWidth,
                         height: cardHeight,
                         horizontalPadding: V2MatchingPageMetrics.optionCardHorizontalPadding
                     ) {
@@ -454,7 +457,7 @@ struct V2MatchingQuestionView: View {
                     V2MatchingOptionCard(
                         title: pair.right,
                         state: state(for: pair.id, side: .right),
-                        width: V2MatchingPageMetrics.optionCardWidth,
+                        width: optionCardWidth,
                         height: cardHeight,
                         horizontalPadding: V2MatchingPageMetrics.optionCardHorizontalPadding
                     ) {
@@ -463,7 +466,7 @@ struct V2MatchingQuestionView: View {
                 }
             }
         }
-        .frame(width: V2Layout.contentMaxWidth)
+        .frame(width: contentWidth)
     }
 
     private var isComplete: Bool {
@@ -544,7 +547,6 @@ private enum V2MatchingPageMetrics {
     static let gridY: CGFloat = 155
     static let rowSpacing: CGFloat = 16
     static let columnSpacing: CGFloat = 17
-    static let optionCardWidth: CGFloat = (V2Layout.contentMaxWidth - columnSpacing) / 2
     static let optionCardHorizontalPadding: CGFloat = 14
     static let optionCardOneLineHeight: CGFloat = 72
     static let optionCardTwoLineHeight: CGFloat = 92
@@ -597,6 +599,7 @@ private enum V2QuestionFeedbackMetrics {
 
 private struct V2MatchingPromptCard: View {
     let prompt: String
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
         Text(prompt)
@@ -604,11 +607,11 @@ private struct V2MatchingPromptCard: View {
             .foregroundStyle(Color(hex: 0x1F1B12))
             .tracking(-0.24)
             .lineSpacing(7)
-            .frame(width: 267, alignment: .leading)
+            .frame(width: contentWidth - 54, alignment: .leading)
             .padding(.leading, 31)
             .padding(.trailing, 23)
             .padding(.vertical, 4)
-            .frame(width: V2Layout.contentMaxWidth, alignment: .leading)
+            .frame(width: contentWidth, alignment: .leading)
             .frame(minHeight: 67, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 15, style: .continuous)
@@ -700,8 +703,11 @@ private enum V2UnitCompletionHeroMetrics {
 private struct V2UnitCompletionResultBanner: View {
     let gradeLabel: String
     let accuracyText: String
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
+        let width = contentWidth
+
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
@@ -746,18 +752,19 @@ private struct V2UnitCompletionResultBanner: View {
             }
             .offset(x: 132, y: 16)
         }
-        .frame(width: V2Layout.contentMaxWidth, height: 107)
+        .frame(width: width, height: 107)
     }
 }
 
 private struct V2UnitCompletionSummaryCard: View {
     let text: String
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
         RoundedRectangle(cornerRadius: 15, style: .continuous)
             .fill(V2Color.surfaceCream)
             .v2Shadow()
-            .frame(width: V2Layout.contentMaxWidth, height: 241)
+            .frame(width: contentWidth, height: 241)
             .overlay {
                 Text(text)
                     .font(.system(size: 15, weight: .regular))
@@ -1262,7 +1269,7 @@ struct V2ChapterDetailView: View {
                             onStartReview: onStartUnitReview
                         )
                     }
-                    .frame(maxWidth: V2Layout.contentMaxWidth)
+                    .v2PageContentWidth()
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.top, V2ChapterDetailLayoutMetrics.screenTopPadding)
@@ -1304,13 +1311,11 @@ private enum V2ChapterDetailLayoutMetrics {
     static let heroSourceChipWidth: CGFloat = 132
     static let heroPrimaryActionX: CGFloat = heroMetadataX
     static let heroPrimaryActionY: CGFloat = 184
-    static let heroPrimaryActionWidth: CGFloat = V2Layout.contentMaxWidth - 50
+    static let heroPrimaryActionHorizontalInset: CGFloat = 50
     static let heroPrimaryActionHeight: CGFloat = 42
-    static let heroMetadataRowWidth: CGFloat = heroPrimaryActionWidth
-    static let heroAuthorChipWidth: CGFloat = heroMetadataRowWidth - heroSourceChipWidth - heroMetadataSpacing
     static let heroMascotWidth: CGFloat = 114
     static let heroMascotHeight: CGFloat = 128
-    static let heroMascotX: CGFloat = 216
+    static let heroMascotTrailingOffset: CGFloat = 105
     static let heroMascotY: CGFloat = -18
 
     static let cardContentLeading: CGFloat = V2Spacing.lg
@@ -1362,13 +1367,21 @@ private struct V2ChapterDetailHeroCard: View {
     let primaryActionTitle: String
     let onSource: () -> Void
     let onStartReview: () -> Void
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
+        let width = contentWidth
+        let primaryActionWidth = width - V2ChapterDetailLayoutMetrics.heroPrimaryActionHorizontalInset
+        let heroMetadataRowWidth = primaryActionWidth
+        let heroAuthorChipWidth = heroMetadataRowWidth
+            - V2ChapterDetailLayoutMetrics.heroSourceChipWidth
+            - V2ChapterDetailLayoutMetrics.heroMetadataSpacing
+
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
                 .v2Shadow()
-                .frame(width: V2Layout.contentMaxWidth, height: V2ChapterDetailLayoutMetrics.heroCardBodyHeight)
+                .frame(width: width, height: V2ChapterDetailLayoutMetrics.heroCardBodyHeight)
 
             Text(title)
                 .font(.system(size: 16, weight: .semibold))
@@ -1376,7 +1389,7 @@ private struct V2ChapterDetailHeroCard: View {
                 .lineSpacing(6)
                 .lineLimit(4)
                 .truncationMode(.tail)
-                .frame(width: 180, height: 82, alignment: .topLeading)
+                .frame(width: width - 141, height: 82, alignment: .topLeading)
                 .offset(
                     x: V2ChapterDetailLayoutMetrics.heroTitleX,
                     y: V2ChapterDetailLayoutMetrics.heroTitleY
@@ -1386,7 +1399,7 @@ private struct V2ChapterDetailHeroCard: View {
                 V2ChapterDetailHeroInfoChip(
                     title: author,
                     iconName: "V2ChapterDetailSummaryActionIcon",
-                    width: V2ChapterDetailLayoutMetrics.heroAuthorChipWidth
+                    width: heroAuthorChipWidth
                 )
 
                 V2ChapterDetailHeroActionButton(
@@ -1396,7 +1409,7 @@ private struct V2ChapterDetailHeroCard: View {
                     action: onSource
                 )
             }
-            .frame(width: V2ChapterDetailLayoutMetrics.heroMetadataRowWidth, alignment: .leading)
+            .frame(width: heroMetadataRowWidth, alignment: .leading)
             .offset(
                 x: V2ChapterDetailLayoutMetrics.heroMetadataX,
                 y: V2ChapterDetailLayoutMetrics.heroMetadataY
@@ -1408,7 +1421,7 @@ private struct V2ChapterDetailHeroCard: View {
                 .scaledToFit()
                 .frame(width: 62, height: 56)
                 .opacity(0.56)
-                .offset(x: 253, y: 181)
+                .offset(x: width - 68, y: 181)
                 .allowsHitTesting(false)
 
             Button(action: onStartReview) {
@@ -1416,7 +1429,7 @@ private struct V2ChapterDetailHeroCard: View {
                     .font(V2Typography.primaryButton)
                     .foregroundStyle(.white)
                     .frame(
-                        width: V2ChapterDetailLayoutMetrics.heroPrimaryActionWidth,
+                        width: primaryActionWidth,
                         height: V2ChapterDetailLayoutMetrics.heroPrimaryActionHeight
                     )
                     .background(
@@ -1440,11 +1453,11 @@ private struct V2ChapterDetailHeroCard: View {
                     height: V2ChapterDetailLayoutMetrics.heroMascotHeight
                 )
                 .offset(
-                    x: V2ChapterDetailLayoutMetrics.heroMascotX,
+                    x: width - V2ChapterDetailLayoutMetrics.heroMascotTrailingOffset,
                     y: V2ChapterDetailLayoutMetrics.heroMascotY
                 )
         }
-        .frame(width: V2Layout.contentMaxWidth, height: V2ChapterDetailLayoutMetrics.heroCardFrameHeight, alignment: .topLeading)
+        .frame(width: width, height: V2ChapterDetailLayoutMetrics.heroCardFrameHeight, alignment: .topLeading)
     }
 }
 
@@ -1528,10 +1541,12 @@ private enum V2ChapterDetailHeroChipMetrics {
 
 private struct V2ChapterDetailSummaryCard: View {
     let summary: String
+    @Environment(\.v2ContentWidth) private var contentWidth
     private let contentLeading: CGFloat = V2ChapterDetailLayoutMetrics.cardContentLeading
-    private let contentWidth: CGFloat = V2Layout.contentMaxWidth - V2ChapterDetailLayoutMetrics.cardContentLeading * 2
 
     var body: some View {
+        let textWidth = contentWidth - contentLeading * 2
+
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
                 Image("V2ChapterDetailCoreIcon")
@@ -1553,12 +1568,12 @@ private struct V2ChapterDetailSummaryCard: View {
                 .foregroundStyle(V2Color.topTitle)
                 .lineSpacing(V2ChapterDetailTextMetrics.bodyLineSpacing)
                 .fixedSize(horizontal: false, vertical: true)
-                .frame(width: contentWidth, alignment: .topLeading)
+                .frame(width: textWidth, alignment: .topLeading)
                 .padding(.leading, contentLeading)
                 .padding(.top, V2ChapterDetailLayoutMetrics.sectionBodyTopGap)
                 .padding(.bottom, V2ChapterDetailLayoutMetrics.sectionBodyBottomPadding)
         }
-        .frame(width: V2Layout.contentMaxWidth, alignment: .topLeading)
+        .frame(width: contentWidth, alignment: .topLeading)
         .background(
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
@@ -1573,9 +1588,12 @@ private struct V2ChapterDetailKnowledgeCard: View {
     let actionTitle: String
     let onStartReview: (String) -> Void
     @State private var expandedUnitID: String?
+    @Environment(\.v2ContentWidth) private var contentWidth
     private let contentLeading: CGFloat = V2ChapterDetailLayoutMetrics.cardContentLeading
 
     var body: some View {
+        let rowWidth = contentWidth - contentLeading * 2
+
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center, spacing: 7) {
                 Image("V2ChapterDetailKnowledgeIcon")
@@ -1604,7 +1622,8 @@ private struct V2ChapterDetailKnowledgeCard: View {
                         V2ChapterDetailKnowledgeRow(
                             index: index + 1,
                             title: unit.title,
-                            isExpanded: expandedUnitID == unit.id
+                            isExpanded: expandedUnitID == unit.id,
+                            width: rowWidth
                         ) {
                             withAnimation(.easeInOut(duration: 0.22)) {
                                 expandedUnitID = expandedUnitID == unit.id ? nil : unit.id
@@ -1615,6 +1634,7 @@ private struct V2ChapterDetailKnowledgeCard: View {
                             V2ChapterDetailKnowledgeExpansionPanel(
                                 overview: unit.overview,
                                 actionTitle: actionTitle,
+                                width: rowWidth,
                                 action: { onStartReview(unit.id) }
                             )
                             .transition(.asymmetric(insertion: .opacity, removal: .identity))
@@ -1626,7 +1646,7 @@ private struct V2ChapterDetailKnowledgeCard: View {
             .padding(.leading, contentLeading)
             .padding(.bottom, V2ChapterDetailLayoutMetrics.knowledgeListBottomPadding)
         }
-        .frame(width: V2Layout.contentMaxWidth, alignment: .topLeading)
+        .frame(width: contentWidth, alignment: .topLeading)
         .background(
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
@@ -1639,6 +1659,7 @@ private struct V2ChapterDetailKnowledgeRow: View {
     let index: Int
     let title: String
     let isExpanded: Bool
+    let width: CGFloat
     let onToggle: () -> Void
 
     var body: some View {
@@ -1666,7 +1687,7 @@ private struct V2ChapterDetailKnowledgeRow: View {
                     .frame(width: 24, height: 24)
                     .padding(.trailing, 9)
             }
-            .frame(width: 274, height: 54)
+            .frame(width: width, height: 54)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(V2Color.surfaceCream)
@@ -1702,16 +1723,19 @@ private struct V2ChapterDetailDisclosureArrow: View {
 private struct V2ChapterDetailKnowledgeExpansionPanel: View {
     let overview: String
     let actionTitle: String
+    let width: CGFloat
     let action: () -> Void
 
     var body: some View {
+        let textWidth = width - 36
+
         VStack(alignment: .leading, spacing: 0) {
             Text(overview)
                 .font(V2ChapterDetailTextMetrics.bodySmallFont)
                 .foregroundStyle(V2Color.topTitle)
                 .lineSpacing(V2ChapterDetailTextMetrics.bodySmallLineSpacing)
                 .fixedSize(horizontal: false, vertical: true)
-                .frame(width: 238, alignment: .topLeading)
+                .frame(width: textWidth, alignment: .topLeading)
                 .padding(.top, 20)
                 .padding(.leading, 18)
 
@@ -1719,7 +1743,7 @@ private struct V2ChapterDetailKnowledgeExpansionPanel: View {
                 Text(actionTitle)
                     .font(V2Typography.bodySmallEmphasis)
                     .foregroundStyle(.white)
-                    .frame(width: 224, height: 34)
+                    .frame(width: width - 50, height: 34)
                     .background(
                         RoundedRectangle(cornerRadius: 10, style: .continuous)
                             .fill(V2Color.primaryAction)
@@ -1731,7 +1755,7 @@ private struct V2ChapterDetailKnowledgeExpansionPanel: View {
             .padding(.top, 18)
             .padding(.bottom, 14)
         }
-        .frame(width: 274, alignment: .topLeading)
+        .frame(width: width, alignment: .topLeading)
         .background(
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)

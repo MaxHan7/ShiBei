@@ -30,15 +30,18 @@ struct V2ProfileSettingRow: View {
 
 struct V2UnitOverviewBoardCard: View {
     let overview: String
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
+        let width = contentWidth
+
         ZStack(alignment: .topLeading) {
             V2UnitBoardLeg(rotation: 13)
                 .offset(x: 94, y: 238)
                 .zIndex(0)
 
             V2UnitBoardLeg(rotation: -13)
-                .offset(x: 204, y: 238)
+                .offset(x: width - 117, y: 238)
                 .zIndex(0)
 
             RoundedRectangle(cornerRadius: V2UnitOverviewBoardMetrics.cardRadius, style: .continuous)
@@ -47,7 +50,7 @@ struct V2UnitOverviewBoardCard: View {
                     RoundedRectangle(cornerRadius: V2UnitOverviewBoardMetrics.cardRadius, style: .continuous)
                         .stroke(Color(hex: 0x929A4F), lineWidth: 1)
                 )
-                .frame(width: V2UnitOverviewBoardMetrics.cardWidth, height: V2UnitOverviewBoardMetrics.cardHeight)
+                .frame(width: width, height: V2UnitOverviewBoardMetrics.cardHeight)
                 .zIndex(1)
 
             VStack(alignment: .leading, spacing: V2UnitOverviewBoardMetrics.labelBottomSpacing) {
@@ -61,7 +64,7 @@ struct V2UnitOverviewBoardCard: View {
                     .lineSpacing(V2UnitOverviewBoardMetrics.lineSpacing)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .frame(width: V2UnitOverviewBoardMetrics.textWidth, alignment: .topLeading)
+            .frame(width: width - 58, alignment: .topLeading)
             .offset(x: V2UnitOverviewBoardMetrics.textX, y: V2UnitOverviewBoardMetrics.textY)
             .zIndex(2)
 
@@ -70,10 +73,10 @@ struct V2UnitOverviewBoardCard: View {
                 .renderingMode(.original)
                 .scaledToFit()
                 .frame(width: V2UnitOverviewBoardMetrics.mascotWidth, height: V2UnitOverviewBoardMetrics.mascotHeight)
-                .offset(x: V2UnitOverviewBoardMetrics.mascotX, y: V2UnitOverviewBoardMetrics.mascotY)
+                .offset(x: width - 117, y: V2UnitOverviewBoardMetrics.mascotY)
                 .zIndex(3)
         }
-        .frame(width: V2UnitOverviewBoardMetrics.stageWidth, height: V2UnitOverviewBoardMetrics.stageHeight, alignment: .topLeading)
+        .frame(width: width, height: V2UnitOverviewBoardMetrics.stageHeight, alignment: .topLeading)
     }
 }
 
@@ -89,18 +92,14 @@ private struct V2UnitBoardLeg: View {
 }
 
 private enum V2UnitOverviewBoardMetrics {
-    static let cardWidth: CGFloat = 321
     static let cardHeight: CGFloat = 241
     static let cardRadius: CGFloat = 15
-    static let stageWidth: CGFloat = 321
     static let stageHeight: CGFloat = 355
     static let textX: CGFloat = 29
     static let textY: CGFloat = 27
-    static let textWidth: CGFloat = 263
     static let labelBottomSpacing: CGFloat = 27
     static let bodyFont = Font.system(size: 16, weight: .regular, design: .default)
     static let lineSpacing: CGFloat = 11.2
-    static let mascotX: CGFloat = 204
     static let mascotY: CGFloat = 187
     static let mascotWidth: CGFloat = 153
     static let mascotHeight: CGFloat = 180
