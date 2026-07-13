@@ -3,6 +3,7 @@ import SwiftUI
 struct V2NotesSummaryCard: View {
     let count: Int
     @Environment(\.v2ContentWidth) private var contentWidth
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         let width = contentWidth
@@ -22,13 +23,13 @@ struct V2NotesSummaryCard: View {
                 .allowsHitTesting(false)
 
             HStack(alignment: .firstTextBaseline, spacing: 2) {
-                Text("已收藏 ")
+                Text(L10n.string("notes.summary.prefix", language: appLanguage))
                     .font(V2NotesSummaryCardMetrics.textFont)
                     .foregroundStyle(Color(hex: 0x383838))
                 Text("\(count)")
                     .font(V2NotesSummaryCardMetrics.numberFont)
                     .foregroundStyle(V2Color.primaryAction)
-                Text(" 个题目")
+                Text(L10n.string("notes.summary.suffix", language: appLanguage))
                     .font(V2NotesSummaryCardMetrics.textFont)
                     .foregroundStyle(Color(hex: 0x383838))
             }

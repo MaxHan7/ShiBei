@@ -94,6 +94,7 @@ private enum V2NotificationCardMetrics {
 struct V2NotificationSummaryBanner: View {
     let unreadCount: Int
     @Environment(\.v2ContentWidth) private var contentWidth
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         let bannerWidth = contentWidth + V2NotificationSummaryBannerMetrics.bannerWidthOverflow
@@ -121,7 +122,7 @@ struct V2NotificationSummaryBanner: View {
                 .zIndex(3)
 
             HStack(alignment: .firstTextBaseline, spacing: 5) {
-                Text("你有")
+                Text(L10n.string("notifications.summary.prefix", language: appLanguage))
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(V2Color.textPrimary)
 
@@ -129,7 +130,7 @@ struct V2NotificationSummaryBanner: View {
                     .font(.system(size: 24, weight: .bold))
                     .foregroundStyle(V2Color.primaryAction)
 
-                Text("条新通知")
+                Text(L10n.string("notifications.summary.suffix", language: appLanguage))
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(V2Color.textPrimary)
             }

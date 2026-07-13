@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct V2SplashView: View {
+    @Environment(\.appLanguage) private var appLanguage
+
     var body: some View {
         GeometryReader { geometry in
             V2Color.pageGreenBackground
@@ -13,7 +15,7 @@ struct V2SplashView: View {
                     .frame(width: Metrics.mascotWidth)
                     .accessibilityHidden(true)
 
-                Text(Metrics.messageText)
+                Text(L10n.string("splash.message", language: appLanguage))
                     .font(Metrics.messageFont)
                     .foregroundStyle(Metrics.messageColor)
                     .lineLimit(1)
@@ -26,13 +28,12 @@ struct V2SplashView: View {
             )
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .accessibilityLabel("Recallo 正在启动")
+        .accessibilityLabel(L10n.string("splash.accessibility", language: appLanguage))
     }
 }
 
 private enum Metrics {
     static let mascotAssetName = "V2SplashMascot"
-    static let messageText = "让知识不只被收藏。"
     static let mascotWidth: CGFloat = 295
     static let contentCenterYRatio: CGFloat = 0.50
     static let messageTopSpacing: CGFloat = V2Spacing.lg

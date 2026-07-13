@@ -218,6 +218,7 @@ private struct V2ProfileAvatarPicker: View {
     @Binding var selectedPresetAvatarName: String
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var showsAvatarSheet = false
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         Button {
@@ -241,7 +242,7 @@ private struct V2ProfileAvatarPicker: View {
                     .offset(x: 2, y: 2)
             }
             .contentShape(Circle())
-            .accessibilityLabel("更换头像")
+            .accessibilityLabel(L10n.string("profile.avatar.change", language: appLanguage))
         }
         .buttonStyle(.plain)
         .sheet(isPresented: $showsAvatarSheet) {

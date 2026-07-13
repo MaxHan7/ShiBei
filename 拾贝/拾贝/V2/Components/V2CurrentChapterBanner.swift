@@ -3,6 +3,7 @@ import SwiftUI
 struct V2CurrentChapterBanner: View {
     let chapter: V2CurrentChapterData
     let action: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         GeometryReader { proxy in
@@ -53,7 +54,7 @@ struct V2CurrentChapterBanner: View {
                 }
                 .buttonStyle(.plain)
                 .position(x: width - Metrics.iconTrailing - Metrics.iconSize / 2, y: Metrics.iconCenterY)
-                .accessibilityLabel("查看章节详情")
+                .accessibilityLabel(L10n.string("chapter.detail.view", language: appLanguage))
             }
         }
         .frame(maxWidth: .infinity)

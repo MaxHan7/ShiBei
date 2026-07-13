@@ -14,6 +14,7 @@ struct V2HomeView: View {
     @State private var nodeViewportFrames: [V2LearningPathNodeData.ID: CGRect] = [:]
     @State private var pathContentMinY: CGFloat?
     @State private var didApplyInitialPathScroll = false
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         GeometryReader { geometry in
@@ -356,7 +357,7 @@ struct V2HomeView: View {
                 y: V2HomeEmptyStateMetrics.centerY(in: size.height, scale: scale)
             )
             .allowsHitTesting(false)
-            .accessibilityLabel("还没有生成章节")
+            .accessibilityLabel(L10n.string("home.empty.accessibility", language: appLanguage))
     }
 
     private func selectedNode(in data: V2HomeData) -> V2LearningPathNodeData? {

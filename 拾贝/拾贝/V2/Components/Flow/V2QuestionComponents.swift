@@ -318,6 +318,7 @@ struct V2AnswerFeedbackPanel: View {
     let onContinue: () -> Void
     var onClose: () -> Void = {}
     var onSource: () -> Void = {}
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -380,7 +381,7 @@ struct V2AnswerFeedbackPanel: View {
                 .padding(.top, V2AnswerFeedbackPanelMetrics.panelBodyTopY + V2AnswerFeedbackPanelMetrics.contentTopInset)
 
             V2FeedbackActionButton(
-                title: "继续",
+                title: L10n.string("global.continue", language: appLanguage),
                 tone: isCorrect ? .correct : .wrong,
                 action: onContinue
             )
@@ -388,7 +389,7 @@ struct V2AnswerFeedbackPanel: View {
             .padding(.top, V2AnswerFeedbackPanelMetrics.textToButtonGap)
 
             Button(action: onSource) {
-                Text("查看原文")
+                Text(L10n.string("source.view_original", language: appLanguage))
                     .font(.system(size: 14, weight: .regular))
                     .foregroundStyle(sourceColor)
                     .frame(height: V2AnswerFeedbackPanelMetrics.sourceHeight)
@@ -425,7 +426,7 @@ struct V2AnswerFeedbackPanel: View {
 
     private var feedbackText: some View {
         VStack(alignment: .leading, spacing: 9) {
-            Text("正确理解：")
+            Text(L10n.string("question.feedback.correct_understanding", language: appLanguage))
                 .font(.system(size: 14, weight: .bold))
 
             Text(text)

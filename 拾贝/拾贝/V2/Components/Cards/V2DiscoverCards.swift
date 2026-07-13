@@ -57,6 +57,7 @@ private enum V2DiscoverFilterBarMetrics {
 
 struct V2DiscoverHeroCard: View {
     @Environment(\.v2ContentWidth) private var contentWidth
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         let width = contentWidth
@@ -83,7 +84,7 @@ struct V2DiscoverHeroCard: View {
                 .offset(x: width - V2DiscoverHeroCardMetrics.mascotTrailingOffset, y: V2DiscoverHeroCardMetrics.mascotY)
                 .allowsHitTesting(false)
 
-            Text("发现好内容")
+            Text(L10n.string("discover.hero.title", language: appLanguage))
                 .font(.system(size: 16, weight: .medium))
                 .tracking(-0.64)
                 .foregroundStyle(V2Color.primaryAction)
@@ -91,7 +92,7 @@ struct V2DiscoverHeroCard: View {
                 .frame(width: V2DiscoverHeroCardMetrics.titleWidth, height: V2DiscoverHeroCardMetrics.titleHeight, alignment: .leading)
                 .offset(x: V2DiscoverHeroCardMetrics.textX, y: V2DiscoverHeroCardMetrics.titleY)
 
-            Text("将知识一键变成学习路径，\n让“收藏“变成记住")
+            Text(L10n.string("discover.hero.subtitle", language: appLanguage))
                 .font(V2Typography.labelRegular)
                 .tracking(-0.24)
                 .foregroundStyle(V2Color.topTitle)

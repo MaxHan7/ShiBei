@@ -7,6 +7,7 @@ struct V2ChapterCard: View {
     let knowledgeCount: Int
     let questionCount: Int
     let generationProgressText: String?
+    @Environment(\.appLanguage) private var appLanguage
 
     init(
         title: String,
@@ -30,7 +31,7 @@ struct V2ChapterCard: View {
 
     private var headlineText: String {
         if isGenerating {
-            return generationProgressText ?? "正在生成知识点..."
+            return generationProgressText ?? L10n.string("chapter.card.generating_knowledge", language: appLanguage)
         }
         return title
     }
@@ -69,7 +70,7 @@ struct V2ChapterCard: View {
                 Spacer()
 
                 if !isGenerating {
-                    Text("\(knowledgeCount)个知识点  \(questionCount)道题")
+                    Text(L10n.format("chapter.card.counts", language: appLanguage, knowledgeCount, questionCount))
                         .font(.system(size: 11, weight: .regular))
                         .foregroundStyle(Color(hex: 0xACACAC))
                 }

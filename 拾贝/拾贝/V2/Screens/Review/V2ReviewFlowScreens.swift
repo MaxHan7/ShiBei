@@ -156,6 +156,7 @@ struct V2MultipleChoiceQuestionView: View {
     var onAnswerReady: () -> Void = {}
     let onContinue: () -> Void
     @Environment(\.v2ContentWidth) private var contentWidth
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         V2FlowScreen(
@@ -246,7 +247,7 @@ struct V2MultipleChoiceQuestionView: View {
                         multipleChoiceMascotImage
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("重新打开反馈")
+                    .accessibilityLabel(L10n.string("feedback.reopen", language: appLanguage))
                 } else {
                     multipleChoiceMascotImage
                 }
@@ -312,6 +313,7 @@ struct V2MatchingQuestionView: View {
     var onAnswerReady: () -> Void = {}
     let onContinue: () -> Void
     @Environment(\.v2ContentWidth) private var contentWidth
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         V2FlowScreen(
@@ -401,7 +403,7 @@ struct V2MatchingQuestionView: View {
                         matchingMascotImage
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("重新打开反馈")
+                    .accessibilityLabel(L10n.string("feedback.reopen", language: appLanguage))
                 } else {
                     matchingMascotImage
                 }
@@ -704,6 +706,7 @@ private struct V2UnitCompletionResultBanner: View {
     let gradeLabel: String
     let accuracyText: String
     @Environment(\.v2ContentWidth) private var contentWidth
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         let width = contentWidth
@@ -736,7 +739,7 @@ private struct V2UnitCompletionResultBanner: View {
                 .frame(width: 170, height: 31)
 
                 HStack(alignment: .lastTextBaseline, spacing: 3) {
-                    Text("本单元学习")
+                    Text(L10n.string("unit.summary.learning", language: appLanguage))
                         .font(V2Typography.caption)
                         .foregroundStyle(V2Color.topTitle)
 
@@ -744,7 +747,7 @@ private struct V2UnitCompletionResultBanner: View {
                         .font(.system(size: 17, weight: .bold))
                         .foregroundStyle(Color(hex: 0x788937))
 
-                    Text("正确率")
+                    Text(L10n.string("unit.summary.accuracy", language: appLanguage))
                         .font(V2Typography.caption)
                         .foregroundStyle(V2Color.topTitle)
                 }
@@ -871,13 +874,14 @@ private struct V2ChapterCompletionBottomLayer: View {
 private struct V2ChapterCompletionActionLayer: View {
     let onHome: () -> Void
     let onDetail: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         VStack(spacing: V2ChapterSummaryPageMetrics.detailTopGap) {
-            V2PrimaryActionButton(title: "返回主页", action: onHome)
+            V2PrimaryActionButton(title: L10n.string("navigation.home", language: appLanguage), action: onHome)
 
             Button(action: onDetail) {
-                Text("查看章节详情")
+                Text(L10n.string("chapter.detail.view", language: appLanguage))
                     .font(.system(size: 14, weight: .regular, design: .default))
                     .tracking(-0.24)
                     .foregroundStyle(Color(hex: 0x737946).opacity(0.55))
@@ -890,9 +894,15 @@ private struct V2ChapterCompletionActionLayer: View {
 
 private struct V2ChapterCompletionResultCard: View {
     let chapter: V2ReviewChapterData
+    @Environment(\.appLanguage) private var appLanguage
 
     private var statsText: String {
-        "共 \(chapter.units.count) 个核心知识点，\(chapter.units.reduce(0) { $0 + $1.questions.count })道题目"
+        L10n.format(
+            "chapter.summary.stats",
+            language: appLanguage,
+            chapter.units.count,
+            chapter.units.reduce(0) { $0 + $1.questions.count }
+        )
     }
 
     var body: some View {
@@ -908,7 +918,7 @@ private struct V2ChapterCompletionResultCard: View {
                 .frame(width: 137, height: 24)
                 .offset(x: 75, y: 19)
 
-            Text("章节完成")
+            Text(L10n.string("chapter.summary.completed", language: appLanguage))
                 .font(.system(size: 24, weight: .bold))
                 .foregroundStyle(Color(hex: 0xF0C559))
                 .multilineTextAlignment(.center)
@@ -923,7 +933,7 @@ private struct V2ChapterCompletionResultCard: View {
                 .frame(width: 164, height: 53)
                 .offset(x: 63, y: 35)
 
-            Text("在了解过hook的原理和用法之后，你的vibe coding能力又更上一层楼了！")
+            Text(L10n.string("chapter.summary.body", language: appLanguage))
                 .font(.system(size: 16, weight: .regular))
                 .foregroundStyle(V2Color.topTitle)
                 .multilineTextAlignment(.center)
@@ -1541,6 +1551,7 @@ private enum V2ChapterDetailHeroChipMetrics {
 private struct V2ChapterDetailSummaryCard: View {
     let summary: String
     @Environment(\.v2ContentWidth) private var contentWidth
+    @Environment(\.appLanguage) private var appLanguage
     private let contentLeading: CGFloat = V2ChapterDetailLayoutMetrics.cardContentLeading
 
     var body: some View {
@@ -1554,7 +1565,7 @@ private struct V2ChapterDetailSummaryCard: View {
                     .scaledToFit()
                     .frame(width: 23, height: 23)
 
-                Text("文章核心")
+                Text(L10n.string("chapter.detail.article_core", language: appLanguage))
                     .font(V2ChapterDetailTextMetrics.sectionTitleFont)
                     .foregroundStyle(V2Color.topTitle)
                     .frame(height: 28, alignment: .center)
@@ -1588,6 +1599,7 @@ private struct V2ChapterDetailKnowledgeCard: View {
     let onStartReview: (String) -> Void
     @State private var expandedUnitID: String?
     @Environment(\.v2ContentWidth) private var contentWidth
+    @Environment(\.appLanguage) private var appLanguage
     private let contentLeading: CGFloat = V2ChapterDetailLayoutMetrics.cardContentLeading
 
     var body: some View {
@@ -1602,11 +1614,11 @@ private struct V2ChapterDetailKnowledgeCard: View {
                     .frame(width: 23, height: 23)
 
                 HStack(alignment: .firstTextBaseline, spacing: 0) {
-                    Text("知识点")
+                    Text(L10n.string("global.knowledge_points", language: appLanguage))
                         .font(V2ChapterDetailTextMetrics.sectionTitleFont)
                         .foregroundStyle(V2Color.topTitle)
 
-                    Text("（\(count)）")
+                    Text(L10n.format("chapter.detail.knowledge_count", language: appLanguage, count))
                         .font(V2ChapterDetailTextMetrics.metadataFont)
                         .foregroundStyle(Color(hex: 0x878787))
                 }
@@ -1660,6 +1672,7 @@ private struct V2ChapterDetailKnowledgeRow: View {
     let isExpanded: Bool
     let width: CGFloat
     let onToggle: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         Button(action: onToggle) {
@@ -1698,7 +1711,11 @@ private struct V2ChapterDetailKnowledgeRow: View {
             .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(isExpanded ? "收起知识点详情" : "展开知识点详情")
+        .accessibilityLabel(
+            isExpanded
+                ? L10n.string("chapter.detail.knowledge.collapse", language: appLanguage)
+                : L10n.string("chapter.detail.knowledge.expand", language: appLanguage)
+        )
     }
 }
 
@@ -1724,6 +1741,7 @@ private struct V2ChapterDetailKnowledgeExpansionPanel: View {
     let actionTitle: String
     let width: CGFloat
     let action: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         let textWidth = width - 36
@@ -1762,7 +1780,7 @@ private struct V2ChapterDetailKnowledgeExpansionPanel: View {
         )
         .fixedSize(horizontal: false, vertical: true)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("知识点详情")
+        .accessibilityLabel(L10n.string("chapter.detail.knowledge.detail", language: appLanguage))
     }
 }
 
@@ -1885,6 +1903,7 @@ struct V2RecommendedArticleDetailView: View {
 
 private struct V2RecommendedArticleAddButton: View {
     let action: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         Button(action: action) {
@@ -1914,23 +1933,28 @@ private struct V2RecommendedArticleAddButton: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("添加为学习路径")
+        .accessibilityLabel(L10n.string("recommended.add.accessibility", language: appLanguage))
     }
 }
 
 private struct V2RecommendedArticleAddPopover: View {
     let isImporting: Bool
     let onGenerate: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         VStack(alignment: .leading, spacing: V2RecommendedArticleAddPopoverMetrics.contentSpacing) {
-            Text("将这篇好文生成学习路径？")
+            Text(L10n.string("recommended.add.prompt", language: appLanguage))
                 .font(V2Typography.bodyEmphasis)
                 .foregroundStyle(V2Color.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .center)
 
             Button(action: onGenerate) {
-                Text(isImporting ? "正在准备" : "开始生成")
+                Text(
+                    isImporting
+                        ? L10n.string("recommended.add.generating", language: appLanguage)
+                        : L10n.string("recommended.add.generate", language: appLanguage)
+                )
                     .font(V2Typography.bodyEmphasis)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -1960,7 +1984,7 @@ private struct V2RecommendedArticleAddPopover: View {
             .v2Shadow()
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("将这篇好文生成学习路径")
+        .accessibilityLabel(L10n.string("recommended.add.popover_accessibility", language: appLanguage))
     }
 }
 
