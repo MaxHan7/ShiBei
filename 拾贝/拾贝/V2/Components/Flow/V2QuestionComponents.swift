@@ -333,6 +333,10 @@ struct V2AnswerFeedbackPanel: View {
                     .font(.system(size: 14, weight: .regular))
                     .foregroundStyle(accent)
                     .frame(width: 30, height: 30)
+                    .frame(
+                        width: V2ResponsiveLayout.minimumTapHeight,
+                        height: V2ResponsiveLayout.minimumTapHeight
+                    )
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -438,7 +442,7 @@ private enum V2AnswerFeedbackPanelMetrics {
     static let textWidth: CGFloat = 322
     static let textToButtonGap: CGFloat = 25
     static let buttonWidth: CGFloat = 321
-    static let buttonHeight: CGFloat = 42
+    static let buttonHeight: CGFloat = V2ResponsiveLayout.minimumTapHeight
     static let buttonToSourceGap: CGFloat = 13
     static let sourceHeight: CGFloat = 26
     static let bottomInset: CGFloat = 22

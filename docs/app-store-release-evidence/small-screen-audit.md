@@ -50,3 +50,11 @@ Branch: codex/lean-high-value-generation-20260711
 - New placement uses a shared bottom safe-area action slot through `V2ScrollableFlowScreen`.
 - Compile verification: `build_sim` passed with no warnings after this change.
 - Device matrix visual verification: pending final simulator pass.
+
+### 2026-07-13: Question feedback panel small-screen safety
+
+- Multiple choice and matching feedback panels now reduce bottom lift on short screens instead of always using a 72pt lift.
+- Feedback close button hit area now uses the shared 44pt minimum tap target.
+- Feedback continue button height now uses the shared 44pt minimum tap target.
+- Compile verification: `build_sim` passed with no warnings after this change.
+- Device matrix visual verification: pending final simulator pass.

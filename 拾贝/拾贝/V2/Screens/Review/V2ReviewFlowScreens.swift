@@ -214,16 +214,19 @@ struct V2MultipleChoiceQuestionView: View {
             .frame(height: V2MultipleChoicePageMetrics.contentHeight, alignment: .top)
             .overlay(alignment: .bottom) {
                 if let selectedIndex = state.selectedIndex, state.feedbackPanelVisible {
-                    V2AnswerFeedbackPanel(
-                        text: question.feedback,
-                        isCorrect: selectedIndex == question.correctOptionIndex,
-                        onContinue: onContinue,
-                        onClose: { state.feedbackPanelVisible = false },
-                        onSource: onSource
-                    )
-                    .padding(.bottom, V2QuestionFeedbackMetrics.bottomLift)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .zIndex(10)
+                    GeometryReader { geometry in
+                        V2AnswerFeedbackPanel(
+                            text: question.feedback,
+                            isCorrect: selectedIndex == question.correctOptionIndex,
+                            onContinue: onContinue,
+                            onClose: { state.feedbackPanelVisible = false },
+                            onSource: onSource
+                        )
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                        .padding(.bottom, V2QuestionFeedbackMetrics.bottomLift(screenHeight: geometry.size.height))
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .zIndex(10)
+                    }
                 }
             }
         }
@@ -360,16 +363,19 @@ struct V2MatchingQuestionView: View {
             .frame(height: V2MatchingPageMetrics.contentHeight, alignment: .top)
             .overlay(alignment: .bottom) {
                 if isComplete, state.feedbackPanelVisible {
-                    V2AnswerFeedbackPanel(
-                        text: question.feedback,
-                        isCorrect: true,
-                        onContinue: onContinue,
-                        onClose: { state.feedbackPanelVisible = false },
-                        onSource: onSource
-                    )
-                    .padding(.bottom, V2QuestionFeedbackMetrics.bottomLift)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .zIndex(10)
+                    GeometryReader { geometry in
+                        V2AnswerFeedbackPanel(
+                            text: question.feedback,
+                            isCorrect: true,
+                            onContinue: onContinue,
+                            onClose: { state.feedbackPanelVisible = false },
+                            onSource: onSource
+                        )
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                        .padding(.bottom, V2QuestionFeedbackMetrics.bottomLift(screenHeight: geometry.size.height))
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .zIndex(10)
+                    }
                 }
             }
             .onChange(of: isComplete) { _, newValue in
@@ -581,7 +587,12 @@ private enum V2MatchingPageMetrics {
 }
 
 private enum V2QuestionFeedbackMetrics {
-    static let bottomLift: CGFloat = 72
+    static let compactBottomLift: CGFloat = 16
+    static let regularBottomLift: CGFloat = 72
+
+    static func bottomLift(screenHeight: CGFloat) -> CGFloat {
+        V2ResponsiveLayout.isShortScreen(screenHeight) ? compactBottomLift : regularBottomLift
+    }
 }
 
 private struct V2MatchingPromptCard: View {
