@@ -1586,24 +1586,20 @@ struct V2ProfileView: View {
 
 private struct V2RuntimeModeCard: View {
     @Binding var usesMockData: Bool
-    @AppStorage(AppLanguage.storageKey) private var selectedLanguageRawValue = AppLanguage.zhHans.rawValue
+    @Environment(\.appLanguage) private var appLanguage
     @Environment(\.v2ContentWidth) private var contentWidth
-
-    private var selectedLanguage: AppLanguage {
-        AppLanguage.stored(from: selectedLanguageRawValue)
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(L10n.string("debug.demo_data.title", language: selectedLanguage))
+                    Text(L10n.string("debug.demo_data.title", language: appLanguage))
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(V2Color.topTitle)
 
                     Text(usesMockData
-                         ? L10n.string("debug.demo_data.mock", language: selectedLanguage)
-                         : L10n.string("debug.demo_data.real", language: selectedLanguage))
+                         ? L10n.string("debug.demo_data.mock", language: appLanguage)
+                         : L10n.string("debug.demo_data.real", language: appLanguage))
                         .font(.system(size: 11, weight: .regular))
                         .foregroundStyle(Color(hex: 0x8B8B8B))
                 }
@@ -1615,7 +1611,7 @@ private struct V2RuntimeModeCard: View {
                     .tint(V2Color.primaryAction)
             }
 
-            Text(L10n.string("debug.demo_data.body", language: selectedLanguage))
+            Text(L10n.string("debug.demo_data.body", language: appLanguage))
                 .font(V2Typography.caption)
                 .foregroundStyle(Color(hex: 0x9A9A9A))
                 .lineSpacing(3)

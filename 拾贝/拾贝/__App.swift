@@ -18,6 +18,7 @@ struct __App: App {
             ContentView()
                 .environmentObject(store)
                 .environment(\.locale, Locale(identifier: appLanguage.localeIdentifier))
+                .environment(\.appLanguage, appLanguage)
                 .preferredColorScheme(.light)
         }
     }

@@ -5,7 +5,6 @@ import UIKit
 import UserNotifications
 
 struct V2ProfileHeaderCard: View {
-    @AppStorage(AppLanguage.storageKey) private var selectedLanguageRawValue = AppLanguage.zhHans.rawValue
     @Binding var name: String
     let reviewedCount: String
     let streakDays: String
@@ -13,11 +12,8 @@ struct V2ProfileHeaderCard: View {
     @Binding var selectedPresetAvatarName: String
     @State private var showsNameEditor = false
     @State private var draftName = ""
+    @Environment(\.appLanguage) private var appLanguage
     @Environment(\.v2ContentWidth) private var contentWidth
-
-    private var selectedLanguage: AppLanguage {
-        AppLanguage.stored(from: selectedLanguageRawValue)
-    }
 
     var body: some View {
         let width = contentWidth
@@ -76,16 +72,16 @@ struct V2ProfileHeaderCard: View {
 
             HStack(spacing: V2ProfileHeaderMetrics.statCardSpacing) {
                 V2ProfileStatCard(
-                    title: L10n.string("profile.stats.mastered", language: selectedLanguage),
+                    title: L10n.string("profile.stats.mastered", language: appLanguage),
                     value: reviewedCount,
-                    unit: L10n.string("profile.stats.points_unit", language: selectedLanguage),
+                    unit: L10n.string("profile.stats.points_unit", language: appLanguage),
                     assetName: "V2ProfileStatReviewed",
                     width: statCardWidth
                 )
                 V2ProfileStatCard(
-                    title: L10n.string("profile.stats.streak", language: selectedLanguage),
+                    title: L10n.string("profile.stats.streak", language: appLanguage),
                     value: streakDays,
-                    unit: L10n.string("profile.stats.days_unit", language: selectedLanguage),
+                    unit: L10n.string("profile.stats.days_unit", language: appLanguage),
                     assetName: "V2ProfileStatStreak",
                     width: statCardWidth
                 )
@@ -543,7 +539,6 @@ private enum V2ProfileStatMetrics {
 }
 
 struct V2ProfileSettingsCard: View {
-    @AppStorage(AppLanguage.storageKey) private var selectedLanguageRawValue = AppLanguage.zhHans.rawValue
     let account: AccountSnapshot?
     let isAccountLoading: Bool
     let accountMessage: String
@@ -551,6 +546,7 @@ struct V2ProfileSettingsCard: View {
     let onDeleteAccount: () async -> Void
     @State private var activeSheet: V2ProfileSettingsSheet?
     @State private var showsLanguageSheet = false
+    @Environment(\.appLanguage) private var appLanguage
     @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
@@ -559,8 +555,8 @@ struct V2ProfileSettingsCard: View {
                 showsLanguageSheet = true
             } label: {
                 V2ProfileSettingRow(
-                    title: L10n.string("profile.interface_language", language: selectedLanguage),
-                    subtitle: selectedLanguage.displayName(in: selectedLanguage),
+                    title: L10n.string("profile.interface_language", language: appLanguage),
+                    subtitle: appLanguage.displayName(in: appLanguage),
                     systemImageName: "globe.asia.australia.fill"
                 )
             }
@@ -569,7 +565,7 @@ struct V2ProfileSettingsCard: View {
                 activeSheet = .notifications
             } label: {
                 V2ProfileSettingRow(
-                    title: L10n.string("profile.notification_permission", language: selectedLanguage),
+                    title: L10n.string("profile.notification_permission", language: appLanguage),
                     assetName: "V2ProfileSettingNotification"
                 )
             }
@@ -578,7 +574,7 @@ struct V2ProfileSettingsCard: View {
                 activeSheet = .privacy
             } label: {
                 V2ProfileSettingRow(
-                    title: L10n.string("profile.privacy", language: selectedLanguage),
+                    title: L10n.string("profile.privacy", language: appLanguage),
                     assetName: "V2ProfileSettingPrivacy"
                 )
             }
@@ -587,7 +583,7 @@ struct V2ProfileSettingsCard: View {
                 activeSheet = .account
             } label: {
                 V2ProfileSettingRow(
-                    title: L10n.string("profile.account_info", language: selectedLanguage),
+                    title: L10n.string("profile.account_info", language: appLanguage),
                     assetName: "V2ProfileSettingAccount"
                 )
             }
@@ -620,9 +616,6 @@ struct V2ProfileSettingsCard: View {
         }
     }
 
-    private var selectedLanguage: AppLanguage {
-        AppLanguage.stored(from: selectedLanguageRawValue)
-    }
 }
 
 private struct V2ProfileLanguageSelectionSheet: View {
@@ -766,21 +759,17 @@ private struct V2ProfileSettingsSheetView: View {
     let accountMessage: String
     let onSignInWithApple: (Data?, Data?) async -> Void
     let onDeleteAccount: () async -> Void
-    @AppStorage(AppLanguage.storageKey) private var selectedLanguageRawValue = AppLanguage.zhHans.rawValue
+    @Environment(\.appLanguage) private var appLanguage
     @Environment(\.dismiss) private var dismiss
-
-    private var selectedLanguage: AppLanguage {
-        AppLanguage.stored(from: selectedLanguageRawValue)
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: V2ProfileSettingsSheetMetrics.sectionSpacing) {
-            V2ProfileSettingsSheetHeader(title: sheet.title(language: selectedLanguage)) {
+            V2ProfileSettingsSheetHeader(title: sheet.title(language: appLanguage)) {
                 dismiss()
             }
 
             VStack(alignment: .leading, spacing: V2ProfileSettingsSheetMetrics.paragraphSpacing) {
-                ForEach(sheet.paragraphs(language: selectedLanguage), id: \.self) { paragraph in
+                ForEach(sheet.paragraphs(language: appLanguage), id: \.self) { paragraph in
                     Text(paragraph)
                         .font(V2Typography.bodySmall)
                         .foregroundStyle(V2Color.textSecondary)
@@ -820,13 +809,9 @@ private struct V2ProfileAccountPanel: View {
     let message: String
     let onSignInWithApple: (Data?, Data?) async -> Void
     let onDeleteAccount: () async -> Void
-    @AppStorage(AppLanguage.storageKey) private var selectedLanguageRawValue = AppLanguage.zhHans.rawValue
+    @Environment(\.appLanguage) private var appLanguage
     @State private var localMessage = ""
     @State private var showsDeleteConfirmation = false
-
-    private var selectedLanguage: AppLanguage {
-        AppLanguage.stored(from: selectedLanguageRawValue)
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: V2ProfileSettingsSheetMetrics.permissionPanelSpacing) {
@@ -839,8 +824,8 @@ private struct V2ProfileAccountPanel: View {
                     )
 
                 Text(account == nil
-                     ? L10n.string("profile.account.anonymous", language: selectedLanguage)
-                     : L10n.string("profile.account.linked", language: selectedLanguage))
+                     ? L10n.string("profile.account.anonymous", language: appLanguage)
+                     : L10n.string("profile.account.linked", language: appLanguage))
                     .font(V2Typography.bodySmallEmphasis)
                     .foregroundStyle(V2Color.textPrimary)
 
@@ -848,8 +833,8 @@ private struct V2ProfileAccountPanel: View {
             }
 
             Text(account == nil
-                 ? L10n.string("profile.account.anonymous.body", language: selectedLanguage)
-                 : L10n.format("profile.account.id", language: selectedLanguage, String(account?.id.suffix(8) ?? "")))
+                 ? L10n.string("profile.account.anonymous.body", language: appLanguage)
+                 : L10n.format("profile.account.id", language: appLanguage, String(account?.id.suffix(8) ?? "")))
                 .font(V2Typography.labelRegular)
                 .foregroundStyle(V2Color.textMuted)
                 .lineSpacing(3)
@@ -871,8 +856,8 @@ private struct V2ProfileAccountPanel: View {
                     showsDeleteConfirmation = true
                 } label: {
                     Text(isLoading
-                         ? L10n.string("profile.account.processing", language: selectedLanguage)
-                         : L10n.string("profile.account.delete_data", language: selectedLanguage))
+                         ? L10n.string("profile.account.processing", language: appLanguage)
+                         : L10n.string("profile.account.delete_data", language: appLanguage))
                         .font(V2Typography.primaryButton)
                         .foregroundStyle(V2Color.surfaceCream)
                         .frame(maxWidth: .infinity)
@@ -884,18 +869,18 @@ private struct V2ProfileAccountPanel: View {
                 .disabled(isLoading)
                 .opacity(isLoading ? 0.72 : 1)
                 .confirmationDialog(
-                    L10n.string("profile.account.delete_data", language: selectedLanguage),
+                    L10n.string("profile.account.delete_data", language: appLanguage),
                     isPresented: $showsDeleteConfirmation,
                     titleVisibility: .visible
                 ) {
-                    Button(L10n.string("profile.account.delete_data", language: selectedLanguage), role: .destructive) {
+                    Button(L10n.string("profile.account.delete_data", language: appLanguage), role: .destructive) {
                         Task {
                             await onDeleteAccount()
                         }
                     }
-                    Button(L10n.string("global.cancel", language: selectedLanguage), role: .cancel) {}
+                    Button(L10n.string("global.cancel", language: appLanguage), role: .cancel) {}
                 } message: {
-                    Text(L10n.string("profile.account.delete_data.body", language: selectedLanguage))
+                    Text(L10n.string("profile.account.delete_data.body", language: appLanguage))
                 }
             }
 
@@ -920,7 +905,7 @@ private struct V2ProfileAccountPanel: View {
         switch result {
         case .success(let authorization):
             guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
-                localMessage = L10n.string("profile.account.apple_unrecognized", language: selectedLanguage)
+                localMessage = L10n.string("profile.account.apple_unrecognized", language: appLanguage)
                 return
             }
             Task {
@@ -930,7 +915,7 @@ private struct V2ProfileAccountPanel: View {
             if let authError = error as? ASAuthorizationError, authError.code == .canceled {
                 localMessage = ""
             } else {
-                localMessage = L10n.string("profile.account.apple_failed", language: selectedLanguage)
+                localMessage = L10n.string("profile.account.apple_failed", language: appLanguage)
             }
         }
     }
@@ -967,13 +952,9 @@ private struct V2ProfileSettingsSheetHeader: View {
 }
 
 private struct V2ProfileNotificationPermissionPanel: View {
-    @AppStorage(AppLanguage.storageKey) private var selectedLanguageRawValue = AppLanguage.zhHans.rawValue
+    @Environment(\.appLanguage) private var appLanguage
     @State private var status: UNAuthorizationStatus = .notDetermined
     @State private var isRequesting = false
-
-    private var selectedLanguage: AppLanguage {
-        AppLanguage.stored(from: selectedLanguageRawValue)
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: V2ProfileSettingsSheetMetrics.permissionPanelSpacing) {
@@ -1028,26 +1009,26 @@ private struct V2ProfileNotificationPermissionPanel: View {
     private var statusTitle: String {
         switch status {
         case .authorized, .provisional, .ephemeral:
-            L10n.string("profile.notifications.status.on", language: selectedLanguage)
+            L10n.string("profile.notifications.status.on", language: appLanguage)
         case .denied:
-            L10n.string("profile.notifications.status.off", language: selectedLanguage)
+            L10n.string("profile.notifications.status.off", language: appLanguage)
         case .notDetermined:
-            L10n.string("profile.notifications.status.not_determined", language: selectedLanguage)
+            L10n.string("profile.notifications.status.not_determined", language: appLanguage)
         @unknown default:
-            L10n.string("profile.notifications.status.unknown", language: selectedLanguage)
+            L10n.string("profile.notifications.status.unknown", language: appLanguage)
         }
     }
 
     private var statusDescription: String {
         switch status {
         case .authorized, .provisional, .ephemeral:
-            L10n.string("profile.notifications.status.on.body", language: selectedLanguage)
+            L10n.string("profile.notifications.status.on.body", language: appLanguage)
         case .denied:
-            L10n.string("profile.notifications.status.off.body", language: selectedLanguage)
+            L10n.string("profile.notifications.status.off.body", language: appLanguage)
         case .notDetermined:
-            L10n.string("profile.notifications.status.not_determined.body", language: selectedLanguage)
+            L10n.string("profile.notifications.status.not_determined.body", language: appLanguage)
         @unknown default:
-            L10n.string("profile.notifications.status.unknown.body", language: selectedLanguage)
+            L10n.string("profile.notifications.status.unknown.body", language: appLanguage)
         }
     }
 
@@ -1068,14 +1049,14 @@ private struct V2ProfileNotificationPermissionPanel: View {
         switch status {
         case .notDetermined:
             isRequesting
-                ? L10n.string("profile.notifications.enabling", language: selectedLanguage)
-                : L10n.string("profile.notifications.enable", language: selectedLanguage)
+                ? L10n.string("profile.notifications.enabling", language: appLanguage)
+                : L10n.string("profile.notifications.enable", language: appLanguage)
         case .authorized, .provisional, .ephemeral:
-            L10n.string("profile.notifications.open_settings", language: selectedLanguage)
+            L10n.string("profile.notifications.open_settings", language: appLanguage)
         case .denied:
-            L10n.string("profile.notifications.go_to_settings", language: selectedLanguage)
+            L10n.string("profile.notifications.go_to_settings", language: appLanguage)
         @unknown default:
-            L10n.string("profile.notifications.open_settings", language: selectedLanguage)
+            L10n.string("profile.notifications.open_settings", language: appLanguage)
         }
     }
 

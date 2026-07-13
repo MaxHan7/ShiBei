@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 enum AppLanguage: String, CaseIterable, Codable, Identifiable {
     case zhHans = "zh-Hans"
@@ -65,6 +66,17 @@ enum L10n {
 }
 
 private final class LocalizationBundleMarker {}
+
+private struct AppLanguageEnvironmentKey: EnvironmentKey {
+    static let defaultValue: AppLanguage = .zhHans
+}
+
+extension EnvironmentValues {
+    var appLanguage: AppLanguage {
+        get { self[AppLanguageEnvironmentKey.self] }
+        set { self[AppLanguageEnvironmentKey.self] = newValue }
+    }
+}
 
 extension AppTab {
     var titleKey: String {
