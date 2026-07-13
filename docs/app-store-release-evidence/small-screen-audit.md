@@ -58,3 +58,11 @@ Branch: codex/lean-high-value-generation-20260711
 - Feedback continue button height now uses the shared 44pt minimum tap target.
 - Compile verification: `build_sim` passed with no warnings after this change.
 - Device matrix visual verification: pending final simulator pass.
+
+### 2026-07-13: Upload and generation detail short-screen layout
+
+- Upload screen top spacing and card-to-action spacing now use responsive metrics on short screens.
+- Generating chapter detail and failure detail no longer force a 760pt content height; mascot/card positions now compact on short screens.
+- Updated upload text-change handling to the modern iOS `onChange` signature to keep the build warning-free.
+- Compile verification: `build_sim` passed with no warnings after this change.
+- Device matrix visual verification: pending final simulator pass.

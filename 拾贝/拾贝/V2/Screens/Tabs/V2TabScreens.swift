@@ -225,7 +225,10 @@ struct V2GeneratingChapterDetailView: View {
                         .renderingMode(.original)
                         .scaledToFit()
                         .frame(width: 275, height: 255)
-                        .position(x: geometry.size.width / 2 - 3, y: 146.5)
+                        .position(
+                            x: geometry.size.width / 2 - 3,
+                            y: V2GeneratingChapterDetailMetrics.mascotCenterY(screenHeight: geometry.size.height)
+                        )
                         .allowsHitTesting(false)
                         .zIndex(1)
 
@@ -237,12 +240,15 @@ struct V2GeneratingChapterDetailView: View {
                         onOpenChapter: onOpenChapter,
                         onDelete: onDelete
                     )
-                    .position(x: geometry.size.width / 2, y: 432.5)
+                    .position(
+                        x: geometry.size.width / 2,
+                        y: V2GeneratingChapterDetailMetrics.cardCenterY(screenHeight: geometry.size.height)
+                    )
                     .zIndex(2)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
-            .frame(height: 760)
+            .frame(minHeight: V2GeneratingChapterDetailMetrics.minimumContentHeight, alignment: .top)
         }
     }
 
@@ -265,6 +271,22 @@ struct V2GeneratingChapterDetailView: View {
             .opacity(0.52)
             .position(x: 37, y: 730)
             .allowsHitTesting(false)
+    }
+}
+
+private enum V2GeneratingChapterDetailMetrics {
+    static let minimumContentHeight: CGFloat = 560
+    static let regularMascotCenterY: CGFloat = 146.5
+    static let compactMascotCenterY: CGFloat = 116
+    static let regularCardCenterY: CGFloat = 432.5
+    static let compactCardCenterY: CGFloat = 356
+
+    static func mascotCenterY(screenHeight: CGFloat) -> CGFloat {
+        V2ResponsiveLayout.isShortScreen(screenHeight) ? compactMascotCenterY : regularMascotCenterY
+    }
+
+    static func cardCenterY(screenHeight: CGFloat) -> CGFloat {
+        V2ResponsiveLayout.isShortScreen(screenHeight) ? compactCardCenterY : regularCardCenterY
     }
 }
 
@@ -307,53 +329,60 @@ struct V2UploadView: View {
 
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "上传") {
-            ZStack(alignment: .top) {
-                V2UploadBackgroundDecorations()
-                    .allowsHitTesting(false)
+            GeometryReader { geometry in
+                ZStack(alignment: .top) {
+                    V2UploadBackgroundDecorations()
+                        .allowsHitTesting(false)
 
-                Color.clear
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        V2Keyboard.dismiss()
-                    }
-
-                VStack(spacing: V2UploadPageMetrics.verticalSpacing) {
-                    V2UploadMascotInputGroup(
-                        urlText: $sourceText,
-                        preflightState: preflightState,
-                        input: preflightInputKey
-                    )
-                        .padding(.top, V2UploadPageMetrics.groupTopPadding)
-
-                    V2PrimaryActionButton(
-                        title: primaryActionTitle,
-                        tone: canStartGeneration ? .normal : .disabled
-                    ) {
-                        guard canStartGeneration else {
-                            handleBlockedGenerateTap()
-                            return
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            V2Keyboard.dismiss()
                         }
-                        let trimmed = trimmedSourceText
-                        guard !trimmed.isEmpty else {
-                            validationMessage = "请先粘贴文章链接或正文"
-                            return
-                        }
-                        validationMessage = ""
-                        Task {
-                            await validateMetadataThenGenerate(trimmed)
-                        }
-                    }
 
-                    if !validationMessage.isEmpty {
-                        Text(validationMessage)
-                            .font(V2Typography.label)
-                            .foregroundStyle(V2Color.feedbackWrongBorder)
-                            .frame(maxWidth: .infinity, alignment: .center)
+                    VStack(spacing: V2UploadPageMetrics.verticalSpacing(screenHeight: geometry.size.height)) {
+                        V2UploadMascotInputGroup(
+                            urlText: $sourceText,
+                            preflightState: preflightState,
+                            input: preflightInputKey
+                        )
+                            .padding(.top, V2UploadPageMetrics.groupTopPadding(screenHeight: geometry.size.height))
+
+                        V2PrimaryActionButton(
+                            title: primaryActionTitle,
+                            tone: canStartGeneration ? .normal : .disabled
+                        ) {
+                            guard canStartGeneration else {
+                                handleBlockedGenerateTap()
+                                return
+                            }
+                            let trimmed = trimmedSourceText
+                            guard !trimmed.isEmpty else {
+                                validationMessage = "请先粘贴文章链接或正文"
+                                return
+                            }
+                            validationMessage = ""
+                            Task {
+                                await validateMetadataThenGenerate(trimmed)
+                            }
+                        }
+
+                        if !validationMessage.isEmpty {
+                            Text(validationMessage)
+                                .font(V2Typography.label)
+                                .foregroundStyle(V2Color.feedbackWrongBorder)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        }
                     }
                 }
+                .frame(
+                    maxWidth: .infinity,
+                    minHeight: V2UploadPageMetrics.contentHeight(screenHeight: geometry.size.height),
+                    alignment: .top
+                )
             }
-            .frame(minHeight: V2UploadPageMetrics.contentHeight, alignment: .top)
-            .onChange(of: sourceText) { newValue in
+            .frame(minHeight: V2UploadPageMetrics.minimumContentHeight, alignment: .top)
+            .onChange(of: sourceText) { _, newValue in
                 schedulePreflight(for: newValue)
             }
             .onDisappear {
@@ -726,10 +755,24 @@ private struct V2UploadBackgroundDecorations: View {
 }
 
 private enum V2UploadPageMetrics {
-    static let groupTopPadding: CGFloat = 72
+    static let minimumContentHeight: CGFloat = 500
+    static let regularGroupTopPadding: CGFloat = 72
+    static let compactGroupTopPadding: CGFloat = 32
     static let baseCardToActionSpacing: CGFloat = 55
-    static let verticalSpacing: CGFloat = baseCardToActionSpacing
-    static let contentHeight: CGFloat = 600
+    static let compactCardToActionSpacing: CGFloat = 36
+    static let regularContentHeight: CGFloat = 600
+
+    static func groupTopPadding(screenHeight: CGFloat) -> CGFloat {
+        V2ResponsiveLayout.isShortScreen(screenHeight) ? compactGroupTopPadding : regularGroupTopPadding
+    }
+
+    static func verticalSpacing(screenHeight: CGFloat) -> CGFloat {
+        V2ResponsiveLayout.isShortScreen(screenHeight) ? compactCardToActionSpacing : baseCardToActionSpacing
+    }
+
+    static func contentHeight(screenHeight: CGFloat) -> CGFloat {
+        V2ResponsiveLayout.isShortScreen(screenHeight) ? minimumContentHeight : regularContentHeight
+    }
 }
 
 private enum V2Keyboard {
@@ -1166,7 +1209,7 @@ struct V2GenerationFailureDetailView: View {
                         )
                         .position(
                             x: geometry.size.width / 2 + V2GenerationFailureDetailMetrics.mascotCenterXOffset,
-                            y: V2GenerationFailureDetailMetrics.mascotCenterY
+                            y: V2GenerationFailureDetailMetrics.mascotCenterY(screenHeight: geometry.size.height)
                         )
                         .zIndex(1)
 
@@ -1175,12 +1218,15 @@ struct V2GenerationFailureDetailView: View {
                         onSource: onSource,
                         onDelete: onDelete
                     )
-                        .position(x: geometry.size.width / 2, y: 402)
+                        .position(
+                            x: geometry.size.width / 2,
+                            y: V2GenerationFailureDetailMetrics.cardCenterY(screenHeight: geometry.size.height)
+                        )
                         .zIndex(2)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
-            .frame(height: 760)
+            .frame(minHeight: V2GenerationFailureDetailMetrics.minimumContentHeight, alignment: .top)
         }
     }
 
@@ -1207,10 +1253,22 @@ struct V2GenerationFailureDetailView: View {
 }
 
 private enum V2GenerationFailureDetailMetrics {
+    static let minimumContentHeight: CGFloat = 540
     static let mascotWidth: CGFloat = 188
     static let mascotHeight: CGFloat = 207
     static let mascotCenterXOffset: CGFloat = 3
-    static let mascotCenterY: CGFloat = 136
+    static let regularMascotCenterY: CGFloat = 136
+    static let compactMascotCenterY: CGFloat = 110
+    static let regularCardCenterY: CGFloat = 402
+    static let compactCardCenterY: CGFloat = 342
+
+    static func mascotCenterY(screenHeight: CGFloat) -> CGFloat {
+        V2ResponsiveLayout.isShortScreen(screenHeight) ? compactMascotCenterY : regularMascotCenterY
+    }
+
+    static func cardCenterY(screenHeight: CGFloat) -> CGFloat {
+        V2ResponsiveLayout.isShortScreen(screenHeight) ? compactCardCenterY : regularCardCenterY
+    }
 }
 
 private struct V2GenerationFailureDetailCard: View {
