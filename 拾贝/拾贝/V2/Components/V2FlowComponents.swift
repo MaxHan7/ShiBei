@@ -165,6 +165,90 @@ struct V2FlowScreen<Content: View>: View {
     }
 }
 
+struct V2BottomActionBar<Content: View>: View {
+    let bottomSafeArea: CGFloat
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        content()
+            .frame(maxWidth: V2Layout.primaryActionWidth)
+            .padding(.horizontal, V2ResponsiveLayout.bottomActionHorizontalPadding)
+            .padding(.top, V2Spacing.sm)
+            .padding(.bottom, V2ResponsiveLayout.bottomActionPadding(bottomSafeArea: bottomSafeArea))
+            .frame(maxWidth: .infinity)
+            .background(
+                LinearGradient(
+                    colors: [
+                        V2Color.pageGreenBackground.opacity(0),
+                        V2Color.pageGreenBackground.opacity(0.92),
+                        V2Color.pageGreenBackground
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .allowsHitTesting(false)
+            )
+    }
+}
+
+struct V2ScrollableFlowScreen<Content: View, BottomAction: View>: View {
+    let title: String
+    var titleFont: Font = V2Typography.pageTitle
+    var titleColor: Color = V2Color.topTitle
+    var backgroundColor: Color = V2Color.pageGreenBackground
+    var showSourceButton: Bool = false
+    var showFavoriteButton: Bool = false
+    var showDeleteButton: Bool = false
+    var isFavoriteSaved: Bool = false
+    let onBack: () -> Void
+    var onSource: () -> Void = {}
+    var onFavorite: () -> Void = {}
+    var onDelete: () -> Void = {}
+    @ViewBuilder let content: () -> Content
+    @ViewBuilder let bottomAction: () -> BottomAction
+
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .top) {
+                backgroundColor
+                    .ignoresSafeArea()
+
+                ScrollView(showsIndicators: false) {
+                    content()
+                        .frame(maxWidth: .infinity, alignment: .top)
+                        .padding(.top, V2Layout.topChromeReservedHeight)
+                        .padding(.bottom, V2ResponsiveLayout.scrollBottomPadding)
+                }
+
+                V2TopChrome {
+                    V2FlowTopBar(
+                        title: title,
+                        titleFont: titleFont,
+                        titleColor: titleColor,
+                        showSourceButton: showSourceButton,
+                        showFavoriteButton: showFavoriteButton,
+                        showDeleteButton: showDeleteButton,
+                        isFavoriteSaved: isFavoriteSaved,
+                        onBack: onBack,
+                        onSource: onSource,
+                        onFavorite: onFavorite,
+                        onDelete: onDelete
+                    )
+                }
+                .zIndex(20)
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                V2BottomActionBar(bottomSafeArea: geometry.safeAreaInsets.bottom) {
+                    bottomAction()
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .v2InteractiveBackSwipe(onBack: onBack)
+    }
+}
+
 private struct V2InteractiveBackSwipeModifier: ViewModifier {
     let onBack: () -> Void
     @State private var hasTriggeredBack = false

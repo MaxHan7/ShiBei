@@ -56,6 +56,27 @@ enum V2Layout {
     static let floatingActionTrailingInset: CGFloat = pageHorizontalInset + 4
 }
 
+enum V2ResponsiveLayout {
+    static let minimumTapHeight: CGFloat = 44
+    static let bottomActionHeight: CGFloat = 53
+    static let bottomActionHorizontalPadding: CGFloat = V2Layout.pageHorizontalInset
+    static let compactVerticalSpacing: CGFloat = V2Spacing.md
+    static let regularVerticalSpacing: CGFloat = V2Spacing.xl
+    static let scrollBottomPadding: CGFloat = 120
+
+    static func isShortScreen(_ height: CGFloat) -> Bool {
+        height <= 700
+    }
+
+    static func verticalSpacing(for height: CGFloat) -> CGFloat {
+        isShortScreen(height) ? compactVerticalSpacing : regularVerticalSpacing
+    }
+
+    static func bottomActionPadding(bottomSafeArea: CGFloat) -> CGFloat {
+        max(12, bottomSafeArea + 8)
+    }
+}
+
 enum V2Typography {
     // Screen-level chrome.
     static let screenTitle = Font.system(size: 22, weight: .bold, design: .default)
