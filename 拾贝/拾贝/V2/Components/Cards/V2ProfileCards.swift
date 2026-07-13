@@ -56,7 +56,7 @@ struct V2ProfileHeaderCard: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("编辑昵称")
+                .accessibilityLabel(L10n.string("profile.name.edit", language: appLanguage))
             }
             .frame(width: width - 48, alignment: .leading)
             .offset(x: V2ProfileHeaderMetrics.identityX, y: V2ProfileHeaderMetrics.identityY)
@@ -136,11 +136,12 @@ private struct V2ProfileNameEditSheet: View {
     let onCancel: () -> Void
     let onSave: () -> Void
     @FocusState private var isNameFocused: Bool
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         VStack(alignment: .leading, spacing: V2ProfileNameEditMetrics.sectionSpacing) {
             HStack {
-                Text("编辑昵称")
+                Text(L10n.string("profile.name.edit", language: appLanguage))
                     .font(V2Typography.cardTitle)
                     .foregroundStyle(V2Color.textPrimary)
 
@@ -158,10 +159,10 @@ private struct V2ProfileNameEditSheet: View {
                         .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("关闭昵称编辑")
+                .accessibilityLabel(L10n.string("profile.name.close_edit", language: appLanguage))
             }
 
-            TextField("输入昵称", text: $draftName)
+            TextField(L10n.string("profile.name.placeholder", language: appLanguage), text: $draftName)
                 .font(V2Typography.body)
                 .foregroundStyle(V2Color.textPrimary)
                 .textInputAutocapitalization(.never)
@@ -179,7 +180,7 @@ private struct V2ProfileNameEditSheet: View {
                 }
 
             Button(action: onSave) {
-                Text("保存")
+                Text(L10n.string("global.save", language: appLanguage))
                     .font(V2Typography.primaryButton)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -311,11 +312,12 @@ private struct V2ProfileAvatarSelectionSheet: View {
     @Binding var selectedPresetAvatarName: String
     @Binding var selectedPhotoItem: PhotosPickerItem?
     let onDismiss: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         VStack(alignment: .leading, spacing: V2ProfileAvatarMetrics.sheetSectionSpacing) {
             HStack {
-                Text("选择头像")
+                Text(L10n.string("profile.avatar.select", language: appLanguage))
                     .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(V2Color.textPrimary)
 
@@ -330,7 +332,7 @@ private struct V2ProfileAvatarSelectionSheet: View {
                         .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("关闭头像选择")
+                .accessibilityLabel(L10n.string("profile.avatar.close_select", language: appLanguage))
             }
 
             LazyVGrid(columns: V2ProfileAvatarMetrics.presetGridColumns, spacing: V2ProfileAvatarMetrics.presetGridSpacing) {
@@ -346,7 +348,9 @@ private struct V2ProfileAvatarSelectionSheet: View {
                         )
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("选择\(avatar.title)头像")
+                    .accessibilityLabel(
+                        L10n.format("profile.avatar.choose", language: appLanguage, avatar.title(language: appLanguage))
+                    )
                 }
             }
 
@@ -358,7 +362,7 @@ private struct V2ProfileAvatarSelectionSheet: View {
                 HStack(spacing: 10) {
                     Image(systemName: "photo")
                         .font(.system(size: 16, weight: .semibold))
-                    Text("从相册选择")
+                    Text(L10n.string("profile.avatar.photo_library", language: appLanguage))
                         .font(.system(size: 15, weight: .semibold))
                     Spacer()
                     Image(systemName: "chevron.right")
@@ -428,6 +432,10 @@ private struct V2ProfilePresetAvatar: Identifiable, CaseIterable {
         .init(id: "notes", title: "笔记", assetName: "V2ProfileAvatarPreset06"),
         .init(id: "book", title: "学习", assetName: "V2ProfileAvatarPreset07")
     ]
+
+    func title(language: AppLanguage) -> String {
+        L10n.string("profile.avatar.preset.\(id)", language: language)
+    }
 
     static func validAssetName(for storedAssetName: String) -> String {
         guard allCases.contains(where: { $0.assetName == storedAssetName }) else {
@@ -925,6 +933,7 @@ private struct V2ProfileAccountPanel: View {
 private struct V2ProfileSettingsSheetHeader: View {
     let title: String
     let onClose: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         HStack {
@@ -947,7 +956,7 @@ private struct V2ProfileSettingsSheetHeader: View {
                     .v2Shadow(V2Shadow.subtleGreen)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("关闭")
+            .accessibilityLabel(L10n.string("global.close", language: appLanguage))
         }
     }
 }

@@ -71,9 +71,10 @@ struct V2MaterialsView: View {
     let generatedChapter: V2ReviewChapterData?
     let openGeneratingChapter: (String?) -> Void
     let openChapter: (String) -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
-        V2TabScaffold(selectedTab: $selectedTab, title: "全部章节") {
+        V2TabScaffold(selectedTab: $selectedTab, title: L10n.string("materials.title", language: appLanguage)) {
             VStack(spacing: 16) {
                 ZStack(alignment: .topTrailing) {
                     V2GeneratedChaptersSummaryCard(count: generatedChapterCount)
@@ -854,6 +855,7 @@ struct V2DiscoverView: View {
     let articles: [V2RecommendedArticleItem]
     let openArticle: (V2RecommendedArticleItem) -> Void
     @State private var selectedFilterID = "all"
+    @Environment(\.appLanguage) private var appLanguage
 
     private var filteredArticles: [V2RecommendedArticleItem] {
         if selectedFilterID == "all" {
@@ -863,7 +865,7 @@ struct V2DiscoverView: View {
     }
 
     var body: some View {
-        V2TabScaffold(selectedTab: $selectedTab, title: "发现") {
+        V2TabScaffold(selectedTab: $selectedTab, title: L10n.string("tab.discover", language: appLanguage)) {
             VStack(alignment: .leading, spacing: 20) {
                 V2DiscoverHeroCard()
 
@@ -896,9 +898,10 @@ struct V2NotesView: View {
     let onOpenSavedQuestion: (Int) -> Void
     let onOpenBackendSavedQuestion: (String) -> Void
     @Environment(\.v2ContentWidth) private var contentWidth
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
-        V2TabScaffold(selectedTab: $selectedTab, title: "笔记") {
+        V2TabScaffold(selectedTab: $selectedTab, title: L10n.string("tab.notes", language: appLanguage)) {
             let width = contentWidth
 
             ZStack(alignment: .topLeading) {
@@ -1023,10 +1026,11 @@ struct V2NotificationView: View {
     let onBack: () -> Void
     let onOpenSuccess: (NotificationItem) -> Void
     let onOpenFailure: (NotificationItem) -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         V2FlowScreen(
-            title: "通知",
+            title: L10n.string("tab.notifications", language: appLanguage),
             onBack: onBack
         ) {
             V2NotificationScreenContent(
@@ -1212,15 +1216,16 @@ private struct V2NotificationDecorations: View {
 }
 
 struct V2GenerationFailureDetailView: View {
-    var title = "章节详情"
-    var failureReason = "当前链接正文提取失败，可能是网页暂时无法访问，或正文格式还不支持。"
+    var title: String?
+    var failureReason: String?
     let onBack: () -> Void
     let onSource: () -> Void
     let onDelete: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         V2FlowScreen(
-            title: title,
+            title: title ?? L10n.string("chapter.detail.title", language: appLanguage),
             onBack: onBack
         ) {
             GeometryReader { geometry in
@@ -1242,7 +1247,7 @@ struct V2GenerationFailureDetailView: View {
                         .zIndex(1)
 
                     V2GenerationFailureDetailCard(
-                        failureReason: failureReason,
+                        failureReason: failureReason ?? L10n.string("failure.default_reason", language: appLanguage),
                         onSource: onSource,
                         onDelete: onDelete
                     )
@@ -1304,6 +1309,7 @@ private struct V2GenerationFailureDetailCard: View {
     let onSource: () -> Void
     let onDelete: () -> Void
     @Environment(\.v2ContentWidth) private var cardWidth
+    @Environment(\.appLanguage) private var appLanguage
 
     private let failureAccent = Color(hex: 0xF69582)
     private let failureTitle = V2Color.topTitle
@@ -1334,7 +1340,7 @@ private struct V2GenerationFailureDetailCard: View {
                             height: V2GenerationStatusCardMetrics.iconSize
                         )
 
-                    Text("章节生成失败")
+                    Text(L10n.string("failure.title", language: appLanguage))
                         .font(V2Typography.cardTitleStandard)
                         .foregroundStyle(failureTitle)
                         .lineLimit(1)
@@ -1365,7 +1371,7 @@ private struct V2GenerationFailureDetailCard: View {
                 )
 
             Button(action: onDelete) {
-                Text("删除章节")
+                Text(L10n.string("chapter.delete", language: appLanguage))
                     .font(V2Typography.primaryButton)
                     .foregroundStyle(.white)
                     .frame(
@@ -1395,6 +1401,7 @@ private struct V2NotificationFailureSourceButton: View {
     let accent: Color
     let shadow: V2ShadowSpec
     let action: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         Button(action: action) {
@@ -1413,7 +1420,7 @@ private struct V2NotificationFailureSourceButton: View {
                 }
                 .frame(width: 34, height: 34)
 
-                Text("查看原文")
+                Text(L10n.string("source.view_original", language: appLanguage))
                     .font(V2Typography.labelRegular)
                     .foregroundStyle(Color(hex: 0x767676))
                     .lineLimit(1)
@@ -1435,7 +1442,7 @@ private struct V2NotificationFailureSourceButton: View {
             )
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("查看原文")
+        .accessibilityLabel(L10n.string("source.view_original", language: appLanguage))
     }
 }
 
@@ -1469,6 +1476,7 @@ private struct V2FailureSourceLinkGlyph: Shape {
 private struct V2NotificationFailureReasonCard: View {
     let reason: String
     let width: CGFloat
+    @Environment(\.appLanguage) private var appLanguage
 
     private let failureAccent = Color(hex: 0xF69582)
     private let failureTitle = V2Color.topTitle
@@ -1499,7 +1507,7 @@ private struct V2NotificationFailureReasonCard: View {
                 .position(x: 28.5, y: 59)
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("失败原因")
+                Text(L10n.string("failure.reason_title", language: appLanguage))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(failureTitle)
 
@@ -1536,9 +1544,10 @@ struct V2ProfileView: View {
     let onSignInWithApple: (Data?, Data?) async -> Void
     let onDeleteAccount: () async -> Void
     let onBack: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
-        V2FlowScreen(title: "我的", onBack: onBack) {
+        V2FlowScreen(title: L10n.string("profile.title", language: appLanguage), onBack: onBack) {
             ZStack {
                 GeometryReader { geometry in
                     Image("V2BgDecoLeftHillPlant")

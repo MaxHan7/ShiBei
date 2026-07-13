@@ -69,6 +69,7 @@ struct V2RootView: View {
 
     private let apiClient: APIClient
     private let allowsMockDataToggle: Bool
+    @Environment(\.appLanguage) private var appLanguage
 
     init(apiClient: APIClient = APIClient(), allowsMockDataToggle: Bool? = nil) {
         self.apiClient = apiClient
@@ -122,15 +123,15 @@ struct V2RootView: View {
         .task(id: usesFixtures) {
             await runStartupSequence()
         }
-        .alert("删除章节", isPresented: $showsDeleteChapterConfirmation) {
-            Button("取消", role: .cancel) {}
-            Button("删除", role: .destructive) {
+        .alert(L10n.string("chapter.delete", language: appLanguage), isPresented: $showsDeleteChapterConfirmation) {
+            Button(L10n.string("global.cancel", language: appLanguage), role: .cancel) {}
+            Button(L10n.string("global.delete", language: appLanguage), role: .destructive) {
                 Task {
                     await deleteSelectedBackendChapter()
                 }
             }
         } message: {
-            Text("删除后，这个章节和它的生成任务都会被移除。")
+            Text(L10n.string("chapter.delete.confirm_body", language: appLanguage))
         }
         .sheet(item: $pendingAIProcessingConsentSourceText) { pendingSourceText in
             V2AIProcessingConsentSheet(
@@ -1124,9 +1125,9 @@ struct V2RootView: View {
               backendChapter(for: chapterID)?.status == "completed",
               let session = reviewSession(for: chapterID),
               session.completedAt == nil else {
-            return "开始学习"
+            return L10n.string("review.start_learning", language: appLanguage)
         }
-        return "继续学习"
+        return L10n.string("review.continue_learning", language: appLanguage)
     }
 
     private var activeHomeData: V2HomeData {
@@ -1319,24 +1320,26 @@ struct V2RootView: View {
         if !generationState.errorText.isEmpty {
             return generationState.errorText
         }
-        return backendChapter?.progress?.displayTextOrFallback ?? "正在提交生成任务..."
+        return backendChapter?.progress?.displayTextOrFallback(language: appLanguage)
+            ?? L10n.string("generation.progress.submitting", language: appLanguage)
     }
 
     private var generatingChapterSourceLabel: String {
-        if let sourceLabel = backendChapter?.sourceLabel {
+        if let sourceLabel = backendChapter?.sourceLabel(language: appLanguage) {
             return sourceLabel
         }
         if !generationState.pendingOriginalSourceURLString.isEmpty {
             return V2BackendChapter.sourceLabel(
                 type: nil,
                 platform: nil,
-                url: generationState.pendingOriginalSourceURLString
+                url: generationState.pendingOriginalSourceURLString,
+                language: appLanguage
             )
         }
         if let pendingChapter = backendChapters.first(where: { !isCompletedGenerationChapter($0) }) {
-            return pendingChapter.sourceLabel
+            return pendingChapter.sourceLabel(language: appLanguage)
         }
-        return V2BackendChapter.sourceLabel(type: nil, platform: nil, url: nil)
+        return V2BackendChapter.sourceLabel(type: nil, platform: nil, url: nil, language: appLanguage)
     }
 
     private var activeGenerationProgress: Double {
@@ -1370,7 +1373,7 @@ struct V2RootView: View {
             ?? backendChapter?.progress?.failureMessage
             ?? generationState.errorText
         guard !reason.isEmpty else {
-            return "生成失败，请删除后重新上传。"
+            return L10n.string("failure.retry_after_delete", language: appLanguage)
         }
         return userFacingGenerationFailureReason(reason)
     }
@@ -1381,7 +1384,7 @@ struct V2RootView: View {
             ?? chapter?.progress?.failureMessage
             ?? (backendChapter?.id == chapterID ? generationState.errorText : "")
         guard !reason.isEmpty else {
-            return "生成失败，请删除后重新上传。"
+            return L10n.string("failure.retry_after_delete", language: appLanguage)
         }
         return userFacingGenerationFailureReason(reason)
     }
@@ -1401,16 +1404,16 @@ struct V2RootView: View {
             "deepseek_api_key"
         ]
         if internalMarkers.contains(where: { lowercasedReason.contains($0) }) {
-            return "生成时遇到结构处理异常。可以删除章节后重新生成。"
+            return L10n.string("failure.structural", language: appLanguage)
         }
         if lowercasedReason.contains("timeout") || reason.contains("超时") {
-            return "生成服务响应超时，请稍后重试。"
+            return L10n.string("failure.timeout", language: appLanguage)
         }
         if reason.contains("HTTP 403") || reason.contains("HTTP 401") {
-            return "这个链接暂时无法公开访问。可以换一个链接，或稍后重试。"
+            return L10n.string("failure.source_forbidden", language: appLanguage)
         }
         if reason.contains("HTTP 404") {
-            return "没有找到这篇文章。可以检查链接是否正确。"
+            return L10n.string("failure.source_not_found", language: appLanguage)
         }
         return reason
     }
@@ -1583,7 +1586,7 @@ struct V2RootView: View {
             await MainActor.run {
                 generationPollingTask = nil
                 generationState.showsChapterCard = true
-                generationState.errorText = "视频还在处理中，可以稍后回到材料页查看结果。"
+                generationState.errorText = L10n.string("failure.video_processing", language: appLanguage)
             }
         }
     }
@@ -1628,7 +1631,7 @@ struct V2RootView: View {
         guard let identityTokenData,
               let identityToken = String(data: identityTokenData, encoding: .utf8),
               !identityToken.isEmpty else {
-            accountMessage = "Apple 登录没有返回有效凭证，请重试。"
+            accountMessage = L10n.string("profile.account.apple_missing_credential", language: appLanguage)
             return
         }
         let authorizationCode = authorizationCodeData.flatMap { String(data: $0, encoding: .utf8) }
@@ -1637,10 +1640,13 @@ struct V2RootView: View {
         do {
             let response = try await apiClient.signInWithApple(identityToken: identityToken, authorizationCode: authorizationCode)
             account = response.account
-            accountMessage = "已绑定 Apple 账号。"
+            accountMessage = L10n.string("profile.account.apple_bound", language: appLanguage)
             await refreshBackendContentAfterAccountChange()
         } catch {
-            accountMessage = userFacingErrorMessage(error, fallback: "Apple 登录失败，请稍后重试。")
+            accountMessage = userFacingErrorMessage(
+                error,
+                fallback: L10n.string("profile.account.apple_failed", language: appLanguage)
+            )
         }
         isAccountLoading = false
     }
@@ -1652,10 +1658,13 @@ struct V2RootView: View {
         do {
             _ = try await apiClient.deleteAccount()
             account = nil
-            accountMessage = "账号数据已删除，当前设备会继续以匿名模式使用。"
+            accountMessage = L10n.string("profile.account.deleted", language: appLanguage)
             await refreshBackendContentAfterAccountChange()
         } catch {
-            accountMessage = userFacingErrorMessage(error, fallback: "删除账号失败，请稍后重试。")
+            accountMessage = userFacingErrorMessage(
+                error,
+                fallback: L10n.string("profile.account.delete_failed", language: appLanguage)
+            )
         }
         isAccountLoading = false
     }
@@ -2900,11 +2909,12 @@ private enum V2RecommendedArticleSimulationTimeline {
 
 private struct V2MissingRouteView: View {
     let onBack: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
-        V2FlowScreen(title: "页面暂不可用", onBack: onBack) {
+        V2FlowScreen(title: L10n.string("missing_route.title", language: appLanguage), onBack: onBack) {
             V2InfoCard {
-                Text("页面数据暂时没有同步完成，请返回后重试。")
+                Text(L10n.string("missing_route.body", language: appLanguage))
                     .font(V2Typography.body)
                     .foregroundStyle(V2Color.textSecondary)
             }

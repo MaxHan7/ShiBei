@@ -69,6 +69,7 @@ struct V2ProfileSettingRow: View {
 struct V2UnitOverviewBoardCard: View {
     let overview: String
     @Environment(\.v2ContentWidth) private var contentWidth
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         let width = contentWidth
@@ -92,7 +93,7 @@ struct V2UnitOverviewBoardCard: View {
                 .zIndex(1)
 
             VStack(alignment: .leading, spacing: V2UnitOverviewBoardMetrics.labelBottomSpacing) {
-                Text("核心知识点：")
+                Text(L10n.string("unit.overview.core_point", language: appLanguage))
                     .font(V2UnitOverviewBoardMetrics.bodyFont)
                     .foregroundStyle(V2Color.topTitle)
 

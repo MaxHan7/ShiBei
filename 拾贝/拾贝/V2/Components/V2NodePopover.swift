@@ -5,6 +5,7 @@ struct V2NodePopover: View {
     let pointerX: CGFloat
     let showsActionButton: Bool
     let action: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         VStack(spacing: 0) {
@@ -16,7 +17,11 @@ struct V2NodePopover: View {
 
                 if showsActionButton {
                     Button(action: action) {
-                        Text(node.kind == .start ? "开始学习" : "继续学习")
+                        Text(
+                            node.kind == .start
+                                ? L10n.string("review.start_learning", language: appLanguage)
+                                : L10n.string("review.continue_learning", language: appLanguage)
+                        )
                             .font(V2Typography.bodyEmphasis)
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)

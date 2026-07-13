@@ -105,69 +105,73 @@ struct V2BackendGenerationProgress: Decodable, Equatable {
     }
 
     var displayTextOrFallback: String {
+        displayTextOrFallback(language: .zhHans)
+    }
+
+    func displayTextOrFallback(language: AppLanguage) -> String {
         if let mappedText = userFacingStageText {
-            return mappedText
+            return mappedText(language)
         }
         if let displayText, !displayText.isEmpty {
             return displayText.v2TruncatedProgressText(maxCharacters: 12)
         }
         switch status {
-        case "completed": return "生成完成"
-        case "failed": return "生成失败"
-        default: return "正在生成"
+        case "completed": return L10n.string("generation.progress.completed", language: language)
+        case "failed": return L10n.string("generation.progress.failed", language: language)
+        default: return L10n.string("generation.progress.generating", language: language)
         }
     }
 
-    private var userFacingStageText: String? {
+    private var userFacingStageText: ((AppLanguage) -> String)? {
         switch status {
         case "completed":
-            return "生成完成"
+            return { L10n.string("generation.progress.completed", language: $0) }
         case "failed":
-            return "生成失败"
+            return { L10n.string("generation.progress.failed", language: $0) }
         case "retrying":
-            return "正在重试生成"
+            return { L10n.string("generation.progress.retrying", language: $0) }
         default:
             break
         }
 
         switch stage {
         case "accepted":
-            return "准备生成"
+            return { L10n.string("generation.progress.accepted", language: $0) }
         case "extracting_source":
-            return "正在提取原文"
+            return { L10n.string("generation.progress.extracting_source", language: $0) }
         case "planning_review_path":
-            return "正在分析文章"
+            return { L10n.string("generation.progress.planning", language: $0) }
         case "mapping_knowledge":
-            return "正在整理知识点"
+            return { L10n.string("generation.progress.knowledge", language: $0) }
         case "planning_practice":
-            return "正在设计练习"
+            return { L10n.string("generation.progress.practice", language: $0) }
         case "generating_questions":
-            return "正在生成题目"
+            return { L10n.string("generation.progress.questions", language: $0) }
         case "generating_unit_copy", "finalizing":
-            return "正在整理结果"
+            return { L10n.string("generation.progress.finalizing", language: $0) }
         case "retry_wait":
-            return "正在重试生成"
+            return { L10n.string("generation.progress.retrying", language: $0) }
         default:
             break
         }
 
         switch stageGroup {
         case "intake":
-            return "准备生成"
+            return { L10n.string("generation.progress.accepted", language: $0) }
         case "source":
-            return "正在提取原文"
+            return { L10n.string("generation.progress.extracting_source", language: $0) }
         case "planning":
-            return "正在分析文章"
+            return { L10n.string("generation.progress.planning", language: $0) }
         case "knowledge":
-            return "正在整理知识点"
+            return { L10n.string("generation.progress.knowledge", language: $0) }
         case "practice":
-            return "正在设计练习"
+            return { L10n.string("generation.progress.practice", language: $0) }
         case "questions":
-            return "正在生成题目"
+            return { L10n.string("generation.progress.questions", language: $0) }
         case "copy", "saving":
-            return "正在整理结果"
+            return { L10n.string("generation.progress.finalizing", language: $0) }
         case "retry":
-            return "正在重试生成"
+            return { L10n.string("generation.progress.retrying", language: $0) }
         default:
             return nil
         }
@@ -477,30 +481,39 @@ extension V2BackendChapter {
     }
 
     var sourceLabel: String {
+        sourceLabel(language: .zhHans)
+    }
+
+    func sourceLabel(language: AppLanguage) -> String {
         let sourceURL = Self.firstNonEmpty(source?.url, source?.rawInput)
         return Self.sourceLabel(
             type: source?.type,
             platform: source?.platform,
-            url: sourceURL
+            url: sourceURL,
+            language: language
         )
     }
 
     static func sourceLabel(type: String?, platform: String?, url: String?) -> String {
+        sourceLabel(type: type, platform: platform, url: url, language: .zhHans)
+    }
+
+    static func sourceLabel(type: String?, platform: String?, url: String?, language: AppLanguage) -> String {
         if isWechatSource(type: type, url: url) {
-            return "微信公众号"
+            return L10n.string("source.wechat_article", language: language)
         }
 
         let normalizedType = type?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let normalizedPlatform = normalizedVideoPlatform(platform) ?? inferredVideoPlatform(from: url)
         if normalizedType == "video_link" || normalizedPlatform != nil {
-            return videoSourceLabel(for: normalizedPlatform)
+            return videoSourceLabel(for: normalizedPlatform, language: language)
         }
 
         if normalizedType == "article_link" || isHTTPURL(url) {
-            return "网页文章"
+            return L10n.string("source.article_link", language: language)
         }
 
-        return "粘贴文字"
+        return L10n.string("source.text", language: language)
     }
 
     private var isWechatSource: Bool {
@@ -519,21 +532,25 @@ extension V2BackendChapter {
     }
 
     private static func videoSourceLabel(for platform: String?) -> String {
+        videoSourceLabel(for: platform, language: .zhHans)
+    }
+
+    private static func videoSourceLabel(for platform: String?, language: AppLanguage) -> String {
         switch platform {
         case "douyin":
-            return "抖音视频"
+            return L10n.string("source.video.douyin", language: language)
         case "xiaohongshu":
-            return "小红书视频"
+            return L10n.string("source.video.xiaohongshu", language: language)
         case "youtube":
-            return "YouTube视频"
+            return L10n.string("source.video.youtube", language: language)
         case "bilibili":
-            return "B站视频"
+            return L10n.string("source.video.bilibili", language: language)
         case "direct_video_file":
-            return "视频文件"
+            return L10n.string("source.video.file", language: language)
         case "generic_web":
-            return "网页视频"
+            return L10n.string("source.video.web", language: language)
         default:
-            return "视频"
+            return L10n.string("source.video", language: language)
         }
     }
 

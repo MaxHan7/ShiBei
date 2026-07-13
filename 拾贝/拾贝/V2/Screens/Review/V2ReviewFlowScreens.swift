@@ -5,9 +5,10 @@ struct V2ChapterOverviewView: View {
     let chapter: V2ReviewChapterData
     let onBack: () -> Void
     let onContinue: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
-        V2ScrollableFlowScreen(title: "章节概要", onBack: onBack) {
+        V2ScrollableFlowScreen(title: L10n.string("chapter.overview.title", language: appLanguage), onBack: onBack) {
             ZStack(alignment: .top) {
                 Image("V2SummaryMascotBodyLayer")
                     .resizable()
@@ -39,7 +40,7 @@ struct V2ChapterOverviewView: View {
             .frame(maxWidth: .infinity)
             .frame(height: V2ChapterOverviewPageMetrics.contentHeight, alignment: .top)
         } bottomAction: {
-            V2PrimaryActionButton(title: "继续", action: onContinue)
+            V2PrimaryActionButton(title: L10n.string("global.continue", language: appLanguage), action: onContinue)
         }
     }
 }
@@ -98,6 +99,7 @@ struct V2UnitOverviewView: View {
     let progress: (current: Int, total: Int)
     let onBack: () -> Void
     let onContinue: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         V2ScrollableFlowScreen(title: unitTitle, onBack: onBack) {
@@ -130,7 +132,7 @@ struct V2UnitOverviewView: View {
             .frame(maxWidth: .infinity)
             .frame(height: V2UnitOverviewPageMetrics.contentHeight, alignment: .top)
         } bottomAction: {
-            V2PrimaryActionButton(title: "继续", action: onContinue)
+            V2PrimaryActionButton(title: L10n.string("global.continue", language: appLanguage), action: onContinue)
         }
     }
 }
@@ -627,6 +629,7 @@ struct V2UnitSummaryView: View {
     let unit: V2ReviewUnitData
     let onBack: () -> Void
     let onContinue: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         V2ScrollableFlowScreen(title: "", onBack: onBack) {
@@ -655,7 +658,7 @@ struct V2UnitSummaryView: View {
             .frame(maxWidth: .infinity)
             .frame(height: V2UnitSummaryPageMetrics.contentHeight, alignment: .top)
         } bottomAction: {
-            V2PrimaryActionButton(title: "继续", action: onContinue)
+            V2PrimaryActionButton(title: L10n.string("global.continue", language: appLanguage), action: onContinue)
         }
     }
 }
@@ -669,6 +672,7 @@ private enum V2UnitSummaryPageMetrics {
 
 private struct V2UnitCompletionHero: View {
     let unit: V2ReviewUnitData
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -680,7 +684,10 @@ private struct V2UnitCompletionHero: View {
                 .offset(x: V2UnitCompletionHeroMetrics.mascotX, y: V2UnitCompletionHeroMetrics.mascotY)
                 .zIndex(0)
 
-            V2UnitCompletionResultBanner(gradeLabel: "烂熟于心", accuracyText: "100%")
+            V2UnitCompletionResultBanner(
+                gradeLabel: L10n.string("unit.summary.grade.mastered", language: appLanguage),
+                accuracyText: "100%"
+            )
                 .offset(y: V2UnitCompletionHeroMetrics.resultCardY)
                 .zIndex(1)
 
@@ -1104,6 +1111,7 @@ private struct V2SourceArticleBody: View {
 private struct V2SourceArticleBlockView: View {
     let block: V2SourceArticleBlock
     let isHighlighted: Bool
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         if isHighlighted {
@@ -1122,8 +1130,10 @@ private struct V2SourceArticleBlockView: View {
 
     @ViewBuilder
     private var blockContent: some View {
-        VStack(alignment: .leading, spacing: block.videoMetadataText == nil ? 0 : 7) {
-            if let metadataText = block.videoMetadataText {
+        let metadataText = block.videoMetadataText(language: appLanguage)
+
+        VStack(alignment: .leading, spacing: metadataText == nil ? 0 : 7) {
+            if let metadataText {
                 Text(metadataText)
                     .font(V2Typography.captionEmphasis)
                     .foregroundStyle(V2Color.textMuted)
@@ -1172,9 +1182,9 @@ private struct V2SourceArticleBlockView: View {
 }
 
 private extension V2SourceArticleBlock {
-    var videoMetadataText: String? {
+    func videoMetadataText(language: AppLanguage) -> String? {
         let timestamp = timestampText
-        let role = sourceRoleLabel
+        let role = sourceRoleLabel(language: language)
         if let timestamp, let role {
             return "\(timestamp) · \(role)"
         }
@@ -1192,17 +1202,17 @@ private extension V2SourceArticleBlock {
         return start
     }
 
-    private var sourceRoleLabel: String? {
+    private func sourceRoleLabel(language: AppLanguage) -> String? {
         guard let sourceRole, !sourceRole.isEmpty else {
             return nil
         }
         switch sourceRole {
         case "transcript", "subtitle", "asr":
-            return "字幕"
+            return L10n.string("source.role.transcript", language: language)
         case "visual", "screen", "frame":
-            return "画面"
+            return L10n.string("source.role.visual", language: language)
         case "description", "caption":
-            return "文案"
+            return L10n.string("source.role.caption", language: language)
         default:
             return nil
         }
@@ -1224,6 +1234,7 @@ struct V2ChapterDetailView: View {
     let onStartUnitReview: (String) -> Void
     let onSource: () -> Void
     let onDelete: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     private var totalQuestionCount: Int {
         chapter.units.reduce(0) { $0 + $1.questions.count }
@@ -1251,7 +1262,7 @@ struct V2ChapterDetailView: View {
 
     var body: some View {
         V2FlowScreen(
-            title: "章节详情",
+            title: L10n.string("chapter.detail.title", language: appLanguage),
             showDeleteButton: true,
             onBack: onBack,
             onDelete: onDelete
@@ -1377,6 +1388,7 @@ private struct V2ChapterDetailHeroCard: View {
     let onSource: () -> Void
     let onStartReview: () -> Void
     @Environment(\.v2ContentWidth) private var contentWidth
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         let width = contentWidth
@@ -1412,7 +1424,7 @@ private struct V2ChapterDetailHeroCard: View {
                 )
 
                 V2ChapterDetailHeroActionButton(
-                    title: "查看原文",
+                    title: L10n.string("source.view_original", language: appLanguage),
                     iconName: "V2ChapterDetailLinkActionIcon",
                     width: V2ChapterDetailLayoutMetrics.heroSourceChipWidth,
                     action: onSource
@@ -1492,6 +1504,7 @@ private struct V2ChapterDetailHeroInfoChip: View {
     let title: String
     let iconName: String
     var width: CGFloat? = nil
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         V2ChapterDetailHeroActionContent(
@@ -1499,7 +1512,7 @@ private struct V2ChapterDetailHeroInfoChip: View {
             iconName: iconName,
             width: width
         )
-            .accessibilityLabel("原文作者：\(title)")
+            .accessibilityLabel(L10n.format("source.author.accessibility", language: appLanguage, title))
     }
 }
 
@@ -1806,6 +1819,7 @@ struct V2RecommendedArticleDetailView: View {
     let onGenerate: () -> Void
     @State private var showsAddPopover = false
     @Environment(\.openURL) private var openURL
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -1842,7 +1856,11 @@ struct V2RecommendedArticleDetailView: View {
                         VStack(spacing: 14) {
                             ProgressView()
                                 .tint(V2Color.primaryAction)
-                            Text(isLoading ? "正在加载好文" : "这篇好文暂时不可用")
+                            Text(
+                                isLoading
+                                    ? L10n.string("recommended.detail.loading", language: appLanguage)
+                                    : L10n.string("recommended.detail.unavailable", language: appLanguage)
+                            )
                                 .font(V2Typography.body)
                                 .foregroundStyle(V2Color.topTitle)
                         }
