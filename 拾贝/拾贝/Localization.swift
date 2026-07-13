@@ -4,6 +4,12 @@ enum AppLanguage: String, CaseIterable, Codable, Identifiable {
     case zhHans = "zh-Hans"
     case en = "en"
 
+    static let storageKey = "appLanguage"
+
+    static func stored(from rawValue: String) -> AppLanguage {
+        AppLanguage(rawValue: rawValue) ?? .zhHans
+    }
+
     var id: String { rawValue }
 
     var localeIdentifier: String {
@@ -20,6 +26,15 @@ enum AppLanguage: String, CaseIterable, Codable, Identifiable {
             L10n.string("language.zh_hans", language: language)
         case .en:
             L10n.string("language.en", language: language)
+        }
+    }
+
+    func interfaceSubtitle(in language: AppLanguage) -> String {
+        switch self {
+        case .zhHans:
+            L10n.string("language.zh_hans.subtitle", language: language)
+        case .en:
+            L10n.string("language.en.subtitle", language: language)
         }
     }
 }

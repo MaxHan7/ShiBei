@@ -49,7 +49,6 @@ final class AppStore: ObservableObject {
     private let localAPINotificationService: LocalAPINotificationService
     private static let dataModeKey = "appDataMode"
     private let cloudAPIBaseURLKey = "cloudAPIBaseURLString"
-    private let appLanguageKey = "appLanguage"
     private let favoriteQuestionsKey = "favoriteQuestions"
     private let deviceIdentityStore: DeviceIdentityStore
     private var generationPollTasks: [String: Task<Void, Never>] = [:]
@@ -93,7 +92,7 @@ final class AppStore: ObservableObject {
         localAPINotificationService = LocalAPINotificationService(apiClient: self.apiClient)
         anonymousDeviceId = deviceId
         favoriteQuestions = Self.loadFavoriteQuestions(key: favoriteQuestionsKey)
-        if let savedLanguage = UserDefaults.standard.string(forKey: appLanguageKey),
+        if let savedLanguage = UserDefaults.standard.string(forKey: AppLanguage.storageKey),
            let language = AppLanguage(rawValue: savedLanguage) {
             appLanguage = language
         }
@@ -118,7 +117,7 @@ final class AppStore: ObservableObject {
 
     func setAppLanguage(_ language: AppLanguage) {
         appLanguage = language
-        UserDefaults.standard.set(language.rawValue, forKey: appLanguageKey)
+        UserDefaults.standard.set(language.rawValue, forKey: AppLanguage.storageKey)
         dataSourceMessage = dataMode == .mock ? localized("debug.message.mock_ready") : localized("debug.message.sync_complete")
         Task {
             await syncPushTokenIfAuthorized()
