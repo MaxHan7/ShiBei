@@ -78,6 +78,8 @@ Install result: passed.
 
 Launch result: blocked by Simulator/SpringBoard before the App UI appeared.
 
+The same launch denial reproduced on the iOS 18.5 `iPhone 16 Pro` simulator (`558A46E6-BC13-44AD-A9E1-454E149AB421`), so this appears to be a local simulator foreground-launch issue rather than a single iOS 26 simulator issue.
+
 Observed error:
 
 ```text
