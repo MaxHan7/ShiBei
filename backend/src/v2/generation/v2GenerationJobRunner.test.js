@@ -21,7 +21,8 @@ test("builds V2 generation input from queued job payload", () => {
       payload: {
         body: {
           title: "Hook",
-          rawText: "Hook 是流程控制器。"
+          rawText: "Hook 是流程控制器。",
+          generationLanguage: "en"
         }
       }
     }),
@@ -30,7 +31,8 @@ test("builds V2 generation input from queued job payload", () => {
       chapterId: "chapter-1",
       jobId: "job-1",
       title: "Hook",
-      rawText: "Hook 是流程控制器。"
+      rawText: "Hook 是流程控制器。",
+      generationLanguage: "en"
     }
   );
 });
@@ -99,6 +101,62 @@ test("extracts article links before running V2 generation", async () => {
     ),
     true
   );
+});
+
+test("passes generation language from queued payload into resolved V2 generation job", async () => {
+  const calls = [];
+  const chapters = new Map([
+    ["chapter-1", {
+      id: "chapter-1",
+      title: "English article",
+      status: "submitted",
+      source: { type: "article_link", url: "https://example.com/english" },
+      generationMeta: { generationLanguage: "en" },
+      createdAt: "2026-07-13T00:00:00.000Z"
+    }]
+  ]);
+  const deps = mockDeps({
+    calls,
+    chapters,
+    extractSourceContent: async (input) => {
+      calls.push({ name: "extractSourceContent", input });
+      return {
+        sourceType: "article_link",
+        sourceTitle: "English article",
+        sourceUrl: input.sourceUrl,
+        sourceAccount: "Example",
+        rawText: "This article explains the difference between workflows and agents.".repeat(20)
+      };
+    },
+    runV2GenerationJob: async (input) => {
+      calls.push({ name: "runV2GenerationJob", input });
+      return {
+        status: "completed",
+        displayStatusText: "Generated",
+        chapter: {
+          schemaVersion: "v2_review_path_1",
+          id: input.chapterId,
+          title: input.sourceTitle,
+          status: "completed",
+          source: input.source,
+          generationMeta: { generationLanguage: input.generationLanguage },
+          units: []
+        }
+      };
+    }
+  });
+
+  const result = await runV2GenerationQueuedJob(baseJob({
+    sourceType: "article_link",
+    sourceUrl: "https://example.com/english",
+    sourceTitle: "English article",
+    generationLanguage: "en"
+  }), deps);
+
+  assert.equal(result.status, "completed");
+  const modelInput = calls.find((call) => call.name === "runV2GenerationJob").input;
+  assert.equal(modelInput.generationLanguage, "en");
+  assert.equal(chapters.get("chapter-1").generationMeta.generationLanguage, "en");
 });
 
 test("extracts wechat article links before running V2 generation", async () => {

@@ -54,6 +54,36 @@ test("passes custom prompt caller factory through to V2 generation", async () =>
   assert.equal(result.chapter.title, "factory passed");
 });
 
+test("normalizes generation language before calling generateReviewPath", async () => {
+  let receivedInput = null;
+  let receivedOptions = null;
+  const result = await runV2GenerationJob({
+    id: "chapter-001",
+    title: "Workflow basics",
+    rawText: "A source about workflows.",
+    generationLanguage: "en-US"
+  }, {
+    generateReviewPath: async (input, options) => {
+      receivedInput = input;
+      receivedOptions = options;
+      return {
+        schemaVersion: "v2_review_path_1",
+        id: "chapter-001",
+        status: "completed",
+        title: "Workflow basics",
+        generationMeta: {},
+        units: []
+      };
+    }
+  });
+
+  assert.equal(result.status, "completed");
+  assert.equal(result.displayStatusText, "Generated");
+  assert.equal(receivedInput.generationLanguage, "en");
+  assert.equal(receivedOptions.generationLanguage, "en");
+  assert.equal(result.chapter.generationMeta.generationLanguage, "en");
+});
+
 test("allows quality callers to request full generation metadata", async () => {
   const result = await runV2GenerationJob({
     id: "chapter-001",

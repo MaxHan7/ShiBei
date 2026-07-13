@@ -221,6 +221,29 @@ test("calls scoped MC unit batches with only current unit briefs and source cont
   assert.equal(reviewPath.units[0].summary.text, "你已经能区分 Hook 和单纯提示词。");
 });
 
+test("passes normalized generation language to V2 prompt payloads and generated wrappers", async () => {
+  const captured = [];
+  const promptCaller = async (stage, payload) => {
+    captured.push({ stage, payload });
+    return fixtureOutputForStage(stage, payload);
+  };
+
+  const reviewPath = await runV2GenerationProgram(makeArticleFixture(), {
+    generationLanguage: "en-US",
+    promptCaller,
+    now: "2026-07-13T00:00:00.000Z"
+  });
+
+  assert.equal(reviewPath.displayStatusText, "Generated");
+  assert.equal(reviewPath.chapterSummary.title, "Chapter complete");
+  assert.equal(reviewPath.chapterSummary.statsText, "2 key points, 3 questions");
+  assert.equal(reviewPath.units[0].summary.title, "Unit complete");
+  assert.equal(reviewPath.generationMeta.generationLanguage, "en");
+  for (const { stage, payload } of captured) {
+    assert.equal(payload.generationLanguage, "en", `${stage} should receive generationLanguage`);
+  }
+});
+
 test("deterministic source map preserves pre-grouped video source blocks", async () => {
   let capturedReviewPathPayload = null;
   const article = {

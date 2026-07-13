@@ -42,6 +42,10 @@ import {
 } from "../prompts/unitCopyBatch.js";
 import { runV2QualityGuardrails } from "../qualityGuardrails.js";
 import {
+  generatedUnitSummaryTitle,
+  normalizeGenerationLanguage
+} from "../generationLanguage.js";
+import {
   attachStageRuntimeToError,
   createStageRuntimeRecorder
 } from "../runtimeReliability.js";
@@ -81,10 +85,12 @@ export async function runV2GenerationProgram(
     qualityJudgeEnabled = readOptionalBoolean(process.env.V2_ENABLE_QUALITY_JUDGE) ?? false,
     generationMetaMode = process.env.V2_GENERATION_META_MODE || "debug",
     sourceMapMode = process.env.V2_SOURCE_MAP_MODE || "deterministic",
+    generationLanguage: requestedGenerationLanguage = article?.generationLanguage,
     onProgress = null,
     now = new Date().toISOString()
   } = {}
 ) {
+  const generationLanguage = normalizeGenerationLanguage(requestedGenerationLanguage);
   const runtimeRecorder = createStageRuntimeRecorder();
   const activePromptCaller =
     typeof promptCaller === "function"
@@ -110,7 +116,7 @@ export async function runV2GenerationProgram(
     : await callAndValidate(
         activePromptCaller,
         "sourceMap",
-        { article },
+        { article, generationLanguage },
         validateSourceMapOutput
       );
   const sourceBlockIds = new Set(sourceMap.blocks.map((block) => block.id));
@@ -118,7 +124,7 @@ export async function runV2GenerationProgram(
   const rawPlan = await callAndValidate(
     activePromptCaller,
     "reviewPathPlan",
-    { article, source: sourceMap.source, blocks: sourceMap.blocks },
+    { article, source: sourceMap.source, blocks: sourceMap.blocks, generationLanguage },
     (output) => validateReviewPathPlanOutput(output, { sourceBlockIds }),
     { normalize: normalizeReviewPathPlanOutput }
   );
@@ -139,6 +145,7 @@ export async function runV2GenerationProgram(
           source: sourceMap.source,
           blocks: sourceContext.blocks,
           sourceContextNote: sourceContext.sourceContextNote,
+          generationLanguage,
           plan: buildSingleUnitPromptPlan(plan, plannedUnit)
         },
         (output) =>
@@ -166,6 +173,7 @@ export async function runV2GenerationProgram(
           source: sourceContext.source,
           blocks: sourceContext.blocks,
           sourceContextNote: sourceContext.sourceContextNote,
+          generationLanguage,
           plan: buildSingleUnitPromptPlan(plan, plannedUnit),
           unitKnowledgeMap: buildSingleUnitKnowledgeMap(unitKnowledgeMap, plannedUnit.id)
         },
@@ -218,6 +226,7 @@ export async function runV2GenerationProgram(
             source: sourceMap.source,
             unit: input.unit,
             questionBriefs,
+            generationLanguage,
             sourceContext: input.sourceContext
           },
           (output) =>
@@ -249,6 +258,7 @@ export async function runV2GenerationProgram(
             unit: input.unit,
             questionBriefs,
             questionCores: coreDraft.questions,
+            generationLanguage,
             sourceContext: input.sourceContext
           },
           (output) =>
@@ -279,6 +289,7 @@ export async function runV2GenerationProgram(
           sourceContextNote: input.sourceContext.sourceContextNote,
           unit: input.unit,
           practicePlan: input.practicePlan,
+          generationLanguage,
           allowDropInvalidMatching: hasMultipleChoicePlans(input.sourcePracticePlan)
         });
       }
@@ -300,6 +311,7 @@ export async function runV2GenerationProgram(
     {
       article,
       source: sourceMap.source,
+      generationLanguage,
       units: buildUnitCopyInputs({ unitDraftInputs, questionDraftsByUnit })
     },
     (output) => validateUnitCopyBatchOutput(output, { unitIds })
@@ -310,7 +322,8 @@ export async function runV2GenerationProgram(
       plannedUnit,
       practicePlan: practicePlansByUnit.get(plannedUnit.id),
       questionDraft: questionDraftsByUnit.get(plannedUnit.id),
-      unitCopy: getUnitCopyForUnit(unitCopyBatch, plannedUnit.id)
+      unitCopy: getUnitCopyForUnit(unitCopyBatch, plannedUnit.id),
+      generationLanguage
     })
   );
   const units = generatedUnits.map((item) => item.unit);
@@ -321,7 +334,7 @@ export async function runV2GenerationProgram(
     schemaVersion: V2_REVIEW_PATH_SCHEMA_VERSION,
     id: article.id,
     status: "completed",
-    displayStatusText: "已生成",
+    displayStatusText: generationLanguage === "en" ? "Generated" : "已生成",
     title: plan.title,
     source: {
       ...sourceMap.source,
@@ -332,13 +345,16 @@ export async function runV2GenerationProgram(
     summaryCard: plan.summaryCard,
     units,
     chapterSummary: {
-      title: "章节完成",
-      statsText: `共 ${units.length} 个核心知识点，${countQuestions(units)} 道题目`,
+      title: generationLanguage === "en" ? "Chapter complete" : "章节完成",
+      statsText: generationLanguage === "en"
+        ? `${units.length} key points, ${countQuestions(units)} questions`
+        : `共 ${units.length} 个核心知识点，${countQuestions(units)} 道题目`,
       encouragementText: plan.chapterSummary.encouragementText
     },
     ...(plan.generationConstraints ? { generationConstraints: plan.generationConstraints } : {}),
     generationMeta: {
       currentStage: "completed",
+      generationLanguage,
       sourceContextStats: buildSourceContextStats({
         sourceMap,
         plan,
@@ -371,6 +387,7 @@ export async function runV2GenerationProgram(
     ? await runOptionalQualityJudge({
         activePromptCaller,
         article,
+        generationLanguage,
         draftReviewPath
       })
     : { judge: skippedQualityJudge(), judgeError: null };
@@ -631,7 +648,8 @@ function buildGeneratedUnitFromBatches({
   plannedUnit,
   practicePlan,
   questionDraft,
-  unitCopy
+  unitCopy,
+  generationLanguage = "zh-Hans"
 }) {
   const questions = sortQuestionsByPlan(
     (questionDraft?.questions || []).map(stripInternalQuestionFields),
@@ -644,7 +662,7 @@ function buildGeneratedUnitFromBatches({
       overview: unitCopy.overview,
       questions: normalizeMultipleChoiceAnswerPositions(questions, plannedUnit.id),
       summary: {
-        title: "单元完成",
+        title: generatedUnitSummaryTitle(generationLanguage),
         text: unitCopy.summary.text
       }
     }
@@ -654,13 +672,14 @@ function buildGeneratedUnitFromBatches({
 async function runOptionalQualityJudge({
   activePromptCaller,
   article,
+  generationLanguage,
   draftReviewPath
 }) {
   try {
     const judge = await callAndValidate(
       activePromptCaller,
       "qualityJudge",
-      { article, reviewPath: draftReviewPath },
+      { article, generationLanguage, reviewPath: draftReviewPath },
       validateQualityJudgeOutput
     );
     return { judge, judgeError: null };
@@ -699,6 +718,7 @@ async function generateUnitReviewContent({
   practicePlan,
   ecdContext = null
 }) {
+  const generationLanguage = normalizeGenerationLanguage(article?.generationLanguage);
   const unitSourceContext = sourceContext || buildUnitSourceContext(sourceMap, plannedUnit);
   const resolvedPracticePlan = practicePlan || buildPracticePlanFromEcdContext({
     ecdContext,
@@ -728,6 +748,7 @@ async function generateUnitReviewContent({
           sourceContextNote: unitSourceContext.sourceContextNote,
           unit: plannedUnit,
           practicePlan: resolvedPracticePlan,
+          generationLanguage,
           ecdContext
         },
         (output) =>
@@ -752,6 +773,7 @@ async function generateUnitReviewContent({
         sourceContextNote: unitSourceContext.sourceContextNote,
         unit: plannedUnit,
         practicePlan: resolvedPracticePlan,
+        generationLanguage,
         ecdContext,
         allowDropInvalidMatching: multipleChoicePlans.length > 0
       })
@@ -774,6 +796,7 @@ async function generateUnitReviewContent({
       unit: plannedUnit,
       practicePlan: resolvedPracticePlan,
       questions,
+      generationLanguage,
       ecdContext
     },
     (output) =>
@@ -789,7 +812,7 @@ async function generateUnitReviewContent({
       overview: unitSummary.overview,
       questions,
       summary: {
-        title: "单元完成",
+        title: generatedUnitSummaryTitle(generationLanguage),
         text: unitSummary.summary.text
       }
     }
@@ -1118,6 +1141,7 @@ async function callMatchingDraftWithFallback({
   sourceContextNote,
   unit,
   practicePlan,
+  generationLanguage = "zh-Hans",
   ecdContext = undefined,
   allowDropInvalidMatching = false
 }) {
@@ -1128,6 +1152,7 @@ async function callMatchingDraftWithFallback({
     sourceContextNote,
     unit,
     practicePlan,
+    generationLanguage: normalizeGenerationLanguage(generationLanguage),
     ...(ecdContext !== undefined ? { ecdContext } : {})
   });
   const output = normalizeMatchingDraftOutput(

@@ -4,6 +4,7 @@ import {
   classifyV2GenerationFailure
 } from "./generationFailures.js";
 import { assertV2ArticleInputWithinLimits } from "./generationLimits.js";
+import { normalizeGenerationLanguage } from "./generationLanguage.js";
 import {
   buildV2GenerationProgress,
   emitV2GenerationProgress,
@@ -21,9 +22,11 @@ export async function runV2GenerationJob(input, {
 } = {}) {
   const chapterId = String(input?.id || input?.chapterId || "");
   const jobId = String(input?.jobId || "");
+  const generationLanguage = normalizeGenerationLanguage(input?.generationLanguage);
 
   try {
-    assertV2ArticleInputWithinLimits(input);
+    const normalizedInput = { ...input, generationLanguage };
+    assertV2ArticleInputWithinLimits(normalizedInput);
     await emitV2GenerationProgress(onProgress, {
       jobId,
       chapterId,
@@ -32,10 +35,11 @@ export async function runV2GenerationJob(input, {
       updatedAt: now
     });
 
-    const chapter = await generateReviewPath(input, {
+    const chapter = await generateReviewPath(normalizedInput, {
       modelUsageRecorder,
       ...(createPromptCaller ? { createPromptCaller } : {}),
       generationMetaMode,
+      generationLanguage,
       onProgress,
       now
     });
@@ -51,13 +55,14 @@ export async function runV2GenerationJob(input, {
       ...chapter,
       generationMeta: {
         ...(chapter.generationMeta || {}),
+        generationLanguage,
         v2Progress: generationProgress
       }
     };
 
     return {
       status: "completed",
-      displayStatusText: "已生成",
+      displayStatusText: generationLanguage === "en" ? "Generated" : "已生成",
       chapter: chapterWithProgress,
       generationMeta: chapterWithProgress.generationMeta ?? null,
       generationProgress
