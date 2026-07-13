@@ -12,8 +12,13 @@ struct V2ProfileHeaderCard: View {
     @Binding var selectedPresetAvatarName: String
     @State private var showsNameEditor = false
     @State private var draftName = ""
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
+        let width = contentWidth
+        let statGroupWidth = width - 48
+        let statCardWidth = (statGroupWidth - V2ProfileHeaderMetrics.statCardSpacing) / 2
+
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: V2ProfileHeaderMetrics.cornerRadius, style: .continuous)
                 .fill(V2Color.surfaceCream)
@@ -52,7 +57,7 @@ struct V2ProfileHeaderCard: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel("编辑昵称")
             }
-            .frame(width: V2ProfileHeaderMetrics.identityWidth, alignment: .leading)
+            .frame(width: width - 48, alignment: .leading)
             .offset(x: V2ProfileHeaderMetrics.identityX, y: V2ProfileHeaderMetrics.identityY)
 
             Image("V2BgDecoSmallPlantCluster")
@@ -61,27 +66,29 @@ struct V2ProfileHeaderCard: View {
                 .scaledToFit()
                 .frame(width: 60)
                 .opacity(0.86)
-                .offset(x: 241, y: 170)
+                .offset(x: width - 80, y: 170)
                 .allowsHitTesting(false)
 
-            HStack(spacing: 13) {
+            HStack(spacing: V2ProfileHeaderMetrics.statCardSpacing) {
                 V2ProfileStatCard(
                     title: "已掌握",
                     value: reviewedCount,
                     unit: "个知识点",
-                    assetName: "V2ProfileStatReviewed"
+                    assetName: "V2ProfileStatReviewed",
+                    width: statCardWidth
                 )
                 V2ProfileStatCard(
                     title: "连续学习",
                     value: streakDays,
                     unit: "天",
-                    assetName: "V2ProfileStatStreak"
+                    assetName: "V2ProfileStatStreak",
+                    width: statCardWidth
                 )
             }
-            .frame(width: V2ProfileHeaderMetrics.statGroupWidth)
+            .frame(width: statGroupWidth)
             .offset(x: V2ProfileHeaderMetrics.statGroupX, y: V2ProfileHeaderMetrics.statGroupY)
         }
-        .frame(width: V2ProfileHeaderMetrics.cardWidth, height: V2ProfileHeaderMetrics.cardHeight)
+        .frame(width: width, height: V2ProfileHeaderMetrics.cardHeight)
         .sheet(isPresented: $showsNameEditor) {
             V2ProfileNameEditSheet(
                 draftName: $draftName,
@@ -108,12 +115,10 @@ struct V2ProfileHeaderCard: View {
 private enum V2ProfileHeaderMetrics {
     static let defaultName = "Cappy"
     static let nameCharacterLimit = 16
-    static let cardWidth: CGFloat = 321
     static let cardHeight: CGFloat = 208
     static let cornerRadius: CGFloat = 15
     static let identityX: CGFloat = 24
     static let identityY: CGFloat = 18
-    static let identityWidth: CGFloat = cardWidth - 48
     static let identitySpacing: CGFloat = 24
     static let nameEditGap: CGFloat = 8
     static let editIconTouchSize: CGFloat = 28
@@ -121,8 +126,7 @@ private enum V2ProfileHeaderMetrics {
     static let editIconFont = Font.system(size: 13, weight: .semibold, design: .default)
     static let statGroupX: CGFloat = 24
     static let statGroupY: CGFloat = 110
-    static let statGroupWidth: CGFloat = cardWidth - 48
-    static let statCardWidth: CGFloat = (statGroupWidth - 13) / 2
+    static let statCardSpacing: CGFloat = 13
     static let statCardHeight: CGFloat = 82
 }
 
@@ -479,6 +483,7 @@ struct V2ProfileStatCard: View {
     let value: String
     let unit: String
     let assetName: String
+    let width: CGFloat
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -520,7 +525,7 @@ struct V2ProfileStatCard: View {
             .padding(.top, V2ProfileStatMetrics.contentTop)
         }
         .frame(
-            width: V2ProfileHeaderMetrics.statCardWidth,
+            width: width,
             height: V2ProfileHeaderMetrics.statCardHeight
         )
     }

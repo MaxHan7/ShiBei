@@ -36,7 +36,7 @@ struct V2PrimaryActionButton: View {
                         .v2Shadow()
                 )
         }
-        .frame(maxWidth: V2Layout.contentMaxWidth)
+        .v2PageContentWidth()
         .buttonStyle(.plain)
         .disabled(tone == .disabled)
     }
@@ -132,7 +132,9 @@ struct V2FlowScreen<Content: View>: View {
     @ViewBuilder let content: () -> Content
 
     var body: some View {
-        GeometryReader { _ in
+        GeometryReader { geometry in
+            let contentWidth = V2Layout.contentWidth(for: geometry.size.width)
+
             ZStack(alignment: .top) {
                 backgroundColor
                     .ignoresSafeArea()
@@ -158,6 +160,7 @@ struct V2FlowScreen<Content: View>: View {
                 }
                 .zIndex(20)
             }
+            .environment(\.v2ContentWidth, contentWidth)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
@@ -171,7 +174,7 @@ struct V2BottomActionBar<Content: View>: View {
 
     var body: some View {
         content()
-            .frame(maxWidth: V2Layout.primaryActionWidth)
+            .v2PageContentWidth()
             .padding(.horizontal, V2ResponsiveLayout.bottomActionHorizontalPadding)
             .padding(.top, V2Spacing.sm)
             .padding(.bottom, V2ResponsiveLayout.bottomActionPadding(bottomSafeArea: bottomSafeArea))
@@ -209,6 +212,8 @@ struct V2ScrollableFlowScreen<Content: View, BottomAction: View>: View {
 
     var body: some View {
         GeometryReader { geometry in
+            let contentWidth = V2Layout.contentWidth(for: geometry.size.width)
+
             ZStack(alignment: .top) {
                 backgroundColor
                     .ignoresSafeArea()
@@ -242,6 +247,7 @@ struct V2ScrollableFlowScreen<Content: View, BottomAction: View>: View {
                     bottomAction()
                 }
             }
+            .environment(\.v2ContentWidth, contentWidth)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)

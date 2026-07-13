@@ -56,18 +56,22 @@ private enum V2DiscoverFilterBarMetrics {
 }
 
 struct V2DiscoverHeroCard: View {
+    @Environment(\.v2ContentWidth) private var contentWidth
+
     var body: some View {
+        let width = contentWidth
+
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
-                .frame(width: V2DiscoverHeroCardMetrics.cardWidth, height: V2DiscoverHeroCardMetrics.cardHeight)
+                .frame(width: width, height: V2DiscoverHeroCardMetrics.cardHeight)
                 .offset(y: V2DiscoverHeroCardMetrics.cardY)
                 .v2Shadow()
 
             Image("V2DiscoverHeroWave")
                 .resizable()
                 .renderingMode(.original)
-                .frame(width: V2DiscoverHeroCardMetrics.waveWidth, height: V2DiscoverHeroCardMetrics.waveHeight)
+                .frame(width: width + V2DiscoverHeroCardMetrics.waveWidthOverflow, height: V2DiscoverHeroCardMetrics.waveHeight)
                 .offset(x: V2DiscoverHeroCardMetrics.waveX, y: V2DiscoverHeroCardMetrics.cardY)
                 .allowsHitTesting(false)
 
@@ -76,7 +80,7 @@ struct V2DiscoverHeroCard: View {
                 .renderingMode(.original)
                 .scaledToFit()
                 .frame(width: V2DiscoverHeroCardMetrics.mascotWidth, height: V2DiscoverHeroCardMetrics.mascotHeight)
-                .offset(x: V2DiscoverHeroCardMetrics.mascotX, y: V2DiscoverHeroCardMetrics.mascotY)
+                .offset(x: width - V2DiscoverHeroCardMetrics.mascotTrailingOffset, y: V2DiscoverHeroCardMetrics.mascotY)
                 .allowsHitTesting(false)
 
             Text("发现好内容")
@@ -102,11 +106,10 @@ struct V2DiscoverHeroCard: View {
 }
 
 private enum V2DiscoverHeroCardMetrics {
-    static let cardWidth: CGFloat = 321
     static let cardHeight: CGFloat = 82
     static let heroHeight: CGFloat = 114
     static let cardY: CGFloat = 32
-    static let waveWidth: CGFloat = 329
+    static let waveWidthOverflow: CGFloat = 8
     static let waveHeight: CGFloat = 90
     static let waveX: CGFloat = -4
     static let textX: CGFloat = 19
@@ -116,7 +119,7 @@ private enum V2DiscoverHeroCardMetrics {
     static let subtitleY: CGFloat = 72
     static let subtitleWidth: CGFloat = 167
     static let subtitleHeight: CGFloat = 41
-    static let mascotX: CGFloat = 195
+    static let mascotTrailingOffset: CGFloat = 126
     static let mascotY: CGFloat = -21
     static let mascotWidth: CGFloat = 113
     static let mascotHeight: CGFloat = 136

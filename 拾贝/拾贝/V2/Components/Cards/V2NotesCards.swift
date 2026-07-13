@@ -2,19 +2,22 @@ import SwiftUI
 
 struct V2NotesSummaryCard: View {
     let count: Int
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
+        let width = contentWidth
+
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
-                .frame(width: V2NotesSummaryCardMetrics.cardWidth, height: V2NotesSummaryCardMetrics.cardFillHeight)
+                .frame(width: width, height: V2NotesSummaryCardMetrics.cardFillHeight)
                 .offset(y: V2NotesSummaryCardMetrics.cardFillY)
                 .v2Shadow()
 
             Image("V2NotesSummaryWave")
                 .resizable()
                 .renderingMode(.original)
-                .frame(width: V2NotesSummaryCardMetrics.waveWidth, height: V2NotesSummaryCardMetrics.waveHeight)
+                .frame(width: width + V2NotesSummaryCardMetrics.waveWidthOverflow, height: V2NotesSummaryCardMetrics.waveHeight)
                 .offset(x: V2NotesSummaryCardMetrics.waveX, y: V2NotesSummaryCardMetrics.waveY)
                 .allowsHitTesting(false)
 
@@ -33,16 +36,15 @@ struct V2NotesSummaryCard: View {
             .frame(width: V2NotesSummaryCardMetrics.copyWidth, height: V2NotesSummaryCardMetrics.copyHeight, alignment: .leading)
             .offset(x: V2NotesSummaryCardMetrics.copyX, y: V2NotesSummaryCardMetrics.copyY)
         }
-        .frame(width: V2NotesSummaryCardMetrics.cardWidth, height: V2NotesSummaryCardMetrics.componentHeight, alignment: .topLeading)
+        .frame(width: width, height: V2NotesSummaryCardMetrics.componentHeight, alignment: .topLeading)
     }
 }
 
 private enum V2NotesSummaryCardMetrics {
-    static let cardWidth: CGFloat = 321
     static let cardFillHeight: CGFloat = 81
     static let cardFillY: CGFloat = 1
     static let componentHeight: CGFloat = 90
-    static let waveWidth: CGFloat = 329
+    static let waveWidthOverflow: CGFloat = 8
     static let waveHeight: CGFloat = 90
     static let waveX: CGFloat = -4
     static let waveY: CGFloat = 0

@@ -45,8 +45,11 @@ enum V2Spacing {
 enum V2Layout {
     /// Horizontal inset for page-level content from the physical screen edge.
     static let pageHorizontalInset: CGFloat = V2Spacing.screenMargin
-    /// Maximum width for the main readable/actionable page column.
+    /// Standard maximum width for the main readable/actionable page column.
     static let contentMaxWidth: CGFloat = 321
+    /// Large-phone maximum width. Keeps standard Pro unchanged while reducing empty Pro Max margins.
+    static let largeContentMaxWidth: CGFloat = 357
+    static let largeContentWidthThreshold: CGFloat = 428
     static let pageContentMaxWidth: CGFloat = contentMaxWidth
     static let topBarTopPadding: CGFloat = 30
     static let topBarHeight: CGFloat = 52
@@ -54,6 +57,10 @@ enum V2Layout {
     static let primaryActionWidth: CGFloat = pageContentMaxWidth
     static let primaryActionBottomY: CGFloat = 600
     static let floatingActionTrailingInset: CGFloat = pageHorizontalInset + 4
+
+    static func contentWidth(for screenWidth: CGFloat) -> CGFloat {
+        screenWidth >= largeContentWidthThreshold ? largeContentMaxWidth : contentMaxWidth
+    }
 }
 
 enum V2ResponsiveLayout {
@@ -74,6 +81,27 @@ enum V2ResponsiveLayout {
 
     static func bottomActionPadding(bottomSafeArea: CGFloat) -> CGFloat {
         max(12, bottomSafeArea + 8)
+    }
+}
+
+private struct V2ContentWidthKey: EnvironmentKey {
+    static let defaultValue: CGFloat = V2Layout.contentMaxWidth
+}
+
+extension EnvironmentValues {
+    var v2ContentWidth: CGFloat {
+        get { self[V2ContentWidthKey.self] }
+        set { self[V2ContentWidthKey.self] = newValue }
+    }
+}
+
+private struct V2PageContentWidthModifier: ViewModifier {
+    @Environment(\.v2ContentWidth) private var contentWidth
+
+    func body(content: Content) -> some View {
+        content
+            .frame(maxWidth: contentWidth)
+            .frame(maxWidth: .infinity)
     }
 }
 
@@ -138,8 +166,7 @@ extension View {
 
     func v2PageContentWidth() -> some View {
         self
-            .frame(maxWidth: V2Layout.pageContentMaxWidth)
-            .frame(maxWidth: .infinity)
+            .modifier(V2PageContentWidthModifier())
     }
 
     func v2PageHorizontalInset() -> some View {

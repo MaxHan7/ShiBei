@@ -8,6 +8,7 @@ struct V2TabScaffold<Content: View>: View {
     var body: some View {
         GeometryReader { geometry in
             let bottomNavScale = min(1, geometry.size.width / V2BottomNavPlacement.visualSize.width)
+            let contentWidth = V2Layout.contentWidth(for: geometry.size.width)
             let scrollViewportHeight = max(
                 240,
                 geometry.size.height
@@ -50,6 +51,7 @@ struct V2TabScaffold<Content: View>: View {
                     .frame(maxWidth: .infinity)
                     .background(V2Color.pageGreenBackground)
             }
+            .environment(\.v2ContentWidth, contentWidth)
             .ignoresSafeArea(.keyboard, edges: .bottom)
         }
     }
@@ -614,6 +616,7 @@ private struct V2UploadMascotInputGroup: View {
     @Binding var urlText: String
     let preflightState: V2UploadPreflightState
     let input: String
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     private var feedback: V2UploadPreflightFeedback? {
         preflightState.feedback(for: input)
@@ -629,7 +632,7 @@ private struct V2UploadMascotInputGroup: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let width = min(proxy.size.width, V2UploadMascotInputMetrics.maxWidth)
+            let width = min(proxy.size.width, contentWidth)
 
             ZStack(alignment: .top) {
                 Image("V2UploadMascotBack")
@@ -795,7 +798,6 @@ private enum V2Keyboard {
 }
 
 private enum V2UploadMascotInputMetrics {
-    static let maxWidth: CGFloat = 321
     static let backWidth: CGFloat = 94
     static let frontWidth: CGFloat = 69
     static let cardTop: CGFloat = 82
@@ -886,9 +888,12 @@ struct V2NotesView: View {
     let savedQuestions: [V2SavedQuestionDisplayItem]
     let onOpenSavedQuestion: (Int) -> Void
     let onOpenBackendSavedQuestion: (String) -> Void
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
         V2TabScaffold(selectedTab: $selectedTab, title: "笔记") {
+            let width = contentWidth
+
             ZStack(alignment: .topLeading) {
                 V2NotesBackgroundDecorations()
                     .zIndex(0)
@@ -903,7 +908,7 @@ struct V2NotesView: View {
                     .renderingMode(.original)
                     .scaledToFit()
                     .frame(width: V2NotesPageMetrics.mascotWidth, height: V2NotesPageMetrics.mascotHeight)
-                    .offset(x: V2NotesPageMetrics.mascotX, y: V2NotesPageMetrics.mascotY)
+                    .offset(x: width - V2NotesPageMetrics.mascotTrailingOffset, y: V2NotesPageMetrics.mascotY)
                     .allowsHitTesting(false)
                     .zIndex(4)
 
@@ -939,7 +944,7 @@ struct V2NotesView: View {
                     }
                 }
             }
-            .frame(width: V2Layout.contentMaxWidth, height: V2NotesPageMetrics.contentHeight, alignment: .topLeading)
+            .frame(width: width, height: V2NotesPageMetrics.contentHeight, alignment: .topLeading)
         }
     }
 
@@ -949,6 +954,8 @@ struct V2NotesView: View {
 }
 
 private struct V2NotesBackgroundDecorations: View {
+    @Environment(\.v2ContentWidth) private var contentWidth
+
     var body: some View {
         ZStack(alignment: .topLeading) {
             Image("V2BgDecoLeftHillPlant")
@@ -963,14 +970,14 @@ private struct V2NotesBackgroundDecorations: View {
                 .renderingMode(.original)
                 .scaledToFit()
                 .frame(width: V2NotesPageMetrics.rightTopDecorationWidth)
-                .offset(x: V2NotesPageMetrics.rightTopDecorationX, y: V2NotesPageMetrics.rightTopDecorationY)
+                .offset(x: contentWidth - V2NotesPageMetrics.rightTopDecorationTrailingOffset, y: V2NotesPageMetrics.rightTopDecorationY)
 
             Image("V2BgDecoSmallPlantCluster")
                 .resizable()
                 .renderingMode(.original)
                 .scaledToFit()
                 .frame(width: V2NotesPageMetrics.rightMidDecorationWidth)
-                .offset(x: V2NotesPageMetrics.rightMidDecorationX, y: V2NotesPageMetrics.rightMidDecorationY)
+                .offset(x: contentWidth - V2NotesPageMetrics.rightMidDecorationTrailingOffset, y: V2NotesPageMetrics.rightMidDecorationY)
         }
         .opacity(V2NotesPageMetrics.decorationOpacity)
     }
@@ -978,7 +985,7 @@ private struct V2NotesBackgroundDecorations: View {
 
 private enum V2NotesPageMetrics {
     static let summaryY: CGFloat = 32
-    static let mascotX: CGFloat = 206
+    static let mascotTrailingOffset: CGFloat = 115
     static let mascotY: CGFloat = -12
     static let mascotWidth: CGFloat = 94
     static let mascotHeight: CGFloat = 127
@@ -996,10 +1003,10 @@ private enum V2NotesPageMetrics {
     static let leftDecorationX: CGFloat = -62
     static let leftDecorationY: CGFloat = 298
     static let rightTopDecorationWidth: CGFloat = 104
-    static let rightTopDecorationX: CGFloat = 246
+    static let rightTopDecorationTrailingOffset: CGFloat = 75
     static let rightTopDecorationY: CGFloat = 82
     static let rightMidDecorationWidth: CGFloat = 62
-    static let rightMidDecorationX: CGFloat = 290
+    static let rightMidDecorationTrailingOffset: CGFloat = 31
     static let rightMidDecorationY: CGFloat = 360
 }
 
