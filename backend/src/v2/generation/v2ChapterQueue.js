@@ -1,6 +1,7 @@
 import { createId, createSubmittedChapter } from "../../chapterGeneration.js";
 import { enforceDailyGenerationQuota } from "../../generationQuota.js";
 import { buildV2GenerationIdempotencyKey } from "./generationIdempotency.js";
+import { normalizeGenerationLanguage } from "./generationLanguage.js";
 import {
   buildV2GenerationProgress,
   V2_GENERATION_STAGE,
@@ -30,6 +31,7 @@ export function buildPendingV2Chapter(body = {}, {
     generationMeta: {
       ...(submitted.generationMeta || {}),
       schemaVersion: "v2_review_path_queued_1",
+      generationLanguage: normalizeGenerationLanguage(body.generationLanguage),
       currentStage: progress.stage,
       v2Progress: progress,
       generationProgress: progress
@@ -46,7 +48,8 @@ export function buildV2ChapterQueueIdempotencyKey({ deviceId, body = {} } = {}) 
     sourceUrl: body.sourceUrl || "",
     rawText: body.rawText || body.cleanedText || body.text || "",
     contentHash: body.contentHash || "",
-    clientRequestId: body.clientRequestId || body.client_request_id || ""
+    clientRequestId: body.clientRequestId || body.client_request_id || "",
+    generationLanguage: normalizeGenerationLanguage(body.generationLanguage)
   });
 }
 
@@ -60,8 +63,9 @@ export async function enqueueV2ChapterGeneration({
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     throw new Error("enqueueV2ChapterGeneration requires request body");
   }
+  const normalizedBody = normalizeV2GenerationBody(body);
   const services = normalizeDeps(deps);
-  const idempotencyKey = buildV2ChapterQueueIdempotencyKey({ deviceId, body });
+  const idempotencyKey = buildV2ChapterQueueIdempotencyKey({ deviceId, body: normalizedBody });
   const existingJob = await services.getPendingGenerationJobByIdempotencyKey(deviceId, idempotencyKey);
   if (existingJob) {
     const existingChapter = await services.getChapter(deviceId, existingJob.chapterId);
@@ -78,9 +82,9 @@ export async function enqueueV2ChapterGeneration({
     claimQuota: services.claimDailyGenerationQuota,
     now
   });
-  const chapterId = body.chapterId || body.id || createId("chapter");
+  const chapterId = normalizedBody.chapterId || normalizedBody.id || createId("chapter");
   const jobId = createId("generation");
-  const pendingChapter = buildPendingV2Chapter(body, { chapterId, jobId, now });
+  const pendingChapter = buildPendingV2Chapter(normalizedBody, { chapterId, jobId, now });
   const savedChapter = await services.upsertChapter(deviceId, pendingChapter);
   const { job, reused } = await services.enqueueIdempotentGenerationJob(deviceId, {
     id: jobId,
@@ -88,7 +92,7 @@ export async function enqueueV2ChapterGeneration({
     status: "submitted",
     currentStage: "accepted",
     jobType: "v2_create_chapter",
-    payload: buildV2JobPayload(body),
+    payload: buildV2JobPayload(normalizedBody),
     idempotencyKey
   });
   const chapter = reused
@@ -96,6 +100,15 @@ export async function enqueueV2ChapterGeneration({
     : savedChapter;
 
   return buildQueueResponse({ chapter, job, reused, quota });
+}
+
+function normalizeV2GenerationBody(body = {}) {
+  return {
+    ...body,
+    generationLanguage: normalizeGenerationLanguage(
+      body.generationLanguage || body.outputLanguage || body.language
+    )
+  };
 }
 
 function buildV2JobPayload(body) {

@@ -27,6 +27,7 @@ test("builds pending V2 chapter with user-facing accepted progress", () => {
   assert.equal(chapter.generationProgress.stageGroup, "intake");
   assert.equal(chapter.generationProgress.displayText, "准备生成");
   assert.equal(chapter.generationProgress.userVisible, true);
+  assert.equal(chapter.generationMeta.generationLanguage, "zh-Hans");
 });
 
 test("builds stable V2 queue idempotency key from client request id", () => {
@@ -37,7 +38,30 @@ test("builds stable V2 queue idempotency key from client request id", () => {
     }
   });
 
-  assert.equal(key, "upload-001");
+  assert.equal(key, "upload-001:lang:zh-hans");
+});
+
+test("uses generation language in V2 queue idempotency key", () => {
+  const chinese = buildV2ChapterQueueIdempotencyKey({
+    deviceId: "device-1",
+    body: {
+      clientRequestId: "Upload 001",
+      rawText: "same source",
+      generationLanguage: "zh-Hans"
+    }
+  });
+  const english = buildV2ChapterQueueIdempotencyKey({
+    deviceId: "device-1",
+    body: {
+      clientRequestId: "Upload 001",
+      rawText: "same source",
+      generationLanguage: "en"
+    }
+  });
+
+  assert.equal(chinese, "upload-001:lang:zh-hans");
+  assert.equal(english, "upload-001:lang:en");
+  assert.notEqual(chinese, english);
 });
 
 test("enqueues a new V2 chapter generation job", async () => {
@@ -58,8 +82,10 @@ test("enqueues a new V2 chapter generation job", async () => {
 
   assert.equal(result.reused, false);
   assert.equal(result.chapter.status, "submitted");
+  assert.equal(result.chapter.generationMeta.generationLanguage, "zh-Hans");
+  assert.equal(result.job.payload.body.generationLanguage, "zh-Hans");
   assert.equal(result.job.jobType, "v2_create_chapter");
-  assert.equal(result.job.idempotencyKey, "upload-001");
+  assert.equal(result.job.idempotencyKey, "upload-001:lang:zh-hans");
   assert.deepEqual(
     calls.map((call) => call.name),
     [
@@ -72,6 +98,29 @@ test("enqueues a new V2 chapter generation job", async () => {
   assert.equal(result.quota.used, 1);
 });
 
+test("stores normalized generation language on pending V2 chapter and job payload", async () => {
+  const calls = [];
+  const chapters = new Map();
+  const jobs = new Map();
+  const quotaClaims = [];
+
+  const result = await enqueueV2ChapterGeneration({
+    deviceId: "device-1",
+    body: {
+      clientRequestId: "upload-en-001",
+      sourceType: "text",
+      rawText: "A short source about AI workflows.",
+      generationLanguage: "en-US"
+    },
+    now: "2026-07-13T00:00:00.000Z",
+    deps: mockDeps({ calls, chapters, jobs, quotaClaims })
+  });
+
+  assert.equal(result.chapter.generationMeta.generationLanguage, "en");
+  assert.equal(result.job.payload.body.generationLanguage, "en");
+  assert.equal(result.job.idempotencyKey, "upload-en-001:lang:en");
+});
+
 test("reuses existing pending V2 generation job", async () => {
   const calls = [];
   const chapters = new Map([
@@ -82,11 +131,11 @@ test("reuses existing pending V2 generation job", async () => {
     }]
   ]);
   const jobs = new Map([
-    ["upload-001", {
+    ["upload-001:lang:zh-hans", {
       id: "job-existing",
       chapterId: "chapter-existing",
       jobType: "v2_create_chapter",
-      idempotencyKey: "upload-001"
+      idempotencyKey: "upload-001:lang:zh-hans"
     }]
   ]);
 
@@ -138,8 +187,8 @@ test("allows the same source URL to be generated again with a new client request
   assert.equal(first.reused, false);
   assert.equal(second.reused, false);
   assert.notEqual(first.chapter.id, second.chapter.id);
-  assert.equal(first.job.idempotencyKey, "upload-001");
-  assert.equal(second.job.idempotencyKey, "upload-002");
+  assert.equal(first.job.idempotencyKey, "upload-001:lang:zh-hans");
+  assert.equal(second.job.idempotencyKey, "upload-002:lang:zh-hans");
 });
 
 test("rejects the sixth real V2 generation for the same device and UTC day", async () => {

@@ -27,7 +27,8 @@ test("builds stable V2 generation idempotency keys from source URLs", () => {
   });
 
   assert.equal(first, second);
-  assert.match(first, /^v2-generation:device-1:create_chapter:url:/);
+  assert.match(first, /^v2-generation:device-1:create_chapter:lang:zh-hans:url:/);
+  assert.match(first, /:lang:zh-hans:/);
 });
 
 test("builds stable V2 generation idempotency keys from raw text", () => {
@@ -53,6 +54,25 @@ test("uses explicit client request id when supplied", () => {
       rawText: "article",
       clientRequestId: "Upload Tap 123"
     }),
-    "upload-tap-123"
+    "upload-tap-123:lang:zh-hans"
   );
+});
+
+test("uses generation language to separate explicit client request ids", () => {
+  const chinese = buildV2GenerationIdempotencyKey({
+    deviceId: "device-1",
+    rawText: "article",
+    clientRequestId: "Upload Tap 123",
+    generationLanguage: "zh-Hans"
+  });
+  const english = buildV2GenerationIdempotencyKey({
+    deviceId: "device-1",
+    rawText: "article",
+    clientRequestId: "Upload Tap 123",
+    generationLanguage: "en"
+  });
+
+  assert.equal(chinese, "upload-tap-123:lang:zh-hans");
+  assert.equal(english, "upload-tap-123:lang:en");
+  assert.notEqual(chinese, english);
 });

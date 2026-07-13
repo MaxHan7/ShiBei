@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { normalizeGenerationLanguage } from "./generationLanguage.js";
 
 export function normalizeGenerationIdempotencyKey(value) {
   return String(value || "")
@@ -23,10 +24,12 @@ export function buildV2GenerationIdempotencyKey({
   sourceUrl = "",
   contentHash = "",
   rawText = "",
-  clientRequestId = ""
+  clientRequestId = "",
+  generationLanguage = "zh-Hans"
 } = {}) {
+  const languageKey = `lang:${normalizeGenerationIdempotencyKey(normalizeGenerationLanguage(generationLanguage))}`;
   const explicit = normalizeGenerationIdempotencyKey(clientRequestId);
-  if (explicit) return explicit;
+  if (explicit) return normalizeGenerationIdempotencyKey(`${explicit}:${languageKey}`);
 
   const sourceKey = sourceUrl
     ? `url:${normalizeUrlForIdempotency(sourceUrl)}`
@@ -36,6 +39,7 @@ export function buildV2GenerationIdempotencyKey({
     "v2-generation",
     deviceId,
     jobType,
+    languageKey,
     sourceKey
   ].join(":"));
 }
