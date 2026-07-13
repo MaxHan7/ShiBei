@@ -6,6 +6,7 @@ struct V2CreateChapterRequest: Encodable {
     let sourceUrl: String?
     let sourceTitle: String?
     let rawText: String?
+    let generationLanguage: String
 }
 
 struct SourcePreflightRequest: Encodable {

@@ -1535,7 +1535,8 @@ struct V2RootView: View {
             do {
                 let response = try await apiClient.createV2Chapter(
                     sourceText: trimmed,
-                    clientRequestId: clientRequestId
+                    clientRequestId: clientRequestId,
+                    generationLanguage: appLanguage
                 )
                 await MainActor.run {
                     generationState.finishSubmitting()

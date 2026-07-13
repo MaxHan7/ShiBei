@@ -87,6 +87,23 @@ final class APIClientDecodingTests: XCTestCase {
         XCTAssertTrue(input.canSubmit)
     }
 
+    func testEncodesV2CreateChapterGenerationLanguage() throws {
+        let request = V2CreateChapterRequest(
+            clientRequestId: "ios-v2-test",
+            sourceType: "article_link",
+            sourceUrl: "https://example.com/article",
+            sourceTitle: nil,
+            rawText: nil,
+            generationLanguage: AppLanguage.en.rawValue
+        )
+        let data = try JSONEncoder().encode(request)
+        let object = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+
+        XCTAssertEqual(object["clientRequestId"] as? String, "ios-v2-test")
+        XCTAssertEqual(object["sourceType"] as? String, "article_link")
+        XCTAssertEqual(object["generationLanguage"] as? String, "en")
+    }
+
     func testTreatsNonHTTPURLChapterInputAsInvalidLink() {
         let input = ChapterInput.parse("ftp://example.com/article")
 

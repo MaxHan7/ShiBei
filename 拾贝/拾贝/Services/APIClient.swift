@@ -96,7 +96,11 @@ struct APIClient {
         return ChapterCreationResult(chapter: response.chapter, notification: response.notification)
     }
 
-    func createV2Chapter(sourceText: String, clientRequestId: String) async throws -> V2CreateChapterResponse {
+    func createV2Chapter(
+        sourceText: String,
+        clientRequestId: String,
+        generationLanguage: AppLanguage = .zhHans
+    ) async throws -> V2CreateChapterResponse {
         let trimmed = sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
         let input = ChapterInput.parse(trimmed)
         let isURL = input.sourceUrl?.isEmpty == false
@@ -105,7 +109,8 @@ struct APIClient {
             sourceType: isURL ? input.sourceType.rawValue : "text",
             sourceUrl: input.sourceUrl,
             sourceTitle: isURL ? nil : String(trimmed.prefix(24)),
-            rawText: isURL ? nil : trimmed
+            rawText: isURL ? nil : trimmed,
+            generationLanguage: generationLanguage.rawValue
         )
         return try await send("/api/v2/chapters", method: "POST", body: request, acceptsFailureBody: false)
     }
