@@ -875,7 +875,6 @@ private struct V2ChapterCompletionActionLayer: View {
     var body: some View {
         VStack(spacing: V2ChapterSummaryPageMetrics.detailTopGap) {
             V2PrimaryActionButton(title: "返回主页", action: onHome)
-                .frame(width: V2Layout.primaryActionWidth)
 
             Button(action: onDetail) {
                 Text("查看章节详情")

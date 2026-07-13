@@ -1570,12 +1570,11 @@ struct V2ProfileView: View {
                             onDeleteAccount: onDeleteAccount
                         )
 
-                        if allowsMockDataToggle {
-                            V2RuntimeModeCard(usesMockData: $usesMockData)
-                        }
+                    if allowsMockDataToggle {
+                        V2RuntimeModeCard(usesMockData: $usesMockData)
                     }
-                    .frame(maxWidth: V2Layout.contentMaxWidth)
-                    .frame(maxWidth: .infinity)
+                }
+                    .v2PageContentWidth()
                     .padding(.top, 24)
                     .padding(.bottom, 40)
                 }
@@ -1587,6 +1586,7 @@ struct V2ProfileView: View {
 
 private struct V2RuntimeModeCard: View {
     @Binding var usesMockData: Bool
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -1615,7 +1615,7 @@ private struct V2RuntimeModeCard: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
-        .frame(width: V2Layout.contentMaxWidth, alignment: .leading)
+        .frame(width: contentWidth, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)

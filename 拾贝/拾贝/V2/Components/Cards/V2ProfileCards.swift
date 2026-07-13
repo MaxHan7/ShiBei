@@ -544,6 +544,7 @@ struct V2ProfileSettingsCard: View {
     let onSignInWithApple: (Data?, Data?) async -> Void
     let onDeleteAccount: () async -> Void
     @State private var activeSheet: V2ProfileSettingsSheet?
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
         VStack(spacing: 0) {
@@ -568,7 +569,7 @@ struct V2ProfileSettingsCard: View {
         .buttonStyle(.plain)
         .padding(.top, 10)
         .padding(.bottom, 10)
-        .frame(width: 321, height: 190)
+        .frame(width: contentWidth, height: 190)
         .background(
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
