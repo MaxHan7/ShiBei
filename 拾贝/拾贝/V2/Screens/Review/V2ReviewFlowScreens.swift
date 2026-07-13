@@ -7,7 +7,7 @@ struct V2ChapterOverviewView: View {
     let onContinue: () -> Void
 
     var body: some View {
-        V2FlowScreen(title: "章节概要", onBack: onBack) {
+        V2ScrollableFlowScreen(title: "章节概要", onBack: onBack) {
             ZStack(alignment: .top) {
                 Image("V2SummaryMascotBodyLayer")
                     .resizable()
@@ -35,13 +35,11 @@ struct V2ChapterOverviewView: View {
                     )
                     .offset(y: V2ChapterOverviewPageMetrics.mascotHandsY)
                     .zIndex(2)
-
-                V2PrimaryActionButton(title: "继续", action: onContinue)
-                    .frame(width: V2Layout.primaryActionWidth)
-                    .offset(y: V2Layout.primaryActionBottomY)
             }
             .frame(maxWidth: .infinity)
             .frame(height: V2ChapterOverviewPageMetrics.contentHeight, alignment: .top)
+        } bottomAction: {
+            V2PrimaryActionButton(title: "继续", action: onContinue)
         }
     }
 }
@@ -102,7 +100,7 @@ struct V2UnitOverviewView: View {
     let onContinue: () -> Void
 
     var body: some View {
-        V2FlowScreen(title: unitTitle, onBack: onBack) {
+        V2ScrollableFlowScreen(title: unitTitle, onBack: onBack) {
             ZStack(alignment: .top) {
                 V2UnitProgressBar(progressFraction: V2UnitOverviewPageMetrics.initialProgressFraction)
                     .v2PageContentWidth()
@@ -128,13 +126,11 @@ struct V2UnitOverviewView: View {
 
                 V2UnitOverviewBoardCard(overview: unit.overview)
                     .offset(y: V2UnitOverviewPageMetrics.boardY)
-
-                V2PrimaryActionButton(title: "继续", action: onContinue)
-                    .frame(width: V2Layout.primaryActionWidth)
-                    .offset(y: V2UnitOverviewPageMetrics.buttonY)
             }
             .frame(maxWidth: .infinity)
             .frame(height: V2UnitOverviewPageMetrics.contentHeight, alignment: .top)
+        } bottomAction: {
+            V2PrimaryActionButton(title: "继续", action: onContinue)
         }
     }
 }
@@ -145,7 +141,6 @@ private enum V2UnitOverviewPageMetrics {
     static let rightDecoY: CGFloat = 130
     static let leftDecoY: CGFloat = 363
     static let boardY: CGFloat = 174
-    static let buttonY: CGFloat = V2Layout.primaryActionBottomY
     static let contentHeight: CGFloat = 710
 }
 
@@ -618,7 +613,7 @@ struct V2UnitSummaryView: View {
     let onContinue: () -> Void
 
     var body: some View {
-        V2FlowScreen(title: "", onBack: onBack) {
+        V2ScrollableFlowScreen(title: "", onBack: onBack) {
             ZStack(alignment: .top) {
                 Image("V2BgDecoSmallPlantCluster")
                     .resizable()
@@ -640,13 +635,11 @@ struct V2UnitSummaryView: View {
 
                 V2UnitCompletionHero(unit: unit)
                     .offset(y: V2UnitSummaryPageMetrics.heroY)
-
-                V2PrimaryActionButton(title: "继续", action: onContinue)
-                    .frame(width: V2Layout.primaryActionWidth)
-                    .offset(y: V2UnitSummaryPageMetrics.buttonY)
             }
             .frame(maxWidth: .infinity)
             .frame(height: V2UnitSummaryPageMetrics.contentHeight, alignment: .top)
+        } bottomAction: {
+            V2PrimaryActionButton(title: "继续", action: onContinue)
         }
     }
 }
@@ -655,7 +648,6 @@ private enum V2UnitSummaryPageMetrics {
     static let heroY: CGFloat = 0
     static let leftDecoY: CGFloat = 280
     static let rightDecoY: CGFloat = 314
-    static let buttonY: CGFloat = V2Layout.primaryActionBottomY
     static let contentHeight: CGFloat = 720
 }
 
@@ -773,7 +765,7 @@ struct V2ChapterSummaryView: View {
     let onDetail: () -> Void
 
     var body: some View {
-        V2FlowScreen(title: "", onBack: onBack) {
+        V2ScrollableFlowScreen(title: "", onBack: onBack) {
             GeometryReader { geometry in
                 ZStack {
                     V2ChapterSummaryDecorationLayer()
@@ -787,22 +779,17 @@ struct V2ChapterSummaryView: View {
 
                     V2ChapterCompletionBottomLayer()
                     .frame(width: geometry.size.width, height: geometry.size.height, alignment: .bottom)
-                    .ignoresSafeArea(edges: .bottom)
-                    .zIndex(1)
-
-                    V2ChapterCompletionActionLayer(
-                        onHome: onHome,
-                        onDetail: onDetail
-                    )
-                    .position(
-                        x: geometry.size.width / 2,
-                        y: V2ChapterSummaryPageMetrics.actionCenterY
-                    )
-                    .zIndex(3)
+                        .ignoresSafeArea(edges: .bottom)
+                        .zIndex(1)
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } bottomAction: {
+            V2ChapterCompletionActionLayer(
+                onHome: onHome,
+                onDetail: onDetail
+            )
         }
     }
 }
@@ -816,7 +803,6 @@ private enum V2ChapterSummaryPageMetrics {
     static let mascotWidth: CGFloat = 378
     static let mascotHeight: CGFloat = 403
     static let mascotBottomBleed: CGFloat = 42
-    static let actionCenterY: CGFloat = V2Layout.primaryActionBottomY + 27
     static let detailTopGap: CGFloat = 25
 }
 

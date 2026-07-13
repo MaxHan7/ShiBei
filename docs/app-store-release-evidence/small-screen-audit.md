@@ -44,4 +44,9 @@ Branch: codex/lean-high-value-generation-20260711
 
 ## Findings
 
-No findings recorded yet.
+### 2026-07-13: Review overview and summary action placement
+
+- Migrated chapter overview, unit overview, unit summary, and chapter summary primary actions out of fixed Y-offset content.
+- New placement uses a shared bottom safe-area action slot through `V2ScrollableFlowScreen`.
+- Compile verification: `build_sim` passed with no warnings after this change.
+- Device matrix visual verification: pending final simulator pass.
