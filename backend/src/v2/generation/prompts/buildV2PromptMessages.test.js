@@ -22,6 +22,73 @@ test("sourceMap prompt asks for stable source blocks and no question generation"
   assert.match(messages.user, /Hook 是关键动作前后的流程控制器/);
 });
 
+test("English prompt contract applies output language without translating source blocks", () => {
+  const messages = buildV2PromptMessages("reviewPathPlan", {
+    article: ARTICLE,
+    generationLanguage: "en-US",
+    source: {
+      type: "article",
+      title: ARTICLE.title,
+      author: ARTICLE.author,
+      url: ARTICLE.url
+    },
+    blocks: [
+      { id: "p-001", type: "paragraph", text: "Hook 是关键动作前后的流程控制器。" }
+    ]
+  });
+
+  assert.match(messages.user, /所有用户可见 JSON 字段必须使用 English/);
+  assert.match(messages.user, /source quote \/ source block text must preserve original wording/);
+  assert.match(messages.user, /Stable ids, enum values, sourceAnchorId, type, relationType/);
+});
+
+test("English multiple-choice prompts use stricter visible text budgets", () => {
+  const messages = buildV2PromptMessages("multipleChoiceOptionSetUnitBatch", {
+    article: ARTICLE,
+    generationLanguage: "en",
+    source: { type: "article", title: ARTICLE.title },
+    unit: unitFixture(),
+    questionBriefs: [],
+    questionCores: [],
+    sourceContext: {
+      blocks: [{ id: "p-001", type: "paragraph", text: "Hook 是流程控制器。" }],
+      sourceContextNote: { mode: "unit_window", unitId: "unit-01" }
+    }
+  });
+
+  assert.match(messages.user, /stem target <= 95 characters or <= 16 words/);
+  assert.match(messages.user, /options\[\]\.text target <= 48 characters or <= 8 words/);
+  assert.match(messages.user, /explanation target <= 95 characters or <= 16 words/);
+  assert.doesNotMatch(messages.user, /options\[\]\.text 尽量不超过 28 个中文字/);
+});
+
+test("English matching and unit copy prompts use compact display budgets", () => {
+  const matching = buildV2PromptMessages("matchingDraft", {
+    article: ARTICLE,
+    generationLanguage: "en",
+    source: { type: "article", title: ARTICLE.title },
+    blocks: [{ id: "p-001", type: "paragraph", text: "Hook 是流程控制器。" }],
+    sourceContextNote: { mode: "unit_window", unitId: "unit-01" },
+    unit: unitFixture(),
+    practicePlan: {
+      unitId: "unit-01",
+      practiceGoals: [],
+      questionPlans: []
+    }
+  });
+  const unitCopy = buildV2PromptMessages("unitCopyBatch", {
+    article: ARTICLE,
+    generationLanguage: "en",
+    source: { type: "article", title: ARTICLE.title },
+    units: []
+  });
+
+  assert.match(matching.user, /stem target <= 75 characters or <= 12 words/);
+  assert.match(matching.user, /leftItems\[\]\.text \/ rightItems\[\]\.text target <= 34 characters or <= 6 words/);
+  assert.match(unitCopy.user, /overview\.text target <= 120 characters or <= 22 words/);
+  assert.match(unitCopy.user, /summary\.text target <= 120 characters or <= 22 words/);
+});
+
 test("article meta supports extracted sourceAccount and sourceUrl aliases", () => {
   const messages = buildV2PromptMessages("sourceMap", {
     article: {

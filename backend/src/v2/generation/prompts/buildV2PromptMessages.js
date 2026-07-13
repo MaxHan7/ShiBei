@@ -1,3 +1,8 @@
+import {
+  generationLanguageInstruction,
+  normalizeGenerationLanguage
+} from "../generationLanguage.js";
+
 export function buildV2PromptMessages(stage, payload) {
   if (stage === "sourceMap") return buildSourceMapMessages(payload);
   if (stage === "reviewPathPlan") return buildReviewPathPlanMessages(payload);
@@ -19,7 +24,21 @@ export function buildV2PromptMessages(stage, payload) {
   throw new Error(`Unsupported V2 prompt stage: ${stage}`);
 }
 
-function multipleChoiceVisibleTextLimits() {
+function generationLanguagePrompt(value) {
+  return generationLanguageInstruction(value).split("\n");
+}
+
+function multipleChoiceVisibleTextLimits(generationLanguage = "zh-Hans") {
+  if (normalizeGenerationLanguage(generationLanguage) === "en") {
+    return [
+      "移动端显示上限：",
+      "- These limits are display guidance, not schema hard failures; keep wording compact unless a key distinction would be lost.",
+      "- stem target <= 95 characters or <= 16 words; keep only one key conflict or judgment point.",
+      "- options[].text target <= 48 characters or <= 8 words; each option should carry one judgment point, not an explanation.",
+      "- If the correct option needs more detail, compress it or give distractors comparable detail so the correct option is not obvious.",
+      "- explanation target <= 95 characters or <= 16 words; write one concise corrective sentence."
+    ];
+  }
   return [
     "移动端显示上限：",
     "- 这些上限是生成时的显示约束，不是 schema 硬失败条件；如果确实需要保留关键区分点，可以略微超出，但不要写成长段阅读材料。",
@@ -42,13 +61,53 @@ function multipleChoiceOptionToneRules() {
   ];
 }
 
-function matchingVisibleTextLimits() {
+function matchingVisibleTextLimits(generationLanguage = "zh-Hans") {
+  if (normalizeGenerationLanguage(generationLanguage) === "en") {
+    return [
+      "移动端显示上限：",
+      "- These limits are display guidance, not schema hard failures; keep wording compact unless a key distinction would be lost.",
+      "- stem target <= 75 characters or <= 12 words; only name the relation to match.",
+      "- leftItems[].text / rightItems[].text target <= 34 characters or <= 6 words; prefer compact noun phrases or short judgment phrases.",
+      "- explanation target <= 95 characters or <= 16 words; write one concise relation correction."
+    ];
+  }
   return [
     "移动端显示上限：",
     "- 这些上限是生成时的显示约束，不是 schema 硬失败条件；如果确实需要保留关键区分点，可以略微超出，但不要写成长段阅读材料。",
     "- stem 尽量不超过 44 个中文字；只说明要匹配的关系。",
     "- leftItems[].text / rightItems[].text 尽量不超过 16 个中文字；优先使用短名词短语或短判断短语。",
     "- explanation 尽量不超过 60 个中文字；只写一句关系纠偏反馈。"
+  ];
+}
+
+function multipleChoiceCoreVisibleTextLimits(generationLanguage = "zh-Hans") {
+  if (normalizeGenerationLanguage(generationLanguage) === "en") {
+    return [
+      "移动端显示上限：",
+      "- stem target <= 95 characters or <= 16 words; keep only one key conflict or judgment point.",
+      "- explanation target <= 95 characters or <= 16 words; write one concise corrective sentence."
+    ];
+  }
+  return [
+    "移动端显示上限：",
+    "- stem 尽量不超过 60 个中文字；场景题只保留一个关键冲突或判断点。",
+    "- explanation 尽量不超过 60 个中文字；只写一句纠偏反馈。"
+  ];
+}
+
+function unitCopyVisibleTextLimits(generationLanguage = "zh-Hans") {
+  if (normalizeGenerationLanguage(generationLanguage) === "en") {
+    return [
+      "移动端显示上限：",
+      "- overview.text target <= 120 characters or <= 22 words.",
+      "- summary.text target <= 120 characters or <= 22 words.",
+      "- Prefer short, direct sentences; avoid clause-heavy summaries."
+    ];
+  }
+  return [
+    "移动端显示上限：",
+    "- overview.text 保持短、具体，适合移动端卡片。",
+    "- summary.text 保持一句短收束反馈，不写成长段总结。"
   ];
 }
 
@@ -64,11 +123,12 @@ function matchingRelationQualityRules() {
   ];
 }
 
-function buildQuestionDraftBatchMessages({ article, source, units }) {
+function buildQuestionDraftBatchMessages({ article, source, units, generationLanguage }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：questionDraftBatch。",
+      ...generationLanguagePrompt(generationLanguage),
       "任务：按 taskBriefPlan 生成整章所有 unit 的选择题和连线题。",
       "核心设计方式：",
       "- ECD 是你的隐性思考方法：每道题都要服务于对应 practiceGoal 的可观察掌握证据。",
@@ -84,13 +144,13 @@ function buildQuestionDraftBatchMessages({ article, source, units }) {
       "- 如果 questionPlan 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。",
       "- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。",
       ...multipleChoiceOptionToneRules(),
-      ...multipleChoiceVisibleTextLimits(),
+      ...multipleChoiceVisibleTextLimits(generationLanguage),
       "连线题规则：",
       "- 根据原文中自然存在的关系生成 2-4 对匹配项；leftItems、rightItems、pairs 数量必须一致，一一对应。",
       "- matching 只考关系：层级-作用、步骤-目的、信号-动作、角色-职责、类型-判断维度。",
       "- 不要为了凑满 4 对而补弱关系或虚构关系；2/3 对高价值关系优先于 4 对低价值关系。",
       "- stem 要说明要匹配的关系，不写机械的“请将左侧与右侧匹配”。",
-      ...matchingVisibleTextLimits(),
+      ...matchingVisibleTextLimits(generationLanguage),
       "source 使用规则：",
       "- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。",
       "- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。",
@@ -104,11 +164,12 @@ function buildQuestionDraftBatchMessages({ article, source, units }) {
   };
 }
 
-function buildMultipleChoiceDraftBatchMessages({ article, source, units }) {
+function buildMultipleChoiceDraftBatchMessages({ article, source, units, generationLanguage }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：multipleChoiceDraftBatch。",
+      ...generationLanguagePrompt(generationLanguage),
       "任务：按 taskBriefPlan 只生成整章各 unit 的选择题。",
       "核心设计方式：",
       "- ECD 是你的隐性思考方法：题目要让用户表现出对应 practiceGoal 的可观察掌握证据。",
@@ -125,7 +186,7 @@ function buildMultipleChoiceDraftBatchMessages({ article, source, units }) {
       "- 选项尽量短，考理解、边界、误区或场景迁移，不做阅读理解复述。",
       "- explanation 是答后浮窗里的一段短解释，不写逐项解析，不写“正确选项A/B/C/D”。",
       ...multipleChoiceOptionToneRules(),
-      ...multipleChoiceVisibleTextLimits(),
+      ...multipleChoiceVisibleTextLimits(generationLanguage),
       "source 使用规则：",
       "- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。",
       "- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。",
@@ -144,12 +205,14 @@ function buildMultipleChoiceDraftUnitBatchMessages({
   source,
   unit,
   questionBriefs,
-  sourceContext
+  sourceContext,
+  generationLanguage
 }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：multipleChoiceDraftUnitBatch。",
+      ...generationLanguagePrompt(generationLanguage),
       "短角色：你在这一阶段扮演选择题核心任务生成器；目标是把 questionBrief 中的掌握证据和常见误区转成题干、正确理解、主要误区和一句解释。",
       "任务：只为当前 unit 生成选择题核心草稿；不要生成选项，不要生成 correctOptionId，也不要生成其他 unit 的题。",
       "输入边界：",
@@ -171,9 +234,7 @@ function buildMultipleChoiceDraftUnitBatchMessages({
       "- correctUnderstanding 写正确理解，misconception 写本题主要误区。",
       "- explanation 是用户答后看到的一句纠偏反馈：把 correctUnderstanding 和 misconception 融合成一句短解释，帮助用户形成正确理解并避开容易混淆的点。",
       "- explanation 不写逐项解析，不写“正确选项A/B/C/D”。",
-      "移动端显示上限：",
-      "- stem 尽量不超过 60 个中文字；场景题只保留一个关键冲突或判断点。",
-      "- explanation 尽量不超过 60 个中文字；只写一句纠偏反馈。",
+      ...multipleChoiceCoreVisibleTextLimits(generationLanguage),
       "source 使用规则：",
       "- 只能引用当前 sourceContext.blocks，不要使用整章全文或其他 unit 的 source blocks。",
       "- sourceAnchorId 必须等于 questionBrief.sourceAnchorId。",
@@ -196,12 +257,14 @@ function buildMultipleChoiceOptionSetUnitBatchMessages({
   unit,
   questionBriefs,
   questionCores,
-  sourceContext
+  sourceContext,
+  generationLanguage
 }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：multipleChoiceOptionSetUnitBatch。",
+      ...generationLanguagePrompt(generationLanguage),
       "短角色：你在这一阶段扮演选择题选项组生成器；目标是只为已经确定的题目核心生成 1 个正确选项和 3 个高可信干扰项。",
       "任务边界：",
       "- 不要改写 questionCores 中的 stem、correctUnderstanding、misconception、explanation 或 sourceAnchorId。",
@@ -215,7 +278,7 @@ function buildMultipleChoiceOptionSetUnitBatchMessages({
       "- 如果 questionBrief 的 purpose 是 boundary_clarification 或 practiceGoal 带有 commonMisconception，选项必须体现边界辨析，而不是退化成简单事实识别。",
       "- distractorRationale 用一句话说明这组选项主要覆盖的误区类型，供内部诊断使用。",
       ...multipleChoiceOptionToneRules(),
-      ...multipleChoiceVisibleTextLimits(),
+      ...multipleChoiceVisibleTextLimits(generationLanguage),
       "source 使用规则：",
       "- 只能引用当前 sourceContext.blocks，不要使用整章全文或其他 unit 的 source blocks。",
       "- 不要引入 sourceContext 之外的新事实。",
@@ -235,11 +298,12 @@ function buildMultipleChoiceOptionSetUnitBatchMessages({
   };
 }
 
-function buildMatchingDraftBatchMessages({ article, source, units }) {
+function buildMatchingDraftBatchMessages({ article, source, units, generationLanguage }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：matchingDraftBatch。",
+      ...generationLanguagePrompt(generationLanguage),
       "短角色：你在这一阶段扮演连线关系题生成器；目标是把已有 matching questionPlan 转成一题能观察关系理解的连线题。",
       "任务：按 taskBriefPlan 只生成整章各 unit 的连线匹配题。",
       "关系任务设计：",
@@ -258,7 +322,7 @@ function buildMatchingDraftBatchMessages({ article, source, units }) {
       "- 左右项应适合小屏卡片阅读：短、清楚、可比较，但不能为了变短丢掉区分点。",
       "- explanation 是答后的一句纠偏反馈：说明这组对应关系的核心理解，并指出容易混淆的关系边界；不逐项解析每一对。",
       ...matchingRelationQualityRules(),
-      ...matchingVisibleTextLimits(),
+      ...matchingVisibleTextLimits(generationLanguage),
       "source 使用规则：",
       "- 每个 unit 都带有自己的 compact source window，只引用该 unit 的 sourceContext.blocks。",
       "- sourceAnchorId 必须等于 questionPlan.sourceAnchorId。",
@@ -271,11 +335,12 @@ function buildMatchingDraftBatchMessages({ article, source, units }) {
   };
 }
 
-function buildUnitCopyBatchMessages({ article, source, units }) {
+function buildUnitCopyBatchMessages({ article, source, units, generationLanguage }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：unitCopyBatch。",
+      ...generationLanguagePrompt(generationLanguage),
       "任务：为整章所有 unit 生成单元开场 overview 和单元完成 summary。",
       "短角色：你在这一阶段扮演单元文案编辑；目标是把当前知识点写成适合移动端卡片的开场和收尾文案。",
       "输入说明：",
@@ -290,6 +355,7 @@ function buildUnitCopyBatchMessages({ article, source, units }) {
       "- 不要输出题目、题干、选项或答案。",
       "- 文案短、具体、温和，适合移动端卡片；不要写成论文摘要或长段解析。",
       "- 不输出题目，不输出 ECD 字段。",
+      ...unitCopyVisibleTextLimits(generationLanguage),
       "",
       `source:\n${JSON.stringify(source || {}, null, 2)}`,
       "",
@@ -299,11 +365,12 @@ function buildUnitCopyBatchMessages({ article, source, units }) {
   };
 }
 
-function buildTaskBriefPlanMessages({ article, source, blocks, sourceContextNote, plan, unitKnowledgeMap }) {
+function buildTaskBriefPlanMessages({ article, source, blocks, sourceContextNote, plan, unitKnowledgeMap, generationLanguage }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：taskBriefPlan。",
+      ...generationLanguagePrompt(generationLanguage),
       "任务：只为当前输入的单个 unit 生成 compact practiceGoals 和 questionPlans；本阶段不生成用户可见题目。",
       "核心设计方式：",
       "- Evidence-Centered Design 是你的思考方法，不是要输出的字段。",
@@ -349,11 +416,12 @@ function baseSystem() {
   ].join("\n");
 }
 
-function buildSourceMapMessages({ article }) {
+function buildSourceMapMessages({ article, generationLanguage }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：sourceMap。",
+      ...generationLanguagePrompt(generationLanguage),
       "任务：把原文切成稳定的 source block，供后续知识点和题目引用。",
       "要求：",
       "- 每个 block 必须有稳定 id，例如 p-001。",
@@ -366,11 +434,12 @@ function buildSourceMapMessages({ article }) {
   };
 }
 
-function buildReviewPathPlanMessages({ article, source, blocks }) {
+function buildReviewPathPlanMessages({ article, source, blocks, generationLanguage }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：reviewPathPlan。",
+      ...generationLanguagePrompt(generationLanguage),
       "任务：生成整章概要、知识点计划、章节完成页鼓励文案。",
       "字段语义：",
       "- chapter summary 是整章概要，解释整篇文章的主旨，不是知识点详情。",
@@ -418,11 +487,12 @@ function buildReviewPathPlanMessages({ article, source, blocks }) {
   };
 }
 
-function buildUnitKnowledgeMapMessages({ article, source, blocks, sourceContextNote, plan, compactRetry = false }) {
+function buildUnitKnowledgeMapMessages({ article, source, blocks, sourceContextNote, plan, compactRetry = false, generationLanguage }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：unitKnowledgeMap。",
+      ...generationLanguagePrompt(generationLanguage),
       "任务：为当前输入的核心 unit 识别多个有学习价值的高质量考察点 microKnowledgePoints；本阶段不生成题目、不选择题型、不做 selectedTasks。",
       "为什么需要这一层：",
       "- reviewPathPlan 已经负责筛掉低价值 unit；本阶段不再压缩 unit 数量，而是在核心 unit 内找到值得考察的理解角度。",
@@ -465,11 +535,12 @@ function buildUnitKnowledgeMapMessages({ article, source, blocks, sourceContextN
   };
 }
 
-function buildEcdPlanningMessages({ article, source, blocks, sourceContextNote, plan, unitKnowledgeMap }) {
+function buildEcdPlanningMessages({ article, source, blocks, sourceContextNote, plan, unitKnowledgeMap, generationLanguage }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：ecdPlanning。",
+      ...generationLanguagePrompt(generationLanguage),
       "任务：基于 Evidence-Centered Design，只为本次输入的单个 unit 建立 compact task model；本阶段不生成用户可见题目。",
       "核心原则：",
       "- 你需要在内部按 ECD 推理：micro knowledge point -> assessable target -> evidence goal -> selected task。",
@@ -511,11 +582,12 @@ function buildEcdPlanningMessages({ article, source, blocks, sourceContextNote, 
   };
 }
 
-function buildUnitPracticePlanMessages({ article, source, blocks, sourceContextNote, unit, ecdContext }) {
+function buildUnitPracticePlanMessages({ article, source, blocks, sourceContextNote, unit, ecdContext, generationLanguage }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：unitPracticePlan。",
+      ...generationLanguagePrompt(generationLanguage),
       "任务：把当前 unit 的 ECD context 转换为现有 practiceGoals 和 questionPlans；不生成用户可见题目。",
       "转换规则：",
       "- 输出 practiceGoals 和 questionPlans。",
@@ -545,7 +617,7 @@ function buildUnitPracticePlanMessages({ article, source, blocks, sourceContextN
   };
 }
 
-function buildMultipleChoiceDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, ecdContext }) {
+function buildMultipleChoiceDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, ecdContext, generationLanguage }) {
   const ecdContextSection = ecdContext
     ? [`ECD context:\n${JSON.stringify(ecdContext, null, 2)}`, ""]
     : [];
@@ -553,6 +625,7 @@ function buildMultipleChoiceDraftMessages({ article, source, blocks, sourceConte
     system: baseSystem(),
     user: [
       "阶段：multipleChoiceDraft。",
+      ...generationLanguagePrompt(generationLanguage),
       "任务：按 practice plan 生成当前知识点的选择题。",
       "设计方式：",
       "- practicePlan 已经体现学习对象、掌握证据和题型选择；本阶段不要重新改变题型或新增题。",
@@ -573,7 +646,7 @@ function buildMultipleChoiceDraftMessages({ article, source, blocks, sourceConte
       "- explanation 要短、明确，适合底部反馈浮窗；不要写“正确选项A/B/C/D”。",
       "- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。",
       ...multipleChoiceOptionToneRules(),
-      ...multipleChoiceVisibleTextLimits(),
+      ...multipleChoiceVisibleTextLimits(generationLanguage),
       "",
       `当前 unit:\n${JSON.stringify(unit, null, 2)}`,
       "",
@@ -585,7 +658,7 @@ function buildMultipleChoiceDraftMessages({ article, source, blocks, sourceConte
   };
 }
 
-function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, ecdContext }) {
+function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, ecdContext, generationLanguage }) {
   const ecdContextSection = ecdContext
     ? [`ECD context:\n${JSON.stringify(ecdContext, null, 2)}`, ""]
     : [];
@@ -593,6 +666,7 @@ function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote
     system: baseSystem(),
     user: [
       "阶段：matchingDraft。",
+      ...generationLanguagePrompt(generationLanguage),
       "任务：只生成 practice plan 中要求的高价值连线题。",
       "输出数量：questions.length 必须等于 practicePlan.questionPlans 中 type=matching 的数量；不要多生成，也不要少生成。",
       "id 对齐：每道题的 id 必须直接使用对应 matching questionPlan.id。",
@@ -612,7 +686,7 @@ function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote
       "- explanation 要短、明确，适合底部反馈浮窗。",
       "- 每道题的 sourceAnchorId 必须等于当前 unit.sourceAnchor.id。",
       ...matchingRelationQualityRules(),
-      ...matchingVisibleTextLimits(),
+      ...matchingVisibleTextLimits(generationLanguage),
       "",
       `当前 unit:\n${JSON.stringify(unit, null, 2)}`,
       "",
@@ -624,7 +698,7 @@ function buildMatchingDraftMessages({ article, source, blocks, sourceContextNote
   };
 }
 
-function buildUnitSummaryDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, questions, ecdContext }) {
+function buildUnitSummaryDraftMessages({ article, source, blocks, sourceContextNote, unit, practicePlan, questions, ecdContext, generationLanguage }) {
   const ecdContextSection = ecdContext
     ? [`ECD context:\n${JSON.stringify(ecdContext, null, 2)}`, ""]
     : [];
@@ -632,12 +706,14 @@ function buildUnitSummaryDraftMessages({ article, source, blocks, sourceContextN
     system: baseSystem(),
     user: [
       "阶段：unitSummaryDraft。",
+      ...generationLanguagePrompt(generationLanguage),
       "任务：为当前知识点生成单元开场和单元总结，不生成题目。",
       "生成规则：",
       "- overview.text 是知识点开场页正文，帮助用户知道接下来复习哪个核心理念、方法、判断或关系。",
       "- overview 要和第一题分工明确，不能把第一题答案原样写成开场。",
       "- summary.text 只总结当前知识点，不总结整篇文章。",
       "- 文案要短、具体、适合移动端卡片。",
+      ...unitCopyVisibleTextLimits(generationLanguage),
       "",
       `当前 unit:\n${JSON.stringify(unit, null, 2)}`,
       "",
@@ -653,11 +729,12 @@ function buildUnitSummaryDraftMessages({ article, source, blocks, sourceContextN
   };
 }
 
-function buildQualityJudgeMessages({ article, reviewPath }) {
+function buildQualityJudgeMessages({ article, reviewPath, generationLanguage }) {
   return {
     system: baseSystem(),
     user: [
       "阶段：qualityJudge。",
+      ...generationLanguagePrompt(generationLanguage),
       "任务：检查候选 review path 是否适合进入前端。",
       "检查重点：",
       "- source anchor 是否真实支撑每个知识点和题目。",
