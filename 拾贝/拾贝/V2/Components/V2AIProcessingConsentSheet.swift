@@ -3,16 +3,17 @@ import SwiftUI
 struct V2AIProcessingConsentSheet: View {
     let onAgree: () -> Void
     let onCancel: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         VStack(alignment: .leading, spacing: V2AIProcessingConsentMetrics.sectionSpacing) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: V2AIProcessingConsentMetrics.titleSpacing) {
-                    Text("AI 处理说明")
+                    Text(L10n.string("ai_consent.title", language: appLanguage))
                         .font(V2Typography.cardTitle)
                         .foregroundStyle(V2Color.textPrimary)
 
-                    Text("开始生成前，请确认你了解内容会如何被处理。")
+                    Text(L10n.string("ai_consent.subtitle", language: appLanguage))
                         .font(V2Typography.bodySmall)
                         .foregroundStyle(V2Color.textMuted)
                 }
@@ -32,10 +33,10 @@ struct V2AIProcessingConsentSheet: View {
                         .v2Shadow(V2Shadow.subtleGreen)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("暂不生成")
+                .accessibilityLabel(L10n.string("ai_consent.cancel", language: appLanguage))
             }
 
-            Text("为了帮你把文章整理成知识点和练习题，Recallo 会将你提交的文章链接、提取到的正文和必要的上下文发送给第三方 AI 服务进行处理。我们不会把这些内容用于广告追踪。继续生成即表示你同意这项处理。")
+            Text(L10n.string("ai_consent.body", language: appLanguage))
                 .font(V2Typography.bodySmall)
                 .foregroundStyle(V2Color.textSecondary)
                 .lineSpacing(V2AIProcessingConsentMetrics.bodyLineSpacing)
@@ -43,7 +44,7 @@ struct V2AIProcessingConsentSheet: View {
 
             VStack(spacing: V2AIProcessingConsentMetrics.buttonSpacing) {
                 Button(action: onAgree) {
-                    Text("同意并开始生成")
+                    Text(L10n.string("ai_consent.agree", language: appLanguage))
                         .font(V2Typography.primaryButton)
                         .foregroundStyle(V2Color.surfaceCream)
                         .frame(maxWidth: .infinity)
@@ -55,7 +56,7 @@ struct V2AIProcessingConsentSheet: View {
                 .buttonStyle(.plain)
 
                 Button(action: onCancel) {
-                    Text("暂不生成")
+                    Text(L10n.string("ai_consent.cancel", language: appLanguage))
                         .font(V2Typography.bodySmallEmphasis)
                         .foregroundStyle(V2Color.textMuted)
                         .frame(maxWidth: .infinity)

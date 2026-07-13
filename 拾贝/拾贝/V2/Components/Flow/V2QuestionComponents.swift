@@ -135,6 +135,7 @@ struct V2MultipleChoiceQuestionCard: View {
     let onSelect: (Int) -> Void
     let onSource: () -> Void
     @Environment(\.v2ContentWidth) private var contentWidth
+    @Environment(\.appLanguage) private var appLanguage
 
     private enum Metrics {
         static let topPadding: CGFloat = 25
@@ -181,7 +182,7 @@ struct V2MultipleChoiceQuestionCard: View {
             .frame(maxWidth: .infinity, alignment: .center)
 
             Button(action: onSource) {
-                Text("查看原文")
+                Text(L10n.string("source.view_original", language: appLanguage))
                     .font(.system(size: 14, weight: .regular, design: .default))
                     .tracking(-0.24)
                     .foregroundStyle(Color(hex: 0x737946).opacity(0.55))

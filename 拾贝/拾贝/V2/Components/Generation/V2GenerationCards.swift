@@ -26,6 +26,7 @@ struct V2GeneratingChapterDetailCard: View {
     let onOpenChapter: () -> Void
     let onDelete: () -> Void
     @Environment(\.v2ContentWidth) private var cardWidth
+    @Environment(\.appLanguage) private var appLanguage
 
     private var accentColor: Color {
         Color(hex: 0xADD3FF)
@@ -47,7 +48,7 @@ struct V2GeneratingChapterDetailCard: View {
                             height: V2GenerationStatusCardMetrics.iconSize
                         )
 
-                    Text("章节正在生成")
+                    Text(L10n.string("generation.card.title", language: appLanguage))
                         .font(V2Typography.cardTitleStandard)
                         .foregroundStyle(V2Color.topTitle)
                         .lineLimit(1)
@@ -89,7 +90,7 @@ struct V2GeneratingChapterDetailCard: View {
 
             if isCompleted {
                 Button(action: onOpenChapter) {
-                    Text("查看章节")
+                    Text(L10n.string("generation.card.open_chapter", language: appLanguage))
                         .font(V2Typography.primaryButton)
                         .foregroundStyle(.white)
                         .frame(
@@ -109,7 +110,7 @@ struct V2GeneratingChapterDetailCard: View {
                 )
             } else {
                 Button(action: onDelete) {
-                    Text("取消生成")
+                    Text(L10n.string("generation.card.cancel", language: appLanguage))
                         .font(V2Typography.primaryButton)
                         .foregroundStyle(Color(hex: 0x6E7378))
                         .frame(
@@ -190,6 +191,7 @@ private struct V2GeneratingClockBadge: View {
 private struct V2GeneratingSourceLinkChip: View {
     var accent: Color = Color(hex: 0xADD3FF)
     let action: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         Button(action: action) {
@@ -208,7 +210,7 @@ private struct V2GeneratingSourceLinkChip: View {
                 }
                 .frame(width: 34, height: 34)
 
-                Text("查看原文")
+                Text(L10n.string("source.view_original", language: appLanguage))
                     .font(V2Typography.labelRegular)
                     .foregroundStyle(Color(hex: 0x767676))
                     .lineLimit(1)
@@ -230,7 +232,7 @@ private struct V2GeneratingSourceLinkChip: View {
             height: V2GenerationStatusCardMetrics.sourceChipHeight,
             alignment: .topLeading
         )
-        .accessibilityLabel("查看原文")
+        .accessibilityLabel(L10n.string("source.view_original", language: appLanguage))
     }
 }
 
@@ -263,9 +265,10 @@ private struct V2GeneratingLinkIcon: Shape {
 
 struct V2ChapterStatusTag: View {
     let status: V2ChapterReviewStatus
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
-        Text(status.title)
+        Text(status.title(language: appLanguage))
             .font(.system(size: 12, weight: .regular))
             .foregroundStyle(Color(hex: status.foregroundColor.hex))
             .frame(width: 55, height: 22)
@@ -278,6 +281,7 @@ struct V2ChapterStatusTag: View {
 
 struct V2GenerationStartedDialog: View {
     let onAcknowledge: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -304,7 +308,7 @@ struct V2GenerationStartedDialog: View {
                 .offset(x: V2GenerationStartedDialogMetrics.mascotX, y: V2GenerationStartedDialogMetrics.mascotY)
                 .allowsHitTesting(false)
 
-            Text(verbatim: "生成完成后\n会通知你")
+            Text(L10n.string("generation.started.message", language: appLanguage))
                 .font(.system(size: 16, weight: .regular))
                 .foregroundStyle(V2Color.topTitle)
                 .lineSpacing(8)
@@ -318,7 +322,7 @@ struct V2GenerationStartedDialog: View {
                 .offset(x: V2GenerationStartedDialogMetrics.messageX, y: V2GenerationStartedDialogMetrics.messageY)
 
             Button(action: onAcknowledge) {
-                Text(verbatim: "好的")
+                Text(L10n.string("global.ok", language: appLanguage))
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(V2Color.primaryAction)
                     .frame(
@@ -332,7 +336,7 @@ struct V2GenerationStartedDialog: View {
         }
         .frame(width: V2GenerationStartedDialogMetrics.dialogWidth, height: V2GenerationStartedDialogMetrics.dialogHeight)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("生成完成后会通知你")
+        .accessibilityLabel(L10n.string("generation.started.accessibility", language: appLanguage))
     }
 }
 
@@ -363,11 +367,12 @@ private enum V2GenerationStartedDialogMetrics {
 
 struct V2GeneratedChaptersSummaryCard: View {
     let count: Int
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         ZStack(alignment: .topLeading) {
             HStack(alignment: .firstTextBaseline, spacing: 2) {
-                Text("已生成 ")
+                Text(L10n.string("generation.summary.prefix", language: appLanguage))
                     .font(V2GeneratedChaptersSummaryCardMetrics.textFont)
                     .foregroundStyle(Color(hex: 0x383838))
 
@@ -375,7 +380,7 @@ struct V2GeneratedChaptersSummaryCard: View {
                     .font(V2GeneratedChaptersSummaryCardMetrics.numberFont)
                     .foregroundStyle(V2Color.primaryAction)
 
-                Text(" 个章节")
+                Text(L10n.string("generation.summary.suffix", language: appLanguage))
                     .font(V2GeneratedChaptersSummaryCardMetrics.textFont)
                     .foregroundStyle(Color(hex: 0x383838))
             }

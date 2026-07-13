@@ -2,6 +2,7 @@ import SwiftUI
 
 struct V2BottomNavigationBar: View {
     @Binding var selectedTab: V2HomeTab
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -20,6 +21,7 @@ struct V2BottomNavigationBar: View {
             V2UploadTabButton {
                 selectedTab = .upload
             }
+            .environment(\.appLanguage, appLanguage)
             .position(V2BottomNavMetrics.center(for: .upload))
 
             navItem(.discover)
@@ -86,6 +88,7 @@ struct V2BottomNavItem: View {
     let tab: V2HomeTab
     let isSelected: Bool
     let action: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         Button(action: action) {
@@ -97,7 +100,7 @@ struct V2BottomNavItem: View {
                         .frame(width: 32, height: 32)
                 }
 
-                Text(LocalizedStringKey(tab.title))
+                Text(tab.title(language: appLanguage))
                     .font(V2Typography.navLabel)
                     .foregroundStyle(isSelected ? V2Color.primary : V2Color.textPrimary)
                     .frame(height: 16)
@@ -106,12 +109,13 @@ struct V2BottomNavItem: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(Text(LocalizedStringKey(tab.title)))
+        .accessibilityLabel(Text(tab.title(language: appLanguage)))
     }
 }
 
 struct V2UploadTabButton: View {
     let action: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         Button(action: action) {
@@ -140,7 +144,7 @@ struct V2UploadTabButton: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(Text("上传"))
+        .accessibilityLabel(Text(L10n.string("tab.add", language: appLanguage)))
     }
 }
 

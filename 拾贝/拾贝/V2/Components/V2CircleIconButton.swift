@@ -20,6 +20,7 @@ struct V2CircleIconButton: View {
     let kind: V2CircleIconKind
     var showsUnreadBadge = false
     let action: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         Button(action: action) {
@@ -112,11 +113,18 @@ struct V2CircleIconButton: View {
 
     private var accessibilityLabel: String {
         switch kind {
-        case .notification: showsUnreadBadge ? "通知，有未读消息" : "通知"
-        case .profile: "个人主页"
-        case .back: "返回"
-        case .sourceDocument: "查看原文"
-        case .delete: "删除章节"
+        case .notification:
+            showsUnreadBadge
+                ? L10n.string("accessibility.notifications_unread", language: appLanguage)
+                : L10n.string("tab.notifications", language: appLanguage)
+        case .profile:
+            L10n.string("accessibility.profile", language: appLanguage)
+        case .back:
+            L10n.string("navigation.back", language: appLanguage)
+        case .sourceDocument:
+            L10n.string("source.view_original", language: appLanguage)
+        case .delete:
+            L10n.string("chapter.delete", language: appLanguage)
         }
     }
 }
@@ -161,6 +169,7 @@ private struct V2TrashIconShape: Shape {
 struct V2QuestionFavoriteButton: View {
     var isSaved: Bool
     let action: () -> Void
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         Button(action: action) {
@@ -195,7 +204,11 @@ struct V2QuestionFavoriteButton: View {
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(isSaved ? "取消收藏" : "收藏")
+        .accessibilityLabel(
+            isSaved
+                ? L10n.string("favorite.remove", language: appLanguage)
+                : L10n.string("favorite.add", language: appLanguage)
+        )
     }
 }
 

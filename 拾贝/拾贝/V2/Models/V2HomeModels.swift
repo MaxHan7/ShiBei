@@ -19,6 +19,21 @@ enum V2HomeTab: CaseIterable, Identifiable {
         }
     }
 
+    func title(language: AppLanguage) -> String {
+        switch self {
+        case .learning:
+            L10n.string("tab.home", language: language)
+        case .materials:
+            L10n.string("tab.chapters", language: language)
+        case .upload:
+            ""
+        case .discover:
+            L10n.string("tab.discover", language: language)
+        case .notes:
+            L10n.string("tab.notes", language: language)
+        }
+    }
+
     var inactiveAssetName: String? {
         switch self {
         case .learning: "V2NavLearningInactive"

@@ -82,6 +82,21 @@ enum V2ChapterReviewStatus {
         }
     }
 
+    func title(language: AppLanguage) -> String {
+        switch self {
+        case .generating:
+            L10n.string("chapter.status.generating", language: language)
+        case .failed:
+            L10n.string("chapter.status.failed", language: language)
+        case .notStarted:
+            L10n.string("chapter.status.not_started", language: language)
+        case .reviewing:
+            L10n.string("chapter.status.reviewing", language: language)
+        case .completed:
+            L10n.string("chapter.status.completed", language: language)
+        }
+    }
+
     var foregroundColor: V2ColorValue {
         switch self {
         case .generating: V2ColorValue(hex: 0x469CFF)

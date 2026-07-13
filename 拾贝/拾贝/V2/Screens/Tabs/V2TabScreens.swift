@@ -313,6 +313,7 @@ struct V2UploadView: View {
     @State private var validationMessage = ""
     @State private var preflightState = V2UploadPreflightState.idle
     @State private var preflightTask: Task<Void, Never>?
+    @Environment(\.appLanguage) private var appLanguage
 
     private var trimmedSourceText: String {
         sourceText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -341,7 +342,7 @@ struct V2UploadView: View {
     }
 
     var body: some View {
-        V2TabScaffold(selectedTab: $selectedTab, title: "上传") {
+        V2TabScaffold(selectedTab: $selectedTab, title: L10n.string("tab.add", language: appLanguage)) {
             GeometryReader { geometry in
                 ZStack(alignment: .top) {
                     V2UploadBackgroundDecorations()
@@ -371,7 +372,7 @@ struct V2UploadView: View {
                             }
                             let trimmed = trimmedSourceText
                             guard !trimmed.isEmpty else {
-                                validationMessage = "请先粘贴文章链接或正文"
+                                validationMessage = L10n.string("add.validation.empty", language: appLanguage)
                                 return
                             }
                             validationMessage = ""
@@ -406,12 +407,12 @@ struct V2UploadView: View {
 
     private var primaryActionTitle: String {
         if isSubmittingGeneration {
-            return "正在提交"
+            return L10n.string("add.submit.submitting", language: appLanguage)
         }
         if case .checkingMetadata(let input) = preflightState, input == preflightInputKey {
-            return "正在确认"
+            return L10n.string("add.submit.confirming", language: appLanguage)
         }
-        return "开始生成"
+        return L10n.string("add.submit.start", language: appLanguage)
     }
 
     private func schedulePreflight(for value: String) {
@@ -425,7 +426,7 @@ struct V2UploadView: View {
 
         let parsed = ChapterInput.parse(trimmed)
         guard parsed.validationError == nil else {
-            preflightState = .failed(input: trimmed, message: "这不是有效的链接。请粘贴 http 或 https 开头的链接。")
+            preflightState = .failed(input: trimmed, message: L10n.string("add.validation.invalid_link_full", language: appLanguage))
             return
         }
         guard let sourceUrl = parsed.sourceUrl, !sourceUrl.isEmpty else {
@@ -455,7 +456,7 @@ struct V2UploadView: View {
                     guard preflightInputKey == sourceUrl else {
                         return
                     }
-                    preflightState = .failed(input: sourceUrl, message: "识别不到链接信息")
+                    preflightState = .failed(input: sourceUrl, message: L10n.string("add.validation.unrecognized_link", language: appLanguage))
                 }
             }
         }
@@ -464,13 +465,13 @@ struct V2UploadView: View {
     private func handleBlockedGenerateTap() {
         let trimmed = trimmedSourceText
         guard !trimmed.isEmpty else {
-            validationMessage = "请先粘贴文章链接或正文"
+            validationMessage = L10n.string("add.validation.empty", language: appLanguage)
             return
         }
 
         let parsed = ChapterInput.parse(trimmed)
         if parsed.validationError != nil {
-            validationMessage = "这不是有效的链接。请粘贴 http 或 https 开头的链接。"
+            validationMessage = L10n.string("add.validation.invalid_link_full", language: appLanguage)
             return
         }
         if let sourceUrl = parsed.sourceUrl, !sourceUrl.isEmpty {
@@ -480,17 +481,17 @@ struct V2UploadView: View {
             case .failed(let input, let message) where input == sourceUrl:
                 validationMessage = message
             case .checking:
-                validationMessage = "正在读取链接信息，请稍等"
+                validationMessage = L10n.string("add.validation.reading_link", language: appLanguage)
             case .checkingMetadata:
-                validationMessage = "正在确认视频信息，请稍等"
+                validationMessage = L10n.string("add.validation.confirming_video", language: appLanguage)
             default:
-                validationMessage = "请等待链接识别完成"
+                validationMessage = L10n.string("add.validation.wait_for_preflight", language: appLanguage)
                 schedulePreflight(for: trimmed)
             }
             return
         }
 
-        validationMessage = "正文太短，至少需要 24 个字"
+        validationMessage = L10n.string("add.validation.text_too_short", language: appLanguage)
     }
 
     @MainActor
@@ -519,8 +520,9 @@ struct V2UploadView: View {
             guard preflightInputKey == sourceUrl else {
                 return
             }
-            preflightState = .failed(input: sourceUrl, message: "暂时无法读取视频信息，请稍后重试。")
-            validationMessage = "暂时无法读取视频信息，请稍后重试。"
+            let message = L10n.string("add.validation.video_unavailable", language: appLanguage)
+            preflightState = .failed(input: sourceUrl, message: message)
+            validationMessage = message
         }
     }
 }
@@ -540,23 +542,23 @@ private enum V2UploadPreflightState: Equatable {
         return false
     }
 
-    func feedback(for input: String) -> V2UploadPreflightFeedback? {
+    func feedback(for input: String, language: AppLanguage) -> V2UploadPreflightFeedback? {
         switch self {
         case .idle:
             return nil
         case .checking(let checkedInput) where checkedInput == input:
             return V2UploadPreflightFeedback(
-                message: "正在识别内容类型",
+                message: L10n.string("add.preflight.checking_type", language: language),
                 isError: false
             )
         case .checkingMetadata(let checkedInput) where checkedInput == input:
             return V2UploadPreflightFeedback(
-                message: "正在确认视频标题和时长",
+                message: L10n.string("add.preflight.checking_video_metadata", language: language),
                 isError: false
             )
         case .ready(let checkedInput, let response) where checkedInput == input:
             return V2UploadPreflightFeedback(
-                message: "将根据\(Self.sourceBasisLabel(response))生成学习内容",
+                message: L10n.format("add.preflight.ready", language: language, Self.sourceBasisLabel(response, language: language)),
                 isError: false
             )
         case .blocked(let checkedInput, let response) where checkedInput == input:
@@ -574,17 +576,20 @@ private enum V2UploadPreflightState: Equatable {
         }
     }
 
-    private static func sourceBasisLabel(_ response: SourcePreflightResponse) -> String {
+    private static func sourceBasisLabel(_ response: SourcePreflightResponse, language: AppLanguage) -> String {
         switch response.sourceType {
         case "video_link":
-            let platformLabel = response.platformLabel ?? "视频"
-            return platformLabel.contains("视频") ? platformLabel : "\(platformLabel)视频"
+            let genericVideo = L10n.string("source.video", language: language)
+            let platformLabel = response.platformLabel ?? genericVideo
+            return platformLabel.contains("视频") || platformLabel.lowercased().contains("video")
+                ? platformLabel
+                : L10n.format("source.platform_video", language: language, platformLabel)
         case "wechat_article":
-            return "公众号文章"
+            return L10n.string("source.wechat_article", language: language)
         case "article_link":
-            return "网页文章"
+            return L10n.string("source.article_link", language: language)
         default:
-            return response.platformLabel ?? "当前链接"
+            return response.platformLabel ?? L10n.string("source.current_link", language: language)
         }
     }
 }
@@ -617,9 +622,10 @@ private struct V2UploadMascotInputGroup: View {
     let preflightState: V2UploadPreflightState
     let input: String
     @Environment(\.v2ContentWidth) private var contentWidth
+    @Environment(\.appLanguage) private var appLanguage
 
     private var feedback: V2UploadPreflightFeedback? {
-        preflightState.feedback(for: input)
+        preflightState.feedback(for: input, language: appLanguage)
     }
 
     private var cardHeight: CGFloat {
@@ -676,10 +682,11 @@ private struct V2UploadLinkInputCard: View {
     @Binding var urlText: String
     let feedback: V2UploadPreflightFeedback?
     @FocusState private var isURLFieldFocused: Bool
+    @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         VStack(alignment: .center, spacing: V2UploadInputCardMetrics.titleToFieldSpacing) {
-            Text("添加学习内容")
+            Text(L10n.string("add.content.title", language: appLanguage))
                 .font(V2UploadInputCardMetrics.titleFont)
                 .foregroundStyle(V2UploadInputCardMetrics.titleColor)
                 .frame(maxWidth: .infinity)
@@ -694,7 +701,7 @@ private struct V2UploadLinkInputCard: View {
                     )
 
                 TextField(text: $urlText) {
-                    Text("粘贴文章或视频链接")
+                    Text(L10n.string("add.input.placeholder", language: appLanguage))
                         .font(V2UploadInputCardMetrics.placeholderFont)
                         .foregroundStyle(V2UploadInputCardMetrics.placeholderColor)
                 }
