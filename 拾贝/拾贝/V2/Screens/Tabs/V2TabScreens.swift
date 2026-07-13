@@ -8,6 +8,14 @@ struct V2TabScaffold<Content: View>: View {
     var body: some View {
         GeometryReader { geometry in
             let bottomNavScale = min(1, geometry.size.width / V2BottomNavPlacement.visualSize.width)
+            let scrollViewportHeight = max(
+                240,
+                geometry.size.height
+                    - V2Layout.topChromeReservedHeight
+                    - V2BottomNavPlacement.scaledHeight(scale: bottomNavScale)
+                    - V2BottomNavPlacement.bottomPadding
+                    - geometry.safeAreaInsets.bottom
+            )
 
             ZStack(alignment: .top) {
                 V2Color.pageGreenBackground
@@ -25,28 +33,22 @@ struct V2TabScaffold<Content: View>: View {
                         content()
                             .v2PageColumn()
                             .padding(.top, 28)
-                            .padding(
-                                .bottom,
-                                V2BottomNavPlacement.reservedScrollBottomPadding(
-                                    scale: bottomNavScale,
-                                    safeAreaBottom: geometry.safeAreaInsets.bottom
-                                )
-                            )
+                            .padding(.bottom, V2BottomNavPlacement.scrollClearance)
                     }
+                    .frame(height: scrollViewportHeight)
+                    .clipped()
                 }
-
-                VStack {
-                    Spacer()
-
-                    V2BottomNavigationBar(selectedTab: $selectedTab)
-                        .scaleEffect(bottomNavScale, anchor: .bottom)
-                        .frame(
-                            width: V2BottomNavPlacement.visualSize.width * bottomNavScale,
-                            height: V2BottomNavPlacement.scaledHeight(scale: bottomNavScale)
-                        )
-                        .padding(.bottom, V2BottomNavPlacement.bottomPadding)
-                }
-                .zIndex(20)
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                V2BottomNavigationBar(selectedTab: $selectedTab)
+                    .scaleEffect(bottomNavScale, anchor: .bottom)
+                    .frame(
+                        width: V2BottomNavPlacement.visualSize.width * bottomNavScale,
+                        height: V2BottomNavPlacement.scaledHeight(scale: bottomNavScale)
+                    )
+                    .padding(.bottom, V2BottomNavPlacement.bottomPadding)
+                    .frame(maxWidth: .infinity)
+                    .background(V2Color.pageGreenBackground)
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
         }

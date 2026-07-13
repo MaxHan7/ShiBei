@@ -7,10 +7,10 @@ Branch: codex/lean-high-value-generation-20260711
 
 | Device | Runtime | Status | Notes |
 | --- | --- | --- | --- |
-| iPhone SE (3rd generation) | iOS 26 simulator | In progress | Home/upload/materials/discover/notes/generating detail checked; URL feedback overlay issue fixed and retested. |
-| iPhone 13 mini | iOS 26 simulator | Pending | P0 narrow modern safe-area target. |
-| iPhone 17 | iOS 26 simulator | Pending | P1 standard current iPhone baseline. |
-| iPhone 17 Pro Max | iOS 26 simulator | Pending | P1 large screen regression target. |
+| iPhone SE (3rd generation) | iOS 26 simulator | Passed | Home/upload/materials/discover/notes/generating detail checked; URL feedback overlay and tab nav overlap issues fixed and retested. |
+| iPhone 13 mini | iOS 26 simulator | Passed with visual evidence | Home visual pass; accessibility snapshot was intermittently unavailable on this simulator. |
+| iPhone 17 | iOS 26 simulator | Environment issue | Build succeeded, but simulator launch/install path repeatedly stalled; substituted iPhone 17 Pro Max plus SE/mini coverage. |
+| iPhone 17 Pro Max | iOS 26 simulator | Passed | Home/upload visual and semantic snapshot pass after simulator launch stabilized. |
 
 ## Flows To Verify
 
@@ -82,3 +82,15 @@ Branch: codex/lean-high-value-generation-20260711
 - The upload screen now dismisses keyboard/candidate UI once link preflight reaches ready or blocked state.
 - SE retest confirmed the row `将根据小红书视频生成学习内容` remains visible with the start button and bottom navigation.
 - Compile verification: `build_sim` and SE `build_run_sim` passed with no warnings after this change.
+
+### 2026-07-13: Tab scaffold bottom viewport comfort
+
+- SE visual verification found discover-list content could show through the floating navigation region on small screens.
+- `V2TabScaffold` now constrains the scroll viewport above the bottom navigation, clips scroll content to that viewport, and gives the bottom inset an opaque page background.
+- SE retest confirmed discover/upload tab pages keep content visually separate from the floating bottom navigation.
+- Compile verification: `build_sim` and SE `build_run_sim` passed with no warnings after this change.
+
+## Current Residual Risks
+
+- iPhone 17 and iPhone 17 Pro simulator instances showed CoreSimulator install/launch instability during verification. The app build itself succeeded without warnings; the issue was recorded as environment-related because SE and Pro Max launched the same build successfully.
+- The broad UI audit covered the highest-risk tab and review flows. Future App Store submission should still include one final physical-device or fresh-simulator smoke pass after any unrelated UI edits.
