@@ -2,18 +2,38 @@ import SwiftUI
 
 struct V2ProfileSettingRow: View {
     let title: String
-    let assetName: String
+    let subtitle: String?
+    let assetName: String?
+    let systemImageName: String?
+
+    init(
+        title: String,
+        subtitle: String? = nil,
+        assetName: String? = nil,
+        systemImageName: String? = nil
+    ) {
+        self.title = title
+        self.subtitle = subtitle
+        self.assetName = assetName
+        self.systemImageName = systemImageName
+    }
 
     var body: some View {
         HStack(spacing: 14) {
-            Image(assetName)
-                .resizable()
-                .renderingMode(.original)
-                .frame(width: 33, height: 33)
+            icon
 
-            Text(title)
-                .font(V2Typography.label)
-                .foregroundStyle(V2Color.topTitle)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(V2Typography.label)
+                    .foregroundStyle(V2Color.topTitle)
+
+                if let subtitle {
+                    Text(subtitle)
+                        .font(V2Typography.caption)
+                        .foregroundStyle(V2Color.textMuted)
+                        .lineLimit(1)
+                }
+            }
 
             Spacer()
 
@@ -25,6 +45,24 @@ struct V2ProfileSettingRow: View {
         .padding(.leading, 24)
         .padding(.trailing, 24)
         .contentShape(Rectangle())
+    }
+
+    @ViewBuilder
+    private var icon: some View {
+        if let assetName {
+            Image(assetName)
+                .resizable()
+                .renderingMode(.original)
+                .frame(width: 33, height: 33)
+        } else if let systemImageName {
+            Image(systemName: systemImageName)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(V2Color.topTitle.opacity(0.78))
+                .frame(width: 33, height: 33)
+                .background(V2Color.surfaceCream)
+                .clipShape(Circle())
+                .v2Shadow(V2Shadow.subtleGreen)
+        }
     }
 }
 

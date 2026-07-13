@@ -25,7 +25,7 @@ struct V2PrimaryActionButton: View {
 
     var body: some View {
         Button(action: action) {
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -95,7 +95,7 @@ struct V2FlowTopBar: View {
     var body: some View {
         ZStack {
             if !title.isEmpty {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(titleFont)
                     .foregroundStyle(titleColor)
             }

@@ -5,6 +5,7 @@ import UIKit
 import UserNotifications
 
 struct V2ProfileHeaderCard: View {
+    @AppStorage(AppLanguage.storageKey) private var selectedLanguageRawValue = AppLanguage.zhHans.rawValue
     @Binding var name: String
     let reviewedCount: String
     let streakDays: String
@@ -13,6 +14,10 @@ struct V2ProfileHeaderCard: View {
     @State private var showsNameEditor = false
     @State private var draftName = ""
     @Environment(\.v2ContentWidth) private var contentWidth
+
+    private var selectedLanguage: AppLanguage {
+        AppLanguage.stored(from: selectedLanguageRawValue)
+    }
 
     var body: some View {
         let width = contentWidth
@@ -71,16 +76,16 @@ struct V2ProfileHeaderCard: View {
 
             HStack(spacing: V2ProfileHeaderMetrics.statCardSpacing) {
                 V2ProfileStatCard(
-                    title: "已掌握",
+                    title: L10n.string("profile.stats.mastered", language: selectedLanguage),
                     value: reviewedCount,
-                    unit: "个知识点",
+                    unit: L10n.string("profile.stats.points_unit", language: selectedLanguage),
                     assetName: "V2ProfileStatReviewed",
                     width: statCardWidth
                 )
                 V2ProfileStatCard(
-                    title: "连续学习",
+                    title: L10n.string("profile.stats.streak", language: selectedLanguage),
                     value: streakDays,
-                    unit: "天",
+                    unit: L10n.string("profile.stats.days_unit", language: selectedLanguage),
                     assetName: "V2ProfileStatStreak",
                     width: statCardWidth
                 )
@@ -538,38 +543,59 @@ private enum V2ProfileStatMetrics {
 }
 
 struct V2ProfileSettingsCard: View {
+    @AppStorage(AppLanguage.storageKey) private var selectedLanguageRawValue = AppLanguage.zhHans.rawValue
     let account: AccountSnapshot?
     let isAccountLoading: Bool
     let accountMessage: String
     let onSignInWithApple: (Data?, Data?) async -> Void
     let onDeleteAccount: () async -> Void
     @State private var activeSheet: V2ProfileSettingsSheet?
+    @State private var showsLanguageSheet = false
     @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
         VStack(spacing: 0) {
             Button {
+                showsLanguageSheet = true
+            } label: {
+                V2ProfileSettingRow(
+                    title: L10n.string("profile.interface_language", language: selectedLanguage),
+                    subtitle: selectedLanguage.displayName(in: selectedLanguage),
+                    systemImageName: "globe.asia.australia.fill"
+                )
+            }
+            V2ProfileSettingDivider()
+            Button {
                 activeSheet = .notifications
             } label: {
-                V2ProfileSettingRow(title: "通知设置", assetName: "V2ProfileSettingNotification")
+                V2ProfileSettingRow(
+                    title: L10n.string("profile.notification_permission", language: selectedLanguage),
+                    assetName: "V2ProfileSettingNotification"
+                )
             }
             V2ProfileSettingDivider()
             Button {
                 activeSheet = .privacy
             } label: {
-                V2ProfileSettingRow(title: "隐私说明", assetName: "V2ProfileSettingPrivacy")
+                V2ProfileSettingRow(
+                    title: L10n.string("profile.privacy", language: selectedLanguage),
+                    assetName: "V2ProfileSettingPrivacy"
+                )
             }
             V2ProfileSettingDivider()
             Button {
                 activeSheet = .account
             } label: {
-                V2ProfileSettingRow(title: "账号说明", assetName: "V2ProfileSettingAccount")
+                V2ProfileSettingRow(
+                    title: L10n.string("profile.account_info", language: selectedLanguage),
+                    assetName: "V2ProfileSettingAccount"
+                )
             }
         }
         .buttonStyle(.plain)
         .padding(.top, 10)
         .padding(.bottom, 10)
-        .frame(width: contentWidth, height: 190)
+        .frame(width: contentWidth, height: 247)
         .background(
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
@@ -587,7 +613,91 @@ struct V2ProfileSettingsCard: View {
                 .presentationDetents(sheet.detents)
                 .presentationDragIndicator(.visible)
         }
+        .sheet(isPresented: $showsLanguageSheet) {
+            V2ProfileLanguageSelectionSheet()
+                .presentationDetents([.height(V2ProfileLanguageSelectionMetrics.sheetHeight)])
+                .presentationDragIndicator(.visible)
+        }
     }
+
+    private var selectedLanguage: AppLanguage {
+        AppLanguage.stored(from: selectedLanguageRawValue)
+    }
+}
+
+private struct V2ProfileLanguageSelectionSheet: View {
+    @AppStorage(AppLanguage.storageKey) private var selectedLanguageRawValue = AppLanguage.zhHans.rawValue
+    @Environment(\.dismiss) private var dismiss
+
+    private var selectedLanguage: AppLanguage {
+        AppLanguage.stored(from: selectedLanguageRawValue)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: V2ProfileLanguageSelectionMetrics.sectionSpacing) {
+            V2ProfileSettingsSheetHeader(
+                title: L10n.string("profile.interface_language", language: selectedLanguage)
+            ) {
+                dismiss()
+            }
+
+            Text(L10n.string("profile.interface_language.body", language: selectedLanguage))
+                .font(V2Typography.bodySmall)
+                .foregroundStyle(V2Color.textSecondary)
+                .lineSpacing(4)
+                .fixedSize(horizontal: false, vertical: true)
+
+            VStack(spacing: V2ProfileLanguageSelectionMetrics.optionSpacing) {
+                ForEach(AppLanguage.allCases) { language in
+                    Button {
+                        selectedLanguageRawValue = language.rawValue
+                    } label: {
+                        HStack(spacing: 12) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(language.displayName(in: selectedLanguage))
+                                    .font(V2Typography.bodySmallEmphasis)
+                                    .foregroundStyle(V2Color.textPrimary)
+
+                                Text(language.interfaceSubtitle(in: selectedLanguage))
+                                    .font(V2Typography.labelRegular)
+                                    .foregroundStyle(V2Color.textMuted)
+                                    .lineLimit(1)
+                            }
+
+                            Spacer()
+
+                            if language == selectedLanguage {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundStyle(V2Color.primaryAction)
+                            }
+                        }
+                        .padding(.horizontal, V2ProfileLanguageSelectionMetrics.optionHorizontalPadding)
+                        .frame(height: V2ProfileLanguageSelectionMetrics.optionHeight)
+                        .background(V2Color.surfaceCream)
+                        .clipShape(RoundedRectangle(cornerRadius: V2Radius.medium, style: .continuous))
+                        .v2Shadow(V2Shadow.subtleGreen)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, V2ProfileSettingsSheetMetrics.horizontalPadding)
+        .padding(.top, V2ProfileSettingsSheetMetrics.topPadding)
+        .padding(.bottom, V2ProfileSettingsSheetMetrics.bottomPadding)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(V2ProfileSettingsSheetMetrics.sheetBackground.ignoresSafeArea())
+    }
+}
+
+private enum V2ProfileLanguageSelectionMetrics {
+    static let sheetHeight: CGFloat = 318
+    static let sectionSpacing: CGFloat = 16
+    static let optionSpacing: CGFloat = 12
+    static let optionHeight: CGFloat = 62
+    static let optionHorizontalPadding: CGFloat = 16
 }
 
 private struct V2ProfileSettingDivider: View {
@@ -607,33 +717,36 @@ private enum V2ProfileSettingsSheet: String, Identifiable {
 
     var id: String { rawValue }
 
-    var title: String {
+    func title(language: AppLanguage) -> String {
         switch self {
-        case .notifications: "通知设置"
-        case .privacy: "隐私说明"
-        case .account: "账号说明"
+        case .notifications:
+            L10n.string("profile.notification_permission", language: language)
+        case .privacy:
+            L10n.string("profile.privacy", language: language)
+        case .account:
+            L10n.string("profile.account_info", language: language)
         }
     }
 
-    var paragraphs: [String] {
+    func paragraphs(language: AppLanguage) -> [String] {
         switch self {
         case .notifications:
             [
-                "Recallo 会在内容生成完成或失败时发送系统通知，帮助你回到对应章节继续学习。",
-                "如果你没有开启系统通知，仍然可以在 App 内通知页查看生成结果。成功通知打开后会自动归档，失败通知会保留到你处理或手动移除。"
+                L10n.string("profile.info.notifications.p1", language: language),
+                L10n.string("profile.info.notifications.p2", language: language)
             ]
         case .privacy:
             [
-                "你提交的文字、文章链接和生成结果会发送到 Recallo 云端，用于提取知识点、生成题目和保存学习进度。",
-                "生成过程中，内容可能会被发送给第三方 AI 模型服务处理。Recallo 不会把你的内容公开展示给其他用户。",
-                "首次使用真实生成前，Recallo 会要求你确认 AI 处理说明；确认后这项说明可以在这里回看。",
-                "服务器会保存章节、题目、通知、学习记录、收藏、生成额度和必要诊断信息。你可以在“我的”页删除当前匿名设备下的数据。"
+                L10n.string("profile.info.privacy.p1", language: language),
+                L10n.string("profile.info.privacy.p2", language: language),
+                L10n.string("profile.info.privacy.p3", language: language),
+                L10n.string("profile.info.privacy.p4", language: language)
             ]
         case .account:
             [
-                "你可以继续匿名使用 Recallo，也可以选择绑定 Apple 账号。",
-                "绑定后，当前设备上的章节、通知、学习记录、收藏和额度记录会归入这个账号。",
-                "删除账号会删除这个账号关联的云端学习数据；删除后仍可继续匿名使用。"
+                L10n.string("profile.info.account.p1", language: language),
+                L10n.string("profile.info.account.p2", language: language),
+                L10n.string("profile.info.account.p3", language: language)
             ]
         }
     }
@@ -653,16 +766,21 @@ private struct V2ProfileSettingsSheetView: View {
     let accountMessage: String
     let onSignInWithApple: (Data?, Data?) async -> Void
     let onDeleteAccount: () async -> Void
+    @AppStorage(AppLanguage.storageKey) private var selectedLanguageRawValue = AppLanguage.zhHans.rawValue
     @Environment(\.dismiss) private var dismiss
+
+    private var selectedLanguage: AppLanguage {
+        AppLanguage.stored(from: selectedLanguageRawValue)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: V2ProfileSettingsSheetMetrics.sectionSpacing) {
-            V2ProfileSettingsSheetHeader(title: sheet.title) {
+            V2ProfileSettingsSheetHeader(title: sheet.title(language: selectedLanguage)) {
                 dismiss()
             }
 
             VStack(alignment: .leading, spacing: V2ProfileSettingsSheetMetrics.paragraphSpacing) {
-                ForEach(sheet.paragraphs, id: \.self) { paragraph in
+                ForEach(sheet.paragraphs(language: selectedLanguage), id: \.self) { paragraph in
                     Text(paragraph)
                         .font(V2Typography.bodySmall)
                         .foregroundStyle(V2Color.textSecondary)
@@ -702,8 +820,13 @@ private struct V2ProfileAccountPanel: View {
     let message: String
     let onSignInWithApple: (Data?, Data?) async -> Void
     let onDeleteAccount: () async -> Void
+    @AppStorage(AppLanguage.storageKey) private var selectedLanguageRawValue = AppLanguage.zhHans.rawValue
     @State private var localMessage = ""
     @State private var showsDeleteConfirmation = false
+
+    private var selectedLanguage: AppLanguage {
+        AppLanguage.stored(from: selectedLanguageRawValue)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: V2ProfileSettingsSheetMetrics.permissionPanelSpacing) {
@@ -715,14 +838,18 @@ private struct V2ProfileAccountPanel: View {
                         height: V2ProfileSettingsSheetMetrics.statusDotSize
                     )
 
-                Text(account == nil ? "当前为匿名模式" : "已绑定 Apple 账号")
+                Text(account == nil
+                     ? L10n.string("profile.account.anonymous", language: selectedLanguage)
+                     : L10n.string("profile.account.linked", language: selectedLanguage))
                     .font(V2Typography.bodySmallEmphasis)
                     .foregroundStyle(V2Color.textPrimary)
 
                 Spacer()
             }
 
-            Text(account == nil ? "匿名模式可以直接生成和学习；绑定 Apple 账号后，更适合后续换机和数据恢复。" : "账号 ID：\(account?.id.suffix(8) ?? "")")
+            Text(account == nil
+                 ? L10n.string("profile.account.anonymous.body", language: selectedLanguage)
+                 : L10n.format("profile.account.id", language: selectedLanguage, String(account?.id.suffix(8) ?? "")))
                 .font(V2Typography.labelRegular)
                 .foregroundStyle(V2Color.textMuted)
                 .lineSpacing(3)
@@ -743,7 +870,9 @@ private struct V2ProfileAccountPanel: View {
                 Button {
                     showsDeleteConfirmation = true
                 } label: {
-                    Text(isLoading ? "正在处理..." : "删除账号数据")
+                    Text(isLoading
+                         ? L10n.string("profile.account.processing", language: selectedLanguage)
+                         : L10n.string("profile.account.delete_data", language: selectedLanguage))
                         .font(V2Typography.primaryButton)
                         .foregroundStyle(V2Color.surfaceCream)
                         .frame(maxWidth: .infinity)
@@ -754,15 +883,19 @@ private struct V2ProfileAccountPanel: View {
                 .buttonStyle(.plain)
                 .disabled(isLoading)
                 .opacity(isLoading ? 0.72 : 1)
-                .confirmationDialog("删除账号数据", isPresented: $showsDeleteConfirmation, titleVisibility: .visible) {
-                    Button("删除账号数据", role: .destructive) {
+                .confirmationDialog(
+                    L10n.string("profile.account.delete_data", language: selectedLanguage),
+                    isPresented: $showsDeleteConfirmation,
+                    titleVisibility: .visible
+                ) {
+                    Button(L10n.string("profile.account.delete_data", language: selectedLanguage), role: .destructive) {
                         Task {
                             await onDeleteAccount()
                         }
                     }
-                    Button("取消", role: .cancel) {}
+                    Button(L10n.string("global.cancel", language: selectedLanguage), role: .cancel) {}
                 } message: {
-                    Text("这会删除账号关联的云端章节、学习记录、通知、收藏和推送绑定。")
+                    Text(L10n.string("profile.account.delete_data.body", language: selectedLanguage))
                 }
             }
 
@@ -787,7 +920,7 @@ private struct V2ProfileAccountPanel: View {
         switch result {
         case .success(let authorization):
             guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
-                localMessage = "Apple 登录返回了无法识别的凭证。"
+                localMessage = L10n.string("profile.account.apple_unrecognized", language: selectedLanguage)
                 return
             }
             Task {
@@ -797,7 +930,7 @@ private struct V2ProfileAccountPanel: View {
             if let authError = error as? ASAuthorizationError, authError.code == .canceled {
                 localMessage = ""
             } else {
-                localMessage = "Apple 登录未完成，请稍后重试。"
+                localMessage = L10n.string("profile.account.apple_failed", language: selectedLanguage)
             }
         }
     }
@@ -834,8 +967,13 @@ private struct V2ProfileSettingsSheetHeader: View {
 }
 
 private struct V2ProfileNotificationPermissionPanel: View {
+    @AppStorage(AppLanguage.storageKey) private var selectedLanguageRawValue = AppLanguage.zhHans.rawValue
     @State private var status: UNAuthorizationStatus = .notDetermined
     @State private var isRequesting = false
+
+    private var selectedLanguage: AppLanguage {
+        AppLanguage.stored(from: selectedLanguageRawValue)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: V2ProfileSettingsSheetMetrics.permissionPanelSpacing) {
@@ -890,26 +1028,26 @@ private struct V2ProfileNotificationPermissionPanel: View {
     private var statusTitle: String {
         switch status {
         case .authorized, .provisional, .ephemeral:
-            "系统通知已开启"
+            L10n.string("profile.notifications.status.on", language: selectedLanguage)
         case .denied:
-            "系统通知已关闭"
+            L10n.string("profile.notifications.status.off", language: selectedLanguage)
         case .notDetermined:
-            "尚未开启系统通知"
+            L10n.string("profile.notifications.status.not_determined", language: selectedLanguage)
         @unknown default:
-            "通知状态未知"
+            L10n.string("profile.notifications.status.unknown", language: selectedLanguage)
         }
     }
 
     private var statusDescription: String {
         switch status {
         case .authorized, .provisional, .ephemeral:
-            "生成完成或失败后，Recallo 可以通过系统通知提醒你。"
+            L10n.string("profile.notifications.status.on.body", language: selectedLanguage)
         case .denied:
-            "你已经在系统里关闭了通知。需要到 iOS 设置中重新允许 Recallo 发送通知。"
+            L10n.string("profile.notifications.status.off.body", language: selectedLanguage)
         case .notDetermined:
-            "开启后，生成任务完成时即使暂时离开 App，也能收到提醒。"
+            L10n.string("profile.notifications.status.not_determined.body", language: selectedLanguage)
         @unknown default:
-            "可以前往系统设置检查 Recallo 的通知权限。"
+            L10n.string("profile.notifications.status.unknown.body", language: selectedLanguage)
         }
     }
 
@@ -929,13 +1067,15 @@ private struct V2ProfileNotificationPermissionPanel: View {
     private var primaryActionTitle: String {
         switch status {
         case .notDetermined:
-            isRequesting ? "正在开启..." : "开启通知"
+            isRequesting
+                ? L10n.string("profile.notifications.enabling", language: selectedLanguage)
+                : L10n.string("profile.notifications.enable", language: selectedLanguage)
         case .authorized, .provisional, .ephemeral:
-            "打开系统设置"
+            L10n.string("profile.notifications.open_settings", language: selectedLanguage)
         case .denied:
-            "前往系统设置"
+            L10n.string("profile.notifications.go_to_settings", language: selectedLanguage)
         @unknown default:
-            "打开系统设置"
+            L10n.string("profile.notifications.open_settings", language: selectedLanguage)
         }
     }
 

@@ -97,7 +97,7 @@ struct V2BottomNavItem: View {
                         .frame(width: 32, height: 32)
                 }
 
-                Text(tab.title)
+                Text(LocalizedStringKey(tab.title))
                     .font(V2Typography.navLabel)
                     .foregroundStyle(isSelected ? V2Color.primary : V2Color.textPrimary)
                     .frame(height: 16)
@@ -106,7 +106,7 @@ struct V2BottomNavItem: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(tab.title)
+        .accessibilityLabel(Text(LocalizedStringKey(tab.title)))
     }
 }
 
@@ -140,7 +140,7 @@ struct V2UploadTabButton: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("上传")
+        .accessibilityLabel(Text("上传"))
     }
 }
 

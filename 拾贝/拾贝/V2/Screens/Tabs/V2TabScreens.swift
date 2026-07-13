@@ -24,7 +24,7 @@ struct V2TabScaffold<Content: View>: View {
 
                 VStack(spacing: 0) {
                     V2TopChrome {
-                        Text(title)
+                        Text(LocalizedStringKey(title))
                             .font(V2Typography.pageTitle)
                             .foregroundStyle(V2Color.topTitle)
                             .frame(maxWidth: .infinity)
@@ -1586,17 +1586,24 @@ struct V2ProfileView: View {
 
 private struct V2RuntimeModeCard: View {
     @Binding var usesMockData: Bool
+    @AppStorage(AppLanguage.storageKey) private var selectedLanguageRawValue = AppLanguage.zhHans.rawValue
     @Environment(\.v2ContentWidth) private var contentWidth
+
+    private var selectedLanguage: AppLanguage {
+        AppLanguage.stored(from: selectedLanguageRawValue)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("演示数据")
+                    Text(L10n.string("debug.demo_data.title", language: selectedLanguage))
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(V2Color.topTitle)
 
-                    Text(usesMockData ? "正在展示组件库 mock 数据" : "正在使用真实测试数据")
+                    Text(usesMockData
+                         ? L10n.string("debug.demo_data.mock", language: selectedLanguage)
+                         : L10n.string("debug.demo_data.real", language: selectedLanguage))
                         .font(.system(size: 11, weight: .regular))
                         .foregroundStyle(Color(hex: 0x8B8B8B))
                 }
@@ -1608,7 +1615,7 @@ private struct V2RuntimeModeCard: View {
                     .tint(V2Color.primaryAction)
             }
 
-            Text("关闭后，主页、全部章节、通知和笔记不会再自动塞入 fixture；只有真实生成或真实保存的数据会出现。")
+            Text(L10n.string("debug.demo_data.body", language: selectedLanguage))
                 .font(V2Typography.caption)
                 .foregroundStyle(Color(hex: 0x9A9A9A))
                 .lineSpacing(3)
