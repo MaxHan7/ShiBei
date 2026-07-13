@@ -66,6 +66,27 @@ unable to resolve module dependency: '拾贝'
 
 Assessment: this is an existing test target/module configuration blocker. The app target itself builds successfully after the localization changes.
 
+Simulator runtime:
+
+```bash
+XcodeBuildMCP install_app_sim
+XcodeBuildMCP launch_app_sim
+xcrun simctl launch AADC4DC0-510F-4306-9793-3447A552E7B4 com.maxhan.shibei
+```
+
+Install result: passed.
+
+Launch result: blocked by Simulator/SpringBoard before the App UI appeared.
+
+Observed error:
+
+```text
+Simulator device failed to launch com.maxhan.shibei.
+The request was denied by service delegate (SBMainWorkspace).
+```
+
+Assessment: this blocks visual UI automation in the current simulator session. It is separate from the App target build, which passes.
+
 ## Remaining Hardcoded String Classification
 
 Must continue before a full English beta:
@@ -95,7 +116,7 @@ Acceptable for this checkpoint:
 
 ## Next Recommended Step
 
-Run a simulator visual pass in both `zh-Hans` and `en` on:
+After the simulator launch issue is cleared, run a visual pass in both `zh-Hans` and `en` on:
 
 1. Profile settings language sheet.
 2. Upload link page.
