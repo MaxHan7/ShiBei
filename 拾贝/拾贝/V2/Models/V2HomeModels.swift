@@ -110,7 +110,7 @@ struct V2HomeData {
         self.init(chapter: chapter, reviewSession: nil)
     }
 
-    init(chapter: V2ReviewChapterData, reviewSession: V2BackendReviewSession?) {
+    init(chapter: V2ReviewChapterData, reviewSession: V2BackendReviewSession?, language: AppLanguage = .zhHans) {
         let currentNodeID = V2HomeData.currentNodeID(for: chapter, reviewSession: reviewSession)
         let completedUnitIDs = V2HomeData.completedUnitIDs(for: chapter, reviewSession: reviewSession)
         let completedQuestionCounts = V2HomeData.completedQuestionCounts(for: chapter, reviewSession: reviewSession)
@@ -121,8 +121,8 @@ struct V2HomeData {
         )
         let startNode = V2LearningPathNodeData(
             id: "start",
-            title: "开始",
-            subtitle: "章节概要",
+            title: L10n.string("home.node.start", language: language),
+            subtitle: L10n.string("chapter.overview.title", language: language),
             kind: .start,
             state: currentNodeID == "start" ? .current : .completed,
             action: .mainline,
@@ -134,7 +134,7 @@ struct V2HomeData {
         let unitNodes = chapter.units.enumerated().map { index, unit in
             V2LearningPathNodeData(
                 id: unit.id,
-                title: "单元\(index + 1)",
+                title: L10n.format("home.node.unit", language: language, index + 1),
                 subtitle: unit.title,
                 kind: .unit,
                 state: V2HomeData.nodeState(
@@ -157,7 +157,7 @@ struct V2HomeData {
         }
 
         self.currentChapter = V2CurrentChapterData(
-            eyebrow: "当前章节",
+            eyebrow: L10n.string("home.current_chapter", language: language),
             title: chapter.title
         )
         self.nodes = [startNode] + unitNodes

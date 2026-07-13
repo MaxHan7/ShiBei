@@ -4249,6 +4249,22 @@
         }
       }
     },
+    "home.current_chapter": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current chapter"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前章节"
+          }
+        }
+      }
+    },
     "home.empty.accessibility": {
       "localizations": {
         "en": {
@@ -4312,6 +4328,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "已掌握知识点"
+          }
+        }
+      }
+    },
+    "home.node.start": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开始"
+          }
+        }
+      }
+    },
+    "home.node.unit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unit %lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "单元%lld"
           }
         }
       }

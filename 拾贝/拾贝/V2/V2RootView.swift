@@ -1140,7 +1140,8 @@ struct V2RootView: View {
         }
         return V2HomeData(
             chapter: activeLearningReviewChapter,
-            reviewSession: activeLearningBackendChapter.v2ReviewSession
+            reviewSession: activeLearningBackendChapter.v2ReviewSession,
+            language: appLanguage
         )
     }
 
