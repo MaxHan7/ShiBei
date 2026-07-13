@@ -1070,6 +1070,7 @@ private struct V2NotificationScreenContent: View {
     let notifications: [NotificationItem]
     let onOpenSuccess: (NotificationItem) -> Void
     let onOpenFailure: (NotificationItem) -> Void
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
         GeometryReader { geometry in
@@ -1085,7 +1086,7 @@ private struct V2NotificationScreenContent: View {
                     onOpenSuccess: onOpenSuccess,
                     onOpenFailure: onOpenFailure
                 )
-                .frame(width: V2Layout.contentMaxWidth)
+                .frame(width: contentWidth)
                 .padding(.top, V2NotificationLayout.listTop)
                 .zIndex(3)
             }
@@ -1295,6 +1296,7 @@ private struct V2GenerationFailureDetailCard: View {
     let failureReason: String
     let onSource: () -> Void
     let onDelete: () -> Void
+    @Environment(\.v2ContentWidth) private var cardWidth
 
     private let failureAccent = Color(hex: 0xF69582)
     private let failureTitle = V2Color.topTitle
@@ -1307,6 +1309,8 @@ private struct V2GenerationFailureDetailCard: View {
     )
 
     var body: some View {
+        let contentWidth = cardWidth - V2GenerationStatusCardMetrics.contentHorizontalMargin
+
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
@@ -1338,7 +1342,7 @@ private struct V2GenerationFailureDetailCard: View {
                 )
             }
             .frame(
-                width: V2GenerationStatusCardMetrics.contentWidth,
+                width: contentWidth,
                 height: V2GenerationStatusCardMetrics.headerHeight,
                 alignment: .leading
             )
@@ -1347,7 +1351,7 @@ private struct V2GenerationFailureDetailCard: View {
                 y: V2GenerationStatusCardMetrics.headerY
             )
 
-            V2NotificationFailureReasonCard(reason: failureReason)
+            V2NotificationFailureReasonCard(reason: failureReason, width: contentWidth)
                 .offset(
                     x: V2GenerationStatusCardMetrics.contentX,
                     y: V2GenerationStatusCardMetrics.failureReasonY
@@ -1358,7 +1362,7 @@ private struct V2GenerationFailureDetailCard: View {
                     .font(V2Typography.primaryButton)
                     .foregroundStyle(.white)
                     .frame(
-                        width: V2GenerationStatusCardMetrics.contentWidth,
+                        width: contentWidth,
                         height: V2GenerationStatusCardMetrics.primaryButtonHeight
                     )
                     .background(
@@ -1374,7 +1378,7 @@ private struct V2GenerationFailureDetailCard: View {
             )
         }
         .frame(
-            width: V2GenerationStatusCardMetrics.cardWidth,
+            width: cardWidth,
             height: V2GenerationStatusCardMetrics.cardHeight
         )
     }
@@ -1457,6 +1461,7 @@ private struct V2FailureSourceLinkGlyph: Shape {
 
 private struct V2NotificationFailureReasonCard: View {
     let reason: String
+    let width: CGFloat
 
     private let failureAccent = Color(hex: 0xF69582)
     private let failureTitle = V2Color.topTitle
@@ -1498,11 +1503,11 @@ private struct V2NotificationFailureReasonCard: View {
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .frame(width: 204, alignment: .leading)
+            .frame(width: width - 76, alignment: .leading)
             .padding(.leading, 55)
             .padding(.top, 23)
         }
-        .frame(width: 280, height: 95)
+        .frame(width: width, height: 95)
     }
 }
 

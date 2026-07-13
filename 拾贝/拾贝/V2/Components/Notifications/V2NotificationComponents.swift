@@ -6,6 +6,7 @@ struct V2NotificationCard: View {
     let isSuccess: Bool
     var time: String = "刚刚"
     var action: (() -> Void)?
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
         Button {
@@ -17,7 +18,10 @@ struct V2NotificationCard: View {
         .disabled(action == nil)
     }
 
+    @ViewBuilder
     private var cardContent: some View {
+        let messageWidth = contentWidth - V2NotificationCardMetrics.messageWidthInset
+
         ZStack(alignment: .leading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
@@ -54,21 +58,21 @@ struct V2NotificationCard: View {
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .frame(width: 172, alignment: .leading)
-            .position(x: 199, y: 58)
+            .frame(width: messageWidth, alignment: .leading)
+            .position(x: V2NotificationCardMetrics.messageLeading + messageWidth / 2, y: 58)
 
             Text(time)
                 .font(.system(size: 12, weight: .regular))
                 .foregroundStyle(V2Color.topTitle.opacity(0.62))
                 .lineLimit(1)
                 .frame(width: 46)
-                .position(x: 296, y: 28)
+                .position(x: contentWidth - 25, y: 28)
 
             V2NotificationChevron(color: statusColor)
                 .frame(width: 24, height: 24)
-                .position(x: 300, y: 58)
+                .position(x: contentWidth - 21, y: 58)
         }
-        .frame(width: V2Layout.contentMaxWidth, height: 116)
+        .frame(width: contentWidth, height: 116)
     }
 
     private var statusColor: Color {
@@ -82,14 +86,22 @@ struct V2NotificationCard: View {
     }
 }
 
+private enum V2NotificationCardMetrics {
+    static let messageLeading: CGFloat = 113
+    static let messageWidthInset: CGFloat = 149
+}
+
 struct V2NotificationSummaryBanner: View {
     let unreadCount: Int
+    @Environment(\.v2ContentWidth) private var contentWidth
 
     var body: some View {
+        let bannerWidth = contentWidth + V2NotificationSummaryBannerMetrics.bannerWidthOverflow
+
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
-                .frame(width: V2NotificationSummaryBannerMetrics.cardWidth, height: V2NotificationSummaryBannerMetrics.cardHeight)
+                .frame(width: contentWidth, height: V2NotificationSummaryBannerMetrics.cardHeight)
                 .offset(x: V2NotificationSummaryBannerMetrics.cardX, y: V2NotificationSummaryBannerMetrics.cardY)
                 .v2Shadow()
                 .zIndex(0)
@@ -99,13 +111,13 @@ struct V2NotificationSummaryBanner: View {
                 .renderingMode(.original)
                 .scaledToFit()
                 .frame(width: V2NotificationSummaryBannerMetrics.mascotWidth, height: V2NotificationSummaryBannerMetrics.mascotHeight)
-                .offset(x: V2NotificationSummaryBannerMetrics.mascotX, y: V2NotificationSummaryBannerMetrics.mascotY)
+                .offset(x: contentWidth - V2NotificationSummaryBannerMetrics.mascotTrailingOffset, y: V2NotificationSummaryBannerMetrics.mascotY)
                 .zIndex(2)
 
             Image("V2NotificationBannerWave")
                 .resizable()
                 .renderingMode(.original)
-                .frame(width: V2NotificationSummaryBannerMetrics.bannerWidth, height: V2NotificationSummaryBannerMetrics.bannerHeight)
+                .frame(width: bannerWidth, height: V2NotificationSummaryBannerMetrics.bannerHeight)
                 .zIndex(3)
 
             HStack(alignment: .firstTextBaseline, spacing: 5) {
@@ -126,20 +138,19 @@ struct V2NotificationSummaryBanner: View {
             .frame(maxWidth: V2NotificationSummaryBannerMetrics.textMaxWidth, alignment: .leading)
             .zIndex(4)
         }
-        .frame(width: V2NotificationSummaryBannerMetrics.bannerWidth, height: V2NotificationSummaryBannerMetrics.bannerHeight)
+        .frame(width: bannerWidth, height: V2NotificationSummaryBannerMetrics.bannerHeight)
     }
 }
 
 private enum V2NotificationSummaryBannerMetrics {
-    static let bannerWidth: CGFloat = 329
+    static let bannerWidthOverflow: CGFloat = 8
     static let bannerHeight: CGFloat = 143
-    static let cardWidth: CGFloat = 321
     static let cardHeight: CGFloat = 82
     static let cardX: CGFloat = 4
     static let cardY: CGFloat = 53
     static let mascotWidth: CGFloat = 119
     static let mascotHeight: CGFloat = 129
-    static let mascotX: CGFloat = 182
+    static let mascotTrailingOffset: CGFloat = 139
     static let mascotY: CGFloat = 7
     static let textLeading: CGFloat = 26
     static let textTop: CGFloat = 80

@@ -1,10 +1,9 @@
 import SwiftUI
 
 enum V2GenerationStatusCardMetrics {
-    static let cardWidth: CGFloat = V2Layout.contentMaxWidth
     static let cardHeight: CGFloat = 302
     static let contentX: CGFloat = 23
-    static let contentWidth: CGFloat = 280
+    static let contentHorizontalMargin: CGFloat = 41
     static let headerY: CGFloat = 20
     static let headerHeight: CGFloat = 44
     static let headerTitleSpacing: CGFloat = V2Spacing.md - V2Spacing.xs / 2
@@ -26,12 +25,15 @@ struct V2GeneratingChapterDetailCard: View {
     let onSource: () -> Void
     let onOpenChapter: () -> Void
     let onDelete: () -> Void
+    @Environment(\.v2ContentWidth) private var cardWidth
 
     private var accentColor: Color {
         Color(hex: 0xADD3FF)
     }
 
     var body: some View {
+        let contentWidth = cardWidth - V2GenerationStatusCardMetrics.contentHorizontalMargin
+
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
                 .fill(V2Color.surfaceCream)
@@ -58,7 +60,7 @@ struct V2GeneratingChapterDetailCard: View {
                 }
             }
             .frame(
-                width: V2GenerationStatusCardMetrics.contentWidth,
+                width: contentWidth,
                 height: V2GenerationStatusCardMetrics.headerHeight,
                 alignment: .leading
             )
@@ -68,7 +70,7 @@ struct V2GeneratingChapterDetailCard: View {
             )
 
             V2GeneratingProgressBar(progress: progress)
-                .frame(width: V2GenerationStatusCardMetrics.contentWidth, height: 43)
+                .frame(width: contentWidth, height: 43)
                 .offset(
                     x: V2GenerationStatusCardMetrics.contentX,
                     y: V2GenerationStatusCardMetrics.progressY
@@ -78,7 +80,7 @@ struct V2GeneratingChapterDetailCard: View {
                 .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(Color(hex: 0x736D78))
                 .lineLimit(1)
-                .frame(width: V2GenerationStatusCardMetrics.contentWidth, alignment: .leading)
+                .frame(width: contentWidth, alignment: .leading)
                 .frame(minHeight: 27, alignment: .leading)
                 .offset(
                     x: V2GenerationStatusCardMetrics.contentX,
@@ -91,7 +93,7 @@ struct V2GeneratingChapterDetailCard: View {
                         .font(V2Typography.primaryButton)
                         .foregroundStyle(.white)
                         .frame(
-                            width: V2GenerationStatusCardMetrics.contentWidth,
+                            width: contentWidth,
                             height: V2GenerationStatusCardMetrics.primaryButtonHeight
                         )
                         .background(
@@ -111,7 +113,7 @@ struct V2GeneratingChapterDetailCard: View {
                         .font(V2Typography.primaryButton)
                         .foregroundStyle(Color(hex: 0x6E7378))
                         .frame(
-                            width: V2GenerationStatusCardMetrics.contentWidth,
+                            width: contentWidth,
                             height: V2GenerationStatusCardMetrics.primaryButtonHeight
                         )
                         .background(
@@ -128,7 +130,7 @@ struct V2GeneratingChapterDetailCard: View {
             }
         }
         .frame(
-            width: V2GenerationStatusCardMetrics.cardWidth,
+            width: cardWidth,
             height: V2GenerationStatusCardMetrics.cardHeight
         )
     }
