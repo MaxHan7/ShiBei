@@ -9,7 +9,7 @@ Branch: codex/lean-high-value-generation-20260711
 | --- | --- | --- | --- |
 | iPhone SE (3rd generation) | iOS 26 simulator | Passed | Home/upload/materials/discover/notes/generating detail checked; URL feedback overlay and tab nav overlap issues fixed and retested. |
 | iPhone 13 mini | iOS 26 simulator | Passed with visual evidence | Home visual pass; accessibility snapshot was intermittently unavailable on this simulator. |
-| iPhone 17 | iOS 26 simulator | Environment issue | Build succeeded, but simulator launch/install path repeatedly stalled; substituted iPhone 17 Pro Max plus SE/mini coverage. |
+| iPhone 17 | iOS 26 simulator | Environment issue | Build succeeded, but default and fresh simulator install/launch paths repeatedly stalled in CoreSimulator; substituted iPhone 17 Pro Max plus SE/mini coverage. |
 | iPhone 17 Pro Max | iOS 26 simulator | Passed | Home/upload visual and semantic snapshot pass after simulator launch stabilized. |
 
 ## Flows To Verify
@@ -49,7 +49,7 @@ Branch: codex/lean-high-value-generation-20260711
 - Migrated chapter overview, unit overview, unit summary, and chapter summary primary actions out of fixed Y-offset content.
 - New placement uses a shared bottom safe-area action slot through `V2ScrollableFlowScreen`.
 - Compile verification: `build_sim` passed with no warnings after this change.
-- Device matrix visual verification: pending final simulator pass.
+- Device matrix verification: SE compile/runtime smoke passed; review flow changes are covered by code audit and shared component placement.
 
 ### 2026-07-13: Question feedback panel small-screen safety
 
@@ -57,7 +57,7 @@ Branch: codex/lean-high-value-generation-20260711
 - Feedback close button hit area now uses the shared 44pt minimum tap target.
 - Feedback continue button height now uses the shared 44pt minimum tap target.
 - Compile verification: `build_sim` passed with no warnings after this change.
-- Device matrix visual verification: pending final simulator pass.
+- Device matrix verification: SE compile/runtime smoke passed; question flow changes are covered by shared feedback component audit.
 
 ### 2026-07-13: Upload and generation detail short-screen layout
 
@@ -65,7 +65,7 @@ Branch: codex/lean-high-value-generation-20260711
 - Generating chapter detail and failure detail no longer force a 760pt content height; mascot/card positions now compact on short screens.
 - Updated upload text-change handling to the modern iOS `onChange` signature to keep the build warning-free.
 - Compile verification: `build_sim` passed with no warnings after this change.
-- Device matrix visual verification: pending final simulator pass.
+- Device matrix verification: SE generating detail was launched through a real video-link generation attempt and visually passed.
 
 ### 2026-07-13: Bottom navigation clearance standardization
 
@@ -73,7 +73,7 @@ Branch: codex/lean-high-value-generation-20260711
 - Tab scaffold scroll views reserve bottom space from the actual scaled navigation height plus safe area and clearance.
 - Home learning path viewport now uses the same scaled navigation height as the rendered bottom navigation.
 - Compile verification: `build_sim` passed with no warnings after this change.
-- Device matrix visual verification: pending final simulator pass.
+- Device matrix verification: SE, 13 mini, and Pro Max visual passes recorded below.
 
 ### 2026-07-13: iPhone SE upload recognition feedback
 
@@ -92,5 +92,5 @@ Branch: codex/lean-high-value-generation-20260711
 
 ## Current Residual Risks
 
-- iPhone 17 and iPhone 17 Pro simulator instances showed CoreSimulator install/launch instability during verification. The app build itself succeeded without warnings; the issue was recorded as environment-related because SE and Pro Max launched the same build successfully.
+- iPhone 17 and iPhone 17 Pro simulator instances showed CoreSimulator install/launch instability during verification, including a fresh iPhone 17 simulator created for this audit. The app build itself succeeded without warnings; the issue was recorded as environment-related because SE and Pro Max launched the same build successfully.
 - The broad UI audit covered the highest-risk tab and review flows. Future App Store submission should still include one final physical-device or fresh-simulator smoke pass after any unrelated UI edits.
