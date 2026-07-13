@@ -1,0 +1,4056 @@
+{
+  "schemaVersion": "v2_quality_report_1",
+  "generatedAt": "2026-07-13T20:33:37.843Z",
+  "slug": "english-agent-workflow-store",
+  "label": "20260713-english-agent-workflow-store-bilingual-taskbrief-normalized",
+  "status": "completed",
+  "source": {
+    "title": "Engineering Robustness into Personal Agents with the AI Workflow Store",
+    "account": "arxiv.org",
+    "url": "https://arxiv.org/abs/2605.10907",
+    "type": "article_link",
+    "rawTextLength": 4731
+  },
+  "metrics": {
+    "unitCount": 3,
+    "questionCount": 9,
+    "multipleChoiceCount": 8,
+    "matchingCount": 1,
+    "sourceBlockCount": 106,
+    "issueCount": 0,
+    "diagnosticIssueCount": 0,
+    "runtimeFailedAttemptCount": 0,
+    "runtimeRetryAttemptCount": 0,
+    "modelCallCount": 15,
+    "promptTokenCount": 34469,
+    "completionTokenCount": 5691,
+    "totalTokenCount": 40160
+  },
+  "chapter": {
+    "schemaVersion": "v2_review_path_1",
+    "id": "english-agent-workflow-store",
+    "status": "completed",
+    "displayStatusText": "Generated",
+    "title": "Engineering Robustness into Personal",
+    "source": {
+      "type": "article",
+      "title": "Engineering Robustness into Personal Agents with the AI Workflow Store",
+      "author": "arxiv.org",
+      "account": "arxiv.org",
+      "accountOrDomain": "arxiv.org",
+      "url": "https://arxiv.org/abs/2605.10907",
+      "rawText": "Computer Science > Cryptography and Security\n\narXiv:2605.10907 (cs)\n\n[Submitted on 11 May 2026 ( v1 ), last revised 10 Jun 2026 (this version, v3)]\n\nTitle: Engineering Robustness into Personal Agents with the AI Workflow Store\n\nAuthors: Roxana Geambasu , Mariana Raykova , Pierre Tholoniat , Trishita Tiwari , Lillian Tsai , Wen Zhang \n\nView a PDF of the paper titled Engineering Robustness into Personal Agents with the AI Workflow Store, by Roxana Geambasu and 5 other authors\n\nView PDF \nHTML (experimental) \n\nAbstract: The dominant paradigm for AI agents is an \"on-the-fly\" loop in which agents synthesize plans and execute actions within seconds or minutes in response to user prompts. We argue that this paradigm short-circuits disciplined software engineering (SE) processes -- iterative design, rigorous testing, adversarial evaluation, staged deployment, and more -- that have delivered the (relatively) reliable and secure systems we use today. By focusing on rapid, real-time synthesis, are AI agents effectively delivering users improvised prototypes rather than systems fit for high-stakes scenarios in which users may unwittingly apply them?\n\nThis paper argues for the need to integrate rigorous SE processes into the agentic loop to produce production-grade, hardened, and deterministically-constrained agent *workflows* that substantially outperform the potentially brittle and vulnerable results of on-the-fly synthesis. Doing so may require extra compute and time, and if so, we must amortize the cost of rigor through reuse across a broad user community. We envision an *AI Workflow Store* that consists of hardened and reusable workflows that agents can invoke with far greater reliability and security than improvised tool chains. We outline the research challenges of this vision, which stem from a broader flexibility-robustness tension that we argue requires moving beyond the ``on-the-fly'' paradigm to navigate effectively.\n\nSubjects: \n\nCryptography and Security (cs.CR) ; Artificial Intelligence (cs.AI) \n\nCite as: \narXiv:2605.10907 [cs.CR] \n\n(or \narXiv:2605.10907v3 [cs.CR] for this version)\n\nhttps://doi.org/10.48550/arXiv.2605.10907 \n\nFocus to learn more \n\narXiv-issued DOI via DataCite\n\nSubmission history\nFrom: Lillian Tsai [ view email ] \n[v1] \nMon, 11 May 2026 17:46:33 UTC (240 KB)\n\n[v2] \nTue, 12 May 2026 03:17:19 UTC (240 KB)\n\n[v3] \nWed, 10 Jun 2026 16:03:18 UTC (240 KB)\n\nFull-text links: \n\nAccess Paper:\n\nView a PDF of the paper titled Engineering Robustness into Personal Agents with the AI Workflow Store, by Roxana Geambasu and 5 other authors\n\nView PDF \n\nHTML (experimental) \n\nTeX Source\n\nview license \n\nCurrent browse context:\n\ncs.CR\n\n< prev \n\n| \nnext > \n\nnew \n| \nrecent \n| 2026-05 \n\nChange to browse by:\n\ncs \n\ncs.AI \n\nReferences & Citations\n\nNASA ADS \n\nGoogle Scholar \n\nSemantic Scholar \n\nexport BibTeX citation \nLoading... \n\nBibTeX formatted citation\n\n&times; \n\nloading... \n\nData provided by: \n\nBookmark\n\nBibliographic Tools \n\nBibliographic and Citation Tools\n\nBibliographic Explorer Toggle \n\nBibliographic Explorer ( What is the Explorer? ) \n\nConnected Papers Toggle \n\nConnected Papers ( What is Connected Papers? ) \n\nLitmaps Toggle \n\nLitmaps ( What is Litmaps? ) \n\nscite.ai Toggle \n\nscite Smart Citations ( What are Smart Citations? ) \n\nCode, Data, Media \n\nCode, Data and Media Associated with this Article\n\nalphaXiv Toggle \n\nalphaXiv ( What is alphaXiv? ) \n\nLinks to Code Toggle \n\nCatalyzeX Code Finder for Papers ( What is CatalyzeX? ) \n\nDagsHub Toggle \n\nDagsHub ( What is DagsHub? ) \n\nGotitPub Toggle \n\nGotit.pub ( What is GotitPub? ) \n\nHuggingface Toggle \n\nHugging Face ( What is Huggingface? ) \n\nScienceCast Toggle \n\nScienceCast ( What is ScienceCast? ) \n\nDemos \n\nDemos\n\nReplicate Toggle \n\nReplicate ( What is Replicate? ) \n\nSpaces Toggle \n\nHugging Face Spaces ( What is Spaces? ) \n\nSpaces Toggle \n\nTXYZ.AI ( What is TXYZ.AI? ) \n\nRelated Papers \n\nRecommenders and Search Tools\n\nLink to Influence Flower \n\nInfluence Flower ( What are Influence Flowers? ) \n\nCore recommender toggle \n\nCORE Recommender ( What is CORE? ) \n\nAuthor \n\nVenue \n\nInstitution \n\nTopic \n\nAbout arXivLabs\n\narXivLabs: experimental projects with community collaborators\n\narXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website.\n\nBoth individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them.\n\nHave an idea for a project that will add value for arXiv's community? Learn more about arXivLabs .\n\nWhich authors of this paper are endorsers? |\nDisable MathJax ( What is MathJax? )",
+      "cleanedText": "Computer Science > Cryptography and Security\n\narXiv:2605.10907 (cs)\n\n[Submitted on 11 May 2026 ( v1 ), last revised 10 Jun 2026 (this version, v3)]\n\nTitle: Engineering Robustness into Personal Agents with the AI Workflow Store\n\nAuthors: Roxana Geambasu , Mariana Raykova , Pierre Tholoniat , Trishita Tiwari , Lillian Tsai , Wen Zhang \n\nView a PDF of the paper titled Engineering Robustness into Personal Agents with the AI Workflow Store, by Roxana Geambasu and 5 other authors\n\nView PDF \nHTML (experimental) \n\nAbstract: The dominant paradigm for AI agents is an \"on-the-fly\" loop in which agents synthesize plans and execute actions within seconds or minutes in response to user prompts. We argue that this paradigm short-circuits disciplined software engineering (SE) processes -- iterative design, rigorous testing, adversarial evaluation, staged deployment, and more -- that have delivered the (relatively) reliable and secure systems we use today. By focusing on rapid, real-time synthesis, are AI agents effectively delivering users improvised prototypes rather than systems fit for high-stakes scenarios in which users may unwittingly apply them?\n\nThis paper argues for the need to integrate rigorous SE processes into the agentic loop to produce production-grade, hardened, and deterministically-constrained agent *workflows* that substantially outperform the potentially brittle and vulnerable results of on-the-fly synthesis. Doing so may require extra compute and time, and if so, we must amortize the cost of rigor through reuse across a broad user community. We envision an *AI Workflow Store* that consists of hardened and reusable workflows that agents can invoke with far greater reliability and security than improvised tool chains. We outline the research challenges of this vision, which stem from a broader flexibility-robustness tension that we argue requires moving beyond the ``on-the-fly'' paradigm to navigate effectively.\n\nSubjects: \n\nCryptography and Security (cs.CR) ; Artificial Intelligence (cs.AI) \n\nCite as: \narXiv:2605.10907 [cs.CR] \n\n(or \narXiv:2605.10907v3 [cs.CR] for this version)\n\nhttps://doi.org/10.48550/arXiv.2605.10907 \n\nFocus to learn more \n\narXiv-issued DOI via DataCite\n\nSubmission history\nFrom: Lillian Tsai [ view email ] \n[v1] \nMon, 11 May 2026 17:46:33 UTC (240 KB)\n\n[v2] \nTue, 12 May 2026 03:17:19 UTC (240 KB)\n\n[v3] \nWed, 10 Jun 2026 16:03:18 UTC (240 KB)\n\nFull-text links: \n\nAccess Paper:\n\nView a PDF of the paper titled Engineering Robustness into Personal Agents with the AI Workflow Store, by Roxana Geambasu and 5 other authors\n\nView PDF \n\nHTML (experimental) \n\nTeX Source\n\nview license \n\nCurrent browse context:\n\ncs.CR\n\n< prev \n\n| \nnext > \n\nnew \n| \nrecent \n| 2026-05 \n\nChange to browse by:\n\ncs \n\ncs.AI \n\nReferences & Citations\n\nNASA ADS \n\nGoogle Scholar \n\nSemantic Scholar \n\nexport BibTeX citation \nLoading... \n\nBibTeX formatted citation\n\n&times; \n\nloading... \n\nData provided by: \n\nBookmark\n\nBibliographic Tools \n\nBibliographic and Citation Tools\n\nBibliographic Explorer Toggle \n\nBibliographic Explorer ( What is the Explorer? ) \n\nConnected Papers Toggle \n\nConnected Papers ( What is Connected Papers? ) \n\nLitmaps Toggle \n\nLitmaps ( What is Litmaps? ) \n\nscite.ai Toggle \n\nscite Smart Citations ( What are Smart Citations? ) \n\nCode, Data, Media \n\nCode, Data and Media Associated with this Article\n\nalphaXiv Toggle \n\nalphaXiv ( What is alphaXiv? ) \n\nLinks to Code Toggle \n\nCatalyzeX Code Finder for Papers ( What is CatalyzeX? ) \n\nDagsHub Toggle \n\nDagsHub ( What is DagsHub? ) \n\nGotitPub Toggle \n\nGotit.pub ( What is GotitPub? ) \n\nHuggingface Toggle \n\nHugging Face ( What is Huggingface? ) \n\nScienceCast Toggle \n\nScienceCast ( What is ScienceCast? ) \n\nDemos \n\nDemos\n\nReplicate Toggle \n\nReplicate ( What is Replicate? ) \n\nSpaces Toggle \n\nHugging Face Spaces ( What is Spaces? ) \n\nSpaces Toggle \n\nTXYZ.AI ( What is TXYZ.AI? ) \n\nRelated Papers \n\nRecommenders and Search Tools\n\nLink to Influence Flower \n\nInfluence Flower ( What are Influence Flowers? ) \n\nCore recommender toggle \n\nCORE Recommender ( What is CORE? ) \n\nAuthor \n\nVenue \n\nInstitution \n\nTopic \n\nAbout arXivLabs\n\narXivLabs: experimental projects with community collaborators\n\narXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website.\n\nBoth individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them.\n\nHave an idea for a project that will add value for arXiv's community? Learn more about arXivLabs .\n\nWhich authors of this paper are endorsers? |\nDisable MathJax ( What is MathJax? )",
+      "blocks": [
+        {
+          "id": "p-001",
+          "type": "paragraph",
+          "text": "Computer Science > Cryptography and Security"
+        },
+        {
+          "id": "p-002",
+          "type": "paragraph",
+          "text": "arXiv:2605.10907 (cs)"
+        },
+        {
+          "id": "p-003",
+          "type": "paragraph",
+          "text": "[Submitted on 11 May 2026 ( v1 ), last revised 10 Jun 2026 (this version, v3)]"
+        },
+        {
+          "id": "p-004",
+          "type": "paragraph",
+          "text": "Title: Engineering Robustness into Personal Agents with the AI Workflow Store"
+        },
+        {
+          "id": "p-005",
+          "type": "paragraph",
+          "text": "Authors: Roxana Geambasu , Mariana Raykova , Pierre Tholoniat , Trishita Tiwari , Lillian Tsai , Wen Zhang"
+        },
+        {
+          "id": "p-006",
+          "type": "paragraph",
+          "text": "View a PDF of the paper titled Engineering Robustness into Personal Agents with the AI Workflow Store, by Roxana Geambasu and 5 other authors"
+        },
+        {
+          "id": "p-007",
+          "type": "paragraph",
+          "text": "View PDF"
+        },
+        {
+          "id": "p-008",
+          "type": "paragraph",
+          "text": "HTML (experimental)"
+        },
+        {
+          "id": "p-009",
+          "type": "paragraph",
+          "text": "Abstract: The dominant paradigm for AI agents is an \"on-the-fly\" loop in which agents synthesize plans and execute actions within seconds or minutes in response to user prompts. We argue that this paradigm short-circuits disciplined software engineering (SE) processes -- iterative design, rigorous testing, adversarial evaluation, staged deployment, and more -- that have delivered the (relatively) reliable and secure systems we use today. By focusing on rapid, real-time synthesis, are AI agents effectively delivering users improvised prototypes rather than systems fit for high-stakes scenarios in which users may unwittingly apply them?"
+        },
+        {
+          "id": "p-010",
+          "type": "paragraph",
+          "text": "This paper argues for the need to integrate rigorous SE processes into the agentic loop to produce production-grade, hardened, and deterministically-constrained agent *workflows* that substantially outperform the potentially brittle and vulnerable results of on-the-fly synthesis. Doing so may require extra compute and time, and if so, we must amortize the cost of rigor through reuse across a broad user community. We envision an *AI Workflow Store* that consists of hardened and reusable workflows that agents can invoke with far greater reliability and security than improvised tool chains. We outline the research challenges of this vision, which stem from a broader flexibility-robustness tension that we argue requires moving beyond the ``on-the-fly'' paradigm to navigate effectively."
+        },
+        {
+          "id": "p-011",
+          "type": "paragraph",
+          "text": "Subjects:"
+        },
+        {
+          "id": "p-012",
+          "type": "paragraph",
+          "text": "Cryptography and Security (cs.CR) ; Artificial Intelligence (cs.AI)"
+        },
+        {
+          "id": "p-013",
+          "type": "paragraph",
+          "text": "Cite as:"
+        },
+        {
+          "id": "p-014",
+          "type": "paragraph",
+          "text": "arXiv:2605.10907 [cs.CR]"
+        },
+        {
+          "id": "p-015",
+          "type": "paragraph",
+          "text": "(or"
+        },
+        {
+          "id": "p-016",
+          "type": "paragraph",
+          "text": "arXiv:2605.10907v3 [cs.CR] for this version)"
+        },
+        {
+          "id": "p-017",
+          "type": "paragraph",
+          "text": "https://doi.org/10.48550/arXiv.2605.10907"
+        },
+        {
+          "id": "p-018",
+          "type": "paragraph",
+          "text": "Focus to learn more"
+        },
+        {
+          "id": "p-019",
+          "type": "paragraph",
+          "text": "arXiv-issued DOI via DataCite"
+        },
+        {
+          "id": "p-020",
+          "type": "paragraph",
+          "text": "Submission history"
+        },
+        {
+          "id": "p-021",
+          "type": "paragraph",
+          "text": "From: Lillian Tsai [ view email ]"
+        },
+        {
+          "id": "p-022",
+          "type": "paragraph",
+          "text": "[v1]"
+        },
+        {
+          "id": "p-023",
+          "type": "paragraph",
+          "text": "Mon, 11 May 2026 17:46:33 UTC (240 KB)"
+        },
+        {
+          "id": "p-024",
+          "type": "paragraph",
+          "text": "[v2]"
+        },
+        {
+          "id": "p-025",
+          "type": "paragraph",
+          "text": "Tue, 12 May 2026 03:17:19 UTC (240 KB)"
+        },
+        {
+          "id": "p-026",
+          "type": "paragraph",
+          "text": "[v3]"
+        },
+        {
+          "id": "p-027",
+          "type": "paragraph",
+          "text": "Wed, 10 Jun 2026 16:03:18 UTC (240 KB)"
+        },
+        {
+          "id": "p-028",
+          "type": "paragraph",
+          "text": "Full-text links:"
+        },
+        {
+          "id": "p-029",
+          "type": "paragraph",
+          "text": "Access Paper:"
+        },
+        {
+          "id": "p-030",
+          "type": "paragraph",
+          "text": "View a PDF of the paper titled Engineering Robustness into Personal Agents with the AI Workflow Store, by Roxana Geambasu and 5 other authors"
+        },
+        {
+          "id": "p-031",
+          "type": "paragraph",
+          "text": "View PDF"
+        },
+        {
+          "id": "p-032",
+          "type": "paragraph",
+          "text": "HTML (experimental)"
+        },
+        {
+          "id": "p-033",
+          "type": "paragraph",
+          "text": "TeX Source"
+        },
+        {
+          "id": "p-034",
+          "type": "paragraph",
+          "text": "view license"
+        },
+        {
+          "id": "p-035",
+          "type": "paragraph",
+          "text": "Current browse context:"
+        },
+        {
+          "id": "p-036",
+          "type": "paragraph",
+          "text": "cs.CR"
+        },
+        {
+          "id": "p-037",
+          "type": "paragraph",
+          "text": "< prev"
+        },
+        {
+          "id": "p-038",
+          "type": "paragraph",
+          "text": "|"
+        },
+        {
+          "id": "p-039",
+          "type": "paragraph",
+          "text": "next >"
+        },
+        {
+          "id": "p-040",
+          "type": "paragraph",
+          "text": "new"
+        },
+        {
+          "id": "p-041",
+          "type": "paragraph",
+          "text": "|"
+        },
+        {
+          "id": "p-042",
+          "type": "paragraph",
+          "text": "recent"
+        },
+        {
+          "id": "p-043",
+          "type": "paragraph",
+          "text": "| 2026-05"
+        },
+        {
+          "id": "p-044",
+          "type": "paragraph",
+          "text": "Change to browse by:"
+        },
+        {
+          "id": "p-045",
+          "type": "paragraph",
+          "text": "cs"
+        },
+        {
+          "id": "p-046",
+          "type": "paragraph",
+          "text": "cs.AI"
+        },
+        {
+          "id": "p-047",
+          "type": "paragraph",
+          "text": "References & Citations"
+        },
+        {
+          "id": "p-048",
+          "type": "paragraph",
+          "text": "NASA ADS"
+        },
+        {
+          "id": "p-049",
+          "type": "paragraph",
+          "text": "Google Scholar"
+        },
+        {
+          "id": "p-050",
+          "type": "paragraph",
+          "text": "Semantic Scholar"
+        },
+        {
+          "id": "p-051",
+          "type": "paragraph",
+          "text": "export BibTeX citation"
+        },
+        {
+          "id": "p-052",
+          "type": "paragraph",
+          "text": "Loading..."
+        },
+        {
+          "id": "p-053",
+          "type": "paragraph",
+          "text": "BibTeX formatted citation"
+        },
+        {
+          "id": "p-054",
+          "type": "paragraph",
+          "text": "&times;"
+        },
+        {
+          "id": "p-055",
+          "type": "paragraph",
+          "text": "loading..."
+        },
+        {
+          "id": "p-056",
+          "type": "paragraph",
+          "text": "Data provided by:"
+        },
+        {
+          "id": "p-057",
+          "type": "paragraph",
+          "text": "Bookmark"
+        },
+        {
+          "id": "p-058",
+          "type": "paragraph",
+          "text": "Bibliographic Tools"
+        },
+        {
+          "id": "p-059",
+          "type": "paragraph",
+          "text": "Bibliographic and Citation Tools"
+        },
+        {
+          "id": "p-060",
+          "type": "paragraph",
+          "text": "Bibliographic Explorer Toggle"
+        },
+        {
+          "id": "p-061",
+          "type": "paragraph",
+          "text": "Bibliographic Explorer ( What is the Explorer? )"
+        },
+        {
+          "id": "p-062",
+          "type": "paragraph",
+          "text": "Connected Papers Toggle"
+        },
+        {
+          "id": "p-063",
+          "type": "paragraph",
+          "text": "Connected Papers ( What is Connected Papers? )"
+        },
+        {
+          "id": "p-064",
+          "type": "paragraph",
+          "text": "Litmaps Toggle"
+        },
+        {
+          "id": "p-065",
+          "type": "paragraph",
+          "text": "Litmaps ( What is Litmaps? )"
+        },
+        {
+          "id": "p-066",
+          "type": "paragraph",
+          "text": "scite.ai Toggle"
+        },
+        {
+          "id": "p-067",
+          "type": "paragraph",
+          "text": "scite Smart Citations ( What are Smart Citations? )"
+        },
+        {
+          "id": "p-068",
+          "type": "paragraph",
+          "text": "Code, Data, Media"
+        },
+        {
+          "id": "p-069",
+          "type": "paragraph",
+          "text": "Code, Data and Media Associated with this Article"
+        },
+        {
+          "id": "p-070",
+          "type": "paragraph",
+          "text": "alphaXiv Toggle"
+        },
+        {
+          "id": "p-071",
+          "type": "paragraph",
+          "text": "alphaXiv ( What is alphaXiv? )"
+        },
+        {
+          "id": "p-072",
+          "type": "paragraph",
+          "text": "Links to Code Toggle"
+        },
+        {
+          "id": "p-073",
+          "type": "paragraph",
+          "text": "CatalyzeX Code Finder for Papers ( What is CatalyzeX? )"
+        },
+        {
+          "id": "p-074",
+          "type": "paragraph",
+          "text": "DagsHub Toggle"
+        },
+        {
+          "id": "p-075",
+          "type": "paragraph",
+          "text": "DagsHub ( What is DagsHub? )"
+        },
+        {
+          "id": "p-076",
+          "type": "paragraph",
+          "text": "GotitPub Toggle"
+        },
+        {
+          "id": "p-077",
+          "type": "paragraph",
+          "text": "Gotit.pub ( What is GotitPub? )"
+        },
+        {
+          "id": "p-078",
+          "type": "paragraph",
+          "text": "Huggingface Toggle"
+        },
+        {
+          "id": "p-079",
+          "type": "paragraph",
+          "text": "Hugging Face ( What is Huggingface? )"
+        },
+        {
+          "id": "p-080",
+          "type": "paragraph",
+          "text": "ScienceCast Toggle"
+        },
+        {
+          "id": "p-081",
+          "type": "paragraph",
+          "text": "ScienceCast ( What is ScienceCast? )"
+        },
+        {
+          "id": "p-082",
+          "type": "paragraph",
+          "text": "Demos"
+        },
+        {
+          "id": "p-083",
+          "type": "paragraph",
+          "text": "Demos"
+        },
+        {
+          "id": "p-084",
+          "type": "paragraph",
+          "text": "Replicate Toggle"
+        },
+        {
+          "id": "p-085",
+          "type": "paragraph",
+          "text": "Replicate ( What is Replicate? )"
+        },
+        {
+          "id": "p-086",
+          "type": "paragraph",
+          "text": "Spaces Toggle"
+        },
+        {
+          "id": "p-087",
+          "type": "paragraph",
+          "text": "Hugging Face Spaces ( What is Spaces? )"
+        },
+        {
+          "id": "p-088",
+          "type": "paragraph",
+          "text": "Spaces Toggle"
+        },
+        {
+          "id": "p-089",
+          "type": "paragraph",
+          "text": "TXYZ.AI ( What is TXYZ.AI? )"
+        },
+        {
+          "id": "p-090",
+          "type": "paragraph",
+          "text": "Related Papers"
+        },
+        {
+          "id": "p-091",
+          "type": "paragraph",
+          "text": "Recommenders and Search Tools"
+        },
+        {
+          "id": "p-092",
+          "type": "paragraph",
+          "text": "Link to Influence Flower"
+        },
+        {
+          "id": "p-093",
+          "type": "paragraph",
+          "text": "Influence Flower ( What are Influence Flowers? )"
+        },
+        {
+          "id": "p-094",
+          "type": "paragraph",
+          "text": "Core recommender toggle"
+        },
+        {
+          "id": "p-095",
+          "type": "paragraph",
+          "text": "CORE Recommender ( What is CORE? )"
+        },
+        {
+          "id": "p-096",
+          "type": "paragraph",
+          "text": "Author"
+        },
+        {
+          "id": "p-097",
+          "type": "paragraph",
+          "text": "Venue"
+        },
+        {
+          "id": "p-098",
+          "type": "paragraph",
+          "text": "Institution"
+        },
+        {
+          "id": "p-099",
+          "type": "paragraph",
+          "text": "Topic"
+        },
+        {
+          "id": "p-100",
+          "type": "paragraph",
+          "text": "About arXivLabs"
+        },
+        {
+          "id": "p-101",
+          "type": "paragraph",
+          "text": "arXivLabs: experimental projects with community collaborators"
+        },
+        {
+          "id": "p-102",
+          "type": "paragraph",
+          "text": "arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website."
+        },
+        {
+          "id": "p-103",
+          "type": "paragraph",
+          "text": "Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them."
+        },
+        {
+          "id": "p-104",
+          "type": "paragraph",
+          "text": "Have an idea for a project that will add value for arXiv's community? Learn more about arXivLabs ."
+        },
+        {
+          "id": "p-105",
+          "type": "paragraph",
+          "text": "Which authors of this paper are endorsers? |"
+        },
+        {
+          "id": "p-106",
+          "type": "paragraph",
+          "text": "Disable MathJax ( What is MathJax? )"
+        }
+      ]
+    },
+    "summaryCard": {
+      "text": "Current AI agents improvise plans on the fly, producing brittle prototypes. This paper argues fo"
+    },
+    "units": [
+      {
+        "id": "unit-1",
+        "order": 1,
+        "title": "The On-the-Fly Paradigm Problem",
+        "nodeLabel": "On-the-Fly Problem",
+        "shortSummary": "Current agents synthesize plans in seconds, skipping rig",
+        "detailSummary": "The dominant paradigm for AI agents is an 'on-the-fly' loop where agents synthesize plans and execute actions within seconds or minutes. This short-circuits disciplined software en",
+        "why": "Understanding this flaw is key to seeing why a new approach is needed.",
+        "sourceAnchor": {
+          "id": "anchor-unit-1",
+          "blockIds": [
+            "p-009"
+          ]
+        },
+        "overview": {
+          "text": "Current AI agents generate plans in seconds, skipping rigorous engineering. This unit explains why that's a problem."
+        },
+        "questions": [
+          {
+            "id": "q-unit-1-001",
+            "type": "multiple_choice",
+            "stem": "What is the on-the-fly paradigm for AI agents?",
+            "explanation": "The on-the-fly paradigm is a rapid loop of plan synthesis and execution within seconds or minutes, not general planning.",
+            "sourceAnchorId": "anchor-unit-1",
+            "options": [
+              {
+                "id": "A",
+                "text": "A general planning approach that may take hours or days."
+              },
+              {
+                "id": "B",
+                "text": "A process of iterative design and rigorous testing."
+              },
+              {
+                "id": "C",
+                "text": "A loop where agents synthesize plans and execute actions in seconds or minutes."
+              },
+              {
+                "id": "D",
+                "text": "A method for agents to reuse pre-built workflows."
+              }
+            ],
+            "correctOptionId": "C"
+          },
+          {
+            "id": "q-unit-1-002",
+            "type": "matching",
+            "stem": "Match each SE process to its role in the on-the-fly paradigm.",
+            "leftItems": [
+              {
+                "id": "l1",
+                "text": "Iterative design"
+              },
+              {
+                "id": "l2",
+                "text": "Rigorous testing"
+              },
+              {
+                "id": "l3",
+                "text": "Adversarial evaluation"
+              },
+              {
+                "id": "l4",
+                "text": "Staged deployment"
+              }
+            ],
+            "rightItems": [
+              {
+                "id": "r1",
+                "text": "Skipped for rapid synthesis"
+              },
+              {
+                "id": "r2",
+                "text": "Replaced by real-time execution"
+              },
+              {
+                "id": "r3",
+                "text": "Omitted due to speed focus"
+              },
+              {
+                "id": "r4",
+                "text": "Bypassed in favor of immediacy"
+              }
+            ],
+            "pairs": [
+              {
+                "leftId": "l1",
+                "rightId": "r1"
+              },
+              {
+                "leftId": "l2",
+                "rightId": "r2"
+              },
+              {
+                "leftId": "l3",
+                "rightId": "r3"
+              },
+              {
+                "leftId": "l4",
+                "rightId": "r4"
+              }
+            ],
+            "explanation": "On-the-fly agents skip iterative design, rigorous testing, adversarial evaluation, and staged deployment to synthesize plans in seconds.",
+            "sourceAnchorId": "anchor-unit-1"
+          },
+          {
+            "id": "q-unit-1-003",
+            "type": "multiple_choice",
+            "stem": "What risk do improvised prototypes pose in high-stakes scenarios?",
+            "explanation": "Improvised prototypes lack rigorous testing and are unsuitable for high-stakes scenarios, unlike production-grade systems.",
+            "sourceAnchorId": "anchor-unit-1",
+            "options": [
+              {
+                "id": "A",
+                "text": "They are sufficient for production use if tested quickly."
+              },
+              {
+                "id": "B",
+                "text": "They are more reliable than production-grade systems."
+              },
+              {
+                "id": "C",
+                "text": "They are not systems fit for high-stakes scenarios and may be applied unwittingly."
+              },
+              {
+                "id": "D",
+                "text": "They always fail in high-stakes scenarios."
+              }
+            ],
+            "correctOptionId": "C"
+          }
+        ],
+        "summary": {
+          "title": "Unit complete",
+          "text": "The on-the-fly paradigm bypasses testing and validation, risking failures in critical tasks."
+        }
+      },
+      {
+        "id": "unit-2",
+        "order": 2,
+        "title": "Proposed Solution: AI Workflow Store",
+        "nodeLabel": "AI Workflow Store",
+        "shortSummary": "Hardened, reusable workflows replace improvised tool cha",
+        "detailSummary": "The paper proposes an AI Workflow Store containing production-grade, hardened, and deterministically-constrained agent workflows. These workflows are built using rigorous SE proces",
+        "why": "This is the core proposal to achieve robustness without sacrificing flexibility.",
+        "sourceAnchor": {
+          "id": "anchor-unit-2",
+          "blockIds": [
+            "p-010"
+          ]
+        },
+        "overview": {
+          "text": "The AI Workflow Store offers hardened, reusable workflows built with software engineering rigor."
+        },
+        "questions": [
+          {
+            "id": "q-unit-2-001",
+            "type": "multiple_choice",
+            "stem": "What is the AI Workflow Store?",
+            "explanation": "The AI Workflow Store contains production-grade workflows, not simple scripts.",
+            "sourceAnchorId": "anchor-unit-2",
+            "options": [
+              {
+                "id": "A",
+                "text": "A repository of hardened, reusable agent workflows built through rigorous SE processes."
+              },
+              {
+                "id": "B",
+                "text": "A collection of improvised tool chains for rapid prototyping."
+              },
+              {
+                "id": "C",
+                "text": "A platform for on-the-fly agent synthesis without testing."
+              },
+              {
+                "id": "D",
+                "text": "A simple library of scripts for common agent tasks."
+              }
+            ],
+            "correctOptionId": "A"
+          },
+          {
+            "id": "q-unit-2-002",
+            "type": "multiple_choice",
+            "stem": "How does the AI Workflow Store differ from on-the-fly agent synthesis?",
+            "explanation": "On-the-fly synthesis lacks rigorous testing, while the Store uses disciplined SE.",
+            "sourceAnchorId": "anchor-unit-2",
+            "options": [
+              {
+                "id": "A",
+                "text": "It uses disciplined SE processes for reliability, unlike on-the-fly synthesis."
+              },
+              {
+                "id": "B",
+                "text": "On-the-fly synthesis is more reliable due to real-time adaptation."
+              },
+              {
+                "id": "C",
+                "text": "Both approaches are equally reliable in practice."
+              },
+              {
+                "id": "D",
+                "text": "The Store relies on improvisation, while synthesis uses rigorous testing."
+              }
+            ],
+            "correctOptionId": "A"
+          },
+          {
+            "id": "q-unit-2-003",
+            "type": "multiple_choice",
+            "stem": "Why is cost amortization important for the AI Workflow Store?",
+            "explanation": "Rigor costs extra compute/time, but reuse amortizes that cost across users.",
+            "sourceAnchorId": "anchor-unit-2",
+            "options": [
+              {
+                "id": "A",
+                "text": "Cost amortization is irrelevant because rigor is always free."
+              },
+              {
+                "id": "B",
+                "text": "It spreads the extra cost of rigor across many users through reuse."
+              },
+              {
+                "id": "C",
+                "text": "The Store avoids extra costs by skipping rigorous testing."
+              },
+              {
+                "id": "D",
+                "text": "Rigor can be achieved without any extra cost or time."
+              }
+            ],
+            "correctOptionId": "B"
+          }
+        ],
+        "summary": {
+          "title": "Unit complete",
+          "text": "Reusable workflows amortize cost and bring reliability without sacrificing flexibility."
+        }
+      },
+      {
+        "id": "unit-3",
+        "order": 3,
+        "title": "The Flexibility-Robustness Tension",
+        "nodeLabel": "Flexibility vs. Robustne",
+        "shortSummary": "Navigating the trade-off between flexible synthesis and",
+        "detailSummary": "The vision of an AI Workflow Store stems from a broader flexibility-robustness tension. On-the-fly synthesis offers flexibility but sacrifices robustness. The paper argues that mov",
+        "why": "This tension is the fundamental challenge that the Workflow Store addresses.",
+        "sourceAnchor": {
+          "id": "anchor-unit-3",
+          "blockIds": [
+            "p-010"
+          ]
+        },
+        "overview": {
+          "text": "Flexibility and robustness are often at odds. This unit explores that tension and how the Workflow Store resolves it."
+        },
+        "questions": [
+          {
+            "id": "q-unit-3-001",
+            "type": "multiple_choice",
+            "stem": "What is the core trade-off in AI agent design?",
+            "explanation": "On-the-fly synthesis offers flexibility but sacrifices robustness; the two are in tension.",
+            "sourceAnchorId": "anchor-unit-3",
+            "options": [
+              {
+                "id": "A",
+                "text": "Flexibility from on-the-fly synthesis reduces robustness."
+              },
+              {
+                "id": "B",
+                "text": "On-the-fly synthesis maximizes both flexibility and robustness."
+              },
+              {
+                "id": "C",
+                "text": "Flexibility and robustness can both be maximized."
+              },
+              {
+                "id": "D",
+                "text": "Robustness is achieved by sacrificing all flexibility."
+              }
+            ],
+            "correctOptionId": "A"
+          },
+          {
+            "id": "q-unit-3-002",
+            "type": "multiple_choice",
+            "stem": "What is a key limitation of on-the-fly synthesis?",
+            "explanation": "On-the-fly synthesis short-circuits disciplined SE, making it insufficient for high-stakes use.",
+            "sourceAnchorId": "anchor-unit-3",
+            "options": [
+              {
+                "id": "A",
+                "text": "It is always sufficient for high-stakes scenarios."
+              },
+              {
+                "id": "B",
+                "text": "It bypasses rigorous SE processes, reducing reliability."
+              },
+              {
+                "id": "C",
+                "text": "It requires too much time and compute to be practical."
+              },
+              {
+                "id": "D",
+                "text": "It eliminates the need for any testing or evaluation."
+              }
+            ],
+            "correctOptionId": "B"
+          },
+          {
+            "id": "q-unit-3-003",
+            "type": "multiple_choice",
+            "stem": "How does the Workflow Store address the flexibility-robustness tension?",
+            "explanation": "The Workflow Store balances both by reusing hardened workflows, not eliminating flexibility.",
+            "sourceAnchorId": "anchor-unit-3",
+            "options": [
+              {
+                "id": "A",
+                "text": "It replaces all agent workflows with pre-built ones."
+              },
+              {
+                "id": "B",
+                "text": "It eliminates all flexibility to ensure robustness."
+              },
+              {
+                "id": "C",
+                "text": "It makes on-the-fly synthesis more robust without changes."
+              },
+              {
+                "id": "D",
+                "text": "It amortizes the cost of rigor through reuse of workflows."
+              }
+            ],
+            "correctOptionId": "D"
+          }
+        ],
+        "summary": {
+          "title": "Unit complete",
+          "text": "The Workflow Store shifts the balance toward robustness while preserving adaptability."
+        }
+      }
+    ],
+    "chapterSummary": {
+      "title": "Chapter complete",
+      "statsText": "3 key points, 9 questions",
+      "encouragementText": "You've grasped the key insight: robust agents need reusable, hardened workflows, not improvised"
+    },
+    "generationMeta": {
+      "currentStage": "completed",
+      "generationLanguage": "en",
+      "sourceContextStats": {
+        "fullBlockCount": 106,
+        "unitKnowledgeMap": {
+          "mode": "plan_union_window",
+          "selectedBlockCount": 4,
+          "selectedBlockIds": [
+            "p-008",
+            "p-009",
+            "p-010",
+            "p-011"
+          ],
+          "fallbackUsed": false
+        },
+        "unitWindows": [
+          {
+            "unitId": "unit-1",
+            "anchorId": "anchor-unit-1",
+            "anchorBlockIds": [
+              "p-009"
+            ],
+            "selectedBlockCount": 3,
+            "selectedBlockIds": [
+              "p-008",
+              "p-009",
+              "p-010"
+            ],
+            "fallbackUsed": false
+          },
+          {
+            "unitId": "unit-2",
+            "anchorId": "anchor-unit-2",
+            "anchorBlockIds": [
+              "p-010"
+            ],
+            "selectedBlockCount": 3,
+            "selectedBlockIds": [
+              "p-009",
+              "p-010",
+              "p-011"
+            ],
+            "fallbackUsed": false
+          },
+          {
+            "unitId": "unit-3",
+            "anchorId": "anchor-unit-3",
+            "anchorBlockIds": [
+              "p-010"
+            ],
+            "selectedBlockCount": 3,
+            "selectedBlockIds": [
+              "p-009",
+              "p-010",
+              "p-011"
+            ],
+            "fallbackUsed": false
+          }
+        ]
+      },
+      "stageRuntime": {
+        "schemaVersion": "v2_stage_runtime_1",
+        "callCount": 15,
+        "attemptCount": 15,
+        "failedAttemptCount": 0,
+        "retryAttemptCount": 0,
+        "stages": [
+          {
+            "stage": "v2_reviewPathPlan",
+            "callCount": 1,
+            "successCallCount": 1,
+            "failedCallCount": 0,
+            "attemptCount": 1,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 6579,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_unitKnowledgeMap",
+            "callCount": 3,
+            "successCallCount": 3,
+            "failedCallCount": 0,
+            "attemptCount": 3,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 8467,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_taskBriefPlan",
+            "callCount": 3,
+            "successCallCount": 3,
+            "failedCallCount": 0,
+            "attemptCount": 3,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 9605,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_multipleChoiceDraftUnitBatch",
+            "callCount": 3,
+            "successCallCount": 3,
+            "failedCallCount": 0,
+            "attemptCount": 3,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 11162,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_multipleChoiceOptionSetUnitBatch",
+            "callCount": 3,
+            "successCallCount": 3,
+            "failedCallCount": 0,
+            "attemptCount": 3,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 14021,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_matchingDraft",
+            "callCount": 1,
+            "successCallCount": 1,
+            "failedCallCount": 0,
+            "attemptCount": 1,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 3397,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          },
+          {
+            "stage": "v2_unitCopyBatch",
+            "callCount": 1,
+            "successCallCount": 1,
+            "failedCallCount": 0,
+            "attemptCount": 1,
+            "retryAttemptCount": 0,
+            "transientFailureCount": 0,
+            "totalDurationMs": 2930,
+            "errorTypes": {},
+            "lastErrorType": "",
+            "lastErrorMessage": ""
+          }
+        ],
+        "attempts": [
+          {
+            "callId": "reviewPathPlan-1",
+            "stage": "v2_reviewPathPlan",
+            "modelStage": "reviewPathPlan",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 6579,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "unitKnowledgeMap-2",
+            "stage": "v2_unitKnowledgeMap",
+            "modelStage": "unitKnowledgeMap",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 2836,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "unitKnowledgeMap-3",
+            "stage": "v2_unitKnowledgeMap",
+            "modelStage": "unitKnowledgeMap",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 2955,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "unitKnowledgeMap-4",
+            "stage": "v2_unitKnowledgeMap",
+            "modelStage": "unitKnowledgeMap",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 2676,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "taskBriefPlan-5",
+            "stage": "v2_taskBriefPlan",
+            "modelStage": "taskBriefPlan",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3164,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "taskBriefPlan-6",
+            "stage": "v2_taskBriefPlan",
+            "modelStage": "taskBriefPlan",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3255,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "taskBriefPlan-7",
+            "stage": "v2_taskBriefPlan",
+            "modelStage": "taskBriefPlan",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3186,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "multipleChoiceDraftUnitBatch-8",
+            "stage": "v2_multipleChoiceDraftUnitBatch",
+            "modelStage": "multipleChoiceDraftUnitBatch",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3627,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "multipleChoiceOptionSetUnitBatch-9",
+            "stage": "v2_multipleChoiceOptionSetUnitBatch",
+            "modelStage": "multipleChoiceOptionSetUnitBatch",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3870,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "multipleChoiceDraftUnitBatch-10",
+            "stage": "v2_multipleChoiceDraftUnitBatch",
+            "modelStage": "multipleChoiceDraftUnitBatch",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 4054,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "multipleChoiceOptionSetUnitBatch-11",
+            "stage": "v2_multipleChoiceOptionSetUnitBatch",
+            "modelStage": "multipleChoiceOptionSetUnitBatch",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 5031,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "multipleChoiceDraftUnitBatch-12",
+            "stage": "v2_multipleChoiceDraftUnitBatch",
+            "modelStage": "multipleChoiceDraftUnitBatch",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3481,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "multipleChoiceOptionSetUnitBatch-13",
+            "stage": "v2_multipleChoiceOptionSetUnitBatch",
+            "modelStage": "multipleChoiceOptionSetUnitBatch",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 5120,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "matchingDraft-14",
+            "stage": "v2_matchingDraft",
+            "modelStage": "matchingDraft",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 3397,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          },
+          {
+            "callId": "unitCopyBatch-15",
+            "stage": "v2_unitCopyBatch",
+            "modelStage": "unitCopyBatch",
+            "attempt": 1,
+            "maxAttempts": 3,
+            "status": "success",
+            "durationMs": 2930,
+            "retryable": false,
+            "errorType": "",
+            "errorMessage": ""
+          }
+        ]
+      },
+      "stages": [
+        {
+          "status": "sourceMap",
+          "displayStatusText": "正在提取正文",
+          "at": "2026-07-13T20:32:41.631Z"
+        },
+        {
+          "status": "reviewPathPlan",
+          "displayStatusText": "正在生成知识点",
+          "at": "2026-07-13T20:32:41.631Z"
+        },
+        {
+          "status": "unitKnowledgeMap",
+          "displayStatusText": "正在拆解知识点",
+          "at": "2026-07-13T20:32:41.631Z"
+        },
+        {
+          "status": "taskBriefPlan",
+          "displayStatusText": "正在规划练习",
+          "at": "2026-07-13T20:32:41.631Z"
+        },
+        {
+          "status": "multipleChoiceDraftUnitBatch",
+          "displayStatusText": "正在生成选择题",
+          "at": "2026-07-13T20:32:41.631Z"
+        },
+        {
+          "status": "multipleChoiceOptionSetUnitBatch",
+          "displayStatusText": "正在生成选择题",
+          "at": "2026-07-13T20:32:41.631Z"
+        },
+        {
+          "status": "matchingDraft",
+          "displayStatusText": "正在生成连线题",
+          "at": "2026-07-13T20:32:41.631Z"
+        },
+        {
+          "status": "unitCopyBatch",
+          "displayStatusText": "正在生成单元文案",
+          "at": "2026-07-13T20:32:41.631Z"
+        }
+      ],
+      "reviewPathPlan": {
+        "title": "Engineering Robustness into Personal",
+        "summaryCard": {
+          "text": "Current AI agents improvise plans on the fly, producing brittle prototypes. This paper argues fo"
+        },
+        "units": [
+          {
+            "id": "unit-1",
+            "order": 1,
+            "title": "The On-the-Fly Paradigm Problem",
+            "nodeLabel": "On-the-Fly Problem",
+            "sourceAnchor": {
+              "id": "anchor-unit-1",
+              "blockIds": [
+                "p-009"
+              ]
+            }
+          },
+          {
+            "id": "unit-2",
+            "order": 2,
+            "title": "Proposed Solution: AI Workflow Store",
+            "nodeLabel": "AI Workflow Store",
+            "sourceAnchor": {
+              "id": "anchor-unit-2",
+              "blockIds": [
+                "p-010"
+              ]
+            }
+          },
+          {
+            "id": "unit-3",
+            "order": 3,
+            "title": "The Flexibility-Robustness Tension",
+            "nodeLabel": "Flexibility vs. Robustne",
+            "sourceAnchor": {
+              "id": "anchor-unit-3",
+              "blockIds": [
+                "p-010"
+              ]
+            }
+          }
+        ],
+        "chapterSummary": {
+          "encouragementText": "You've grasped the key insight: robust agents need reusable, hardened workflows, not improvised"
+        }
+      },
+      "unitKnowledgeMap": {
+        "units": [
+          {
+            "unitId": "unit-1",
+            "microKnowledgePoints": [
+              {
+                "microId": "micro-unit-1-001",
+                "title": "On-the-fly paradigm definiti",
+                "summary": "AI agents synthesize plans and execute actions i",
+                "role": "definition",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "Definition of pa"
+              },
+              {
+                "microId": "micro-unit-1-002",
+                "title": "Short-circuited SE processes",
+                "key": "Iterative design, testing, evaluation, staged deployment are bypassed",
+                "summary": "On-the-fly loop bypasses iterative design, testi",
+                "role": "mechanism",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "What is bypassed"
+              },
+              {
+                "microId": "micro-unit-1-003",
+                "title": "Consequence: improvised prot",
+                "summary": "Agents deliver improvised prototypes, not system",
+                "role": "scenario_application",
+                "assessmentValue": "medium",
+                "primaryEvidenceAngle": "Risk in high-sta"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-2",
+            "microKnowledgePoints": [
+              {
+                "microId": "micro-unit-2-001",
+                "title": "AI Workflow Store definition",
+                "summary": "A store of hardened, reusable agent workflows bu",
+                "role": "definition",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "Core concept und"
+              },
+              {
+                "microId": "micro-unit-2-002",
+                "title": "Contrast with on-the-fly syn",
+                "summary": "On-the-fly loop vs. disciplined SE process for r",
+                "role": "boundary",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "Paradigm distinc"
+              },
+              {
+                "microId": "micro-unit-2-003",
+                "title": "Cost amortization through re",
+                "summary": "Extra compute/time cost of rigor is amortized ac",
+                "role": "mechanism",
+                "assessmentValue": "medium",
+                "primaryEvidenceAngle": "Economic rationa"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-3",
+            "microKnowledgePoints": [
+              {
+                "microId": "micro-unit-3-001",
+                "title": "Flexibility-Robustness Tensi",
+                "summary": "The core trade-off between flexible on-the-fly s",
+                "role": "definition",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "Trade-off unders"
+              },
+              {
+                "microId": "micro-unit-3-002",
+                "title": "On-the-fly Paradigm Limitati",
+                "summary": "On-the-fly synthesis short-circuits SE processes",
+                "role": "mechanism",
+                "assessmentValue": "high",
+                "primaryEvidenceAngle": "Paradigm critiqu"
+              },
+              {
+                "microId": "micro-unit-3-003",
+                "title": "Workflow Store as Solution",
+                "summary": "Hardened, reusable workflows amortize rigor cost",
+                "role": "scenario_application",
+                "assessmentValue": "medium",
+                "primaryEvidenceAngle": "Solution rationa"
+              }
+            ]
+          }
+        ]
+      },
+      "taskBriefPlan": {
+        "units": [
+          {
+            "unitId": "unit-1",
+            "practiceGoals": [
+              {
+                "kind": "core_understanding",
+                "target": "Define the on-the-fly paradigm and its core loop",
+                "commonMisconception": "Confusing it with general agent planning",
+                "microIds": [
+                  "micro-unit-1-001"
+                ],
+                "id": "goal-unit-1-001",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "kind": "boundary_clarification",
+                "target": "Identify which SE processes are bypassed",
+                "commonMisconception": "Thinking only testing is skipped",
+                "microIds": [
+                  "micro-unit-1-002"
+                ],
+                "id": "goal-unit-1-002",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "kind": "scenario_application",
+                "target": "Recognize risks of improvised prototypes in high-stakes scenarios",
+                "commonMisconception": "Believing prototypes are sufficient for producti",
+                "microIds": [
+                  "micro-unit-1-003"
+                ],
+                "id": "goal-unit-1-003",
+                "sourceAnchorId": "anchor-unit-1"
+              }
+            ],
+            "questionPlans": [
+              {
+                "type": "multiple_choice",
+                "purpose": "light_understanding",
+                "goalIndex": 1,
+                "microIds": [
+                  "micro-unit-1-001"
+                ],
+                "id": "q-unit-1-001",
+                "practiceGoalId": "goal-unit-1-001",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "type": "matching",
+                "purpose": "step_purpose_matching",
+                "goalIndex": 2,
+                "relationType": "process_signal",
+                "microIds": [
+                  "micro-unit-1-002"
+                ],
+                "id": "q-unit-1-002",
+                "practiceGoalId": "goal-unit-1-002",
+                "sourceAnchorId": "anchor-unit-1"
+              },
+              {
+                "type": "multiple_choice",
+                "purpose": "scenario_application",
+                "goalIndex": 3,
+                "microIds": [
+                  "micro-unit-1-003"
+                ],
+                "id": "q-unit-1-003",
+                "practiceGoalId": "goal-unit-1-003",
+                "sourceAnchorId": "anchor-unit-1"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-2",
+            "practiceGoals": [
+              {
+                "kind": "core_understanding",
+                "target": "Understand the AI Workflow Store as a repository of hardened, reusable agent wor",
+                "commonMisconception": "Confusing it with a simple script library",
+                "microIds": [
+                  "micro-unit-2-001"
+                ],
+                "id": "goal-unit-2-001",
+                "sourceAnchorId": "anchor-unit-2"
+              },
+              {
+                "kind": "boundary_clarification",
+                "target": "Distinguish the AI Workflow Store from on-the-fly agent synthesis",
+                "commonMisconception": "Believing both are equally reliable",
+                "microIds": [
+                  "micro-unit-2-002"
+                ],
+                "id": "goal-unit-2-002",
+                "sourceAnchorId": "anchor-unit-2"
+              },
+              {
+                "kind": "scenario_application",
+                "target": "Recognize cost amortization through reuse as the economic rationale",
+                "commonMisconception": "Thinking rigor is always free",
+                "microIds": [
+                  "micro-unit-2-003"
+                ],
+                "id": "goal-unit-2-003",
+                "sourceAnchorId": "anchor-unit-2"
+              }
+            ],
+            "questionPlans": [
+              {
+                "type": "multiple_choice",
+                "purpose": "light_understanding",
+                "goalIndex": 1,
+                "microIds": [
+                  "micro-unit-2-001"
+                ],
+                "id": "q-unit-2-001",
+                "practiceGoalId": "goal-unit-2-001",
+                "sourceAnchorId": "anchor-unit-2"
+              },
+              {
+                "type": "multiple_choice",
+                "purpose": "boundary_check",
+                "goalIndex": 2,
+                "microIds": [
+                  "micro-unit-2-002"
+                ],
+                "id": "q-unit-2-002",
+                "practiceGoalId": "goal-unit-2-002",
+                "sourceAnchorId": "anchor-unit-2"
+              },
+              {
+                "type": "multiple_choice",
+                "purpose": "scenario_application",
+                "goalIndex": 3,
+                "microIds": [
+                  "micro-unit-2-003"
+                ],
+                "id": "q-unit-2-003",
+                "practiceGoalId": "goal-unit-2-003",
+                "sourceAnchorId": "anchor-unit-2"
+              }
+            ]
+          },
+          {
+            "unitId": "unit-3",
+            "practiceGoals": [
+              {
+                "kind": "core_understanding",
+                "target": "Understand the flexibility-robustness trade-off in AI agent design",
+                "commonMisconception": "Believing flexibility and robustness can both be",
+                "microIds": [
+                  "micro-unit-3-001"
+                ],
+                "id": "goal-unit-3-001",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "kind": "boundary_clarification",
+                "target": "Identify limitations of on-the-fly synthesis paradigm",
+                "commonMisconception": "Thinking on-the-fly synthesis is always sufficie",
+                "microIds": [
+                  "micro-unit-3-002"
+                ],
+                "id": "goal-unit-3-002",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "kind": "scenario_application",
+                "target": "Recognize how Workflow Store addresses the tension",
+                "commonMisconception": "Assuming Workflow Store eliminates all flexibili",
+                "microIds": [
+                  "micro-unit-3-003"
+                ],
+                "id": "goal-unit-3-003",
+                "sourceAnchorId": "anchor-unit-3"
+              }
+            ],
+            "questionPlans": [
+              {
+                "type": "multiple_choice",
+                "purpose": "light_understanding",
+                "goalIndex": 1,
+                "microIds": [
+                  "micro-unit-3-001"
+                ],
+                "id": "q-unit-3-001",
+                "practiceGoalId": "goal-unit-3-001",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "type": "multiple_choice",
+                "purpose": "boundary_check",
+                "goalIndex": 2,
+                "microIds": [
+                  "micro-unit-3-002"
+                ],
+                "id": "q-unit-3-002",
+                "practiceGoalId": "goal-unit-3-002",
+                "sourceAnchorId": "anchor-unit-3"
+              },
+              {
+                "type": "multiple_choice",
+                "purpose": "scenario_application",
+                "goalIndex": 3,
+                "microIds": [
+                  "micro-unit-3-003"
+                ],
+                "id": "q-unit-3-003",
+                "practiceGoalId": "goal-unit-3-003",
+                "sourceAnchorId": "anchor-unit-3"
+              }
+            ]
+          }
+        ]
+      },
+      "multipleChoiceDraftBatch": {
+        "units": [
+          {
+            "unitId": "unit-1",
+            "questions": [
+              {
+                "id": "q-unit-1-001",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-1-001",
+                "stem": "What is the on-the-fly paradigm for AI agents?",
+                "correctUnderstanding": "A loop where agents synthesize plans and execute actions in seconds or minutes.",
+                "misconception": "Confusing it with general agent planning that may involve longer timeframes.",
+                "explanation": "The on-the-fly paradigm is a rapid loop of plan synthesis and execution within seconds or minutes, not general planning.",
+                "sourceAnchorId": "anchor-unit-1",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A loop where agents synthesize plans and execute actions in seconds or minutes."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A general planning approach that may take hours or days."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A method for agents to reuse pre-built workflows."
+                  },
+                  {
+                    "id": "d",
+                    "text": "A process of iterative design and rigorous testing."
+                  }
+                ],
+                "correctOptionId": "a",
+                "distractorRationale": "Distractors confuse the on-the-fly paradigm with general planning, workflow reuse, or disciplined SE processes."
+              },
+              {
+                "id": "q-unit-1-003",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-1-003",
+                "stem": "What risk do improvised prototypes pose in high-stakes scenarios?",
+                "correctUnderstanding": "They are not systems fit for high-stakes scenarios and may be applied unwittingly.",
+                "misconception": "Believing prototypes are sufficient for production use.",
+                "explanation": "Improvised prototypes lack rigorous testing and are unsuitable for high-stakes scenarios, unlike production-grade systems.",
+                "sourceAnchorId": "anchor-unit-1",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "They are not systems fit for high-stakes scenarios and may be applied unwittingly."
+                  },
+                  {
+                    "id": "b",
+                    "text": "They are sufficient for production use if tested quickly."
+                  },
+                  {
+                    "id": "c",
+                    "text": "They always fail in high-stakes scenarios."
+                  },
+                  {
+                    "id": "d",
+                    "text": "They are more reliable than production-grade systems."
+                  }
+                ],
+                "correctOptionId": "a",
+                "distractorRationale": "Distractors reflect the misconception that prototypes are production-ready or overstate failure/reliability."
+              }
+            ]
+          },
+          {
+            "unitId": "unit-2",
+            "questions": [
+              {
+                "id": "q-unit-2-001",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-2-001",
+                "stem": "What is the AI Workflow Store?",
+                "correctUnderstanding": "A repository of hardened, reusable agent workflows built through rigorous SE processes.",
+                "misconception": "It is just a simple script library.",
+                "explanation": "The AI Workflow Store contains production-grade workflows, not simple scripts.",
+                "sourceAnchorId": "anchor-unit-2",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "A repository of hardened, reusable agent workflows built through rigorous SE processes."
+                  },
+                  {
+                    "id": "B",
+                    "text": "A simple library of scripts for common agent tasks."
+                  },
+                  {
+                    "id": "C",
+                    "text": "A collection of improvised tool chains for rapid prototyping."
+                  },
+                  {
+                    "id": "D",
+                    "text": "A platform for on-the-fly agent synthesis without testing."
+                  }
+                ],
+                "correctOptionId": "A",
+                "distractorRationale": "Misconception that the Store is just a script library or improvised tool chain, not a hardened workflow repository."
+              },
+              {
+                "id": "q-unit-2-002",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-2-002",
+                "stem": "How does the AI Workflow Store differ from on-the-fly agent synthesis?",
+                "correctUnderstanding": "It uses disciplined SE processes for reliability, unlike on-the-fly synthesis.",
+                "misconception": "Both are equally reliable.",
+                "explanation": "On-the-fly synthesis lacks rigorous testing, while the Store uses disciplined SE.",
+                "sourceAnchorId": "anchor-unit-2",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "It uses disciplined SE processes for reliability, unlike on-the-fly synthesis."
+                  },
+                  {
+                    "id": "B",
+                    "text": "Both approaches are equally reliable in practice."
+                  },
+                  {
+                    "id": "C",
+                    "text": "On-the-fly synthesis is more reliable due to real-time adaptation."
+                  },
+                  {
+                    "id": "D",
+                    "text": "The Store relies on improvisation, while synthesis uses rigorous testing."
+                  }
+                ],
+                "correctOptionId": "A",
+                "distractorRationale": "Misconception that both are equally reliable or that on-the-fly synthesis is more reliable."
+              },
+              {
+                "id": "q-unit-2-003",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-2-003",
+                "stem": "Why is cost amortization important for the AI Workflow Store?",
+                "correctUnderstanding": "It spreads the extra cost of rigor across many users through reuse.",
+                "misconception": "Rigor can be achieved without any extra cost.",
+                "explanation": "Rigor costs extra compute/time, but reuse amortizes that cost across users.",
+                "sourceAnchorId": "anchor-unit-2",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "It spreads the extra cost of rigor across many users through reuse."
+                  },
+                  {
+                    "id": "B",
+                    "text": "Rigor can be achieved without any extra cost or time."
+                  },
+                  {
+                    "id": "C",
+                    "text": "Cost amortization is irrelevant because rigor is always free."
+                  },
+                  {
+                    "id": "D",
+                    "text": "The Store avoids extra costs by skipping rigorous testing."
+                  }
+                ],
+                "correctOptionId": "A",
+                "distractorRationale": "Misconception that rigor has no extra cost or that the Store avoids rigor to save cost."
+              }
+            ]
+          },
+          {
+            "unitId": "unit-3",
+            "questions": [
+              {
+                "id": "q-unit-3-001",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-3-001",
+                "stem": "What is the core trade-off in AI agent design?",
+                "correctUnderstanding": "Flexibility from on-the-fly synthesis comes at the cost of robustness.",
+                "misconception": "Believing flexibility and robustness can both be maximized simultaneously.",
+                "explanation": "On-the-fly synthesis offers flexibility but sacrifices robustness; the two are in tension.",
+                "sourceAnchorId": "anchor-unit-3",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "Flexibility and robustness can both be maximized."
+                  },
+                  {
+                    "id": "B",
+                    "text": "Flexibility from on-the-fly synthesis reduces robustness."
+                  },
+                  {
+                    "id": "C",
+                    "text": "Robustness is achieved by sacrificing all flexibility."
+                  },
+                  {
+                    "id": "D",
+                    "text": "On-the-fly synthesis maximizes both flexibility and robustness."
+                  }
+                ],
+                "correctOptionId": "B",
+                "distractorRationale": "Misconception that flexibility and robustness are not in tension; distractors include both-can-be-maximized and all-or-nothing extremes."
+              },
+              {
+                "id": "q-unit-3-002",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-3-002",
+                "stem": "What is a key limitation of on-the-fly synthesis?",
+                "correctUnderstanding": "It bypasses rigorous SE processes, leading to less reliable systems.",
+                "misconception": "Thinking on-the-fly synthesis is always sufficient for high-stakes scenarios.",
+                "explanation": "On-the-fly synthesis short-circuits disciplined SE, making it insufficient for high-stakes use.",
+                "sourceAnchorId": "anchor-unit-3",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "It bypasses rigorous SE processes, reducing reliability."
+                  },
+                  {
+                    "id": "B",
+                    "text": "It is always sufficient for high-stakes scenarios."
+                  },
+                  {
+                    "id": "C",
+                    "text": "It requires too much time and compute to be practical."
+                  },
+                  {
+                    "id": "D",
+                    "text": "It eliminates the need for any testing or evaluation."
+                  }
+                ],
+                "correctOptionId": "A",
+                "distractorRationale": "Misconception that on-the-fly synthesis is always sufficient; distractors include overconfidence and extreme claims about time or elimination of testing."
+              },
+              {
+                "id": "q-unit-3-003",
+                "type": "multiple_choice",
+                "practiceGoalId": "goal-unit-3-003",
+                "stem": "How does the Workflow Store address the flexibility-robustness tension?",
+                "correctUnderstanding": "It amortizes the cost of rigor through reuse of hardened workflows.",
+                "misconception": "Assuming Workflow Store eliminates all flexibility in favor of robustness.",
+                "explanation": "The Workflow Store balances both by reusing hardened workflows, not eliminating flexibility.",
+                "sourceAnchorId": "anchor-unit-3",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "It eliminates all flexibility to ensure robustness."
+                  },
+                  {
+                    "id": "B",
+                    "text": "It amortizes the cost of rigor through reuse of workflows."
+                  },
+                  {
+                    "id": "C",
+                    "text": "It makes on-the-fly synthesis more robust without changes."
+                  },
+                  {
+                    "id": "D",
+                    "text": "It replaces all agent workflows with pre-built ones."
+                  }
+                ],
+                "correctOptionId": "B",
+                "distractorRationale": "Misconception that Workflow Store eliminates flexibility; distractors include all-robustness, unchanged on-the-fly, and total replacement."
+              }
+            ]
+          }
+        ]
+      },
+      "multipleChoiceOptionSetBatch": {
+        "units": [
+          {
+            "unitId": "unit-1",
+            "optionSets": [
+              {
+                "questionId": "q-unit-1-001",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A loop where agents synthesize plans and execute actions in seconds or minutes."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A general planning approach that may take hours or days."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A method for agents to reuse pre-built workflows."
+                  },
+                  {
+                    "id": "d",
+                    "text": "A process of iterative design and rigorous testing."
+                  }
+                ],
+                "correctOptionId": "a",
+                "distractorRationale": "Distractors confuse the on-the-fly paradigm with general planning, workflow reuse, or disciplined SE processes."
+              },
+              {
+                "questionId": "q-unit-1-003",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "They are not systems fit for high-stakes scenarios and may be applied unwittingly."
+                  },
+                  {
+                    "id": "b",
+                    "text": "They are sufficient for production use if tested quickly."
+                  },
+                  {
+                    "id": "c",
+                    "text": "They always fail in high-stakes scenarios."
+                  },
+                  {
+                    "id": "d",
+                    "text": "They are more reliable than production-grade systems."
+                  }
+                ],
+                "correctOptionId": "a",
+                "distractorRationale": "Distractors reflect the misconception that prototypes are production-ready or overstate failure/reliability."
+              }
+            ]
+          },
+          {
+            "unitId": "unit-2",
+            "optionSets": [
+              {
+                "questionId": "q-unit-2-001",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "A repository of hardened, reusable agent workflows built through rigorous SE processes."
+                  },
+                  {
+                    "id": "B",
+                    "text": "A simple library of scripts for common agent tasks."
+                  },
+                  {
+                    "id": "C",
+                    "text": "A collection of improvised tool chains for rapid prototyping."
+                  },
+                  {
+                    "id": "D",
+                    "text": "A platform for on-the-fly agent synthesis without testing."
+                  }
+                ],
+                "correctOptionId": "A",
+                "distractorRationale": "Misconception that the Store is just a script library or improvised tool chain, not a hardened workflow repository."
+              },
+              {
+                "questionId": "q-unit-2-002",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "It uses disciplined SE processes for reliability, unlike on-the-fly synthesis."
+                  },
+                  {
+                    "id": "B",
+                    "text": "Both approaches are equally reliable in practice."
+                  },
+                  {
+                    "id": "C",
+                    "text": "On-the-fly synthesis is more reliable due to real-time adaptation."
+                  },
+                  {
+                    "id": "D",
+                    "text": "The Store relies on improvisation, while synthesis uses rigorous testing."
+                  }
+                ],
+                "correctOptionId": "A",
+                "distractorRationale": "Misconception that both are equally reliable or that on-the-fly synthesis is more reliable."
+              },
+              {
+                "questionId": "q-unit-2-003",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "It spreads the extra cost of rigor across many users through reuse."
+                  },
+                  {
+                    "id": "B",
+                    "text": "Rigor can be achieved without any extra cost or time."
+                  },
+                  {
+                    "id": "C",
+                    "text": "Cost amortization is irrelevant because rigor is always free."
+                  },
+                  {
+                    "id": "D",
+                    "text": "The Store avoids extra costs by skipping rigorous testing."
+                  }
+                ],
+                "correctOptionId": "A",
+                "distractorRationale": "Misconception that rigor has no extra cost or that the Store avoids rigor to save cost."
+              }
+            ]
+          },
+          {
+            "unitId": "unit-3",
+            "optionSets": [
+              {
+                "questionId": "q-unit-3-001",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "Flexibility and robustness can both be maximized."
+                  },
+                  {
+                    "id": "B",
+                    "text": "Flexibility from on-the-fly synthesis reduces robustness."
+                  },
+                  {
+                    "id": "C",
+                    "text": "Robustness is achieved by sacrificing all flexibility."
+                  },
+                  {
+                    "id": "D",
+                    "text": "On-the-fly synthesis maximizes both flexibility and robustness."
+                  }
+                ],
+                "correctOptionId": "B",
+                "distractorRationale": "Misconception that flexibility and robustness are not in tension; distractors include both-can-be-maximized and all-or-nothing extremes."
+              },
+              {
+                "questionId": "q-unit-3-002",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "It bypasses rigorous SE processes, reducing reliability."
+                  },
+                  {
+                    "id": "B",
+                    "text": "It is always sufficient for high-stakes scenarios."
+                  },
+                  {
+                    "id": "C",
+                    "text": "It requires too much time and compute to be practical."
+                  },
+                  {
+                    "id": "D",
+                    "text": "It eliminates the need for any testing or evaluation."
+                  }
+                ],
+                "correctOptionId": "A",
+                "distractorRationale": "Misconception that on-the-fly synthesis is always sufficient; distractors include overconfidence and extreme claims about time or elimination of testing."
+              },
+              {
+                "questionId": "q-unit-3-003",
+                "options": [
+                  {
+                    "id": "A",
+                    "text": "It eliminates all flexibility to ensure robustness."
+                  },
+                  {
+                    "id": "B",
+                    "text": "It amortizes the cost of rigor through reuse of workflows."
+                  },
+                  {
+                    "id": "C",
+                    "text": "It makes on-the-fly synthesis more robust without changes."
+                  },
+                  {
+                    "id": "D",
+                    "text": "It replaces all agent workflows with pre-built ones."
+                  }
+                ],
+                "correctOptionId": "B",
+                "distractorRationale": "Misconception that Workflow Store eliminates flexibility; distractors include all-robustness, unchanged on-the-fly, and total replacement."
+              }
+            ]
+          }
+        ]
+      },
+      "matchingDraftBatch": {
+        "units": [
+          {
+            "unitId": "unit-1",
+            "questions": [
+              {
+                "id": "q-unit-1-002",
+                "type": "matching",
+                "practiceGoalId": "goal-unit-1-002",
+                "relationType": "process_signal",
+                "relationGoal": "Identify which SE processes are bypassed",
+                "stem": "Match each SE process to its role in the on-the-fly paradigm.",
+                "leftItems": [
+                  {
+                    "id": "l1",
+                    "text": "Iterative design"
+                  },
+                  {
+                    "id": "l2",
+                    "text": "Rigorous testing"
+                  },
+                  {
+                    "id": "l3",
+                    "text": "Adversarial evaluation"
+                  },
+                  {
+                    "id": "l4",
+                    "text": "Staged deployment"
+                  }
+                ],
+                "rightItems": [
+                  {
+                    "id": "r1",
+                    "text": "Skipped for rapid synthesis"
+                  },
+                  {
+                    "id": "r2",
+                    "text": "Replaced by real-time execution"
+                  },
+                  {
+                    "id": "r3",
+                    "text": "Omitted due to speed focus"
+                  },
+                  {
+                    "id": "r4",
+                    "text": "Bypassed in favor of immediacy"
+                  }
+                ],
+                "pairs": [
+                  {
+                    "leftId": "l1",
+                    "rightId": "r1"
+                  },
+                  {
+                    "leftId": "l2",
+                    "rightId": "r2"
+                  },
+                  {
+                    "leftId": "l3",
+                    "rightId": "r3"
+                  },
+                  {
+                    "leftId": "l4",
+                    "rightId": "r4"
+                  }
+                ],
+                "explanation": "On-the-fly agents skip iterative design, rigorous testing, adversarial evaluation, and staged deployment to synthesize plans in seconds.",
+                "sourceAnchorId": "anchor-unit-1"
+              }
+            ]
+          }
+        ]
+      },
+      "unitCopyBatch": {
+        "units": [
+          {
+            "unitId": "unit-1",
+            "overview": {
+              "text": "Current AI agents generate plans in seconds, skipping rigorous engineering. This unit explains why that's a problem."
+            },
+            "summary": {
+              "text": "The on-the-fly paradigm bypasses testing and validation, risking failures in critical tasks."
+            }
+          },
+          {
+            "unitId": "unit-2",
+            "overview": {
+              "text": "The AI Workflow Store offers hardened, reusable workflows built with software engineering rigor."
+            },
+            "summary": {
+              "text": "Reusable workflows amortize cost and bring reliability without sacrificing flexibility."
+            }
+          },
+          {
+            "unitId": "unit-3",
+            "overview": {
+              "text": "Flexibility and robustness are often at odds. This unit explores that tension and how the Workflow Store resolves it."
+            },
+            "summary": {
+              "text": "The Workflow Store shifts the balance toward robustness while preserving adaptability."
+            }
+          }
+        ]
+      },
+      "unitPracticePlans": [
+        {
+          "unitId": "unit-1",
+          "practiceGoals": [
+            {
+              "kind": "core_understanding",
+              "target": "Define the on-the-fly paradigm and its core loop",
+              "commonMisconception": "Confusing it with general agent planning",
+              "microIds": [
+                "micro-unit-1-001"
+              ],
+              "id": "goal-unit-1-001",
+              "sourceAnchorId": "anchor-unit-1"
+            },
+            {
+              "kind": "boundary_clarification",
+              "target": "Identify which SE processes are bypassed",
+              "commonMisconception": "Thinking only testing is skipped",
+              "microIds": [
+                "micro-unit-1-002"
+              ],
+              "id": "goal-unit-1-002",
+              "sourceAnchorId": "anchor-unit-1"
+            },
+            {
+              "kind": "scenario_application",
+              "target": "Recognize risks of improvised prototypes in high-stakes scenarios",
+              "commonMisconception": "Believing prototypes are sufficient for producti",
+              "microIds": [
+                "micro-unit-1-003"
+              ],
+              "id": "goal-unit-1-003",
+              "sourceAnchorId": "anchor-unit-1"
+            }
+          ],
+          "questionPlans": [
+            {
+              "type": "multiple_choice",
+              "purpose": "light_understanding",
+              "goalIndex": 1,
+              "microIds": [
+                "micro-unit-1-001"
+              ],
+              "id": "q-unit-1-001",
+              "practiceGoalId": "goal-unit-1-001",
+              "sourceAnchorId": "anchor-unit-1"
+            },
+            {
+              "type": "matching",
+              "purpose": "step_purpose_matching",
+              "goalIndex": 2,
+              "relationType": "process_signal",
+              "microIds": [
+                "micro-unit-1-002"
+              ],
+              "id": "q-unit-1-002",
+              "practiceGoalId": "goal-unit-1-002",
+              "sourceAnchorId": "anchor-unit-1"
+            },
+            {
+              "type": "multiple_choice",
+              "purpose": "scenario_application",
+              "goalIndex": 3,
+              "microIds": [
+                "micro-unit-1-003"
+              ],
+              "id": "q-unit-1-003",
+              "practiceGoalId": "goal-unit-1-003",
+              "sourceAnchorId": "anchor-unit-1"
+            }
+          ]
+        },
+        {
+          "unitId": "unit-2",
+          "practiceGoals": [
+            {
+              "kind": "core_understanding",
+              "target": "Understand the AI Workflow Store as a repository of hardened, reusable agent wor",
+              "commonMisconception": "Confusing it with a simple script library",
+              "microIds": [
+                "micro-unit-2-001"
+              ],
+              "id": "goal-unit-2-001",
+              "sourceAnchorId": "anchor-unit-2"
+            },
+            {
+              "kind": "boundary_clarification",
+              "target": "Distinguish the AI Workflow Store from on-the-fly agent synthesis",
+              "commonMisconception": "Believing both are equally reliable",
+              "microIds": [
+                "micro-unit-2-002"
+              ],
+              "id": "goal-unit-2-002",
+              "sourceAnchorId": "anchor-unit-2"
+            },
+            {
+              "kind": "scenario_application",
+              "target": "Recognize cost amortization through reuse as the economic rationale",
+              "commonMisconception": "Thinking rigor is always free",
+              "microIds": [
+                "micro-unit-2-003"
+              ],
+              "id": "goal-unit-2-003",
+              "sourceAnchorId": "anchor-unit-2"
+            }
+          ],
+          "questionPlans": [
+            {
+              "type": "multiple_choice",
+              "purpose": "light_understanding",
+              "goalIndex": 1,
+              "microIds": [
+                "micro-unit-2-001"
+              ],
+              "id": "q-unit-2-001",
+              "practiceGoalId": "goal-unit-2-001",
+              "sourceAnchorId": "anchor-unit-2"
+            },
+            {
+              "type": "multiple_choice",
+              "purpose": "boundary_check",
+              "goalIndex": 2,
+              "microIds": [
+                "micro-unit-2-002"
+              ],
+              "id": "q-unit-2-002",
+              "practiceGoalId": "goal-unit-2-002",
+              "sourceAnchorId": "anchor-unit-2"
+            },
+            {
+              "type": "multiple_choice",
+              "purpose": "scenario_application",
+              "goalIndex": 3,
+              "microIds": [
+                "micro-unit-2-003"
+              ],
+              "id": "q-unit-2-003",
+              "practiceGoalId": "goal-unit-2-003",
+              "sourceAnchorId": "anchor-unit-2"
+            }
+          ]
+        },
+        {
+          "unitId": "unit-3",
+          "practiceGoals": [
+            {
+              "kind": "core_understanding",
+              "target": "Understand the flexibility-robustness trade-off in AI agent design",
+              "commonMisconception": "Believing flexibility and robustness can both be",
+              "microIds": [
+                "micro-unit-3-001"
+              ],
+              "id": "goal-unit-3-001",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "kind": "boundary_clarification",
+              "target": "Identify limitations of on-the-fly synthesis paradigm",
+              "commonMisconception": "Thinking on-the-fly synthesis is always sufficie",
+              "microIds": [
+                "micro-unit-3-002"
+              ],
+              "id": "goal-unit-3-002",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "kind": "scenario_application",
+              "target": "Recognize how Workflow Store addresses the tension",
+              "commonMisconception": "Assuming Workflow Store eliminates all flexibili",
+              "microIds": [
+                "micro-unit-3-003"
+              ],
+              "id": "goal-unit-3-003",
+              "sourceAnchorId": "anchor-unit-3"
+            }
+          ],
+          "questionPlans": [
+            {
+              "type": "multiple_choice",
+              "purpose": "light_understanding",
+              "goalIndex": 1,
+              "microIds": [
+                "micro-unit-3-001"
+              ],
+              "id": "q-unit-3-001",
+              "practiceGoalId": "goal-unit-3-001",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "type": "multiple_choice",
+              "purpose": "boundary_check",
+              "goalIndex": 2,
+              "microIds": [
+                "micro-unit-3-002"
+              ],
+              "id": "q-unit-3-002",
+              "practiceGoalId": "goal-unit-3-002",
+              "sourceAnchorId": "anchor-unit-3"
+            },
+            {
+              "type": "multiple_choice",
+              "purpose": "scenario_application",
+              "goalIndex": 3,
+              "microIds": [
+                "micro-unit-3-003"
+              ],
+              "id": "q-unit-3-003",
+              "practiceGoalId": "goal-unit-3-003",
+              "sourceAnchorId": "anchor-unit-3"
+            }
+          ]
+        }
+      ],
+      "qualityJudge": {
+        "verdict": "skipped",
+        "issues": [],
+        "summary": "qualityJudge 默认停用；本轮只保留 deterministic guardrails 和 HTML 报告诊断。"
+      },
+      "qualityDiagnostics": [
+        {
+          "unitId": "unit-1",
+          "questionId": "q-unit-1-001",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "matchingQuality": null,
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionLengthBalance": "watch_correct_option_longer",
+            "optionQuality": {
+              "optionCount": 4,
+              "correctOptionId": "C",
+              "optionLengths": {
+                "A": 47,
+                "B": 44,
+                "C": 67,
+                "D": 42
+              },
+              "correctLength": 67,
+              "distractorLengths": [
+                47,
+                44,
+                42
+              ],
+              "medianDistractorLength": 44,
+              "correctToMedianDistractorRatio": 1.52,
+              "shortestOptionLength": 42,
+              "longestOptionLength": 67,
+              "lengthRange": 25,
+              "lengthBalance": "watch_correct_option_longer",
+              "cueHits": [],
+              "correctCueTerms": [],
+              "distractorCueTerms": []
+            },
+            "optionToneCue": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-1",
+          "questionId": "q-unit-1-002",
+          "questionType": "matching",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "not_applicable",
+            "matchingRelationValue": "pass",
+            "matchingQuality": {
+              "status": "pass",
+              "relationType": "",
+              "relationGoalLength": 0,
+              "pairCount": 4,
+              "leftItemCount": 4,
+              "rightItemCount": 4,
+              "leftItemLengths": {
+                "l1": 15,
+                "l2": 15,
+                "l3": 21,
+                "l4": 16
+              },
+              "rightItemLengths": {
+                "r1": 24,
+                "r2": 28,
+                "r3": 22,
+                "r4": 26
+              },
+              "weakStem": false,
+              "genericRightItemCount": 0,
+              "shortRightItemCount": 0,
+              "genericRightTexts": [],
+              "relationSignalHits": []
+            },
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionLengthBalance": "not_applicable",
+            "optionQuality": null
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-1",
+          "questionId": "q-unit-1-003",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "matchingQuality": null,
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionLengthBalance": "watch_correct_option_longer",
+            "optionQuality": {
+              "optionCount": 4,
+              "correctOptionId": "C",
+              "optionLengths": {
+                "A": 49,
+                "B": 47,
+                "C": 70,
+                "D": 37
+              },
+              "correctLength": 70,
+              "distractorLengths": [
+                49,
+                47,
+                37
+              ],
+              "medianDistractorLength": 47,
+              "correctToMedianDistractorRatio": 1.49,
+              "shortestOptionLength": 37,
+              "longestOptionLength": 70,
+              "lengthRange": 33,
+              "lengthBalance": "watch_correct_option_longer",
+              "cueHits": [],
+              "correctCueTerms": [],
+              "distractorCueTerms": []
+            },
+            "optionToneCue": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-2",
+          "questionId": "q-unit-2-001",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "matchingQuality": null,
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionLengthBalance": "watch_correct_option_longer",
+            "optionQuality": {
+              "optionCount": 4,
+              "correctOptionId": "A",
+              "optionLengths": {
+                "A": 76,
+                "B": 53,
+                "C": 51,
+                "D": 43
+              },
+              "correctLength": 76,
+              "distractorLengths": [
+                53,
+                51,
+                43
+              ],
+              "medianDistractorLength": 51,
+              "correctToMedianDistractorRatio": 1.49,
+              "shortestOptionLength": 43,
+              "longestOptionLength": 76,
+              "lengthRange": 33,
+              "lengthBalance": "watch_correct_option_longer",
+              "cueHits": [],
+              "correctCueTerms": [],
+              "distractorCueTerms": []
+            },
+            "optionToneCue": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-2",
+          "questionId": "q-unit-2-002",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "matchingQuality": null,
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionLengthBalance": "pass",
+            "optionQuality": {
+              "optionCount": 4,
+              "correctOptionId": "A",
+              "optionLengths": {
+                "A": 69,
+                "B": 58,
+                "C": 43,
+                "D": 64
+              },
+              "correctLength": 69,
+              "distractorLengths": [
+                58,
+                43,
+                64
+              ],
+              "medianDistractorLength": 58,
+              "correctToMedianDistractorRatio": 1.19,
+              "shortestOptionLength": 43,
+              "longestOptionLength": 69,
+              "lengthRange": 26,
+              "lengthBalance": "pass",
+              "cueHits": [],
+              "correctCueTerms": [],
+              "distractorCueTerms": []
+            },
+            "optionToneCue": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-2",
+          "questionId": "q-unit-2-003",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "matchingQuality": null,
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionLengthBalance": "pass",
+            "optionQuality": {
+              "optionCount": 4,
+              "correctOptionId": "B",
+              "optionLengths": {
+                "A": 53,
+                "B": 56,
+                "C": 50,
+                "D": 44
+              },
+              "correctLength": 56,
+              "distractorLengths": [
+                53,
+                50,
+                44
+              ],
+              "medianDistractorLength": 50,
+              "correctToMedianDistractorRatio": 1.12,
+              "shortestOptionLength": 44,
+              "longestOptionLength": 56,
+              "lengthRange": 12,
+              "lengthBalance": "pass",
+              "cueHits": [],
+              "correctCueTerms": [],
+              "distractorCueTerms": []
+            },
+            "optionToneCue": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-3",
+          "questionId": "q-unit-3-001",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "matchingQuality": null,
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionLengthBalance": "pass",
+            "optionQuality": {
+              "optionCount": 4,
+              "correctOptionId": "A",
+              "optionLengths": {
+                "A": 52,
+                "B": 57,
+                "C": 43,
+                "D": 48
+              },
+              "correctLength": 52,
+              "distractorLengths": [
+                57,
+                43,
+                48
+              ],
+              "medianDistractorLength": 48,
+              "correctToMedianDistractorRatio": 1.08,
+              "shortestOptionLength": 43,
+              "longestOptionLength": 57,
+              "lengthRange": 14,
+              "lengthBalance": "pass",
+              "cueHits": [],
+              "correctCueTerms": [],
+              "distractorCueTerms": []
+            },
+            "optionToneCue": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-3",
+          "questionId": "q-unit-3-002",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "matchingQuality": null,
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionLengthBalance": "pass",
+            "optionQuality": {
+              "optionCount": 4,
+              "correctOptionId": "B",
+              "optionLengths": {
+                "A": 44,
+                "B": 50,
+                "C": 45,
+                "D": 45
+              },
+              "correctLength": 50,
+              "distractorLengths": [
+                44,
+                45,
+                45
+              ],
+              "medianDistractorLength": 45,
+              "correctToMedianDistractorRatio": 1.11,
+              "shortestOptionLength": 44,
+              "longestOptionLength": 50,
+              "lengthRange": 6,
+              "lengthBalance": "pass",
+              "cueHits": [],
+              "correctCueTerms": [],
+              "distractorCueTerms": []
+            },
+            "optionToneCue": "pass"
+          },
+          "issues": []
+        },
+        {
+          "unitId": "unit-3",
+          "questionId": "q-unit-3-003",
+          "questionType": "multiple_choice",
+          "checks": {
+            "forbiddenPhrase": [],
+            "distractorValue": "pass",
+            "matchingRelationValue": "not_applicable",
+            "matchingQuality": null,
+            "explanationUiFit": "pass",
+            "sourceAnchorPrecision": "pass",
+            "optionLengthBalance": "pass",
+            "optionQuality": {
+              "optionCount": 4,
+              "correctOptionId": "D",
+              "optionLengths": {
+                "A": 45,
+                "B": 45,
+                "C": 51,
+                "D": 49
+              },
+              "correctLength": 49,
+              "distractorLengths": [
+                45,
+                45,
+                51
+              ],
+              "medianDistractorLength": 45,
+              "correctToMedianDistractorRatio": 1.09,
+              "shortestOptionLength": 45,
+              "longestOptionLength": 51,
+              "lengthRange": 6,
+              "lengthBalance": "pass",
+              "cueHits": [],
+              "correctCueTerms": [],
+              "distractorCueTerms": []
+            },
+            "optionToneCue": "pass"
+          },
+          "issues": []
+        }
+      ],
+      "qualityGate": {
+        "mode": "deterministic_only",
+        "blocking": false,
+        "qualityJudgeEnabled": false,
+        "deterministicVerdict": "pass",
+        "deterministicIssueCount": 0,
+        "judgeVerdict": "skipped",
+        "judgeIssueCount": 0
+      },
+      "v2Progress": {
+        "jobId": "",
+        "chapterId": "english-agent-workflow-store",
+        "status": "completed",
+        "stage": "completed",
+        "stageGroup": "completed",
+        "displayText": "生成完成",
+        "progress": 1,
+        "userVisible": true,
+        "retryCount": 0,
+        "canRetry": false,
+        "updatedAt": "2026-07-13T20:32:41.631Z"
+      }
+    }
+  },
+  "unitKnowledgeMap": {
+    "units": [
+      {
+        "unitId": "unit-1",
+        "microKnowledgePoints": [
+          {
+            "microId": "micro-unit-1-001",
+            "title": "On-the-fly paradigm definiti",
+            "summary": "AI agents synthesize plans and execute actions i",
+            "role": "definition",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "Definition of pa"
+          },
+          {
+            "microId": "micro-unit-1-002",
+            "title": "Short-circuited SE processes",
+            "key": "Iterative design, testing, evaluation, staged deployment are bypassed",
+            "summary": "On-the-fly loop bypasses iterative design, testi",
+            "role": "mechanism",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "What is bypassed"
+          },
+          {
+            "microId": "micro-unit-1-003",
+            "title": "Consequence: improvised prot",
+            "summary": "Agents deliver improvised prototypes, not system",
+            "role": "scenario_application",
+            "assessmentValue": "medium",
+            "primaryEvidenceAngle": "Risk in high-sta"
+          }
+        ]
+      },
+      {
+        "unitId": "unit-2",
+        "microKnowledgePoints": [
+          {
+            "microId": "micro-unit-2-001",
+            "title": "AI Workflow Store definition",
+            "summary": "A store of hardened, reusable agent workflows bu",
+            "role": "definition",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "Core concept und"
+          },
+          {
+            "microId": "micro-unit-2-002",
+            "title": "Contrast with on-the-fly syn",
+            "summary": "On-the-fly loop vs. disciplined SE process for r",
+            "role": "boundary",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "Paradigm distinc"
+          },
+          {
+            "microId": "micro-unit-2-003",
+            "title": "Cost amortization through re",
+            "summary": "Extra compute/time cost of rigor is amortized ac",
+            "role": "mechanism",
+            "assessmentValue": "medium",
+            "primaryEvidenceAngle": "Economic rationa"
+          }
+        ]
+      },
+      {
+        "unitId": "unit-3",
+        "microKnowledgePoints": [
+          {
+            "microId": "micro-unit-3-001",
+            "title": "Flexibility-Robustness Tensi",
+            "summary": "The core trade-off between flexible on-the-fly s",
+            "role": "definition",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "Trade-off unders"
+          },
+          {
+            "microId": "micro-unit-3-002",
+            "title": "On-the-fly Paradigm Limitati",
+            "summary": "On-the-fly synthesis short-circuits SE processes",
+            "role": "mechanism",
+            "assessmentValue": "high",
+            "primaryEvidenceAngle": "Paradigm critiqu"
+          },
+          {
+            "microId": "micro-unit-3-003",
+            "title": "Workflow Store as Solution",
+            "summary": "Hardened, reusable workflows amortize rigor cost",
+            "role": "scenario_application",
+            "assessmentValue": "medium",
+            "primaryEvidenceAngle": "Solution rationa"
+          }
+        ]
+      }
+    ]
+  },
+  "ecdPlanning": null,
+  "sourceContextStats": {
+    "fullBlockCount": 106,
+    "unitKnowledgeMap": {
+      "mode": "plan_union_window",
+      "selectedBlockCount": 4,
+      "selectedBlockIds": [
+        "p-008",
+        "p-009",
+        "p-010",
+        "p-011"
+      ],
+      "fallbackUsed": false
+    },
+    "unitWindows": [
+      {
+        "unitId": "unit-1",
+        "anchorId": "anchor-unit-1",
+        "anchorBlockIds": [
+          "p-009"
+        ],
+        "selectedBlockCount": 3,
+        "selectedBlockIds": [
+          "p-008",
+          "p-009",
+          "p-010"
+        ],
+        "fallbackUsed": false
+      },
+      {
+        "unitId": "unit-2",
+        "anchorId": "anchor-unit-2",
+        "anchorBlockIds": [
+          "p-010"
+        ],
+        "selectedBlockCount": 3,
+        "selectedBlockIds": [
+          "p-009",
+          "p-010",
+          "p-011"
+        ],
+        "fallbackUsed": false
+      },
+      {
+        "unitId": "unit-3",
+        "anchorId": "anchor-unit-3",
+        "anchorBlockIds": [
+          "p-010"
+        ],
+        "selectedBlockCount": 3,
+        "selectedBlockIds": [
+          "p-009",
+          "p-010",
+          "p-011"
+        ],
+        "fallbackUsed": false
+      }
+    ]
+  },
+  "stageRuntime": {
+    "schemaVersion": "v2_stage_runtime_1",
+    "callCount": 15,
+    "attemptCount": 15,
+    "failedAttemptCount": 0,
+    "retryAttemptCount": 0,
+    "stages": [
+      {
+        "stage": "v2_reviewPathPlan",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 6579,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "callCount": 3,
+        "successCallCount": 3,
+        "failedCallCount": 0,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 8467,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_taskBriefPlan",
+        "callCount": 3,
+        "successCallCount": 3,
+        "failedCallCount": 0,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 9605,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "callCount": 3,
+        "successCallCount": 3,
+        "failedCallCount": 0,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 11162,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_multipleChoiceOptionSetUnitBatch",
+        "callCount": 3,
+        "successCallCount": 3,
+        "failedCallCount": 0,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 14021,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_matchingDraft",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 3397,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitCopyBatch",
+        "callCount": 1,
+        "successCallCount": 1,
+        "failedCallCount": 0,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "transientFailureCount": 0,
+        "totalDurationMs": 2930,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      }
+    ],
+    "attempts": [
+      {
+        "callId": "reviewPathPlan-1",
+        "stage": "v2_reviewPathPlan",
+        "modelStage": "reviewPathPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 6579,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-2",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 2836,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-3",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 2955,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitKnowledgeMap-4",
+        "stage": "v2_unitKnowledgeMap",
+        "modelStage": "unitKnowledgeMap",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 2676,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-5",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3164,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-6",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3255,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "taskBriefPlan-7",
+        "stage": "v2_taskBriefPlan",
+        "modelStage": "taskBriefPlan",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3186,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-8",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3627,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceOptionSetUnitBatch-9",
+        "stage": "v2_multipleChoiceOptionSetUnitBatch",
+        "modelStage": "multipleChoiceOptionSetUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3870,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-10",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 4054,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceOptionSetUnitBatch-11",
+        "stage": "v2_multipleChoiceOptionSetUnitBatch",
+        "modelStage": "multipleChoiceOptionSetUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 5031,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceDraftUnitBatch-12",
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelStage": "multipleChoiceDraftUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3481,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "multipleChoiceOptionSetUnitBatch-13",
+        "stage": "v2_multipleChoiceOptionSetUnitBatch",
+        "modelStage": "multipleChoiceOptionSetUnitBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 5120,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "matchingDraft-14",
+        "stage": "v2_matchingDraft",
+        "modelStage": "matchingDraft",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 3397,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      },
+      {
+        "callId": "unitCopyBatch-15",
+        "stage": "v2_unitCopyBatch",
+        "modelStage": "unitCopyBatch",
+        "attempt": 1,
+        "maxAttempts": 3,
+        "status": "success",
+        "durationMs": 2930,
+        "retryable": false,
+        "errorType": "",
+        "errorMessage": ""
+      }
+    ]
+  },
+  "architectureMetrics": {
+    "schemaVersion": "v2_architecture_metrics_1",
+    "total": {
+      "modelCallCount": 15,
+      "runtimeCallCount": 15,
+      "attemptCount": 15,
+      "retryAttemptCount": 0,
+      "failedAttemptCount": 0,
+      "promptTokens": 34469,
+      "completionTokens": 5691,
+      "totalTokens": 40160,
+      "promptCacheHitTokens": 13696,
+      "promptCacheMissTokens": 20773,
+      "durationMs": 56161
+    },
+    "stages": [
+      {
+        "stage": "v2_matchingDraft",
+        "modelCallCount": 1,
+        "promptTokens": 2039,
+        "completionTokens": 379,
+        "totalTokens": 2418,
+        "promptCacheHitTokens": 0,
+        "promptCacheMissTokens": 2039,
+        "estimatedOutputTokens": 3200,
+        "runtimeCallCount": 1,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 3397,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_multipleChoiceDraftUnitBatch",
+        "modelCallCount": 3,
+        "promptTokens": 6409,
+        "completionTokens": 1110,
+        "totalTokens": 7519,
+        "promptCacheHitTokens": 1152,
+        "promptCacheMissTokens": 5257,
+        "estimatedOutputTokens": 5400,
+        "runtimeCallCount": 3,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 11162,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_multipleChoiceOptionSetUnitBatch",
+        "modelCallCount": 3,
+        "promptTokens": 7870,
+        "completionTokens": 1445,
+        "totalTokens": 9315,
+        "promptCacheHitTokens": 1280,
+        "promptCacheMissTokens": 6590,
+        "estimatedOutputTokens": 4800,
+        "runtimeCallCount": 3,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 14021,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_reviewPathPlan",
+        "modelCallCount": 1,
+        "promptTokens": 5211,
+        "completionTokens": 634,
+        "totalTokens": 5845,
+        "promptCacheHitTokens": 5120,
+        "promptCacheMissTokens": 91,
+        "estimatedOutputTokens": 4000,
+        "runtimeCallCount": 1,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 6579,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_taskBriefPlan",
+        "modelCallCount": 3,
+        "promptTokens": 6250,
+        "completionTokens": 1084,
+        "totalTokens": 7334,
+        "promptCacheHitTokens": 3456,
+        "promptCacheMissTokens": 2794,
+        "estimatedOutputTokens": 11400,
+        "runtimeCallCount": 3,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 9605,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitCopyBatch",
+        "modelCallCount": 1,
+        "promptTokens": 1632,
+        "completionTokens": 230,
+        "totalTokens": 1862,
+        "promptCacheHitTokens": 0,
+        "promptCacheMissTokens": 1632,
+        "estimatedOutputTokens": 1400,
+        "runtimeCallCount": 1,
+        "attemptCount": 1,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 2930,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      },
+      {
+        "stage": "v2_unitKnowledgeMap",
+        "modelCallCount": 3,
+        "promptTokens": 5058,
+        "completionTokens": 809,
+        "totalTokens": 5867,
+        "promptCacheHitTokens": 2688,
+        "promptCacheMissTokens": 2370,
+        "estimatedOutputTokens": 5100,
+        "runtimeCallCount": 3,
+        "attemptCount": 3,
+        "retryAttemptCount": 0,
+        "failedAttemptCount": 0,
+        "durationMs": 8467,
+        "errorTypes": {},
+        "lastErrorType": "",
+        "lastErrorMessage": ""
+      }
+    ]
+  },
+  "qualityDiagnostics": [
+    {
+      "unitId": "unit-1",
+      "questionId": "q-unit-1-001",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "matchingQuality": null,
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionLengthBalance": "watch_correct_option_longer",
+        "optionQuality": {
+          "optionCount": 4,
+          "correctOptionId": "C",
+          "optionLengths": {
+            "A": 47,
+            "B": 44,
+            "C": 67,
+            "D": 42
+          },
+          "correctLength": 67,
+          "distractorLengths": [
+            47,
+            44,
+            42
+          ],
+          "medianDistractorLength": 44,
+          "correctToMedianDistractorRatio": 1.52,
+          "shortestOptionLength": 42,
+          "longestOptionLength": 67,
+          "lengthRange": 25,
+          "lengthBalance": "watch_correct_option_longer",
+          "cueHits": [],
+          "correctCueTerms": [],
+          "distractorCueTerms": []
+        },
+        "optionToneCue": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-1",
+      "questionId": "q-unit-1-002",
+      "questionType": "matching",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "not_applicable",
+        "matchingRelationValue": "pass",
+        "matchingQuality": {
+          "status": "pass",
+          "relationType": "",
+          "relationGoalLength": 0,
+          "pairCount": 4,
+          "leftItemCount": 4,
+          "rightItemCount": 4,
+          "leftItemLengths": {
+            "l1": 15,
+            "l2": 15,
+            "l3": 21,
+            "l4": 16
+          },
+          "rightItemLengths": {
+            "r1": 24,
+            "r2": 28,
+            "r3": 22,
+            "r4": 26
+          },
+          "weakStem": false,
+          "genericRightItemCount": 0,
+          "shortRightItemCount": 0,
+          "genericRightTexts": [],
+          "relationSignalHits": []
+        },
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionLengthBalance": "not_applicable",
+        "optionQuality": null
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-1",
+      "questionId": "q-unit-1-003",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "matchingQuality": null,
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionLengthBalance": "watch_correct_option_longer",
+        "optionQuality": {
+          "optionCount": 4,
+          "correctOptionId": "C",
+          "optionLengths": {
+            "A": 49,
+            "B": 47,
+            "C": 70,
+            "D": 37
+          },
+          "correctLength": 70,
+          "distractorLengths": [
+            49,
+            47,
+            37
+          ],
+          "medianDistractorLength": 47,
+          "correctToMedianDistractorRatio": 1.49,
+          "shortestOptionLength": 37,
+          "longestOptionLength": 70,
+          "lengthRange": 33,
+          "lengthBalance": "watch_correct_option_longer",
+          "cueHits": [],
+          "correctCueTerms": [],
+          "distractorCueTerms": []
+        },
+        "optionToneCue": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-2",
+      "questionId": "q-unit-2-001",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "matchingQuality": null,
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionLengthBalance": "watch_correct_option_longer",
+        "optionQuality": {
+          "optionCount": 4,
+          "correctOptionId": "A",
+          "optionLengths": {
+            "A": 76,
+            "B": 53,
+            "C": 51,
+            "D": 43
+          },
+          "correctLength": 76,
+          "distractorLengths": [
+            53,
+            51,
+            43
+          ],
+          "medianDistractorLength": 51,
+          "correctToMedianDistractorRatio": 1.49,
+          "shortestOptionLength": 43,
+          "longestOptionLength": 76,
+          "lengthRange": 33,
+          "lengthBalance": "watch_correct_option_longer",
+          "cueHits": [],
+          "correctCueTerms": [],
+          "distractorCueTerms": []
+        },
+        "optionToneCue": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-2",
+      "questionId": "q-unit-2-002",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "matchingQuality": null,
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionLengthBalance": "pass",
+        "optionQuality": {
+          "optionCount": 4,
+          "correctOptionId": "A",
+          "optionLengths": {
+            "A": 69,
+            "B": 58,
+            "C": 43,
+            "D": 64
+          },
+          "correctLength": 69,
+          "distractorLengths": [
+            58,
+            43,
+            64
+          ],
+          "medianDistractorLength": 58,
+          "correctToMedianDistractorRatio": 1.19,
+          "shortestOptionLength": 43,
+          "longestOptionLength": 69,
+          "lengthRange": 26,
+          "lengthBalance": "pass",
+          "cueHits": [],
+          "correctCueTerms": [],
+          "distractorCueTerms": []
+        },
+        "optionToneCue": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-2",
+      "questionId": "q-unit-2-003",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "matchingQuality": null,
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionLengthBalance": "pass",
+        "optionQuality": {
+          "optionCount": 4,
+          "correctOptionId": "B",
+          "optionLengths": {
+            "A": 53,
+            "B": 56,
+            "C": 50,
+            "D": 44
+          },
+          "correctLength": 56,
+          "distractorLengths": [
+            53,
+            50,
+            44
+          ],
+          "medianDistractorLength": 50,
+          "correctToMedianDistractorRatio": 1.12,
+          "shortestOptionLength": 44,
+          "longestOptionLength": 56,
+          "lengthRange": 12,
+          "lengthBalance": "pass",
+          "cueHits": [],
+          "correctCueTerms": [],
+          "distractorCueTerms": []
+        },
+        "optionToneCue": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-3",
+      "questionId": "q-unit-3-001",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "matchingQuality": null,
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionLengthBalance": "pass",
+        "optionQuality": {
+          "optionCount": 4,
+          "correctOptionId": "A",
+          "optionLengths": {
+            "A": 52,
+            "B": 57,
+            "C": 43,
+            "D": 48
+          },
+          "correctLength": 52,
+          "distractorLengths": [
+            57,
+            43,
+            48
+          ],
+          "medianDistractorLength": 48,
+          "correctToMedianDistractorRatio": 1.08,
+          "shortestOptionLength": 43,
+          "longestOptionLength": 57,
+          "lengthRange": 14,
+          "lengthBalance": "pass",
+          "cueHits": [],
+          "correctCueTerms": [],
+          "distractorCueTerms": []
+        },
+        "optionToneCue": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-3",
+      "questionId": "q-unit-3-002",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "matchingQuality": null,
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionLengthBalance": "pass",
+        "optionQuality": {
+          "optionCount": 4,
+          "correctOptionId": "B",
+          "optionLengths": {
+            "A": 44,
+            "B": 50,
+            "C": 45,
+            "D": 45
+          },
+          "correctLength": 50,
+          "distractorLengths": [
+            44,
+            45,
+            45
+          ],
+          "medianDistractorLength": 45,
+          "correctToMedianDistractorRatio": 1.11,
+          "shortestOptionLength": 44,
+          "longestOptionLength": 50,
+          "lengthRange": 6,
+          "lengthBalance": "pass",
+          "cueHits": [],
+          "correctCueTerms": [],
+          "distractorCueTerms": []
+        },
+        "optionToneCue": "pass"
+      },
+      "issues": []
+    },
+    {
+      "unitId": "unit-3",
+      "questionId": "q-unit-3-003",
+      "questionType": "multiple_choice",
+      "checks": {
+        "forbiddenPhrase": [],
+        "distractorValue": "pass",
+        "matchingRelationValue": "not_applicable",
+        "matchingQuality": null,
+        "explanationUiFit": "pass",
+        "sourceAnchorPrecision": "pass",
+        "optionLengthBalance": "pass",
+        "optionQuality": {
+          "optionCount": 4,
+          "correctOptionId": "D",
+          "optionLengths": {
+            "A": 45,
+            "B": 45,
+            "C": 51,
+            "D": 49
+          },
+          "correctLength": 49,
+          "distractorLengths": [
+            45,
+            45,
+            51
+          ],
+          "medianDistractorLength": 45,
+          "correctToMedianDistractorRatio": 1.09,
+          "shortestOptionLength": 45,
+          "longestOptionLength": 51,
+          "lengthRange": 6,
+          "lengthBalance": "pass",
+          "cueHits": [],
+          "correctCueTerms": [],
+          "distractorCueTerms": []
+        },
+        "optionToneCue": "pass"
+      },
+      "issues": []
+    }
+  ],
+  "modelUsage": [
+    {
+      "index": 1,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_reviewPathPlan",
+      "estimatedOutputTokens": 4000,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 5211,
+        "completion_tokens": 634,
+        "total_tokens": 5845,
+        "prompt_cache_hit_tokens": 5120,
+        "prompt_cache_miss_tokens": 91
+      }
+    },
+    {
+      "index": 2,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 1689,
+        "completion_tokens": 287,
+        "total_tokens": 1976,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 793
+      }
+    },
+    {
+      "index": 3,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 1681,
+        "completion_tokens": 256,
+        "total_tokens": 1937,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 785
+      }
+    },
+    {
+      "index": 4,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitKnowledgeMap",
+      "estimatedOutputTokens": 1700,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 1688,
+        "completion_tokens": 266,
+        "total_tokens": 1954,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 792
+      }
+    },
+    {
+      "index": 5,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2099,
+        "completion_tokens": 360,
+        "total_tokens": 2459,
+        "prompt_cache_hit_tokens": 1152,
+        "prompt_cache_miss_tokens": 947
+      }
+    },
+    {
+      "index": 6,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2070,
+        "completion_tokens": 359,
+        "total_tokens": 2429,
+        "prompt_cache_hit_tokens": 1152,
+        "prompt_cache_miss_tokens": 918
+      }
+    },
+    {
+      "index": 7,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_taskBriefPlan",
+      "estimatedOutputTokens": 3800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2081,
+        "completion_tokens": 365,
+        "total_tokens": 2446,
+        "prompt_cache_hit_tokens": 1152,
+        "prompt_cache_miss_tokens": 929
+      }
+    },
+    {
+      "index": 8,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "estimatedOutputTokens": 1800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2007,
+        "completion_tokens": 296,
+        "total_tokens": 2303,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 2007
+      }
+    },
+    {
+      "index": 9,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceOptionSetUnitBatch",
+      "estimatedOutputTokens": 1600,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2420,
+        "completion_tokens": 361,
+        "total_tokens": 2781,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 2420
+      }
+    },
+    {
+      "index": 10,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "estimatedOutputTokens": 1800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2197,
+        "completion_tokens": 395,
+        "total_tokens": 2592,
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 1941
+      }
+    },
+    {
+      "index": 11,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceOptionSetUnitBatch",
+      "estimatedOutputTokens": 1600,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2709,
+        "completion_tokens": 539,
+        "total_tokens": 3248,
+        "prompt_cache_hit_tokens": 256,
+        "prompt_cache_miss_tokens": 2453
+      }
+    },
+    {
+      "index": 12,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceDraftUnitBatch",
+      "estimatedOutputTokens": 1800,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2205,
+        "completion_tokens": 419,
+        "total_tokens": 2624,
+        "prompt_cache_hit_tokens": 896,
+        "prompt_cache_miss_tokens": 1309
+      }
+    },
+    {
+      "index": 13,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_multipleChoiceOptionSetUnitBatch",
+      "estimatedOutputTokens": 1600,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2741,
+        "completion_tokens": 545,
+        "total_tokens": 3286,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 1717
+      }
+    },
+    {
+      "index": 14,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_matchingDraft",
+      "estimatedOutputTokens": 3200,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 2039,
+        "completion_tokens": 379,
+        "total_tokens": 2418,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 2039
+      }
+    },
+    {
+      "index": 15,
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "stage": "v2_unitCopyBatch",
+      "estimatedOutputTokens": 1400,
+      "error": "",
+      "parseError": "",
+      "rawResponsePreview": "",
+      "usage": {
+        "prompt_tokens": 1632,
+        "completion_tokens": 230,
+        "total_tokens": 1862,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1632
+      }
+    }
+  ],
+  "mediaUsage": null,
+  "mediaUsageRecords": [],
+  "modelCostSummary": null,
+  "mediaCostSummary": null,
+  "progressEvents": [],
+  "learningSourceSummary": null,
+  "failure": null
+}

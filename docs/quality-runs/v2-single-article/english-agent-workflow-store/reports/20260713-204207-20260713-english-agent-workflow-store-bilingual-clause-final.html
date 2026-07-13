@@ -1,0 +1,1432 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>20260713-english-agent-workflow-store-bilingual-clause-final - V2 出题质量报告</title>
+  <style>
+    :root {
+      --bg: #f2f5cf;
+      --paper: #fdfaf2;
+      --ink: #44423d;
+      --muted: #807d73;
+      --line: #dde1ac;
+      --brand: #98a84e;
+      --soft: #f2f1da;
+      --danger: #ed765c;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    h1, h2, h3 {
+      line-height: 1.25;
+      margin: 0;
+    }
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 40px 0 16px;
+    }
+    h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(152, 163, 94, 0.18);
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      color: var(--brand);
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 14px 0;
+      background: rgba(253, 250, 242, 0.72);
+    }
+    .stem {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .options, .pairs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .option, .pair {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .correct {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .explanation {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+    .source {
+      margin-top: 12px;
+      border-left: 4px solid var(--line);
+      padding-left: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .source-block {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin: 8px 0;
+      background: rgba(255,255,255,0.45);
+    }
+    .source-block.highlight {
+      border-color: var(--brand);
+      background: rgba(152, 168, 78, 0.12);
+    }
+    .failure {
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    details {
+      margin-top: 12px;
+    }
+    .diagnostic {
+      border-top: 1px dashed var(--line);
+      padding-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 6px;
+      text-align: right;
+      vertical-align: top;
+    }
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>V2 出题质量报告</h1>
+    <div class="meta">2026-07-13T20:43:01.080Z · 20260713-english-agent-workflow-store-bilingual-clause-final · completed</div>
+    
+    <section class="card">
+    <h2 style="margin-top:0">Architecture Metrics</h2>
+    <p class="meta">这一段是架构仪表盘：不改变生成链路，只量化每个 stage 的调用数、token、重试、失败类型和耗时，用来判断 token 爆炸来自 retry，还是来自 stage 本身过重。</p>
+    <div class="grid">
+      <div class="metric"><strong>15</strong>Model calls</div>
+      <div class="metric"><strong>39,678</strong>Total tokens</div>
+      <div class="metric"><strong>34,173</strong>Prompt tokens</div>
+      <div class="metric"><strong>5,505</strong>Completion tokens</div>
+      <div class="metric"><strong>0</strong>Retries</div>
+      <div class="metric"><strong>53s</strong>Duration</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Stage</th>
+          <th>Calls</th>
+          <th>Attempts</th>
+          <th>Retries</th>
+          <th>Failed attempts</th>
+          <th>Prompt</th>
+          <th>Completion</th>
+          <th>Total</th>
+          <th>Cache hit/miss</th>
+          <th>Duration</th>
+          <th>Error types</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>v2_matchingDraft</td>
+          <td>1</td>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td>2,024</td>
+          <td>383</td>
+          <td>2,407</td>
+          <td>384 / 1,640</td>
+          <td>4s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_multipleChoiceDraftUnitBatch</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>6,333</td>
+          <td>1,067</td>
+          <td>7,400</td>
+          <td>2,688 / 3,645</td>
+          <td>10s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_multipleChoiceOptionSetUnitBatch</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>7,754</td>
+          <td>1,342</td>
+          <td>9,096</td>
+          <td>3,072 / 4,682</td>
+          <td>12s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_reviewPathPlan</td>
+          <td>1</td>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td>5,262</td>
+          <td>624</td>
+          <td>5,886</td>
+          <td>5,248 / 14</td>
+          <td>7s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_taskBriefPlan</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>6,179</td>
+          <td>1,070</td>
+          <td>7,249</td>
+          <td>3,456 / 2,723</td>
+          <td>10s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_unitCopyBatch</td>
+          <td>1</td>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td>1,602</td>
+          <td>231</td>
+          <td>1,833</td>
+          <td>640 / 962</td>
+          <td>3s</td>
+          <td></td>
+        </tr>
+<tr>
+          <td>v2_unitKnowledgeMap</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>5,019</td>
+          <td>788</td>
+          <td>5,807</td>
+          <td>2,688 / 2,331</td>
+          <td>8s</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+    
+    <section class="card">
+    <h2 style="margin-top:0">模型调用记录</h2>
+    
+      <div class="question">
+        <div><strong>#1 v2_reviewPathPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 4000</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#2 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1700</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#3 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1700</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#4 v2_unitKnowledgeMap</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1700</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#5 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#6 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#7 v2_taskBriefPlan</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#8 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#9 v2_multipleChoiceOptionSetUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1600</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#10 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#11 v2_multipleChoiceOptionSetUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1600</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#12 v2_multipleChoiceDraftUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1800</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#13 v2_multipleChoiceOptionSetUnitBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1600</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#14 v2_matchingDraft</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 3200</div>
+        
+        
+        
+      </div>
+    
+      <div class="question">
+        <div><strong>#15 v2_unitCopyBatch</strong></div>
+        <div class="meta">deepseek · deepseek-v4-flash · estimated output 1400</div>
+        
+        
+        
+      </div>
+    
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">Stage Runtime Reliability</h2>
+    <p class="meta">这一段显示 structured-output runtime 的稳定性：每个 stage 调用了几次、重试了几次、失败类型是什么。它不是题目质量审查。</p>
+    <div class="grid">
+      <div class="metric"><strong>15</strong>Calls</div>
+      <div class="metric"><strong>15</strong>Attempts</div>
+      <div class="metric"><strong>0</strong>Failed attempts</div>
+      <div class="metric"><strong>0</strong>Retry attempts</div>
+    </div>
+    <div class="question">
+      <div><strong>v2_reviewPathPlan</strong></div>
+      <div class="meta">calls: 1 · success calls: 1 · failed calls: 0 · attempts: 1 · retries: 0 · failed attempts: 0 · duration: 6901ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_unitKnowledgeMap</strong></div>
+      <div class="meta">calls: 3 · success calls: 3 · failed calls: 0 · attempts: 3 · retries: 0 · failed attempts: 0 · duration: 7973ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_taskBriefPlan</strong></div>
+      <div class="meta">calls: 3 · success calls: 3 · failed calls: 0 · attempts: 3 · retries: 0 · failed attempts: 0 · duration: 9879ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_multipleChoiceDraftUnitBatch</strong></div>
+      <div class="meta">calls: 3 · success calls: 3 · failed calls: 0 · attempts: 3 · retries: 0 · failed attempts: 0 · duration: 9974ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_multipleChoiceOptionSetUnitBatch</strong></div>
+      <div class="meta">calls: 3 · success calls: 3 · failed calls: 0 · attempts: 3 · retries: 0 · failed attempts: 0 · duration: 11985ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_matchingDraft</strong></div>
+      <div class="meta">calls: 1 · success calls: 1 · failed calls: 0 · attempts: 1 · retries: 0 · failed attempts: 0 · duration: 3582ms</div>
+      
+      
+    </div>
+<div class="question">
+      <div><strong>v2_unitCopyBatch</strong></div>
+      <div class="meta">calls: 1 · success calls: 1 · failed calls: 0 · attempts: 1 · retries: 0 · failed attempts: 0 · duration: 2864ms</div>
+      
+      
+    </div>
+  </section>
+    <section class="card">
+    <h2 style="margin-top:0">Source Context Stats</h2>
+    <p class="meta">这一段显示实际传给下游阶段的 source window，用来检查是否还在把全文 blocks 塞给每个 unit。</p>
+    <div class="grid">
+      <div class="metric"><strong>106</strong>Full blocks</div>
+      <div class="metric"><strong>4</strong>Plan blocks</div>
+      <div class="metric"><strong>3</strong>Unit windows</div>
+    </div>
+    <p class="meta">unitKnowledgeMap: p-008, p-009, p-010, p-011</p>
+    <div class="question">
+      <strong>u1</strong>
+      <div class="meta">anchor: anchor-u1 · blocks: p-008, p-009, p-010</div>
+    </div>
+<div class="question">
+      <strong>u2</strong>
+      <div class="meta">anchor: anchor-u2 · blocks: p-009, p-010, p-011</div>
+    </div>
+<div class="question">
+      <strong>u3</strong>
+      <div class="meta">anchor: anchor-u3 · blocks: p-009, p-010, p-011</div>
+    </div>
+  </section>
+    <section class="card">
+      <h2 style="margin-top:0">文章与章节</h2>
+      <p><strong>Robust AI Agents via Workflow Store</strong></p>
+      <p class="meta">arxiv.org · <a href="https://arxiv.org/abs/2605.10907">https://arxiv.org/abs/2605.10907</a></p>
+      <p>Current AI agents improvise plans on the fly, producing brittle results.</p>
+      <div class="grid">
+        <div class="metric"><strong>3</strong>知识点</div>
+        <div class="metric"><strong>9</strong>题目</div>
+        <div class="metric"><strong>8</strong>选择题</div>
+        <div class="metric"><strong>1</strong>连线题</div>
+        <div class="metric"><strong>106</strong>Source blocks</div>
+        <div class="metric"><strong>0</strong>Issues</div>
+        <div class="metric"><strong>0</strong>Diagnostics</div>
+        <div class="metric"><strong>0</strong>Runtime failed attempts</div>
+        <div class="metric"><strong>0</strong>Runtime retries</div>
+      </div>
+    </section>
+    <section class="card">
+    <h2 style="margin-top:0">Micro Knowledge Map</h2>
+    <p class="meta">这一段是内部诊断信息：它只记录每个 unit 内部的小知识点 inventory，不负责选题型或控制题量。</p>
+    <div class="question">
+        <div class="stem">1. u1</div>
+        <details open>
+    <summary>Micro Knowledge Points</summary>
+    <ul>
+      <li>micro-u1-001 · high · definition：On-the-fly paradigm definiti / The dominant AI agent loop that synthesizes plan / angle: Paradigm definit</li>
+<li>micro-u1-002 · high · mechanism：SE process short-circuit / On-the-fly loop bypasses iterative design, testi / angle: Missing SE steps</li>
+<li>micro-u1-003 · medium · misconception：Improvised prototype risk / Agents deliver improvised prototypes rather than / angle: Risk of improvis</li>
+    </ul>
+  </details>
+      </div>
+<div class="question">
+        <div class="stem">2. u2</div>
+        <details open>
+    <summary>Micro Knowledge Points</summary>
+    <ul>
+      <li>micro-u2-001 · high · definition：AI Workflow Store definition / A store of hardened, reusable workflows for agen / angle: Core concept def</li>
+<li>micro-u2-002 · medium · mechanism：Purpose: amortize rigor cost / Reuse across broad user community amortizes extr / angle: Cost-benefit rat</li>
+<li>micro-u2-003 · high · boundary：Contrast with on-the-fly par / Workflow Store vs. on-the-fly synthesis: reliabi / angle: Paradigm compari</li>
+    </ul>
+  </details>
+      </div>
+<div class="question">
+        <div class="stem">3. u3</div>
+        <details open>
+    <summary>Micro Knowledge Points</summary>
+    <ul>
+      <li>micro-u3-001 · high · definition：Flexibility-Robustness Tensi / The core challenge between on-the-fly adaptation / angle: Define the tensi</li>
+<li>micro-u3-002 · high · mechanism：On-the-fly vs. SE Process Tr / On-the-fly agents bypass rigorous SE processes,  / angle: Explain the trad</li>
+<li>micro-u3-003 · medium · scenario_application：AI Workflow Store as Solutio / Hardened reusable workflows amortize rigor cost  / angle: Apply the soluti</li>
+    </ul>
+  </details>
+      </div>
+  </section>
+    
+    <section class="card">
+    <h2 style="margin-top:0">1. The On-the-Fly Paradigm Problem</h2>
+    <p><span class="tag">短版</span>Current agents synthesize plans in seconds.</p>
+    <p><span class="tag">长版</span>The dominant AI agent paradigm uses an &#39;on-the-fly&#39; loop that synthesizes plans and executes actions within seconds or minutes.</p>
+    <p><span class="tag">概要页</span>Most AI agents today improvise plans in seconds. This unit explains why that on-the-fly approach is a problem.</p>
+    <div class="source">
+      <strong>Source anchor: anchor-u1</strong>
+      <div class="source-block highlight">
+    <strong>p-009 · paragraph</strong>
+    <div>Abstract: The dominant paradigm for AI agents is an &quot;on-the-fly&quot; loop in which agents synthesize plans and execute actions within seconds or minutes in response to user prompts. We...</div>
+    <details><summary>展开完整 source block</summary><pre>Abstract: The dominant paradigm for AI agents is an &quot;on-the-fly&quot; loop in which agents synthesize plans and execute actions within seconds or minutes in response to user prompts. We argue that this paradigm short-circuits disciplined software engineering (SE) processes -- iterative design, rigorous testing, adversarial evaluation, staged deployment, and more -- that have delivered the (relatively) reliable and secure systems we use today. By focusing on rapid, real-time synthesis, are AI agents effectively delivering users improvised prototypes rather than systems fit for high-stakes scenarios in which users may unwittingly apply them?</pre></details>
+  </div>
+    </div>
+    <div class="question">
+    <div class="stem">1. 选择题 · What is the on-the-fly paradigm?</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> Any system that responds to user input in real time.</div>
+<div class="option correct"><strong>B</strong> A loop that synthesizes plans and executes actions in seconds or minutes.</div>
+<div class="option "><strong>C</strong> A process that iteratively designs and tests software.</div>
+<div class="option "><strong>D</strong> A method that deploys agents after rigorous evaluation.</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>The on-the-fly paradigm is a rapid synthesis loop, not just any real-time system.</div>
+    <div class="meta">sourceAnchorId: anchor-u1</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">option length ratio: 1.32</div>
+<div class="meta">option length range: 19</div>
+<div class="meta">option cue hits: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">2. 连线题 · Match each SE process to the consequence of being short-circuited.</div>
+    <div class="pairs">
+      <div class="pair"><strong>l1 → r1</strong><br>Iterative design<br><span class="meta">No refinement cycles</span></div>
+<div class="pair"><strong>l2 → r2</strong><br>Rigorous testing<br><span class="meta">Undetected defects</span></div>
+<div class="pair"><strong>l3 → r3</strong><br>Adversarial evaluation<br><span class="meta">Unchecked vulnerabilities</span></div>
+<div class="pair"><strong>l4 → r4</strong><br>Staged deployment<br><span class="meta">No gradual rollout</span></div>
+    </div>
+    <details>
+      <summary>左右选项原始列表</summary>
+      <pre>{
+  &quot;leftItems&quot;: [
+    {
+      &quot;id&quot;: &quot;l1&quot;,
+      &quot;text&quot;: &quot;Iterative design&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l2&quot;,
+      &quot;text&quot;: &quot;Rigorous testing&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l3&quot;,
+      &quot;text&quot;: &quot;Adversarial evaluation&quot;
+    },
+    {
+      &quot;id&quot;: &quot;l4&quot;,
+      &quot;text&quot;: &quot;Staged deployment&quot;
+    }
+  ],
+  &quot;rightItems&quot;: [
+    {
+      &quot;id&quot;: &quot;r1&quot;,
+      &quot;text&quot;: &quot;No refinement cycles&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r2&quot;,
+      &quot;text&quot;: &quot;Undetected defects&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r3&quot;,
+      &quot;text&quot;: &quot;Unchecked vulnerabilities&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r4&quot;,
+      &quot;text&quot;: &quot;No gradual rollout&quot;
+    }
+  ],
+  &quot;pairs&quot;: [
+    {
+      &quot;leftId&quot;: &quot;l1&quot;,
+      &quot;rightId&quot;: &quot;r1&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l2&quot;,
+      &quot;rightId&quot;: &quot;r2&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l3&quot;,
+      &quot;rightId&quot;: &quot;r3&quot;
+    },
+    {
+      &quot;leftId&quot;: &quot;l4&quot;,
+      &quot;rightId&quot;: &quot;r4&quot;
+    }
+  ]
+}</pre>
+    </details>
+    <div class="explanation"><strong>解释：</strong>Each SE process is short-circuited, losing its specific benefit.</div>
+    <div class="meta">sourceAnchorId: anchor-u1</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: not_applicable</div>
+    
+    <div class="meta">matching relation value: pass</div>
+    <div class="meta">matching pair count: 4</div>
+<div class="meta">matching weak stem: no</div>
+<div class="meta">matching generic right items: 0 (pass)</div>
+<div class="meta">matching relation signals: none</div>
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">3. 选择题 · What risk do improvised prototypes pose in high-stakes scenarios?</div>
+    <div class="options">
+      <div class="option correct"><strong>A</strong> They deliver unreliable systems unfit for high-stakes use.</div>
+<div class="option "><strong>B</strong> They are more creative than rigorously tested systems.</div>
+<div class="option "><strong>C</strong> They are acceptable because users can adapt to them.</div>
+<div class="option "><strong>D</strong> They always fail under pressure but are fine for low stakes.</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>Improvised prototypes lack rigorous testing, making them risky for high-stakes scenarios.</div>
+    <div class="meta">sourceAnchorId: anchor-u1</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">option length ratio: 1.09</div>
+<div class="meta">option length range: 7</div>
+<div class="meta">option cue hits: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+    <details>
+      <summary>单元总结</summary>
+      <p><strong>Unit complete</strong></p>
+      <p>The on-the-fly loop skips rigorous engineering, leading to unreliable agents.</p>
+    </details>
+  </section>
+<section class="card">
+    <h2 style="margin-top:0">2. Proposal: AI Workflow Store</h2>
+    <p><span class="tag">短版</span>A store of hardened, reusable workflows for agents to.</p>
+    <p><span class="tag">长版</span>The paper envisions an AI Workflow Store containing production-grade, hardened, and deterministically-constrained workflows.</p>
+    <p><span class="tag">概要页</span>What if agents could reuse hardened workflows instead of starting from scratch? Meet the AI Workflow Store.</p>
+    <div class="source">
+      <strong>Source anchor: anchor-u2</strong>
+      <div class="source-block highlight">
+    <strong>p-010 · paragraph</strong>
+    <div>This paper argues for the need to integrate rigorous SE processes into the agentic loop to produce production-grade, hardened, and deterministically-constrained agent *workflows* t...</div>
+    <details><summary>展开完整 source block</summary><pre>This paper argues for the need to integrate rigorous SE processes into the agentic loop to produce production-grade, hardened, and deterministically-constrained agent *workflows* that substantially outperform the potentially brittle and vulnerable results of on-the-fly synthesis. Doing so may require extra compute and time, and if so, we must amortize the cost of rigor through reuse across a broad user community. We envision an *AI Workflow Store* that consists of hardened and reusable workflows that agents can invoke with far greater reliability and security than improvised tool chains. We outline the research challenges of this vision, which stem from a broader flexibility-robustness tension that we argue requires moving beyond the ``on-the-fly&#39;&#39; paradigm to navigate effectively.</pre></details>
+  </div>
+    </div>
+    <div class="question">
+    <div class="stem">1. 选择题 · What is the AI Workflow Store?</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> A library of improvised tool chains.</div>
+<div class="option "><strong>B</strong> A generic code repository for agent scripts.</div>
+<div class="option correct"><strong>C</strong> A store of hardened, reusable workflows for agents.</div>
+<div class="option "><strong>D</strong> A marketplace for agent plugins.</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>The AI Workflow Store contains hardened, reusable workflows, not just generic code.</div>
+    <div class="meta">sourceAnchorId: anchor-u2</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">option length ratio: 1.42</div>
+<div class="meta">option length range: 16</div>
+<div class="meta">option cue hits: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">2. 选择题 · How does the Workflow Store differ from on-the-fly synthesis?</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> Both produce equally reliable results.</div>
+<div class="option correct"><strong>B</strong> Workflows are hardened and more reliable.</div>
+<div class="option "><strong>C</strong> On-the-fly synthesis is more flexible.</div>
+<div class="option "><strong>D</strong> Workflows are less secure than synthesis.</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>Workflows from the Store are hardened and more reliable than on-the-fly synthesis.</div>
+    <div class="meta">sourceAnchorId: anchor-u2</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">option length ratio: 1.06</div>
+<div class="meta">option length range: 2</div>
+<div class="meta">option cue hits: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">3. 选择题 · Why does reuse amortize the cost of rigorous engineering?</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> It only saves time, not rigor cost.</div>
+<div class="option correct"><strong>B</strong> It spreads the extra cost across many users.</div>
+<div class="option "><strong>C</strong> It reduces the number of workflows needed.</div>
+<div class="option "><strong>D</strong> It eliminates the need for rigorous testing.</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>Reuse amortizes the cost of rigorous engineering across a broad user community.</div>
+    <div class="meta">sourceAnchorId: anchor-u2</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">option length ratio: 1.03</div>
+<div class="meta">option length range: 9</div>
+<div class="meta">option cue hits: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+    <details>
+      <summary>单元总结</summary>
+      <p><strong>Unit complete</strong></p>
+      <p>Reusing production-grade workflows amortizes the cost of rigorous engineering.</p>
+    </details>
+  </section>
+<section class="card">
+    <h2 style="margin-top:0">3. Flexibility-Robustness Tension</h2>
+    <p><span class="tag">短版</span>The key challenge is balancing flexibility and.</p>
+    <p><span class="tag">长版</span>The vision introduces a fundamental tension between flexibility (on-the-fly adaptation) and robustness (hardened, predictable behavior).</p>
+    <p><span class="tag">概要页</span>The Workflow Store introduces a tension: flexibility vs. robustness. This unit explores that trade-off.</p>
+    <div class="source">
+      <strong>Source anchor: anchor-u3</strong>
+      <div class="source-block highlight">
+    <strong>p-010 · paragraph</strong>
+    <div>This paper argues for the need to integrate rigorous SE processes into the agentic loop to produce production-grade, hardened, and deterministically-constrained agent *workflows* t...</div>
+    <details><summary>展开完整 source block</summary><pre>This paper argues for the need to integrate rigorous SE processes into the agentic loop to produce production-grade, hardened, and deterministically-constrained agent *workflows* that substantially outperform the potentially brittle and vulnerable results of on-the-fly synthesis. Doing so may require extra compute and time, and if so, we must amortize the cost of rigor through reuse across a broad user community. We envision an *AI Workflow Store* that consists of hardened and reusable workflows that agents can invoke with far greater reliability and security than improvised tool chains. We outline the research challenges of this vision, which stem from a broader flexibility-robustness tension that we argue requires moving beyond the ``on-the-fly&#39;&#39; paradigm to navigate effectively.</pre></details>
+  </div>
+    </div>
+    <div class="question">
+    <div class="stem">1. 选择题 · What is the flexibility-robustness tension in AI agents?</div>
+    <div class="options">
+      <div class="option correct"><strong>A</strong> A conflict between on-the-fly adaptation and hardened behavior</div>
+<div class="option "><strong>B</strong> Two independent goals that can be optimized separately</div>
+<div class="option "><strong>C</strong> A trade-off between speed and reliability in agent design</div>
+<div class="option "><strong>D</strong> A choice between flexibility and robustness with no middle ground</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>Flexibility and robustness are in tension: on-the-fly adaptation trades off against hardened, predictable behavior.</div>
+    <div class="meta">sourceAnchorId: anchor-u3</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">option length ratio: 1.12</div>
+<div class="meta">option length range: 9</div>
+<div class="meta">option cue hits: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">2. 选择题 · How does on-the-fly adaptation trade off against SE rigor?</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> On-the-fly agents achieve robustness through rapid iteration</div>
+<div class="option "><strong>B</strong> On-the-fly agents can be both fast and robust without trade-offs</div>
+<div class="option "><strong>C</strong> SE rigor is unnecessary for on-the-fly agents to be reliable</div>
+<div class="option correct"><strong>D</strong> On-the-fly agents skip SE processes, trading reliability for speed</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>On-the-fly agents skip SE rigor, so they cannot achieve robustness without disciplined processes.</div>
+    <div class="meta">sourceAnchorId: anchor-u3</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">option length ratio: 1.07</div>
+<div class="meta">option length range: 7</div>
+<div class="meta">option cue hits: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+<div class="question">
+    <div class="stem">3. 选择题 · How does the AI Workflow Store address the flexibility-robustness tension?</div>
+    <div class="options">
+      <div class="option "><strong>A</strong> It resolves the tension by prioritizing flexibility over robustness</div>
+<div class="option correct"><strong>B</strong> It amortizes rigor cost through reuse, reducing but not eliminating tension</div>
+<div class="option "><strong>C</strong> It replaces on-the-fly adaptation with pre-built workflows</div>
+<div class="option "><strong>D</strong> It eliminates the tension by making workflows fully hardened</div>
+    </div>
+    <div class="explanation"><strong>解释：</strong>The store amortizes rigor cost via reuse, but the tension remains; it does not eliminate it.</div>
+    <div class="meta">sourceAnchorId: anchor-u3</div>
+    <details class="diagnostic" open>
+    <summary>质量诊断</summary>
+    <div class="meta">forbidden phrase: pass</div>
+    <div class="meta">distractor value: pass</div>
+    <div class="meta">option length ratio: 1.25</div>
+<div class="meta">option length range: 13</div>
+<div class="meta">option cue hits: pass</div>
+    <div class="meta">matching relation value: not_applicable</div>
+    
+    <div class="meta">explanation UI fit: pass</div>
+    <div class="meta">source anchor precision: pass</div>
+    <pre>pass</pre>
+  </details>
+  </div>
+    <details>
+      <summary>单元总结</summary>
+      <p><strong>Unit complete</strong></p>
+      <p>Balancing on-the-fly adaptation with hardened behavior is the central challenge.</p>
+    </details>
+  </section>
+    <section class="card">
+      <h2 style="margin-top:0">章节总结</h2>
+      <p><span class="tag">Chapter complete</span>3 key points, 9 questions</p>
+      <p>You&#39;ve seen how the AI Workflow Store can bring software engineering rigor to agents.</p>
+    </section>
+    <section class="card">
+      <h2 style="margin-top:0">完整来源块</h2>
+      <div class="source-block ">
+    <strong>p-001 · paragraph</strong>
+    <div>Computer Science &gt; Cryptography and Security</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-002 · paragraph</strong>
+    <div>arXiv:2605.10907 (cs)</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-003 · paragraph</strong>
+    <div>[Submitted on 11 May 2026 ( v1 ), last revised 10 Jun 2026 (this version, v3)]</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-004 · paragraph</strong>
+    <div>Title: Engineering Robustness into Personal Agents with the AI Workflow Store</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-005 · paragraph</strong>
+    <div>Authors: Roxana Geambasu , Mariana Raykova , Pierre Tholoniat , Trishita Tiwari , Lillian Tsai , Wen Zhang</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-006 · paragraph</strong>
+    <div>View a PDF of the paper titled Engineering Robustness into Personal Agents with the AI Workflow Store, by Roxana Geambasu and 5 other authors</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-007 · paragraph</strong>
+    <div>View PDF</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-008 · paragraph</strong>
+    <div>HTML (experimental)</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-009 · paragraph</strong>
+    <div>Abstract: The dominant paradigm for AI agents is an &quot;on-the-fly&quot; loop in which agents synthesize plans and execute actions within seconds or minutes in response to user prompts. We...</div>
+    <details><summary>展开完整 source block</summary><pre>Abstract: The dominant paradigm for AI agents is an &quot;on-the-fly&quot; loop in which agents synthesize plans and execute actions within seconds or minutes in response to user prompts. We argue that this paradigm short-circuits disciplined software engineering (SE) processes -- iterative design, rigorous testing, adversarial evaluation, staged deployment, and more -- that have delivered the (relatively) reliable and secure systems we use today. By focusing on rapid, real-time synthesis, are AI agents effectively delivering users improvised prototypes rather than systems fit for high-stakes scenarios in which users may unwittingly apply them?</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>p-010 · paragraph</strong>
+    <div>This paper argues for the need to integrate rigorous SE processes into the agentic loop to produce production-grade, hardened, and deterministically-constrained agent *workflows* t...</div>
+    <details><summary>展开完整 source block</summary><pre>This paper argues for the need to integrate rigorous SE processes into the agentic loop to produce production-grade, hardened, and deterministically-constrained agent *workflows* that substantially outperform the potentially brittle and vulnerable results of on-the-fly synthesis. Doing so may require extra compute and time, and if so, we must amortize the cost of rigor through reuse across a broad user community. We envision an *AI Workflow Store* that consists of hardened and reusable workflows that agents can invoke with far greater reliability and security than improvised tool chains. We outline the research challenges of this vision, which stem from a broader flexibility-robustness tension that we argue requires moving beyond the ``on-the-fly&#39;&#39; paradigm to navigate effectively.</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>p-011 · paragraph</strong>
+    <div>Subjects:</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-012 · paragraph</strong>
+    <div>Cryptography and Security (cs.CR) ; Artificial Intelligence (cs.AI)</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-013 · paragraph</strong>
+    <div>Cite as:</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-014 · paragraph</strong>
+    <div>arXiv:2605.10907 [cs.CR]</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-015 · paragraph</strong>
+    <div>(or</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-016 · paragraph</strong>
+    <div>arXiv:2605.10907v3 [cs.CR] for this version)</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-017 · paragraph</strong>
+    <div>https://doi.org/10.48550/arXiv.2605.10907</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-018 · paragraph</strong>
+    <div>Focus to learn more</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-019 · paragraph</strong>
+    <div>arXiv-issued DOI via DataCite</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-020 · paragraph</strong>
+    <div>Submission history</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-021 · paragraph</strong>
+    <div>From: Lillian Tsai [ view email ]</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-022 · paragraph</strong>
+    <div>[v1]</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-023 · paragraph</strong>
+    <div>Mon, 11 May 2026 17:46:33 UTC (240 KB)</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-024 · paragraph</strong>
+    <div>[v2]</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-025 · paragraph</strong>
+    <div>Tue, 12 May 2026 03:17:19 UTC (240 KB)</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-026 · paragraph</strong>
+    <div>[v3]</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-027 · paragraph</strong>
+    <div>Wed, 10 Jun 2026 16:03:18 UTC (240 KB)</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-028 · paragraph</strong>
+    <div>Full-text links:</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-029 · paragraph</strong>
+    <div>Access Paper:</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-030 · paragraph</strong>
+    <div>View a PDF of the paper titled Engineering Robustness into Personal Agents with the AI Workflow Store, by Roxana Geambasu and 5 other authors</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-031 · paragraph</strong>
+    <div>View PDF</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-032 · paragraph</strong>
+    <div>HTML (experimental)</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-033 · paragraph</strong>
+    <div>TeX Source</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-034 · paragraph</strong>
+    <div>view license</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-035 · paragraph</strong>
+    <div>Current browse context:</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-036 · paragraph</strong>
+    <div>cs.CR</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-037 · paragraph</strong>
+    <div>&lt; prev</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-038 · paragraph</strong>
+    <div>|</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-039 · paragraph</strong>
+    <div>next &gt;</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-040 · paragraph</strong>
+    <div>new</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-041 · paragraph</strong>
+    <div>|</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-042 · paragraph</strong>
+    <div>recent</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-043 · paragraph</strong>
+    <div>| 2026-05</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-044 · paragraph</strong>
+    <div>Change to browse by:</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-045 · paragraph</strong>
+    <div>cs</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-046 · paragraph</strong>
+    <div>cs.AI</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-047 · paragraph</strong>
+    <div>References &amp; Citations</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-048 · paragraph</strong>
+    <div>NASA ADS</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-049 · paragraph</strong>
+    <div>Google Scholar</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-050 · paragraph</strong>
+    <div>Semantic Scholar</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-051 · paragraph</strong>
+    <div>export BibTeX citation</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-052 · paragraph</strong>
+    <div>Loading...</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-053 · paragraph</strong>
+    <div>BibTeX formatted citation</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-054 · paragraph</strong>
+    <div>&amp;times;</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-055 · paragraph</strong>
+    <div>loading...</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-056 · paragraph</strong>
+    <div>Data provided by:</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-057 · paragraph</strong>
+    <div>Bookmark</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-058 · paragraph</strong>
+    <div>Bibliographic Tools</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-059 · paragraph</strong>
+    <div>Bibliographic and Citation Tools</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-060 · paragraph</strong>
+    <div>Bibliographic Explorer Toggle</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-061 · paragraph</strong>
+    <div>Bibliographic Explorer ( What is the Explorer? )</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-062 · paragraph</strong>
+    <div>Connected Papers Toggle</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-063 · paragraph</strong>
+    <div>Connected Papers ( What is Connected Papers? )</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-064 · paragraph</strong>
+    <div>Litmaps Toggle</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-065 · paragraph</strong>
+    <div>Litmaps ( What is Litmaps? )</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-066 · paragraph</strong>
+    <div>scite.ai Toggle</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-067 · paragraph</strong>
+    <div>scite Smart Citations ( What are Smart Citations? )</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-068 · paragraph</strong>
+    <div>Code, Data, Media</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-069 · paragraph</strong>
+    <div>Code, Data and Media Associated with this Article</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-070 · paragraph</strong>
+    <div>alphaXiv Toggle</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-071 · paragraph</strong>
+    <div>alphaXiv ( What is alphaXiv? )</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-072 · paragraph</strong>
+    <div>Links to Code Toggle</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-073 · paragraph</strong>
+    <div>CatalyzeX Code Finder for Papers ( What is CatalyzeX? )</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-074 · paragraph</strong>
+    <div>DagsHub Toggle</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-075 · paragraph</strong>
+    <div>DagsHub ( What is DagsHub? )</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-076 · paragraph</strong>
+    <div>GotitPub Toggle</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-077 · paragraph</strong>
+    <div>Gotit.pub ( What is GotitPub? )</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-078 · paragraph</strong>
+    <div>Huggingface Toggle</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-079 · paragraph</strong>
+    <div>Hugging Face ( What is Huggingface? )</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-080 · paragraph</strong>
+    <div>ScienceCast Toggle</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-081 · paragraph</strong>
+    <div>ScienceCast ( What is ScienceCast? )</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-082 · paragraph</strong>
+    <div>Demos</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-083 · paragraph</strong>
+    <div>Demos</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-084 · paragraph</strong>
+    <div>Replicate Toggle</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-085 · paragraph</strong>
+    <div>Replicate ( What is Replicate? )</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-086 · paragraph</strong>
+    <div>Spaces Toggle</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-087 · paragraph</strong>
+    <div>Hugging Face Spaces ( What is Spaces? )</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-088 · paragraph</strong>
+    <div>Spaces Toggle</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-089 · paragraph</strong>
+    <div>TXYZ.AI ( What is TXYZ.AI? )</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-090 · paragraph</strong>
+    <div>Related Papers</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-091 · paragraph</strong>
+    <div>Recommenders and Search Tools</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-092 · paragraph</strong>
+    <div>Link to Influence Flower</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-093 · paragraph</strong>
+    <div>Influence Flower ( What are Influence Flowers? )</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-094 · paragraph</strong>
+    <div>Core recommender toggle</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-095 · paragraph</strong>
+    <div>CORE Recommender ( What is CORE? )</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-096 · paragraph</strong>
+    <div>Author</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-097 · paragraph</strong>
+    <div>Venue</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-098 · paragraph</strong>
+    <div>Institution</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-099 · paragraph</strong>
+    <div>Topic</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-100 · paragraph</strong>
+    <div>About arXivLabs</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-101 · paragraph</strong>
+    <div>arXivLabs: experimental projects with community collaborators</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-102 · paragraph</strong>
+    <div>arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website.</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-103 · paragraph</strong>
+    <div>Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to t...</div>
+    <details><summary>展开完整 source block</summary><pre>Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them.</pre></details>
+  </div>
+<div class="source-block ">
+    <strong>p-104 · paragraph</strong>
+    <div>Have an idea for a project that will add value for arXiv&#39;s community? Learn more about arXivLabs .</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-105 · paragraph</strong>
+    <div>Which authors of this paper are endorsers? |</div>
+    
+  </div>
+<div class="source-block ">
+    <strong>p-106 · paragraph</strong>
+    <div>Disable MathJax ( What is MathJax? )</div>
+    
+  </div>
+    </section>
+  </main>
+</body>
+</html>
