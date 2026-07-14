@@ -59,18 +59,89 @@ struct V2RecommendedArticleDetailResponse: Decodable {
 struct V2RecommendedArticleFilter: Decodable, Identifiable, Equatable {
     let id: String
     let title: String
+    let localizedTitle: [String: String]?
+
+    func title(language: AppLanguage) -> String {
+        localizedRecommendedText(localizedTitle, language: language, fallback: title)
+    }
 }
 
 struct V2RecommendedArticleItem: Decodable, Identifiable, Equatable {
     let id: String
     let title: String
+    let localizedTitle: [String: String]?
     let source: String
+    let localizedSource: [String: String]?
     let sourceUrl: String?
     let sourceAuthor: String?
     let coverImageUrl: String?
     let tags: [String]
+    let tagIDs: [String]?
     let description: String?
+    let localizedDescription: [String: String]?
     let hasPreparedChapter: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case title
+        case localizedTitle
+        case source
+        case localizedSource
+        case sourceUrl
+        case sourceAuthor
+        case coverImageUrl
+        case tags
+        case tagIDs = "tagIds"
+        case description
+        case localizedDescription
+        case hasPreparedChapter
+    }
+
+    var effectiveTagIDs: [String] {
+        let ids = (tagIDs ?? []).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+        if !ids.isEmpty {
+            return ids
+        }
+        return tags.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+    }
+
+    func title(language: AppLanguage) -> String {
+        localizedRecommendedText(localizedTitle, language: language, fallback: title)
+    }
+
+    func source(language: AppLanguage) -> String {
+        localizedRecommendedText(localizedSource, language: language, fallback: source)
+    }
+
+    func description(language: AppLanguage) -> String? {
+        let fallback = description ?? ""
+        let value = localizedRecommendedText(localizedDescription, language: language, fallback: fallback)
+        return value.isEmpty ? nil : value
+    }
+}
+
+private func localizedRecommendedText(
+    _ values: [String: String]?,
+    language: AppLanguage,
+    fallback: String
+) -> String {
+    if let text = values?[language.rawValue]?.trimmingCharacters(in: .whitespacesAndNewlines),
+       !text.isEmpty {
+        return text
+    }
+    if let text = values?[AppLanguage.zhHans.rawValue]?.trimmingCharacters(in: .whitespacesAndNewlines),
+       !text.isEmpty {
+        return text
+    }
+    if let text = values?[AppLanguage.en.rawValue]?.trimmingCharacters(in: .whitespacesAndNewlines),
+       !text.isEmpty {
+        return text
+    }
+    if let text = values?.values.first?.trimmingCharacters(in: .whitespacesAndNewlines),
+       !text.isEmpty {
+        return text
+    }
+    return fallback
 }
 
 struct V2ReviewSessionResponse: Decodable {

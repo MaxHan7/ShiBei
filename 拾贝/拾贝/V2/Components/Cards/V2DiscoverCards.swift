@@ -31,16 +31,17 @@ struct V2DiscoverFilterBar: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: V2DiscoverFilterBarMetrics.chipSpacing) {
                 ForEach(filters) { filter in
+                    let title = filter.title(language: appLanguage)
                     Button {
                         onSelect(filter)
                     } label: {
                         V2DiscoverChip(
-                            title: filter.title,
+                            title: title,
                             isSelected: selectedFilterID == filter.id
                         )
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(L10n.format("discover.filter.accessibility", language: appLanguage, filter.title))
+                    .accessibilityLabel(L10n.format("discover.filter.accessibility", language: appLanguage, title))
                     .accessibilityAddTraits(selectedFilterID == filter.id ? .isSelected : [])
                 }
             }

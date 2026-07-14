@@ -1866,7 +1866,7 @@ struct V2RecommendedArticleDetailView: View {
                         ScrollView(showsIndicators: false) {
                             VStack(spacing: 19) {
                                 V2SourceArticleHeader(
-                                    title: chapter.sourceTitle.isEmpty ? article.title : chapter.sourceTitle,
+                                    title: chapter.sourceTitle.isEmpty ? article.title(language: appLanguage) : chapter.sourceTitle,
                                     author: chapter.sourceAuthor,
                                     contentBasis: chapter.contentBasis
                                 )

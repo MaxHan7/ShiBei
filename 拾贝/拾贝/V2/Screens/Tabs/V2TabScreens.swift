@@ -854,7 +854,25 @@ struct V2DiscoverView: View {
         if selectedFilterID == "all" {
             return articles
         }
-        return articles.filter { $0.tags.contains(selectedFilterID) }
+        return articles.filter { $0.effectiveTagIDs.contains(selectedFilterID) }
+    }
+
+    private var filterTitleByID: [String: String] {
+        Dictionary(uniqueKeysWithValues: filters.map { ($0.id, $0.title(language: appLanguage)) })
+    }
+
+    private func displayTags(for article: V2RecommendedArticleItem) -> [String] {
+        let tagIDs = article.effectiveTagIDs
+        let mappedTags = tagIDs.enumerated().map { index, tagID in
+            if let title = filterTitleByID[tagID] {
+                return title
+            }
+            if article.tags.indices.contains(index) {
+                return article.tags[index]
+            }
+            return tagID
+        }
+        return mappedTags.isEmpty ? article.tags : mappedTags
     }
 
     var body: some View {
@@ -872,10 +890,10 @@ struct V2DiscoverView: View {
 
                 ForEach(filteredArticles) { article in
                     V2RecommendedArticleCard(
-                        title: article.title,
-                        source: article.source,
+                        title: article.title(language: appLanguage),
+                        source: article.source(language: appLanguage),
                         coverImageUrl: article.coverImageUrl,
-                        tags: article.tags,
+                        tags: displayTags(for: article),
                         action: { openArticle(article) }
                     )
                 }
