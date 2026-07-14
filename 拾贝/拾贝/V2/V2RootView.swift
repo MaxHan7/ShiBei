@@ -37,6 +37,10 @@ struct V2RootView: View {
     private var activeLearningChapterID = ""
     @AppStorage("v2.completedReviewChapterIDs")
     private var completedReviewChapterIDsStorage = ""
+    @AppStorage(AppLanguage.storageKey)
+    private var appLanguageRawValue = AppLanguage.zhHans.rawValue
+    @AppStorage(V2LanguageOnboardingState.completionKey)
+    private var hasCompletedLanguageOnboarding = false
 
     @State private var selectedTab: V2HomeTab = .learning
     @State private var routeStore = V2RouteStore()
@@ -66,6 +70,7 @@ struct V2RootView: View {
     @State private var account: AccountSnapshot?
     @State private var isAccountLoading = false
     @State private var accountMessage = ""
+    @State private var showsLanguageOnboarding = V2LanguageOnboardingState.shouldPresentInitialPrompt()
 
     private let apiClient: APIClient
     private let allowsMockDataToggle: Bool
@@ -97,6 +102,14 @@ struct V2RootView: View {
                 V2SplashView()
                     .transition(.opacity)
                     .zIndex(200)
+            }
+
+            if showsLanguageOnboarding && !showsStartupSplash {
+                V2LanguageOnboardingView { language in
+                    completeLanguageOnboarding(language: language)
+                }
+                .transition(.opacity)
+                .zIndex(250)
             }
 
             if generationState.showsStartedDialog {
@@ -729,6 +742,7 @@ struct V2RootView: View {
 
         selectedTab = .learning
         showsStartupSplash = false
+        showsLanguageOnboarding = false
         usesMockData = true
 
         switch arguments[valueIndex] {
@@ -758,6 +772,14 @@ struct V2RootView: View {
             break
         }
         #endif
+    }
+
+    private func completeLanguageOnboarding(language: AppLanguage) {
+        appLanguageRawValue = language.rawValue
+        hasCompletedLanguageOnboarding = true
+        withAnimation(.easeOut(duration: 0.18)) {
+            showsLanguageOnboarding = false
+        }
     }
 
     private func openFirstQuestion(in unitID: String) {

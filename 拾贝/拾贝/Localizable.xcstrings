@@ -4498,6 +4498,54 @@
         }
       }
     },
+    "language.onboarding.accessibility": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose interface language"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择界面语言"
+          }
+        }
+      }
+    },
+    "language.onboarding.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose your interface language. You can change it later in Profile."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择界面显示语言，之后可以在个人页修改。"
+          }
+        }
+      }
+    },
+    "language.onboarding.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose your language"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择界面语言"
+          }
+        }
+      }
+    },
     "language.zh_hans": {
       "extractionState": "stale",
       "localizations": {

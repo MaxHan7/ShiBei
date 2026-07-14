@@ -629,6 +629,7 @@ struct V2ProfileSettingsCard: View {
 
 private struct V2ProfileLanguageSelectionSheet: View {
     @AppStorage(AppLanguage.storageKey) private var selectedLanguageRawValue = AppLanguage.zhHans.rawValue
+    @AppStorage(V2LanguageOnboardingState.completionKey) private var hasCompletedLanguageOnboarding = false
     @Environment(\.dismiss) private var dismiss
 
     private var selectedLanguage: AppLanguage {
@@ -653,6 +654,7 @@ private struct V2ProfileLanguageSelectionSheet: View {
                 ForEach(AppLanguage.allCases) { language in
                     Button {
                         selectedLanguageRawValue = language.rawValue
+                        hasCompletedLanguageOnboarding = true
                     } label: {
                         HStack(spacing: 12) {
                             VStack(alignment: .leading, spacing: 3) {
