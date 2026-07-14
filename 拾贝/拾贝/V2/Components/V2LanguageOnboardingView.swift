@@ -31,46 +31,29 @@ struct V2LanguageOnboardingView: View {
                 V2Color.pageGreenBackground
                     .ignoresSafeArea()
 
-                VStack(spacing: V2LanguageOnboardingMetrics.stackSpacing) {
-                    Image(V2LanguageOnboardingMetrics.mascotAssetName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: V2LanguageOnboardingMetrics.mascotWidth)
-                        .accessibilityHidden(true)
+                VStack(spacing: V2LanguageOnboardingMetrics.cardSpacing) {
+                    Text(L10n.string("language.onboarding.title", language: .zhHans))
+                        .font(V2LanguageOnboardingMetrics.titleFont)
+                        .foregroundStyle(V2Color.textPrimary)
+                        .multilineTextAlignment(.center)
 
-                    VStack(spacing: V2LanguageOnboardingMetrics.cardSpacing) {
-                        VStack(spacing: V2LanguageOnboardingMetrics.titleSpacing) {
-                            Text(L10n.string("language.onboarding.title", language: .zhHans))
-                                .font(V2LanguageOnboardingMetrics.titleFont)
-                                .foregroundStyle(V2Color.textPrimary)
-                                .multilineTextAlignment(.center)
-
-                            Text(L10n.string("language.onboarding.subtitle", language: .en))
-                                .font(V2Typography.bodySmall)
-                                .foregroundStyle(V2Color.textMuted)
-                                .multilineTextAlignment(.center)
-                                .lineSpacing(4)
-                        }
-
-                        VStack(spacing: V2LanguageOnboardingMetrics.optionSpacing) {
-                            ForEach(AppLanguage.allCases) { language in
-                                V2LanguageOnboardingOption(
-                                    language: language,
-                                    onSelect: {
-                                        onSelectLanguage(language)
-                                    }
-                                )
-                            }
+                    VStack(spacing: V2LanguageOnboardingMetrics.optionSpacing) {
+                        ForEach(AppLanguage.allCases) { language in
+                            V2LanguageOnboardingOption(
+                                language: language,
+                                onSelect: {
+                                    onSelectLanguage(language)
+                                }
+                            )
                         }
                     }
-                    .padding(.horizontal, V2LanguageOnboardingMetrics.cardHorizontalPadding)
-                    .padding(.vertical, V2LanguageOnboardingMetrics.cardVerticalPadding)
-                    .frame(width: contentWidth)
-                    .background(V2Color.surfaceCream)
-                    .clipShape(RoundedRectangle(cornerRadius: V2Radius.large, style: .continuous))
-                    .v2Shadow()
                 }
+                .padding(.horizontal, V2LanguageOnboardingMetrics.cardHorizontalPadding)
+                .padding(.vertical, V2LanguageOnboardingMetrics.cardVerticalPadding)
                 .frame(width: contentWidth)
+                .background(V2Color.surfaceCream)
+                .clipShape(RoundedRectangle(cornerRadius: V2Radius.large, style: .continuous))
+                .v2Shadow()
                 .position(
                     x: geometry.size.width / 2,
                     y: geometry.size.height * V2LanguageOnboardingMetrics.contentCenterYRatio
@@ -89,24 +72,10 @@ private struct V2LanguageOnboardingOption: View {
 
     var body: some View {
         Button(action: onSelect) {
-            HStack(spacing: V2LanguageOnboardingMetrics.optionContentGap) {
-                VStack(alignment: .leading, spacing: V2LanguageOnboardingMetrics.optionTextSpacing) {
-                    Text(language.displayName(in: language))
-                        .font(V2Typography.bodySmallEmphasis)
-                        .foregroundStyle(V2Color.textPrimary)
-
-                    Text(language.interfaceSubtitle(in: language))
-                        .font(V2Typography.labelRegular)
-                        .foregroundStyle(V2Color.textMuted)
-                        .lineLimit(1)
-                }
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(V2Color.primaryAction)
-            }
+            Text(language.displayName(in: language))
+                .font(V2Typography.bodySmallEmphasis)
+                .foregroundStyle(V2Color.textPrimary)
+                .frame(maxWidth: .infinity)
             .padding(.horizontal, V2LanguageOnboardingMetrics.optionHorizontalPadding)
             .frame(height: V2LanguageOnboardingMetrics.optionHeight)
             .background(V2Color.surfaceCream)
@@ -124,21 +93,15 @@ private struct V2LanguageOnboardingOption: View {
 }
 
 private enum V2LanguageOnboardingMetrics {
-    static let mascotAssetName = "V2SplashMascot"
-    static let mascotWidth: CGFloat = 146
-    static let contentMaxWidth: CGFloat = 337
-    static let contentCenterYRatio: CGFloat = 0.49
-    static let stackSpacing: CGFloat = 18
-    static let cardSpacing: CGFloat = 22
-    static let titleSpacing: CGFloat = 8
+    static let contentMaxWidth: CGFloat = 305
+    static let contentCenterYRatio: CGFloat = 0.50
+    static let cardSpacing: CGFloat = 18
     static let cardHorizontalPadding: CGFloat = 18
-    static let cardVerticalPadding: CGFloat = 22
+    static let cardVerticalPadding: CGFloat = 20
     static let optionSpacing: CGFloat = 12
-    static let optionHeight: CGFloat = 62
+    static let optionHeight: CGFloat = 54
     static let optionHorizontalPadding: CGFloat = 16
-    static let optionContentGap: CGFloat = 12
-    static let optionTextSpacing: CGFloat = 3
-    static let titleFont = Font.system(size: 22, weight: .bold, design: .default)
+    static let titleFont = Font.system(size: 20, weight: .bold, design: .default)
 
     static func contentWidth(for screenWidth: CGFloat) -> CGFloat {
         min(contentMaxWidth, screenWidth - V2Layout.pageHorizontalInset * 2)
