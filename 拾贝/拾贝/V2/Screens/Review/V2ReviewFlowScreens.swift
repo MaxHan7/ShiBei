@@ -855,7 +855,7 @@ struct V2ChapterSummaryView: View {
                         .zIndex(0)
 
                     V2ChapterCompletionResultCard(chapter: chapter)
-                        .offset(y: V2ChapterSummaryPageMetrics.resultCardScreenY)
+                        .offset(y: V2ChapterSummaryPageMetrics.resultCardY(screenHeight: geometry.size.height))
                         .zIndex(1)
 
                     V2PrimaryActionButton(title: L10n.string("navigation.home", language: appLanguage), action: onHome)
@@ -912,12 +912,17 @@ private enum V2ChapterSummaryPageMetrics {
     static let leftDecoY: CGFloat = 328
     static let rightDecoX: CGFloat = 154
     static let rightDecoY: CGFloat = 364
-    static let resultCardScreenY: CGFloat = V2Layout.topChromeReservedHeight + V2ChapterCompletionHeroMetrics.resultCardY
-    static let actionTopDistanceFromScreenBottom: CGFloat = 150
-    static let detailTopGapFromActionTop: CGFloat = 73
+    static let resultCardHeight: CGFloat = 161
+    static let resultCardLiftAboveCenter: CGFloat = 28
+    static let actionTopDistanceFromScreenBottom: CGFloat = 90
+    static let detailTopGapFromActionTop: CGFloat = 56
 
     static func mascotCenterY(screenHeight: CGFloat, bottomSafeArea: CGFloat) -> CGFloat {
         screenHeight + bottomSafeArea - V2ChapterCompletionHeroMetrics.mascotHeight / 2
+    }
+
+    static func resultCardY(screenHeight: CGFloat) -> CGFloat {
+        screenHeight / 2 - resultCardHeight / 2 - resultCardLiftAboveCenter
     }
 
     static func buttonY(screenHeight: CGFloat) -> CGFloat {
