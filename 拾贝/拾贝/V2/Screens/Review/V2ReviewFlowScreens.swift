@@ -862,8 +862,7 @@ struct V2ChapterSummaryView: View {
                         .frame(width: V2Layout.primaryActionWidth)
                         .offset(
                             y: V2ChapterSummaryPageMetrics.buttonY(
-                                screenHeight: geometry.size.height,
-                                bottomSafeArea: geometry.safeAreaInsets.bottom
+                                screenHeight: geometry.size.height
                             )
                         )
                         .zIndex(2)
@@ -877,8 +876,7 @@ struct V2ChapterSummaryView: View {
                     .buttonStyle(.plain)
                     .offset(
                         y: V2ChapterSummaryPageMetrics.detailY(
-                            screenHeight: geometry.size.height,
-                            bottomSafeArea: geometry.safeAreaInsets.bottom
+                            screenHeight: geometry.size.height
                         )
                     )
                     .zIndex(2)
@@ -922,12 +920,12 @@ private enum V2ChapterSummaryPageMetrics {
         screenHeight + bottomSafeArea - V2ChapterCompletionHeroMetrics.mascotHeight / 2
     }
 
-    static func buttonY(screenHeight: CGFloat, bottomSafeArea: CGFloat) -> CGFloat {
-        screenHeight + bottomSafeArea - actionTopDistanceFromScreenBottom
+    static func buttonY(screenHeight: CGFloat) -> CGFloat {
+        screenHeight - actionTopDistanceFromScreenBottom
     }
 
-    static func detailY(screenHeight: CGFloat, bottomSafeArea: CGFloat) -> CGFloat {
-        buttonY(screenHeight: screenHeight, bottomSafeArea: bottomSafeArea) + detailTopGapFromActionTop
+    static func detailY(screenHeight: CGFloat) -> CGFloat {
+        buttonY(screenHeight: screenHeight) + detailTopGapFromActionTop
     }
 }
 

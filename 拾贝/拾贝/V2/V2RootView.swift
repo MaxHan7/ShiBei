@@ -729,6 +729,7 @@ struct V2RootView: View {
 
         selectedTab = .learning
         showsStartupSplash = false
+        usesMockData = true
 
         switch arguments[valueIndex] {
         case "choice-feedback":
