@@ -28,32 +28,41 @@ struct V2LanguageOnboardingView: View {
             let contentWidth = V2LanguageOnboardingMetrics.contentWidth(for: geometry.size.width)
 
             ZStack {
-                V2Color.pageGreenBackground
+                V2Color.surfaceCream
                     .ignoresSafeArea()
 
-                VStack(spacing: V2LanguageOnboardingMetrics.cardSpacing) {
-                    Text(L10n.string("language.onboarding.title", language: .zhHans))
-                        .font(V2LanguageOnboardingMetrics.titleFont)
-                        .foregroundStyle(V2Color.textPrimary)
-                        .multilineTextAlignment(.center)
+                VStack(spacing: V2LanguageOnboardingMetrics.stackSpacing) {
+                    Image(V2LanguageOnboardingMetrics.mascotAssetName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: V2LanguageOnboardingMetrics.mascotWidth)
+                        .accessibilityHidden(true)
 
-                    VStack(spacing: V2LanguageOnboardingMetrics.optionSpacing) {
-                        ForEach(AppLanguage.allCases) { language in
-                            V2LanguageOnboardingOption(
-                                language: language,
-                                onSelect: {
-                                    onSelectLanguage(language)
-                                }
-                            )
+                    VStack(spacing: V2LanguageOnboardingMetrics.cardSpacing) {
+                        Text(L10n.string("language.onboarding.title", language: .zhHans))
+                            .font(V2LanguageOnboardingMetrics.titleFont)
+                            .foregroundStyle(V2Color.textPrimary)
+                            .multilineTextAlignment(.center)
+
+                        VStack(spacing: V2LanguageOnboardingMetrics.optionSpacing) {
+                            ForEach(AppLanguage.allCases) { language in
+                                V2LanguageOnboardingOption(
+                                    language: language,
+                                    onSelect: {
+                                        onSelectLanguage(language)
+                                    }
+                                )
+                            }
                         }
                     }
+                    .padding(.horizontal, V2LanguageOnboardingMetrics.cardHorizontalPadding)
+                    .padding(.vertical, V2LanguageOnboardingMetrics.cardVerticalPadding)
+                    .frame(width: contentWidth)
+                    .background(V2Color.surfaceCream)
+                    .clipShape(RoundedRectangle(cornerRadius: V2Radius.large, style: .continuous))
+                    .v2Shadow()
                 }
-                .padding(.horizontal, V2LanguageOnboardingMetrics.cardHorizontalPadding)
-                .padding(.vertical, V2LanguageOnboardingMetrics.cardVerticalPadding)
                 .frame(width: contentWidth)
-                .background(V2Color.surfaceCream)
-                .clipShape(RoundedRectangle(cornerRadius: V2Radius.large, style: .continuous))
-                .v2Shadow()
                 .position(
                     x: geometry.size.width / 2,
                     y: geometry.size.height * V2LanguageOnboardingMetrics.contentCenterYRatio
@@ -93,8 +102,11 @@ private struct V2LanguageOnboardingOption: View {
 }
 
 private enum V2LanguageOnboardingMetrics {
+    static let mascotAssetName = "V2SplashMascot"
+    static let mascotWidth: CGFloat = 128
     static let contentMaxWidth: CGFloat = 305
     static let contentCenterYRatio: CGFloat = 0.50
+    static let stackSpacing: CGFloat = 18
     static let cardSpacing: CGFloat = 18
     static let cardHorizontalPadding: CGFloat = 18
     static let cardVerticalPadding: CGFloat = 20
