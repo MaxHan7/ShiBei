@@ -914,8 +914,8 @@ private enum V2ChapterSummaryPageMetrics {
     static let rightDecoY: CGFloat = 364
     static let resultCardHeight: CGFloat = 161
     static let resultCardLiftAboveCenter: CGFloat = 28
-    static let actionTopDistanceFromScreenBottom: CGFloat = 90
-    static let detailTopGapFromActionTop: CGFloat = 56
+    static let actionTopDistanceFromScreenBottom: CGFloat = 104
+    static let detailTopGapFromActionTop: CGFloat = 73
 
     static func mascotCenterY(screenHeight: CGFloat, bottomSafeArea: CGFloat) -> CGFloat {
         screenHeight + bottomSafeArea - V2ChapterCompletionHeroMetrics.mascotHeight / 2
