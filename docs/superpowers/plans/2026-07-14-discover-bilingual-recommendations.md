@@ -31,47 +31,56 @@ This iteration updates Discover list/detail presentation and recommendation meta
 ### Task 1: Document and commit the implementation boundary
 
 - [x] Write this plan with architecture, files, and test strategy.
-- [ ] Commit the plan as the first checkpoint.
+- [x] Commit the plan as the first checkpoint.
 
 ### Task 2: Backend localized catalog schema
 
-- [ ] Add `localizedTitle`, `localizedSource`, and `localizedDescription` normalization helpers.
-- [ ] Add `tagIds` normalization while preserving legacy `tags` for older clients.
-- [ ] Return `localizedTitle` on filters and localized fields plus `tagIds` on articles.
-- [ ] Keep `title`, `source`, `description`, and `tags` populated with Chinese/default display values for compatibility.
-- [ ] Add tests proving stable filter IDs, localized labels, and legacy fallback work.
+- [x] Add `localizedTitle`, `localizedSource`, and `localizedDescription` normalization helpers.
+- [x] Add `tagIds` normalization while preserving legacy `tags` for older clients.
+- [x] Return `localizedTitle` on filters and localized fields plus `tagIds` on articles.
+- [x] Keep `title`, `source`, `description`, and `tags` populated with Chinese/default display values for compatibility.
+- [x] Add tests proving stable filter IDs, localized labels, and legacy fallback work.
 
 ### Task 3: Recommended catalog content
 
-- [ ] Convert existing filters from display-text IDs to stable IDs: `ai`, `product`, `learning`, `business`, `finance`.
-- [ ] Convert article `tags` to `tagIds`.
-- [ ] Add English metadata for at least two strong short English-facing recommendations.
-- [ ] Keep Chinese metadata for all current recommendations so Chinese UI remains unchanged.
-- [ ] Run the catalog checker.
+- [x] Convert existing filters from display-text IDs to stable IDs: `ai`, `product`, `learning`, `business`, `finance`.
+- [x] Convert article `tags` to `tagIds`.
+- [x] Add English metadata for at least two strong short English-facing recommendations.
+- [x] Keep Chinese metadata for all current recommendations so Chinese UI remains unchanged.
+- [x] Run the catalog checker.
 
 ### Task 4: iOS model and fallback fixture
 
-- [ ] Extend Swift recommendation models with optional localized dictionaries and `tagIDs`.
-- [ ] Add language helper methods for filter title, article title, source, description, and effective tag IDs.
-- [ ] Replace fallback mock filters/articles with the same stable IDs and localized strings.
-- [ ] Preserve decoding compatibility with older API responses.
+- [x] Extend Swift recommendation models with optional localized dictionaries and `tagIDs`.
+- [x] Add language helper methods for filter title, article title, source, description, and effective tag IDs.
+- [x] Replace fallback mock filters/articles with the same stable IDs and localized strings.
+- [x] Preserve decoding compatibility with older API responses.
 
 ### Task 5: Discover UI rendering
 
-- [ ] Filter articles by `article.effectiveTagIDs` instead of display `tags`.
-- [ ] Render filter chips with localized filter titles.
-- [ ] Render card tags by mapping article tag IDs through the filter metadata, so filter and card tag labels share one source of truth.
-- [ ] Render article title/source with localized helpers.
-- [ ] Keep current visual layout and component metrics unchanged unless text needs safe truncation.
+- [x] Filter articles by `article.effectiveTagIDs` instead of display `tags`.
+- [x] Render filter chips with localized filter titles.
+- [x] Render card tags by mapping article tag IDs through the filter metadata, so filter and card tag labels share one source of truth.
+- [x] Render article title/source with localized helpers.
+- [x] Keep current visual layout and component metrics unchanged unless text needs safe truncation.
 
 ### Task 6: Verification
 
-- [ ] Run backend recommendation tests.
-- [ ] Run backend catalog checker.
-- [ ] Run Swift build/tests or XcodeBuildMCP build on simulator.
-- [ ] Verify Discover in Chinese: filter chips and card tags show Chinese labels.
-- [ ] Verify Discover in English: filter chips and card tags show English labels; card title/source uses English metadata when available.
-- [ ] Check that importing/opening a recommended article still works and does not crash.
+- [x] Run backend recommendation tests.
+- [x] Run backend catalog checker.
+- [x] Run Swift build/tests or XcodeBuildMCP build on simulator.
+- [x] Verify Discover in Chinese: filter chips and card tags show Chinese labels.
+- [x] Verify Discover in English: filter chips and card tags show English labels; card title/source uses English metadata when available.
+- [x] Check that opening a recommended article remains tappable in the simulator UI tree.
+
+## Verification Log
+
+- Backend: `node --test backend/src/v2/recommended/recommendedArticles.test.js backend/src/tests/versionInfo.test.js` passed 11 tests.
+- Backend: `node backend/scripts/check-recommended-catalog.mjs` passed with 9 published articles.
+- Backend: serialized catalog confirmed stable filter IDs and localized English/Chinese labels.
+- iOS: XcodeBuildMCP `build_run_sim` succeeded on iPhone 17 Pro Max.
+- iOS English UI: Discover showed `All / AI / Product / Learning / Business`; card tags rendered `AI / Product` and `Learning / Product`; AI filter removed the non-AI mock card.
+- iOS Chinese UI: Discover showed `全部 / AI / 产品 / 学习 / 商业`; card tags rendered `AI / 产品` and `学习 / 产品`.
 
 ## Risk Notes
 
