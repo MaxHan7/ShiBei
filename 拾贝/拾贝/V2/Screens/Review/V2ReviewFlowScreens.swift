@@ -860,7 +860,12 @@ struct V2ChapterSummaryView: View {
 
                     V2PrimaryActionButton(title: L10n.string("navigation.home", language: appLanguage), action: onHome)
                         .frame(width: V2Layout.primaryActionWidth)
-                        .offset(y: V2ChapterSummaryPageMetrics.buttonY)
+                        .offset(
+                            y: V2ChapterSummaryPageMetrics.buttonY(
+                                screenHeight: geometry.size.height,
+                                bottomSafeArea: geometry.safeAreaInsets.bottom
+                            )
+                        )
                         .zIndex(2)
 
                     Button(action: onDetail) {
@@ -870,7 +875,12 @@ struct V2ChapterSummaryView: View {
                             .frame(height: 26)
                     }
                     .buttonStyle(.plain)
-                    .offset(y: V2ChapterSummaryPageMetrics.detailY)
+                    .offset(
+                        y: V2ChapterSummaryPageMetrics.detailY(
+                            screenHeight: geometry.size.height,
+                            bottomSafeArea: geometry.safeAreaInsets.bottom
+                        )
+                    )
                     .zIndex(2)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -905,11 +915,19 @@ private enum V2ChapterSummaryPageMetrics {
     static let rightDecoX: CGFloat = 154
     static let rightDecoY: CGFloat = 364
     static let resultCardScreenY: CGFloat = V2Layout.topChromeReservedHeight + V2ChapterCompletionHeroMetrics.resultCardY
-    static let buttonY: CGFloat = V2Layout.primaryActionBottomY
-    static let detailY: CGFloat = V2Layout.primaryActionBottomY + 73
+    static let actionTopDistanceFromScreenBottom: CGFloat = 150
+    static let detailTopGapFromActionTop: CGFloat = 73
 
     static func mascotCenterY(screenHeight: CGFloat, bottomSafeArea: CGFloat) -> CGFloat {
         screenHeight + bottomSafeArea - V2ChapterCompletionHeroMetrics.mascotHeight / 2
+    }
+
+    static func buttonY(screenHeight: CGFloat, bottomSafeArea: CGFloat) -> CGFloat {
+        screenHeight + bottomSafeArea - actionTopDistanceFromScreenBottom
+    }
+
+    static func detailY(screenHeight: CGFloat, bottomSafeArea: CGFloat) -> CGFloat {
+        buttonY(screenHeight: screenHeight, bottomSafeArea: bottomSafeArea) + detailTopGapFromActionTop
     }
 }
 
