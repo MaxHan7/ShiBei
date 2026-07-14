@@ -85,15 +85,14 @@ private struct V2LanguageOnboardingOption: View {
                 .font(V2Typography.bodySmallEmphasis)
                 .foregroundStyle(V2Color.textPrimary)
                 .frame(maxWidth: .infinity)
-            .padding(.horizontal, V2LanguageOnboardingMetrics.optionHorizontalPadding)
-            .frame(height: V2LanguageOnboardingMetrics.optionHeight)
-            .background(V2Color.surfaceCream)
-            .clipShape(RoundedRectangle(cornerRadius: V2Radius.medium, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: V2Radius.medium, style: .continuous)
-                    .stroke(V2Color.borderSoftGreen.opacity(0.9), lineWidth: 1)
-            }
-            .v2Shadow(V2Shadow.subtleGreen)
+                .padding(.horizontal, V2LanguageOnboardingMetrics.optionHorizontalPadding)
+                .frame(height: V2LanguageOnboardingMetrics.optionHeight)
+                .background(V2Color.surfaceCream)
+                .clipShape(RoundedRectangle(cornerRadius: V2Radius.medium, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: V2Radius.medium, style: .continuous)
+                        .stroke(V2Color.borderSoftGreen.opacity(0.9), lineWidth: 1)
+                }
         }
         .buttonStyle(.plain)
         .accessibilityLabel(language.displayName(in: language))
