@@ -834,41 +834,83 @@ struct V2ChapterSummaryView: View {
     @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
-        V2FlowScreen(title: "", onBack: onBack) {
+        GeometryReader { geometry in
+            let contentWidth = V2Layout.contentWidth(for: geometry.size.width)
+
             ZStack(alignment: .top) {
-                V2ChapterSummaryDecorationLayer()
+                V2Color.pageGreenBackground
+                    .ignoresSafeArea()
 
-                V2ChapterCompletionHero(chapter: chapter)
-                    .offset(y: V2ChapterSummaryPageMetrics.heroY)
+                ZStack(alignment: .top) {
+                    V2ChapterSummaryDecorationLayer()
 
-                V2PrimaryActionButton(title: L10n.string("navigation.home", language: appLanguage), action: onHome)
-                    .frame(width: V2Layout.primaryActionWidth)
-                    .offset(y: V2ChapterSummaryPageMetrics.buttonY)
+                    chapterCompletionMascot
+                        .position(
+                            x: geometry.size.width / 2 + V2ChapterCompletionHeroMetrics.mascotX,
+                            y: V2ChapterSummaryPageMetrics.mascotCenterY(
+                                screenHeight: geometry.size.height,
+                                bottomSafeArea: geometry.safeAreaInsets.bottom
+                            )
+                        )
+                        .zIndex(0)
 
-                Button(action: onDetail) {
-                    Text(L10n.string("chapter.detail.view", language: appLanguage))
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Color(hex: 0x737946).opacity(0.55))
-                        .frame(height: 26)
+                    V2ChapterCompletionResultCard(chapter: chapter)
+                        .offset(y: V2ChapterSummaryPageMetrics.resultCardScreenY)
+                        .zIndex(1)
+
+                    V2PrimaryActionButton(title: L10n.string("navigation.home", language: appLanguage), action: onHome)
+                        .frame(width: V2Layout.primaryActionWidth)
+                        .offset(y: V2ChapterSummaryPageMetrics.buttonY)
+                        .zIndex(2)
+
+                    Button(action: onDetail) {
+                        Text(L10n.string("chapter.detail.view", language: appLanguage))
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(Color(hex: 0x737946).opacity(0.55))
+                            .frame(height: 26)
+                    }
+                    .buttonStyle(.plain)
+                    .offset(y: V2ChapterSummaryPageMetrics.detailY)
+                    .zIndex(2)
                 }
-                .buttonStyle(.plain)
-                .offset(y: V2ChapterSummaryPageMetrics.detailY)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .ignoresSafeArea(.container, edges: .bottom)
+
+                V2TopChrome {
+                    V2FlowTopBar(title: "", onBack: onBack)
+                }
+                .zIndex(20)
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: V2ChapterSummaryPageMetrics.contentHeight, alignment: .top)
+            .environment(\.v2ContentWidth, contentWidth)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
+    }
+
+    private var chapterCompletionMascot: some View {
+        Image("V2ChapterCompletionMascot")
+            .resizable()
+            .renderingMode(.original)
+            .scaledToFit()
+            .frame(
+                width: V2ChapterCompletionHeroMetrics.mascotWidth,
+                height: V2ChapterCompletionHeroMetrics.mascotHeight
+            )
+            .allowsHitTesting(false)
     }
 }
 
 private enum V2ChapterSummaryPageMetrics {
-    static let heroY: CGFloat = 0
     static let leftDecoX: CGFloat = -158
     static let leftDecoY: CGFloat = 328
     static let rightDecoX: CGFloat = 154
     static let rightDecoY: CGFloat = 364
+    static let resultCardScreenY: CGFloat = V2Layout.topChromeReservedHeight + V2ChapterCompletionHeroMetrics.resultCardY
     static let buttonY: CGFloat = V2Layout.primaryActionBottomY
     static let detailY: CGFloat = V2Layout.primaryActionBottomY + 73
-    static let contentHeight: CGFloat = 742
+
+    static func mascotCenterY(screenHeight: CGFloat, bottomSafeArea: CGFloat) -> CGFloat {
+        screenHeight + bottomSafeArea - V2ChapterCompletionHeroMetrics.mascotHeight / 2
+    }
 }
 
 private struct V2ChapterSummaryDecorationLayer: View {
@@ -932,8 +974,9 @@ private struct V2ChapterCompletionHero: View {
 private enum V2ChapterCompletionHeroMetrics {
     static let width: CGFloat = 402
     static let height: CGFloat = 500
+    static let mascotSourceSize = CGSize(width: 378, height: 403)
     static let mascotWidth: CGFloat = 347
-    static let mascotHeight: CGFloat = 510
+    static let mascotHeight: CGFloat = mascotWidth * mascotSourceSize.height / mascotSourceSize.width
     static let mascotX: CGFloat = 2
     static let mascotY: CGFloat = 0
     static let resultCardY: CGFloat = 255

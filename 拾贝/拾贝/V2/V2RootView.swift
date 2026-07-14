@@ -751,6 +751,8 @@ struct V2RootView: View {
             }
             questionInteractionStates[savedQuestionStateKey(index: 1)] = interaction
             routeStore.reset(to: .savedQuestion(index: 1))
+        case "chapter-summary":
+            routeStore.reset(to: chapterSummaryRoute())
         default:
             break
         }
