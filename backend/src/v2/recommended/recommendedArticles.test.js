@@ -24,12 +24,18 @@ test("loads recommended articles with configured top-level filters", async () =>
   });
 
   assert.deepEqual(clientCatalog.filters, [
-    { id: "all", title: "全部" },
-    { id: "产品", title: "产品" },
-    { id: "学习", title: "学习" }
+    { id: "all", title: "全部", localizedTitle: { "zh-Hans": "全部", en: "All" } },
+    { id: "product", title: "产品", localizedTitle: { "zh-Hans": "产品", en: "Product" } },
+    { id: "learning", title: "学习", localizedTitle: { "zh-Hans": "学习", en: "Learning" } }
   ]);
   assert.equal(clientCatalog.articles.length, 1);
   assert.equal(clientCatalog.articles[0].id, "article-001");
+  assert.equal(clientCatalog.articles[0].title, "游戏化体验设计");
+  assert.equal(clientCatalog.articles[0].localizedTitle.en, "Gamified Experience Design");
+  assert.equal(clientCatalog.articles[0].source, "微信公众号");
+  assert.equal(clientCatalog.articles[0].localizedSource.en, "WeChat Article");
+  assert.deepEqual(clientCatalog.articles[0].tagIds, ["product", "learning"]);
+  assert.deepEqual(clientCatalog.articles[0].tags, ["产品", "学习"]);
   assert.equal(clientCatalog.articles[0].hasPreparedChapter, true);
   assert.equal(
     clientCatalog.articles[0].coverImageUrl,
@@ -41,11 +47,35 @@ test("rejects configured filters that do not match any article tag", () => {
   assert.throws(
     () =>
       normalizeRecommendedArticleCatalog({
-        filters: [{ id: "不存在", title: "不存在" }],
+        filters: [{ id: "missing", title: "不存在" }],
         articles: [buildCatalogArticle()]
       }),
     /no matching article tag/
   );
+});
+
+test("supports legacy catalogs that only provide display tags", () => {
+  const catalog = normalizeRecommendedArticleCatalog({
+    articles: [
+      buildCatalogArticle({
+        tagIds: undefined,
+        tags: ["产品", "学习"],
+        localizedTitle: undefined,
+        localizedSource: undefined,
+        localizedDescription: undefined
+      })
+    ]
+  });
+
+  const clientCatalog = serializeRecommendedArticleCatalogForClient(catalog);
+  assert.deepEqual(clientCatalog.filters, [
+    { id: "all", title: "全部", localizedTitle: { "zh-Hans": "全部", en: "All" } },
+    { id: "产品", title: "产品", localizedTitle: { "zh-Hans": "产品", en: "产品" } },
+    { id: "学习", title: "学习", localizedTitle: { "zh-Hans": "学习", en: "学习" } }
+  ]);
+  assert.deepEqual(clientCatalog.articles[0].tagIds, ["产品", "学习"]);
+  assert.deepEqual(clientCatalog.articles[0].tags, ["产品", "学习"]);
+  assert.equal(clientCatalog.articles[0].localizedTitle["zh-Hans"], "游戏化体验设计");
 });
 
 test("loads recommended article cover path from the catalog", async () => {
@@ -141,8 +171,8 @@ async function writeTempCatalog() {
     JSON.stringify({
       schemaVersion: "recommended_articles_seed_1",
       filters: [
-        { id: "产品", title: "产品" },
-        { id: "学习", title: "学习" }
+        { id: "product", title: "产品", localizedTitle: { "zh-Hans": "产品", en: "Product" } },
+        { id: "learning", title: "学习", localizedTitle: { "zh-Hans": "学习", en: "Learning" } }
       ],
       articles: [
         buildCatalogArticle({
@@ -161,12 +191,25 @@ function buildCatalogArticle(overrides = {}) {
   return {
     id: "article-001",
     title: "游戏化体验设计",
+    localizedTitle: {
+      "zh-Hans": "游戏化体验设计",
+      en: "Gamified Experience Design"
+    },
     source: "微信公众号",
+    localizedSource: {
+      "zh-Hans": "微信公众号",
+      en: "WeChat Article"
+    },
     sourceUrl: "https://example.com/article",
     sourceAuthor: "作者",
     coverImagePath: "cover.svg",
+    tagIds: ["product", "learning"],
     tags: ["产品", "学习"],
     description: "一篇适合预生成复习路径的好文。",
+    localizedDescription: {
+      "zh-Hans": "一篇适合预生成复习路径的好文。",
+      en: "A concise article suited for a prepared review path."
+    },
     preparedChapterPath: "prepared-chapter.json",
     ...overrides
   };

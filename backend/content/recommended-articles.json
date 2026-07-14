@@ -4,142 +4,306 @@
     {
       "id": "game-experience-design",
       "title": "基于游戏化方法的持续性用户体验设计",
+      "localizedTitle": {
+        "zh-Hans": "基于游戏化方法的持续性用户体验设计",
+        "en": "Sustained Experience Design Through Gamification"
+      },
       "source": "微信公众号",
+      "localizedSource": {
+        "zh-Hans": "微信公众号",
+        "en": "WeChat Article"
+      },
       "sourceUrl": "https://mp.weixin.qq.com/s/_WY2GXs-iynGePgdsYLi0A",
       "sourceAuthor": "吴 琼、王婧等",
       "coverImagePath": "recommended/covers/game-experience-cover.png",
+      "tagIds": [
+        "product",
+        "learning"
+      ],
       "tags": [
         "产品",
         "学习"
       ],
       "description": "从心流、阶段反馈和身份建构理解长期体验设计。",
+      "localizedDescription": {
+        "zh-Hans": "从心流、阶段反馈和身份建构理解长期体验设计。",
+        "en": "Understand long-term experience design through flow, staged feedback, and identity building."
+      },
       "preparedChapterPath": "recommended/game-experience-chapter.json"
     },
     {
       "id": "google-llm-introduction",
       "title": "大语言模型入门：从词元到上下文",
+      "localizedTitle": {
+        "zh-Hans": "大语言模型入门：从词元到上下文",
+        "en": "Large Language Models: From Tokens to Context"
+      },
       "source": "Google 机器学习速成课",
+      "localizedSource": {
+        "zh-Hans": "Google 机器学习速成课",
+        "en": "Google Machine Learning Crash Course"
+      },
       "sourceUrl": "https://developers.google.com/machine-learning/crash-course/llm",
       "sourceAuthor": "Google Machine Learning Crash Course",
       "coverImagePath": "recommended/covers/google-llm-introduction-cover.png",
+      "tagIds": [
+        "ai",
+        "learning"
+      ],
       "tags": [
         "AI",
         "学习"
       ],
       "description": "用课程化方式解释大语言模型、词元、上下文和注意力等基础概念。",
+      "localizedDescription": {
+        "zh-Hans": "用课程化方式解释大语言模型、词元、上下文和注意力等基础概念。",
+        "en": "A course-style introduction to tokens, context, attention, and other LLM basics."
+      },
       "preparedChapterPath": "recommended/google-llm-introduction-chapter.json"
     },
     {
       "id": "ibm-large-language-models",
       "title": "什么是大语言模型（LLM）",
+      "localizedTitle": {
+        "zh-Hans": "什么是大语言模型（LLM）",
+        "en": "What Are Large Language Models?"
+      },
       "source": "IBM Think",
+      "localizedSource": {
+        "zh-Hans": "IBM Think",
+        "en": "IBM Think"
+      },
       "sourceUrl": "https://www.ibm.com/think/topics/large-language-models",
       "sourceAuthor": "IBM",
       "coverImagePath": "recommended/covers/ibm-large-language-models-cover.png",
+      "tagIds": [
+        "ai",
+        "product"
+      ],
       "tags": [
         "AI",
         "产品"
       ],
       "description": "从定义、工作方式、优势限制到应用场景解释 大语言模型，适合作为 AI 通识文章。",
+      "localizedDescription": {
+        "zh-Hans": "从定义、工作方式、优势限制到应用场景解释 大语言模型，适合作为 AI 通识文章。",
+        "en": "A practical overview of LLM definitions, how they work, limits, and common applications."
+      },
       "preparedChapterPath": "recommended/ibm-large-language-models-chapter.json"
     },
     {
       "id": "nng-usability-heuristics",
       "title": "可用性启发式：4 个最常用判断原则",
+      "localizedTitle": {
+        "zh-Hans": "可用性启发式：4 个最常用判断原则",
+        "en": "Usability Heuristics: Four Practical Principles"
+      },
       "source": "Nielsen Norman Group",
+      "localizedSource": {
+        "zh-Hans": "Nielsen Norman Group",
+        "en": "Nielsen Norman Group"
+      },
       "sourceUrl": "https://www.nngroup.com/articles/ten-usability-heuristics/",
       "sourceAuthor": "Jakob Nielsen",
       "coverImagePath": "recommended/covers/nng-usability-heuristics-cover.png",
+      "tagIds": [
+        "product"
+      ],
       "tags": [
         "产品"
       ],
       "description": "经典可用性十原则，适合拆成界面判断、情境应用和误区辨析题。",
+      "localizedDescription": {
+        "zh-Hans": "经典可用性十原则，适合拆成界面判断、情境应用和误区辨析题。",
+        "en": "A compact entry point for interface judgment, contextual use, and common UX mistakes."
+      },
       "preparedChapterPath": "recommended/nng-usability-heuristics-chapter.json"
     },
     {
       "id": "producttalk-continuous-discovery",
       "title": "持续发现：产品团队如何开始用户研究",
+      "localizedTitle": {
+        "zh-Hans": "持续发现：产品团队如何开始用户研究",
+        "en": "Continuous Discovery: Getting Started With User Research"
+      },
       "source": "Product Talk",
+      "localizedSource": {
+        "zh-Hans": "Product Talk",
+        "en": "Product Talk"
+      },
       "sourceUrl": "https://www.producttalk.org/getting-started-with-discovery/",
       "sourceAuthor": "Teresa Torres",
       "coverImagePath": "recommended/covers/producttalk-continuous-discovery-cover.png",
+      "tagIds": [
+        "product",
+        "business"
+      ],
       "tags": [
         "产品",
         "商业"
       ],
       "description": "用实践导向解释持续发现，适合产品经理新手理解用户访谈和验证节奏。",
+      "localizedDescription": {
+        "zh-Hans": "用实践导向解释持续发现，适合产品经理新手理解用户访谈和验证节奏。",
+        "en": "A practical guide to discovery habits, customer interviews, and validation rhythm."
+      },
       "preparedChapterPath": "recommended/producttalk-continuous-discovery-chapter.json"
     },
     {
       "id": "imf-inflation-prices-on-the-rise",
       "title": "通货膨胀入门：价格为什么会上涨",
+      "localizedTitle": {
+        "zh-Hans": "通货膨胀入门：价格为什么会上涨",
+        "en": "Inflation Basics: Why Prices Rise"
+      },
       "source": "IMF Finance & Development",
+      "localizedSource": {
+        "zh-Hans": "IMF Finance & Development",
+        "en": "IMF Finance & Development"
+      },
       "sourceUrl": "https://www.imf.org/-/media/files/publications/fandd/back-to-basics/oner-inflation.pdf",
       "sourceAuthor": "Ceyda Oner",
       "coverImagePath": "recommended/covers/imf-inflation-prices-on-the-rise-cover.png",
+      "tagIds": [
+        "business",
+        "finance"
+      ],
       "tags": [
         "商业",
         "金融"
       ],
       "description": "用通俗方式解释通胀、价格水平和政策影响，适合经济金融入门。",
+      "localizedDescription": {
+        "zh-Hans": "用通俗方式解释通胀、价格水平和政策影响，适合经济金融入门。",
+        "en": "A beginner-friendly explanation of inflation, price levels, and policy effects."
+      },
       "preparedChapterPath": "recommended/imf-inflation-prices-on-the-rise-chapter.json"
     },
     {
       "id": "learning-scientists-six-strategies",
       "title": "高效学习的六个策略",
+      "localizedTitle": {
+        "zh-Hans": "高效学习的六个策略",
+        "en": "Six Strategies for Effective Learning"
+      },
       "source": "The Learning Scientists",
+      "localizedSource": {
+        "zh-Hans": "The Learning Scientists",
+        "en": "The Learning Scientists"
+      },
       "sourceUrl": "https://www.learningscientists.org/blog/2016/8/18-1",
       "sourceAuthor": "Megan Sumeracki",
       "coverImagePath": "recommended/covers/learning-scientists-six-strategies-cover.png",
+      "tagIds": [
+        "learning"
+      ],
       "tags": [
         "学习"
       ],
       "description": "解释提取练习、间隔、交错、精细化等学习策略，和拾贝复习体验高度契合。",
+      "localizedDescription": {
+        "zh-Hans": "解释提取练习、间隔、交错、精细化等学习策略，和拾贝复习体验高度契合。",
+        "en": "A clear overview of retrieval practice, spacing, interleaving, elaboration, and more."
+      },
       "preparedChapterPath": "recommended/learning-scientists-six-strategies-chapter.json"
     },
     {
       "id": "retrieval-practice-powerful-strategy",
       "title": "提取练习：为什么主动回忆能促进学习",
+      "localizedTitle": {
+        "zh-Hans": "提取练习：为什么主动回忆能促进学习",
+        "en": "Retrieval Practice: Why Active Recall Works"
+      },
       "source": "RetrievalPractice.org",
+      "localizedSource": {
+        "zh-Hans": "RetrievalPractice.org",
+        "en": "RetrievalPractice.org"
+      },
       "sourceUrl": "https://www.retrievalpractice.org/retrievalpractice",
       "sourceAuthor": "Pooja K. Agarwal",
       "coverImagePath": "recommended/covers/retrieval-practice-powerful-strategy-cover.png",
+      "tagIds": [
+        "learning"
+      ],
       "tags": [
         "学习"
       ],
       "description": "直接解释主动回忆为什么有效，适合作为产品核心体验的理论入口。",
+      "localizedDescription": {
+        "zh-Hans": "直接解释主动回忆为什么有效，适合作为产品核心体验的理论入口。",
+        "en": "A focused explanation of why bringing information to mind strengthens learning."
+      },
       "preparedChapterPath": "recommended/retrieval-practice-powerful-strategy-chapter.json"
     },
     {
       "id": "christensen-disruptive-innovation",
       "title": "颠覆式创新理论：从低端市场到主流市场",
+      "localizedTitle": {
+        "zh-Hans": "颠覆式创新理论：从低端市场到主流市场",
+        "en": "Disruptive Innovation: From Low-End Markets to the Mainstream"
+      },
       "source": "Christensen Institute",
+      "localizedSource": {
+        "zh-Hans": "Christensen Institute",
+        "en": "Christensen Institute"
+      },
       "sourceUrl": "https://www.christenseninstitute.org/theory/disruptive-innovation/",
       "sourceAuthor": "Christensen Institute",
       "coverImagePath": "recommended/covers/christensen-disruptive-innovation-cover.png",
+      "tagIds": [
+        "business"
+      ],
       "tags": [
         "商业"
       ],
       "description": "开放解释颠覆式创新理论，适合做概念辨析和商业案例理解题。",
+      "localizedDescription": {
+        "zh-Hans": "开放解释颠覆式创新理论，适合做概念辨析和商业案例理解题。",
+        "en": "A concise framework for understanding disruption, incumbent response, and market movement."
+      },
       "preparedChapterPath": "recommended/christensen-disruptive-innovation-chapter.json"
     }
   ],
   "filters": [
     {
-      "id": "AI",
-      "title": "AI"
+      "id": "ai",
+      "title": "AI",
+      "localizedTitle": {
+        "zh-Hans": "AI",
+        "en": "AI"
+      }
     },
     {
-      "id": "产品",
-      "title": "产品"
+      "id": "product",
+      "title": "产品",
+      "localizedTitle": {
+        "zh-Hans": "产品",
+        "en": "Product"
+      }
     },
     {
-      "id": "学习",
-      "title": "学习"
+      "id": "learning",
+      "title": "学习",
+      "localizedTitle": {
+        "zh-Hans": "学习",
+        "en": "Learning"
+      }
     },
     {
-      "id": "商业",
-      "title": "商业"
+      "id": "business",
+      "title": "商业",
+      "localizedTitle": {
+        "zh-Hans": "商业",
+        "en": "Business"
+      }
+    },
+    {
+      "id": "finance",
+      "title": "金融",
+      "localizedTitle": {
+        "zh-Hans": "金融",
+        "en": "Finance"
+      }
     }
   ]
 }

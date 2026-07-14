@@ -129,12 +129,16 @@ export function serializeRecommendedArticleForClient(article, { baseUrl = "" } =
   return {
     id: article.id,
     title: article.title,
+    localizedTitle: article.localizedTitle,
     source: article.source,
+    localizedSource: article.localizedSource,
     sourceUrl: article.sourceUrl,
     sourceAuthor: article.sourceAuthor,
     coverImageUrl,
     tags: article.tags,
+    tagIds: article.tagIds,
     description: article.description,
+    localizedDescription: article.localizedDescription,
     hasPreparedChapter: Boolean(article.preparedChapterPath)
   };
 }
@@ -203,13 +207,22 @@ function normalizeRecommendedArticle(article, { index, seenIds, catalogPath }) {
   if (seenIds.has(id)) throw new Error(`Recommended article id duplicated: ${id}`);
   seenIds.add(id);
 
-  const title = stringValue(article.title);
+  const localizedTitle = localizedStrings(article.localizedTitle, article.title);
+  const title = localizedTitle["zh-Hans"] || stringValue(article.title) || localizedTitle.en;
   if (!title) throw new Error(`Recommended article ${id} must have title`);
+
+  const tagIds = Array.isArray(article.tagIds)
+    ? article.tagIds.map(stringValue).filter(Boolean)
+    : Array.isArray(article.tags)
+      ? article.tags.map(stringValue).filter(Boolean)
+      : [];
+  if (tagIds.length === 0) throw new Error(`Recommended article ${id} must have tagIds`);
 
   const tags = Array.isArray(article.tags)
     ? article.tags.map(stringValue).filter(Boolean)
     : [];
-  if (tags.length === 0) throw new Error(`Recommended article ${id} must have tags`);
+  const localizedSource = localizedStrings(article.localizedSource, article.source);
+  const localizedDescription = localizedStrings(article.localizedDescription, article.description);
 
   const preparedChapterPath = stringValue(article.preparedChapterPath);
   const coverImagePath = stringValue(article.coverImagePath);
@@ -217,11 +230,15 @@ function normalizeRecommendedArticle(article, { index, seenIds, catalogPath }) {
   return {
     id,
     title,
-    source: stringValue(article.source) || "推荐阅读",
+    localizedTitle,
+    source: localizedSource["zh-Hans"] || stringValue(article.source) || "推荐阅读",
+    localizedSource,
     sourceUrl: stringValue(article.sourceUrl),
     sourceAuthor: stringValue(article.sourceAuthor),
-    tags: [...new Set(tags)],
-    description: stringValue(article.description),
+    tagIds: [...new Set(tagIds)],
+    tags: [...new Set(tags.length > 0 ? tags : tagIds)],
+    description: localizedDescription["zh-Hans"] || stringValue(article.description),
+    localizedDescription,
     coverImagePath: coverImagePath
       ? resolve(dirname(catalogPath), coverImagePath)
       : "",
@@ -236,37 +253,62 @@ function buildRecommendedArticleFilters(articles, configuredFilters) {
     const seen = new Set();
     const filters = configuredFilters.map((filter, index) => {
       const id = stringValue(filter?.id);
-      const title = stringValue(filter?.title) || id;
+      const localizedTitle = localizedStrings(filter?.localizedTitle, filter?.title || id);
+      const title = localizedTitle["zh-Hans"] || stringValue(filter?.title) || id;
       if (!id) throw new Error(`Recommended article filter at index ${index} must have id`);
       if (seen.has(id)) throw new Error(`Recommended article filter duplicated: ${id}`);
       seen.add(id);
-      return { id, title };
+      return { id, title, localizedTitle };
     });
 
-    const articleTags = new Set(articles.flatMap((article) => article.tags));
+    const articleTags = new Set(articles.flatMap((article) => article.tagIds));
     for (const filter of filters) {
       if (!articleTags.has(filter.id)) {
         throw new Error(`Recommended article filter has no matching article tag: ${filter.id}`);
       }
     }
 
-    return [{ id: "all", title: "全部" }, ...filters];
+    return [
+      { id: "all", title: "全部", localizedTitle: { "zh-Hans": "全部", en: "All" } },
+      ...filters
+    ];
   }
 
   const tags = [];
   const seen = new Set();
 
   for (const article of articles) {
-    for (const tag of article.tags) {
-      if (seen.has(tag)) continue;
-      seen.add(tag);
-      tags.push({ id: tag, title: tag });
+    for (const tagId of article.tagIds) {
+      if (seen.has(tagId)) continue;
+      seen.add(tagId);
+      tags.push({ id: tagId, title: tagId, localizedTitle: { "zh-Hans": tagId, en: tagId } });
     }
   }
 
-  return [{ id: "all", title: "全部" }, ...tags];
+  return [
+    { id: "all", title: "全部", localizedTitle: { "zh-Hans": "全部", en: "All" } },
+    ...tags
+  ];
 }
 
 function stringValue(value) {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function localizedStrings(value, fallback = "") {
+  const entries = {};
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    for (const [language, text] of Object.entries(value)) {
+      const normalizedLanguage = stringValue(language);
+      const normalizedText = stringValue(text);
+      if (normalizedLanguage && normalizedText) {
+        entries[normalizedLanguage] = normalizedText;
+      }
+    }
+  }
+  const fallbackText = stringValue(fallback);
+  if (fallbackText && !entries["zh-Hans"]) {
+    entries["zh-Hans"] = fallbackText;
+  }
+  return entries;
 }
