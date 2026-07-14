@@ -163,7 +163,6 @@ struct V2FlowScreen<Content: View>: View {
             .environment(\.v2ContentWidth, contentWidth)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
         .v2InteractiveBackSwipe(onBack: onBack)
     }
 }
@@ -250,7 +249,6 @@ struct V2ScrollableFlowScreen<Content: View, BottomAction: View>: View {
             .environment(\.v2ContentWidth, contentWidth)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
         .v2InteractiveBackSwipe(onBack: onBack)
     }
 }

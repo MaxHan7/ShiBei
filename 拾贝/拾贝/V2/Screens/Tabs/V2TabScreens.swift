@@ -1,14 +1,22 @@
 import SwiftUI
+import UIKit
 
 struct V2TabScaffold<Content: View>: View {
     @Binding var selectedTab: V2HomeTab
     let title: String
     @ViewBuilder let content: () -> Content
+    @State private var isKeyboardVisible = false
 
     var body: some View {
         GeometryReader { geometry in
             let bottomNavScale = min(1, geometry.size.width / V2BottomNavPlacement.visualSize.width)
             let contentWidth = V2Layout.contentWidth(for: geometry.size.width)
+            let scrollBottomPadding = isKeyboardVisible
+                ? V2Spacing.lg
+                : V2BottomNavPlacement.reservedScrollBottomPadding(
+                    scale: bottomNavScale,
+                    safeAreaBottom: geometry.safeAreaInsets.bottom
+                )
 
             ZStack(alignment: .top) {
                 V2Color.pageGreenBackground
@@ -26,26 +34,35 @@ struct V2TabScaffold<Content: View>: View {
                         content()
                             .v2PageColumn()
                             .padding(.top, 28)
-                            .padding(.bottom, V2BottomNavPlacement.reservedScrollBottomPadding(
-                                scale: bottomNavScale,
-                                safeAreaBottom: geometry.safeAreaInsets.bottom
-                            ))
+                            .padding(.bottom, scrollBottomPadding)
                     }
                 }
             }
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                V2BottomNavigationBar(selectedTab: $selectedTab)
-                    .scaleEffect(bottomNavScale, anchor: .bottom)
-                    .frame(
-                        width: V2BottomNavPlacement.visualSize.width * bottomNavScale,
-                        height: V2BottomNavPlacement.scaledHeight(scale: bottomNavScale)
-                    )
-                    .padding(.bottom, V2BottomNavPlacement.bottomPadding)
-                    .frame(maxWidth: .infinity)
-                    .background(V2Color.pageGreenBackground)
+                if !isKeyboardVisible {
+                    V2BottomNavigationBar(selectedTab: $selectedTab)
+                        .scaleEffect(bottomNavScale, anchor: .bottom)
+                        .frame(
+                            width: V2BottomNavPlacement.visualSize.width * bottomNavScale,
+                            height: V2BottomNavPlacement.scaledHeight(scale: bottomNavScale)
+                        )
+                        .padding(.bottom, V2BottomNavPlacement.bottomPadding)
+                        .frame(maxWidth: .infinity)
+                        .background(V2Color.pageGreenBackground)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
             .environment(\.v2ContentWidth, contentWidth)
-            .ignoresSafeArea(.keyboard, edges: .bottom)
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+                withAnimation(.easeOut(duration: 0.2)) {
+                    isKeyboardVisible = true
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+                withAnimation(.easeOut(duration: 0.2)) {
+                    isKeyboardVisible = false
+                }
+            }
         }
     }
 }
