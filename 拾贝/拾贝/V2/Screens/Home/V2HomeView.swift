@@ -19,6 +19,7 @@ struct V2HomeView: View {
     var body: some View {
         GeometryReader { geometry in
             let bottomNavScale = min(1, geometry.size.width / V2BottomNavPlacement.visualSize.width)
+            let contentWidth = V2Layout.contentWidth(for: geometry.size.width)
             let pathViewport = V2HomePathViewportMetrics(
                 screenHeight: geometry.size.height,
                 bottomNavScale: bottomNavScale,
@@ -70,6 +71,7 @@ struct V2HomeView: View {
                 .zIndex(20)
                 .allowsHitTesting(true)
             }
+            .environment(\.v2ContentWidth, contentWidth)
         }
     }
 
