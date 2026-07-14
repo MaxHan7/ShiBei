@@ -1131,6 +1131,22 @@
         }
       }
     },
+    "navigation.home": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back Home"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返回主页"
+          }
+        }
+      }
+    },
     "chapter.summary.completed": {
       "localizations": {
         "en": {

@@ -132,6 +132,7 @@ private struct XMarkShape: Shape {
 struct V2MultipleChoiceQuestionCard: View {
     let question: V2ReviewQuestionData
     let selectedIndex: Int?
+    var showsSourceButton: Bool = true
     let onSelect: (Int) -> Void
     let onSource: () -> Void
     @Environment(\.v2ContentWidth) private var contentWidth
@@ -192,6 +193,8 @@ struct V2MultipleChoiceQuestionCard: View {
             .frame(width: Metrics.sourceWidth)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.top, Metrics.optionsToSourceGap)
+            .opacity(showsSourceButton ? 1 : 0)
+            .allowsHitTesting(showsSourceButton)
         }
         .padding(.top, Metrics.topPadding)
         .padding(.horizontal, Metrics.horizontalPadding)
@@ -319,7 +322,16 @@ struct V2AnswerFeedbackPanel: View {
     let onContinue: () -> Void
     var onClose: () -> Void = {}
     var onSource: () -> Void = {}
+    @Environment(\.v2ContentWidth) private var contentWidth
     @Environment(\.appLanguage) private var appLanguage
+
+    private var panelWidth: CGFloat {
+        V2AnswerFeedbackPanelMetrics.panelWidth(contentWidth: contentWidth)
+    }
+
+    private var scale: CGFloat {
+        panelWidth / V2AnswerFeedbackPanelMetrics.baseWidth
+    }
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -327,8 +339,11 @@ struct V2AnswerFeedbackPanel: View {
                 .resizable()
                 .renderingMode(.original)
                 .scaledToFit()
-                .frame(width: 93, height: 136)
-                .offset(x: 302, y: 0)
+                .frame(
+                    width: V2AnswerFeedbackPanelMetrics.backMascotSize.width * scale,
+                    height: V2AnswerFeedbackPanelMetrics.backMascotSize.height * scale
+                )
+                .offset(x: V2AnswerFeedbackPanelMetrics.backMascotX * scale, y: 0)
                 .zIndex(1)
 
             panelContent
@@ -347,18 +362,24 @@ struct V2AnswerFeedbackPanel: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .position(x: 363, y: V2AnswerFeedbackPanelMetrics.closeY)
+            .position(x: V2AnswerFeedbackPanelMetrics.closeX * scale, y: V2AnswerFeedbackPanelMetrics.closeY)
             .zIndex(6)
 
             Image("V2MascotFeedbackFront")
                 .resizable()
                 .renderingMode(.original)
                 .scaledToFit()
-                .frame(width: 38, height: 58)
-                .offset(x: 313, y: 46)
+                .frame(
+                    width: V2AnswerFeedbackPanelMetrics.frontMascotSize.width * scale,
+                    height: V2AnswerFeedbackPanelMetrics.frontMascotSize.height * scale
+                )
+                .offset(
+                    x: V2AnswerFeedbackPanelMetrics.frontMascotX * scale,
+                    y: V2AnswerFeedbackPanelMetrics.frontMascotY
+                )
                 .zIndex(5)
         }
-        .frame(width: V2AnswerFeedbackPanelMetrics.width)
+        .frame(width: panelWidth)
         .fixedSize(horizontal: false, vertical: true)
     }
 
@@ -377,7 +398,7 @@ struct V2AnswerFeedbackPanel: View {
     private var panelContent: some View {
         VStack(spacing: 0) {
             feedbackText
-                .frame(width: V2AnswerFeedbackPanelMetrics.textWidth, alignment: .leading)
+                .frame(width: V2AnswerFeedbackPanelMetrics.textWidth(contentWidth: contentWidth), alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, V2AnswerFeedbackPanelMetrics.panelBodyTopY + V2AnswerFeedbackPanelMetrics.contentTopInset)
 
@@ -386,7 +407,7 @@ struct V2AnswerFeedbackPanel: View {
                 tone: isCorrect ? .correct : .wrong,
                 action: onContinue
             )
-            .frame(width: V2AnswerFeedbackPanelMetrics.buttonWidth, height: V2AnswerFeedbackPanelMetrics.buttonHeight)
+            .frame(width: contentWidth, height: V2AnswerFeedbackPanelMetrics.buttonHeight)
             .padding(.top, V2AnswerFeedbackPanelMetrics.textToButtonGap)
 
             Button(action: onSource) {
@@ -399,7 +420,7 @@ struct V2AnswerFeedbackPanel: View {
             .padding(.top, V2AnswerFeedbackPanelMetrics.buttonToSourceGap)
         }
         .padding(.bottom, V2AnswerFeedbackPanelMetrics.bottomInset)
-        .frame(width: V2AnswerFeedbackPanelMetrics.width)
+        .frame(width: panelWidth)
         .background {
             ZStack(alignment: .bottom) {
                 V2FeedbackPanelShape()
@@ -417,7 +438,7 @@ struct V2AnswerFeedbackPanel: View {
                 Rectangle()
                     .fill(Color(hex: 0xFFFCF4))
                     .frame(
-                        width: V2AnswerFeedbackPanelMetrics.width,
+                        width: panelWidth,
                         height: V2AnswerFeedbackPanelMetrics.bottomCoverExtension
                     )
                     .offset(y: V2AnswerFeedbackPanelMetrics.bottomCoverExtension)
@@ -441,20 +462,32 @@ struct V2AnswerFeedbackPanel: View {
 }
 
 private enum V2AnswerFeedbackPanelMetrics {
-    static let width: CGFloat = 402
-    static let centerX: CGFloat = 201
+    static let baseWidth: CGFloat = 402
+    static let horizontalDecorationAllowance: CGFloat = 81
     static let panelY: CGFloat = 33
     static let panelBodyTopY: CGFloat = 33
     static let contentTopInset: CGFloat = 28
-    static let textWidth: CGFloat = 322
     static let textToButtonGap: CGFloat = 25
-    static let buttonWidth: CGFloat = 321
     static let buttonHeight: CGFloat = V2ResponsiveLayout.minimumTapHeight
     static let buttonToSourceGap: CGFloat = 13
     static let sourceHeight: CGFloat = 26
     static let bottomInset: CGFloat = 22
     static let bottomCoverExtension: CGFloat = 76
+    static let closeX: CGFloat = 363
     static let closeY: CGFloat = 96
+    static let backMascotX: CGFloat = 302
+    static let backMascotSize = CGSize(width: 93, height: 136)
+    static let frontMascotX: CGFloat = 313
+    static let frontMascotY: CGFloat = 46
+    static let frontMascotSize = CGSize(width: 38, height: 58)
+
+    static func panelWidth(contentWidth: CGFloat) -> CGFloat {
+        contentWidth + horizontalDecorationAllowance
+    }
+
+    static func textWidth(contentWidth: CGFloat) -> CGFloat {
+        contentWidth
+    }
 }
 
 struct V2FeedbackActionButton: View {

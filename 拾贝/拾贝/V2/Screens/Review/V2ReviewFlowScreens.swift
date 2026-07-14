@@ -179,6 +179,7 @@ struct V2MultipleChoiceQuestionView: View {
                 V2MultipleChoiceQuestionCard(
                     question: question,
                     selectedIndex: state.selectedIndex,
+                    showsSourceButton: !state.feedbackPanelVisible,
                     onSelect: {
                         state.selectedIndex = $0
                         state.feedbackPanelVisible = true
@@ -340,7 +341,9 @@ struct V2MatchingQuestionView: View {
                     .offset(y: V2MatchingPageMetrics.gridY)
 
                 sourceButton
-                    .offset(y: V2MatchingPageMetrics.sourceY(for: question.matchingPairs))
+                    .offset(y: V2MatchingPageMetrics.sourceY(for: question.matchingPairs, contentWidth: contentWidth))
+                    .opacity(state.feedbackPanelVisible ? 0 : 1)
+                    .allowsHitTesting(!state.feedbackPanelVisible)
 
                 Image("V2BgDecoSmallPlantCluster")
                     .resizable()
@@ -454,8 +457,11 @@ struct V2MatchingQuestionView: View {
     }
 
     private var matchingGrid: some View {
-        let cardHeight = V2MatchingPageMetrics.optionCardHeight(for: question.matchingPairs)
         let optionCardWidth = (contentWidth - V2MatchingPageMetrics.columnSpacing) / 2
+        let cardHeight = V2MatchingPageMetrics.optionCardHeight(
+            for: question.matchingPairs,
+            cardWidth: optionCardWidth
+        )
 
         return HStack(alignment: .top, spacing: V2MatchingPageMetrics.columnSpacing) {
             VStack(spacing: V2MatchingPageMetrics.rowSpacing) {
@@ -487,6 +493,7 @@ struct V2MatchingQuestionView: View {
             }
         }
         .frame(width: contentWidth)
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 
     private var isComplete: Bool {
@@ -571,6 +578,7 @@ private enum V2MatchingPageMetrics {
     static let sourceHeight: CGFloat = 26
     static let sourceWidth: CGFloat = 100
     static let optionCardHorizontalPadding: CGFloat = 14
+    static let baseOptionCardWidth: CGFloat = 152
     static let optionCardOneLineHeight: CGFloat = 72
     static let optionCardTwoLineHeight: CGFloat = 92
     static let optionCardThreeLineHeight: CGFloat = 116
@@ -585,19 +593,20 @@ private enum V2MatchingPageMetrics {
     static let mascotCardOverlap: CGFloat = V2Layout.contentMaxWidth + mascotWidth - mascotRightEdge
     static let contentHeight: CGFloat = 760
 
-    static func sourceY(for pairs: [V2MatchingPairData]) -> CGFloat {
-        gridY + gridHeight(for: pairs) + sourceTopGap
+    static func sourceY(for pairs: [V2MatchingPairData], contentWidth: CGFloat) -> CGFloat {
+        gridY + gridHeight(for: pairs, contentWidth: contentWidth) + sourceTopGap
     }
 
-    static func gridHeight(for pairs: [V2MatchingPairData]) -> CGFloat {
+    static func gridHeight(for pairs: [V2MatchingPairData], contentWidth: CGFloat) -> CGFloat {
         let rows = CGFloat(max(pairs.count, 1))
-        return rows * optionCardHeight(for: pairs) + max(0, rows - 1) * rowSpacing
+        let cardWidth = (contentWidth - columnSpacing) / 2
+        return rows * optionCardHeight(for: pairs, cardWidth: cardWidth) + max(0, rows - 1) * rowSpacing
     }
 
-    static func optionCardHeight(for pairs: [V2MatchingPairData]) -> CGFloat {
+    static func optionCardHeight(for pairs: [V2MatchingPairData], cardWidth: CGFloat) -> CGFloat {
         let maxEstimatedLines = pairs
             .flatMap { [$0.left, $0.right] }
-            .map(estimatedLineCount)
+            .map { estimatedLineCount(for: $0, cardWidth: cardWidth) }
             .max() ?? 1
 
         switch maxEstimatedLines {
@@ -610,22 +619,25 @@ private enum V2MatchingPageMetrics {
         }
     }
 
-    private static func estimatedLineCount(for text: String) -> Int {
+    private static func estimatedLineCount(for text: String, cardWidth: CGFloat) -> Int {
         let normalizedCount = text.reduce(0) { count, character in
             let isASCII = character.unicodeScalars.allSatisfy { $0.isASCII }
             return count + (isASCII ? 1 : 2)
         }
-        let weightedLineCapacity = optionCharactersPerLine * 2
+        let usableWidth = max(1, cardWidth - optionCardHorizontalPadding * 2)
+        let baseUsableWidth = baseOptionCardWidth - optionCardHorizontalPadding * 2
+        let scaledCharactersPerLine = max(
+            optionCharactersPerLine,
+            Int((CGFloat(optionCharactersPerLine) * usableWidth / baseUsableWidth).rounded(.down))
+        )
+        let weightedLineCapacity = scaledCharactersPerLine * 2
         return max(1, Int(ceil(Double(normalizedCount) / Double(weightedLineCapacity))))
     }
 }
 
 private enum V2QuestionFeedbackMetrics {
-    static let compactBottomLift: CGFloat = 16
-    static let regularBottomLift: CGFloat = 72
-
     static func bottomLift(screenHeight: CGFloat) -> CGFloat {
-        V2ResponsiveLayout.isShortScreen(screenHeight) ? compactBottomLift : regularBottomLift
+        0
     }
 }
 

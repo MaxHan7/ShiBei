@@ -122,6 +122,7 @@ struct V2RootView: View {
         }
         .task(id: usesFixtures) {
             await runStartupSequence()
+            applyDebugReviewSurfaceRouteIfNeeded()
         }
         .alert(L10n.string("chapter.delete", language: appLanguage), isPresented: $showsDeleteChapterConfirmation) {
             Button(L10n.string("global.cancel", language: appLanguage), role: .cancel) {}
@@ -713,6 +714,47 @@ struct V2RootView: View {
 
     private func openFirstUnit() {
         replaceRoute(unitOverviewRoute(unitID: activeFirstUnitID))
+    }
+
+    private func applyDebugReviewSurfaceRouteIfNeeded() {
+        #if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let flagIndex = arguments.firstIndex(of: "-V2DebugReviewSurface") else {
+            return
+        }
+        let valueIndex = arguments.index(after: flagIndex)
+        guard valueIndex < arguments.endIndex else {
+            return
+        }
+
+        selectedTab = .learning
+        showsStartupSplash = false
+
+        switch arguments[valueIndex] {
+        case "choice-feedback":
+            var interaction = V2QuestionInteractionState()
+            interaction.multipleChoice.selectedIndex = 0
+            interaction.multipleChoice.feedbackPanelVisible = true
+            questionInteractionStates[savedQuestionStateKey(index: 0)] = interaction
+            routeStore.reset(to: .savedQuestion(index: 0))
+        case "matching":
+            routeStore.reset(to: .savedQuestion(index: 1))
+        case "matching-feedback":
+            var interaction = V2QuestionInteractionState()
+            if let question = V2ReviewFixture.question(for: V2ReviewFixture.savedQuestions[1]) {
+                let lockedStates = Dictionary(
+                    uniqueKeysWithValues: question.matchingPairs.map { ($0.id, V2MatchingOptionState.locked) }
+                )
+                interaction.matching.leftStates = lockedStates
+                interaction.matching.rightStates = lockedStates
+                interaction.matching.feedbackPanelVisible = true
+            }
+            questionInteractionStates[savedQuestionStateKey(index: 1)] = interaction
+            routeStore.reset(to: .savedQuestion(index: 1))
+        default:
+            break
+        }
+        #endif
     }
 
     private func openFirstQuestion(in unitID: String) {
