@@ -316,11 +316,12 @@ struct V2MatchingQuestionView: View {
     var onFavoriteChange: (Bool) -> Void = { _ in }
     var onAnswerReady: () -> Void = {}
     let onContinue: () -> Void
-    @Environment(\.v2ContentWidth) private var contentWidth
     @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
         GeometryReader { geometry in
+            let contentWidth = V2Layout.contentWidth(for: geometry.size.width)
+
             V2FlowScreen(
                 title: unitTitle,
                 showFavoriteButton: true,
@@ -339,7 +340,7 @@ struct V2MatchingQuestionView: View {
                     V2MatchingPromptCard(prompt: question.prompt)
                         .offset(y: V2MatchingPageMetrics.promptY)
 
-                    matchingGrid
+                    matchingGrid(contentWidth: contentWidth)
                         .offset(y: V2MatchingPageMetrics.gridY)
 
                     sourceButton
@@ -366,16 +367,16 @@ struct V2MatchingQuestionView: View {
                         .offset(x: 154, y: V2MatchingPageMetrics.rightDecoY)
                         .allowsHitTesting(false)
 
-                    if !isComplete {
-                        matchingMascot(isInteractive: false)
-                    }
-
-                    if isComplete, !state.feedbackPanelVisible {
-                        matchingMascot(isInteractive: true)
-                    }
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: V2MatchingPageMetrics.contentHeight, alignment: .top)
+            }
+            .overlay(alignment: .bottomTrailing) {
+                if !showsFeedbackPanel {
+                    matchingMascot(isInteractive: isComplete)
+                        .padding(.trailing, V2MatchingPageMetrics.mascotTrailingInset)
+                        .padding(.bottom, -geometry.safeAreaInsets.bottom - V2MatchingPageMetrics.mascotBottomBleed)
+                }
             }
             .overlay(alignment: .bottom) {
                 if showsFeedbackPanel {
@@ -402,28 +403,16 @@ struct V2MatchingQuestionView: View {
     }
 
     private func matchingMascot(isInteractive: Bool) -> some View {
-        GeometryReader { geometry in
-            let contentLeft = (geometry.size.width - contentWidth) / 2
-            let mascotLeft = contentLeft
-                + contentWidth
-                - V2MatchingPageMetrics.mascotCardOverlap
-
-            Group {
-                if isInteractive {
-                    Button(action: { state.feedbackPanelVisible = true }) {
-                        matchingMascotImage
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(L10n.string("feedback.reopen", language: appLanguage))
-                } else {
+        Group {
+            if isInteractive {
+                Button(action: { state.feedbackPanelVisible = true }) {
                     matchingMascotImage
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel(L10n.string("feedback.reopen", language: appLanguage))
+            } else {
+                matchingMascotImage
             }
-            .position(
-                x: mascotLeft + V2MatchingPageMetrics.mascotWidth / 2,
-                y: V2MatchingPageMetrics.mascotTop
-                    + V2MatchingPageMetrics.mascotHeight / 2
-            )
         }
         .allowsHitTesting(isInteractive)
         .zIndex(isInteractive ? 10 : 0)
@@ -459,7 +448,7 @@ struct V2MatchingQuestionView: View {
         .frame(maxWidth: .infinity, alignment: .center)
     }
 
-    private var matchingGrid: some View {
+    private func matchingGrid(contentWidth: CGFloat) -> some View {
         let optionCardWidth = (contentWidth - V2MatchingPageMetrics.columnSpacing) / 2
         let cardHeight = V2MatchingPageMetrics.optionCardHeight(
             for: question.matchingPairs,
@@ -592,12 +581,10 @@ private enum V2MatchingPageMetrics {
     static let optionCharactersPerLine = 9
     static let leftDecoY: CGFloat = 612
     static let rightDecoY: CGFloat = 648
-    private static let mascotBottom: CGFloat = 691
-    private static let mascotRightEdge: CGFloat = V2Layout.contentMaxWidth + 22
     static let mascotWidth: CGFloat = 193
     static let mascotHeight: CGFloat = 150
-    static let mascotTop: CGFloat = mascotBottom - mascotHeight
-    static let mascotCardOverlap: CGFloat = V2Layout.contentMaxWidth + mascotWidth - mascotRightEdge
+    static let mascotTrailingInset: CGFloat = 14
+    static let mascotBottomBleed: CGFloat = 24
     static let contentHeight: CGFloat = 760
 
     static func sourceY(for pairs: [V2MatchingPairData], contentWidth: CGFloat) -> CGFloat {
