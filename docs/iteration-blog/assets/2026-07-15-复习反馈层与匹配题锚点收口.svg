@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#fffaf4"/>
+  <rect x="92" y="82" width="1016" height="596" rx="42" fill="#fff" stroke="#fbf3e4" stroke-width="3"/>
+  <text x="150" y="154" fill="#e09859" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24" font-weight="800">体验打磨与复习流程稳定性</text>
+  <text x="150" y="220" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="44" font-weight="900">复习反馈层与匹配题锚点收口</text>
+  <rect x="150" y="286" width="420" height="250" rx="28" fill="#fffaf4" stroke="#eadfcd"/>
+  <text x="188" y="346" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="800">问题</text>
+  <text x="188" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">拾贝的复习页承担把长内容转成可理解、可复盘知识的最后一环：用户答题后需要</text>
+  <text x="188" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">立即看到解释、继续下一题，也需要在未完成时随时回看原文证据。今天暴露的问</text>
+  <text x="188" y="462" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">题不是单个控件错位，而是反馈面板、查看原文按钮和匹配题吉祥物分别使用不同</text>
+  <text x="188" y="496" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">坐标基准，导致小屏或状态切换时底部反馈可能漂移、原文入口可能被过早隐藏、</text>
+  <rect x="630" y="286" width="420" height="250" rx="28" fill="#fffaf4" stroke="#eadfcd"/>
+  <text x="668" y="346" fill="#1f1b12" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" font-weight="800">效果</text>
+  <text x="668" y="394" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">今天得到的结果是复习页答后反馈从内容内部偏移模型收敛为屏幕底部 overla</text>
+  <text x="668" y="428" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">y 模型；匹配题未完成时保留原文证据入口，完成后隐藏反馈时保留可重新打开解释</text>
+  <text x="668" y="462" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">的稳定触点。验证依据来自三个针对 ReviewFlowScreens 与 V</text>
+  <text x="668" y="496" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22">2AnswerFeedbackPanel 的提交 diff；尚未完成的是跨设</text>
+  <text x="150" y="612" fill="#665f50" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="24">2026-07-15</text>
+</svg>
