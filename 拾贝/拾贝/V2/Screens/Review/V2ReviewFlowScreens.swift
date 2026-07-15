@@ -344,8 +344,9 @@ struct V2MatchingQuestionView: View {
 
                     sourceButton
                         .offset(y: V2MatchingPageMetrics.sourceY(for: question.matchingPairs, contentWidth: contentWidth))
-                        .opacity(state.feedbackPanelVisible ? 0 : 1)
-                        .allowsHitTesting(!state.feedbackPanelVisible)
+                        .opacity(showsFeedbackPanel ? 0 : 1)
+                        .allowsHitTesting(!showsFeedbackPanel)
+                        .zIndex(12)
 
                     Image("V2BgDecoSmallPlantCluster")
                         .resizable()
@@ -377,7 +378,7 @@ struct V2MatchingQuestionView: View {
                 .frame(height: V2MatchingPageMetrics.contentHeight, alignment: .top)
             }
             .overlay(alignment: .bottom) {
-                if isComplete, state.feedbackPanelVisible {
+                if showsFeedbackPanel {
                     V2AnswerFeedbackPanel(
                         text: question.feedback,
                         isCorrect: true,
@@ -502,6 +503,10 @@ struct V2MatchingQuestionView: View {
         question.matchingPairs.allSatisfy {
             state.leftStates[$0.id] == .locked && state.rightStates[$0.id] == .locked
         }
+    }
+
+    private var showsFeedbackPanel: Bool {
+        isComplete && state.feedbackPanelVisible
     }
 
     private func state(for pairID: String, side: V2MatchingSide) -> V2MatchingOptionState {
