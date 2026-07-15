@@ -381,6 +381,7 @@ struct V2AnswerFeedbackPanel: View {
         }
         .frame(width: panelWidth)
         .fixedSize(horizontal: false, vertical: true)
+        .padding(.bottom, V2AnswerFeedbackPanelMetrics.safeBottomBreathingRoom)
     }
 
     private var accent: Color {
@@ -473,6 +474,7 @@ private enum V2AnswerFeedbackPanelMetrics {
     static let sourceHeight: CGFloat = 26
     static let bottomInset: CGFloat = 22
     static let bottomCoverExtension: CGFloat = 76
+    static let safeBottomBreathingRoom: CGFloat = 12
     static let closeX: CGFloat = 363
     static let closeY: CGFloat = 96
     static let backMascotX: CGFloat = 302

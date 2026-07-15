@@ -161,77 +161,78 @@ struct V2MultipleChoiceQuestionView: View {
     @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
-        V2FlowScreen(
-            title: unitTitle,
-            showFavoriteButton: true,
-            isFavoriteSaved: state.isFavoriteSaved,
-            onBack: onBack,
-            onSource: onSource,
-            onFavorite: toggleFavorite
-        ) {
-            ZStack(alignment: .top) {
-                if showsProgressBar {
-                    V2UnitProgressBar(current: progress.current, total: progress.total)
-                        .v2PageContentWidth()
-                        .offset(y: V2MultipleChoicePageMetrics.progressY)
+        GeometryReader { geometry in
+            V2FlowScreen(
+                title: unitTitle,
+                showFavoriteButton: true,
+                isFavoriteSaved: state.isFavoriteSaved,
+                onBack: onBack,
+                onSource: onSource,
+                onFavorite: toggleFavorite
+            ) {
+                ZStack(alignment: .top) {
+                    if showsProgressBar {
+                        V2UnitProgressBar(current: progress.current, total: progress.total)
+                            .v2PageContentWidth()
+                            .offset(y: V2MultipleChoicePageMetrics.progressY)
+                    }
+
+                    V2MultipleChoiceQuestionCard(
+                        question: question,
+                        selectedIndex: state.selectedIndex,
+                        showsSourceButton: !state.feedbackPanelVisible,
+                        onSelect: {
+                            state.selectedIndex = $0
+                            state.feedbackPanelVisible = true
+                            onAnswerReady()
+                        },
+                        onSource: onSource
+                    )
+                    .offset(y: V2MultipleChoicePageMetrics.cardY)
+
+                    Image("V2BgDecoSmallPlantCluster")
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFit()
+                        .frame(width: 60, height: 54)
+                        .opacity(0.66)
+                        .offset(x: -158, y: V2MultipleChoicePageMetrics.leftDecoY)
+                        .allowsHitTesting(false)
+
+                    Image("V2BgDecoRightHillPlant")
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFit()
+                        .frame(width: 104, height: 55)
+                        .opacity(0.66)
+                        .offset(x: 154, y: V2MultipleChoicePageMetrics.rightDecoY)
+                        .allowsHitTesting(false)
+
+                    if state.selectedIndex == nil {
+                        multipleChoiceMascot(isInteractive: false)
+                    }
+
+                    if state.selectedIndex != nil, !state.feedbackPanelVisible {
+                        multipleChoiceMascot(isInteractive: true)
+                    }
                 }
-
-                V2MultipleChoiceQuestionCard(
-                    question: question,
-                    selectedIndex: state.selectedIndex,
-                    showsSourceButton: !state.feedbackPanelVisible,
-                    onSelect: {
-                        state.selectedIndex = $0
-                        state.feedbackPanelVisible = true
-                        onAnswerReady()
-                    },
-                    onSource: onSource
-                )
-                .offset(y: V2MultipleChoicePageMetrics.cardY)
-
-                Image("V2BgDecoSmallPlantCluster")
-                    .resizable()
-                    .renderingMode(.original)
-                    .scaledToFit()
-                    .frame(width: 60, height: 54)
-                    .opacity(0.66)
-                    .offset(x: -158, y: V2MultipleChoicePageMetrics.leftDecoY)
-                    .allowsHitTesting(false)
-
-                Image("V2BgDecoRightHillPlant")
-                    .resizable()
-                    .renderingMode(.original)
-                    .scaledToFit()
-                    .frame(width: 104, height: 55)
-                    .opacity(0.66)
-                    .offset(x: 154, y: V2MultipleChoicePageMetrics.rightDecoY)
-                    .allowsHitTesting(false)
-
-                if state.selectedIndex == nil {
-                    multipleChoiceMascot(isInteractive: false)
-                }
-
-                if state.selectedIndex != nil, !state.feedbackPanelVisible {
-                    multipleChoiceMascot(isInteractive: true)
-                }
+                .frame(maxWidth: .infinity)
+                .frame(height: V2MultipleChoicePageMetrics.contentHeight, alignment: .top)
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: V2MultipleChoicePageMetrics.contentHeight, alignment: .top)
             .overlay(alignment: .bottom) {
                 if let selectedIndex = state.selectedIndex, state.feedbackPanelVisible {
-                    GeometryReader { geometry in
-                        V2AnswerFeedbackPanel(
-                            text: question.feedback,
-                            isCorrect: selectedIndex == question.correctOptionIndex,
-                            onContinue: onContinue,
-                            onClose: { state.feedbackPanelVisible = false },
-                            onSource: onSource
-                        )
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                        .padding(.bottom, V2QuestionFeedbackMetrics.bottomLift(screenHeight: geometry.size.height))
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                        .zIndex(10)
-                    }
+                    V2AnswerFeedbackPanel(
+                        text: question.feedback,
+                        isCorrect: selectedIndex == question.correctOptionIndex,
+                        onContinue: onContinue,
+                        onClose: { state.feedbackPanelVisible = false },
+                        onSource: onSource
+                    )
+                    .environment(\.v2ContentWidth, V2Layout.contentWidth(for: geometry.size.width))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                    .ignoresSafeArea(.container, edges: .bottom)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(30)
                 }
             }
         }
@@ -319,75 +320,76 @@ struct V2MatchingQuestionView: View {
     @Environment(\.appLanguage) private var appLanguage
 
     var body: some View {
-        V2FlowScreen(
-            title: unitTitle,
-            showFavoriteButton: true,
-            isFavoriteSaved: state.isFavoriteSaved,
-            onBack: onBack,
-            onSource: onSource,
-            onFavorite: toggleFavorite
-        ) {
-            ZStack(alignment: .top) {
-                if showsProgressBar {
-                    V2UnitProgressBar(current: progress.current, total: progress.total)
-                        .v2PageContentWidth()
-                        .offset(y: V2MatchingPageMetrics.progressY)
+        GeometryReader { geometry in
+            V2FlowScreen(
+                title: unitTitle,
+                showFavoriteButton: true,
+                isFavoriteSaved: state.isFavoriteSaved,
+                onBack: onBack,
+                onSource: onSource,
+                onFavorite: toggleFavorite
+            ) {
+                ZStack(alignment: .top) {
+                    if showsProgressBar {
+                        V2UnitProgressBar(current: progress.current, total: progress.total)
+                            .v2PageContentWidth()
+                            .offset(y: V2MatchingPageMetrics.progressY)
+                    }
+
+                    V2MatchingPromptCard(prompt: question.prompt)
+                        .offset(y: V2MatchingPageMetrics.promptY)
+
+                    matchingGrid
+                        .offset(y: V2MatchingPageMetrics.gridY)
+
+                    sourceButton
+                        .offset(y: V2MatchingPageMetrics.sourceY(for: question.matchingPairs, contentWidth: contentWidth))
+                        .opacity(state.feedbackPanelVisible ? 0 : 1)
+                        .allowsHitTesting(!state.feedbackPanelVisible)
+
+                    Image("V2BgDecoSmallPlantCluster")
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFit()
+                        .frame(width: 60, height: 54)
+                        .opacity(0.66)
+                        .offset(x: -158, y: V2MatchingPageMetrics.leftDecoY)
+                        .allowsHitTesting(false)
+
+                    Image("V2BgDecoRightHillPlant")
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFit()
+                        .frame(width: 104, height: 55)
+                        .opacity(0.66)
+                        .offset(x: 154, y: V2MatchingPageMetrics.rightDecoY)
+                        .allowsHitTesting(false)
+
+                    if !isComplete {
+                        matchingMascot(isInteractive: false)
+                    }
+
+                    if isComplete, !state.feedbackPanelVisible {
+                        matchingMascot(isInteractive: true)
+                    }
                 }
-
-                V2MatchingPromptCard(prompt: question.prompt)
-                    .offset(y: V2MatchingPageMetrics.promptY)
-
-                matchingGrid
-                    .offset(y: V2MatchingPageMetrics.gridY)
-
-                sourceButton
-                    .offset(y: V2MatchingPageMetrics.sourceY(for: question.matchingPairs, contentWidth: contentWidth))
-                    .opacity(state.feedbackPanelVisible ? 0 : 1)
-                    .allowsHitTesting(!state.feedbackPanelVisible)
-
-                Image("V2BgDecoSmallPlantCluster")
-                    .resizable()
-                    .renderingMode(.original)
-                    .scaledToFit()
-                    .frame(width: 60, height: 54)
-                    .opacity(0.66)
-                    .offset(x: -158, y: V2MatchingPageMetrics.leftDecoY)
-                    .allowsHitTesting(false)
-
-                Image("V2BgDecoRightHillPlant")
-                    .resizable()
-                    .renderingMode(.original)
-                    .scaledToFit()
-                    .frame(width: 104, height: 55)
-                    .opacity(0.66)
-                    .offset(x: 154, y: V2MatchingPageMetrics.rightDecoY)
-                    .allowsHitTesting(false)
-
-                if !isComplete {
-                    matchingMascot(isInteractive: false)
-                }
-
-                if isComplete, !state.feedbackPanelVisible {
-                    matchingMascot(isInteractive: true)
-                }
+                .frame(maxWidth: .infinity)
+                .frame(height: V2MatchingPageMetrics.contentHeight, alignment: .top)
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: V2MatchingPageMetrics.contentHeight, alignment: .top)
             .overlay(alignment: .bottom) {
                 if isComplete, state.feedbackPanelVisible {
-                    GeometryReader { geometry in
-                        V2AnswerFeedbackPanel(
-                            text: question.feedback,
-                            isCorrect: true,
-                            onContinue: onContinue,
-                            onClose: { state.feedbackPanelVisible = false },
-                            onSource: onSource
-                        )
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                        .padding(.bottom, V2QuestionFeedbackMetrics.bottomLift(screenHeight: geometry.size.height))
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                        .zIndex(10)
-                    }
+                    V2AnswerFeedbackPanel(
+                        text: question.feedback,
+                        isCorrect: true,
+                        onContinue: onContinue,
+                        onClose: { state.feedbackPanelVisible = false },
+                        onSource: onSource
+                    )
+                    .environment(\.v2ContentWidth, V2Layout.contentWidth(for: geometry.size.width))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                    .ignoresSafeArea(.container, edges: .bottom)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(30)
                 }
             }
             .onChange(of: isComplete) { _, newValue in
@@ -632,12 +634,6 @@ private enum V2MatchingPageMetrics {
         )
         let weightedLineCapacity = scaledCharactersPerLine * 2
         return max(1, Int(ceil(Double(normalizedCount) / Double(weightedLineCapacity))))
-    }
-}
-
-private enum V2QuestionFeedbackMetrics {
-    static func bottomLift(screenHeight: CGFloat) -> CGFloat {
-        0
     }
 }
 
